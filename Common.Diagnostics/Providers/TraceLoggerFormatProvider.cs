@@ -149,7 +149,7 @@ namespace Common
                 try { workingDirectory = Directory.GetCurrentDirectory(); } catch { }; // TraceLogger.CurrentProcess.MainModule?.WorkingDirectory
 
                 scope.LogInformation($"Starting {this.GetType().Name} for: ProcessName: '{TraceLogger.ProcessName}', ProcessId: '{TraceLogger.ProcessId}', FileName: '{fileName}', WorkingDirectory: '{workingDirectory}', EntryAssemblyFullName: '{TraceLogger.EntryAssembly?.FullName}', ImageRuntimeVersion: '{TraceLogger.EntryAssembly?.ImageRuntimeVersion}', Location: '{TraceLogger.EntryAssembly?.Location}', thicksPerMillisecond: '{thicksPerMillisecond}'{Environment.NewLine}"); // "init"
-                
+
                 scope.LogDebug($"_allowedEventTypes '{_allowedEventTypes}', _showNestedFlow '{_showNestedFlow}', _flushOnWrite '{_flushOnWrite}', _cRReplace '{_CRReplace}', _lFReplace '{_LFReplace}', _timestampFormat '{_timestampFormat}'{Environment.NewLine}"); // "init" _filter '{_filter}', _categoryFilter '{_categoryFilter}', 
                 scope.LogDebug($"_processNamePadding '{_processNamePadding}', _sourcePadding '{_sourcePadding}', _categoryPadding '{_categoryPadding}', _sourceLevelPadding '{_sourceLevelPadding}, _logLevelPadding '{_logLevelPadding}'{Environment.NewLine}"); // "init"
                 scope.LogDebug($"_traceMessageFormat '{_traceMessageFormat}', _traceMessageFormatVerbose '{_traceMessageFormatVerbose}', _traceMessageFormatWarning '{_traceMessageFormatWarning}', _traceMessageFormatError '{_traceMessageFormatError}', _traceMessageFormatCritical '{_traceMessageFormatCritical}', _traceMessageFormatStart '{_traceMessageFormatStart}', _traceMessageFormatStop '{_traceMessageFormatStop}, _traceMessageFormatInlineStop '{_traceMessageFormatInlineStop}'{Environment.NewLine}"); // "init"
@@ -288,10 +288,13 @@ namespace Common
         public string getEntryMessage(TraceEntry entry, TraceEntry lastWrite, out bool isLastWriteContinuation)
         {
             isLastWriteContinuation = false;
+
+            // {placeholder} placeholderTruncate PadRightExact
             var line = default(string);
             var category = entry.Category ?? "general";
             var processName = TraceLogger.ProcessName + ".exe";
             var source = entry.Source ?? "unknown";
+
             var codeSection = entry.CodeSectionBase;
             if (processName != null && processName.Length < _processNamePadding) { processName = processName.PadRight(_processNamePadding); }
             if (source != null && source.Length < _sourcePadding) { source = source.PadRight(_sourcePadding); }
@@ -310,17 +313,20 @@ namespace Common
             var tidpid = TraceLogger.ProcessId > 0 ? $"{TraceLogger.ProcessId,5} {entry.ThreadID,4}" : $"{entry.ThreadID,4}";
             if (entry.ApartmentState != ApartmentState.Unknown) { tidpid += $" {entry.ApartmentState}"; }
 
-            var maxMessageLen = TraceLoggerFormatProvider.GetMaxMessageLen(codeSection, entry.TraceEventType);
+            var maxMessageLen = default(int?);
+            if (entry.Properties != null && entry.Properties.TryGetValue("MaxMessageLen", out var maxMessageLenObject))
+            {
+                maxMessageLen = (int?)maxMessageLenObject;
+            }
+            else
+            {
+                maxMessageLen = TraceLoggerFormatProvider.GetMaxMessageLen(codeSection, entry.TraceEventType);
+            }
 
             var messageRaw = entry.Message;
-            if (entry.GetMessage != null)
-            {
-                messageRaw = entry.GetMessage();
-            }
-            else if (entry.MessageFormat != null)
-            {
-                messageRaw = string.Format(entry.MessageFormat, entry.MessageArgs);
-            }
+            if (entry.GetMessage != null) { messageRaw = entry.GetMessage(); }
+            else if (entry.MessageFormat != null) { messageRaw = string.Format(entry.MessageFormat, entry.MessageArgs); }
+
             var message = codeSection.IsInnerScope ? "... " + messageRaw : messageRaw;
             if (maxMessageLen > 0 && message != null && message.Length > maxMessageLen) { message = message.Substring(0, maxMessageLen.Value - 3) + "..."; }
 

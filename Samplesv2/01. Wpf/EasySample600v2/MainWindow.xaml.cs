@@ -97,7 +97,7 @@ namespace EasySample
                 scope.LogDebug(new { sender = sender.GetLogString(), e = e.GetLogString() });
 
                 // log by means of the scope variable
-                scope.LogTrace(() => "this is a trace trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
+                scope.LogTrace(() => "this is a long trace trace", null, new Dictionary<string, object>() { { "MaxMessageLen", 0 } }); //  TraceLogger.LogDebug($"requestBody: {requestBody}");
                 scope.LogDebug(() => "this is a debug trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
                 scope.LogInformation(() => "this is a Information trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
                 scope.LogWarning(() => "this is a Warning trace");
