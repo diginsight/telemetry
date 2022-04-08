@@ -16,6 +16,7 @@ using System.IO;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using NanoId = Nanoid.Nanoid;
 #endregion
 
 namespace Common
@@ -95,7 +96,7 @@ namespace Common
                     var operationIdOverride = properties != null && properties.ContainsKey("OperationId") ? properties["OperationId"] as string : null;
                     if (operationIdOverride != null) { operationId = operationIdOverride; }
                 }
-                OperationID = operationId; 
+                OperationID = operationId;
                 OperationDept = Caller.OperationDept; // OperationDept
                 if (string.IsNullOrEmpty(OperationID)) { (this.OperationID, this.OperationDept) = getOperationInfo(); }
             }
@@ -179,7 +180,7 @@ namespace Common
                     var operationIdOverride = properties != null && properties.ContainsKey("OperationId") ? properties["OperationId"] as string : null;
                     if (operationIdOverride != null) { operationId = operationIdOverride; }
                 }
-                OperationID = operationId; 
+                OperationID = operationId;
                 OperationDept = Caller.OperationDept;
                 if (string.IsNullOrEmpty(OperationID)) { (this.OperationID, this.OperationDept) = getOperationInfo(); }
             }
@@ -192,7 +193,7 @@ namespace Common
                     var operationIdOverride = properties != null && properties.ContainsKey("OperationId") ? properties["OperationId"] as string : null;
                     if (operationIdOverride != null) { operationId = operationIdOverride; }
                 }
-                OperationID = operationId; // overrideOperationId && opId!=null? opId: operationID; 
+                OperationID = operationId; // overrideOperationId && opId!=null? opId: operationID;
                 OperationDept = operationDept;
             }
             //this.ModuleContext = this.Assembly != null ? LoggerFormatter.GetModuleContext(this.Assembly) : null;
@@ -668,7 +669,7 @@ namespace Common
                 {
                     return (operationContext?.RequestContext?.RequestId, operationContext?.RequestContext != null ? operationContext.RequestContext.RequestDept : 0);
                 }
-                if (string.IsNullOrEmpty(operationID)) { operationID = Guid.NewGuid().ToString(); }
+                if (string.IsNullOrEmpty(operationID)) { operationID = NanoId.Generate(size: 12); }
             }
             catch (Exception ex) { operationID = ex.Message; }
             return (operationID, 0);
