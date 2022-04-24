@@ -40,6 +40,7 @@ namespace Common
         public static SystemDiagnosticsConfig Config { get; set; }
         public static Stopwatch Stopwatch = new Stopwatch();
         internal static Process CurrentProcess { get; set; }
+        
         internal static Assembly EntryAssembly { get; set; }
         public static string ProcessName = null;
         public static string EnvironmentName = null;

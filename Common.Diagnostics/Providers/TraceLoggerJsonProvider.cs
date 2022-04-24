@@ -75,8 +75,8 @@ namespace Common
 
                 var thicksPerMillisecond = TraceLogger.Stopwatch.ElapsedTicks / TraceLogger.Stopwatch.ElapsedMilliseconds;
                 string fileName = null, workingDirectory = null;
-                try { fileName = TraceLogger.CurrentProcess?.StartInfo?.FileName; } catch { };
-                try { workingDirectory = TraceLogger.CurrentProcess.StartInfo.WorkingDirectory; } catch { };
+                try { fileName = TraceLogger.CurrentProcess?.MainModule?.FileName; } catch { };
+                try { workingDirectory = Directory.GetCurrentDirectory(); } catch { };
 
                 scope.LogInformation($"Starting {this.GetType().Name} for: ProcessName: '{TraceLogger.ProcessName}', ProcessId: '{TraceLogger.ProcessId}', FileName: '{fileName}', WorkingDirectory: '{workingDirectory}', EntryAssemblyFullName: '{TraceLogger.EntryAssembly?.FullName}', ImageRuntimeVersion: '{TraceLogger.EntryAssembly?.ImageRuntimeVersion}', Location: '{TraceLogger.EntryAssembly?.Location}', thicksPerMillisecond: '{thicksPerMillisecond}'{Environment.NewLine}"); // "init"
                 _provider = provider;

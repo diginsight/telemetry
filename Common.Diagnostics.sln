@@ -88,7 +88,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_ext", "_ext", "{1DBBED92-BD24-4C18-B63F-E699E95FB2AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasySample600v2", "Samplesv2\01. Wpf\EasySample600v2\EasySample600v2.csproj", "{F13DD8B1-69FD-4372-966D-F6C5BC4148BA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasySample600v2", "Samplesv2\01. Wpf\EasySample600v2\EasySample600v2.csproj", "{F13DD8B1-69FD-4372-966D-F6C5BC4148BA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

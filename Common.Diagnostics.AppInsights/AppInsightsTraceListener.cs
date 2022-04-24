@@ -271,8 +271,8 @@ namespace Common
 
                 var thicksPerMillisecond = TraceManager.Stopwatch.ElapsedTicks / TraceManager.Stopwatch.ElapsedMilliseconds;
                 string fileName = null, workingDirectory = null;
-                try { fileName = TraceManager.CurrentProcess?.StartInfo?.FileName; } catch { };
-                try { workingDirectory = TraceManager.CurrentProcess.StartInfo.WorkingDirectory; } catch { };
+                try { fileName = TraceLogger.CurrentProcess?.MainModule?.FileName; } catch { };
+                try { workingDirectory = Directory.GetCurrentDirectory(); } catch { };
 
                 sec.Information($"Starting AppInsightsTraceListener for: ProcessName: '{TraceManager.ProcessName}', ProcessId: '{TraceManager.ProcessId}', FileName: '{fileName}', WorkingDirectory: '{workingDirectory}', EntryAssemblyFullName: '{TraceManager.EntryAssembly?.FullName}', ImageRuntimeVersion: '{TraceManager.EntryAssembly?.ImageRuntimeVersion}', Location: '{TraceManager.EntryAssembly?.Location}', thicksPerMillisecond: '{thicksPerMillisecond}'{Environment.NewLine}"); // "init"
                 sec.Debug($"_filter '{_filter}', _categoryFilter '{_categoryFilter}', _allowedEventTypes '{_allowedEventTypes}', _flushOnWrite '{_flushOnWrite}', _trackTraceEnabled '{_trackTraceEnabled}', _trackExceptionEnabled '{_trackExceptionEnabled}', _trackEventEnabled '{_trackEventEnabled}'{Environment.NewLine}"); // "init"
