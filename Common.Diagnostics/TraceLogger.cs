@@ -692,8 +692,8 @@ namespace Common
             });
 
             var environmentJsonFile = currentDirectory == appdomainFolder ? $"{jsonFileName}.json" : Path.Combine(appdomainFolder, $"{jsonFileName}.{environment}.json");
-            builder = new ConfigurationBuilder()
-                      .AddJsonFile(jsonFile, true, true);
+            builder = new ConfigurationBuilder();
+            builder.AddJsonFile(jsonFile, true, true);
             if (File.Exists(environmentJsonFile)) { builder = builder.AddJsonFile(environmentJsonFile, true, true); }
             builder = builder.AddInMemoryCollection();
             builder.AddEnvironmentVariables();

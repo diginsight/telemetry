@@ -49,7 +49,7 @@ namespace Common
             var ret = defaultValue;
             try
             {
-                Type type = typeof(TClass); Assembly assembly = type.Assembly;
+                var type = typeof(TClass); Assembly assembly = type.Assembly;
                 var assemblyName = GetConfigName(assembly); var className = GetConfigName(type);
                 var specificName = default(string);
                 var sectionName = default(string);
