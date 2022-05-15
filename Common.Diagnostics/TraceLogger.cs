@@ -714,10 +714,12 @@ namespace Common
             if (logger == null && TraceLogger.Host != null)
             {
                 var host = TraceLogger.Host;
-                logger = host.Services.GetRequiredService<ILogger<T>>();
+                try { logger = host.Services?.GetRequiredService<ILogger<T>>(); }
+                catch (Exception) { }
                 //var loggerFactory = TraceLogger.LoggerFactory;
                 //logger = loggerFactory.CreateLogger<T>();
             }
+            //if (logger == null) { return null; }
 
             var sec = new CodeSectionScope(logger, typeof(T), null, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
             var stopTicks = TraceLogger.Stopwatch.ElapsedTicks;

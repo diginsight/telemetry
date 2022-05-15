@@ -120,7 +120,7 @@ namespace Common
             {
                 if (_logger == null) { _logger = GetEntrylogger(ref entry); }
 
-                _logger.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                _logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
             }
             else
             {
@@ -650,7 +650,11 @@ namespace Common
             loggerType = loggerType.MakeGenericType(new[] { t });
 
             var host = TraceLogger.Host;
-            var logger = host.Services.GetRequiredService(loggerType) as ILogger;
+            var logger = default(ILogger);
+            try { logger = host.Services.GetRequiredService(loggerType) as ILogger; }
+            catch (Exception) { }
+
+            //var logger = host.Services.GetRequiredService(loggerType) as ILogger;
             //var loggerFactory = TraceLogger.LoggerFactory;
             //var logger = loggerFactory.CreateLogger(loggerType);
 
