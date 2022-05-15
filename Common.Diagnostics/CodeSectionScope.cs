@@ -205,7 +205,7 @@ namespace Common
             {
                 if (_logger == null) { _logger = GetEntrylogger(ref entry); }
 
-                _logger.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                _logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
             }
             else
             {
@@ -226,7 +226,7 @@ namespace Common
             {
                 if (_logger == null) { _logger = GetEntrylogger(ref entry); }
 
-                _logger.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                _logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
             }
             else
             {
@@ -243,7 +243,7 @@ namespace Common
             {
                 if (_logger == null) { _logger = GetEntrylogger(ref entry); }
 
-                _logger.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                _logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
             }
             else
             {
@@ -278,7 +278,7 @@ namespace Common
                 {
                     if (_logger == null) { _logger = GetEntrylogger(ref entry); }
 
-                    _logger.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                    _logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
                 }
                 else
                 {
@@ -300,7 +300,7 @@ namespace Common
                 {
                     if (_logger == null) { _logger = GetEntrylogger(ref entry); }
 
-                    _logger.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                    _logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
                 }
                 else
                 {
@@ -322,7 +322,7 @@ namespace Common
             {
                 if (_logger == null) { _logger = GetEntrylogger(ref entry); }
 
-                _logger.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                _logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
             }
             else
             {
@@ -339,7 +339,7 @@ namespace Common
             {
                 if (_logger == null) { _logger = GetEntrylogger(ref entry); }
 
-                _logger.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                _logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
             }
             else
             {
@@ -374,7 +374,7 @@ namespace Common
                 {
                     if (_logger == null) { _logger = GetEntrylogger(ref entry); }
 
-                    _logger.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                    _logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
                 }
                 else
                 {
@@ -395,7 +395,7 @@ namespace Common
                 {
                     if (_logger == null) { _logger = GetEntrylogger(ref entry); }
 
-                    _logger.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                    _logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
                 }
                 else
                 {
@@ -415,7 +415,7 @@ namespace Common
             {
                 if (_logger == null) { _logger = GetEntrylogger(ref entry); }
 
-                _logger.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                _logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
             }
             else
             {
@@ -432,7 +432,7 @@ namespace Common
             {
                 if (_logger == null) { _logger = GetEntrylogger(ref entry); }
 
-                _logger.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                _logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
             }
             else
             {
@@ -451,7 +451,7 @@ namespace Common
                 {
                     if (_logger == null) { _logger = GetEntrylogger(ref entry); }
 
-                    _logger.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                    _logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
                 }
                 else
                 {
@@ -471,7 +471,7 @@ namespace Common
             {
                 if (_logger == null) { _logger = GetEntrylogger(ref entry); }
 
-                _logger.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                _logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
             }
             else
             {
@@ -489,7 +489,7 @@ namespace Common
             {
                 if (_logger == null) { _logger = GetEntrylogger(ref entry); }
 
-                _logger.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                _logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
             }
             else
             {
@@ -508,7 +508,7 @@ namespace Common
                 {
                     if (_logger == null) { _logger = GetEntrylogger(ref entry); }
 
-                    _logger.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                    _logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
                 }
                 else
                 {
@@ -528,7 +528,7 @@ namespace Common
             {
                 if (_logger == null) { _logger = GetEntrylogger(ref entry); }
 
-                _logger.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                _logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
             }
             else
             {
@@ -545,7 +545,7 @@ namespace Common
             {
                 if (_logger == null) { _logger = GetEntrylogger(ref entry); }
 
-                _logger.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                _logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
             }
             else
             {
@@ -564,7 +564,7 @@ namespace Common
                 {
                     if (_logger == null) { _logger = GetEntrylogger(ref entry); }
 
-                    _logger.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                    _logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
                 }
                 else
                 {
@@ -603,7 +603,7 @@ namespace Common
             {
                 if (_logger == null) { _logger = GetEntrylogger(ref entry); }
 
-                _logger.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                _logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
             }
             else
             {
@@ -627,7 +627,7 @@ namespace Common
                     var entry = new TraceEntry() { TraceEventType = TraceEventType.Stop, LogLevel = this.LogLevel, TraceSource = this.TraceSource, Message = null, Properties = this.Properties, Source = this.Source, Category = this.Category, SourceLevel = this.SourceLevel, CodeSectionBase = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
                     if (_logger == null) { _logger = GetEntrylogger(ref entry); }
 
-                    _logger.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                    _logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
                 }
                 else
                 {
