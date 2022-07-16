@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+		<PackageProjectUrl>https://github.com/diginsight/telemetry</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/diginsight/telemetry.git</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>telemetry diginsight diagnostic insight</PackageTags>
+		<PackageIcon>TelemetryBig.png</PackageIcon>
+		<Authors>diginsight</Authors>
+		<Description>Common.Diagnostics.Logstrings.Identity provides logstrings for Microsoft.Identity classes</Description>
+		<SignAssembly>true</SignAssembly>
+		<AssemblyOriginatorKeyFile>diginsight.snk</AssemblyOriginatorKeyFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Include="..\images\01. Project image\Telemetry\TelemetryBig.png" Link="TelemetryBig.png">
+	    <PackagePath></PackagePath>
+	    <Pack>True</Pack>
+	  </None>
+	  <None Include="..\LICENSE.md" Link="LICENSE.md">
+	    <PackagePath></PackagePath>
+	    <Pack>True</Pack>
+	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Identity.Client" Version="4.45.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Common.Diagnostics\Common.Diagnostics.csproj" />
+	</ItemGroup>
+
+</Project>

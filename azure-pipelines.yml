@@ -43,6 +43,10 @@ variables:
   commonDiagnosticSerilogBaseName: $(projectBaseName).Serilog
   commonDiagnosticLog4netBaseName: $(projectBaseName).Log4net
   commonDiagnosticAppinsightsBaseName: $(projectBaseName).Appinsights
+  commonDiagnosticLogstringsAzureBaseName: $(projectBaseName).Logstrings.Azure
+  commonDiagnosticLogstringsIdentityBaseName: $(projectBaseName).Logstrings.Identity
+  commonDiagnosticLogstringsWpfBaseName: $(projectBaseName).Logstrings.Wpf
+  
   commonDiagnosticProj: ./$(commonDiagnosticBaseName)/$(commonDiagnosticBaseName).csproj
   commonDiagnosticv2Proj: ./$(commonDiagnosticv2BaseName)/$(commonDiagnosticv2BaseName).csproj
   commonDiagnosticCoreProj: ./$(commonDiagnosticCoreBaseName)/$(commonDiagnosticCoreBaseName).csproj
@@ -51,12 +55,17 @@ variables:
   commonDiagnosticSerilogProj: ./$(commonDiagnosticSerilogBaseName)/$(commonDiagnosticSerilogBaseName).csproj
   commonDiagnosticLog4netProj: ./$(commonDiagnosticLog4netBaseName)/$(commonDiagnosticLog4netBaseName).csproj
   commonDiagnosticAppinsightsProj: ./$(commonDiagnosticAppinsightsBaseName)/$(commonDiagnosticAppinsightsBaseName).csproj
-  allProjects: '**/@($(commonDiagnosticProj)|$(commonDiagnosticCoreProj)|$(commonDiagnosticFullProj)|$(commonDiagnosticWinProj)|$(commonDiagnosticSerilogProj)|$(commonDiagnosticLog4netProj)|$(commonDiagnosticAppinsightsProj))' 
-  buildBaseNames: '$(commonDiagnosticBaseName)|$(commonDiagnosticCoreBaseName)|$(commonDiagnosticFullBaseName)|$(commonDiagnosticWinBaseName)|$(commonDiagnosticSerilogBaseName)|$(commonDiagnosticLog4netBaseName)|$(commonDiagnosticAppinsightsBaseName)' 
+  
+  commonDiagnosticLogstringsAzureProj: ./$(commonDiagnosticLogstringsAzureBaseName)/$(commonDiagnosticLogstringsAzureBaseName).csproj
+  commonDiagnosticLogstringsIdentityProj: ./$(commonDiagnosticLogstringsIdentityBaseName)/$(commonDiagnosticLogstringsIdentityBaseName).csproj
+  commonDiagnosticLogstringsWpfProj: ./$(commonDiagnosticLogstringsWpfBaseName)/$(commonDiagnosticLogstringsWpfBaseName).csproj
+  
+  allProjects: '**/@($(commonDiagnosticProj)|$(commonDiagnosticCoreProj)|$(commonDiagnosticFullProj)|$(commonDiagnosticWinProj)|$(commonDiagnosticSerilogProj)|$(commonDiagnosticLog4netProj)|$(commonDiagnosticAppinsightsProj)|$(commonDiagnosticLogstringsAzureProj)|$(commonDiagnosticLogstringsIdentityProj)|$(commonDiagnosticLogstringsWpfProj) )' 
+  buildBaseNames: '$(commonDiagnosticBaseName)|$(commonDiagnosticCoreBaseName)|$(commonDiagnosticFullBaseName)|$(commonDiagnosticWinBaseName)|$(commonDiagnosticSerilogBaseName)|$(commonDiagnosticLog4netBaseName)|$(commonDiagnosticAppinsightsBaseName)|$(commonDiagnosticLogstringsAzureBaseName)|$(commonDiagnosticLogstringsIdentityBaseName)|$(commonDiagnosticLogstringsWpfBaseName)' 
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release' #Debug,
-  publishBaseNames: '$(commonDiagnosticBaseName)|$(commonDiagnosticWinBaseName)|$(commonDiagnosticSerilogBaseName)|$(commonDiagnosticLog4netBaseName)|$(commonDiagnosticAppinsightsBaseName)' 
-  buildProjectFiles: '$(commonDiagnosticBaseName).csproj|$(commonDiagnosticCoreBaseName).csproj|$(commonDiagnosticFullBaseName).csproj|$(commonDiagnosticWinBaseName).csproj|$(commonDiagnosticSerilogBaseName).csproj|$(commonDiagnosticLog4netBaseName).csproj|$(commonDiagnosticAppinsightsBaseName).csproj' 
+  publishBaseNames: '$(commonDiagnosticBaseName)|$(commonDiagnosticWinBaseName)|$(commonDiagnosticSerilogBaseName)|$(commonDiagnosticLog4netBaseName)|$(commonDiagnosticAppinsightsBaseName) |$(commonDiagnosticLogstringsAzureBaseName)|$(commonDiagnosticLogstringsIdentityBaseName)|$(commonDiagnosticLogstringsWpfBaseName)' 
+  buildProjectFiles: '$(commonDiagnosticBaseName).csproj|$(commonDiagnosticCoreBaseName).csproj|$(commonDiagnosticFullBaseName).csproj|$(commonDiagnosticWinBaseName).csproj|$(commonDiagnosticSerilogBaseName).csproj|$(commonDiagnosticLog4netBaseName).csproj|$(commonDiagnosticAppinsightsBaseName).csproj |$(commonDiagnosticLogstringsAzureBaseName).csproj|$(commonDiagnosticLogstringsIdentityBaseName).csproj|$(commonDiagnosticLogstringsWpfBaseName).csproj' 
   publishNupkgFilter: |
     **\bin\$(buildConfiguration)\**\*.$(computedValues.version).nupkg
     !**\bin\$(buildConfiguration)\**\Common.Diagnostics.Core.$(computedValues.version).nupkg
