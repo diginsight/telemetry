@@ -43,7 +43,7 @@ namespace Common
         }
 
         private static int _maxLogStringLen = 512;
-        private static int _maxThicks = 1024;
+        private static int _maxThicks = 1024; 
         public static string GetLogString<T>(this T pthis, Func<string, string> adjust)
         {
             var res = pthis.GetLogString();
