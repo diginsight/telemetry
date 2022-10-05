@@ -29,11 +29,12 @@ namespace Common
 
     public static partial class LogStringExtensions
     {
-        public static IProvideLogString LogStringProvider;
+        private static readonly ICollection<IProvideLogString> providers = new List<IProvideLogString>();
 
         public static void RegisterLogstringProvider(IProvideLogString logStringProvider)
         {
-            LogStringProvider = logStringProvider;
+            //LogStringProvider += logStringProvider;
+            providers.Add(logStringProvider);
         }
 
         private static int _maxLogStringLen = 512;
@@ -87,11 +88,17 @@ namespace Common
                     case IEnumerable o: return o.ToLogStringInternal();
                 }
 
-                if (LogStringProvider != null)
+                //if (LogStringProvider != null)
+                //{
+                //    var arg = new HandledEventArgs();
+                //    var s = LogStringProvider.ToLogString(pthis, arg);
+                //    if (!string.IsNullOrEmpty(s) || arg.Handled) { return s; }
+                //}
+                foreach (IProvideLogString provider in providers)
                 {
                     var arg = new HandledEventArgs();
-                    var s = LogStringProvider.ToLogString(pthis, arg);
-                    if (!string.IsNullOrEmpty(s) || arg.Handled) { return s; }
+                    string logString = provider.ToLogString(pthis, arg);
+                    if (arg.Handled) { return logString; }
                 }
 
                 return pthis.GetType().ToLogStringInternal();
