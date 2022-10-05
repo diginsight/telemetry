@@ -36,6 +36,11 @@ namespace Common
             //LogStringProvider += logStringProvider;
             providers.Add(logStringProvider);
         }
+        public static void AddLogstringProvider(IProvideLogString logStringProvider)
+        {
+            //LogStringProvider += logStringProvider;
+            providers.Add(logStringProvider);
+        }
 
         private static int _maxLogStringLen = 512;
         private static int _maxThicks = 1024;
