@@ -36,10 +36,16 @@ namespace Common
         public const string CONFIGSETTING_MAXMESSAGELENINFO = "MaxMessageLenInfo"; public const int CONFIGDEFAULT_MAXMESSAGELENINFO = 512;
         public const string CONFIGSETTING_MAXMESSAGELENWARNING = "MaxMessageLenWarning"; public const int CONFIGDEFAULT_MAXMESSAGELENWARNING = 1024;
         public const string CONFIGSETTING_MAXMESSAGELENERROR = "MaxMessageLenError"; public const int CONFIGDEFAULT_MAXMESSAGELENERROR = -1;
+
         public const string CONFIGSETTING_PROCESSNAMEPADDING = "ProcessNamePadding"; public const int CONFIGDEFAULT_PROCESSNAMEPADDING = 15;
+        public const string CONFIGSETTING_PROCESSNAMEMAXLEN = "ProcessNameMaxLen"; public const int CONFIGDEFAULT_PROCESSNAMEMAXLEN = 30;
+
         public const string CONFIGSETTING_SOURCEPADDING = "SourcePadding"; public const int CONFIGDEFAULT_SOURCEPADDING = 38;
+        public const string CONFIGSETTING_SOURCEMAXLEN = "SourceMaxLen"; public const int CONFIGDEFAULT_SOURCEMAXLEN = 60;
         public const string CONFIGSETTING_CATEGORYPADDING = "CategoryPadding"; public const int CONFIGDEFAULT_CATEGORYPADDING = 45;
+        public const string CONFIGSETTING_CATEGORYMAXLEN = "CategoryMaxLen"; public const int CONFIGDEFAULT_CATEGORYMAXLEN = 50;
         public const string CONFIGSETTING_SOURCELEVELPADDING = "SourceLevelPadding"; public const int CONFIGDEFAULT_SOURCELEVELPADDING = 11;
+        public const string CONFIGSETTING_SOURCELEVELMAXLEN = "SourceLevelMaxLen"; public const int CONFIGDEFAULT_SOURCELEVELMAXLEN = 20;
         public const string CONFIGSETTING_LOGLEVELPADDING = "LogLevelPadding"; public const int CONFIGDEFAULT_LOGLEVELPADDING = 11;
         public const string CONFIGSETTING_DELTAPADDING = "DeltaPadding"; public const int CONFIGDEFAULT_DELTAPADDING = 5;
         public const string CONFIGSETTING_LASTWRITECONTINUATIONENABLED = "LastWriteContinuationEnabled"; public const bool CONFIGDEFAULT_LASTWRITECONTINUATIONENABLED = false;
@@ -71,7 +77,7 @@ namespace Common
         public string _CRReplace, _LFReplace;
         public string _timestampFormat;
         public bool _showNestedFlow, _showTraceCost, _flushOnWrite;
-        public int _processNamePadding, _sourcePadding, _categoryPadding, _sourceLevelPadding, _logLevelPadding, _deltaPadding, _traceDeltaPadding, _traceMessageFormatPrefixLen;
+        public int _processNamePadding, _processNameMaxlen, _sourcePadding, _sourceMaxlen, _categoryPadding, _categoryMaxlen, _sourceLevelPadding, _sourceLevelMaxlen, _logLevelPadding, _deltaPadding, _traceDeltaPadding, _traceMessageFormatPrefixLen;
         public string _traceMessageFormatPrefix, _traceMessageFormat, _traceMessageFormatVerbose, _traceMessageFormatInformation, _traceMessageFormatWarning, _traceMessageFormatError, _traceMessageFormatCritical;
         public string _traceMessageFormatStart, _traceMessageFormatStop, _traceMessageFormatInlineStop, _traceMessageFormatSuspend, _traceMessageFormatResume, _traceMessageFormatTransfer;
         public string _traceDeltaDefault;
@@ -119,10 +125,16 @@ namespace Common
                 _showNestedFlow = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, bool>(CONFIGSETTING_SHOWNESTEDFLOW, CONFIGDEFAULT_SHOWNESTEDFLOW, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
                 _showTraceCost = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, bool>(CONFIGSETTING_SHOWTRACECOST, CONFIGDEFAULT_SHOWTRACECOST, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
                 _flushOnWrite = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, bool>(CONFIGSETTING_FLUSHONWRITE, CONFIGDEFAULT_FLUSHONWRITE, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                
                 _processNamePadding = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_PROCESSNAMEPADDING, CONFIGDEFAULT_PROCESSNAMEPADDING, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                _processNameMaxlen = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_PROCESSNAMEMAXLEN, CONFIGDEFAULT_PROCESSNAMEMAXLEN, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
                 _sourcePadding = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_SOURCEPADDING, CONFIGDEFAULT_SOURCEPADDING, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                _sourceMaxlen = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_SOURCEMAXLEN, CONFIGDEFAULT_SOURCEMAXLEN, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
                 _categoryPadding = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_CATEGORYPADDING, CONFIGDEFAULT_CATEGORYPADDING, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                _categoryMaxlen = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_CATEGORYMAXLEN, CONFIGDEFAULT_CATEGORYMAXLEN, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
                 _sourceLevelPadding = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_SOURCELEVELPADDING, CONFIGDEFAULT_SOURCELEVELPADDING, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                _sourceLevelMaxlen = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_SOURCELEVELMAXLEN, CONFIGDEFAULT_SOURCELEVELMAXLEN, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                
                 _logLevelPadding = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_LOGLEVELPADDING, CONFIGDEFAULT_LOGLEVELPADDING, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
 
                 _deltaPadding = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_DELTAPADDING, CONFIGDEFAULT_DELTAPADDING, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
@@ -297,14 +309,14 @@ namespace Common
 
             var codeSection = entry.CodeSectionBase;
             if (processName != null && processName.Length < _processNamePadding) { processName = processName.PadRight(_processNamePadding); }
-            if (source != null && source.Length < _sourcePadding) { source = source.PadRight(_sourcePadding); }
-            if (source.Length > _sourcePadding) { _sourcePadding = source.Length; }
-            if (category != null && category.Length < _categoryPadding) { category = category.PadRight(_categoryPadding); }
-            if (category.Length > _categoryPadding) { _categoryPadding = category.Length; }
+            if (source != null && source.Length > _sourcePadding) { _sourcePadding = source.Length < _sourceMaxlen ? source.Length: _sourceMaxlen; } 
+            if (source != null && source.Length != _sourcePadding) { source = source.PadRightExact(_sourcePadding); }
+            if (category.Length > _categoryPadding) { _categoryPadding = category.Length < _categoryMaxlen ? category.Length: _categoryMaxlen; }
+            if (category != null && category.Length < _categoryPadding) { category = category.PadRightExact(_categoryPadding); }
 
             var sourceLevel = entry.SourceLevel.ToString();
-            if (sourceLevel != null && sourceLevel.Length < _sourceLevelPadding) { sourceLevel = sourceLevel.PadRight(_sourceLevelPadding); }
-            if (sourceLevel.Length > _sourceLevelPadding) { _sourceLevelPadding = sourceLevel.Length; }
+            if (sourceLevel.Length > _sourceLevelPadding) { _sourceLevelPadding = sourceLevel.Length < _sourceLevelMaxlen ? sourceLevel.Length: _sourceLevelMaxlen; }
+            if (sourceLevel != null && sourceLevel.Length != _sourceLevelPadding) { sourceLevel = sourceLevel.PadRightExact(_sourceLevelPadding); }
 
             var logLevel = entry.LogLevel.ToString();
             if (logLevel != null && logLevel.Length < _logLevelPadding) { logLevel = logLevel.PadRight(_logLevelPadding); }
