@@ -125,7 +125,6 @@ namespace Common
                 _showNestedFlow = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, bool>(CONFIGSETTING_SHOWNESTEDFLOW, CONFIGDEFAULT_SHOWNESTEDFLOW, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
                 _showTraceCost = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, bool>(CONFIGSETTING_SHOWTRACECOST, CONFIGDEFAULT_SHOWTRACECOST, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
                 _flushOnWrite = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, bool>(CONFIGSETTING_FLUSHONWRITE, CONFIGDEFAULT_FLUSHONWRITE, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
-                
                 _processNamePadding = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_PROCESSNAMEPADDING, CONFIGDEFAULT_PROCESSNAMEPADDING, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
                 _processNameMaxlen = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_PROCESSNAMEMAXLEN, CONFIGDEFAULT_PROCESSNAMEMAXLEN, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
                 _sourcePadding = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_SOURCEPADDING, CONFIGDEFAULT_SOURCEPADDING, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
@@ -134,7 +133,6 @@ namespace Common
                 _categoryMaxlen = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_CATEGORYMAXLEN, CONFIGDEFAULT_CATEGORYMAXLEN, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
                 _sourceLevelPadding = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_SOURCELEVELPADDING, CONFIGDEFAULT_SOURCELEVELPADDING, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
                 _sourceLevelMaxlen = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_SOURCELEVELMAXLEN, CONFIGDEFAULT_SOURCELEVELMAXLEN, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
-                
                 _logLevelPadding = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_LOGLEVELPADDING, CONFIGDEFAULT_LOGLEVELPADDING, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
 
                 _deltaPadding = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_DELTAPADDING, CONFIGDEFAULT_DELTAPADDING, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
@@ -158,7 +156,7 @@ namespace Common
                 var thicksPerMillisecond = TraceLogger.Stopwatch.ElapsedTicks / TraceLogger.Stopwatch.ElapsedMilliseconds;
                 string fileName = null, workingDirectory = null;
                 try { fileName = TraceLogger.CurrentProcess?.MainModule?.FileName; } catch { };
-                try { workingDirectory = Directory.GetCurrentDirectory(); } catch { }; 
+                try { workingDirectory = Directory.GetCurrentDirectory(); } catch { };
 
                 scope.LogInformation($"Starting {this.GetType().Name} for: ProcessName: '{TraceLogger.ProcessName}', ProcessId: '{TraceLogger.ProcessId}', FileName: '{fileName}', WorkingDirectory: '{workingDirectory}', EntryAssemblyFullName: '{TraceLogger.EntryAssembly?.FullName}', ImageRuntimeVersion: '{TraceLogger.EntryAssembly?.ImageRuntimeVersion}', Location: '{TraceLogger.EntryAssembly?.Location}', thicksPerMillisecond: '{thicksPerMillisecond}'{Environment.NewLine}"); // "init"
 
@@ -309,14 +307,14 @@ namespace Common
 
             var codeSection = entry.CodeSectionBase;
             if (processName != null && processName.Length < _processNamePadding) { processName = processName.PadRight(_processNamePadding); }
-            if (source != null && source.Length > _sourcePadding) { _sourcePadding = source.Length < _sourceMaxlen ? source.Length: _sourceMaxlen; } 
-            if (source != null && source.Length != _sourcePadding) { source = source.PadRightExact(_sourcePadding); }
-            if (category.Length > _categoryPadding) { _categoryPadding = category.Length < _categoryMaxlen ? category.Length: _categoryMaxlen; }
-            if (category != null && category.Length < _categoryPadding) { category = category.PadRightExact(_categoryPadding); }
+            if (source != null && source.Length < _sourcePadding) { source = source.PadRight(_sourcePadding); }
+            if (source.Length > _sourcePadding) { _sourcePadding = Min(source.Length, _sourceMaxlen); source = source.PadRightExact(_sourcePadding); }
+            if (category != null && category.Length < _categoryPadding) { category = category.PadRight(_categoryPadding); }
+            if (category.Length > _categoryPadding) { _categoryPadding = Min(category.Length, _categoryMaxlen); category = category.PadRightExact(_categoryPadding); }
 
             var sourceLevel = entry.SourceLevel.ToString();
-            if (sourceLevel.Length > _sourceLevelPadding) { _sourceLevelPadding = sourceLevel.Length < _sourceLevelMaxlen ? sourceLevel.Length: _sourceLevelMaxlen; }
-            if (sourceLevel != null && sourceLevel.Length != _sourceLevelPadding) { sourceLevel = sourceLevel.PadRightExact(_sourceLevelPadding); }
+            if (sourceLevel != null && sourceLevel.Length < _sourceLevelPadding) { sourceLevel = sourceLevel.PadRight(_sourceLevelPadding); }
+            if (sourceLevel.Length > _sourceLevelPadding) { _sourceLevelPadding = sourceLevel.Length; }
 
             var logLevel = entry.LogLevel.ToString();
             if (logLevel != null && logLevel.Length < _logLevelPadding) { logLevel = logLevel.PadRight(_logLevelPadding); }

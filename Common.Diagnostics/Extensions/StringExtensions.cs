@@ -79,7 +79,7 @@ namespace Common
             if (s == null) { return padchar == null ? s : new string(padchar.Value, size); }
 
             if (s.Length > size) { s = s.Substring(0, size); }
-            if (s.Length < size) s = s.PadRight(size);
+            if (s.Length < size) s = s.PadLeft(size);
             return s;
         }
         public static string PadRightExact(this string pthis, int size, char? padchar = null)
@@ -88,7 +88,7 @@ namespace Common
             if (s == null) { return padchar == null ? s : new string(padchar.Value, size); }
 
             if (s.Length > size) { s = s.Substring(s.Length - size); }
-            if (s.Length < size) s = s.PadLeft(size);
+            if (s.Length < size) s = s.PadRight(size);
             return s;
         }
         public static string TrimSafe(this string pthis)
