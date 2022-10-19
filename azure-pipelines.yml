@@ -420,7 +420,7 @@ stages:
               ScriptType: 'FilePath'
               ScriptPath: '.\scripts\v1\06. Copy2AzureStorage.ps1'
               ScriptArguments: '-connectionString ''$(ConnectionStringDevdgwsamplesstorage)'' -sourceFolder $(packagesFolder) -azureShare ''$(azureShare)'' -rootDir ''$(rootDir)'' -version ''$(computedValues.version)'''
-              azureSubscription: 'MCAPS-Hybrid-darioa'
+              azureSubscription: 'Microsoft Azure Internal Consumption(6c310049-95d6-4647-b55a-08f668920781)'
               azurePowerShellVersion: 'LatestVersion'
             name: psCopy2AzureStorageDebug
             env:
