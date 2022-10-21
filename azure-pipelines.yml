@@ -405,7 +405,7 @@ stages:
               azureSubscription: 'MCAPS-Hybrid-darioa'
               KeyVaultName: 'dev-dgw-001-kv'
               SecretsFilter: '*'
-            displayName: Get KeyVault Secrets  ('dev-diginsight-kv')
+            displayName: Get KeyVault Secrets  ('dev-dgw-001-kv')
             enabled: true
 
           - task: PowerShell@2
@@ -420,7 +420,7 @@ stages:
               ScriptType: 'FilePath'
               ScriptPath: '.\scripts\v1\06. Copy2AzureStorage.ps1'
               ScriptArguments: '-connectionString ''$(ConnectionStringDevdgwsamplesstorage)'' -sourceFolder $(packagesFolder) -azureShare ''$(azureShare)'' -rootDir ''$(rootDir)'' -version ''$(computedValues.version)'''
-              azureSubscription: 'Microsoft Azure Internal Consumption(6c310049-95d6-4647-b55a-08f668920781)'
+              azureSubscription: 'MCAPS-Hybrid-darioa'
               azurePowerShellVersion: 'LatestVersion'
             name: psCopy2AzureStorageDebug
             env:
