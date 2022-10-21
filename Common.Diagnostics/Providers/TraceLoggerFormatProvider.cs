@@ -343,7 +343,7 @@ namespace Common
             var nesting = getNesting(entry);
             //string operationID = !string.IsNullOrEmpty(entry.RequestContext?.RequestId) ? entry.RequestContext?.RequestId : "null";
             string operationID = entry.CodeSectionBase?.OperationID;
-            string operationIdPadded = operationID.PadRightExact(12);
+            string operationIdPadded = operationID.PadRightExact(12, null, false);
             var now = DateTime.Now.ToString(_timestampFormat);
 
             var delta = ""; var lastLineDelta = ""; var lastLineDeltaSB = new StringBuilder();

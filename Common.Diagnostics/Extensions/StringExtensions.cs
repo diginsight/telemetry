@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks; 
+using System.Threading.Tasks;
 #endregion
 
 namespace Common
@@ -52,7 +52,7 @@ namespace Common
             {
                 var converter = TypeDescriptor.GetConverter(typeof(T));
                 if (converter == null) { return def; }
-                if (input==null) { return def; }
+                if (input == null) { return def; }
 
                 // Cast ConvertFromString(string text) : object to (T)
                 return (T)converter.ConvertFrom(input);
@@ -78,16 +78,16 @@ namespace Common
             var s = pthis;
             if (s == null) { return padchar == null ? s : new string(padchar.Value, size); }
 
-            if (s.Length > size) { s = s.Substring(0, size); }
+            if (s.Length > size) { s = s.Substring(s.Length - size); ; }
             if (s.Length < size) s = s.PadLeft(size);
             return s;
         }
-        public static string PadRightExact(this string pthis, int size, char? padchar = null)
+        public static string PadRightExact(this string pthis, int size, char? padchar = null, bool truncateWithEllipses = true)
         {
             var s = pthis;
             if (s == null) { return padchar == null ? s : new string(padchar.Value, size); }
 
-            if (s.Length > size) { s = s.Substring(s.Length - size); }
+            if (s.Length > size) { s = truncateWithEllipses && size > 3 ? $"{s.Substring(0, size - 3)}..." : s.Substring(0, size); }
             if (s.Length < size) s = s.PadRight(size);
             return s;
         }
