@@ -78,20 +78,20 @@ foreach ($part in $parts) {
     
     $path = "$path\$part"
     try {
-        $directory = Get-AzStorageFile -ShareName $share.Name -Path $path | where { $_.GetType().Name -eq "CloudFileDirectory" }
+        $directory = Get-AzStorageFile -Share $share.CloudFileShare -Path $path | where { $_.GetType().Name -eq "CloudFileDirectory" }
         $ex = $null;
-        Write-Host "Get-AzStorageFile -Share '$share' -Path '$path' => ok"
+        Write-Host "Get-AzStorageFile -Share '$share.CloudFileShare' -Path '$path' => ok"
     } catch {
         $ex = "fault";
-        Write-Host "Get-AzStorageFile -Share '$share' -Path '$path' => $ex"
+        Write-Host "Get-AzStorageFile -Share '$share.CloudFileShare' -Path '$path' => $ex"
     }
     if (![string]::IsNullOrEmpty($ex)) {
         Write-Host "creating folder: $path"
-        $directory = New-AzStorageDirectory -Share $share -Path $path 
+        $directory = New-AzStorageDirectory -Share $share.CloudFileShare -Path $path 
     }
 }
 
-$lastdir = Get-AzStorageFile -ShareName $share.Name -ErrorAction SilentlyContinue | where { $_.Name -like "$($path)*" } | select -Last 1
+$lastdir = Get-AzStorageFile -Share $share.CloudFileShare -ErrorAction SilentlyContinue | where { $_.Name -like "$($path)*" } | select -Last 1
 if ($null -ne $lastdir) {
     # make the new dir name progressive
     if ($lastdir.Name -match "$($azureDirectory)_(\d+)") {
@@ -116,7 +116,7 @@ foreach ($folder in $folders) {
     $newFolderPath = $path + $f
     # create a directory in the share for each folder
     Write-Host "creating folder: $newFolderPath"
-    New-AzStorageDirectory -ShareName $share.Name -Path $newFolderPath -ErrorAction SilentlyContinue
+    New-AzStorageDirectory -Share $share.CloudFileShare -Path $newFolderPath -ErrorAction SilentlyContinue
     Write-Host "create folder: $newFolderPath"
 
 }
@@ -129,7 +129,7 @@ foreach ($file in $Files) {
     $newFilePath = $path + $f
     #upload the files to the storage
     Write-Host "copying file: '$($file.FullName)' to $newFilePath"
-    Set-AzStorageFileContent -ShareName $share.Name -Source $file.FullName -Path $newFilePath -Force
+    Set-AzStorageFileContent -Share $share.CloudFileShare -Source $file.FullName -Path $newFilePath -Force
     Write-Host "copyed file: $newFilePath"
 }
 
