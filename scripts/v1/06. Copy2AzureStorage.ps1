@@ -19,7 +19,7 @@ Write-Host "filePattern: $filePattern"
 Get-Module -ListAvailable
 
 #Import-Module Az
-Import-Module Azure
+Import-Module Az.Storage
 $scriptFolder = $($PSScriptRoot.TrimEnd('\'));
 Import-Module "$scriptFolder\Common.ps1" 
  
