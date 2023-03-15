@@ -19,7 +19,7 @@ Write-Host "filePattern: $filePattern"
 Get-Module -ListAvailable
 
 #Import-Module Az
-Import-Module Az.Storage
+Import-Module Azure
 $scriptFolder = $($PSScriptRoot.TrimEnd('\'));
 Import-Module "$scriptFolder\Common.ps1" 
  
@@ -31,7 +31,7 @@ $agentBuildDirectory = "$($env:AGENT_BUILDDIRECTORY)"
 $buildConfiguration =  "$($env:BUILDCONFIGURATION)" 
 if ([string]::IsNullOrEmpty($agentBuildDirectory)) { $agentBuildDirectory = "E:\dev\97. Diginsight\" }
 if ([string]::IsNullOrEmpty($connectionString)) { $connectionString = "$($env:CONNECTIONSTRING)" }
-if ([string]::IsNullOrEmpty($connectionString)) { $connectionString = "DefaultEndpointsProtocol=https;AccountName=devdgwsamplesstorage;AccountKey=XXXXX;BlobEndpoint=https://devdgwsamplesstorage.blob.core.windows.net/;QueueEndpoint=https://devdgwsamplesstorage.queue.core.windows.net/;TableEndpoint=https://devdgwsamplesstorage.table.core.windows.net/;FileEndpoint=https://devdgwsamplesstorage.file.core.windows.net/;" }
+if ([string]::IsNullOrEmpty($connectionString)) { $connectionString = "<connectionstring>;" }
 if ([string]::IsNullOrEmpty($sourceFolder)) { $sourceFolder = "$($env:SOURCEFOLDER)" }
 if ([string]::IsNullOrEmpty($sourceFolder)) { $sourceFolder = "packages" }
 if ([string]::IsNullOrEmpty($azureShare))  { $azureShare = "$($env:AZURESHARE)" }
