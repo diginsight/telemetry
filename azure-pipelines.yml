@@ -216,6 +216,13 @@ stages:
       displayName: SetAssemblyVersion
       enabled: true
       continueOnError: true
+    - task: PowerShell@2
+      displayName: Set VERSION environment variable
+      inputs:
+        targetType: inline
+        script: |
+          $version = "$(computedValues.version)" # Set the version value here
+          Write-Host "##vso[task.setvariable variable=VERSION]$version"
 
     - task: PowerShell@2
       inputs:
