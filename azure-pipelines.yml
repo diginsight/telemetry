@@ -151,25 +151,25 @@ stages:
       displayName: CommitChanges
       enabled: true
 
-    - bash: |
-        curl -fL -XPUT -H "Authorization:Bearer $(System.AccessToken)" -H "Content-Type:application/json" \
-        -d '{
-          "id": "$(versionGroupId)",
-          "type": "Vsts",
-          "name": "versionGroup",
-          "variables": {
-            "versionGroupId": {
-              "isSecret": false,
-              "value": "$(versionGroupId)"
-            },
-            "version": {
-              "isSecret": false,
-              "value": "$(computedValues.version)"
-            }
-          }
-        }' \
-        $(System.TeamFoundationCollectionUri)/$(System.TeamProject)/_apis/distributedtask/variablegroups/$(versionGroupId)?api-version=7.0
-      displayName: 'Set variable in variable group to current $(computedValues.version)'
+    # - bash: |
+    #     curl -fL -XPUT -H "Authorization:Bearer $(System.AccessToken)" -H "Content-Type:application/json" \
+    #     -d '{
+    #       "id": "$(versionGroupId)",
+    #       "type": "Vsts",
+    #       "name": "versionGroup",
+    #       "variables": {
+    #         "versionGroupId": {
+    #           "isSecret": false,
+    #           "value": "$(versionGroupId)"
+    #         },
+    #         "version": {
+    #           "isSecret": false,
+    #           "value": "$(computedValues.version)"
+    #         }
+    #       }
+    #     }' \
+    #     $(System.TeamFoundationCollectionUri)/$(System.TeamProject)/_apis/distributedtask/variablegroups/$(versionGroupId)?api-version=7.0
+    #   displayName: 'Set variable in variable group to current $(computedValues.version)'
 
   - job: Build_Assemblies
     dependsOn: Increment_Version
