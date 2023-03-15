@@ -168,7 +168,7 @@ stages:
             }
           }
         }' \
-        $(System.TeamFoundationCollectionUri)/$(System.TeamProject)/_apis/distributedtask/variablegroups/$(versionGroupId)?api-version=5.0-preview.1
+        $(System.TeamFoundationCollectionUri)/$(System.TeamProject)/_apis/distributedtask/variablegroups/$(versionGroupId)?api-version=7.0
       displayName: 'Set variable in variable group to current $(computedValues.version)'
 
   - job: Build_Assemblies
