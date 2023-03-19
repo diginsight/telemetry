@@ -29,7 +29,7 @@ Start-Transcript -Path "\Logs\$scriptName.log" -Append
 
 $agentBuildDirectory = "$($env:AGENT_BUILDDIRECTORY)" 
 $buildConfiguration =  "$($env:BUILDCONFIGURATION)" 
-if ([string]::IsNullOrEmpty($agentBuildDirectory)) { $agentBuildDirectory = "E:\dev\97. Diginsight\" }
+if ([string]::IsNullOrEmpty($agentBuildDirectory)) { $agentBuildDirectory = "D:\dev.darioa\97. diginsight\" }
 if ([string]::IsNullOrEmpty($connectionString)) { $connectionString = "$($env:CONNECTIONSTRING)" }
 if ([string]::IsNullOrEmpty($connectionString)) { $connectionString = "<connectionstring>;" }
 if ([string]::IsNullOrEmpty($sourceFolder)) { $sourceFolder = "$($env:SOURCEFOLDER)" }
@@ -76,7 +76,9 @@ $ex = $null;
 foreach ($part in $parts) {
     if ([string]::IsNullOrEmpty($part)) { continue; }
     
-    $path = "$path\$part"
+    if ([string]::IsNullOrEmpty($path)) { $path = "$part" }
+    else { $path = "$path\$part"; }
+    
     try {
         $directory = Get-AzStorageFile -Share $share.CloudFileShare -Path $path | where { $_.GetType().Name -eq "CloudFileDirectory" }
         $ex = $null;
