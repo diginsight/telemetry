@@ -80,14 +80,24 @@ namespace EasySample
                             
                             loggingBuilder.ClearProviders();
 
-                            
+
 
                             //var consoleProvider = new TraceLoggerConsoleProvider();
                             //loggingBuilder.AddDiginsightFormatted(consoleProvider, configuration);
 
+                            //var actionsRecorderProvider = new ActionsRecorderProvider();
+                            //var diginsightProvider = new TraceLoggerFormatProvider();
+                            //diginsightProvider.AddProvider(actionsRecorderProvider);
+                            //// TraceEntry
+                            ////    classname
+                            ////    methodname
+                            ////    Start(payload), End (result), log
+
+
                             var options = new Log4NetProviderOptions();
                             options.Log4NetConfigFileName = "log4net.config";
                             var log4NetProvider = new Log4NetProvider(options);
+                            //loggingBuilder.AddProvider(log4NetProvider);
                             loggingBuilder.AddDiginsightFormatted(log4NetProvider, configuration);
 
                             var telemetryConfiguration = new TelemetryConfiguration(appInsightKey);

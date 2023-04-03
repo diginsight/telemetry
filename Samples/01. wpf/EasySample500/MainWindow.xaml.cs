@@ -37,7 +37,7 @@ namespace EasySample500
         {
             using (var sec = this.GetCodeSection(new { sender = sender.GetLogString(), e = e.GetLogString() }))
             {
-                sec.Debug("this is a debug trace", "User", properties: new Dictionary<string, object>() { { "", "" } });
+                sec.Debug($"this is a debug trace", "User", properties: new Dictionary<string, object>() { { "", "" } });
                 sec.Information("this is a Information trace", "Raw");
                 sec.Warning("this is a Warning trace", "User.Report");
                 sec.Error("this is a error trace", "Resource");

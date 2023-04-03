@@ -52,17 +52,21 @@ namespace EasySample
         }
         private async void MainWindow_Initialized(object sender, EventArgs e)
         {
-            using (var scope = _logger.BeginMethodScope())
+            using (var scope = _logger.BeginMethodScope(() => new { sender, e }))
             {
                 sampleMethod();
                 await sampleMethod1Async();
+
+                int i = 0;
+
+                _logger.LogDebug(() => new { i, e = e.GetLogString(), sender = sender.GetLogString() }); // , properties: new Dictionary<string, object>() { { "", "" } }
 
                 _logger.LogTrace("this is a trace trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
                 _logger.LogDebug("this is a debug trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
                 _logger.LogInformation(() => "this is a Information trace", "User"); // , properties: new Dictionary<string, object>() { { "", "" } }
                 _logger.LogInformation(() => "this is a Information trace", "Raw");
                 _logger.LogWarning(() => "this is a Warning trace", "User.Report");
-                _logger.LogError(() => "this is a error trace", "Resource");
+                _logger.LogError(() => $"this is a error trace", "Resource");
 
                 _logger.LogError(() => "this is a error trace", "Resource");
 
