@@ -78,7 +78,7 @@ namespace EasySample
                 logger.LogError(() => $"this is a error trace", "Resource");
 
                 logger.LogError(() => "this is a error trace", "Resource");
-                
+
                 //TraceManager.Debug("")
                 scope.LogDebug(() => "this is a trace trace", "User"); // , properties: new Dictionary<string, object>() { { "", "" } }
                 scope.LogDebug(() => "this is a debug trace", "User"); // , properties: new Dictionary<string, object>() { { "", "" } }
@@ -109,30 +109,41 @@ namespace EasySample
             {
                 scope.LogDebug(new { sender = sender.GetLogString(), e = e.GetLogString() });
 
-                // log by means of the scope variable
-                scope.LogTrace(() => "this is a long trace trace", null, new Dictionary<string, object>() { { "MaxMessageLen", 0 } }); //  TraceLogger.LogDebug($"requestBody: {requestBody}");
-                scope.LogDebug(() => "this is a debug trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
-                scope.LogInformation(() => "this is a Information trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
-                scope.LogWarning(() => "this is a Warning trace");
-                scope.LogError(() => "this is a error trace");
-                scope.LogError(() => "this is a error trace");
+                {
+                    using var scopeInner = logger.BeginNamedScope("Optimized code section");
 
+                    // log by means of the scope variable
+                    scope.LogTrace(() => "this is a long trace trace", null, new Dictionary<string, object>() { { "MaxMessageLen", 0 } }); //  TraceLogger.LogDebug($"requestBody: {requestBody}");
+                    scope.LogDebug(() => "this is a debug trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
+                    scope.LogInformation(() => "this is a Information trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
+                    scope.LogWarning(() => "this is a Warning trace");
+                    scope.LogError(() => "this is a error trace");
+                    scope.LogError(() => "this is a error trace");
+                }
 
-                // log by means of standard ILogger Interface
-                logger.LogTrace("this is a Trace trace");
-                logger.LogDebug("this is a Debug trace");
-                logger.LogInformation("this is a Information trace");
-                logger.LogWarning("this is a Warning trace");
-                logger.LogError("this is a error trace");
-                logger.LogCritical("this is a critical trace");
+                {
+                    using var scopeInner = logger.BeginNamedScope("Standard code section");
 
-                // log by means of static methods
-                TraceLogger.LogTrace(() => "this is a trace trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
-                TraceLogger.LogDebug(() => "this is a debug trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
-                TraceLogger.LogInformation(() => "this is a Information trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
-                TraceLogger.LogWarning(() => "this is a Warning trace");
-                TraceLogger.LogError(() => "this is a error trace");
-                // TraceLogger.LogCritical(() => "this is a error trace");
+                    // log by means of standard ILogger Interface
+                    logger.LogTrace("this is a Trace trace");
+                    logger.LogDebug("this is a Debug trace");
+                    logger.LogInformation("this is a Information trace");
+                    logger.LogWarning("this is a Warning trace");
+                    logger.LogError("this is a error trace");
+                    logger.LogCritical("this is a critical trace");
+                }
+
+                {
+                    using var scopeInner = logger.BeginNamedScope("Optimized code section (static methods)");
+
+                    // log by means of static methods
+                    TraceLogger.LogTrace(() => "this is a trace trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
+                    TraceLogger.LogDebug(() => "this is a debug trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
+                    TraceLogger.LogInformation(() => "this is a Information trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
+                    TraceLogger.LogWarning(() => "this is a Warning trace");
+                    TraceLogger.LogError(() => "this is a error trace");
+                    // TraceLogger.LogCritical(() => "this is a error trace");
+                }
 
                 int i = 0; string s = "sample parameter";
                 var res = SampleMethodWithResult(i, s);
