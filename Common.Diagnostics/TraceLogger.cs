@@ -244,6 +244,7 @@ namespace Common
             return logger;
         }
         #endregion
+
         // helpers
         public static CodeSectionScope BeginMethodScope<T>(object payload = null, SourceLevels sourceLevel = SourceLevels.Verbose, LogLevel logLevel = LogLevel.Debug, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
@@ -283,6 +284,7 @@ namespace Common
             var delta = stopTicks - startTicks;
             return sec;
         }
+
         public static CodeSectionScope BeginNamedScope<T>(string name = null, object payload = null, SourceLevels sourceLevel = SourceLevels.Verbose, LogLevel logLevel = LogLevel.Debug, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
@@ -386,6 +388,7 @@ namespace Common
             var innerCodeSectionLogger = innerCodeSection as ICodeSectionLogger;
             innerCodeSectionLogger.Trace(getMessage, category, properties, source);
         }
+
         public static void LogDebug(NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
@@ -450,6 +453,7 @@ namespace Common
             var innerCodeSectionLogger = innerCodeSection as ICodeSectionLogger;
             innerCodeSectionLogger.Debug(getMessage, category, properties, source);
         }
+
         public static void LogInformation(NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
@@ -514,6 +518,7 @@ namespace Common
             var innerCodeSectionLogger = innerCodeSection as ICodeSectionLogger;
             innerCodeSectionLogger.Information(getMessage, category, properties, source);
         }
+
         public static void LogWarning(NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
@@ -578,6 +583,7 @@ namespace Common
             var innerCodeSectionLogger = innerCodeSection as ICodeSectionLogger;
             innerCodeSectionLogger.Warning(getMessage, category, properties, source);
         }
+
         public static void LogError(NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
@@ -642,6 +648,7 @@ namespace Common
             var innerCodeSectionLogger = innerCodeSection as ICodeSectionLogger;
             innerCodeSectionLogger.Error(getMessage, category, properties, source);
         }
+
         public static void LogException(Exception exception, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
@@ -705,6 +712,7 @@ namespace Common
         }
         public static string GetMethodName([CallerMemberName] string memberName = "") { return memberName; }
     }
+
     public static class TraceLoggerExtensions
     {
         public static CodeSectionScope BeginMethodScope<T>(this ILogger<T> logger, object payload = null, SourceLevels sourceLevel = SourceLevels.Verbose, LogLevel logLevel = LogLevel.Debug, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
@@ -762,6 +770,66 @@ namespace Common
             }
 
             var sec = new CodeSectionScope(logger, t, null, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
+            var stopTicks = TraceLogger.Stopwatch.ElapsedTicks;
+            var delta = stopTicks - startTicks;
+            return sec;
+        }
+
+        public static CodeSectionScope BeginNamedScope<T>(this ILogger<T> logger, string name, object payload = null, SourceLevels sourceLevel = SourceLevels.Verbose, LogLevel logLevel = LogLevel.Debug, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
+        {
+            var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
+
+            if (logger == null && TraceLogger.Host != null)
+            {
+                var host = TraceLogger.Host;
+                try { logger = host.Services?.GetRequiredService<ILogger<T>>(); }
+                catch (Exception) { }
+                //var loggerFactory = TraceLogger.LoggerFactory;
+                //logger = loggerFactory.CreateLogger<T>();
+            }
+            //if (logger == null) { return null; }
+
+            var sec = new CodeSectionScope(logger, typeof(T), name, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
+            var stopTicks = TraceLogger.Stopwatch.ElapsedTicks;
+            var delta = stopTicks - startTicks;
+            return sec;
+        }
+        public static CodeSectionScope BeginMethodScope<T>(this IHost host, string name, object payload = null, SourceLevels sourceLevel = SourceLevels.Verbose, LogLevel logLevel = LogLevel.Debug, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
+        {
+            var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
+
+            ILogger<T> logger = null;
+            if (host == null) { host = TraceLogger.Host; }
+            if (host != null) { logger = host.Services.GetRequiredService<ILogger<T>>(); }
+
+            //var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
+            //if (loggerFactory == null) { loggerFactory = TraceLogger.LoggerFactory; }
+            //logger = loggerFactory.CreateLogger<T>();
+
+            var sec = new CodeSectionScope(logger, typeof(T), name, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
+            var stopTicks = TraceLogger.Stopwatch.ElapsedTicks;
+            var delta = stopTicks - startTicks;
+            return sec;
+        }
+        public static CodeSectionScope BeginMethodScope(this IHost host, string name, Type t, object payload = null, SourceLevels sourceLevel = SourceLevels.Verbose, LogLevel logLevel = LogLevel.Debug, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
+        {
+            var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
+
+            ILogger logger = null;
+            if (host == null) { host = TraceLogger.Host; }
+
+            //var loggerFactory = host?.Services?.GetRequiredService<ILoggerFactory>();
+            //if (loggerFactory == null) { loggerFactory = TraceLogger.LoggerFactory; }
+
+            if (host != null)
+            {
+                Type loggerType = typeof(ILogger<>);
+                loggerType = loggerType.MakeGenericType(new[] { t });
+                logger = host.Services.GetRequiredService(loggerType) as ILogger;
+                //logger = loggerFactory.CreateLogger(loggerType);
+            }
+
+            var sec = new CodeSectionScope(logger, t, name, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
             var stopTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var delta = stopTicks - startTicks;
             return sec;
@@ -840,6 +908,7 @@ namespace Common
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Debug(getMessage, category, properties, source);
         }
+
         public static void LogInformation<T>(this ILogger<T> logger, NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
@@ -867,6 +936,7 @@ namespace Common
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Information(getMessage, category, properties, source);
         }
+
         public static void LogWarning<T>(this ILogger<T> logger, NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
@@ -894,6 +964,7 @@ namespace Common
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Warning(getMessage, category, properties, source);
         }
+
         public static void LogError<T>(this ILogger<T> logger, NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
@@ -921,6 +992,7 @@ namespace Common
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Error(getMessage, category, properties, source);
         }
+
         public static void LogException<T>(this ILogger<T> logger, Exception exception, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;

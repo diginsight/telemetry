@@ -29,7 +29,7 @@ namespace EasySample
     public partial class MainWindow : Window
     {
         static Type T = typeof(MainWindow);
-        private static ILogger<MainWindow> _logger;
+        private static ILogger<MainWindow> logger;
 
         private string GetScope([CallerMemberName] string memberName = "") { return memberName; }
 
@@ -43,33 +43,42 @@ namespace EasySample
         }
         public MainWindow(ILogger<MainWindow> logger)
         {
-            _logger = logger;
+            MainWindow.logger = logger;
             // using (_logger.BeginMethodScope())
-            using (_logger.BeginScope(TraceLogger.GetMethodName()))
+            using (MainWindow.logger.BeginScope(TraceLogger.GetMethodName()))
             {
                 InitializeComponent();
             }
         }
         private async void MainWindow_Initialized(object sender, EventArgs e)
         {
-            using (var scope = _logger.BeginMethodScope(() => new { sender, e }))
+            using var scope = logger.BeginMethodScope(() => new { sender, e });
+
+            sampleMethod();
+            await sampleMethod1Async();
+
+            int i = 0;
+
+            logger.LogDebug(() => new { i, e = e.GetLogString(), sender = sender.GetLogString() }); // , properties: new Dictionary<string, object>() { { "", "" } }
+
             {
-                sampleMethod();
-                await sampleMethod1Async();
+                TraceLogger.BeginNamedScope<MainWindow>("Standard code section");
+                //, () => new { i, e = e.GetLogString(), sender = sender.GetLogString() }
 
-                int i = 0;
+                logger.LogTrace("this is a trace trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
+                logger.LogDebug("this is a debug trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
+            }
 
-                _logger.LogDebug(() => new { i, e = e.GetLogString(), sender = sender.GetLogString() }); // , properties: new Dictionary<string, object>() { { "", "" } }
+            {
+                logger.BeginNamedScope("Optimized code section");
 
-                _logger.LogTrace("this is a trace trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
-                _logger.LogDebug("this is a debug trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
-                _logger.LogInformation(() => "this is a Information trace", "User"); // , properties: new Dictionary<string, object>() { { "", "" } }
-                _logger.LogInformation(() => "this is a Information trace", "Raw");
-                _logger.LogWarning(() => "this is a Warning trace", "User.Report");
-                _logger.LogError(() => $"this is a error trace", "Resource");
+                logger.LogInformation(() => "this is a Information trace", "User"); // , properties: new Dictionary<string, object>() { { "", "" } }
+                logger.LogInformation(() => "this is a Information trace", "Raw");
+                logger.LogWarning(() => "this is a Warning trace", "User.Report");
+                logger.LogError(() => $"this is a error trace", "Resource");
 
-                _logger.LogError(() => "this is a error trace", "Resource");
-
+                logger.LogError(() => "this is a error trace", "Resource");
+                
                 //TraceManager.Debug("")
                 scope.LogDebug(() => "this is a trace trace", "User"); // , properties: new Dictionary<string, object>() { { "", "" } }
                 scope.LogDebug(() => "this is a debug trace", "User"); // , properties: new Dictionary<string, object>() { { "", "" } }
@@ -79,22 +88,22 @@ namespace EasySample
                 scope.LogError(() => "this is a error trace", "Resource");
 
                 scope.LogError(() => "this is a error trace", "Resource");
-
-                var guid = Guid.NewGuid();
-                var uri = new Uri("http://localhost:80");
-                scope.LogDebug(new { guid, uri });
             }
+
+            var guid = Guid.NewGuid();
+            var uri = new Uri("http://localhost:80");
+            scope.LogDebug(new { guid, uri });
         }
         void sampleMethod()
         {
-            _logger.LogDebug("pippo");
+            logger.LogDebug("pippo");
 
         }
 
         private void btnRun_Click(object sender, RoutedEventArgs e)
         {
             // _logger.PushOperationId();
-            using var scope = _logger.BeginMethodScope(new { sender = sender.GetLogString(), e = e.GetLogString() }, SourceLevels.Verbose, LogLevel.Debug, null, new Dictionary<string, object>() { { "OperationId", Guid.NewGuid().ToString() } });
+            using var scope = logger.BeginMethodScope(new { sender = sender.GetLogString(), e = e.GetLogString() }, SourceLevels.Verbose, LogLevel.Debug, null, new Dictionary<string, object>() { { "OperationId", Guid.NewGuid().ToString() } });
 
             try
             {
@@ -110,12 +119,12 @@ namespace EasySample
 
 
                 // log by means of standard ILogger Interface
-                _logger.LogTrace("this is a Trace trace");
-                _logger.LogDebug("this is a Debug trace");
-                _logger.LogInformation("this is a Information trace");
-                _logger.LogWarning("this is a Warning trace");
-                _logger.LogError("this is a error trace");
-                _logger.LogCritical("this is a critical trace");
+                logger.LogTrace("this is a Trace trace");
+                logger.LogDebug("this is a Debug trace");
+                logger.LogInformation("this is a Information trace");
+                logger.LogWarning("this is a Warning trace");
+                logger.LogError("this is a error trace");
+                logger.LogCritical("this is a critical trace");
 
                 // log by means of static methods
                 TraceLogger.LogTrace(() => "this is a trace trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
@@ -138,7 +147,7 @@ namespace EasySample
 
         public int SampleMethodWithResult(int i, string s)
         {
-            using var scope = _logger.BeginMethodScope(new { i, s });
+            using var scope = logger.BeginMethodScope(new { i, s });
 
             var result = 0;
 
@@ -154,7 +163,7 @@ namespace EasySample
         }
         public void SampleMethod()
         {
-            using (var sec = _logger.BeginMethodScope())
+            using (var sec = logger.BeginMethodScope())
             {
                 Thread.Sleep(100);
                 SampleMethodNested();
@@ -164,17 +173,17 @@ namespace EasySample
         }
         public void SampleMethodNested()
         {
-            using var scope = _logger.BeginMethodScope();
+            using var scope = logger.BeginMethodScope();
             Thread.Sleep(100);
         }
         public void SampleMethodNested1()
         {
-            using var scope = _logger.BeginMethodScope();
+            using var scope = logger.BeginMethodScope();
             Thread.Sleep(10);
         }
         async Task<bool> sampleMethod1Async()
         {
-            using (var scope = _logger.BeginMethodScope())
+            using (var scope = logger.BeginMethodScope())
             {
                 var res = true;
 
