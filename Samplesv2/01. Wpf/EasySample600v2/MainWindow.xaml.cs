@@ -103,11 +103,11 @@ namespace EasySample
         private void btnRun_Click(object sender, RoutedEventArgs e)
         {
             // _logger.PushOperationId();
-            using var scope = logger.BeginMethodScope(new { sender = sender.GetLogString(), e = e.GetLogString() }, SourceLevels.Verbose, LogLevel.Debug, null, new Dictionary<string, object>() { { "OperationId", Guid.NewGuid().ToString() } });
+            using var scope = logger.BeginMethodScope(() => new { sender = sender.GetLogString(), e = e.GetLogString() }, SourceLevels.Verbose, LogLevel.Debug, null, new Dictionary<string, object>() { { "OperationId", Guid.NewGuid().ToString() } });
 
             try
             {
-                scope.LogDebug(new { sender = sender.GetLogString(), e = e.GetLogString() });
+                scope.LogDebug(() => new { sender = sender.GetLogString(), e = e.GetLogString() });
 
                 {
                     using var scopeInner = logger.BeginNamedScope("Optimized code section");

@@ -460,8 +460,15 @@ namespace Common
                     message = $"{codeSection.T?.Name}.{codeSection.MemberName}{section}() START ";
                     if (codeSection.Payload != null)
                     {
+                        var payload = codeSection.Payload;
+                        if (payload is Delegate)
+                        {
+                            try { payload = ((Delegate)codeSection.Payload).DynamicInvoke(); }
+                            catch (Exception) { /*payload = ex; */}
+                        }
+
                         var maxPayloadLen = maxMessageLen >= 0 ? (int)maxMessageLen - Min((int)maxMessageLen, message.Length) : -1;
-                        var payloadString = $"{codeSection.Payload.GetLogString()}";
+                        var payloadString = $"{payload.GetLogString()}";
                         if (payloadString.Length > maxPayloadLen)
                         {
                             var deltaLen = maxPayloadLen > 3 ? maxPayloadLen - 3 : maxPayloadLen;
