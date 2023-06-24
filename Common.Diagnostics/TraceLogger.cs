@@ -719,15 +719,21 @@ namespace Common
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
-            if (logger == null && TraceLogger.Host != null)
+            var host = TraceLogger.Host;
+            if (logger == null && host != null)
             {
-                var host = TraceLogger.Host;
-                try { logger = host.Services?.GetRequiredService<ILogger<T>>(); }
-                catch (Exception) { }
-                //var loggerFactory = TraceLogger.LoggerFactory;
-                //logger = loggerFactory.CreateLogger<T>();
+                logger = host.Services?.GetService<ILogger<T>>();
             }
+            //catch (Exception) { }
+            //var loggerFactory = TraceLogger.LoggerFactory;
+            //logger = loggerFactory.CreateLogger<T>();
             //if (logger == null) { return null; }
+            if (host != null)
+            {
+                var traceLoggerMinimumLevel = host.Services?.GetService<ITraceLoggerMinimumLevel>();
+                var minimumLevel = traceLoggerMinimumLevel?.MinimumLevel;
+                if (minimumLevel.HasValue && minimumLevel.Value > logLevel) { return null; }
+            }
 
             var sec = new CodeSectionScope(logger, typeof(T), null, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
             var stopTicks = TraceLogger.Stopwatch.ElapsedTicks;

@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.Extensions.Logging.Console;
 using Microsoft.Extensions.Logging.Debug;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -19,6 +20,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
+using static System.Formats.Asn1.AsnWriter;
+using Microsoft.AspNetCore.Http;
 #endregion
 
 namespace EasySample
@@ -77,7 +80,7 @@ namespace EasySample
                         .ConfigureLogging((context, loggingBuilder) =>
                         {
                             loggingBuilder.AddConfiguration(context.Configuration.GetSection("Logging"));
-                            
+
                             loggingBuilder.ClearProviders();
 
 
@@ -127,6 +130,24 @@ namespace EasySample
 
             // var descriptor = new ServiceDescriptor(typeof(ILogger), typeof(TraceLogger), ServiceLifetime.Singleton);
             // services.Replace(descriptor);
+            //ITraceLoggerMinimumLevel
+            services.AddScoped<ITraceLoggerMinimumLevel, TraceLoggerMinimumLevel>(sp =>
+            {
+                var contextAccessor = Host.Services.GetService<IHttpContextAccessor>();
+                if (contextAccessor == null) { return null; }
+
+                var ok = contextAccessor.HttpContext.Request.Headers.TryGetValue("TraceLoggerMinimumLevel", out StringValues headerValues);
+                if (ok) {
+                    ok = int.TryParse(headerValues.LastOrDefault(), out int traceLoggerMinimumLevel);
+                    if (ok)
+                    {
+                        return new TraceLoggerMinimumLevel() { MinimumLevel = (LogLevel)traceLoggerMinimumLevel };
+                    }
+                }
+                return null;
+            });
+
+            // TODO: register as a singleton ILogger
 
         }
         protected override async void OnExit(ExitEventArgs e)
@@ -140,5 +161,13 @@ namespace EasySample
         }
 
         private string GetMethodName([CallerMemberName] string memberName = "") { return memberName; }
+    }
+
+    public class TraceLoggerMinimumLevel : ITraceLoggerMinimumLevel
+    {
+        LogLevel _minimunLevel = LogLevel.Trace;
+        public TraceLoggerMinimumLevel() { }
+
+        public LogLevel MinimumLevel { get => _minimunLevel; set => _minimunLevel = value; }
     }
 }

@@ -205,4 +205,8 @@ namespace Common
         ConcurrentDictionary<string, object> Properties { get; set; }
     }
 
+    public interface ITraceLoggerMinimumLevel {
+        LogLevel MinimumLevel { get; set; }
+    }
+
 }
