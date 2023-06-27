@@ -144,6 +144,43 @@ namespace Common
                 if (TraceManager._isInitializeComplete.Value == false && TraceManager._isInitializing.Value == 0) { TraceManager.Init(SourceLevels.All, null); }
             }
         }
+#if NET6_0_OR_GREATER
+        public void Trace(TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
+        {
+            var startTicks = TraceManager.Stopwatch.ElapsedTicks;
+            if (TraceSource?.Switch != null && !TraceSource.Switch.ShouldTrace(TraceEventType.Verbose)) { return; }
+
+            var entry = new TraceEntry() { Message = message.GetFormattedText(), TraceEventType = TraceEventType.Verbose, SourceLevel = SourceLevels.Verbose, Properties = properties, Source = source ?? this.Source, Category = category, CodeSection = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceManager.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
+            if (!TraceManager._lockListenersNotifications.Value)
+            {
+                if (TraceSource?.Listeners != null && TraceSource.Listeners.Count > 0) { foreach (TraceListener listener in TraceSource.Listeners) { try { listener.WriteLine(entry); } catch (Exception) { } } }
+                if (System.Diagnostics.Trace.Listeners != null && System.Diagnostics.Trace.Listeners.Count > 0) { foreach (TraceListener listener in System.Diagnostics.Trace.Listeners) { try { listener.WriteLine(entry); } catch (Exception) { } } }
+            }
+            else
+            {
+                TraceManager._pendingEntries.Enqueue(entry);
+                if (TraceManager._isInitializeComplete.Value == false && TraceManager._isInitializing.Value == 0) { TraceManager.Init(SourceLevels.All, null); }
+            }
+        }
+        public void Trace(string message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
+        {
+            var startTicks = TraceManager.Stopwatch.ElapsedTicks;
+            if (TraceSource?.Switch != null && !TraceSource.Switch.ShouldTrace(TraceEventType.Verbose)) { return; }
+
+            var entry = new TraceEntry() { Message = message, TraceEventType = TraceEventType.Verbose, SourceLevel = SourceLevels.Verbose, Properties = properties, Source = source ?? this.Source, Category = category, CodeSection = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceManager.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
+            if (!TraceManager._lockListenersNotifications.Value)
+            {
+                if (TraceSource?.Listeners != null && TraceSource.Listeners.Count > 0) { foreach (TraceListener listener in TraceSource.Listeners) { try { listener.WriteLine(entry); } catch (Exception) { } } }
+                if (System.Diagnostics.Trace.Listeners != null && System.Diagnostics.Trace.Listeners.Count > 0) { foreach (TraceListener listener in System.Diagnostics.Trace.Listeners) { try { listener.WriteLine(entry); } catch (Exception) { } } }
+            }
+            else
+            {
+                TraceManager._pendingEntries.Enqueue(entry);
+                if (TraceManager._isInitializeComplete.Value == false && TraceManager._isInitializing.Value == 0) { TraceManager.Init(SourceLevels.All, null); }
+            }
+        }
+#endif
+#if !NET6_0_OR_GREATER
         public void Trace(NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
@@ -182,6 +219,7 @@ namespace Common
             }
             catch (Exception) { }
         }
+#endif
         public void Trace(Func<string> getMessage, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
@@ -223,6 +261,43 @@ namespace Common
                 if (TraceManager._isInitializeComplete.Value == false && TraceManager._isInitializing.Value == 0) { TraceManager.Init(SourceLevels.All, null); }
             }
         }
+#if NET6_0_OR_GREATER
+        public void Debug(TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
+        {
+            var startTicks = TraceManager.Stopwatch.ElapsedTicks;
+            if (TraceSource?.Switch != null && !TraceSource.Switch.ShouldTrace(TraceEventType.Verbose)) { return; }
+
+            var entry = new TraceEntry() { Message = message.GetFormattedText(), TraceEventType = TraceEventType.Verbose, SourceLevel = SourceLevels.Verbose, Properties = properties, Source = source ?? this.Source, Category = category, CodeSection = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceManager.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
+            if (!TraceManager._lockListenersNotifications.Value)
+            {
+                if (TraceSource?.Listeners != null && TraceSource.Listeners.Count > 0) { foreach (TraceListener listener in TraceSource.Listeners) { try { listener.WriteLine(entry); } catch (Exception) { } } }
+                if (System.Diagnostics.Trace.Listeners != null && System.Diagnostics.Trace.Listeners.Count > 0) { foreach (TraceListener listener in System.Diagnostics.Trace.Listeners) { try { listener.WriteLine(entry); } catch (Exception) { } } }
+            }
+            else
+            {
+                TraceManager._pendingEntries.Enqueue(entry);
+                if (TraceManager._isInitializeComplete.Value == false && TraceManager._isInitializing.Value == 0) { TraceManager.Init(SourceLevels.All, null); }
+            }
+        }
+        public void Debug(string message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
+        {
+            var startTicks = TraceManager.Stopwatch.ElapsedTicks;
+            if (TraceSource?.Switch != null && !TraceSource.Switch.ShouldTrace(TraceEventType.Verbose)) { return; }
+
+            var entry = new TraceEntry() { Message = message, TraceEventType = TraceEventType.Verbose, SourceLevel = SourceLevels.Verbose, Properties = properties, Source = source ?? this.Source, Category = category, CodeSection = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceManager.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
+            if (!TraceManager._lockListenersNotifications.Value)
+            {
+                if (TraceSource?.Listeners != null && TraceSource.Listeners.Count > 0) { foreach (TraceListener listener in TraceSource.Listeners) { try { listener.WriteLine(entry); } catch (Exception) { } } }
+                if (System.Diagnostics.Trace.Listeners != null && System.Diagnostics.Trace.Listeners.Count > 0) { foreach (TraceListener listener in System.Diagnostics.Trace.Listeners) { try { listener.WriteLine(entry); } catch (Exception) { } } }
+            }
+            else
+            {
+                TraceManager._pendingEntries.Enqueue(entry);
+                if (TraceManager._isInitializeComplete.Value == false && TraceManager._isInitializing.Value == 0) { TraceManager.Init(SourceLevels.All, null); }
+            }
+        }
+#endif
+#if !NET6_0_OR_GREATER
         public void Debug(NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
@@ -261,6 +336,7 @@ namespace Common
             }
             catch (Exception) { }
         }
+#endif
         public void Debug(Func<string> getMessage, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
@@ -283,6 +359,43 @@ namespace Common
             catch (Exception) { }
         }
 
+#if NET6_0_OR_GREATER
+        public void Information(TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
+        {
+            var startTicks = TraceManager.Stopwatch.ElapsedTicks;
+            if (TraceSource?.Switch != null && !TraceSource.Switch.ShouldTrace(TraceEventType.Information)) { return; }
+
+            var entry = new TraceEntry() { Message = message.GetFormattedText(), TraceEventType = TraceEventType.Information, SourceLevel = SourceLevels.Information, TraceSource = this.TraceSource, Properties = properties, Source = source ?? this.Source, Category = category, CodeSection = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceManager.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
+            if (!TraceManager._lockListenersNotifications.Value)
+            {
+                if (TraceSource?.Listeners != null && TraceSource.Listeners.Count > 0) { foreach (TraceListener listener in TraceSource.Listeners) { try { listener.WriteLine(entry); } catch (Exception) { } } }
+                if (System.Diagnostics.Trace.Listeners != null && System.Diagnostics.Trace.Listeners.Count > 0) { foreach (TraceListener listener in System.Diagnostics.Trace.Listeners) { try { listener.WriteLine(entry); } catch (Exception) { } } }
+            }
+            else
+            {
+                TraceManager._pendingEntries.Enqueue(entry);
+                if (TraceManager._isInitializeComplete.Value == false && TraceManager._isInitializing.Value == 0) { TraceManager.Init(SourceLevels.All, null); }
+            }
+        }
+        public void Information(string message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
+        {
+            var startTicks = TraceManager.Stopwatch.ElapsedTicks;
+            if (TraceSource?.Switch != null && !TraceSource.Switch.ShouldTrace(TraceEventType.Information)) { return; }
+
+            var entry = new TraceEntry() { Message = message, TraceEventType = TraceEventType.Information, SourceLevel = SourceLevels.Information, TraceSource = this.TraceSource, Properties = properties, Source = source ?? this.Source, Category = category, CodeSection = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceManager.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
+            if (!TraceManager._lockListenersNotifications.Value)
+            {
+                if (TraceSource?.Listeners != null && TraceSource.Listeners.Count > 0) { foreach (TraceListener listener in TraceSource.Listeners) { try { listener.WriteLine(entry); } catch (Exception) { } } }
+                if (System.Diagnostics.Trace.Listeners != null && System.Diagnostics.Trace.Listeners.Count > 0) { foreach (TraceListener listener in System.Diagnostics.Trace.Listeners) { try { listener.WriteLine(entry); } catch (Exception) { } } }
+            }
+            else
+            {
+                TraceManager._pendingEntries.Enqueue(entry);
+                if (TraceManager._isInitializeComplete.Value == false && TraceManager._isInitializing.Value == 0) { TraceManager.Init(SourceLevels.All, null); }
+            }
+        }
+#endif
+#if !NET6_0_OR_GREATER
         public void Information(NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
@@ -317,6 +430,7 @@ namespace Common
                 if (TraceManager._isInitializeComplete.Value == false && TraceManager._isInitializing.Value == 0) { TraceManager.Init(SourceLevels.All, null); }
             }
         }
+#endif
         public void Information(Func<string> getMessage, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
@@ -335,6 +449,45 @@ namespace Common
             }
         }
 
+#if NET6_0_OR_GREATER
+        public void Warning(TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
+        {
+            var startTicks = TraceManager.Stopwatch.ElapsedTicks;
+            if (TraceSource?.Switch != null && !TraceSource.Switch.ShouldTrace(TraceEventType.Warning)) { return; }
+
+            var entry = new TraceEntry() { Message = message.GetFormattedText(), TraceEventType = TraceEventType.Warning, SourceLevel = SourceLevels.Warning, TraceSource = this.TraceSource, Properties = properties, Source = source ?? this.Source, Category = category, CodeSection = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceManager.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
+            if (!TraceManager._lockListenersNotifications.Value)
+            {
+                if (TraceSource?.Listeners != null && TraceSource.Listeners.Count > 0) { foreach (TraceListener listener in TraceSource.Listeners) { try { listener.WriteLine(entry); } catch (Exception) { } } }
+                if (System.Diagnostics.Trace.Listeners != null && System.Diagnostics.Trace.Listeners.Count > 0) { foreach (TraceListener listener in System.Diagnostics.Trace.Listeners) { try { listener.WriteLine(entry); } catch (Exception) { } } }
+            }
+            else
+            {
+                TraceManager._pendingEntries.Enqueue(entry);
+                if (TraceManager._isInitializeComplete.Value == false && TraceManager._isInitializing.Value == 0) { TraceManager.Init(SourceLevels.All, null); }
+            }
+
+        }
+        public void Warning(string message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
+        {
+            var startTicks = TraceManager.Stopwatch.ElapsedTicks;
+            if (TraceSource?.Switch != null && !TraceSource.Switch.ShouldTrace(TraceEventType.Warning)) { return; }
+
+            var entry = new TraceEntry() { Message = message, TraceEventType = TraceEventType.Warning, SourceLevel = SourceLevels.Warning, TraceSource = this.TraceSource, Properties = properties, Source = source ?? this.Source, Category = category, CodeSection = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceManager.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
+            if (!TraceManager._lockListenersNotifications.Value)
+            {
+                if (TraceSource?.Listeners != null && TraceSource.Listeners.Count > 0) { foreach (TraceListener listener in TraceSource.Listeners) { try { listener.WriteLine(entry); } catch (Exception) { } } }
+                if (System.Diagnostics.Trace.Listeners != null && System.Diagnostics.Trace.Listeners.Count > 0) { foreach (TraceListener listener in System.Diagnostics.Trace.Listeners) { try { listener.WriteLine(entry); } catch (Exception) { } } }
+            }
+            else
+            {
+                TraceManager._pendingEntries.Enqueue(entry);
+                if (TraceManager._isInitializeComplete.Value == false && TraceManager._isInitializing.Value == 0) { TraceManager.Init(SourceLevels.All, null); }
+            }
+
+        }
+#endif
+#if !NET6_0_OR_GREATER
         public void Warning(NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
@@ -370,6 +523,7 @@ namespace Common
                 if (TraceManager._isInitializeComplete.Value == false && TraceManager._isInitializing.Value == 0) { TraceManager.Init(SourceLevels.All, null); }
             }
         }
+#endif
         public void Warning(Func<string> getMessage, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
@@ -388,6 +542,43 @@ namespace Common
             }
         }
 
+#if NET6_0_OR_GREATER
+        public void Error(TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
+        {
+            var startTicks = TraceManager.Stopwatch.ElapsedTicks;
+            if (TraceSource?.Switch != null && !TraceSource.Switch.ShouldTrace(TraceEventType.Error)) { return; }
+
+            var entry = new TraceEntry() { Message = message.GetFormattedText(), TraceEventType = TraceEventType.Error, SourceLevel = SourceLevels.Error, TraceSource = this.TraceSource, Properties = properties, Source = source ?? this.Source, Category = category, CodeSection = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceManager.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
+            if (!TraceManager._lockListenersNotifications.Value)
+            {
+                if (TraceSource?.Listeners != null && TraceSource.Listeners.Count > 0) { foreach (TraceListener listener in TraceSource.Listeners) { try { listener.WriteLine(entry); } catch (Exception) { } } }
+                if (System.Diagnostics.Trace.Listeners != null && System.Diagnostics.Trace.Listeners.Count > 0) { foreach (TraceListener listener in System.Diagnostics.Trace.Listeners) { try { listener.WriteLine(entry); } catch (Exception) { } } }
+            }
+            else
+            {
+                TraceManager._pendingEntries.Enqueue(entry);
+                if (TraceManager._isInitializeComplete.Value == false && TraceManager._isInitializing.Value == 0) { TraceManager.Init(SourceLevels.All, null); }
+            }
+        }
+        public void Error(string message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
+        {
+            var startTicks = TraceManager.Stopwatch.ElapsedTicks;
+            if (TraceSource?.Switch != null && !TraceSource.Switch.ShouldTrace(TraceEventType.Error)) { return; }
+
+            var entry = new TraceEntry() { Message = message, TraceEventType = TraceEventType.Error, SourceLevel = SourceLevels.Error, TraceSource = this.TraceSource, Properties = properties, Source = source ?? this.Source, Category = category, CodeSection = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceManager.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
+            if (!TraceManager._lockListenersNotifications.Value)
+            {
+                if (TraceSource?.Listeners != null && TraceSource.Listeners.Count > 0) { foreach (TraceListener listener in TraceSource.Listeners) { try { listener.WriteLine(entry); } catch (Exception) { } } }
+                if (System.Diagnostics.Trace.Listeners != null && System.Diagnostics.Trace.Listeners.Count > 0) { foreach (TraceListener listener in System.Diagnostics.Trace.Listeners) { try { listener.WriteLine(entry); } catch (Exception) { } } }
+            }
+            else
+            {
+                TraceManager._pendingEntries.Enqueue(entry);
+                if (TraceManager._isInitializeComplete.Value == false && TraceManager._isInitializing.Value == 0) { TraceManager.Init(SourceLevels.All, null); }
+            }
+        }
+#endif
+#if !NET6_0_OR_GREATER
         public void Error(NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
@@ -422,6 +613,7 @@ namespace Common
                 if (TraceManager._isInitializeComplete.Value == false && TraceManager._isInitializing.Value == 0) { TraceManager.Init(SourceLevels.All, null); }
             }
         }
+#endif
         public void Error(Func<string> getMessage, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;

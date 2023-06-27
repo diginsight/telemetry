@@ -43,12 +43,17 @@ namespace EasySample
             }
         }
 
+        int i = 0;
         private void btnRun_Click(object sender, RoutedEventArgs e)
         {
             using (var sec = this.GetCodeSection(new { sender = sender.GetLogString(), e = e.GetLogString() }))
             {
                 try
                 {
+                    var time = DateTime.Now;
+                    sec.Debug($"CurrentTime: {time}. Error Level {i++}. This is an error. It will be printed.");
+
+
                     sec.Debug("this is a debug trace", "User", new Metrics() {
                         { "User", 123 },
                         { "Tags", new[] { "sample", "user", "advanced" } }

@@ -128,9 +128,6 @@ namespace EasySample
         {
             services.AddSingleton<MainWindow>();
 
-            // var descriptor = new ServiceDescriptor(typeof(ILogger), typeof(TraceLogger), ServiceLifetime.Singleton);
-            // services.Replace(descriptor);
-            //ITraceLoggerMinimumLevel
             services.AddScoped<ITraceLoggerMinimumLevel, TraceLoggerMinimumLevel>(sp =>
             {
                 var contextAccessor = Host.Services.GetService<IHttpContextAccessor>();

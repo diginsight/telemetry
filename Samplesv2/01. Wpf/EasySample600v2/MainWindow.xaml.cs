@@ -1,5 +1,6 @@
 ﻿#region using
 using Common;
+using EasySample600v2;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
@@ -61,6 +62,7 @@ namespace EasySample
 
             logger.LogDebug(() => new { i, e = e.GetLogString(), sender = sender.GetLogString() }); // , properties: new Dictionary<string, object>() { { "", "" } }
 
+
             {
                 TraceLogger.BeginNamedScope<MainWindow>("Standard code section");
                 //, () => new { i, e = e.GetLogString(), sender = sender.GetLogString() }
@@ -100,10 +102,19 @@ namespace EasySample
 
         }
 
+        int i = 0;
         private void btnRun_Click(object sender, RoutedEventArgs e)
         {
             // _logger.PushOperationId();
             using var scope = logger.BeginMethodScope(() => new { sender = sender.GetLogString(), e = e.GetLogString() }, SourceLevels.Verbose, LogLevel.Debug, null, new Dictionary<string, object>() { { "OperationId", Guid.NewGuid().ToString() } });
+
+            //var logger1 = new SampleLogger() { EnabledLevel = LogLevel.Warning };
+            //var time = DateTime.Now;
+            //logger1.LogDebug($"Error Level. CurrentTime: {time}. This is an error. It will be printed.");
+            var time = DateTime.Now;
+            logger.LogDebug($"CurrentTime: {time}. Error Level {i++}. This is an error. It will be printed.");
+
+
 
             try
             {
