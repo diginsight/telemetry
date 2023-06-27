@@ -82,8 +82,8 @@ namespace Common
     {
         void Trace(object obj, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
 #if NET6_0_OR_GREATER
-        void Trace(TraceLoggerInterpolatedStringHandler obj, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
-        void Trace(string obj, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
+        void Trace(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
+        void Trace(string message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
 #else
         void Trace(NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
         void Trace(FormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
@@ -92,40 +92,36 @@ namespace Common
 
         void Debug(object obj, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
 #if NET6_0_OR_GREATER
-        void Debug(TraceLoggerInterpolatedStringHandler obj, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
-        void Debug(string obj, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
-#endif
-#if !NET6_0_OR_GREATER
+        void Debug(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
+        void Debug(string message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
+#else
         void Debug(NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
         void Debug(FormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
 #endif
         void Debug(Func<string> getMessage, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
 
 #if NET6_0_OR_GREATER
-        void Information(TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
+        void Information(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
         void Information(string message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
-#endif
-#if !NET6_0_OR_GREATER
+#else
         void Information(NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
         void Information(FormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
 #endif
         void Information(Func<string> getMessage, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
 
 #if NET6_0_OR_GREATER
-        void Warning(TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
+        void Warning(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
         void Warning(string message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
-#endif
-#if !NET6_0_OR_GREATER
+#else
         void Warning(NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
         void Warning(FormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
 #endif
         void Warning(Func<string> getMessage, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
 
 #if NET6_0_OR_GREATER
-        void Error(TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
+        void Error(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
         void Error(string message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
-#endif
-#if !NET6_0_OR_GREATER
+#else
         void Error(NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
         void Error(FormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false);
 #endif

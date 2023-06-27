@@ -114,8 +114,6 @@ namespace EasySample
             var time = DateTime.Now;
             logger.LogDebug($"CurrentTime: {time}. Error Level {i++}. This is an error. It will be printed.");
 
-
-
             try
             {
                 scope.LogDebug(() => new { sender = sender.GetLogString(), e = e.GetLogString() });

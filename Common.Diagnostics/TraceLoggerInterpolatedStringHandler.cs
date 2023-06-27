@@ -16,8 +16,8 @@ namespace Common
     [InterpolatedStringHandler]
     public ref struct TraceLoggerInterpolatedStringHandler
     {
-        StringBuilder formatTemplate;
-        object[] formatParameters;
+        internal StringBuilder formatTemplate;
+        internal object[] formatParameters;
         int i = 0;
 
         public TraceLoggerInterpolatedStringHandler(int literalLength, int formattedCount) // object logger, LogLevel logLevel

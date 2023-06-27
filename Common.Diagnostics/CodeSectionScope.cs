@@ -235,11 +235,28 @@ namespace Common
             }
         }
 #if NET6_0_OR_GREATER
-        public void LogTrace(TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
+        public void LogTrace(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
-            var entry = new TraceEntry() { Message = message.GetFormattedText(), TraceEventType = TraceEventType.Verbose, SourceLevel = SourceLevels.Verbose, LogLevel = LogLevel.Trace, Properties = properties, Source = source ?? this.Source, Category = category, CodeSectionBase = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
+            var entry = new TraceEntry()
+            {
+                MessageFormat = message.formatTemplate?.ToString(),
+                MessageArgs = message.formatParameters,
+                TraceEventType = TraceEventType.Verbose,
+                SourceLevel = SourceLevels.Verbose,
+                LogLevel = LogLevel.Trace,
+                Properties = properties,
+                Source = source ?? this.Source,
+                Category = category,
+                CodeSectionBase = this,
+                Thread = Thread.CurrentThread,
+                ThreadID = Thread.CurrentThread.ManagedThreadId,
+                ApartmentState = Thread.CurrentThread.GetApartmentState(),
+                DisableCRLFReplace = disableCRLFReplace,
+                ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds,
+                TraceStartTicks = startTicks
+            };
             if (!TraceLogger._lockListenersNotifications.Value)
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
@@ -269,8 +286,7 @@ namespace Common
                 //if (TraceLogger._isInitializeComplete.Value == false && TraceLogger._isInitializing.Value == false) { TraceLogger.Init(null); }
             }
         }
-#endif
-#if !NET6_0_OR_GREATER
+#else
         public void LogTrace(NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
@@ -368,11 +384,28 @@ namespace Common
             }
         }
 #if NET6_0_OR_GREATER
-        public void LogDebug(TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
+        public void LogDebug(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
-            var entry = new TraceEntry() { Message = message.GetFormattedText(), TraceEventType = TraceEventType.Verbose, SourceLevel = SourceLevels.Verbose, LogLevel = LogLevel.Debug, Properties = properties, Source = source ?? this.Source, Category = category, CodeSectionBase = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
+            var entry = new TraceEntry()
+            {
+                MessageFormat = message.formatTemplate?.ToString(),
+                MessageArgs = message.formatParameters,
+                TraceEventType = TraceEventType.Verbose,
+                SourceLevel = SourceLevels.Verbose,
+                LogLevel = LogLevel.Debug,
+                Properties = properties,
+                Source = source ?? this.Source,
+                Category = category,
+                CodeSectionBase = this,
+                Thread = Thread.CurrentThread,
+                ThreadID = Thread.CurrentThread.ManagedThreadId,
+                ApartmentState = Thread.CurrentThread.GetApartmentState(),
+                DisableCRLFReplace = disableCRLFReplace,
+                ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds,
+                TraceStartTicks = startTicks
+            };
             if (!TraceLogger._lockListenersNotifications.Value)
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
@@ -402,8 +435,7 @@ namespace Common
                 //if (TraceLogger._isInitializeComplete.Value == false && TraceLogger._isInitializing.Value == false) { TraceLogger.Init(null); }
             }
         }
-#endif
-#if !NET6_0_OR_GREATER
+#else
         public void LogDebug(NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
@@ -482,11 +514,29 @@ namespace Common
         }
 
 #if NET6_0_OR_GREATER
-        public void LogInformation(TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
+        public void LogInformation(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
-            var entry = new TraceEntry() { Message = message.GetFormattedText(), TraceEventType = TraceEventType.Information, SourceLevel = SourceLevels.Information, LogLevel = LogLevel.Information, TraceSource = this.TraceSource, Properties = properties, Source = source ?? this.Source, Category = category, CodeSectionBase = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
+            var entry = new TraceEntry()
+            {
+                MessageFormat = message.formatTemplate?.ToString(),
+                MessageArgs = message.formatParameters,
+                TraceEventType = TraceEventType.Information,
+                SourceLevel = SourceLevels.Information,
+                LogLevel = LogLevel.Information,
+                TraceSource = this.TraceSource,
+                Properties = properties,
+                Source = source ?? this.Source,
+                Category = category,
+                CodeSectionBase = this,
+                Thread = Thread.CurrentThread,
+                ThreadID = Thread.CurrentThread.ManagedThreadId,
+                ApartmentState = Thread.CurrentThread.GetApartmentState(),
+                DisableCRLFReplace = disableCRLFReplace,
+                ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds,
+                TraceStartTicks = startTicks
+            };
             if (!TraceLogger._lockListenersNotifications.Value)
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
@@ -516,8 +566,7 @@ namespace Common
                 //if (TraceLogger._isInitializeComplete.Value == false && TraceLogger._isInitializing.Value == false) { TraceLogger.Init(null); }
             }
         }
-#endif
-#if !NET6_0_OR_GREATER
+#else
         public void LogInformation(NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
@@ -576,11 +625,29 @@ namespace Common
         }
 
 #if NET6_0_OR_GREATER
-        public void LogWarning(TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
+        public void LogWarning(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
-            var entry = new TraceEntry() { Message = message.GetFormattedText(), TraceEventType = TraceEventType.Warning, SourceLevel = SourceLevels.Warning, LogLevel = LogLevel.Warning, TraceSource = this.TraceSource, Properties = properties, Source = source ?? this.Source, Category = category, CodeSectionBase = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
+            var entry = new TraceEntry()
+            {
+                MessageFormat = message.formatTemplate?.ToString(),
+                MessageArgs = message.formatParameters,
+                TraceEventType = TraceEventType.Warning,
+                SourceLevel = SourceLevels.Warning,
+                LogLevel = LogLevel.Warning,
+                TraceSource = this.TraceSource,
+                Properties = properties,
+                Source = source ?? this.Source,
+                Category = category,
+                CodeSectionBase = this,
+                Thread = Thread.CurrentThread,
+                ThreadID = Thread.CurrentThread.ManagedThreadId,
+                ApartmentState = Thread.CurrentThread.GetApartmentState(),
+                DisableCRLFReplace = disableCRLFReplace,
+                ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds,
+                TraceStartTicks = startTicks
+            };
             if (!TraceLogger._lockListenersNotifications.Value)
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
@@ -612,8 +679,7 @@ namespace Common
             }
 
         }
-#endif
-#if !NET6_0_OR_GREATER
+#else
         public void LogWarning(NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
@@ -673,11 +739,29 @@ namespace Common
         }
 
 #if NET6_0_OR_GREATER
-        public void LogError(TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
+        public void LogError(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
-            var entry = new TraceEntry() { Message = message.GetFormattedText(), TraceEventType = TraceEventType.Error, SourceLevel = SourceLevels.Error, LogLevel = LogLevel.Error, TraceSource = this.TraceSource, Properties = properties, Source = source ?? this.Source, Category = category, CodeSectionBase = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
+            var entry = new TraceEntry()
+            {
+                MessageFormat = message.formatTemplate?.ToString(),
+                MessageArgs = message.formatParameters,
+                TraceEventType = TraceEventType.Error,
+                SourceLevel = SourceLevels.Error,
+                LogLevel = LogLevel.Error,
+                TraceSource = this.TraceSource,
+                Properties = properties,
+                Source = source ?? this.Source,
+                Category = category,
+                CodeSectionBase = this,
+                Thread = Thread.CurrentThread,
+                ThreadID = Thread.CurrentThread.ManagedThreadId,
+                ApartmentState = Thread.CurrentThread.GetApartmentState(),
+                DisableCRLFReplace = disableCRLFReplace,
+                ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds,
+                TraceStartTicks = startTicks
+            };
             if (!TraceLogger._lockListenersNotifications.Value)
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
@@ -707,8 +791,7 @@ namespace Common
                 //if (TraceLogger._isInitializeComplete.Value == false && TraceLogger._isInitializing.Value == false) { TraceLogger.Init(null); }
             }
         }
-#endif
-#if !NET6_0_OR_GREATER
+#else
         public void LogError(NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
@@ -880,11 +963,10 @@ namespace Common
         void ICodeSectionLogger.Trace(object obj, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogTrace(obj, category, properties, source, disableCRLFReplace); }
 #if NET6_0_OR_GREATER
         [Obsolete("Obsolete method, please, use LogDebug method instead")]
-        void ICodeSectionLogger.Trace(TraceLoggerInterpolatedStringHandler message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogTrace(message, category, properties, source, disableCRLFReplace); }
+        void ICodeSectionLogger.Trace(ref TraceLoggerInterpolatedStringHandler message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogTrace(ref message, category, properties, source, disableCRLFReplace); }
         [Obsolete("Obsolete method, please, use LogDebug method instead")]
         void ICodeSectionLogger.Trace(string message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogTrace(message, category, properties, source, disableCRLFReplace); }
-#endif
-#if !NET6_0_OR_GREATER
+#else
         [Obsolete("Obsolete method, please, use LogDebug method instead")]
         void ICodeSectionLogger.Trace(NonFormattableString message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogTrace(message, category, properties, source, disableCRLFReplace); }
         [Obsolete("Obsolete method, please, use LogDebug method instead")]
@@ -897,11 +979,10 @@ namespace Common
         void ICodeSectionLogger.Debug(object obj, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogDebug(obj, category, properties, source, disableCRLFReplace); }
 #if NET6_0_OR_GREATER
         [Obsolete("Obsolete method, please, use LogDebug method instead")]
-        void ICodeSectionLogger.Debug(TraceLoggerInterpolatedStringHandler message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogDebug(message, category, properties, source, disableCRLFReplace); }
+        void ICodeSectionLogger.Debug(ref TraceLoggerInterpolatedStringHandler message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogDebug(ref message, category, properties, source, disableCRLFReplace); }
         [Obsolete("Obsolete method, please, use LogDebug method instead")]
         void ICodeSectionLogger.Debug(string message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogDebug(message, category, properties, source, disableCRLFReplace); }
-#endif
-#if !NET6_0_OR_GREATER
+#else
         [Obsolete("Obsolete method, please, use LogDebug method instead")]
         void ICodeSectionLogger.Debug(NonFormattableString message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogDebug(message, category, properties, source, disableCRLFReplace); }
         [Obsolete("Obsolete method, please, use LogDebug method instead")]
@@ -912,11 +993,10 @@ namespace Common
 
 #if NET6_0_OR_GREATER
         [Obsolete("Obsolete method, please, use LogInformation method instead")]
-        void ICodeSectionLogger.Information(TraceLoggerInterpolatedStringHandler message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogInformation(message, category, properties, source, disableCRLFReplace); }
+        void ICodeSectionLogger.Information(ref TraceLoggerInterpolatedStringHandler message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogInformation(ref message, category, properties, source, disableCRLFReplace); }
         [Obsolete("Obsolete method, please, use LogInformation method instead")]
         void ICodeSectionLogger.Information(string message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogInformation(message, category, properties, source, disableCRLFReplace); }
-#endif
-#if !NET6_0_OR_GREATER
+#else
         [Obsolete("Obsolete method, please, use LogInformation method instead")]
         void ICodeSectionLogger.Information(NonFormattableString message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogInformation(message, category, properties, source, disableCRLFReplace); }
         [Obsolete("Obsolete method, please, use LogInformation method instead")]
@@ -927,11 +1007,10 @@ namespace Common
 
 #if NET6_0_OR_GREATER
         [Obsolete("Obsolete method, please, use LogWarning method instead")]
-        void ICodeSectionLogger.Warning(TraceLoggerInterpolatedStringHandler message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogWarning(message, category, properties, source, disableCRLFReplace); }
+        void ICodeSectionLogger.Warning(ref TraceLoggerInterpolatedStringHandler message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogWarning(ref message, category, properties, source, disableCRLFReplace); }
         [Obsolete("Obsolete method, please, use LogWarning method instead")]
         void ICodeSectionLogger.Warning(string message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogWarning(message, category, properties, source, disableCRLFReplace); }
-#endif
-#if !NET6_0_OR_GREATER
+#else
         [Obsolete("Obsolete method, please, use LogWarning method instead")]
         void ICodeSectionLogger.Warning(NonFormattableString message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogWarning(message, category, properties, source, disableCRLFReplace); }
         [Obsolete("Obsolete method, please, use LogWarning method instead")]
@@ -942,11 +1021,10 @@ namespace Common
 
 #if NET6_0_OR_GREATER
         [Obsolete("Obsolete method, please, use LogError method instead")]
-        void ICodeSectionLogger.Error(TraceLoggerInterpolatedStringHandler message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogError(message, category, properties, source, disableCRLFReplace); }
+        void ICodeSectionLogger.Error(ref TraceLoggerInterpolatedStringHandler message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogError(ref message, category, properties, source, disableCRLFReplace); }
         [Obsolete("Obsolete method, please, use LogError method instead")]
         void ICodeSectionLogger.Error(string message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogError(message, category, properties, source, disableCRLFReplace); }
-#endif
-#if !NET6_0_OR_GREATER
+#else
         [Obsolete("Obsolete method, please, use LogError method instead")]
         void ICodeSectionLogger.Error(NonFormattableString message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogError(message, category, properties, source, disableCRLFReplace); }
         [Obsolete("Obsolete method, please, use LogError method instead")]
