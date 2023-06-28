@@ -12,35 +12,43 @@ using Microsoft.Extensions.Logging;
 
 namespace Common
 {
+    public interface IProvideFormatStringParameters
+    {
+        StringBuilder FormatTemplate { get; }
+        object[] FormatParameters { get; }
+    }
+
 #if NET6_0_OR_GREATER
     [InterpolatedStringHandler]
-    public ref struct TraceLoggerInterpolatedStringHandler
+    public ref struct TraceLoggerInterpolatedStringHandler 
     {
-        internal StringBuilder formatTemplate;
-        internal object[] formatParameters;
+        public StringBuilder FormatTemplate { get; }
+        public object[] FormatParameters { get; }
+
         int i = 0;
 
-        public TraceLoggerInterpolatedStringHandler(int literalLength, int formattedCount) // object logger, LogLevel logLevel
+        public TraceLoggerInterpolatedStringHandler(int literalLength, int formattedCount)
         {
-            formatTemplate = new StringBuilder(literalLength + 3 * formattedCount);
-            this.formatParameters = new object[formattedCount];
+            this.FormatTemplate = new StringBuilder(literalLength + 3 * formattedCount);
+            this.FormatParameters = new object[formattedCount];
         }
 
         public void AppendLiteral(string s)
         {
-            formatTemplate.Append(s);
+            this.FormatTemplate.Append(s);
         }
 
         public void AppendFormatted<T>(T t)
         {
-            formatTemplate.Append($"{{{i}}}");
-            formatParameters[i] = t;
+            this.FormatTemplate.Append($"{{{i}}}");
+            this.FormatParameters[i] = t;
             i++;
         }
 
-        public string GetFormattedText() => string.Format(formatTemplate.ToString(), formatParameters);
-        //override public string ToString() => builder.ToString();
+        public string GetFormattedText() => string.Format(this.FormatTemplate.ToString(), this.FormatParameters);
+        override public string ToString() => string.Format(this.FormatTemplate.ToString(), this.FormatParameters);
     }
+
 #endif
 
 }

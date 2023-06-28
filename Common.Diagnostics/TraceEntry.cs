@@ -26,10 +26,11 @@ namespace Common
         public string MessageFormat { get; set; }
         [JsonIgnore]
         public object[] MessageArgs { get; set; }
-        //[JsonIgnore]
-        //public TraceLoggerInterpolatedStringHandler MessageInterpolatedStringHandler { get; set; }
+        public object MessageObject { get; set; }
         [JsonIgnore]
         public Func<string> GetMessage { get; set; }
+        //[JsonIgnore]
+        //public TraceLoggerInterpolatedStringHandler MessageInterpolatedStringHandler { get; set; }
         public IDictionary<string, object> Properties { get; set; }
         public string Source { get; set; }
         public string Category { get; set; }

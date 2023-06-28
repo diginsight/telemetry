@@ -219,9 +219,13 @@ namespace Common
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
-            var message = obj.GetLogString();
+            var entry = new TraceEntry() { TraceEventType = TraceEventType.Verbose, SourceLevel = SourceLevels.Verbose, LogLevel = LogLevel.Trace, Properties = properties, Source = source ?? this.Source, Category = category, CodeSectionBase = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
+            
+            if (obj is Func<string>) { entry.GetMessage = (Func<string>)obj; }
+            else if (obj is Func<object>) { entry.GetMessage = () => ((Func<object>)obj)().GetLogString(); }
+            else if (obj is string) { entry.Message = (string)obj; }
+            else { entry.MessageObject = obj; }
 
-            var entry = new TraceEntry() { Message = message, TraceEventType = TraceEventType.Verbose, SourceLevel = SourceLevels.Verbose, LogLevel = LogLevel.Trace, Properties = properties, Source = source ?? this.Source, Category = category, CodeSectionBase = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
             if (!TraceLogger._lockListenersNotifications.Value)
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
@@ -241,8 +245,8 @@ namespace Common
 
             var entry = new TraceEntry()
             {
-                MessageFormat = message.formatTemplate?.ToString(),
-                MessageArgs = message.formatParameters,
+                MessageFormat = message.FormatTemplate?.ToString(),
+                MessageArgs = message.FormatParameters,
                 TraceEventType = TraceEventType.Verbose,
                 SourceLevel = SourceLevels.Verbose,
                 LogLevel = LogLevel.Trace,
@@ -368,9 +372,13 @@ namespace Common
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
-            var message = obj.GetLogString();
+            var entry = new TraceEntry() { TraceEventType = TraceEventType.Verbose, SourceLevel = SourceLevels.Verbose, LogLevel = LogLevel.Debug, Properties = properties, Source = source ?? this.Source, Category = category, CodeSectionBase = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
 
-            var entry = new TraceEntry() { Message = message, TraceEventType = TraceEventType.Verbose, SourceLevel = SourceLevels.Verbose, LogLevel = LogLevel.Debug, Properties = properties, Source = source ?? this.Source, Category = category, CodeSectionBase = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
+            if (obj is Func<string>) { entry.GetMessage = (Func<string>)obj; }
+            else if (obj is Func<object>) { entry.GetMessage = () => ((Func<object>)obj)().GetLogString(); }
+            else if (obj is string) { entry.Message = (string)obj; }
+            else { entry.MessageObject = obj; }
+
             if (!TraceLogger._lockListenersNotifications.Value)
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
@@ -390,8 +398,8 @@ namespace Common
 
             var entry = new TraceEntry()
             {
-                MessageFormat = message.formatTemplate?.ToString(),
-                MessageArgs = message.formatParameters,
+                MessageFormat = message.FormatTemplate?.ToString(),
+                MessageArgs = message.FormatParameters,
                 TraceEventType = TraceEventType.Verbose,
                 SourceLevel = SourceLevels.Verbose,
                 LogLevel = LogLevel.Debug,
@@ -520,8 +528,8 @@ namespace Common
 
             var entry = new TraceEntry()
             {
-                MessageFormat = message.formatTemplate?.ToString(),
-                MessageArgs = message.formatParameters,
+                MessageFormat = message.FormatTemplate?.ToString(),
+                MessageArgs = message.FormatParameters,
                 TraceEventType = TraceEventType.Information,
                 SourceLevel = SourceLevels.Information,
                 LogLevel = LogLevel.Information,
@@ -631,8 +639,8 @@ namespace Common
 
             var entry = new TraceEntry()
             {
-                MessageFormat = message.formatTemplate?.ToString(),
-                MessageArgs = message.formatParameters,
+                MessageFormat = message.FormatTemplate?.ToString(),
+                MessageArgs = message.FormatParameters,
                 TraceEventType = TraceEventType.Warning,
                 SourceLevel = SourceLevels.Warning,
                 LogLevel = LogLevel.Warning,
@@ -745,8 +753,8 @@ namespace Common
 
             var entry = new TraceEntry()
             {
-                MessageFormat = message.formatTemplate?.ToString(),
-                MessageArgs = message.formatParameters,
+                MessageFormat = message.FormatTemplate?.ToString(),
+                MessageArgs = message.FormatParameters,
                 TraceEventType = TraceEventType.Error,
                 SourceLevel = SourceLevels.Error,
                 LogLevel = LogLevel.Error,

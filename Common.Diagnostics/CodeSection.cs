@@ -166,8 +166,8 @@ namespace Common
 
             var entry = new TraceEntry()
             {
-                MessageFormat = message.formatTemplate?.ToString(),
-                MessageArgs = message.formatParameters,
+                MessageFormat = message.FormatTemplate?.ToString(),
+                MessageArgs = message.FormatParameters,
                 TraceEventType = TraceEventType.Verbose,
                 SourceLevel = SourceLevels.Verbose,
                 Properties = properties,
@@ -298,8 +298,8 @@ namespace Common
 
             var entry = new TraceEntry()
             {
-                MessageFormat = message.formatTemplate?.ToString(),
-                MessageArgs = message.formatParameters,
+                MessageFormat = message.FormatTemplate?.ToString(),
+                MessageArgs = message.FormatParameters,
                 TraceEventType = TraceEventType.Verbose,
                 SourceLevel = SourceLevels.Verbose,
                 Properties = properties,
@@ -411,8 +411,8 @@ namespace Common
 
             var entry = new TraceEntry()
             {
-                MessageFormat = message.formatTemplate?.ToString(),
-                MessageArgs = message.formatParameters,
+                MessageFormat = message.FormatTemplate?.ToString(),
+                MessageArgs = message.FormatParameters,
                 TraceEventType = TraceEventType.Information,
                 SourceLevel = SourceLevels.Information,
                 TraceSource = this.TraceSource,
@@ -517,8 +517,8 @@ namespace Common
 
             var entry = new TraceEntry()
             {
-                MessageFormat = message.formatTemplate?.ToString(),
-                MessageArgs = message.formatParameters,
+                MessageFormat = message.FormatTemplate?.ToString(),
+                MessageArgs = message.FormatParameters,
                 TraceEventType = TraceEventType.Warning,
                 SourceLevel = SourceLevels.Warning,
                 TraceSource = this.TraceSource,
@@ -626,8 +626,8 @@ namespace Common
 
             var entry = new TraceEntry()
             {
-                MessageFormat = message.formatTemplate?.ToString(),
-                MessageArgs = message.formatParameters,
+                MessageFormat = message.FormatTemplate?.ToString(),
+                MessageArgs = message.FormatParameters,
                 TraceEventType = TraceEventType.Error,
                 SourceLevel = SourceLevels.Error,
                 TraceSource = this.TraceSource,

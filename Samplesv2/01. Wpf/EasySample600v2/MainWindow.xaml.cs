@@ -119,7 +119,19 @@ namespace EasySample
                 scope.LogDebug(() => new { sender = sender.GetLogString(), e = e.GetLogString() });
 
                 {
-                    using var scopeInner = logger.BeginNamedScope("Optimized code section");
+                    using var scopeInner = logger.BeginNamedScope("OptimizedByInterpolatedStringHandler");
+
+                    // log by means of the scope variable
+                    scope.LogTrace($"this is a long trace trace ({e.GetLogString()})", null, new Dictionary<string, object>() { { "MaxMessageLen", 0 } }); //  TraceLogger.LogDebug($"requestBody: {requestBody}");
+                    scope.LogDebug($"this is a debug trace ({e.GetLogString()})"); // , properties: new Dictionary<string, object>() { { "", "" } }
+                    scope.LogInformation($"this is a Information trace ({e.GetLogString()})"); // , properties: new Dictionary<string, object>() { { "", "" } }
+                    scope.LogWarning($"this is a Warning trace ({e.GetLogString()})");
+                    scope.LogError($"this is a error trace ({e.GetLogString()})");
+                    scope.LogError($"this is a error trace ({e.GetLogString()})");
+                }
+
+                {
+                    using var scopeInner = logger.BeginNamedScope("OptimizedByDelegate");
 
                     // log by means of the scope variable
                     scope.LogTrace(() => "this is a long trace trace", null, new Dictionary<string, object>() { { "MaxMessageLen", 0 } }); //  TraceLogger.LogDebug($"requestBody: {requestBody}");
@@ -131,7 +143,7 @@ namespace EasySample
                 }
 
                 {
-                    using var scopeInner = logger.BeginNamedScope("Standard code section");
+                    using var scopeInner = logger.BeginNamedScope("StandardCodeSection");
 
                     // log by means of standard ILogger Interface
                     logger.LogTrace("this is a Trace trace");
@@ -143,7 +155,7 @@ namespace EasySample
                 }
 
                 {
-                    using var scopeInner = logger.BeginNamedScope("Optimized code section (static methods)");
+                    using var scopeInner = logger.BeginNamedScope("OptimizedByDelegate (static methods)");
 
                     // log by means of static methods
                     TraceLogger.LogTrace(() => "this is a trace trace"); // , properties: new Dictionary<string, object>() { { "", "" } }

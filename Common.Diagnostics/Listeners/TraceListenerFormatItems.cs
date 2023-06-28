@@ -427,14 +427,10 @@ namespace Common
             var maxMessageLen = TraceManager.GetMaxMessageLen(codeSection, entry.TraceEventType);
 
             var messageRaw = entry.Message;
-            if (entry.GetMessage != null)
-            {
-                messageRaw = entry.GetMessage();
-            }
-            else if (entry.MessageFormat != null)
-            {
-                messageRaw = string.Format(entry.MessageFormat, entry.MessageArgs);
-            }
+            if (entry.GetMessage != null) { messageRaw = entry.GetMessage(); }
+            else if (entry.MessageFormat != null) { messageRaw = string.Format(entry.MessageFormat, entry.MessageArgs); }
+            else { messageRaw = entry.MessageObject.GetLogString(); }
+
             var message = codeSection.IsInnerScope ? "... " + messageRaw : messageRaw;
             if (maxMessageLen > 0 && message != null && message.Length > maxMessageLen) { message = message.Substring(0, maxMessageLen.Value - 3) + "..."; }
 
