@@ -44,6 +44,12 @@ namespace Common
             this.FormatParameters[i] = t;
             i++;
         }
+        public void AppendFormatted<T>(T t, string format) where T : IFormattable
+        {
+            this.FormatTemplate.Append($"{{{i}:{format}}}");
+            this.FormatParameters[i] = t;
+            i++;
+        }
 
         public string GetFormattedText() => string.Format(this.FormatTemplate.ToString(), this.FormatParameters);
         override public string ToString() => string.Format(this.FormatTemplate.ToString(), this.FormatParameters);

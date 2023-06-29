@@ -38,7 +38,12 @@ namespace Common
             this.SourceFilePath = pCopy.SourceFilePath;
             this.SourceLineNumber = pCopy.SourceLineNumber;
             this.DisableStartEndTraces = true;
+
             logger = pCopy.logger;
+            this.TraceLoggerMinimumLevelService = pCopy.TraceLoggerMinimumLevelService;
+            this.MinimumLogLevel = pCopy.MinimumLogLevel;
+            this._isLogEnabled = pCopy._isLogEnabled;
+
             this.T = pCopy.T;
             this.Assembly = pCopy.Assembly;
             this.Category = pCopy.Category;
@@ -56,7 +61,11 @@ namespace Common
             this.ModuleContext = pCopy.ModuleContext;
         }
 
-        public CodeSectionScope(ILogger logger, Type type, string name = null, object payload = null, TraceSource traceSource = null, SourceLevels sourceLevel = SourceLevels.Verbose, LogLevel logLevel = LogLevel.Debug, string category = null, IDictionary<string, object> properties = null, string source = null, long startTicks = 0, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0, bool disableStartEndTraces = false)
+        public CodeSectionScope(ILogger logger, ITraceLoggerMinimumLevel traceLoggerMinimumLevelService, Type type, string name = null, object payload = null,
+                                TraceSource traceSource = null, SourceLevels sourceLevel = SourceLevels.Verbose, LogLevel logLevel = LogLevel.Debug,
+                                string category = null, IDictionary<string, object> properties = null, string source = null, long startTicks = 0,
+                                [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0,
+                                bool disableStartEndTraces = false)
         {
             this.Name = name;
             this.Payload = payload;
@@ -67,7 +76,14 @@ namespace Common
             this.SourceFilePath = sourceFilePath;
             this.SourceLineNumber = sourceLineNumber;
             this.DisableStartEndTraces = disableStartEndTraces;
+
             this.logger = logger;
+
+            var host = TraceLogger.Host;
+            if (traceLoggerMinimumLevelService == null && host != null) { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); }
+            this.TraceLoggerMinimumLevelService = traceLoggerMinimumLevelService;
+            this.MinimumLogLevel = traceLoggerMinimumLevelService?.MinimumLevel ?? LogLevel.Trace;
+            this._isLogEnabled = logLevel >= this.MinimumLogLevel;
 
             if (type == null && logger != null) { type = logger.GetType().GenericTypeArguments.FirstOrDefaultChecked(); }
 
@@ -115,6 +131,9 @@ namespace Common
 
             if (this.DisableStartEndTraces == true) { return; }
 
+            // if (this?._isLogEnabled == false) { return; }
+            if (logLevel < this.MinimumLogLevel) { return; }
+
             var entry = new TraceEntry() { TraceEventType = TraceEventType.Start, LogLevel = logLevel, TraceSource = this.TraceSource, Message = null, Properties = properties, Source = source, Category = category, SourceLevel = sourceLevel, CodeSectionBase = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
             if (!TraceLogger._lockListenersNotifications.Value)
             {
@@ -129,8 +148,11 @@ namespace Common
             }
         }
 
-        internal CodeSectionScope(ILogger logger, string typeName, string name = null, object payload = null, TraceSource traceSource = null, SourceLevels sourceLevel = SourceLevels.Verbose, LogLevel logLevel = LogLevel.Debug,
-                                  string category = null, IDictionary<string, object> properties = null, string source = null, long startTicks = 0, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0, bool disableStartEndTraces = false)
+        internal CodeSectionScope(ILogger logger, ITraceLoggerMinimumLevel traceLoggerMinimumLevelService, string typeName, string name = null, object payload = null,
+                                  TraceSource traceSource = null, SourceLevels sourceLevel = SourceLevels.Verbose, LogLevel logLevel = LogLevel.Debug,
+                                  string category = null, IDictionary<string, object> properties = null, string source = null, long startTicks = 0,
+                                  [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0,
+                                  bool disableStartEndTraces = false)
         {
             this.Name = name;
             this.Payload = payload;
@@ -141,7 +163,14 @@ namespace Common
             this.SourceFilePath = sourceFilePath;
             this.SourceLineNumber = sourceLineNumber;
             this.DisableStartEndTraces = disableStartEndTraces;
+
             this.logger = logger;
+
+            var host = TraceLogger.Host;
+            if (traceLoggerMinimumLevelService == null && host != null) { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); }
+            this.TraceLoggerMinimumLevelService = traceLoggerMinimumLevelService;
+            this.MinimumLogLevel = traceLoggerMinimumLevelService?.MinimumLevel ?? LogLevel.Trace;
+            this._isLogEnabled = logLevel >= this.MinimumLogLevel;
 
             var type = logger?.GetType()?.GenericTypeArguments?.FirstOrDefault();
             this.T = type;
@@ -200,6 +229,9 @@ namespace Common
 
             if (this.DisableStartEndTraces == true) { return; }
 
+            //if (this?._isLogEnabled == false) { return; }
+            if (logLevel < this.MinimumLogLevel) { return; }
+
             var entry = new TraceEntry() { TraceEventType = TraceEventType.Start, TraceSource = this.TraceSource, SourceLevel = sourceLevel, LogLevel = logLevel, Message = null, Properties = properties, Source = source, Category = category, CodeSectionBase = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
             if (!TraceLogger._lockListenersNotifications.Value)
             {
@@ -217,10 +249,14 @@ namespace Common
 
         public void LogTrace(object obj, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
+            //if (this?._isLogEnabled == false) { return; }
+            var logLevel = LogLevel.Trace;
+            if (logLevel < this.MinimumLogLevel) { return; }
+
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
             var entry = new TraceEntry() { TraceEventType = TraceEventType.Verbose, SourceLevel = SourceLevels.Verbose, LogLevel = LogLevel.Trace, Properties = properties, Source = source ?? this.Source, Category = category, CodeSectionBase = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
-            
+
             if (obj is Func<string>) { entry.GetMessage = (Func<string>)obj; }
             else if (obj is Func<object>) { entry.GetMessage = () => ((Func<object>)obj)().GetLogString(); }
             else if (obj is string) { entry.Message = (string)obj; }
@@ -241,6 +277,10 @@ namespace Common
 #if NET6_0_OR_GREATER
         public void LogTrace(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
+            //if (this?._isLogEnabled == false) { return; }
+            var logLevel = LogLevel.Trace;
+            if (logLevel < this.MinimumLogLevel) { return; }
+
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
             var entry = new TraceEntry()
@@ -275,6 +315,10 @@ namespace Common
         }
         public void LogTrace(string message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
+            //if (this?._isLogEnabled == false) { return; }
+            var logLevel = LogLevel.Trace;
+            if (logLevel < this.MinimumLogLevel) { return; }
+
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
             var entry = new TraceEntry() { Message = message, TraceEventType = TraceEventType.Verbose, SourceLevel = SourceLevels.Verbose, LogLevel = LogLevel.Trace, Properties = properties, Source = source ?? this.Source, Category = category, CodeSectionBase = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
@@ -348,6 +392,10 @@ namespace Common
 #endif
         public void LogTrace(Func<string> getMessage, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
+            //if (this?._isLogEnabled == false) { return; }
+            var logLevel = LogLevel.Trace;
+            if (logLevel < this.MinimumLogLevel) { return; }
+
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
             try
@@ -370,6 +418,10 @@ namespace Common
 
         public void LogDebug(object obj, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
+            //if (this?._isLogEnabled == false) { return; }
+            var logLevel = LogLevel.Debug;
+            if (logLevel < this.MinimumLogLevel) { return; }
+
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
             var entry = new TraceEntry() { TraceEventType = TraceEventType.Verbose, SourceLevel = SourceLevels.Verbose, LogLevel = LogLevel.Debug, Properties = properties, Source = source ?? this.Source, Category = category, CodeSectionBase = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
@@ -394,6 +446,10 @@ namespace Common
 #if NET6_0_OR_GREATER
         public void LogDebug(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
+            //if (this?._isLogEnabled == false) { return; }
+            var logLevel = LogLevel.Debug;
+            if (logLevel < this.MinimumLogLevel) { return; }
+
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
             var entry = new TraceEntry()
@@ -428,6 +484,10 @@ namespace Common
         }
         public void LogDebug(string message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
+            //if (this?._isLogEnabled == false) { return; }
+            var logLevel = LogLevel.Debug;
+            if (logLevel < this.MinimumLogLevel) { return; }
+
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
             var entry = new TraceEntry() { Message = message, TraceEventType = TraceEventType.Verbose, SourceLevel = SourceLevels.Verbose, LogLevel = LogLevel.Debug, Properties = properties, Source = source ?? this.Source, Category = category, CodeSectionBase = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
@@ -501,6 +561,10 @@ namespace Common
 #endif
         public void LogDebug(Func<string> getMessage, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
+            //if (this?._isLogEnabled == false) { return; }
+            var logLevel = LogLevel.Debug;
+            if (logLevel < this.MinimumLogLevel) { return; }
+
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
             try
@@ -524,6 +588,10 @@ namespace Common
 #if NET6_0_OR_GREATER
         public void LogInformation(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
+            //if (this?._isLogEnabled == false) { return; }
+            var logLevel = LogLevel.Information;
+            if (logLevel < this.MinimumLogLevel) { return; }
+
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
             var entry = new TraceEntry()
@@ -559,6 +627,10 @@ namespace Common
         }
         public void LogInformation(string message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
+            //if (this?._isLogEnabled == false) { return; }
+            var logLevel = LogLevel.Information;
+            if (logLevel < this.MinimumLogLevel) { return; }
+
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
             var entry = new TraceEntry() { Message = message, TraceEventType = TraceEventType.Information, SourceLevel = SourceLevels.Information, LogLevel = LogLevel.Information, TraceSource = this.TraceSource, Properties = properties, Source = source ?? this.Source, Category = category, CodeSectionBase = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
@@ -612,6 +684,10 @@ namespace Common
 #endif
         public void LogInformation(Func<string> getMessage, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
+            //if (this?._isLogEnabled == false) { return; }
+            var logLevel = LogLevel.Information;
+            if (logLevel < this.MinimumLogLevel) { return; }
+
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
             try
@@ -635,6 +711,10 @@ namespace Common
 #if NET6_0_OR_GREATER
         public void LogWarning(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
+            //if (this?._isLogEnabled == false) { return; }
+            var logLevel = LogLevel.Warning;
+            if (logLevel < this.MinimumLogLevel) { return; }
+
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
             var entry = new TraceEntry()
@@ -671,6 +751,10 @@ namespace Common
         }
         public void LogWarning(string message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
+            //if (this?._isLogEnabled == false) { return; }
+            var logLevel = LogLevel.Warning;
+            if (logLevel < this.MinimumLogLevel) { return; }
+
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
             var entry = new TraceEntry() { Message = message, TraceEventType = TraceEventType.Warning, SourceLevel = SourceLevels.Warning, LogLevel = LogLevel.Warning, TraceSource = this.TraceSource, Properties = properties, Source = source ?? this.Source, Category = category, CodeSectionBase = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
@@ -726,6 +810,10 @@ namespace Common
 #endif
         public void LogWarning(Func<string> getMessage, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
+            //if (this?._isLogEnabled == false) { return; }
+            var logLevel = LogLevel.Warning;
+            if (logLevel < this.MinimumLogLevel) { return; }
+
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
             try
@@ -749,6 +837,10 @@ namespace Common
 #if NET6_0_OR_GREATER
         public void LogError(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
+            //if (this?._isLogEnabled == false) { return; }
+            var logLevel = LogLevel.Error;
+            if (logLevel < this.MinimumLogLevel) { return; }
+
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
             var entry = new TraceEntry()
@@ -784,6 +876,10 @@ namespace Common
         }
         public void LogError(string message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
+            //if (this?._isLogEnabled == false) { return; }
+            var logLevel = LogLevel.Error;
+            if (logLevel < this.MinimumLogLevel) { return; }
+
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
             var entry = new TraceEntry() { Message = message, TraceEventType = TraceEventType.Error, SourceLevel = SourceLevels.Error, LogLevel = LogLevel.Error, TraceSource = this.TraceSource, Properties = properties, Source = source ?? this.Source, Category = category, CodeSectionBase = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), DisableCRLFReplace = disableCRLFReplace, ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
@@ -837,6 +933,10 @@ namespace Common
 #endif
         public void LogError(Func<string> getMessage, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
+            //if (this?._isLogEnabled == false) { return; }
+            var logLevel = LogLevel.Error;
+            if (logLevel < this.MinimumLogLevel) { return; }
+
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
             try
@@ -859,6 +959,10 @@ namespace Common
 
         public void LogException(Exception exception, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = true)
         {
+            //if (this?._isLogEnabled == false) { return; }
+            var logLevel = LogLevel.Error;
+            if (logLevel < this.MinimumLogLevel) { return; }
+
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             if (exception == null) return;
 
@@ -894,6 +998,7 @@ namespace Common
             }
         }
 
+
         public override void Dispose()
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
@@ -904,6 +1009,10 @@ namespace Common
             try
             {
                 if (this.DisableStartEndTraces == true) { return; }
+                //if (this?._isLogEnabled == false) { return; }
+                if (this.LogLevel < this.MinimumLogLevel) { return; }
+
+
                 if (!TraceLogger._lockListenersNotifications.Value)
                 {
                     var entry = new TraceEntry() { TraceEventType = TraceEventType.Stop, LogLevel = this.LogLevel, TraceSource = this.TraceSource, Message = null, Properties = this.Properties, Source = this.Source, Category = this.Category, SourceLevel = this.SourceLevel, CodeSectionBase = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };

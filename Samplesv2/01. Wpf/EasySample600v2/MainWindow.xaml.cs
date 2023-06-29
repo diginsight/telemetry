@@ -2,6 +2,7 @@
 using Common;
 using EasySample600v2;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -37,10 +38,11 @@ namespace EasySample
         static MainWindow()
         {
             var host = App.Host;
-            var logger = host.GetLogger<MainWindow>();
-            using (var scope = logger.BeginMethodScope())
-            {
-            }
+            //var logger = host.GetLogger<MainWindow>();
+            //using (var scope = logger.BeginMethodScope())
+            //{
+            //}
+            using var scope = host.BeginMethodScope<MainWindow>();
         }
         public MainWindow(ILogger<MainWindow> logger)
         {
@@ -60,6 +62,7 @@ namespace EasySample
 
             int i = 0;
 
+            // scope.LogDebug
             logger.LogDebug(() => new { i, e = e.GetLogString(), sender = sender.GetLogString() }); // , properties: new Dictionary<string, object>() { { "", "" } }
 
 
@@ -112,7 +115,7 @@ namespace EasySample
             //var time = DateTime.Now;
             //logger1.LogDebug($"Error Level. CurrentTime: {time}. This is an error. It will be printed.");
             var time = DateTime.Now;
-            logger.LogDebug($"CurrentTime: {time}. Error Level {i++}. This is an error. It will be printed.");
+            logger.LogDebug($"CurrentTime: {time:dd/MM HH:mm:ss.ff}. Error Level {i++}. This is an error. It will be printed.");
 
             try
             {

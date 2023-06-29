@@ -36,6 +36,8 @@ namespace Common
         public int? _maxMessageLenVerbose { get; set; }
         public int? _maxMessageLenDebug { get; set; }
 
+        public ITraceLoggerMinimumLevel TraceLoggerMinimumLevelService { get; set; }
+
         public ICodeSection Caller { get; set; }
         public int NestingLevel { get; set; }
         public int OperationDept { get; set; }
@@ -66,6 +68,7 @@ namespace Common
         public IModuleContext ModuleContext { get; set; }
         public SourceLevels SourceLevel { get; set; }
         public LogLevel LogLevel { get; set; }
+        public LogLevel MinimumLogLevel { get; set; }
         public IDictionary<string, object> Properties { get; set; }
         public bool IsInnerScope { get; set; }
         public ICodeSection InnerScope { get; set; }

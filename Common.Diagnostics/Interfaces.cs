@@ -72,6 +72,7 @@ namespace Common
         IModuleContext ModuleContext { get; set; }
         SourceLevels SourceLevel { get; set; }
         LogLevel LogLevel { get; set; }
+        LogLevel MinimumLogLevel { get; set; }
         IDictionary<string, object> Properties { get; set; }
         bool IsInnerScope { get; set; }
         ICodeSection InnerScope { get; set; }

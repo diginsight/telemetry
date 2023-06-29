@@ -130,18 +130,33 @@ namespace EasySample
 
             services.AddScoped<ITraceLoggerMinimumLevel, TraceLoggerMinimumLevel>(sp =>
             {
-                var contextAccessor = Host.Services.GetService<IHttpContextAccessor>();
-                if (contextAccessor == null) { return null; }
-
-                var ok = contextAccessor.HttpContext.Request.Headers.TryGetValue("TraceLoggerMinimumLevel", out StringValues headerValues);
-                if (ok) {
-                    ok = int.TryParse(headerValues.LastOrDefault(), out int traceLoggerMinimumLevel);
+                var ok = true;
+                var traceLoggerMinimumLevel = default(TraceLoggerMinimumLevel);
+                var traceLoggerMinimumLevelString = configuration["AppSettings:TraceLoggerMinimumLevel"] as string;
+                if (traceLoggerMinimumLevelString is not null)
+                {
+                    ok = Enum.TryParse<LogLevel>(traceLoggerMinimumLevelString, out LogLevel minimumLevel);
                     if (ok)
                     {
-                        return new TraceLoggerMinimumLevel() { MinimumLevel = (LogLevel)traceLoggerMinimumLevel };
+                        if (traceLoggerMinimumLevel == null) { traceLoggerMinimumLevel = new TraceLoggerMinimumLevel(); }
+                        traceLoggerMinimumLevel.MinimumLevel = minimumLevel;
                     }
                 }
-                return null;
+
+                var contextAccessor = Host.Services.GetService<IHttpContextAccessor>();
+                if (contextAccessor == null) { return traceLoggerMinimumLevel; }
+
+                ok = contextAccessor.HttpContext.Request.Headers.TryGetValue("TraceLoggerMinimumLevel", out StringValues headerValues);
+                if (ok)
+                {
+                    ok = int.TryParse(headerValues.LastOrDefault(), out int minimumLevel);
+                    if (ok)
+                    {
+                        if (traceLoggerMinimumLevel == null) { traceLoggerMinimumLevel = new TraceLoggerMinimumLevel(); }
+                        traceLoggerMinimumLevel.MinimumLevel = (LogLevel)minimumLevel;
+                    }
+                }
+                return traceLoggerMinimumLevel;
             });
 
             // TODO: register as a singleton ILogger
