@@ -83,7 +83,7 @@ namespace Common
             if (traceLoggerMinimumLevelService == null && host != null) { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); }
             this.TraceLoggerMinimumLevelService = traceLoggerMinimumLevelService;
             this.MinimumLogLevel = traceLoggerMinimumLevelService?.MinimumLevel ?? LogLevel.Trace;
-            this._isLogEnabled = logLevel >= this.MinimumLogLevel;
+            //this._isLogEnabled = logLevel >= this.MinimumLogLevel;
 
             if (type == null && logger != null) { type = logger.GetType().GenericTypeArguments.FirstOrDefaultChecked(); }
 
@@ -170,7 +170,7 @@ namespace Common
             if (traceLoggerMinimumLevelService == null && host != null) { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); }
             this.TraceLoggerMinimumLevelService = traceLoggerMinimumLevelService;
             this.MinimumLogLevel = traceLoggerMinimumLevelService?.MinimumLevel ?? LogLevel.Trace;
-            this._isLogEnabled = logLevel >= this.MinimumLogLevel;
+            //this._isLogEnabled = logLevel >= this.MinimumLogLevel;
 
             var type = logger?.GetType()?.GenericTypeArguments?.FirstOrDefault();
             this.T = type;
