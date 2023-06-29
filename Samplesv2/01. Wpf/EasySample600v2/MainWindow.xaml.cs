@@ -115,7 +115,10 @@ namespace EasySample
             //var time = DateTime.Now;
             //logger1.LogDebug($"Error Level. CurrentTime: {time}. This is an error. It will be printed.");
             var time = DateTime.Now;
-            logger.LogDebug($"CurrentTime: {time:dd/MM HH:mm:ss.ff}. Error Level {i++}. This is an error. It will be printed.");
+            var responseString = "pippo";
+            logger.LogDebug($"Response {{ body ({(double?)responseString?.Length / 1024:#,##0} KB): {responseString}");
+            // TODO: interpolated string should not be created => OK
+            // TODO: placeholders should not be evaluated (with log )
 
             try
             {

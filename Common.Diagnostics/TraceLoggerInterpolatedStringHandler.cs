@@ -27,7 +27,7 @@ namespace Common
 
         int i = 0;
 
-        public TraceLoggerInterpolatedStringHandler(int literalLength, int formattedCount)
+        public TraceLoggerInterpolatedStringHandler(int literalLength, int formattedCount) // isEnalbed
         {
             this.FormatTemplate = new StringBuilder(literalLength + 3 * formattedCount);
             this.FormatParameters = new object[formattedCount];
@@ -35,7 +35,7 @@ namespace Common
 
         public void AppendLiteral(string s)
         {
-            this.FormatTemplate.Append(s);
+            this.FormatTemplate.Append(s.Replace("{", "{{").Replace("}", "}}"));
         }
 
         public void AppendFormatted<T>(T t)
@@ -44,9 +44,9 @@ namespace Common
             this.FormatParameters[i] = t;
             i++;
         }
-        public void AppendFormatted<T>(T t, string format) where T : IFormattable
+        public void AppendFormatted<T>(T t, string format) 
         {
-            this.FormatTemplate.Append($"{{{i}:{format}}}");
+            this.FormatTemplate.Append(t is IFormattable?  $"{{{i}:{format}}}": $"{{{i}}}");
             this.FormatParameters[i] = t;
             i++;
         }
