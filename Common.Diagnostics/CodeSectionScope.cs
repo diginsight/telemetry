@@ -275,7 +275,7 @@ namespace Common
             }
         }
 #if NET6_0_OR_GREATER
-        public void LogTrace(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
+        public void LogTrace([InterpolatedStringHandlerArgument("")] ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             //if (this?._isLogEnabled == false) { return; }
             var logLevel = LogLevel.Trace;
@@ -444,7 +444,7 @@ namespace Common
             }
         }
 #if NET6_0_OR_GREATER
-        public void LogDebug(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
+        public void LogDebug([InterpolatedStringHandlerArgument("")] ref DebugLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             //if (this?._isLogEnabled == false) { return; }
             var logLevel = LogLevel.Debug;
@@ -586,7 +586,7 @@ namespace Common
         }
 
 #if NET6_0_OR_GREATER
-        public void LogInformation(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
+        public void LogInformation([InterpolatedStringHandlerArgument("")] ref InformationLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             //if (this?._isLogEnabled == false) { return; }
             var logLevel = LogLevel.Information;
@@ -709,7 +709,7 @@ namespace Common
         }
 
 #if NET6_0_OR_GREATER
-        public void LogWarning(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
+        public void LogWarning([InterpolatedStringHandlerArgument("")] ref WarningLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             //if (this?._isLogEnabled == false) { return; }
             var logLevel = LogLevel.Warning;
@@ -835,7 +835,7 @@ namespace Common
         }
 
 #if NET6_0_OR_GREATER
-        public void LogError(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
+        public void LogError([InterpolatedStringHandlerArgument("")] ref ErrorLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             //if (this?._isLogEnabled == false) { return; }
             var logLevel = LogLevel.Error;
@@ -1096,7 +1096,7 @@ namespace Common
         void ICodeSectionLogger.Debug(object obj, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogDebug(obj, category, properties, source, disableCRLFReplace); }
 #if NET6_0_OR_GREATER
         [Obsolete("Obsolete method, please, use LogDebug method instead")]
-        void ICodeSectionLogger.Debug(ref TraceLoggerInterpolatedStringHandler message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogDebug(ref message, category, properties, source, disableCRLFReplace); }
+        void ICodeSectionLogger.Debug([InterpolatedStringHandlerArgument("")] ref DebugLoggerInterpolatedStringHandler message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogDebug(ref message, category, properties, source, disableCRLFReplace); }
         [Obsolete("Obsolete method, please, use LogDebug method instead")]
         void ICodeSectionLogger.Debug(string message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogDebug(message, category, properties, source, disableCRLFReplace); }
 #else
@@ -1110,7 +1110,7 @@ namespace Common
 
 #if NET6_0_OR_GREATER
         [Obsolete("Obsolete method, please, use LogInformation method instead")]
-        void ICodeSectionLogger.Information(ref TraceLoggerInterpolatedStringHandler message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogInformation(ref message, category, properties, source, disableCRLFReplace); }
+        void ICodeSectionLogger.Information([InterpolatedStringHandlerArgument("")] ref InformationLoggerInterpolatedStringHandler message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogInformation(ref message, category, properties, source, disableCRLFReplace); }
         [Obsolete("Obsolete method, please, use LogInformation method instead")]
         void ICodeSectionLogger.Information(string message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogInformation(message, category, properties, source, disableCRLFReplace); }
 #else
@@ -1124,7 +1124,7 @@ namespace Common
 
 #if NET6_0_OR_GREATER
         [Obsolete("Obsolete method, please, use LogWarning method instead")]
-        void ICodeSectionLogger.Warning(ref TraceLoggerInterpolatedStringHandler message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogWarning(ref message, category, properties, source, disableCRLFReplace); }
+        void ICodeSectionLogger.Warning([InterpolatedStringHandlerArgument("")] ref WarningLoggerInterpolatedStringHandler message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogWarning(ref message, category, properties, source, disableCRLFReplace); }
         [Obsolete("Obsolete method, please, use LogWarning method instead")]
         void ICodeSectionLogger.Warning(string message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogWarning(message, category, properties, source, disableCRLFReplace); }
 #else
@@ -1138,7 +1138,7 @@ namespace Common
 
 #if NET6_0_OR_GREATER
         [Obsolete("Obsolete method, please, use LogError method instead")]
-        void ICodeSectionLogger.Error(ref TraceLoggerInterpolatedStringHandler message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogError(ref message, category, properties, source, disableCRLFReplace); }
+        void ICodeSectionLogger.Error([InterpolatedStringHandlerArgument("")] ref ErrorLoggerInterpolatedStringHandler message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogError(ref message, category, properties, source, disableCRLFReplace); }
         [Obsolete("Obsolete method, please, use LogError method instead")]
         void ICodeSectionLogger.Error(string message, string category, IDictionary<string, object> properties, string source, bool disableCRLFReplace) { this.LogError(message, category, properties, source, disableCRLFReplace); }
 #else

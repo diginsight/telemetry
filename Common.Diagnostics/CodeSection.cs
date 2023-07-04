@@ -159,7 +159,7 @@ namespace Common
             }
         }
 #if NET6_0_OR_GREATER
-        public void Trace(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
+        public void Trace([InterpolatedStringHandlerArgument("")] ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
             if (TraceSource?.Switch != null && !TraceSource.Switch.ShouldTrace(TraceEventType.Verbose)) { return; }
@@ -291,7 +291,7 @@ namespace Common
             }
         }
 #if NET6_0_OR_GREATER
-        public void Debug(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
+        public void Debug([InterpolatedStringHandlerArgument("")] ref DebugLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
             if (TraceSource?.Switch != null && !TraceSource.Switch.ShouldTrace(TraceEventType.Verbose)) { return; }
@@ -404,7 +404,7 @@ namespace Common
         }
 
 #if NET6_0_OR_GREATER
-        public void Information(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
+        public void Information([InterpolatedStringHandlerArgument("")] ref InformationLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
             if (TraceSource?.Switch != null && !TraceSource.Switch.ShouldTrace(TraceEventType.Information)) { return; }
@@ -510,7 +510,7 @@ namespace Common
         }
 
 #if NET6_0_OR_GREATER
-        public void Warning(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
+        public void Warning([InterpolatedStringHandlerArgument("")] ref WarningLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
             if (TraceSource?.Switch != null && !TraceSource.Switch.ShouldTrace(TraceEventType.Warning)) { return; }
@@ -619,7 +619,7 @@ namespace Common
         }
 
 #if NET6_0_OR_GREATER
-        public void Error(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
+        public void Error([InterpolatedStringHandlerArgument("")] ref ErrorLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
             if (TraceSource?.Switch != null && !TraceSource.Switch.ShouldTrace(TraceEventType.Error)) { return; }

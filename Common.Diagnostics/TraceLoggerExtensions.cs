@@ -200,7 +200,7 @@ namespace Common
             innerCodeSectionLogger.Debug(obj, category, properties, source);
         }
 #if NET6_0_OR_GREATER
-        public static void LogDebug<T>(this ILogger<T> logger, ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0) // , "level"
+        public static void LogDebug<T>(this ILogger<T> logger, [InterpolatedStringHandlerArgument("logger")] ref DebugLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0) // , "level"
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var caller = CodeSectionScope.Current.Value;
@@ -247,7 +247,7 @@ namespace Common
         }
 
 #if NET6_0_OR_GREATER
-        public static void LogInformation<T>(this ILogger<T> logger, ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
+        public static void LogInformation<T>(this ILogger<T> logger, [InterpolatedStringHandlerArgument("logger")] ref InformationLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var caller = CodeSectionScope.Current.Value;
@@ -294,7 +294,7 @@ namespace Common
         }
 
 #if NET6_0_OR_GREATER
-        public static void LogWarning<T>(this ILogger<T> logger, ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
+        public static void LogWarning<T>(this ILogger<T> logger, [InterpolatedStringHandlerArgument("logger")] ref WarningLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var caller = CodeSectionScope.Current.Value;
@@ -341,7 +341,7 @@ namespace Common
         }
 
 #if NET6_0_OR_GREATER
-        public static void LogError<T>(this ILogger<T> logger, ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
+        public static void LogError<T>(this ILogger<T> logger, [InterpolatedStringHandlerArgument("logger")] ref ErrorLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var caller = CodeSectionScope.Current.Value;
