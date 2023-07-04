@@ -94,12 +94,12 @@ namespace Common
             var traceLoggerMinimumLevelService = default(ITraceLoggerMinimumLevel);
             var host = TraceLogger.Host;
             if (logger == null && host != null) { logger = host.Services?.GetService<ILogger<T>>(); }
-            if (host != null)
-            {
-                var traceLoggerMinimumLevel = host.Services?.GetService<ITraceLoggerMinimumLevel>();
-                var minimumLevel = traceLoggerMinimumLevel?.MinimumLevel;
-                if (minimumLevel.HasValue && minimumLevel.Value > logLevel) { return null; }
-            }
+            //if (host != null)
+            //{
+            //    var traceLoggerMinimumLevel = host.Services?.GetService<ITraceLoggerMinimumLevel>();
+            //    var minimumLevel = traceLoggerMinimumLevel?.MinimumLevel;
+            //    if (minimumLevel.HasValue && minimumLevel.Value > logLevel) { return null; }
+            //}
             if (host != null)
             {
                 traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>();
