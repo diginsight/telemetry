@@ -128,24 +128,24 @@ namespace EasySample
                     using var scopeInner = logger.BeginNamedScope("OptimizedByInterpolatedStringHandler");
 
                     // log by means of the scope variable
-                    scope.LogTrace($"this is a long trace trace ({e.GetLogString()})", null, new Dictionary<string, object>() { { "MaxMessageLen", 0 } }); //  TraceLogger.LogDebug($"requestBody: {requestBody}");
-                    scope.LogDebug($"this is a debug trace ({e.GetLogString()})"); // , properties: new Dictionary<string, object>() { { "", "" } }
-                    scope.LogInformation($"this is a Information trace ({e.GetLogString()})"); // , properties: new Dictionary<string, object>() { { "", "" } }
-                    scope.LogWarning($"this is a Warning trace ({e.GetLogString()})");
-                    scope.LogError($"this is a error trace ({e.GetLogString()})");
-                    scope.LogError($"this is a error trace ({e.GetLogString()})");
+                    scopeInner.LogTrace($"this is a long trace trace ({e.GetLogString()})", null, new Dictionary<string, object>() { { "MaxMessageLen", 0 } }); //  TraceLogger.LogDebug($"requestBody: {requestBody}");
+                    scopeInner.LogDebug($"this is a debug trace ({e.GetLogString()})"); // , properties: new Dictionary<string, object>() { { "", "" } }
+                    scopeInner.LogInformation($"this is a Information trace ({e.GetLogString()})"); // , properties: new Dictionary<string, object>() { { "", "" } }
+                    scopeInner.LogWarning($"this is a Warning trace ({e.GetLogString()})");
+                    scopeInner.LogError($"this is a error trace ({e.GetLogString()})");
+                    scopeInner.LogError($"this is a error trace ({e.GetLogString()})");
                 }
 
                 {
                     using var scopeInner = logger.BeginNamedScope("OptimizedByDelegate");
 
                     // log by means of the scope variable
-                    scope.LogTrace(() => "this is a long trace trace", null, new Dictionary<string, object>() { { "MaxMessageLen", 0 } }); //  TraceLogger.LogDebug($"requestBody: {requestBody}");
-                    scope.LogDebug(() => "this is a debug trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
-                    scope.LogInformation(() => "this is a Information trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
-                    scope.LogWarning(() => "this is a Warning trace");
-                    scope.LogError(() => "this is a error trace");
-                    scope.LogError(() => "this is a error trace");
+                    scopeInner.LogTrace(() => "this is a long trace trace", null, new Dictionary<string, object>() { { "MaxMessageLen", 0 } }); //  TraceLogger.LogDebug($"requestBody: {requestBody}");
+                    scopeInner.LogDebug(() => "this is a debug trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
+                    scopeInner.LogInformation(() => "this is a Information trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
+                    scopeInner.LogWarning(() => "this is a Warning trace");
+                    scopeInner.LogError(() => "this is a error trace");
+                    scopeInner.LogError(() => "this is a error trace");
                 }
 
                 {
@@ -171,7 +171,28 @@ namespace EasySample
                     TraceLogger.LogError(() => "this is a error trace");
                     // TraceLogger.LogCritical(() => "this is a error trace");
                 }
+                {
+                    using var scopeInner = logger.BeginNamedScope("OptimizedByInterpolatedStringHandler (static methods - TraceLogger)");
 
+                    // log by means of the scope variable
+                    TraceLogger.LogTrace($"this is a long trace trace ({e.GetLogString()})", null, new Dictionary<string, object>() { { "MaxMessageLen", 0 } }); //  TraceLogger.LogDebug($"requestBody: {requestBody}");
+                    TraceLogger.LogDebug($"this is a debug trace ({e.GetLogString()})"); // , properties: new Dictionary<string, object>() { { "", "" } }
+                    TraceLogger.LogInformation($"this is a Information trace ({e.GetLogString()})"); // , properties: new Dictionary<string, object>() { { "", "" } }
+                    TraceLogger.LogWarning($"this is a Warning trace ({e.GetLogString()})");
+                    TraceLogger.LogError($"this is a error trace ({e.GetLogString()})");
+                    TraceLogger.LogError($"this is a error trace ({e.GetLogString()})");
+                }
+                {
+                    using var scopeInner = logger.BeginNamedScope("OptimizedByInterpolatedStringHandler (static methods - TraceManager)");
+
+                    // log by means of the scope variable
+                    TraceManager.Trace($"this is a long trace trace ({e.GetLogString()})", null, new Dictionary<string, object>() { { "MaxMessageLen", 0 } }); //  TraceLogger.LogDebug($"requestBody: {requestBody}");
+                    TraceManager.Debug($"this is a debug trace ({e.GetLogString()})"); // , properties: new Dictionary<string, object>() { { "", "" } }
+                    TraceManager.Information($"this is a Information trace ({e.GetLogString()})"); // , properties: new Dictionary<string, object>() { { "", "" } }
+                    TraceManager.Warning($"this is a Warning trace ({e.GetLogString()})");
+                    TraceManager.Error($"this is a error trace ({e.GetLogString()})");
+                    TraceManager.Error($"this is a error trace ({e.GetLogString()})");
+                }
                 int i = 0; string s = "sample parameter";
                 var res = SampleMethodWithResult(i, s);
 

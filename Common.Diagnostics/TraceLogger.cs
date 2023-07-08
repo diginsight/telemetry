@@ -459,7 +459,7 @@ namespace Common
         }
 
 #if NET6_0_OR_GREATER
-        public static void LogDebug(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
+        public static void LogDebug(ref DebugLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
             var type = typeof(InternalClass);
@@ -571,7 +571,7 @@ namespace Common
         }
 
 #if NET6_0_OR_GREATER
-        public static void LogInformation(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
+        public static void LogInformation(ref InformationLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
             var type = typeof(InternalClass);
@@ -683,7 +683,7 @@ namespace Common
         }
 
 #if NET6_0_OR_GREATER
-        public static void LogWarning(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
+        public static void LogWarning(ref WarningLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
             var type = typeof(InternalClass);
@@ -795,7 +795,7 @@ namespace Common
         }
 
 #if NET6_0_OR_GREATER
-        public static void LogError(ref TraceLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
+        public static void LogError(ref ErrorLoggerInterpolatedStringHandler message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
             var type = typeof(InternalClass);
