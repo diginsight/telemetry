@@ -69,6 +69,8 @@ namespace Common
                     case ICollection o: return o.ToLogStringInternal();
                     case Guid o: return o.ToLogStringInternal();
                     case Uri o: return o.ToLogStringInternal();
+                    case DateTimeOffset o: return o.ToLogStringInternal();
+                    case TimeSpan o: return o.ToLogStringInternal();
                     default: break;
                 }
 
@@ -255,6 +257,19 @@ namespace Common
             string logString = $"{{Version:{pthis.ToVersionString()}}}";
             return logString;
         }
+        public static string ToLogStringInternal(this DateTimeOffset pthis)
+        {
+            if (pthis.Equals(default(DateTimeOffset))) { return "null"; }
+            string logString = pthis.ToString("g");
+            return logString;
+        }
+        public static string ToLogStringInternal(this TimeSpan pthis)
+        {
+            if (pthis.Equals(default(TimeSpan))) { return "null"; }
+            string logString = pthis.ToString("g");
+            return logString;
+        }
+        //case TimeSpan o: return o.ToLogStringInternal();
 
     }
 }
