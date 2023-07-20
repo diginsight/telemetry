@@ -125,7 +125,7 @@ namespace Common
                 {
                     NestingLevel = codeSection.NestingLevel,
                     OperationDept = codeSection.OperationDept,
-                    Payload = codeSection.Payload,
+                    Payload = codeSection.Payload is Func<object> func? func(): codeSection.Payload, 
                     Result = codeSection.Result,
                     Name = codeSection.Name,
                     MemberName = codeSection.MemberName,
