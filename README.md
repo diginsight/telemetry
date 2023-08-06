@@ -289,15 +289,16 @@ The image below shows the EasySample where logstrings are provided for Window an
 Rendering the application flow there is a risc to impact application performance.
 For this reason when using diginsight it is important to follow normal guidelines of general good sense:
 
-- avoid using Method Scopes (and logging statements in general) on strict loops 
-- avoid using Method Scopes (and logging statements in general) on deeply recursive methods 
-- avoid sending Trace and Debug level telemetry to providers that write to the network or other low performing resources (eg. Application Insight) 
+- limit using Method Scopes (and logging statements in general) on strict loops 
+- limit using Method Scopes (and logging statements in general) on deeply recursive methods 
+- avoid sending Trace and Debug level telemetry to providers that write to the network or other io-bound resources (eg. Application Insight) 
 
 Diginsight telemetry takes some important precautions to avoid cluttering resources and reduce use of CPU and memory:
 - use compiler generated information and avoid use of reflection when gathering the application flow
 - gather application flow as pointers into TraceEntry structures and avoid composing and formatting log strings that are not used
+- use string interpolation handlers and delegates to elimitate impact of disabled log entries
 - use string.format() statement to compose log strings and avoid string.replace() and concatenation composing and formatting log strings
-- support a configurable limit for the length of the strings that are written to the log<br>
+- support a default limit for the length of the strings that are written to the log that can be changed by configuration and overloaded by the developer on any specific log statement<br>
 this ensures that when trying (inadvertitely) to log variables with large data all the data is rendered to the log. 
   
 other strategies can be implemented in the future to further control perfomrance impact and still allow complete visibility of application flow for debugging, troubleshooting and reverse engineering purposes.
