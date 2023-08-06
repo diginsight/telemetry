@@ -452,7 +452,7 @@ stages:
   - deployment: Tests
     pool:
       name: 'selfhosted'
-      demands: db
+      # demands: db
     displayName: Tests 
     # dependsOn: 
     # - Deploy_2_AzureFolder
