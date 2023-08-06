@@ -4,7 +4,8 @@
 
 __Common.Diagnostics__ is a .Net Standard component that provides readable log with __application execution flow__ to __.Net Log providers__ such as __Log4Net, Serilog or Application Insights, Console, EventLog and Debug__ __DotNet Log providers__.<br>
 <br>
-Basic execution flow is gathered by means of __compiler generated information__ (eg. `[CallerMemberName]` attribute) and __String Interpolation Handlers__ are leveraged to remove impact of disabled logs entries.<br>
+Basic execution flow is gathered by means of __compiler generated information__ (eg. `[CallerMemberName]` attribute) and __string interpolation handlers__ are leveraged to remove impact of disabled logs entries.<br>
+<br>
 Start and completion of code sections is gathered by means of `using` statements to create __Method or Named scopes__.<br>
 Traces are written to __standard .Net log providers__ or __System Diagnostic listeners__ so that applications can keep using their diagnostics system and standard logs are integrated into the execution flow gathered by __Common.Diagnostics__.<br><br>
 
