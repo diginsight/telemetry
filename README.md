@@ -3,10 +3,15 @@
 
 
 __Common.Diagnostics__ is a .Net Standard component that provides readable log with __application execution flow__ to __.Net Log providers__ such as __Log4Net, Serilog or Application Insights, Console, EventLog and Debug__ __DotNet Log providers__.<br>
-<br>
+
 Basic execution flow is gathered by means of __compiler generated information__ (eg. `[CallerMemberName]` attribute); __String interpolation handlers__ and __delegate overloads__ are leveraged to remove impact of disabled logs entries.<br>
 <br>
-This makes the application flow fully observable, still without compromises on performance.<br>
+This makes the application flow fully observable, __still without compromises on performance__.<br>
+
+1. [HOWTO - Make your application flow observable.md](HOWTO%20-%20Make%20your%20application%20flow%20observable.md) explores how to use Diginsight to fully expose our application exeution flow.
+
+2. [HOWTO - Avoid performance impacts using diginsight telemetry.md](HOWTO%20-%20Make%20your%20application%20flow%20observable.md) explores how we can do this ensuring non impact on application performance.
+
 <br>
 Start and completion of code sections are gathered by means of `using` statements to create __Method or Named scopes__.<br>
 Traces are written to __standard .Net log providers__ so that applications can keep using their diagnostics system and standard logs are integrated into the execution flow gathered by __Common.Diagnostics__.<br><br>
