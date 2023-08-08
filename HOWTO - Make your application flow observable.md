@@ -2,20 +2,18 @@
 
 __Common.Diagnostics__  makes the application flow fully observable, still without compromises on performance.<br>
 <br>
-In this article we'll explore how to make our application flow fully observable.<br>
-<br>
 This makes troubleshooting easier!<br>
 Also, reverse enrineering is made easier, when changing or migrating applications and documentation is not available about the application behaviour. <br>
 <br>
-
-Article "HOWTO - Avoid performance imacts using diginsight telemetry" will go deep into diginsight strategies and best practices to avoid impacts on the application performance.<br>
+In this article we'll explore how we can make our application flow fully observable.<br>
+<br>
+With article "HOWTO - Avoid performance impacts using diginsight telemetry" we'll go deep into diginsight strategies and best practices to avoid impacts on the application performance.<br>
 <br>
 
 # LOG METHODS EXECUTION
 
-`using` statements can be applied to define __Method or Named scopes__<br>
-<br>
-exposing a method execution to diginsight is as simple as shown below
+`using` statements can be applied to define __Method or Named scopes__.<br>
+Exposing a method execution to diginsight is as simple as shown below:
 ```c#
 private async Task ctlMain_InitializedAsync(object sender, EventArgs e)
 {
