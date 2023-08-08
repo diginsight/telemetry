@@ -10,7 +10,7 @@ This makes the application flow fully observable, __still without compromises on
 
 1. [HOWTO - Make your application flow observable.md](HOWTO%20-%20Make%20your%20application%20flow%20observable.md) explores how to use Diginsight to fully expose our application exeution flow.
 
-2. [HOWTO - Avoid performance impacts using diginsight telemetry.md](HOWTO%20-%20Make%20your%20application%20flow%20observable.md) explores how we can do this ensuring non impact on application performance.
+2. [HOWTO - Avoid performance impacts using diginsight telemetry.md](HOWTO%20-%20Avoid%20performance%20imacts%20using%20diginsight%20telemetry.md) explores how we can do this ensuring non impact on application performance.
 
 <br>
 Start and completion of code sections are gathered by means of `using` statements to create __Method or Named scopes__.<br>
