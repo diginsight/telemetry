@@ -246,18 +246,18 @@ In this cases the methods payload is rendered
 ## Log the startup Sequence
 The startup sequence often hides complex logic that is very difficult to troubleshoot.<br>
 <br>
-diginsight reproduce the application flow since the `Program.Main` application start.<br> 
-Where dependency injection ILogger variables are not available, you can define Method sections and named sections by means of the static overloads as shown above.
+Diginsight reproduces the application flow since the `Program.Main` application start.<br> 
+Where dependency injection ILogger variables are not available, you can define Method scopes and named scopes by means of the static TraceLogger overloads (see examples above).
 
-the following image shows the application flow of an aspnet core application startup sequence, including the `CreateHostBuilder` method and its callbacks `ConfigureAppConfiguration` and `ConfigureServices`
+The following image shows the application flow of an aspnet core application startup sequence, including the `CreateHostBuilder` method and its callbacks `ConfigureAppConfiguration` and `ConfigureServices`
 
 ![alt text](/images/v3/05.%20StartupSequenceLog.jpg "Diginsight telemetry startup sequence log")<br>
 
-Many complex details such as configuration errors and connection failures can be hidden here and very difficult to troubleshoot.
-Diginsight shows any detail here so that any later application failure can be more easily understood. 
+Many complex details such as configuration errors and connection failures can be hidden here and troubleshooting for these phases can be very complex.
+Diginsight shows any detail here so that any later application failure can be more easily and quickly understood. 
 
 # USE THE DIGINSIGHT LOG TO OBSERVE APPLICATION BEHAVIOURS
-Many details can be understood from diginsight application flow.<br><br>
+Many details can be observed from diginsight application flow.<br><br>
 A few example below:
 1. it is easy to understand if the application is executing `redundant calls` or within the overall application flow
 2. it is easy to understand if a particular internal call is producing a `relevant latency`.
@@ -271,8 +271,6 @@ The example below shows a call is shown where the returned payload is higher tha
 ![alt text](/images/v3/07.%20HighPayloadCall.jpg "Diginsight telemetry startup sequence log")<br>
 if the method is invoked frequently, this may cause a scalability problem.
 
-
-[README.v1.md](README.v1.md) describes how to use Diginsight telemetry with standard DotNet __Systen Diagnostics listeners__.
 <br><br>
 
 # Build and Test 
