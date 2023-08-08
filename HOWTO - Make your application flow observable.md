@@ -63,13 +63,14 @@ In this flow it __OnOK__ code section is shown as a part (or as en extension) of
 <br>
 
 # USE STATIC METHODS WHERE ILogger logger IS NOT AVAILABLE
-when ILogger logger member is not available you can use static methods instead of ILogger extension methods.
+When ILogger logger member is not available you can use static methods instead of ILogger extension methods.
 
 the above MethodScope can be defined with the following syntax:
 ```c#
 private async Task ctlMain_InitializedAsync(object sender, EventArgs e)
 {
     using var scope = TraceLogger.BeginMethodScope(T, new { sender, e });
+    // scope variable writes method START and END and keeps track of nesting level
 
     try
     {
@@ -77,7 +78,7 @@ private async Task ctlMain_InitializedAsync(object sender, EventArgs e)
         var clientId = default(string);
 ```
 
-the above NamedScope can be defined with the following syntax:
+The above NamedScope can be defined with the following syntax:
 ```c#
 private void SaveExecuted(object sender, ExecutedRoutedEventArgs e)
 {
@@ -93,6 +94,7 @@ private void SaveExecuted(object sender, ExecutedRoutedEventArgs e)
     inputBox.OnOK += (sender, e) =>
     {
         using var scope = TraceLogger.BeginNamedScope(T, "OnOK");
+        // named scope 'OnOK' is defined here
 
         ...
     };
@@ -105,6 +107,7 @@ Parameter values can be logged together with their names with the following synt
 public async Task<UserProfileResponse> FindUserByEmailAddressAsync(string emailAddress, CacheContext cacheContext = null)
 {
     using var scope = logger.BeginMethodScope(new { emailAddress, cacheContext = cacheContext?.GetLogString() });
+    // emailAddress and cacheContext parameters are logged with the above Method scope
 
     try
     {
@@ -117,18 +120,19 @@ public async Task<UserProfileResponse> FindUserByEmailAddressAsync(string emailA
     }
 }
 ```
-in this case method FindUserByEmailAddressAsync is logged together with its parameter names and parameter values.
+in this case method `FindUserByEmailAddressAsync` is logged together with its parameter names and parameter values.<br>
 Parameter names and values are shown inline with the method START line, as shown below:
 ![alt text](/images/v3/03.%20ParametersLog.jpg "Diginsight telemetry parameters log")<br>
 
-Simple types such as strings, numeric etc are shown properly; for complex types __.GetLogString()__ extension method can be used.
+For Simple types such as strings, numeric etc values are shown properly.<br>
+For complex types __.GetLogString()__ extension method can be used.
 
 In the provided example, __GetLogString()__ produces the following description for the `cacheContext` parameter:
 ```c#
 cacheContext:{CacheContext:{Enabled:True,MaxAge:600}}
 ```
 
-such descriptions can be provided by the object itself, by means of `ISupportLogString` interface or by the outer application, by means of `IProvideLogString` interface.
+Such descriptions can be provided by the object itself, by means of `ISupportLogString` interface or by the outer application, by means of `IProvideLogString` interface.
 
 ```c#
 public class CacheContext : ICacheContext, ISupportLogString
@@ -146,10 +150,43 @@ public class CacheContext : ICacheContext, ISupportLogString
     }
 }
 ```
+The following code snippet shows an application providing log strings for external classes
+```c#
+public partial class App : Application, IProvideLogString
+    {
+        static Type T = typeof(App);
+
+        public App()
+        {
+            using (var sec = TraceManager.GetCodeSection(T))
+            {
+                LogStringExtensions.RegisterLogstringProvider(this);
+                // RegisterLogstringProvider register a provider implementing IProvideLogString interface
+            }
+        }
+
+        public string ToLogString(object t, HandledEventArgs arg)
+        {
+            // ToLogString implementation provides LogString implementation for incomin object instances 
+            switch (t)
+            {
+                case Window w: arg.Handled = true; return ToLogStringInternal(w);
+                default:
+                    break;
+            }
+            return null;
+        }
+        public static string ToLogStringInternal(Window pthis)
+        {
+            // in this case, a LogString is provided for System Window objects
+            string logString = $"{{Window:{{Name:{pthis.Name},ActualHeight:{pthis.ActualHeight},ActualWidth:{pthis.ActualWidth},AllowsTransparency:{pthis.AllowsTransparency},Background:{pthis.Background},Width:{pthis.Width},Height:{pthis.Height}}}}}";
+            return logString;
+        }
+```
 <br><br>
 # LOG MESSAGES AND VARIABLES
 
-within a method or a named scope, messages and variables can be logged with their severity
+Messages and variables can be logged with their severity within any method or a named scope.
 
 You can use the __scope variable__ to add trace messages to the method scope or the named scope
 ```c#
@@ -183,9 +220,25 @@ You can use __standard ILogger statements__ or __TraceLogger static methods__ to
 	- TraceLogger.LogCritical("this is a critical trace");
 	- TraceLogger.LogException(ex);
 ```
-in this case log traces are added to the inner most scope, for the current thread.<br><br>
-In the latter options, you cannot be sure that the trace is performed in the same method where the scope variable is defined; for this reason, output messages will be prefixed with a leading ellipsis as shown below:<br>
+In this case log traces are added to the inner most scope, for the current thread.<br><br>
+In the latter options, we cannot be sure that the trace is performed in the same method where the scope variable is defined; for this reason, output messages will be prefixed with a __leading ellipsis__ as shown below:<br>
 ![alt text](/images/v3/04.%20LeadingEllipses.jpg "Diginsight telemetry leading ellipses")<br>
+
+Variables with their names can be logged with the following syntax:
+```c#
+	// log statements within a scope
+	- scope.LogDebug(new { this.Identity, tenantId, clientId, clientSecret, keyVaultAddress });
+
+	// standard Ilogger statements:
+	- _logger.LogDebug(new { this.Identity, tenantId, clientId, clientSecret, keyVaultAddress });
+
+	// log statements with TraceLogger static methods:
+	- TraceLogger.LogDebug(new { this.Identity, tenantId, clientId, clientSecret, keyVaultAddress });
+```
+In this cases the methods payload is rendered 
+
+![Alt text](/images/v3/08.%20LogObjectPayload.png "Diginsight telemetry leading ellipses")<br>
+
 <br>
 
 # LOG THE STARTUP SEQUENCE AND ANY RELEVANT APPLICATION FLOW DETAIL
