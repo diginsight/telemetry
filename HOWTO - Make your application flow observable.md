@@ -17,7 +17,7 @@ Exposing a method execution to diginsight is as simple as shown below:
 ```c#
 private async Task ctlMain_InitializedAsync(object sender, EventArgs e)
 {
-    <span style="background-color: yellow;">using var scope = logger.BeginMethodScope(new { sender, e });</span>
+    using var scope = logger.BeginMethodScope(new { sender, e });
 
     try
     {
