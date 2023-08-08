@@ -1,23 +1,24 @@
 # INTRODUCTION 
 
-__Common.Diagnostics__  makes the application flow fully observable, still without compromises on performance.<br>
+__Common.Diagnostics__  makes the application flow fully observable, still __without compromises on performance__.<br>
 <br>
 This makes troubleshooting easier!<br>
 Also, reverse enrineering is made easier, when changing or migrating applications and documentation is not available about the application behaviour. <br>
 <br>
-In this article we'll explore how we can make our application flow fully observable.<br>
+In this article we'll explore __how we can make our application flow fully observable__.<br>
 <br>
 With article "HOWTO - Avoid performance impacts using diginsight telemetry" we'll go deep into diginsight strategies and best practices to avoid impacts on the application performance.<br>
 <br>
 
 # LOG METHODS EXECUTION
 
-`using` statements can be applied to define __Method or Named scopes__.<br>
+Simple `using` statements can be used to define __Method or Named scopes__.<br>
 Exposing a method execution to diginsight is as simple as shown below:
 ```c#
 private async Task ctlMain_InitializedAsync(object sender, EventArgs e)
 {
-    using var scope = logger.BeginMethodScope(new { sender, e });
+    using var scope = logger.BeginMethodScope(new { sender, e }); 
+    // scope variable writes method START and END and keeps track of nesting level
 
     try
     {
@@ -25,12 +26,12 @@ private async Task ctlMain_InitializedAsync(object sender, EventArgs e)
         var clientId = default(string);
 ```
 
-the __BeginMethodScope()__ extension method ensures that method name, class name and other useful information about the execution flow are gathered and used upon need.<br>
+__BeginMethodScope()__ extension method ensures that method name, class name and other useful information about the execution flow are gathered and used upon need.<br>
 <br>
-the above statement produces the following application log flow:<br>
+The above statement produces the following application log flow where `ctlMain_InitializedAsync` is made evident:<br>
 ![alt text](/images/v3/01.%20BeginMethodScope.jpg "Diginsight telemetry Method scope")
 
-similar code can be used to expose a named scope within an existing method:
+Similar code can be used to expose a __named scope__ within an existing method:
 ```c#
 private void SaveExecuted(object sender, ExecutedRoutedEventArgs e)
 {
@@ -46,17 +47,18 @@ private void SaveExecuted(object sender, ExecutedRoutedEventArgs e)
     inputBox.OnOK += (sender, e) =>
     {
         using var scope = logger.BeginNamedScope("OnOK");
+        // named scope 'OnOK' is defined here
 
         ...
     };
 ```
 
-the __BeginNamedScope()__ provides name 'OnOK' to the code section enclosed by the using statement.<br>
+__BeginNamedScope()__ applies name 'OnOK' to the code section enclosed by the using statement.<br>
 <br>
-the above statement produces the following application log flow:<br>
+The above statement produces the following application log flow:<br>
 ![alt text](/images/v3/02.%20BeginNamedScope.jpg "Diginsight telemetry Named scope")<br>
 
-in this image it OnOK code section is shown as a part of method 'SaveExecuted'.<br>
+In this flow it __OnOK__ code section is shown as a part (or as en extension) of method __SaveExecuted__.<br>
 
 <br>
 
