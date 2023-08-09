@@ -39,7 +39,7 @@ Diginsight gathers information about the application execution without processin
 Pointers to information such as the method name, the class name the parameters list are gatered into a Stack allocated `TraceEntry`.<br>
 __Only if rendering is enabled for that line__ information within the trace entry is used to compose the log string.<br>
 
-the following snippet provides a simplified version of the TraceEntry structure:
+The following snippet provides a simplified version of the TraceEntry structure:
 ```c#
 public ref struct TraceEntry
 {
@@ -66,10 +66,9 @@ public ref struct TraceEntry
 }
 ```
 __If rendering for the line is enabled__ the logstring is created with a single `string.format` statement, with minimal possible string management, according to the configuration for the log listener.<br>
-Also, only the TraceEntry properties that are needed to compose the log string are used.<br>
-Properties that are not configured to be included into the output log are not used at all.
+Also, only the TraceEntry properties that are needed to compose the log string are used Properties that are not configured to be included into the output log are not used at all.<br>
 
-__If rendering for the line is not enabled__ only the TraceEntry allocation is executed and no string composition or any write operation is processed.
+__If rendering for the line is not enabled__ only the TraceEntry allocation is executed and no string composition or any write operation is processed.<br>
 
 ## Strategy n°3: diginsight supports `string interpolation handlers` and `delegate overloads`
 Diginsight supports string interpolation by means of `string interpolation handlers`.<br>
@@ -77,17 +76,17 @@ In the example below, the interpolated string is composed within the overloads a
 ```c#
 scope.LogDebug($"await app.GetAccountsAsync(); returned {accounts.GetLogString()}");
 ```
-__if the Debug LogLevel is not enabled__ the interpolated string is not constructed and the placeholder (accounts.GetLogString()) is not evaluated at all. 
+__if the Debug LogLevel is not enabled__ the interpolated string is not constructed and the placeholder (accounts.GetLogString()) is not evaluated at all.<br> 
 
-A similar logic is applied with delegate overloads.
-In the image below, the `BeginMethodScope()` parameter list and `LogDebug()` parameters are received in the form of delegate. 
-![Alt text](image.png)
-also in this case, __if the Debug LogLevel is not enabled__ the delegate is not evaluated and the payload allocation and initialization doesn't happen at all. 
+A similar logic is applied with delegate overloads.<br>
+In the image below, the `BeginMethodScope()` parameter list and `LogDebug()` parameters are received in the form of delegate. <br><br>
+![Alt text](image.png)<br>
+Also in this case, __if the Debug LogLevel is not enabled__ the delegate is not evaluated and the payload allocation and initialization doesn't happen at all. 
 
 
 ## Strategy n°4: diginsight reduces the log size with default truncation for long messages and payloads
 When producing logs with the application flow, data from variables and parameters can be big.<br>
-If this happens the log file can become big and difficult to read. <br>
+If this happens the log file may become big and difficult to read. <br>
 <br>
 Diginsight prevents this problem applying a __default truncation__ to log strings. 
 
