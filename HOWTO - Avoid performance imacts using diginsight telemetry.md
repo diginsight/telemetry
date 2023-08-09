@@ -16,15 +16,15 @@ We'll explore __how we can make our application flow fully observable__.<br><br>
 # Performance considerations
 Rendering the application flow involves a few risks of impact on application performance:<br>
 - __risk n°1__. gathering methods and variables descriptions may require processing time<br>
-- __risk n°2__. creating the application flow descriptions may involve a lot of string management<br>(with associated CPU and memory consumption).<br>
-- __risk n°3__. writing the application flow to an external resource may involve a lot of IO operations<br> (with creation of big log files, log databases a high network bandwith consumption)
+- __risk n°2__. creating the log rows may involve a lot of string management<br>(with associated CPU and memory consumption).<br>
+- __risk n°3__. writing the application flow to external resources may involve a lot of IO operations<br> (with creation of big log files, log databases a high network bandwith consumption)
 
 To avoid impacts from these risks diginsight has been designed to ensure:
 - __no processing__ must be involved by diginsight where application flow rendering is __disabled__
 - __minimal possible processing__ must be involved by diginsight where application flow rendering is __enabled__
-- __application flow rendering can be enabled only when useful__ <br>(eg. only while troubleshooting or when exceptions happen).
+- __application flow rendering can be enabled selectively, only when useful__ <br>(eg. only while troubleshooting or when exceptions happen).
 
-Iin the following paragraphs we'll go deep into the main __strategies__ Diginsight implements to ensure these conditions.
+In the following paragraphs we'll go deep into the main __strategies__ Diginsight implements to ensure these conditions.
 
 ## Strategy n°1: diginsight gathers execution flow from static variables and compiler generated information
 Diginsight application flow is essentially gathered from static variables and compiler generated information.<br>
@@ -71,7 +71,21 @@ Properties that are not configured to be included into the output log are not us
 
 __If rendering for the line is not enabled__ only the TraceEntry allocation is executed and no string composition or any write operation is processed.
 
-## Strategy n°3: diginsight reduces the log size with default truncation for long messages and payloads
+## Strategy n°3: diginsight supports `string interpolation handlers` and `delegate overloads`
+Diginsight supports string interpolation by means of `string interpolation handlers`.<br>
+In the example below, the interpolated string is composed within the overloads after evaluating if the Debug LogLevel is enabled. 
+```c#
+scope.LogDebug($"await app.GetAccountsAsync(); returned {accounts.GetLogString()}");
+```
+__if the Debug LogLevel is not enabled__ the interpolated string is not constructed and the placeholder (accounts.GetLogString()) is not evaluated at all. 
+
+A similar logic is applied with delegate overloads.
+In the image below, the `BeginMethodScope()` parameter list and `LogDebug()` parameters are received in the form of delegate. 
+![Alt text](image.png)
+also in this case, __if the Debug LogLevel is not enabled__ the delegate is not evaluated and the payload allocation and initialization doesn't happen at all. 
+
+
+## Strategy n°4: diginsight reduces the log size with default truncation for long messages and payloads
 When producing logs with the application flow, data from variables and parameters can be big.<br>
 If this happens the log file can become big and difficult to read. <br>
 <br>
@@ -97,7 +111,7 @@ In the following example log truncation is set for the response content to a __5
 TraceLogger.LogDebug($"Response content  ({(double)rawContent.Length / 1024:#,##0} KB): {rawContent}", null, new Dictionary<string, object>() { { "MaxMessageLen", 5242880 } });
 ```
 
-## Strategy n°4: diginsight allows enabling logs dinamically, only when needed
+## Strategy n°5: diginsight allows enabling logs dinamically, only when needed
 Application flow is rendered by default at the Debug level.<br>
 ILogger standard configuration can be used to specify which modules are expected to produce their logs.<br>
 ![Alt text](/images/v3/12.LogConfiguration.png)<br>
