@@ -1,11 +1,10 @@
 # INTRODUCTION 
-__Common.Diagnostics__ component provides __telemetry__ with the full __application flow__ to System.Diagnostic listeners.
-Application execution flow can be sent to the most popular logging systems, available with .Net framework.
-Execution flow is integrated with diagnostic information coming by any components writing to .Net System.Diagnostic interfaces.
-Flexible options are provided to efficiently choose and filter the information to be rendered.
+Common.Diagnostics is a .Net package that provides readable log with application execution flow to .Net Log providers such as Log4Net, Serilog or Application Insights, Console, EventLog and Debug DotNet Log providers.
+This makes the application flow fully observable, still without compromises on performance.
 
-Basic execution flow is gathered by means of compiler generated information (eg. methodnames are obtained with [CallerMemberName] attribute).
-Start and completion of methods and code sections are gathered by means of `using` statements with a `CodeSection` class.
+Articles:
+- [HOWTO - Make your application flow observable.md](HOWTO%20-%20Make%20your%20application%20flow%20observable.md): explores how to use diginsight to fully expose our application exeution flow.
+- [HOWTO - Avoid performance impacts using diginsight telemetry.md](HOWTO%20-%20Avoid%20performance%20imacts%20using%20diginsight%20telemetry.md): explores how we can do this ensuring no impact on application performance.
 
 add telemetry to your methods with the following instruction 
 
