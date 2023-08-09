@@ -1,5 +1,5 @@
 # INTRODUCTION 
-Common.Diagnostics is a .Net package that provides readable log with application execution flow to .Net Log providers such as Log4Net, Serilog or Application Insights, Console, EventLog and Debug DotNet Log providers.
+Common.Diagnostics is a .Net package that provides readable log with application execution flow to .Net Log providers such as Log4Net, Serilog or Application Insights, Console, EventLog and Debug DotNet Log providers.<br>
 This makes the application flow fully observable, still without compromises on performance.
 
 Articles:
