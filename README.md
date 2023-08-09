@@ -13,7 +13,7 @@ Articles:
 Start and completion of code sections are gathered by means of `using` statements to create `Method or Named scopes`.<br>
 Traces are written to __standard .Net log providers__ so that applications can keep using their diagnostics system and standard logs are integrated into the execution flow gathered by __Common.Diagnostics__.<br><br>
 
-Common.Diagnostics is supported by __any .Net Framework version__ supporting .Net Standard 2.0, __any .Net Log provider__ and __any Sistem.Diagnostic listener__.<br><br>
+Common.Diagnostics is supported by __any .Net Framework version__ supporting .Net Standard 2.0, __any .Net Log provider__.<br><br>
 Examples are provided for __.NetCore 3.1+ and .Net Framework 4.6.2+ (including  .Net Framework 6.0)__ and __Blazor WebAssembly__.<br>
 Examples show sending telemetry to  __Log4Net, Serilog or Application Insights, Console, EventLog and Debug__ __DotNet Log providers__.<br>
 Also, examples show sending telemetry __Log4Net, Serilog, Console, Event Log and Application Insights__ and any other __Systen Diagnostics listeners__.
