@@ -7,7 +7,9 @@ Also, reverse enrineering is made easier, when changing or migrating application
 <br>
 In this article we'll explore __how we can make our application flow fully observable__.<br>
 <br>
-With article "HOWTO - Avoid performance impacts using diginsight telemetry" we'll go deep into diginsight strategies and best practices to avoid impacts on the application performance.<br>
+With article:<br>
+[HOWTO - Avoid performance impacts using diginsight telemetry.md](HOWTO%20-%20Avoid%20performance%20imacts%20using%20diginsight%20telemetry.md)<br>
+we'll go deep into diginsight strategies and best practices to avoid impacts on the application performance.<br>
 <br>
 
 # LOG METHODS EXECUTION
