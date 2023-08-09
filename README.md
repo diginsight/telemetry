@@ -1,16 +1,16 @@
 # INTRODUCTION 
 
-__Common.Diagnostics__ is a .Net Standard component that provides readable log with __application execution flow__ to __.Net Log providers__ such as __Log4Net, Serilog or Application Insights, Console, EventLog and Debug__ __DotNet Log providers__.<br>
+__Common.Diagnostics__ is a .Net package that provides readable log with __application execution flow__ to __.Net Log providers__ such as __Log4Net, Serilog or Application Insights, Console, EventLog and Debug__ __DotNet Log providers__.<br>
 
 This makes the application flow fully observable, __still without compromises on performance__.<br>
 
 Articles:
-- [HOWTO - Make your application flow observable.md](HOWTO%20-%20Make%20your%20application%20flow%20observable.md) explores how to use diginsight to fully expose our application exeution flow.
+- [HOWTO - Make your application flow observable.md](HOWTO%20-%20Make%20your%20application%20flow%20observable.md): explores how to use diginsight to fully expose our application exeution flow.
 
-- [HOWTO - Avoid performance impacts using diginsight telemetry.md](HOWTO%20-%20Avoid%20performance%20imacts%20using%20diginsight%20telemetry.md) explores how we can do this ensuring no impact on application performance.
+- [HOWTO - Avoid performance impacts using diginsight telemetry.md](HOWTO%20-%20Avoid%20performance%20imacts%20using%20diginsight%20telemetry.md): explores how we can do this ensuring no impact on application performance.
+<br><br>
 
-<br>
-Start and completion of code sections are gathered by means of `using` statements to create __Method or Named scopes__.<br>
+Start and completion of code sections are gathered by means of `using` statements to create `Method or Named scopes`.<br>
 Traces are written to __standard .Net log providers__ so that applications can keep using their diagnostics system and standard logs are integrated into the execution flow gathered by __Common.Diagnostics__.<br><br>
 
 Common.Diagnostics is supported by __any .Net Framework version__ supporting .Net Standard 2.0, __any .Net Log provider__ and __any Sistem.Diagnostic listener__.<br><br>
@@ -230,11 +230,10 @@ format strings can use the following placeholders:
 
 # Previous versions and support for System Diagnostics Trace Listeners
 Current version of Diginsight telemetry provide support for Both __.Net Log providers__ and DotNet __Systen Diagnostics listeners__.<br>
-The current document focused on using telemetry with __.Net Log providers__.<br><br>
+The current document focused on using telemetry with __.Net Log providers__.<br>
 
 [README.v1.md](README.v1.md) describes how to use Diginsight telemetry with standard DotNet __Systen Diagnostics listeners__.
 <br><br>
-
 
 # SUMMARY
 
@@ -246,6 +245,12 @@ This makes the application flow fully observable, __still without compromises on
 
 2. [HOWTO - Avoid performance impacts using diginsight telemetry.md](HOWTO%20-%20Avoid%20performance%20imacts%20using%20diginsight%20telemetry.md) explores how we can do this ensuring non impact on application performance.
 
+# SAMPLES
+You can start testing diginsight telemetry by running __EasySample600v2__ as shown below.
+![Alt text](/images/v3/15.DiginsightClientSample.png)
+
+as an alternative, you can start testing the __EasySampleBlazorv2.Server__ sample.
+![Alt text](/images/v3/16.DiginsightServerSample.png)
 
 # Build and Test 
 Clone the repository, open and build solution Common.Diagnostics.sln. 
