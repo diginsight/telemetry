@@ -240,7 +240,7 @@ In this cases the veriables are rendered with their names, in the same way this 
 
 ![Alt text](/images/v3/08.%20LogObjectPayload.png "Diginsight telemetry leading ellipses")<br>
 
-Please note that variable names and values are taken directly by the LogDebug() payload object and the developer doesn't need to compose a string with them and keep them up to date.
+Please note that variable names and values are taken directly by the LogDebug() payload object and the developer doesn't need to compose a string with them and keep it up to date.
 
 <br>
 
