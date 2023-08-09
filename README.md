@@ -1,11 +1,7 @@
 # INTRODUCTION 
 
-
-
 __Common.Diagnostics__ is a .Net Standard component that provides readable log with __application execution flow__ to __.Net Log providers__ such as __Log4Net, Serilog or Application Insights, Console, EventLog and Debug__ __DotNet Log providers__.<br>
 
-Basic execution flow is gathered by means of __compiler generated information__ (eg. `[CallerMemberName]` attribute); __String interpolation handlers__ and __delegate overloads__ are leveraged to remove impact of disabled logs entries.<br>
-<br>
 This makes the application flow fully observable, __still without compromises on performance__.<br>
 
 1. [HOWTO - Make your application flow observable.md](HOWTO%20-%20Make%20your%20application%20flow%20observable.md) explores how to use Diginsight to fully expose our application exeution flow.
@@ -89,32 +85,8 @@ use __standard ILogger statements__ or __TraceLogger static methods__ to add tra
 	- TraceLogger.LogCritical("this is a critical trace");
 	- TraceLogger.LogException(ex);
 ```
-in this case log traces are added to the most inner scope, for the current thread.
-
-For performance optimization reasons, you may want to use the Log* overrides that work with delegates instead of using the Log* overrides that work with strings
-
-```c#
-	// standard Ilogger statements:
-	- _logger.LogTrace(() => "this is a Trace trace");
-	- _logger.LogDebug(() => "this is a Debug trace");
-	- _logger.LogInformation(() => "this is a Information trace");
-	- _logger.LogWarning(() => "this is a Warning trace");
-	- _logger.LogError(() => "this is a error trace");
-	- _logger.LogCritical(() => "this is a critical trace");
-	- _logger.LogException(() => ex);
-
-	// log statements with TraceLogger static methods:
-	- TraceLogger.LogTrace(() => "this is a Trace trace");
-	- TraceLogger.LogDebug(() => "this is a Debug trace");
-	- TraceLogger.LogInformation(() => "this is a Information trace");
-	- TraceLogger.LogWarning(() => "this is a Warning trace");
-	- TraceLogger.LogError(() => "this is a error trace");
-	- TraceLogger.LogCritical(() => "this is a critical trace");
-	- TraceLogger.LogException(() => ex);
-```
-
-<br>
-<br>
+In this case log traces are added to the most inner scope, for the current thread.
+<br><br>
 # TELEMETRY PROVIDERS
 
 The image below shows an example of diginsight telemetry rendered to a log4net log provider for a wpf smart client application:
@@ -123,7 +95,7 @@ The image below shows an example of diginsight telemetry rendered to a log4net l
 Similarly, the image below shows the result of rendering telemetry to the console of a web api on an azure kubernetes services container:
 ![alt text](/images/v2/01.1%20aks%20console%20trace.jpg "Diginsight telemetry to a web api running on AKS container").
 
-an analogous result can be obtained rendering the application flow on the browser console log of a Blazor WebAssembly application:
+An analogous result can be obtained rendering the application flow on the browser console log of a Blazor WebAssembly application:
 ![alt text](/images/v2/01.2%20blazor%20console%20trace.jpg "Diginsight telemetry of a Blazor WebAssemply application to the browser console log").
 
 The __relevant information of all these flows__ can be collected into centralized storage such as an __Application Insight__ resource or Azure Log Analytics workspace.
@@ -134,10 +106,8 @@ The following image shows the information level traces on an ApplicationInsights
 where application exceptions traced with __TraceException()__ can be analized into the Exceptions view:
 ![alt text](/images/v2/01.4%20Diginsight%20Exceptions%20to%20ApplicationInsight.jpg "Diginsight Exceptions into Application Insight Exceptions view").
 
+# STARTING TELEMETRY
 
-# ADDITIONAL INFORMATION
-
-## Starting Telemetry
 Starting telemetry is a matter of configuring the .Net log providers that are suitable for our application.
 
 ```c#
@@ -190,7 +160,6 @@ To indicate this such traces are __prefixed with an ellipsis (...)__.
 
 The following image shows the result of the preceding section, where prefix ellipses are visible for traces from _logger variable or TraceLogger static methods:
 ![alt text](/images/v2/01.7%20Diginsight%20logging%20output.jpg "Trace output")
-
 
 ## Tracing method parameters, variables and return values
 When calling extensions methods `BeginMethodScope()` and `BeginNamedScope()` the method name is obtained by compiler generated information.<br>
@@ -256,59 +225,6 @@ format strings can use the following placeholders:
 | deltaPadded	| Time delta scope start (with patting)
 | result	| Result (only for TraceMessageFormatStop)
 
-# GetLogString(), ISupportLogString and IProvideLogString
-When logging method parameters, variables and return values you can use the `GetLogString()` extension method.<br>
-For primitive types, GetLogString() renders the full object value.<br>
-For Arrays, Dictionaries and collections GetLogString() shows the number of items and the first items in the list (the list is truncated according to some configuration values)<br>
-For other types, GetLogString() produces a string with the object short type name.<br>
-<br>
-You can provide log strings for your types by means of `ISupportLogString` interface as shown in figure below.
-
-![alt text](/images/06._Class_with_ISupportLogString.jpg "Debug trace with nesting")
-<!-- 
-<img src="/diginsight/telemetry/blob/master/images/06._Class_with_ISupportLogString.jpg?raw=true" 
-	alt="Debug trace with nesting"
-	title="Debug trace with nesting" 
-	style="border: 1px solid black;" />
--->
-
-For objects from external libraries You can provide log strings registering a provider with `IProvideLogString` interace as shown below:
-
-![alt text](/images/07._Application_instance_with_IProvideLogString.jpg "Debug trace with nesting")
-<!-- 
-<img src="/diginsight/telemetry/blob/master/images/07._Application_instance_with_IProvideLogString.jpg?raw=true" 
-	alt="Debug trace with nesting"
-	title="Debug trace with nesting" 
-	style="border: 1px solid black;" />
--->
-
-The image below shows the EasySample where logstrings are provided for Window and Button object instances.
-
-![alt text](/images/08._Application_trace_with_custom_logstrings_from_IProvideLogString.jpg "Debug trace with nesting")
-<!-- 
-<img src="/diginsight/telemetry/blob/master/images/08._Application_trace_with_custom_logstrings_from_IProvideLogString.jpg?raw=true" 
-	alt="Debug trace with nesting"
-	title="Debug trace with nesting" 
-	style="border: 1px solid black;" />
--->
-
-# Performance considerations
-Rendering the application flow there is a risc to impact application performance.
-For this reason when using diginsight it is important to follow normal guidelines of general good sense:
-
-- limit using Method Scopes (and logging statements in general) on strict loops 
-- limit using Method Scopes (and logging statements in general) on deeply recursive methods 
-- avoid sending Trace and Debug level telemetry to providers that write to the network or other io-bound resources (eg. Application Insight) 
-
-Diginsight telemetry takes some important precautions to avoid cluttering resources and reduce use of CPU and memory:
-- use compiler generated information and avoid use of reflection when gathering the application flow
-- gather application flow as pointers into TraceEntry structures and avoid composing and formatting log strings that are not used
-- use string interpolation handlers and delegates to elimitate impact of disabled log entries
-- use string.format() statement to compose log strings and avoid string.replace() and concatenation composing and formatting log strings
-- support a default limit for the length of the strings that are written to the log that can be changed by configuration and overloaded by the developer on any specific log statement<br>
-this ensures that when trying (inadvertitely) to log variables with large data all the data is rendered to the log. 
-  
-other strategies can be implemented in the future to further control perfomrance impact and still allow complete visibility of application flow for debugging, troubleshooting and reverse engineering purposes.
 
 
 # Previous versions and support for System Diagnostics Trace Listeners
@@ -317,6 +233,18 @@ The current document focused on using telemetry with __.Net Log providers__.<br>
 
 [README.v1.md](README.v1.md) describes how to use Diginsight telemetry with standard DotNet __Systen Diagnostics listeners__.
 <br><br>
+
+
+# SUMMARY
+
+__Common.Diagnostics__ is a .Net Standard component that provides readable log with __application execution flow__ to __.Net Log providers__ such as __Log4Net, Serilog or Application Insights, Console, EventLog and Debug__ __DotNet Log providers__.<br>
+
+This makes the application flow fully observable, __still without compromises on performance__.<br>
+
+1. [HOWTO - Make your application flow observable.md](HOWTO%20-%20Make%20your%20application%20flow%20observable.md) explores how to use Diginsight to fully expose our application exeution flow.
+
+2. [HOWTO - Avoid performance impacts using diginsight telemetry.md](HOWTO%20-%20Avoid%20performance%20imacts%20using%20diginsight%20telemetry.md) explores how we can do this ensuring non impact on application performance.
+
 
 # Build and Test 
 Clone the repository, open and build solution Common.Diagnostics.sln. 
