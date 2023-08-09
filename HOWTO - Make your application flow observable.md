@@ -63,7 +63,7 @@ In this flow it __OnOK__ code section is shown as a part (or as en extension) of
 <br>
 
 # USE STATIC METHODS WHERE ILogger logger IS NOT AVAILABLE
-When ILogger logger member is not available you can use static methods instead of ILogger extension methods.
+When `ILogger logger` member is not available you can use static methods instead of ILogger extension methods.
 
 the above MethodScope can be defined with the following syntax:
 ```c#
