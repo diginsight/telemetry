@@ -63,9 +63,9 @@ In this flow it __OnOK__ code section is shown as a part (or as en extension) of
 <br>
 
 # USE STATIC METHODS WHERE ILogger logger IS NOT AVAILABLE
-When `ILogger logger` member is not available you can use static methods instead of ILogger extension methods.
+When `ILogger logger` member is not available we can use static methods instead of ILogger extension methods.
 
-the above MethodScope can be defined with the following syntax:
+The above `method scope` example can be defined with the following syntax:
 ```c#
 private async Task ctlMain_InitializedAsync(object sender, EventArgs e)
 {
@@ -78,7 +78,7 @@ private async Task ctlMain_InitializedAsync(object sender, EventArgs e)
         var clientId = default(string);
 ```
 
-The above NamedScope can be defined with the following syntax:
+The above `named scope` example can be defined with the following syntax:
 ```c#
 private void SaveExecuted(object sender, ExecutedRoutedEventArgs e)
 {
@@ -121,19 +121,20 @@ public async Task<UserProfileResponse> FindUserByEmailAddressAsync(string emailA
 }
 ```
 in this case method `FindUserByEmailAddressAsync` is logged together with its parameter names and parameter values.<br>
-Parameter names and values are shown inline with the method START line, as shown below:
+Parameter names and values are shown inline within the method START line, as shown below:
 ![alt text](/images/v3/03.%20ParametersLog.jpg "Diginsight telemetry parameters log")<br>
 
 For Simple types such as strings, numeric etc values are shown properly.<br>
-For complex types __.GetLogString()__ extension method can be used.
+For complex types __`GetLogString()`__ extension method can be used.
 
-In the provided example, __GetLogString()__ produces the following description for the `cacheContext` parameter:
+In the provided example, __`GetLogString()`__ produces the following description for the `cacheContext` parameter:
 ```c#
 cacheContext:{CacheContext:{Enabled:True,MaxAge:600}}
 ```
 
 Such descriptions can be provided by the object itself, by means of `ISupportLogString` interface or by the outer application, by means of `IProvideLogString` interface.
 
+The following code snippet shows a class providing its log string by means of `ISupportLogString` interface:
 ```c#
 public class CacheContext : ICacheContext, ISupportLogString
 {
@@ -150,7 +151,7 @@ public class CacheContext : ICacheContext, ISupportLogString
     }
 }
 ```
-The following code snippet shows an application providing log strings for external classes
+The following code snippet shows an application providing log strings for external classes by means of `IProvideLogString` interface
 ```c#
 public partial class App : Application, IProvideLogString
     {
@@ -188,7 +189,7 @@ public partial class App : Application, IProvideLogString
 
 Messages and variables can be logged with their severity within any method or a named scope.
 
-You can use the __scope variable__ to add trace messages to the method scope or the named scope
+We can use the __scope variable__ to add trace messages to the method scope or the named scope
 ```c#
 	// log statements within a scope
 	- scope.LogTrace("this is a Trace trace");
@@ -199,7 +200,7 @@ You can use the __scope variable__ to add trace messages to the method scope or 
 	- scope.LogCritical("this is a critical trace");
 	- scope.LogException(ex);
 ```
-You can use __standard ILogger statements__ or __TraceLogger static methods__ to add trace messages to the application flow when a scope variable instance is not available.
+We can use __standard ILogger statements__ or __TraceLogger static methods__ to add trace messages to the application flow when a scope variable instance is not available.
 
 ```c#
 	// standard Ilogger statements:
@@ -221,7 +222,7 @@ You can use __standard ILogger statements__ or __TraceLogger static methods__ to
 	- TraceLogger.LogException(ex);
 ```
 In this case log traces are added to the inner most scope, for the current thread.<br><br>
-In the latter options, we cannot be sure that the trace is performed in the same method where the scope variable is defined; for this reason, output messages will be prefixed with a __leading ellipsis__ as shown below:<br>
+In the latter options, we cannot be sure that the trace is performed in the same method where the scope variable is defined; for this reason, output messages are prefixed with a __leading ellipsis__ as shown below:<br>
 ![alt text](/images/v3/04.%20LeadingEllipses.jpg "Diginsight telemetry leading ellipses")<br>
 
 Variables with their names can be logged with the following syntax:
@@ -235,25 +236,27 @@ Variables with their names can be logged with the following syntax:
 	// log statements with TraceLogger static methods:
 	- TraceLogger.LogDebug(new { this.Identity, tenantId, clientId, clientSecret, keyVaultAddress });
 ```
-In this cases the methods payload is rendered 
+In this cases the veriables are rendered with their names, in the same way this happens when logging method parameters.
 
 ![Alt text](/images/v3/08.%20LogObjectPayload.png "Diginsight telemetry leading ellipses")<br>
+
+Please note that variable names and values are taken directly by the LogDebug() payload object and the developer doesn't need to compose a string with them and keep them up to date.
 
 <br>
 
 # LOG THE STARTUP SEQUENCE AND ANY RELEVANT APPLICATION FLOW DETAIL
 
 ## Log the startup Sequence
-The startup sequence often hides complex logic that is very difficult to troubleshoot.<br>
+The startup sequence of aspnet applications often hides complex logic that is very difficult to troubleshoot.<br>
 <br>
 Diginsight reproduces the application flow since the `Program.Main` application start.<br> 
-Where dependency injection ILogger variables are not available, you can define Method scopes and named scopes by means of the static TraceLogger overloads (see examples above).
+Where dependency injection `ILogger` variables are not available, you can define Method scopes and named scopes by means of the static `TraceLogger` overloads (see examples above).
 
 The following image shows the application flow of an aspnet core application startup sequence, including the `CreateHostBuilder` method and its callbacks `ConfigureAppConfiguration` and `ConfigureServices`
 
 ![alt text](/images/v3/05.%20StartupSequenceLog.jpg "Diginsight telemetry startup sequence log")<br>
 
-Many complex details such as configuration errors and connection failures can be hidden here and troubleshooting for these phases can be very complex.
+Many complex details such as configuration errors and connection failures are often hidden here and troubleshooting for these phases can be very complex.<br>
 Diginsight shows any detail here so that any later application failure can be more easily and quickly understood. 
 
 # USE THE DIGINSIGHT LOG TO OBSERVE APPLICATION BEHAVIOURS
