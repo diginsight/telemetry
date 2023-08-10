@@ -252,7 +252,7 @@ Please note that variable names and values are taken directly by the LogDebug() 
 The startup sequence of aspnet applications often hides complex logic that is very difficult to troubleshoot.<br>
 <br>
 Diginsight reproduces the application flow since the `Program.Main` application start.<br> 
-Where dependency injection `ILogger` variables are not available, you can define Method scopes and named scopes by means of the static `TraceLogger` overloads (see examples above).
+Where dependency injection `ILogger` variables are not available, you can define `method scopes` and `named scopes` by means of the static `TraceLogger` overloads (see examples above).
 
 The following image shows the application flow of an aspnet core application startup sequence, including the `CreateHostBuilder` method and its callbacks `ConfigureAppConfiguration` and `ConfigureServices`
 
