@@ -86,7 +86,15 @@ jobs:
       run: |
         $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables.outputs.assemblyVersion }}"
         Write-Host "Setting assembly version to: $env:ASSEMBLY_VERSION"
-        (Get-Content Common.Diagnostics/Common.Diagnostics.csproj) -replace '<Version>.*<\/Version>', "<Version>$env:ASSEMBLY_VERSION</Version>" | Set-Content Common.Diagnostics/Common.Diagnostics.csproj
+        # (Get-Content Common.Diagnostics/Common.Diagnostics.csproj) -replace '<Version>.*<\/Version>', "<Version>$env:ASSEMBLY_VERSION</Version>" | Set-Content Common.Diagnostics/Common.Diagnostics.csproj
+        # Define the replacement pattern
+        $csprojFiles = Get-ChildItem -Path . -Filter "*.csproj" -Recurse
+        $pattern = '<Version>.*<\/Version>'
+        $replacement = "<Version>$env:ASSEMBLY_VERSION</Version>"
+        # Loop through each .csproj file and perform the replacement
+        foreach ($csprojFile in $csprojFiles) {
+            (Get-Content $csprojFile.FullName) -replace $pattern, $replacement | Set-Content $csprojFile.FullName
+        }
 
     - name: Restore dependencies
       run: dotnet restore
