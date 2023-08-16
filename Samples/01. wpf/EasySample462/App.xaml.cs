@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace EasySample462
+namespace EasySample462 
 {
     /// <summary>
     /// Interaction logic for App.xaml
