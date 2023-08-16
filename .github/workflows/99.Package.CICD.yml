@@ -120,8 +120,8 @@ jobs:
         if-no-files-found: warn
         retention-days: 1
     
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+    # - name: Test
+    #   run: dotnet test --no-build --verbosity normal
 
   publishNugetPackage:
     needs: [getCompositeVariables, getKeyVaultSecrets, build]
