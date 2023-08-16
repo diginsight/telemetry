@@ -117,7 +117,7 @@ jobs:
         $nupkgFiles = Get-ChildItem -Path $source -Filter "*.nupkg" -File -Recurse | Where-Object { $_.DirectoryName -like "*Release*" }
         Write-Host "nupkgFiles: $nupkgFiles"
         # Copy .nupkg files to the destination directory (keeping their folder structure)
-        $nupkgFiles | { Copy-Item -Path $_.FullName -Destination $destination -Container -Force }
+        $nupkgFiles | % { Copy-Item -Path $_.FullName -Destination $destination -Container -Force }
 
     - name: Copy bin folder to artifactFolder Debug
       run: |
@@ -128,7 +128,7 @@ jobs:
         # Get all .nupkg files in the source directory and its subdirectories
         $nupkgFiles = Get-ChildItem -Path $source -Filter "*.nupkg" -File -Recurse | Where-Object { $_.DirectoryName -like "*Debug*" }
         Write-Host "nupkgFiles: $nupkgFiles"
-        $nupkgFiles | { Copy-Item -Path $_.FullName -Destination $destination -Container -Force }
+        $nupkgFiles | % { Copy-Item -Path $_.FullName -Destination $destination -Container -Force }
 
           
     #- name: Cache bin folder
