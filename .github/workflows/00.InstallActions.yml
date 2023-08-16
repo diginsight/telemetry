@@ -1,0 +1,85 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: 00.InstallActions
+
+on:
+  workflow_call:
+    inputs:
+      config-path:
+        required: false
+        type: string
+    secrets:
+      NUGET_API_KEY:
+        required: false
+      # token:
+      #   required: true
+
+jobs:
+  main:
+    runs-on: self-hosted
+
+    env:  # Define environment variables here
+      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+    - name: Setup NuGet.exe for use with actions
+      id: setup_nuget
+      uses: NuGet/setup-nuget@v1.2.0
+    
+    # - name: Install PowerShell Core
+    #   id: install_powershell_core
+    #   run: |
+    #     Invoke-WebRequest -Uri https://github.com/PowerShell/PowerShell/releases/download/v7.1.3/PowerShell-7.1.3-win-x64.msi -OutFile powershell.msi
+    #     Start-Process msiexec.exe -Wait -ArgumentList '/i powershell.msi /quiet /norestart'
+    #     Write-Host "powershell.msi install completed"
+
+    - name: Run pwsh Dump Variables
+      run: |
+        pwsh -File "scripts/v2/00. DumpVariables.ps1"
+
+    #- name: Run pwsh Dump github context1
+    #  run: |
+    #    pwsh -File "scripts/v2/01. DumpContext.ps1" -context ${{ github.GetType() }}
+    - name: Dump contexts
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+        JOB_CONTEXT: ${{ toJson(job) }}
+        STEPS_CONTEXT: ${{ toJson(steps) }}
+        RUNNER_CONTEXT: ${{ toJson(runner) }}
+        STRATEGY_CONTEXT: ${{ toJson(strategy) }}
+        MATRIX_CONTEXT: ${{ toJson(matrix) }}
+        ENV_CONTEXT: ${{ toJson(env) }}
+        VARS_CONTEXT: ${{ toJson(vars) }}
+        SECRETS_CONTEXT: ${{ toJson(secrets) }}
+        NEEDS_CONTEXT: ${{ toJson(needs) }}
+        INPUTS_CONTEXT: ${{ toJson(inputs) }}
+      run: |
+        echo "$GITHUB_CONTEXT"
+        echo "$env:GITHUB_CONTEXT" >> 01.GITHUB_CONTEXT.log
+        echo "$JOB_CONTEXT"
+        echo "$env:JOB_CONTEXT" >> 02.JOB_CONTEXT.log
+        echo "$STEPS_CONTEXT"
+        echo "$env:STEPS_CONTEXT" >> 03.STEPS_CONTEXT.log
+        echo "$RUNNER_CONTEXT"
+        echo "$env:RUNNER_CONTEXT" >> 04.RUNNER_CONTEXT.log
+        echo "$STRATEGY_CONTEXT"
+        echo "$env:STRATEGY_CONTEXT" >> 05.STRATEGY_CONTEXT.log
+        echo "$MATRIX_CONTEXT"
+        echo "$env:MATRIX_CONTEXT" >> 06.MATRIX_CONTEXT.log
+        echo "$ENV_CONTEXT"
+        echo "$env:ENV_CONTEXT" >> 07.ENV_CONTEXT.log
+        echo "$VARS_CONTEXT"
+        echo "$env:VARS_CONTEXT" >> 08.VARS_CONTEXT.log
+        echo "$SECRETS_CONTEXT"
+        echo "$env:SECRETS_CONTEXT" >> 10.SECRETS_CONTEXT.log
+        echo "$NEEDS_CONTEXT"
+        echo "$env:NEEDS_CONTEXT" >> 11.NEEDS_CONTEXT.log
+        echo "$INPUTS_CONTEXT"
+        echo "$env:INPUTS_CONTEXT" >> 12.INPUTS_CONTEXT.log

@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
 		<!--<TargetFramework>netstandard2.0</TargetFramework>-->
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
@@ -13,10 +13,15 @@
 		<PackageTags>telemetry diginsight diagnostic insight</PackageTags>
 		<PackageIcon>TelemetryBig.png</PackageIcon>
 		<Authors>diginsight</Authors>
-		<Description>Common.Diagnostics is a .Net Standard component that provides telemetry with application execution flow to .Net Log providers and .Net Systen Diagnostics listeners</Description>
+		<Description>Common.Diagnostics is a .Net package that provides readable log with application execution flow to .Net Log providers such as Log4Net, Serilog or Application Insights, etc.&lt;br&gt;
+still without compromises on performance.</Description>
 		<SignAssembly>true</SignAssembly>
 		<AssemblyOriginatorKeyFile>diginsight.snk</AssemblyOriginatorKeyFile>
 		<UserSecretsId>ea6bafb2-fe5a-4acb-820e-78ff096f00c7</UserSecretsId>
+		<Version>1.0.0.0</Version>
+		<Title>Common.Diagnostics</Title>
+		<PackageReadmeFile>README.nuget.md</PackageReadmeFile>
+		<!--<PackageReadmeFile>README.nuget.md</PackageReadmeFile>-->
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -50,6 +55,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<None Include="..\..\smartcache\README.nuget.md">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
+		</None>
 		<None Include="..\images\01. Project image\Telemetry\TelemetryBig.png">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
