@@ -117,12 +117,16 @@ jobs:
         $nupkgFiles = Get-ChildItem -Path $source -Filter "*.nupkg" -File -Recurse | Where-Object { $_.DirectoryName -like "*Release*" }
         Write-Host "nupkgFiles: $nupkgFiles"
         # Copy .nupkg files to the destination directory (keeping their folder structure)
-        foreach ($nupkgFile in $nupkgFiles) {
-            Write-Host "nupkgFile: $nupkgFile"
-            # $relativePath = $nupkgFile.FullName.Replace($source, "").TrimStart("\")
-            # $destinationPath = Join-Path -Path $destination -ChildPath $relativePath
-            Copy-Item -Path $nupkgFile.FullName -Destination $destination -Container -Force
+        $nupkgFiles | { 
+            Write-Host "nupkgFile: $_.FullName"
+            Copy-Item -Path $_.FullName -Destination $destination -Container -Force
         }
+        # foreach ($nupkgFile in $nupkgFiles) {
+        #     Write-Host "nupkgFile: $nupkgFile"
+        #     # $relativePath = $nupkgFile.FullName.Replace($source, "").TrimStart("\")
+        #     # $destinationPath = Join-Path -Path $destination -ChildPath $relativePath
+        #     Copy-Item -Path $nupkgFile.FullName -Destination $destination -Container -Force
+        # }
 
     - name: Copy bin folder to artifactFolder Debug
       run: |
@@ -133,14 +137,16 @@ jobs:
         # Get all .nupkg files in the source directory and its subdirectories
         $nupkgFiles = Get-ChildItem -Path $source -Filter "*.nupkg" -File -Recurse | Where-Object { $_.DirectoryName -like "*Debug*" }
         Write-Host "nupkgFiles: $nupkgFiles"
-        # Copy .nupkg files to the destination directory (keeping their folder structure)
-        # Copy-Item -Path $nupkgFiles -Destination $destination -Container -Force
-        foreach ($nupkgFile in $nupkgFiles) {
-            Write-Host "nupkgFile: $nupkgFile"
-            # $relativePath = $nupkgFile.FullName.Replace($source, "").TrimStart("\")
-            # $destinationPath = Join-Path -Path $destination -ChildPath $relativePath
-            Copy-Item -Path $nupkgFile.FullName -Destination $destination -Container -Force
+        $nupkgFiles | { 
+            Write-Host "nupkgFile: $_.FullName"
+            Copy-Item -Path $_.FullName -Destination $destination -Container -Force
         }
+        # foreach ($nupkgFile in $nupkgFiles) {
+        #     Write-Host "nupkgFile: $nupkgFile"
+        #     # $relativePath = $nupkgFile.FullName.Replace($source, "").TrimStart("\")
+        #     # $destinationPath = Join-Path -Path $destination -ChildPath $relativePath
+        #     Copy-Item -Path $nupkgFile.FullName -Destination $destination -Container -Force
+        # }
 
           
     #- name: Cache bin folder
