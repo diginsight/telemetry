@@ -55,7 +55,7 @@ still without compromises on performance.</Description>
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="..\..\smartcache\README.nuget.md">
+		<None Include="..\README.nuget.md">
 		  <Pack>True</Pack>
 		  <PackagePath>\</PackagePath>
 		</None>

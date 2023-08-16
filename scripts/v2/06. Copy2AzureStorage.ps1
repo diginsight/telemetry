@@ -47,7 +47,7 @@ if ([string]::IsNullOrEmpty($buildConfiguration)) { $buildConfiguration = "Relea
 # if ([string]::IsNullOrEmpty($branch)) { $branch = "$($env:BUILD_SOURCEBRANCHNAME)" }
 if ([string]::IsNullOrEmpty($branch)) { $branch = "main" }
 
-if ([string]::IsNullOrEmpty($repository)) { $repository = "diginsight.smartcache" }
+if ([string]::IsNullOrEmpty($repository)) { $repository = "diginsight.telemetry" }
 $repository = $repository.Replace("/",".")
 
 
