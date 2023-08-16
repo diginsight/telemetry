@@ -92,18 +92,32 @@ jobs:
       run: dotnet restore
       
     - name: Build DLL Debug
-      run: dotnet build Common.Diagnostics/Common.Diagnostics.csproj --configuration Debug --no-restore 
+      run: dotnet build Common.Diagnostics.sln --configuration Debug --no-restore 
       # --verbosity detailed
       
     - name: Build DLL Release
-      run: dotnet build Common.Diagnostics/Common.Diagnostics.csproj --configuration Release --no-restore 
+      run: dotnet build Common.Diagnostics.sln --configuration Release --no-restore 
       # --verbosity detailed
       
-    - name: Copy bin folder to artifactFolder 
+    - name: Copy bin folder to artifactFolder Release
       run: |
-        $source = "Common.Diagnostics/bin"
-        $destination = "artifactFolder"
-        Copy-Item -Path $source -Destination $destination -Recurse 
+        $source = "."
+        $destination = "artifactFolder\Release"
+        # Copy-Item -Path $source -Destination $destination -Recurse 
+        # Get all .nupkg files in the source directory and its subdirectories
+        $nupkgFiles = Get-ChildItem -Path $source -Filter "*.nupkg" -File -Recurse | Where-Object { $_.DirectoryName -like "*\Release\*" }
+        # Copy .nupkg files to the destination directory (keeping their folder structure)
+        Copy-Item -Path $nupkgFiles -Destination $destination -Container -Force
+          
+    - name: Copy bin folder to artifactFolder Debug
+      run: |
+        $source = "."
+        $destination = "artifactFolder\Debug"
+        # Copy-Item -Path $source -Destination $destination -Recurse 
+        # Get all .nupkg files in the source directory and its subdirectories
+        $nupkgFiles = Get-ChildItem -Path $source -Filter "*.nupkg" -File -Recurse | Where-Object { $_.DirectoryName -like "*\Debug\*" }
+        # Copy .nupkg files to the destination directory (keeping their folder structure)
+        Copy-Item -Path $nupkgFiles -Destination $destination -Container -Force
           
     #- name: Cache bin folder
     #  uses: actions/cache@v1.2.1
