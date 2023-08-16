@@ -112,6 +112,7 @@ jobs:
       run: |
         $source = "."
         $destination = "artifactFolder\Release"
+        New-Item -Path $destination -ItemType Directory -Force
         # Copy-Item -Path $source -Destination $destination -Recurse 
         $nupkgFiles = Get-ChildItem -Path $source -Filter "*.nupkg" -File -Recurse | Where-Object { $_.DirectoryName -like "*Release*" }
         Write-Host "nupkgFiles: $nupkgFiles"
@@ -127,6 +128,7 @@ jobs:
       run: |
         $source = "."
         $destination = "artifactFolder\Debug"
+        New-Item -Path $destination -ItemType Directory -Force
         # Copy-Item -Path $source -Destination $destination -Recurse 
         # Get all .nupkg files in the source directory and its subdirectories
         $nupkgFiles = Get-ChildItem -Path $source -Filter "*.nupkg" -File -Recurse | Where-Object { $_.DirectoryName -like "*Debug*" }
