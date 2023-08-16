@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
@@ -15,6 +15,7 @@
 		<Description>Common.Diagnostics.Logstrings.Azure provides logstrings for Azure classes</Description>
 		<SignAssembly>true</SignAssembly>
 		<AssemblyOriginatorKeyFile>diginsight.snk</AssemblyOriginatorKeyFile>
+		<Version>1.0.0.0</Version>
 	</PropertyGroup>
 
 	<ItemGroup>

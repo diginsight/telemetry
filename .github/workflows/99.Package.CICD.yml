@@ -93,6 +93,7 @@ jobs:
         $replacement = "<Version>$env:ASSEMBLY_VERSION</Version>"
         # Loop through each .csproj file and perform the replacement
         foreach ($csprojFile in $csprojFiles) {
+            Write-Host "replacing file: $csprojFile"
             (Get-Content $csprojFile.FullName) -replace $pattern, $replacement | Set-Content $csprojFile.FullName
         }
 
