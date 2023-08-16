@@ -24,13 +24,12 @@
     <PackageReference Include="log4net" Version="2.0.15" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="6.0.0-preview.4.21253.5" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0-preview.5.23280.8" />
-    <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.22.0-beta3" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.17.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="6.1.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Common.Diagnostics.Core\Common.Diagnostics.Core.csproj" />
     <ProjectReference Include="..\..\..\Common.Diagnostics\Common.Diagnostics.csproj" />
   </ItemGroup>
 
