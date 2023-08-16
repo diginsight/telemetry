@@ -101,11 +101,11 @@ jobs:
       run: dotnet restore
       
     - name: Build DLL Debug
-      run: dotnet build Common.Diagnostics.sln --configuration Debug --no-restore 
+      run: dotnet build Common.Diagnostics.Build.sln --configuration Debug --no-restore 
       # --verbosity detailed
       
     - name: Build DLL Release
-      run: dotnet build Common.Diagnostics.sln --configuration Release --no-restore 
+      run: dotnet build Common.Diagnostics.Build.sln --configuration Release --no-restore 
       # --verbosity detailed
       
     - name: Copy bin folder to artifactFolder Release
