@@ -98,7 +98,7 @@ jobs:
         }
 
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore Common.Diagnostics.Build.sln 
       
     - name: Build DLL Debug
       run: dotnet build Common.Diagnostics.Build.sln --configuration Debug --no-restore 
