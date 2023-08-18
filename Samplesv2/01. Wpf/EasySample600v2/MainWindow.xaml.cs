@@ -31,7 +31,8 @@ namespace EasySample
     public partial class MainWindow : Window
     {
         static Type T = typeof(MainWindow);
-        private static ILogger<MainWindow> logger;
+        private ILogger<MainWindow> logger;
+        private IClassConfigurationGetter<MainWindow> classConfigurationGetter;
 
         private string GetScope([CallerMemberName] string memberName = "") { return memberName; }
 
@@ -44,11 +45,15 @@ namespace EasySample
             //}
             using var scope = host.BeginMethodScope<MainWindow>();
         }
-        public MainWindow(ILogger<MainWindow> logger)
+        public MainWindow(
+            ILogger<MainWindow> logger,
+            IClassConfigurationGetter<MainWindow> classConfigurationGetter
+            )
         {
-            MainWindow.logger = logger;
+            this.logger = logger;
+            this.classConfigurationGetter = classConfigurationGetter;
             // using (_logger.BeginMethodScope())
-            using (MainWindow.logger.BeginScope(TraceLogger.GetMethodName()))
+            using (logger.BeginScope(TraceLogger.GetMethodName()))
             {
                 InitializeComponent();
             }
@@ -57,6 +62,7 @@ namespace EasySample
         {
             using var scope = logger.BeginMethodScope(() => new { sender, e });
 
+            classConfigurationGetter.Get("SampleConfig", "");
             sampleMethod();
             await sampleMethod1Async();
 

@@ -4,7 +4,6 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-//using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.ApplicationInsights;
@@ -119,6 +118,7 @@ namespace EasySample
                 await Host.StartAsync(); scope.LogDebug($"await Host.StartAsync();");
 
                 var mainWindow = Host.Services.GetRequiredService<MainWindow>(); scope.LogDebug($"Host.Services.GetRequiredService<MainWindow>(); returns {mainWindow.GetLogString()}");
+
                 mainWindow.Show(); scope.LogDebug($"mainWindow.Show();");
 
                 base.OnStartup(e); scope.LogDebug($"base.OnStartup(e);");
@@ -126,6 +126,9 @@ namespace EasySample
         }
         private void ConfigureServices(IConfiguration configuration, IServiceCollection services)
         {
+            //services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddHttpContextAccessor();
+            services.AddClassConfiguration();
             services.AddSingleton<MainWindow>();
 
             services.AddScoped<ITraceLoggerMinimumLevel, TraceLoggerMinimumLevel>(sp =>
@@ -146,7 +149,7 @@ namespace EasySample
                 var contextAccessor = Host.Services.GetService<IHttpContextAccessor>();
                 if (contextAccessor == null) { return traceLoggerMinimumLevel; }
 
-                ok = contextAccessor.HttpContext.Request.Headers.TryGetValue("TraceLoggerMinimumLevel", out StringValues headerValues);
+                ok = contextAccessor?.HttpContext?.Request?.Headers?.TryGetValue("TraceLoggerMinimumLevel", out StringValues headerValues) ?? false;
                 if (ok)
                 {
                     ok = int.TryParse(headerValues.LastOrDefault(), out int minimumLevel);
