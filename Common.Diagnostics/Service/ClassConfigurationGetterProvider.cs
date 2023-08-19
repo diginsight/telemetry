@@ -5,7 +5,7 @@ using System;
 
 namespace Common
 {
-    internal sealed class ClassConfigurationGetterProvider : IClassConfigurationGetterProvider
+    public sealed class ClassConfigurationGetterProvider : IClassConfigurationGetterProvider
     {
         private readonly IServiceProvider serviceProvider;
         public IClassConfigurationGetterProvider Empty => EmptyClassConfigurationGetterProvider._empty;
