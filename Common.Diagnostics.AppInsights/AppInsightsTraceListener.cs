@@ -41,6 +41,7 @@ namespace Common
         #endregion
 
         #region private fields
+        private static ClassConfigurationGetter<AppInsightsTraceListener> classConfigurationGetter;
         public bool _showNestedFlow, _flushOnWrite;
         public int _traceMessageFormatPrefixLen;
         public string _filter, _categoryFilter, _categoryFilterTrackTrace, _categoryFilterTrackEvent, _categoryFilterTrackException;
@@ -243,25 +244,40 @@ namespace Common
         {
             using (var sec = this.GetCodeSection())
             {
-                var filter = ConfigurationHelper.GetClassSetting<AppInsightsTraceListener, string>(CONFIGSETTING_FILTER, CONFIGDEFAULT_FILTER);
+                if (classConfigurationGetter == null) { classConfigurationGetter = new ClassConfigurationGetter<AppInsightsTraceListener>(TraceLogger.Configuration); }
+
+                //var filter = ConfigurationHelper.GetClassSetting<AppInsightsTraceListener, string>(CONFIGSETTING_FILTER, CONFIGDEFAULT_FILTER);
+                var filter = classConfigurationGetter.Get(CONFIGSETTING_FILTER, CONFIGDEFAULT_FILTER);
                 if (!string.IsNullOrEmpty(filter)) { ((ISupportFilters)this).Filter = filter; }
-                var categoryFilter = ConfigurationHelper.GetClassSetting<AppInsightsTraceListener, string>(CONFIGSETTING_CATEGORYFILTER, CONFIGDEFAULT_CATEGORYFILTER);
+                //var categoryFilter = ConfigurationHelper.GetClassSetting<AppInsightsTraceListener, string>(CONFIGSETTING_CATEGORYFILTER, CONFIGDEFAULT_CATEGORYFILTER);
+                var categoryFilter = classConfigurationGetter.Get(CONFIGSETTING_CATEGORYFILTER, CONFIGDEFAULT_CATEGORYFILTER);
                 if (!string.IsNullOrEmpty(categoryFilter)) { this.CategoryFilter = categoryFilter; }
-                var categoryFilterTrackTrace = ConfigurationHelper.GetClassSetting<AppInsightsTraceListener, string>(CONFIGSETTING_CATEGORYFILTERTRACKTRACE, CONFIGDEFAULT_CATEGORYFILTERTRACKTRACE);
+                //var categoryFilterTrackTrace = ConfigurationHelper.GetClassSetting<AppInsightsTraceListener, string>(CONFIGSETTING_CATEGORYFILTERTRACKTRACE, CONFIGDEFAULT_CATEGORYFILTERTRACKTRACE);
+                var categoryFilterTrackTrace = classConfigurationGetter.Get(CONFIGSETTING_CATEGORYFILTERTRACKTRACE, CONFIGDEFAULT_CATEGORYFILTERTRACKTRACE);
                 if (!string.IsNullOrEmpty(categoryFilterTrackTrace)) { this.CategoryFilterTrackTrace = categoryFilterTrackTrace; }
-                var categoryFilterTrackEvent = ConfigurationHelper.GetClassSetting<AppInsightsTraceListener, string>(CONFIGSETTING_CATEGORYFILTERTRACKEVENT, CONFIGDEFAULT_CATEGORYFILTERTRACKEVENT);
+                //var categoryFilterTrackEvent = ConfigurationHelper.GetClassSetting<AppInsightsTraceListener, string>(CONFIGSETTING_CATEGORYFILTERTRACKEVENT, CONFIGDEFAULT_CATEGORYFILTERTRACKEVENT);
+                var categoryFilterTrackEvent = classConfigurationGetter.Get(CONFIGSETTING_CATEGORYFILTERTRACKEVENT, CONFIGDEFAULT_CATEGORYFILTERTRACKEVENT);
                 if (!string.IsNullOrEmpty(categoryFilterTrackEvent)) { this.CategoryFilterTrackEvent = categoryFilterTrackEvent; }
-                var categoryFilterTrackException = ConfigurationHelper.GetClassSetting<AppInsightsTraceListener, string>(CONFIGSETTING_CATEGORYFILTERTRACKEXCEPTION, CONFIGDEFAULT_CATEGORYFILTERTRACKEXCEPTION);
+                //var categoryFilterTrackException = ConfigurationHelper.GetClassSetting<AppInsightsTraceListener, string>(CONFIGSETTING_CATEGORYFILTERTRACKEXCEPTION, CONFIGDEFAULT_CATEGORYFILTERTRACKEXCEPTION);
+                var categoryFilterTrackException = classConfigurationGetter.Get(CONFIGSETTING_CATEGORYFILTERTRACKEXCEPTION, CONFIGDEFAULT_CATEGORYFILTERTRACKEXCEPTION);
                 if (!string.IsNullOrEmpty(categoryFilterTrackException)) { this.CategoryFilterTrackException = categoryFilterTrackException; }
 
-                _flushOnWrite = ConfigurationHelper.GetClassSetting<AppInsightsTraceListener, bool>(CONFIGSETTING_FLUSHONWRITE, CONFIGDEFAULT_FLUSHONWRITE);
-                _telemetrythreadsleep = ConfigurationHelper.GetClassSetting<AppInsightsTraceListener, int>(CONFIGSETTING_TELEMETRYTHREADSLEEP, CONFIGDEFAULT_TELEMETRYTHREADSLEEP);
-                _defaultCategory = ConfigurationHelper.GetClassSetting<AppInsightsTraceListener, string>(CONFIGSETTING_DEFAULTCATEGORY, CONFIGDEFAULT_DEFAULTCATEGORY);
-                _appInsightsKey = ConfigurationHelper.GetClassSetting<AppInsightsTraceListener, string>(CONFIGSETTING_APPINSIGHTSKEY, CONFIGDEFAULT_APPINSIGHTSKEY);
+                //_flushOnWrite = ConfigurationHelper.GetClassSetting<AppInsightsTraceListener, bool>(CONFIGSETTING_FLUSHONWRITE, CONFIGDEFAULT_FLUSHONWRITE);
+                _flushOnWrite = classConfigurationGetter.Get(CONFIGSETTING_FLUSHONWRITE, CONFIGDEFAULT_FLUSHONWRITE);
+                //_telemetrythreadsleep = ConfigurationHelper.GetClassSetting<AppInsightsTraceListener, int>(CONFIGSETTING_TELEMETRYTHREADSLEEP, CONFIGDEFAULT_TELEMETRYTHREADSLEEP);
+                _telemetrythreadsleep = classConfigurationGetter.Get(CONFIGSETTING_TELEMETRYTHREADSLEEP, CONFIGDEFAULT_TELEMETRYTHREADSLEEP);
+                //_defaultCategory = ConfigurationHelper.GetClassSetting<AppInsightsTraceListener, string>(CONFIGSETTING_DEFAULTCATEGORY, CONFIGDEFAULT_DEFAULTCATEGORY);
+                _defaultCategory = classConfigurationGetter.Get(CONFIGSETTING_DEFAULTCATEGORY, CONFIGDEFAULT_DEFAULTCATEGORY);
 
-                _trackTraceEnabled = ConfigurationHelper.GetClassSetting<AppInsightsTraceListener, bool>(CONFIGSETTING_TRACKTRACEENABLED, CONFIGDEFAULT_TRACKTRACEENABLED);
-                _trackExceptionEnabled = ConfigurationHelper.GetClassSetting<AppInsightsTraceListener, bool>(CONFIGSETTING_TRACKEXCEPTIONENABLED, CONFIGDEFAULT_TRACKEXCEPTIONENABLED);
-                _trackEventEnabled = ConfigurationHelper.GetClassSetting<AppInsightsTraceListener, bool>(CONFIGSETTING_TRACKEVENTENABLED, CONFIGDEFAULT_TRACKEVENTENABLED);
+                //_appInsightsKey = ConfigurationHelper.GetClassSetting<AppInsightsTraceListener, string>(CONFIGSETTING_APPINSIGHTSKEY, CONFIGDEFAULT_APPINSIGHTSKEY);
+                _appInsightsKey = classConfigurationGetter.Get(CONFIGSETTING_APPINSIGHTSKEY, CONFIGDEFAULT_APPINSIGHTSKEY);
+                //_trackTraceEnabled = ConfigurationHelper.GetClassSetting<AppInsightsTraceListener, bool>(CONFIGSETTING_TRACKTRACEENABLED, CONFIGDEFAULT_TRACKTRACEENABLED);
+                _trackTraceEnabled = classConfigurationGetter.Get(CONFIGSETTING_TRACKTRACEENABLED, CONFIGDEFAULT_TRACKTRACEENABLED);
+
+                //_trackExceptionEnabled = ConfigurationHelper.GetClassSetting<AppInsightsTraceListener, bool>(CONFIGSETTING_TRACKEXCEPTIONENABLED, CONFIGDEFAULT_TRACKEXCEPTIONENABLED);
+                _trackExceptionEnabled = classConfigurationGetter.Get(CONFIGSETTING_TRACKEXCEPTIONENABLED, CONFIGDEFAULT_TRACKEXCEPTIONENABLED);
+                //_trackEventEnabled = ConfigurationHelper.GetClassSetting<AppInsightsTraceListener, bool>(CONFIGSETTING_TRACKEVENTENABLED, CONFIGDEFAULT_TRACKEVENTENABLED);
+                _trackEventEnabled = classConfigurationGetter.Get(CONFIGSETTING_TRACKEVENTENABLED, CONFIGDEFAULT_TRACKEVENTENABLED);
 
                 var configuration = TelemetryConfiguration.CreateDefault();
                 configuration.InstrumentationKey = _appInsightsKey;

@@ -66,12 +66,17 @@ namespace Common
                     var prefix = provider?.GetType()?.Name?.Split('.')?.Last();
                     this.ConfigurationSuffix = prefix;
                 }
+                
+                var classConfigurationGetter = new ClassConfigurationGetter<TraceLoggerJsonProvider>(TraceLogger.Configuration);
 
-                _CRReplace = ConfigurationHelper.GetClassSetting<TraceLoggerJsonProvider, string>(CONFIGSETTING_CRREPLACE, CONFIGDEFAULT_CRREPLACE, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
-                _LFReplace = ConfigurationHelper.GetClassSetting<TraceLoggerJsonProvider, string>(CONFIGSETTING_LFREPLACE, CONFIGDEFAULT_LFREPLACE, CultureInfo.InvariantCulture, this.ConfigurationSuffix);  // ConfigurationHelper.GetSetting<int>(CONFIGSETTING_LFREPLACE, CONFIGDEFAULT_LFREPLACE);
-                _timestampFormat = ConfigurationHelper.GetClassSetting<TraceLoggerJsonProvider, string>(CONFIGSETTING_TIMESTAMPFORMAT, CONFIGDEFAULT_TIMESTAMPFORMAT, CultureInfo.InvariantCulture, this.ConfigurationSuffix);  // ConfigurationHelper.GetSetting<int>(CONFIGSETTING_TIMESTAMPFORMAT, CONFIGDEFAULT_TIMESTAMPFORMAT);
-
-                _writeStartupEntries = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, bool>(CONFIGSETTING_WRITESTARTUPENTRIES, CONFIGDEFAULT_WRITESTARTUPENTRIES, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                //_CRReplace = ConfigurationHelper.GetClassSetting<TraceLoggerJsonProvider, string>(CONFIGSETTING_CRREPLACE, CONFIGDEFAULT_CRREPLACE, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                _CRReplace = classConfigurationGetter.Get(CONFIGSETTING_CRREPLACE, CONFIGDEFAULT_CRREPLACE);
+                //_LFReplace = ConfigurationHelper.GetClassSetting<TraceLoggerJsonProvider, string>(CONFIGSETTING_LFREPLACE, CONFIGDEFAULT_LFREPLACE, CultureInfo.InvariantCulture, this.ConfigurationSuffix);  // ConfigurationHelper.GetSetting<int>(CONFIGSETTING_LFREPLACE, CONFIGDEFAULT_LFREPLACE);
+                _LFReplace = classConfigurationGetter.Get(CONFIGSETTING_LFREPLACE, CONFIGDEFAULT_LFREPLACE);
+                //_timestampFormat = ConfigurationHelper.GetClassSetting<TraceLoggerJsonProvider, string>(CONFIGSETTING_TIMESTAMPFORMAT, CONFIGDEFAULT_TIMESTAMPFORMAT, CultureInfo.InvariantCulture, this.ConfigurationSuffix);  // ConfigurationHelper.GetSetting<int>(CONFIGSETTING_TIMESTAMPFORMAT, CONFIGDEFAULT_TIMESTAMPFORMAT);
+                _timestampFormat = classConfigurationGetter.Get(CONFIGSETTING_TIMESTAMPFORMAT, CONFIGDEFAULT_TIMESTAMPFORMAT);
+                //_writeStartupEntries = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, bool>(CONFIGSETTING_WRITESTARTUPENTRIES, CONFIGDEFAULT_WRITESTARTUPENTRIES, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                _writeStartupEntries = classConfigurationGetter.Get(CONFIGSETTING_WRITESTARTUPENTRIES, CONFIGDEFAULT_WRITESTARTUPENTRIES);
 
                 var thicksPerMillisecond = TraceLogger.Stopwatch.ElapsedTicks / TraceLogger.Stopwatch.ElapsedMilliseconds;
                 string fileName = null, workingDirectory = null;

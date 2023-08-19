@@ -25,64 +25,64 @@ namespace Common
         private const string E_ARGUMENTNULLEXCEPTION = "argument '{name}' cannot be null";
         private const string S_NAME_PLACEHOLDER = "{name}";
         #endregion
-        public static IConfiguration Configuration { get; internal set; }
+        //public static IConfiguration Configuration { get; internal set; }
 
         static ConfigurationHelper() { }
 
-        public static void Init(IConfiguration configuration)
-        {
-            ConfigurationHelper.Configuration = configuration;
-        }
+        //public static void Init(IConfiguration configuration)
+        //{
+        //    ConfigurationHelper.Configuration = configuration;
+        //}
 
-        #region GetSetting
-        public static T GetSetting<T>(string key, T defaultValue = default(T))
-        {
-            var configurationValue = Configuration.GetValue($"AppSettings:{key}", defaultValue);
-            return configurationValue;
-        }
-        #endregion
-        #region GetClassSetting
-        public static TRet GetClassSetting<TClass, TRet>(string name, TRet defaultValue = default(TRet), CultureInfo culture = null, string suffix = null)
-        {
-            if (culture == null) { culture = CultureInfo.CurrentCulture; }
+        //#region GetSetting
+        //public static T GetSetting<T>(string key, T defaultValue = default(T))
+        //{
+        //    var configurationValue = Configuration.GetValue($"AppSettings:{key}", defaultValue);
+        //    return configurationValue;
+        //}
+        //#endregion
+        //#region GetClassSetting
+        //public static TRet GetClassSetting<TClass, TRet>(string name, TRet defaultValue = default(TRet), CultureInfo culture = null, string suffix = null)
+        //{
+        //    if (culture == null) { culture = CultureInfo.CurrentCulture; }
 
-            var ret = defaultValue;
-            try
-            {
-                var type = typeof(TClass); Assembly assembly = type.Assembly;
-                var assemblyName = GetConfigName(assembly); var className = GetConfigName(type);
-                var specificName = default(string);
-                var sectionName = default(string);
-                var groupName = default(string);
+        //    var ret = defaultValue;
+        //    try
+        //    {
+        //        var type = typeof(TClass); Assembly assembly = type.Assembly;
+        //        var assemblyName = GetConfigName(assembly); var className = GetConfigName(type);
+        //        var specificName = default(string);
+        //        var sectionName = default(string);
+        //        var groupName = default(string);
 
-                var valueString = default(string);
-                if (!string.IsNullOrEmpty(suffix))
-                {
-                    specificName = $"{assemblyName}.{className}.{suffix}.{name}";
-                    sectionName = $"{className}.{suffix}.{name}";
-                    groupName = $"{suffix}.{name}";
+        //        var valueString = default(string);
+        //        if (!string.IsNullOrEmpty(suffix))
+        //        {
+        //            specificName = $"{assemblyName}.{className}.{suffix}.{name}";
+        //            sectionName = $"{className}.{suffix}.{name}";
+        //            groupName = $"{suffix}.{name}";
 
-                    valueString = GetSetting<string>(specificName, null);
-                    if (valueString == null) { valueString = GetSetting<string>(sectionName, null); }
-                    if (valueString == null) { valueString = GetSetting<string>(groupName, null); }
-                }
+        //            valueString = GetSetting<string>(specificName, null);
+        //            if (valueString == null) { valueString = GetSetting<string>(sectionName, null); }
+        //            if (valueString == null) { valueString = GetSetting<string>(groupName, null); }
+        //        }
 
-                specificName = $"{assemblyName}.{className}.{name}";
-                sectionName = $"{className}.{name}";
-                groupName = $"{name}";
-                if (valueString == null) { valueString = GetSetting<string>(specificName, null); }
-                if (valueString == null) { valueString = GetSetting<string>(sectionName, null); }
-                if (valueString == null) { valueString = GetSetting<string>(groupName, null); }
-                if (valueString == null) { return ret; }
+        //        specificName = $"{assemblyName}.{className}.{name}";
+        //        sectionName = $"{className}.{name}";
+        //        groupName = $"{name}";
+        //        if (valueString == null) { valueString = GetSetting<string>(specificName, null); }
+        //        if (valueString == null) { valueString = GetSetting<string>(sectionName, null); }
+        //        if (valueString == null) { valueString = GetSetting<string>(groupName, null); }
+        //        if (valueString == null) { return ret; }
 
-                var converter = TypeDescriptor.GetConverter(typeof(TRet));
-                ret = (TRet)converter.ConvertFrom(null, culture, valueString);
-                return ret;
-            }
-            catch (Exception ex) { TraceManager.Exception(ex); return ret; }
-            finally { TraceManager.Trace($"GetClassSetting('{name}') returned '{ret.GetLogString()}'", "config"); }
-        }
-        #endregion
+        //        var converter = TypeDescriptor.GetConverter(typeof(TRet));
+        //        ret = (TRet)converter.ConvertFrom(null, culture, valueString);
+        //        return ret;
+        //    }
+        //    catch (Exception ex) { TraceManager.Exception(ex); return ret; }
+        //    finally { TraceManager.Trace($"GetClassSetting('{name}') returned '{ret.GetLogString()}'", "config"); }
+        //}
+        //#endregion
 
         #region GetConfigName
         ///<summary>gets the name of the assembly to be used as a configsection name or a prefix for appettings values.</summary>

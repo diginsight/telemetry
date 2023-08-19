@@ -68,6 +68,8 @@ namespace Common
         #endregion
         #region internal state
         private static Type T = typeof(TraceLoggerFormatProvider);
+        private ILogger<TraceLoggerFormatProvider> logger;
+        private static ClassConfigurationGetter<TraceLoggerFormatProvider> classConfigurationGetter;
         private static readonly string _traceSourceName = "TraceSource";
         public static Func<string, string> CRLF2Space = (string s) => { return s?.Replace("\r", " ")?.Replace("\n", " "); };
         public static Func<string, string> CRLF2Encode = (string s) => { return s?.Replace("\r", "\\r")?.Replace("\n", "\\n"); };
@@ -100,7 +102,7 @@ namespace Common
 
         public void AddProvider(ILoggerProvider provider)
         {
-            using (var scope = TraceLogger.BeginMethodScope<TraceLoggerFormatProvider>(new { ConfigurationSuffix }))
+            using (var scope = logger.BeginMethodScope(new { ConfigurationSuffix }))
             {
                 if (string.IsNullOrEmpty(ConfigurationSuffix))
                 {
@@ -117,41 +119,72 @@ namespace Common
 
         public void Initialize()
         {
-            using (var scope = TraceLogger.BeginMethodScope<TraceLoggerFormatProvider>())
+            using (var scope = logger.BeginMethodScope())
             {
-                _CRReplace = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_CRREPLACE, CONFIGDEFAULT_CRREPLACE, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
-                _LFReplace = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_LFREPLACE, CONFIGDEFAULT_LFREPLACE, CultureInfo.InvariantCulture, this.ConfigurationSuffix);  // ConfigurationHelper.GetSetting<int>(CONFIGSETTING_LFREPLACE, CONFIGDEFAULT_LFREPLACE);
-                _timestampFormat = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TIMESTAMPFORMAT, CONFIGDEFAULT_TIMESTAMPFORMAT, CultureInfo.InvariantCulture, this.ConfigurationSuffix);  // ConfigurationHelper.GetSetting<int>(CONFIGSETTING_TIMESTAMPFORMAT, CONFIGDEFAULT_TIMESTAMPFORMAT);
-                _showNestedFlow = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, bool>(CONFIGSETTING_SHOWNESTEDFLOW, CONFIGDEFAULT_SHOWNESTEDFLOW, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
-                _showTraceCost = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, bool>(CONFIGSETTING_SHOWTRACECOST, CONFIGDEFAULT_SHOWTRACECOST, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
-                _flushOnWrite = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, bool>(CONFIGSETTING_FLUSHONWRITE, CONFIGDEFAULT_FLUSHONWRITE, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
-                _processNamePadding = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_PROCESSNAMEPADDING, CONFIGDEFAULT_PROCESSNAMEPADDING, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
-                _processNameMaxlen = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_PROCESSNAMEMAXLEN, CONFIGDEFAULT_PROCESSNAMEMAXLEN, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
-                _sourcePadding = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_SOURCEPADDING, CONFIGDEFAULT_SOURCEPADDING, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
-                _sourceMaxlen = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_SOURCEMAXLEN, CONFIGDEFAULT_SOURCEMAXLEN, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
-                _categoryPadding = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_CATEGORYPADDING, CONFIGDEFAULT_CATEGORYPADDING, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
-                _categoryMaxlen = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_CATEGORYMAXLEN, CONFIGDEFAULT_CATEGORYMAXLEN, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
-                _sourceLevelPadding = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_SOURCELEVELPADDING, CONFIGDEFAULT_SOURCELEVELPADDING, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
-                _sourceLevelMaxlen = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_SOURCELEVELMAXLEN, CONFIGDEFAULT_SOURCELEVELMAXLEN, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
-                _logLevelPadding = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_LOGLEVELPADDING, CONFIGDEFAULT_LOGLEVELPADDING, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                if (classConfigurationGetter == null) { classConfigurationGetter = new ClassConfigurationGetter<TraceLoggerFormatProvider>(TraceLogger.Configuration); }
 
-                _deltaPadding = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_DELTAPADDING, CONFIGDEFAULT_DELTAPADDING, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
-                _lastWriteContinuationEnabled = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, bool>(CONFIGSETTING_LASTWRITECONTINUATIONENABLED, CONFIGDEFAULT_LASTWRITECONTINUATIONENABLED, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
-                _traceMessageFormatPrefix = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMATPREFIX, CONFIGDEFAULT_TRACEMESSAGEFORMATPREFIX, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
-
-                _traceMessageFormat = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMAT, CONFIGDEFAULT_TRACEMESSAGEFORMAT, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
-                _traceMessageFormatVerbose = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMATVERBOSE, CONFIGDEFAULT_TRACEMESSAGEFORMATVERBOSE, CultureInfo.InvariantCulture, this.ConfigurationSuffix); if (string.IsNullOrEmpty(_traceMessageFormatVerbose)) { _traceMessageFormatVerbose = _traceMessageFormat; }
-                _traceMessageFormatInformation = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMATINFORMATION, CONFIGDEFAULT_TRACEMESSAGEFORMATINFORMATION, CultureInfo.InvariantCulture, this.ConfigurationSuffix); if (string.IsNullOrEmpty(_traceMessageFormatInformation)) { _traceMessageFormatInformation = _traceMessageFormat; }
-                _traceMessageFormatWarning = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMATWARNING, CONFIGDEFAULT_TRACEMESSAGEFORMATWARNING, CultureInfo.InvariantCulture, this.ConfigurationSuffix); if (string.IsNullOrEmpty(_traceMessageFormatWarning)) { _traceMessageFormatWarning = _traceMessageFormat; }
-                _traceMessageFormatError = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMATERROR, CONFIGDEFAULT_TRACEMESSAGEFORMATERROR, CultureInfo.InvariantCulture, this.ConfigurationSuffix); if (string.IsNullOrEmpty(_traceMessageFormatError)) { _traceMessageFormatError = _traceMessageFormat; }
-                _traceMessageFormatCritical = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMATCRITICAL, CONFIGDEFAULT_TRACEMESSAGEFORMATCRITICAL, CultureInfo.InvariantCulture, this.ConfigurationSuffix); if (string.IsNullOrEmpty(_traceMessageFormatCritical)) { _traceMessageFormatCritical = _traceMessageFormat; }
-                _traceMessageFormatStart = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMATSTART, CONFIGDEFAULT_TRACEMESSAGEFORMATSTART, CultureInfo.InvariantCulture, this.ConfigurationSuffix); if (string.IsNullOrEmpty(_traceMessageFormatStart)) { _traceMessageFormatStart = _traceMessageFormat; }
-                _traceMessageFormatStop = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMATSTOP, CONFIGDEFAULT_TRACEMESSAGEFORMATSTOP, CultureInfo.InvariantCulture, this.ConfigurationSuffix); if (string.IsNullOrEmpty(_traceMessageFormatStop)) { _traceMessageFormatStop = _traceMessageFormat; }
-                _traceMessageFormatInlineStop = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMATINLINESTOP, CONFIGDEFAULT_TRACEMESSAGEFORMATINLINESTOP, CultureInfo.InvariantCulture, this.ConfigurationSuffix); // if (string.IsNullOrEmpty(_traceMessageFormatInlineStop)) { _traceMessageFormatInlineStop = _traceMessageFormat; }
-                _traceMessageFormatSuspend = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMATSUSPEND, CONFIGDEFAULT_TRACEMESSAGEFORMATSUSPEND, CultureInfo.InvariantCulture, this.ConfigurationSuffix); if (string.IsNullOrEmpty(_traceMessageFormatSuspend)) { _traceMessageFormatSuspend = _traceMessageFormat; }
-                _traceMessageFormatResume = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMATRESUME, CONFIGDEFAULT_TRACEMESSAGEFORMATRESUME, CultureInfo.InvariantCulture, this.ConfigurationSuffix); if (string.IsNullOrEmpty(_traceMessageFormatResume)) { _traceMessageFormatResume = _traceMessageFormat; }
-                _traceMessageFormatTransfer = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMATTRANSFER, CONFIGDEFAULT_TRACEMESSAGEFORMATTRANSFER, CultureInfo.InvariantCulture, this.ConfigurationSuffix); if (string.IsNullOrEmpty(_traceMessageFormatTransfer)) { _traceMessageFormatTransfer = _traceMessageFormat; }
-                _writeStartupEntries = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, bool>(CONFIGSETTING_WRITESTARTUPENTRIES, CONFIGDEFAULT_WRITESTARTUPENTRIES, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                //_CRReplace = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_CRREPLACE, CONFIGDEFAULT_CRREPLACE, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                _CRReplace = classConfigurationGetter.Get(CONFIGSETTING_CRREPLACE, CONFIGDEFAULT_CRREPLACE);
+                //_LFReplace = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_LFREPLACE, CONFIGDEFAULT_LFREPLACE, CultureInfo.InvariantCulture, this.ConfigurationSuffix);  // ConfigurationHelper.GetSetting<int>(CONFIGSETTING_LFREPLACE, CONFIGDEFAULT_LFREPLACE);
+                _LFReplace = classConfigurationGetter.Get(CONFIGSETTING_LFREPLACE, CONFIGDEFAULT_LFREPLACE);
+                //_timestampFormat = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TIMESTAMPFORMAT, CONFIGDEFAULT_TIMESTAMPFORMAT, CultureInfo.InvariantCulture, this.ConfigurationSuffix);  // ConfigurationHelper.GetSetting<int>(CONFIGSETTING_TIMESTAMPFORMAT, CONFIGDEFAULT_TIMESTAMPFORMAT);
+                _timestampFormat = classConfigurationGetter.Get(CONFIGSETTING_TIMESTAMPFORMAT, CONFIGDEFAULT_TIMESTAMPFORMAT);
+                //_showNestedFlow = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, bool>(CONFIGSETTING_SHOWNESTEDFLOW, CONFIGDEFAULT_SHOWNESTEDFLOW, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                _showNestedFlow = classConfigurationGetter.Get(CONFIGSETTING_SHOWNESTEDFLOW, CONFIGDEFAULT_SHOWNESTEDFLOW);
+                //_showTraceCost = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, bool>(CONFIGSETTING_SHOWTRACECOST, CONFIGDEFAULT_SHOWTRACECOST, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                _showTraceCost = classConfigurationGetter.Get(CONFIGSETTING_SHOWTRACECOST, CONFIGDEFAULT_SHOWTRACECOST);
+                //_flushOnWrite = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, bool>(CONFIGSETTING_FLUSHONWRITE, CONFIGDEFAULT_FLUSHONWRITE, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                _flushOnWrite = classConfigurationGetter.Get(CONFIGSETTING_FLUSHONWRITE, CONFIGDEFAULT_FLUSHONWRITE);
+                //_processNamePadding = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_PROCESSNAMEPADDING, CONFIGDEFAULT_PROCESSNAMEPADDING, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                _processNamePadding = classConfigurationGetter.Get(CONFIGSETTING_PROCESSNAMEPADDING, CONFIGDEFAULT_PROCESSNAMEPADDING);
+                //_processNameMaxlen = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_PROCESSNAMEMAXLEN, CONFIGDEFAULT_PROCESSNAMEMAXLEN, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                _processNameMaxlen = classConfigurationGetter.Get(CONFIGSETTING_PROCESSNAMEMAXLEN, CONFIGDEFAULT_PROCESSNAMEMAXLEN);
+                //_sourcePadding = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_SOURCEPADDING, CONFIGDEFAULT_SOURCEPADDING, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                _sourcePadding = classConfigurationGetter.Get(CONFIGSETTING_SOURCEPADDING, CONFIGDEFAULT_SOURCEPADDING);
+                //_sourceMaxlen = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_SOURCEMAXLEN, CONFIGDEFAULT_SOURCEMAXLEN, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                _sourceMaxlen = classConfigurationGetter.Get(CONFIGSETTING_SOURCEMAXLEN, CONFIGDEFAULT_SOURCEMAXLEN);
+                //_categoryPadding = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_CATEGORYPADDING, CONFIGDEFAULT_CATEGORYPADDING, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                _categoryPadding = classConfigurationGetter.Get(CONFIGSETTING_CATEGORYPADDING, CONFIGDEFAULT_CATEGORYPADDING);
+                //_categoryMaxlen = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_CATEGORYMAXLEN, CONFIGDEFAULT_CATEGORYMAXLEN, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                _categoryMaxlen = classConfigurationGetter.Get(CONFIGSETTING_CATEGORYMAXLEN, CONFIGDEFAULT_CATEGORYMAXLEN);
+                //_sourceLevelPadding = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_SOURCELEVELPADDING, CONFIGDEFAULT_SOURCELEVELPADDING, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                _sourceLevelPadding = classConfigurationGetter.Get(CONFIGSETTING_SOURCELEVELPADDING, CONFIGDEFAULT_SOURCELEVELPADDING);
+                //_sourceLevelMaxlen = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_SOURCELEVELMAXLEN, CONFIGDEFAULT_SOURCELEVELMAXLEN, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                _sourceLevelMaxlen = classConfigurationGetter.Get(CONFIGSETTING_SOURCELEVELMAXLEN, CONFIGDEFAULT_SOURCELEVELMAXLEN);
+                //_logLevelPadding = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_LOGLEVELPADDING, CONFIGDEFAULT_LOGLEVELPADDING, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                _logLevelPadding = classConfigurationGetter.Get(CONFIGSETTING_LOGLEVELPADDING, CONFIGDEFAULT_LOGLEVELPADDING);
+                //_deltaPadding = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, int>(CONFIGSETTING_DELTAPADDING, CONFIGDEFAULT_DELTAPADDING, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                _deltaPadding = classConfigurationGetter.Get(CONFIGSETTING_DELTAPADDING, CONFIGDEFAULT_DELTAPADDING);
+                //_lastWriteContinuationEnabled = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, bool>(CONFIGSETTING_LASTWRITECONTINUATIONENABLED, CONFIGDEFAULT_LASTWRITECONTINUATIONENABLED, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                _lastWriteContinuationEnabled = classConfigurationGetter.Get(CONFIGSETTING_LASTWRITECONTINUATIONENABLED, CONFIGDEFAULT_LASTWRITECONTINUATIONENABLED);
+                //_traceMessageFormatPrefix = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMATPREFIX, CONFIGDEFAULT_TRACEMESSAGEFORMATPREFIX, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                _traceMessageFormatPrefix = classConfigurationGetter.Get(CONFIGSETTING_TRACEMESSAGEFORMATPREFIX, CONFIGDEFAULT_TRACEMESSAGEFORMATPREFIX);
+                //_traceMessageFormat = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMAT, CONFIGDEFAULT_TRACEMESSAGEFORMAT, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                _traceMessageFormat = classConfigurationGetter.Get(CONFIGSETTING_TRACEMESSAGEFORMAT, CONFIGDEFAULT_TRACEMESSAGEFORMAT);
+                //_traceMessageFormatVerbose = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMATVERBOSE, CONFIGDEFAULT_TRACEMESSAGEFORMATVERBOSE, CultureInfo.InvariantCulture, this.ConfigurationSuffix); if (string.IsNullOrEmpty(_traceMessageFormatVerbose)) { _traceMessageFormatVerbose = _traceMessageFormat; }
+                _traceMessageFormatVerbose = classConfigurationGetter.Get(CONFIGSETTING_TRACEMESSAGEFORMATVERBOSE, CONFIGDEFAULT_TRACEMESSAGEFORMATVERBOSE); if (string.IsNullOrEmpty(_traceMessageFormatVerbose)) { _traceMessageFormatVerbose = _traceMessageFormat; }
+                //_traceMessageFormatInformation = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMATINFORMATION, CONFIGDEFAULT_TRACEMESSAGEFORMATINFORMATION, CultureInfo.InvariantCulture, this.ConfigurationSuffix); if (string.IsNullOrEmpty(_traceMessageFormatInformation)) { _traceMessageFormatInformation = _traceMessageFormat; }
+                _traceMessageFormatInformation = classConfigurationGetter.Get(CONFIGSETTING_TRACEMESSAGEFORMATINFORMATION, CONFIGDEFAULT_TRACEMESSAGEFORMATINFORMATION); if (string.IsNullOrEmpty(_traceMessageFormatInformation)) { _traceMessageFormatInformation = _traceMessageFormat; }
+                //_traceMessageFormatWarning = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMATWARNING, CONFIGDEFAULT_TRACEMESSAGEFORMATWARNING, CultureInfo.InvariantCulture, this.ConfigurationSuffix); if (string.IsNullOrEmpty(_traceMessageFormatWarning)) { _traceMessageFormatWarning = _traceMessageFormat; }
+                _traceMessageFormatWarning = classConfigurationGetter.Get(CONFIGSETTING_TRACEMESSAGEFORMATWARNING, CONFIGDEFAULT_TRACEMESSAGEFORMATWARNING); if (string.IsNullOrEmpty(_traceMessageFormatWarning)) { _traceMessageFormatWarning = _traceMessageFormat; }
+                //_traceMessageFormatError = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMATERROR, CONFIGDEFAULT_TRACEMESSAGEFORMATERROR, CultureInfo.InvariantCulture, this.ConfigurationSuffix); if (string.IsNullOrEmpty(_traceMessageFormatError)) { _traceMessageFormatError = _traceMessageFormat; }
+                _traceMessageFormatError = classConfigurationGetter.Get(CONFIGSETTING_TRACEMESSAGEFORMATERROR, CONFIGDEFAULT_TRACEMESSAGEFORMATERROR); if (string.IsNullOrEmpty(_traceMessageFormatError)) { _traceMessageFormatError = _traceMessageFormat; }
+                //_traceMessageFormatCritical = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMATCRITICAL, CONFIGDEFAULT_TRACEMESSAGEFORMATCRITICAL, CultureInfo.InvariantCulture, this.ConfigurationSuffix); if (string.IsNullOrEmpty(_traceMessageFormatCritical)) { _traceMessageFormatCritical = _traceMessageFormat; }
+                _traceMessageFormatCritical = classConfigurationGetter.Get(CONFIGSETTING_TRACEMESSAGEFORMATCRITICAL, CONFIGDEFAULT_TRACEMESSAGEFORMATCRITICAL); if (string.IsNullOrEmpty(_traceMessageFormatCritical)) { _traceMessageFormatCritical = _traceMessageFormat; }
+                //_traceMessageFormatStart = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMATSTART, CONFIGDEFAULT_TRACEMESSAGEFORMATSTART, CultureInfo.InvariantCulture, this.ConfigurationSuffix); if (string.IsNullOrEmpty(_traceMessageFormatStart)) { _traceMessageFormatStart = _traceMessageFormat; }
+                _traceMessageFormatStart = classConfigurationGetter.Get(CONFIGSETTING_TRACEMESSAGEFORMATSTART, CONFIGDEFAULT_TRACEMESSAGEFORMATSTART); if (string.IsNullOrEmpty(_traceMessageFormatStart)) { _traceMessageFormatStart = _traceMessageFormat; }
+                //_traceMessageFormatStop = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMATSTOP, CONFIGDEFAULT_TRACEMESSAGEFORMATSTOP, CultureInfo.InvariantCulture, this.ConfigurationSuffix); if (string.IsNullOrEmpty(_traceMessageFormatStop)) { _traceMessageFormatStop = _traceMessageFormat; }
+                _traceMessageFormatStop = classConfigurationGetter.Get(CONFIGSETTING_TRACEMESSAGEFORMATSTOP, CONFIGDEFAULT_TRACEMESSAGEFORMATSTOP); if (string.IsNullOrEmpty(_traceMessageFormatStop)) { _traceMessageFormatStop = _traceMessageFormat; }
+                //_traceMessageFormatInlineStop = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMATINLINESTOP, CONFIGDEFAULT_TRACEMESSAGEFORMATINLINESTOP, CultureInfo.InvariantCulture, this.ConfigurationSuffix); // if (string.IsNullOrEmpty(_traceMessageFormatInlineStop)) { _traceMessageFormatInlineStop = _traceMessageFormat; }
+                _traceMessageFormatInlineStop = classConfigurationGetter.Get(CONFIGSETTING_TRACEMESSAGEFORMATINLINESTOP, CONFIGDEFAULT_TRACEMESSAGEFORMATINLINESTOP); 
+                //_traceMessageFormatSuspend = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMATSUSPEND, CONFIGDEFAULT_TRACEMESSAGEFORMATSUSPEND, CultureInfo.InvariantCulture, this.ConfigurationSuffix); if (string.IsNullOrEmpty(_traceMessageFormatSuspend)) { _traceMessageFormatSuspend = _traceMessageFormat; }
+                _traceMessageFormatSuspend = classConfigurationGetter.Get(CONFIGSETTING_TRACEMESSAGEFORMATSUSPEND, CONFIGDEFAULT_TRACEMESSAGEFORMATSUSPEND); if (string.IsNullOrEmpty(_traceMessageFormatSuspend)) { _traceMessageFormatSuspend = _traceMessageFormat; }
+                //_traceMessageFormatResume = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMATRESUME, CONFIGDEFAULT_TRACEMESSAGEFORMATRESUME, CultureInfo.InvariantCulture, this.ConfigurationSuffix); if (string.IsNullOrEmpty(_traceMessageFormatResume)) { _traceMessageFormatResume = _traceMessageFormat; }
+                _traceMessageFormatResume = classConfigurationGetter.Get(CONFIGSETTING_TRACEMESSAGEFORMATRESUME, CONFIGDEFAULT_TRACEMESSAGEFORMATRESUME); if (string.IsNullOrEmpty(_traceMessageFormatResume)) { _traceMessageFormatResume = _traceMessageFormat; }
+                //_traceMessageFormatTransfer = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, string>(CONFIGSETTING_TRACEMESSAGEFORMATTRANSFER, CONFIGDEFAULT_TRACEMESSAGEFORMATTRANSFER, CultureInfo.InvariantCulture, this.ConfigurationSuffix); if (string.IsNullOrEmpty(_traceMessageFormatTransfer)) { _traceMessageFormatTransfer = _traceMessageFormat; }
+                _traceMessageFormatTransfer = classConfigurationGetter.Get(CONFIGSETTING_TRACEMESSAGEFORMATTRANSFER, CONFIGDEFAULT_TRACEMESSAGEFORMATTRANSFER); if (string.IsNullOrEmpty(_traceMessageFormatTransfer)) { _traceMessageFormatTransfer = _traceMessageFormat; }
+                //_writeStartupEntries = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, bool>(CONFIGSETTING_WRITESTARTUPENTRIES, CONFIGDEFAULT_WRITESTARTUPENTRIES, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
+                _writeStartupEntries = classConfigurationGetter.Get(CONFIGSETTING_WRITESTARTUPENTRIES, CONFIGDEFAULT_WRITESTARTUPENTRIES); 
 
                 var thicksPerMillisecond = TraceLogger.Stopwatch.ElapsedTicks / TraceLogger.Stopwatch.ElapsedMilliseconds;
                 string fileName = null, workingDirectory = null;
@@ -228,7 +261,8 @@ namespace Common
                     var maxMessageLenError = section?._maxMessageLenError ?? section?.ModuleContext?.MaxMessageLenError;
                     if (maxMessageLenError == null)
                     {
-                        var val = ConfigurationHelper.GetSetting("MaxMessageLenError", TraceLoggerFormatProvider.CONFIGDEFAULT_MAXMESSAGELENERROR);
+                        //var val = ConfigurationHelper.GetSetting("MaxMessageLenError", TraceLoggerFormatProvider.CONFIGDEFAULT_MAXMESSAGELENERROR);
+                        var val = classConfigurationGetter.Get("MaxMessageLenError", TraceLoggerFormatProvider.CONFIGDEFAULT_MAXMESSAGELENERROR);
                         if (val != 0) { maxMessageLenError = val; if (section != null) { section._maxMessageLenError = maxMessageLenError; if (section.ModuleContext != null) { section.ModuleContext.MaxMessageLenError = maxMessageLenError; } } }
                     }
                     if (maxMessageLenError != 0) { maxMessageLenSpecific = maxMessageLenError; }
@@ -237,7 +271,8 @@ namespace Common
                     var maxMessageLenWarning = section?._maxMessageLenWarning ?? section?.ModuleContext?.MaxMessageLenWarning;
                     if (maxMessageLenWarning == null)
                     {
-                        var val = ConfigurationHelper.GetSetting<int>("MaxMessageLenWarning", TraceLoggerFormatProvider.CONFIGDEFAULT_MAXMESSAGELENWARNING);
+                        //var val = ConfigurationHelper.GetSetting<int>("MaxMessageLenWarning", TraceLoggerFormatProvider.CONFIGDEFAULT_MAXMESSAGELENWARNING);
+                        var val = classConfigurationGetter.Get("MaxMessageLenWarning", TraceLoggerFormatProvider.CONFIGDEFAULT_MAXMESSAGELENWARNING);
                         if (val != 0) { maxMessageLenWarning = val; if (section != null) { section._maxMessageLenWarning = maxMessageLenWarning; if (section.ModuleContext != null) { section.ModuleContext.MaxMessageLenWarning = maxMessageLenWarning; } } }
                     }
                     if (maxMessageLenWarning != 0) { maxMessageLenSpecific = maxMessageLenWarning; }
@@ -246,7 +281,8 @@ namespace Common
                     var maxMessageLenInfo = section?._maxMessageLenInfo ?? section?.ModuleContext?.MaxMessageLenInfo;
                     if (maxMessageLenInfo == null)
                     {
-                        var val = ConfigurationHelper.GetSetting<int>("MaxMessageLenInfo", TraceLoggerFormatProvider.CONFIGDEFAULT_MAXMESSAGELENINFO);
+                        //var val = ConfigurationHelper.GetSetting<int>("MaxMessageLenInfo", TraceLoggerFormatProvider.CONFIGDEFAULT_MAXMESSAGELENINFO);
+                        var val = classConfigurationGetter.Get("MaxMessageLenInfo", TraceLoggerFormatProvider.CONFIGDEFAULT_MAXMESSAGELENINFO);
                         if (val != 0) { maxMessageLenInfo = val; if (section != null) { section._maxMessageLenInfo = maxMessageLenInfo; if (section.ModuleContext != null) { section.ModuleContext.MaxMessageLenInfo = maxMessageLenInfo; } } }
                     }
                     if (maxMessageLenInfo != 0) { maxMessageLenSpecific = maxMessageLenInfo; }
@@ -255,7 +291,8 @@ namespace Common
                     var maxMessageLenVerbose = section?._maxMessageLenVerbose ?? section?.ModuleContext?.MaxMessageLenVerbose;
                     if (maxMessageLenVerbose == null)
                     {
-                        var val = ConfigurationHelper.GetSetting<int>("MaxMessageLenVerbose", TraceLoggerFormatProvider.CONFIGDEFAULT_MAXMESSAGELENINFO);
+                        //var val = ConfigurationHelper.GetSetting<int>("MaxMessageLenVerbose", TraceLoggerFormatProvider.CONFIGDEFAULT_MAXMESSAGELENINFO);
+                        var val = classConfigurationGetter.Get("MaxMessageLenVerbose", TraceLoggerFormatProvider.CONFIGDEFAULT_MAXMESSAGELENINFO);
                         if (val != 0) { maxMessageLenVerbose = val; if (section != null) { section._maxMessageLenVerbose = maxMessageLenVerbose; if (section.ModuleContext != null) { section.ModuleContext.MaxMessageLenVerbose = maxMessageLenVerbose; } } }
                     }
                     if (maxMessageLenVerbose != 0) { maxMessageLenSpecific = maxMessageLenVerbose; }
@@ -264,7 +301,8 @@ namespace Common
             var maxMessageLen = maxMessageLenSpecific ?? section?._maxMessageLen ?? section?.ModuleContext?.MaxMessageLen;
             if (maxMessageLen == null)
             {
-                maxMessageLen = ConfigurationHelper.GetSetting<int>("MaxMessageLen", TraceLoggerFormatProvider.CONFIGDEFAULT_MAXMESSAGELEN);
+                //maxMessageLen = ConfigurationHelper.GetSetting<int>("MaxMessageLen", TraceLoggerFormatProvider.CONFIGDEFAULT_MAXMESSAGELEN);
+                maxMessageLen = classConfigurationGetter.Get("MaxMessageLen", TraceLoggerFormatProvider.CONFIGDEFAULT_MAXMESSAGELEN);
                 if (section != null) { section._maxMessageLen = maxMessageLen; if (section.ModuleContext != null) { section.ModuleContext.MaxMessageLen = maxMessageLen; } }
             }
             if (section != null) { section._maxMessageLen = maxMessageLen; }

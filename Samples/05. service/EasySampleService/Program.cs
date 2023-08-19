@@ -27,15 +27,16 @@ namespace EasySampleService
             {
                 try
                 {
-                    ConfigurationHelper.Init(TraceManager.Configuration);
-
+                    //ConfigurationHelper.Init(TraceManager.Configuration);
+                    var classConfigurationGetter = new ClassConfigurationGetter<EasySampleService>(TraceManager.Configuration);
 
                     Directory.SetCurrentDirectory(System.AppDomain.CurrentDomain.BaseDirectory);
                     // Thread.Sleep(10000);
                     var currentDirectory = Directory.GetCurrentDirectory();
                     TraceManager.Debug($"currentDirectory:{currentDirectory}");
 
-                    var startupSleep = ConfigurationHelper.GetClassSetting<Program, int>(CONFIGSETTING_STARTUPSLEEP, CONFIGDEFAULT_STARTUPSLEEP);
+                    //var startupSleep = ConfigurationHelper.GetClassSetting<Program, int>(CONFIGSETTING_STARTUPSLEEP, CONFIGDEFAULT_STARTUPSLEEP);
+                    var startupSleep = classConfigurationGetter.Get(CONFIGSETTING_STARTUPSLEEP, CONFIGDEFAULT_STARTUPSLEEP);
                     if (startupSleep > 0) { Thread.Sleep(startupSleep); sec.Debug($"Thread.Sleep({startupSleep}); completed"); }
 
                     ServiceBase[] ServicesToRun;
@@ -73,7 +74,8 @@ namespace EasySampleService
                             message = $"{sec.Assembly.GetName().Name} install completed";
                             sec.Information(message); Console.WriteLine(message);
 
-                            var startServiceOnInstall = ConfigurationHelper.GetClassSetting<Program, bool>(CONFIGSETTING_STARTSERVICEONINSTALL, CONFIGDEFAULT_STARTSERVICEONINSTALL);
+                            //var startServiceOnInstall = ConfigurationHelper.GetClassSetting<Program, bool>(CONFIGSETTING_STARTSERVICEONINSTALL, CONFIGDEFAULT_STARTSERVICEONINSTALL);
+                            var startServiceOnInstall = classConfigurationGetter.Get(CONFIGSETTING_STARTSERVICEONINSTALL, CONFIGDEFAULT_STARTSERVICEONINSTALL);
                             if (startServiceOnInstall)
                             {
                                 ServiceController service = new ServiceController("EasySampleService");

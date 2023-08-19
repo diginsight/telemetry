@@ -56,6 +56,7 @@ namespace Common
         public const string CONFIGSETTING_TRACEMESSAGEFORMATTRANSFER = "TraceMessageFormatTransfer"; public const string CONFIGDEFAULT_TRACEMESSAGEFORMATTRANSFER = null;
         #endregion
         #region internal state
+        private static ClassConfigurationGetter<TraceListenerTextbox> classConfigurationGetter;
         const int MINLINES = 100;
         const int MAXLINES = 1000;
         bool _lastWriteContinuationEnabled;
@@ -100,58 +101,108 @@ namespace Common
                                                     string traceMessageFormatStart, string traceMessageFormatStop, string traceMessageFormatSuspend, string traceMessageFormatResume, string traceMessageFormatTransfer,
                                                     string filter, string categoryFilter, TraceEventType? allowedEventTypes)
         {
+            if (classConfigurationGetter == null) { classConfigurationGetter = new ClassConfigurationGetter<TraceListenerTextbox>(TraceLogger.Configuration); }
+
+
             if (txtOut != null) { TextBox = txtOut; }
             if (_CRReplace != null) { _CRReplace = cRReplace; }
-            if (_CRReplace == null) { _CRReplace = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_CRREPLACE, CONFIGDEFAULT_CRREPLACE); }
+            //if (_CRReplace == null) { _CRReplace = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_CRREPLACE, CONFIGDEFAULT_CRREPLACE); }
+            if (_CRReplace == null) { _CRReplace = classConfigurationGetter.Get(CONFIGSETTING_CRREPLACE, CONFIGDEFAULT_CRREPLACE); }            
             if (_LFReplace != null) { _LFReplace = lFReplace; }
-            if (_LFReplace == null) { _LFReplace = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_LFREPLACE, CONFIGDEFAULT_LFREPLACE); }
-            if (filter == null) { filter = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_FILTER, CONFIGDEFAULT_FILTER); }
+            //if (_LFReplace == null) { _LFReplace = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_LFREPLACE, CONFIGDEFAULT_LFREPLACE); }
+            if (_LFReplace == null) { _LFReplace = classConfigurationGetter.Get(CONFIGSETTING_LFREPLACE, CONFIGDEFAULT_LFREPLACE); }
+
+            //if (filter == null) { filter = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_FILTER, CONFIGDEFAULT_FILTER); }
+            if (filter == null) { filter = classConfigurationGetter.Get(CONFIGSETTING_FILTER, CONFIGDEFAULT_FILTER); }
             if (!string.IsNullOrEmpty(filter)) { ((ISupportFilters)this).Filter = filter; }
-            if (categoryFilter == null) { categoryFilter = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_CATEGORYFILTER, CONFIGDEFAULT_CATEGORYFILTER); }
+
+            //if (categoryFilter == null) { categoryFilter = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_CATEGORYFILTER, CONFIGDEFAULT_CATEGORYFILTER); }
+            if (categoryFilter == null) { categoryFilter = classConfigurationGetter.Get(CONFIGSETTING_CATEGORYFILTER, CONFIGDEFAULT_CATEGORYFILTER); }
             if (!string.IsNullOrEmpty(categoryFilter)) { this.CategoryFilter = categoryFilter; }
+
             if (_timestampFormat != null) { _timestampFormat = timestampFormat; }
-            if (_timestampFormat == null) { _timestampFormat = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TIMESTAMPFORMAT, CONFIGDEFAULT_TIMESTAMPFORMAT); }
+            //if (_timestampFormat == null) { _timestampFormat = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TIMESTAMPFORMAT, CONFIGDEFAULT_TIMESTAMPFORMAT); }
+            if (_timestampFormat == null) { _timestampFormat = classConfigurationGetter.Get(CONFIGSETTING_TIMESTAMPFORMAT, CONFIGDEFAULT_TIMESTAMPFORMAT); }
+
             if (showNestedFlow != null) { _showNestedFlow = showNestedFlow.Value; }
-            if (showNestedFlow == null) { _showNestedFlow = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, bool>(CONFIGSETTING_SHOWNESTEDFLOW, CONFIGDEFAULT_SHOWNESTEDFLOW); }
+            //if (showNestedFlow == null) { _showNestedFlow = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, bool>(CONFIGSETTING_SHOWNESTEDFLOW, CONFIGDEFAULT_SHOWNESTEDFLOW); }
+            if (showNestedFlow == null) { _showNestedFlow = classConfigurationGetter.Get(CONFIGSETTING_SHOWNESTEDFLOW, CONFIGDEFAULT_SHOWNESTEDFLOW); }
+
             if (flushOnWrite != null) { _flushOnWrite = flushOnWrite.Value; }
-            if (flushOnWrite == null) { _flushOnWrite = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, bool>(CONFIGSETTING_FLUSHONWRITE, CONFIGDEFAULT_FLUSHONWRITE); }
+            //if (flushOnWrite == null) { _flushOnWrite = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, bool>(CONFIGSETTING_FLUSHONWRITE, CONFIGDEFAULT_FLUSHONWRITE); }
+            if (flushOnWrite == null) { _flushOnWrite = classConfigurationGetter.Get(CONFIGSETTING_FLUSHONWRITE, CONFIGDEFAULT_FLUSHONWRITE); }
+
             if (processNamePadding != null) { _processNamePadding = processNamePadding.Value; }
-            if (processNamePadding == null) { _processNamePadding = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, int>(CONFIGSETTING_PROCESSNAMEPADDING, CONFIGDEFAULT_PROCESSNAMEPADDING); }
+            //if (processNamePadding == null) { _processNamePadding = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, int>(CONFIGSETTING_PROCESSNAMEPADDING, CONFIGDEFAULT_PROCESSNAMEPADDING); }
+            if (processNamePadding == null) { _processNamePadding = classConfigurationGetter.Get(CONFIGSETTING_PROCESSNAMEPADDING, CONFIGDEFAULT_PROCESSNAMEPADDING); }
+
             if (sourcePadding != null) { _sourcePadding = sourcePadding.Value; }
-            if (sourcePadding == null) { _sourcePadding = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, int>(CONFIGSETTING_SOURCEPADDING, CONFIGDEFAULT_SOURCEPADDING); }
+            //if (sourcePadding == null) { _sourcePadding = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, int>(CONFIGSETTING_SOURCEPADDING, CONFIGDEFAULT_SOURCEPADDING); }
+            if (sourcePadding == null) { _sourcePadding = classConfigurationGetter.Get(CONFIGSETTING_SOURCEPADDING, CONFIGDEFAULT_SOURCEPADDING); }
+
             if (categoryPadding != null) { _categoryPadding = categoryPadding.Value; }
-            if (categoryPadding == null) { _categoryPadding = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, int>(CONFIGSETTING_CATEGORYPADDING, CONFIGDEFAULT_CATEGORYPADDING); }
+            //if (categoryPadding == null) { _categoryPadding = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, int>(CONFIGSETTING_CATEGORYPADDING, CONFIGDEFAULT_CATEGORYPADDING); }
+            if (categoryPadding == null) { _categoryPadding = classConfigurationGetter.Get(CONFIGSETTING_CATEGORYPADDING, CONFIGDEFAULT_CATEGORYPADDING); }
+
             if (sourceLevelPadding != null) { _sourceLevelPadding = sourceLevelPadding.Value; }
-            if (sourceLevelPadding == null) { _sourceLevelPadding = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, int>(CONFIGSETTING_SOURCELEVELPADDING, CONFIGDEFAULT_SOURCELEVELPADDING); }
+            //if (sourceLevelPadding == null) { _sourceLevelPadding = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, int>(CONFIGSETTING_SOURCELEVELPADDING, CONFIGDEFAULT_SOURCELEVELPADDING); }
+            if (sourceLevelPadding == null) { _sourceLevelPadding = classConfigurationGetter.Get(CONFIGSETTING_SOURCELEVELPADDING, CONFIGDEFAULT_SOURCELEVELPADDING); }
+
             var deltaPadding = default(int?);
             if (deltaPadding != null) { _deltaPadding = deltaPadding.Value; }
-            if (deltaPadding == null) { _deltaPadding = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, int>(CONFIGSETTING_DELTAPADDING, CONFIGDEFAULT_DELTAPADDING); }
-            _lastWriteContinuationEnabled = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, bool>(CONFIGSETTING_LASTWRITECONTINUATIONENABLED, CONFIGDEFAULT_LASTWRITECONTINUATIONENABLED);
+            //if (deltaPadding == null) { _deltaPadding = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, int>(CONFIGSETTING_DELTAPADDING, CONFIGDEFAULT_DELTAPADDING); }
+            if (deltaPadding == null) { _deltaPadding = classConfigurationGetter.Get(CONFIGSETTING_DELTAPADDING, CONFIGDEFAULT_DELTAPADDING); }
+
+            //_lastWriteContinuationEnabled = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, bool>(CONFIGSETTING_LASTWRITECONTINUATIONENABLED, CONFIGDEFAULT_LASTWRITECONTINUATIONENABLED);
+            _lastWriteContinuationEnabled = classConfigurationGetter.Get(CONFIGSETTING_LASTWRITECONTINUATIONENABLED, CONFIGDEFAULT_LASTWRITECONTINUATIONENABLED);
             if (traceMessageFormat != null) { _traceMessageFormat = traceMessageFormat; }
-            if (traceMessageFormat == null) { _traceMessageFormat = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TRACEMESSAGEFORMAT, CONFIGDEFAULT_TRACEMESSAGEFORMAT); }
+            //if (traceMessageFormat == null) { _traceMessageFormat = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TRACEMESSAGEFORMAT, CONFIGDEFAULT_TRACEMESSAGEFORMAT); }
+            if (traceMessageFormat == null) { _traceMessageFormat = classConfigurationGetter.Get(CONFIGSETTING_TRACEMESSAGEFORMAT, CONFIGDEFAULT_TRACEMESSAGEFORMAT); }
+
             if (traceMessageFormatVerbose != null) { _traceMessageFormatVerbose = traceMessageFormatVerbose; }
-            if (traceMessageFormatVerbose == null) { _traceMessageFormatVerbose = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TRACEMESSAGEFORMATVERBOSE, CONFIGDEFAULT_TRACEMESSAGEFORMATVERBOSE); if (string.IsNullOrEmpty(_traceMessageFormatVerbose)) { _traceMessageFormatVerbose = _traceMessageFormat; } }
+            //if (traceMessageFormatVerbose == null) { _traceMessageFormatVerbose = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TRACEMESSAGEFORMATVERBOSE, CONFIGDEFAULT_TRACEMESSAGEFORMATVERBOSE); if (string.IsNullOrEmpty(_traceMessageFormatVerbose)) { _traceMessageFormatVerbose = _traceMessageFormat; } }
+            if (traceMessageFormatVerbose == null) { _traceMessageFormatVerbose = classConfigurationGetter.Get(CONFIGSETTING_TRACEMESSAGEFORMATVERBOSE, CONFIGDEFAULT_TRACEMESSAGEFORMATVERBOSE); if (string.IsNullOrEmpty(_traceMessageFormatVerbose)) { _traceMessageFormatVerbose = _traceMessageFormat; } }
+
             if (traceMessageFormatInformation != null) { _traceMessageFormatInformation = traceMessageFormatInformation; }
-            if (traceMessageFormatInformation == null) { _traceMessageFormatInformation = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TRACEMESSAGEFORMATINFORMATION, CONFIGDEFAULT_TRACEMESSAGEFORMATINFORMATION); if (string.IsNullOrEmpty(_traceMessageFormatInformation)) { _traceMessageFormatInformation = _traceMessageFormat; } }
+            //if (traceMessageFormatInformation == null) { _traceMessageFormatInformation = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TRACEMESSAGEFORMATINFORMATION, CONFIGDEFAULT_TRACEMESSAGEFORMATINFORMATION); if (string.IsNullOrEmpty(_traceMessageFormatInformation)) { _traceMessageFormatInformation = _traceMessageFormat; } }
+            if (traceMessageFormatInformation == null) { _traceMessageFormatInformation = classConfigurationGetter.Get(CONFIGSETTING_TRACEMESSAGEFORMATINFORMATION, CONFIGDEFAULT_TRACEMESSAGEFORMATINFORMATION); if (string.IsNullOrEmpty(_traceMessageFormatInformation)) { _traceMessageFormatInformation = _traceMessageFormat; } }
+
             if (traceMessageFormatWarning != null) { _traceMessageFormatWarning = traceMessageFormatWarning; }
-            if (traceMessageFormatWarning == null) { _traceMessageFormatWarning = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TRACEMESSAGEFORMATWARNING, CONFIGDEFAULT_TRACEMESSAGEFORMATWARNING); if (string.IsNullOrEmpty(_traceMessageFormatWarning)) { _traceMessageFormatWarning = _traceMessageFormat; } }
+            //if (traceMessageFormatWarning == null) { _traceMessageFormatWarning = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TRACEMESSAGEFORMATWARNING, CONFIGDEFAULT_TRACEMESSAGEFORMATWARNING); if (string.IsNullOrEmpty(_traceMessageFormatWarning)) { _traceMessageFormatWarning = _traceMessageFormat; } }
+            if (traceMessageFormatWarning == null) { _traceMessageFormatWarning = classConfigurationGetter.Get(CONFIGSETTING_TRACEMESSAGEFORMATWARNING, CONFIGDEFAULT_TRACEMESSAGEFORMATWARNING); if (string.IsNullOrEmpty(_traceMessageFormatWarning)) { _traceMessageFormatWarning = _traceMessageFormat; } }
+
             if (traceMessageFormatError != null) { _traceMessageFormatError = traceMessageFormatError; }
-            if (traceMessageFormatError == null) { _traceMessageFormatError = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TRACEMESSAGEFORMATERROR, CONFIGDEFAULT_TRACEMESSAGEFORMATERROR); if (string.IsNullOrEmpty(_traceMessageFormatError)) { _traceMessageFormatError = _traceMessageFormat; } }
+            //if (traceMessageFormatError == null) { _traceMessageFormatError = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TRACEMESSAGEFORMATERROR, CONFIGDEFAULT_TRACEMESSAGEFORMATERROR); if (string.IsNullOrEmpty(_traceMessageFormatError)) { _traceMessageFormatError = _traceMessageFormat; } }
+            if (traceMessageFormatError == null) { _traceMessageFormatError = classConfigurationGetter.Get(CONFIGSETTING_TRACEMESSAGEFORMATERROR, CONFIGDEFAULT_TRACEMESSAGEFORMATERROR); if (string.IsNullOrEmpty(_traceMessageFormatError)) { _traceMessageFormatError = _traceMessageFormat; } }
+
             if (traceMessageFormatCritical != null) { _traceMessageFormatCritical = traceMessageFormatCritical; }
-            if (traceMessageFormatCritical == null) { _traceMessageFormatCritical = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TRACEMESSAGEFORMATCRITICAL, CONFIGDEFAULT_TRACEMESSAGEFORMATCRITICAL); if (string.IsNullOrEmpty(_traceMessageFormatCritical)) { _traceMessageFormatCritical = _traceMessageFormat; } }
+            //if (traceMessageFormatCritical == null) { _traceMessageFormatCritical = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TRACEMESSAGEFORMATCRITICAL, CONFIGDEFAULT_TRACEMESSAGEFORMATCRITICAL); if (string.IsNullOrEmpty(_traceMessageFormatCritical)) { _traceMessageFormatCritical = _traceMessageFormat; } }
+            if (traceMessageFormatCritical == null) { _traceMessageFormatCritical = classConfigurationGetter.Get(CONFIGSETTING_TRACEMESSAGEFORMATCRITICAL, CONFIGDEFAULT_TRACEMESSAGEFORMATCRITICAL); if (string.IsNullOrEmpty(_traceMessageFormatCritical)) { _traceMessageFormatCritical = _traceMessageFormat; } }
+
             if (traceMessageFormatStart != null) { _traceMessageFormatStart = traceMessageFormatStart; }
-            if (traceMessageFormatStart == null) { _traceMessageFormatStart = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TRACEMESSAGEFORMATSTART, CONFIGDEFAULT_TRACEMESSAGEFORMATSTART); if (string.IsNullOrEmpty(_traceMessageFormatStart)) { _traceMessageFormatStart = _traceMessageFormat; } }
+            //if (traceMessageFormatStart == null) { _traceMessageFormatStart = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TRACEMESSAGEFORMATSTART, CONFIGDEFAULT_TRACEMESSAGEFORMATSTART); if (string.IsNullOrEmpty(_traceMessageFormatStart)) { _traceMessageFormatStart = _traceMessageFormat; } }
+            if (traceMessageFormatStart == null) { _traceMessageFormatStart = classConfigurationGetter.Get(CONFIGSETTING_TRACEMESSAGEFORMATSTART, CONFIGDEFAULT_TRACEMESSAGEFORMATSTART); if (string.IsNullOrEmpty(_traceMessageFormatStart)) { _traceMessageFormatStart = _traceMessageFormat; } }
+
             if (traceMessageFormatStop != null) { _traceMessageFormatStop = traceMessageFormatStop; }
-            if (traceMessageFormatStop == null) { _traceMessageFormatStop = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TRACEMESSAGEFORMATSTOP, CONFIGDEFAULT_TRACEMESSAGEFORMATSTOP); if (string.IsNullOrEmpty(_traceMessageFormatStop)) { _traceMessageFormatStop = _traceMessageFormat; } }
+            //if (traceMessageFormatStop == null) { _traceMessageFormatStop = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TRACEMESSAGEFORMATSTOP, CONFIGDEFAULT_TRACEMESSAGEFORMATSTOP); if (string.IsNullOrEmpty(_traceMessageFormatStop)) { _traceMessageFormatStop = _traceMessageFormat; } }
+            if (traceMessageFormatStop == null) { _traceMessageFormatStop = classConfigurationGetter.Get(CONFIGSETTING_TRACEMESSAGEFORMATSTOP, CONFIGDEFAULT_TRACEMESSAGEFORMATSTOP); if (string.IsNullOrEmpty(_traceMessageFormatStop)) { _traceMessageFormatStop = _traceMessageFormat; } }
+
             var traceMessageFormatInlineStop = default(string);
             if (traceMessageFormatInlineStop != null) { _traceMessageFormatInlineStop = traceMessageFormatInlineStop; }
-            if (traceMessageFormatInlineStop == null) { _traceMessageFormatInlineStop = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TRACEMESSAGEFORMATINLINESTOP, CONFIGDEFAULT_TRACEMESSAGEFORMATINLINESTOP); }
+            //if (traceMessageFormatInlineStop == null) { _traceMessageFormatInlineStop = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TRACEMESSAGEFORMATINLINESTOP, CONFIGDEFAULT_TRACEMESSAGEFORMATINLINESTOP); }
+            if (traceMessageFormatInlineStop == null) { _traceMessageFormatInlineStop = classConfigurationGetter.Get(CONFIGSETTING_TRACEMESSAGEFORMATINLINESTOP, CONFIGDEFAULT_TRACEMESSAGEFORMATINLINESTOP); }
+
             if (traceMessageFormatSuspend != null) { _traceMessageFormatSuspend = traceMessageFormatSuspend; }
-            if (traceMessageFormatSuspend == null) { _traceMessageFormatSuspend = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TRACEMESSAGEFORMATSUSPEND, CONFIGDEFAULT_TRACEMESSAGEFORMATSUSPEND); if (string.IsNullOrEmpty(_traceMessageFormatSuspend)) { _traceMessageFormatSuspend = _traceMessageFormat; } }
+            //if (traceMessageFormatSuspend == null) { _traceMessageFormatSuspend = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TRACEMESSAGEFORMATSUSPEND, CONFIGDEFAULT_TRACEMESSAGEFORMATSUSPEND); if (string.IsNullOrEmpty(_traceMessageFormatSuspend)) { _traceMessageFormatSuspend = _traceMessageFormat; } }
+            if (traceMessageFormatSuspend == null) { _traceMessageFormatSuspend = classConfigurationGetter.Get(CONFIGSETTING_TRACEMESSAGEFORMATSUSPEND, CONFIGDEFAULT_TRACEMESSAGEFORMATSUSPEND); if (string.IsNullOrEmpty(_traceMessageFormatSuspend)) { _traceMessageFormatSuspend = _traceMessageFormat; } }
+
             if (traceMessageFormatResume != null) { _traceMessageFormatResume = traceMessageFormatResume; }
-            if (traceMessageFormatResume == null) { _traceMessageFormatResume = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TRACEMESSAGEFORMATRESUME, CONFIGDEFAULT_TRACEMESSAGEFORMATRESUME); if (string.IsNullOrEmpty(_traceMessageFormatResume)) { _traceMessageFormatResume = _traceMessageFormat; } }
+            //if (traceMessageFormatResume == null) { _traceMessageFormatResume = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TRACEMESSAGEFORMATRESUME, CONFIGDEFAULT_TRACEMESSAGEFORMATRESUME); if (string.IsNullOrEmpty(_traceMessageFormatResume)) { _traceMessageFormatResume = _traceMessageFormat; } }
+            if (traceMessageFormatResume == null) { _traceMessageFormatResume = classConfigurationGetter.Get(CONFIGSETTING_TRACEMESSAGEFORMATRESUME, CONFIGDEFAULT_TRACEMESSAGEFORMATRESUME); if (string.IsNullOrEmpty(_traceMessageFormatResume)) { _traceMessageFormatResume = _traceMessageFormat; } }
+
             if (traceMessageFormatTransfer != null) { _traceMessageFormatTransfer = traceMessageFormatTransfer; }
-            if (traceMessageFormatTransfer == null) { _traceMessageFormatTransfer = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TRACEMESSAGEFORMATTRANSFER, CONFIGDEFAULT_TRACEMESSAGEFORMATTRANSFER); if (string.IsNullOrEmpty(_traceMessageFormatTransfer)) { _traceMessageFormatTransfer = _traceMessageFormat; } }
+            //if (traceMessageFormatTransfer == null) { _traceMessageFormatTransfer = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_TRACEMESSAGEFORMATTRANSFER, CONFIGDEFAULT_TRACEMESSAGEFORMATTRANSFER); if (string.IsNullOrEmpty(_traceMessageFormatTransfer)) { _traceMessageFormatTransfer = _traceMessageFormat; } }
+            if (traceMessageFormatTransfer == null) { _traceMessageFormatTransfer = classConfigurationGetter.Get(CONFIGSETTING_TRACEMESSAGEFORMATTRANSFER, CONFIGDEFAULT_TRACEMESSAGEFORMATTRANSFER); if (string.IsNullOrEmpty(_traceMessageFormatTransfer)) { _traceMessageFormatTransfer = _traceMessageFormat; } }
 
             if (filter != null) { ((ISupportFilters)this).Filter = filter; }
             if (categoryFilter != null) { this.CategoryFilter = categoryFilter; }

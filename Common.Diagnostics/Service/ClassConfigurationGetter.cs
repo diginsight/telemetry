@@ -13,12 +13,11 @@ using Microsoft.Extensions.Primitives;
 
 namespace Common
 {
-    internal sealed class ClassConfigurationGetter<TClass> : IClassConfigurationGetter<TClass>
+    public sealed class ClassConfigurationGetter<TClass> : IClassConfigurationGetter<TClass>
     {
         private static readonly string[] Prefixes;
 
         private readonly IHttpContextAccessor httpContextAccessor;
-
         private readonly IConfiguration configuration;
         private readonly Dictionary<string, object> cache = new Dictionary<string, object>();
 
@@ -31,13 +30,11 @@ namespace Common
             Type type = typeof(TClass);
 
             string[] namespacePieces = (type.Namespace ?? "").Split('.');
-            IEnumerable<string> namespaceSegments = Enumerable.Range(1, namespacePieces.Length)
-                    .Select(i => string.Join(".", namespacePieces.Take(i))).Reverse().ToArray();
+            IEnumerable<string> namespaceSegments = Enumerable.Range(1, namespacePieces.Length).Select(i => string.Join(".", namespacePieces.Take(i))).Reverse().ToArray();
 
-            var availableShorthands = type.Assembly.GetCustomAttributes<ClassConfigurationNamespaceShorthandAttribute>()
-                .ToDictionary(x => x.Namespace, x => x.Shorthand);
-            IEnumerable<string> namespaceShorthands = namespaceSegments
-                .Select(x => availableShorthands.TryGetValue(x, out var val) ? val : null).OfType<string>().ToArray();
+            var availableShorthands = type.Assembly.GetCustomAttributes<ClassConfigurationNamespaceShorthandAttribute>().ToDictionary(x => x.Namespace, x => x.Shorthand);
+
+            IEnumerable<string> namespaceShorthands = namespaceSegments.Select(x => availableShorthands.TryGetValue(x, out var val) ? val : null).OfType<string>().ToArray();
 
             if (type.FullName != null)
             {
@@ -66,68 +63,53 @@ namespace Common
 
         public ClassConfigurationGetter(
             IConfiguration configuration,
-            IHttpContextAccessor httpContextAccessor
+            IHttpContextAccessor httpContextAccessor = null
             )
         {
             this.configuration = configuration.GetSection("AppSettings");
             this.httpContextAccessor = httpContextAccessor;
         }
 
-        public IClassConfigurationGetter<TClass> Empty => throw new NotImplementedException();
-
-        IClassConfigurationGetter IClassConfigurationGetter.Empty => throw new NotImplementedException();
-
-
+        public IClassConfigurationGetter<TClass> Empty => EmptyClassConfigurationGetter<TClass>._empty;
+        IClassConfigurationGetter IClassConfigurationGetter.Empty => EmptyClassConfigurationGetter<TClass>._empty;
 
         public T Get<T>(string key, T defaultValue)
         {
-            var requestHeaders = httpContextAccessor.HttpContext?.Request?.Headers;
-            if (requestHeaders != null)
+            var requestHeaders = httpContextAccessor?.HttpContext?.Request?.Headers;
+            if (requestHeaders?.TryGetFromHeaders(Prefixes, key, out T value1) ?? false)
             {
-                if (requestHeaders.TryGetFromHeaders(Prefixes, key, out T value1))
-                {
-                    return value1;
-                }
+                return value1;
             }
 
-            if (cache.TryGetValue(key, out object rawValue))
-            {
-                return (T)rawValue;
-            }
+            //if (cache.TryGetValue(key, out object rawValue))
+            //{
+            //    return (T)rawValue;
+            //}
 
-            lock (((ICollection)cache).SyncRoot)
+            T CoreGet()
             {
-                if (cache.TryGetValue(key, out rawValue))
+                foreach (string fullKey in Prefixes.Select(x => x + key))
                 {
-                    return (T)rawValue;
-                }
+                    if (configuration.GetSection(fullKey).Value is null) { continue; }
 
-                T CoreGet()
-                {
-                    foreach (string fullKey in Prefixes.Select(x => x + key))
+                    try
                     {
-                        if (configuration.GetSection(fullKey).Value is null)
-                        {
-                            continue;
-                        }
-
-                        try
-                        {
-                            return configuration.GetValue<T>(fullKey);
-                        }
-                        catch (Exception e)
-                        {
-                            _ = e;
-                        }
+                        return configuration.GetValue<T>(fullKey);
                     }
-
-                    return defaultValue;
+                    catch (Exception e) { _ = e; }
                 }
 
-                T finalValue = CoreGet();
-                cache[key] = finalValue;
-                return finalValue;
+                return defaultValue;
             }
+
+            object rawValue = default(T);
+            lock (((ICollection)cache).SyncRoot) { if (cache.TryGetValue(key, out rawValue)) { return (T)rawValue; } }
+
+            T finalValue = CoreGet();
+
+            lock (((ICollection)cache).SyncRoot) { cache[key] = finalValue; }
+
+            return finalValue;
         }
     }
 }

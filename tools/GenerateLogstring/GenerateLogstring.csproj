@@ -32,4 +32,8 @@
 		<ProjectReference Include="..\..\Common.Diagnostics\Common.Diagnostics.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Helpers\" />
+	</ItemGroup>
+
 </Project>

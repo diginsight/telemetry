@@ -22,11 +22,14 @@ namespace EasySampleService
         #region internal state
         private System.Timers.Timer _timer = null;
         private Task<bool> _requestsListenerTask = null;
+        private readonly ClassConfigurationGetter<EasySampleService> classConfigurationGetter;
         #endregion
 
         public EasySampleService()
         {
             InitializeComponent();
+
+            this.classConfigurationGetter = new ClassConfigurationGetter<EasySampleService>(TraceManager.Configuration);
         }
 
         public Task<bool> Run(string[] args)
@@ -131,7 +134,8 @@ namespace EasySampleService
                 }
                 finally
                 {
-                    var interval = ConfigurationHelper.GetSetting("QUERYINTERVAL", QUERYINTERVAL_DEFAULT);
+                    var interval = classConfigurationGetter.Get("QUERYINTERVAL", QUERYINTERVAL_DEFAULT);
+                    //var interval = ConfigurationHelper.GetSetting("QUERYINTERVAL", QUERYINTERVAL_DEFAULT);
                     this._timer.Interval = interval;
                 }
             }

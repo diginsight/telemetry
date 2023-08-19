@@ -21,7 +21,7 @@ namespace Common
     }
     internal sealed class EmptyClassConfigurationGetter<TClass> : IClassConfigurationGetter<TClass>
     {
-        static IClassConfigurationGetter<TClass> _empty = new EmptyClassConfigurationGetter<TClass>();
+        internal static IClassConfigurationGetter<TClass> _empty = new EmptyClassConfigurationGetter<TClass>();
         public IClassConfigurationGetter<TClass> Empty => _empty;
         IClassConfigurationGetter IClassConfigurationGetter.Empty => _empty;
 

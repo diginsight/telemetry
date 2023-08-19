@@ -61,9 +61,8 @@ namespace EasySample
             using (var scope = logger.BeginMethodScope())
             {
                 var configuration = TraceLogger.GetConfiguration();
-                ConfigurationHelper.Init(configuration);
-
-                var appInsightKey = ConfigurationHelper.GetClassSetting<App, string>(CONFIGVALUE_APPINSIGHTSKEY, DEFAULTVALUE_APPINSIGHTSKEY); // , CultureInfo.InvariantCulture
+                //ConfigurationHelper.Init(configuration);
+                //var appInsightKey = ConfigurationHelper.GetClassSetting<App, string>(CONFIGVALUE_APPINSIGHTSKEY, DEFAULTVALUE_APPINSIGHTSKEY); // , CultureInfo.InvariantCulture
 
                 Host = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder() 
                         .ConfigureAppConfiguration(builder =>
@@ -76,6 +75,9 @@ namespace EasySample
                         })
                         .ConfigureLogging((context, loggingBuilder) =>
                         {
+                            var classConfigurationGetter = new ClassConfigurationGetter<App>(context.Configuration);
+                            var appInsightKey = classConfigurationGetter.Get(CONFIGVALUE_APPINSIGHTSKEY, DEFAULTVALUE_APPINSIGHTSKEY);
+
                             loggingBuilder.AddConfiguration(context.Configuration.GetSection("Logging"));
 
                             loggingBuilder.ClearProviders();

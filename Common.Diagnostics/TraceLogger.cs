@@ -52,7 +52,7 @@ namespace Common
         public IList<ILogger> Listeners { get; } = new List<ILogger>();
         public ILoggerProvider Provider { get; set; }
         public static IFormatTraceEntry DefaultFormatTraceEntry { get; set; }
-        public static IConfiguration Configuration { get; private set; }
+        public static IConfiguration Configuration { get; internal set; }
 
         internal static ConcurrentQueue<TraceEntry> _pendingEntries = new ConcurrentQueue<TraceEntry>();
         internal static Reference<bool> _lockListenersNotifications = new Reference<bool>(true);
@@ -95,8 +95,8 @@ namespace Common
                 {
                     _lockListenersNotifications.PropertyChanged += _lockListenersNotifications_PropertyChanged;
                     if (configuration == null) { configuration = GetConfiguration(); }
-                    TraceLogger.Configuration = configuration;
-                    ConfigurationHelper.Init(configuration);
+                    TraceLogger.Configuration = TraceManager.Configuration = configuration;
+                    //ConfigurationHelper.Init(configuration);
 
                     var traceLoggerFormatProvider = new TraceLoggerFormatProvider() { ConfigurationSuffix = "" };
                     traceLoggerFormatProvider.Initialize();

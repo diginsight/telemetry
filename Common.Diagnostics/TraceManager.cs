@@ -18,7 +18,30 @@ using System.Text.Json.Serialization;
 
 namespace Common
 {
-    public static class TraceManager
+    public static class TraceManagerExtensions
+    {
+        public static CodeSection GetCodeSection<T>(this T pthis, object payload = null, SourceLevels sourceLevel = SourceLevels.Verbose, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
+        {
+            var startTicks = TraceManager.Stopwatch.ElapsedTicks;
+            var sec = new CodeSection(typeof(T), null, payload, TraceManager.TraceSource, sourceLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
+            //var stopTicks = TraceManager.Stopwatch.ElapsedTicks;
+            //var delta = stopTicks - startTicks;
+            return sec;
+        }
+        public static CodeSection GetNamedSection<T>(this T pthis, string name = null, object payload = null, SourceLevels sourceLevel = SourceLevels.Verbose, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
+        {
+            var startTicks = TraceManager.Stopwatch.ElapsedTicks;
+            var sec = new CodeSection(typeof(T), name, payload, TraceManager.TraceSource, sourceLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
+            return sec;
+        }
+        public static CodeSection GetNamedSection<T>(string name = null, object payload = null, SourceLevels sourceLevel = SourceLevels.Verbose, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
+        {
+            var startTicks = TraceManager.Stopwatch.ElapsedTicks;
+            var sec = new CodeSection(typeof(T), name, payload, TraceManager.TraceSource, sourceLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
+            return sec;
+        }
+    }
+    public class TraceManager
     {
         #region const
         public const string CONFIGSETTING_MAXMESSAGELEVEL = "MaxMessageLevel"; public const int CONFIGDEFAULT_MAXMESSAGELEVEL = 3;
@@ -30,17 +53,18 @@ namespace Common
         #endregion
         #region internal state
         private static Type T = typeof(TraceManager);
+        private static ClassConfigurationGetter<TraceManager> classConfigurationGetter;
         private static readonly string _traceSourceName = "TraceSource";
         public static Func<string, string> CRLF2Space = (string s) => { return s?.Replace("\r", " ")?.Replace("\n", " "); };
         public static Func<string, string> CRLF2Encode = (string s) => { return s?.Replace("\r", "\\r")?.Replace("\n", "\\n"); };
-        public static IConfiguration Configuration { get; private set; }
+        public static IConfiguration Configuration { get; internal set; }
         public static ConcurrentDictionary<string, object> Properties { get; set; } = new ConcurrentDictionary<string, object>();
         public static ConcurrentDictionary<Assembly, IModuleContext> Modules { get; set; } = new ConcurrentDictionary<Assembly, IModuleContext>();
         public static TraceSource TraceSource { get; set; }
         public static SystemDiagnosticsConfig Config { get; set; }
         public static Stopwatch Stopwatch = new Stopwatch();
         internal static Process CurrentProcess { get; set; }
-        
+
         internal static Assembly EntryAssembly { get; set; }
         public static string ProcessName = null;
         public static string EnvironmentName = null;
@@ -113,8 +137,9 @@ namespace Common
                         if (TraceManager.Configuration != null) { return; }
 
                         if (configuration == null) { configuration = GetConfiguration(); }
-                        TraceManager.Configuration = configuration;
-                        ConfigurationHelper.Init(configuration);
+                        TraceLogger.Configuration = TraceManager.Configuration = configuration;
+                        // ConfigurationHelper.Init(configuration);
+                        if (classConfigurationGetter == null) { classConfigurationGetter = new ClassConfigurationGetter<TraceManager>(TraceManager.Configuration); }
 
                         var defaultConfig = new ListenerConfig()
                         {
@@ -165,14 +190,6 @@ namespace Common
         }
         #endregion
 
-        public static CodeSection GetCodeSection<T>(this T pthis, object payload = null, SourceLevels sourceLevel = SourceLevels.Verbose, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
-        {
-            var startTicks = TraceManager.Stopwatch.ElapsedTicks;
-            var sec = new CodeSection(typeof(T), null, payload, TraceSource, sourceLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
-            //var stopTicks = TraceManager.Stopwatch.ElapsedTicks;
-            //var delta = stopTicks - startTicks;
-            return sec;
-        }
         public static CodeSection GetCodeSection(Type t, object payload = null, SourceLevels sourceLevel = SourceLevels.Verbose, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
@@ -185,23 +202,10 @@ namespace Common
             var sec = new CodeSection(typeof(T), null, payload, TraceSource, sourceLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
             return sec;
         }
-
-        public static CodeSection GetNamedSection<T>(this T pthis, string name = null, object payload = null, SourceLevels sourceLevel = SourceLevels.Verbose, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
-        {
-            var startTicks = TraceManager.Stopwatch.ElapsedTicks;
-            var sec = new CodeSection(typeof(T), name, payload, TraceSource, sourceLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
-            return sec;
-        }
         public static CodeSection GetNamedSection(Type t, string name = null, object payload = null, SourceLevels sourceLevel = SourceLevels.Verbose, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
             var sec = new CodeSection(t, name, payload, TraceSource, sourceLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
-            return sec;
-        }
-        public static CodeSection GetNamedSection<T>(string name = null, object payload = null, SourceLevels sourceLevel = SourceLevels.Verbose, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
-        {
-            var startTicks = TraceManager.Stopwatch.ElapsedTicks;
-            var sec = new CodeSection(typeof(T), name, payload, TraceSource, sourceLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
             return sec;
         }
 
@@ -497,7 +501,8 @@ namespace Common
                     var maxMessageLenError = section?._maxMessageLenError ?? section?.ModuleContext?.MaxMessageLenError;
                     if (maxMessageLenError == null)
                     {
-                        var val = ConfigurationHelper.GetSetting("MaxMessageLenError", TraceManager.CONFIGDEFAULT_MAXMESSAGELENERROR);
+                        //var val = ConfigurationHelper.GetSetting("MaxMessageLenError", TraceManager.CONFIGDEFAULT_MAXMESSAGELENERROR);
+                        var val = classConfigurationGetter.Get("MaxMessageLenError", TraceManager.CONFIGDEFAULT_MAXMESSAGELENERROR);
                         if (val != 0) { maxMessageLenError = val; if (section != null) { section._maxMessageLenError = maxMessageLenError; if (section.ModuleContext != null) { section.ModuleContext.MaxMessageLenError = maxMessageLenError; } } }
                     }
                     if (maxMessageLenError != 0) { maxMessageLenSpecific = maxMessageLenError; }
@@ -506,7 +511,8 @@ namespace Common
                     var maxMessageLenWarning = section?._maxMessageLenWarning ?? section?.ModuleContext?.MaxMessageLenWarning;
                     if (maxMessageLenWarning == null)
                     {
-                        var val = ConfigurationHelper.GetSetting<int>("MaxMessageLenWarning", TraceManager.CONFIGDEFAULT_MAXMESSAGELENWARNING);
+                        //var val = ConfigurationHelper.GetSetting<int>("MaxMessageLenWarning", TraceManager.CONFIGDEFAULT_MAXMESSAGELENWARNING);
+                        var val = classConfigurationGetter.Get("MaxMessageLenWarning", TraceManager.CONFIGDEFAULT_MAXMESSAGELENWARNING);
                         if (val != 0) { maxMessageLenWarning = val; if (section != null) { section._maxMessageLenWarning = maxMessageLenWarning; if (section.ModuleContext != null) { section.ModuleContext.MaxMessageLenWarning = maxMessageLenWarning; } } }
                     }
                     if (maxMessageLenWarning != 0) { maxMessageLenSpecific = maxMessageLenWarning; }
@@ -515,7 +521,8 @@ namespace Common
                     var maxMessageLenInfo = section?._maxMessageLenInfo ?? section?.ModuleContext?.MaxMessageLenInfo;
                     if (maxMessageLenInfo == null)
                     {
-                        var val = ConfigurationHelper.GetSetting<int>("MaxMessageLenInfo", TraceManager.CONFIGDEFAULT_MAXMESSAGELENINFO);
+                        //var val = ConfigurationHelper.GetSetting<int>("MaxMessageLenInfo", TraceManager.CONFIGDEFAULT_MAXMESSAGELENINFO);
+                        var val = classConfigurationGetter.Get("MaxMessageLenInfo", TraceManager.CONFIGDEFAULT_MAXMESSAGELENINFO);
                         if (val != 0) { maxMessageLenInfo = val; if (section != null) { section._maxMessageLenInfo = maxMessageLenInfo; if (section.ModuleContext != null) { section.ModuleContext.MaxMessageLenInfo = maxMessageLenInfo; } } }
                     }
                     if (maxMessageLenInfo != 0) { maxMessageLenSpecific = maxMessageLenInfo; }
@@ -524,7 +531,8 @@ namespace Common
                     var maxMessageLenVerbose = section?._maxMessageLenVerbose ?? section?.ModuleContext?.MaxMessageLenVerbose;
                     if (maxMessageLenVerbose == null)
                     {
-                        var val = ConfigurationHelper.GetSetting<int>("MaxMessageLenVerbose", TraceManager.CONFIGDEFAULT_MAXMESSAGELENINFO);
+                        //var val = ConfigurationHelper.GetSetting<int>("MaxMessageLenVerbose", TraceManager.CONFIGDEFAULT_MAXMESSAGELENINFO);
+                        var val = classConfigurationGetter.Get("MaxMessageLenVerbose", TraceManager.CONFIGDEFAULT_MAXMESSAGELENINFO);
                         if (val != 0) { maxMessageLenVerbose = val; if (section != null) { section._maxMessageLenVerbose = maxMessageLenVerbose; if (section.ModuleContext != null) { section.ModuleContext.MaxMessageLenVerbose = maxMessageLenVerbose; } } }
                     }
                     if (maxMessageLenVerbose != 0) { maxMessageLenSpecific = maxMessageLenVerbose; }
@@ -533,7 +541,8 @@ namespace Common
             var maxMessageLen = maxMessageLenSpecific ?? section?._maxMessageLen ?? section?.ModuleContext?.MaxMessageLen;
             if (maxMessageLen == null)
             {
-                maxMessageLen = ConfigurationHelper.GetSetting<int>("MaxMessageLen", TraceManager.CONFIGDEFAULT_MAXMESSAGELEN);
+                //maxMessageLen = ConfigurationHelper.GetSetting<int>("MaxMessageLen", TraceManager.CONFIGDEFAULT_MAXMESSAGELEN);
+                maxMessageLen = classConfigurationGetter.Get("MaxMessageLen", TraceManager.CONFIGDEFAULT_MAXMESSAGELEN);
                 if (section != null) { section._maxMessageLen = maxMessageLen; if (section.ModuleContext != null) { section.ModuleContext.MaxMessageLen = maxMessageLen; } }
             }
             if (section != null) { section._maxMessageLen = maxMessageLen; }
