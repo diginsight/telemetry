@@ -9,6 +9,7 @@ using System.Reflection;
 using Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 
 namespace Common
@@ -16,6 +17,7 @@ namespace Common
     public sealed class ClassConfigurationGetter<TClass> : IClassConfigurationGetter<TClass>
     {
         private static readonly string[] Prefixes;
+        private ILogger<ClassConfigurationGetter<TClass>> logger;
 
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IConfiguration configuration;
@@ -63,8 +65,7 @@ namespace Common
 
         public ClassConfigurationGetter(
             IConfiguration configuration,
-            IHttpContextAccessor httpContextAccessor = null
-            )
+            IHttpContextAccessor httpContextAccessor = null)
         {
             this.configuration = configuration.GetSection("AppSettings");
             this.httpContextAccessor = httpContextAccessor;
@@ -81,23 +82,32 @@ namespace Common
                 return value1;
             }
 
-            //if (cache.TryGetValue(key, out object rawValue))
-            //{
-            //    return (T)rawValue;
-            //}
-
             T CoreGet()
             {
+                var ticksStart = TraceLogger.Stopwatch.ElapsedTicks;
+                //var ticksStart = TraceLogger.Stopwatch.ElapsedMilliseconds;
+                //using (var scope = logger.BeginMethodScope(new Func<object>(() => new { key }), System.Diagnostics.SourceLevels.Verbose, LogLevel.Trace))
+                //{
                 foreach (string fullKey in Prefixes.Select(x => x + key))
                 {
                     if (configuration.GetSection(fullKey).Value is null) { continue; }
 
                     try
                     {
-                        return configuration.GetValue<T>(fullKey);
+                        var res = configuration.GetValue<T>(fullKey);
+                        var ticksEnd = TraceLogger.Stopwatch.ElapsedTicks;
+                        //var ticksEnd = TraceLogger.Stopwatch.ElapsedMilliseconds;
+                        TraceLogger.LogTrace($"configuration.GetValue<T>({fullKey}) retuned {res} (ticks: {ticksEnd - ticksStart:#,##0})");
+                        return res;
                     }
-                    catch (Exception e) { _ = e; }
+                    catch (Exception e)
+                    {
+                        var ticksEnd = TraceLogger.Stopwatch.ElapsedTicks;
+                        TraceLogger.LogError($"configuration.GetValue<T>({fullKey}) failed with {e.Message} (ticks: {ticksEnd - ticksStart:#,##0})");
+                        TraceLogger.LogException(e);
+                    }
                 }
+                //}
 
                 return defaultValue;
             }
@@ -106,6 +116,7 @@ namespace Common
             lock (((ICollection)cache).SyncRoot) { if (cache.TryGetValue(key, out rawValue)) { return (T)rawValue; } }
 
             T finalValue = CoreGet();
+
 
             lock (((ICollection)cache).SyncRoot) { cache[key] = finalValue; }
 

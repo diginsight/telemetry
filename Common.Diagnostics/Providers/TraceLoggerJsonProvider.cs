@@ -83,7 +83,7 @@ namespace Common
                 try { fileName = TraceLogger.CurrentProcess?.MainModule?.FileName; } catch { };
                 try { workingDirectory = Directory.GetCurrentDirectory(); } catch { };
 
-                scope.LogInformation($"Starting {this.GetType().Name} for: ProcessName: '{TraceLogger.ProcessName}', ProcessId: '{TraceLogger.ProcessId}', FileName: '{fileName}', WorkingDirectory: '{workingDirectory}', EntryAssemblyFullName: '{TraceLogger.EntryAssembly?.FullName}', ImageRuntimeVersion: '{TraceLogger.EntryAssembly?.ImageRuntimeVersion}', Location: '{TraceLogger.EntryAssembly?.Location}', thicksPerMillisecond: '{thicksPerMillisecond}'{Environment.NewLine}"); // "init"
+                scope.LogInformation($"Starting {this.GetType().Name} for: ProcessName: '{TraceLogger.ProcessName}', ProcessId: '{TraceLogger.ProcessId}', FileName: '{fileName}', WorkingDirectory: '{workingDirectory}', EntryAssemblyFullName: '{TraceLogger.EntryAssembly?.FullName}', ImageRuntimeVersion: '{TraceLogger.EntryAssembly?.ImageRuntimeVersion}', Location: '{TraceLogger.EntryAssembly?.Location}', thicksPerMillisecond: '{thicksPerMillisecond}'{Environment.NewLine}", null, new Dictionary<string, object>() { { "MaxMessageLen", 0 } }); // "init"
                 _provider = provider;
             }
         }

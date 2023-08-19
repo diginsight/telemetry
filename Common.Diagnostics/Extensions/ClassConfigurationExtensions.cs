@@ -24,10 +24,7 @@ namespace Common
         {
             foreach (string fullKey in prefixes.Select(x => x + key))
             {
-                if (!pthis.TryGetValue(fullKey, out StringValues stringValues))
-                {
-                    continue;
-                }
+                if (!pthis.TryGetValue(fullKey, out StringValues stringValues)) { continue; }
 
                 try
                 {
@@ -35,10 +32,7 @@ namespace Common
                     value0 = (T)converter.ConvertFrom(null, CultureInfo.InvariantCulture, stringValues.LastOrDefault());
                     return true;
                 }
-                catch (Exception e)
-                {
-                    _ = e;
-                }
+                catch (Exception e) { _ = e; }
             }
 
             value0 = default;
