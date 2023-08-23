@@ -78,21 +78,26 @@ namespace Common
         {
             using (var scope = logger.BeginMethodScope(new Func<object>(() => new { source = source.GetLogString(), parallelOptions = parallelOptions.GetLogString() })))
             {
-                if (source?.Any() != true)
-                {
-                    return;
-                }
+                if (source?.Any() != true) { return; }
 
                 SetMaxConcurrency(parallelOptions, scope);
 
+                try
+                {
 #if NET6_0_OR_GREATER
-                await Parallel.ForEachAsync(
-                    source,
-                    parallelOptions ?? new ParallelOptions(),
-                    async (item, _) => { await body(item); });
+                    await Parallel.ForEachAsync(
+                        source,
+                        parallelOptions ?? new ParallelOptions(),
+                        async (item, _) => { await body(item); });
 #else
-                await Parallel_ForEachAsync<TSource>(source, parallelOptions.MaxDegreeOfParallelism, body);
+                    await Parallel_ForEachAsync<TSource>(source, parallelOptions.MaxDegreeOfParallelism, body);
 #endif
+                }
+                catch (BreakLoopException ex)
+                {
+                    var item = ex.Data.Contains("item") ? ex.Data["item"] : null;
+                    scope.LogDebug($"Break Loop occurred on source:{source.GetLogString()}, item:{item.GetLogString()}");
+                }
             }
         }
 
@@ -100,21 +105,9 @@ namespace Common
         {
             using (var scope = logger.BeginMethodScope(new Func<object>(() => new { tasks = taskFactories.GetLogString(), parallelOptions = parallelOptions.GetLogString() })))
             {
-                if (taskFactories?.Any() != true)
-                {
-                    return;
-                }
+                if (taskFactories?.Any() != true) { return; }
 
-                SetMaxConcurrency(parallelOptions, scope);
-
-#if NET6_0_OR_GREATER
-                await Parallel.ForEachAsync(
-                    taskFactories,
-                    parallelOptions ?? new ParallelOptions(),
-                    async (taskFactory, _) => { await taskFactory(); });
-#else
-                await Parallel_ForEachAsync<Func<Task>>(taskFactories, parallelOptions.MaxDegreeOfParallelism, new Func<Func<Task>, Task>(async (taskFactory) => { await taskFactory(); }) );
-#endif
+                await ForEachAsync(taskFactories, parallelOptions, async (taskFactory) => { await taskFactory(); });
             }
         }
 
@@ -123,19 +116,23 @@ namespace Common
         {
             if (parallelOptions == null) { return; }
 
-            int maxConcurrency;
-            if (httpContextAccessor?.HttpContext?.Request.Headers.TryGetValue(headerName, out StringValues headerValues) == true
-                && int.TryParse(headerValues.LastOrDefault(), out int headerMax))
+            const string settingName = "MaxConcurrency";
+
+            if (httpContextAccessor?.HttpContext?.Request.Headers.TryGetValue(settingName, out StringValues headerValues) == true
+                && int.TryParse(headerValues.LastOrDefault(), out int headerMaxConcurrency))
             {
-                scope.LogInformation($"From header: {headerName}={headerMax}");
-                maxConcurrency = headerMax;
-            }
-            else
-            {
-                maxConcurrency = parallelOptions.MaxDegreeOfParallelism;
+                scope.LogInformation($"From header: {settingName}={headerMaxConcurrency}");
+                parallelOptions.MaxDegreeOfParallelism = headerMaxConcurrency;
+                return;
             }
 
-            parallelOptions.MaxDegreeOfParallelism = maxConcurrency;
+            var maxConcurrencyVariable = Environment.GetEnvironmentVariable(settingName);
+            if (!string.IsNullOrEmpty(maxConcurrencyVariable) && int.TryParse(maxConcurrencyVariable, out int variableMaxConcurrency))
+            {
+                scope.LogInformation($"From environment: {settingName}={variableMaxConcurrency}");
+                parallelOptions.MaxDegreeOfParallelism = variableMaxConcurrency;
+                return;
+            }
         }
 
         public static Task Parallel_ForEachAsync<T>(IEnumerable<T> source, int maxDegreeOfParallelism, Func<T, Task> action)
