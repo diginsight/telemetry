@@ -23,7 +23,7 @@ Also, examples show sending telemetry __Log4Net, Serilog, Console, Event Log and
 # GETTING STARTED
 Steps to use Common.Diagnostics:
 1.	Add a package reference to the package __Common.Diagnostics.1.0.\*.\*.nupkg__
-2.	Add log providers in the __ConfigureLogging()__ callback and __InitTraceLogger()__ method
+2.	Add log providers in the __ConfigureLogging()__ callback and __InitTraceLogger()__ methods
 ```c#
 	.ConfigureLogging((context, loggingBuilder) =>
 	{
