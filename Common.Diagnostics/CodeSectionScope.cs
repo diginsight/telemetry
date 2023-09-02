@@ -285,8 +285,9 @@ namespace Common
 
             var entry = new TraceEntry()
             {
-                MessageFormat = message.FormatTemplate?.ToString(),
-                MessageArgs = message.FormatParameters,
+                //MessageFormat = message.FormatTemplate?.ToString(),
+                //MessageArgs = message.FormatParameters,
+                GetMessage = new Func<string>(message.FinalString.ToString),
                 TraceEventType = TraceEventType.Verbose,
                 SourceLevel = SourceLevels.Verbose,
                 LogLevel = LogLevel.Trace,
@@ -454,8 +455,9 @@ namespace Common
 
             var entry = new TraceEntry()
             {
-                MessageFormat = message.FormatTemplate?.ToString(),
-                MessageArgs = message.FormatParameters,
+                //MessageFormat = message.FormatTemplate?.ToString(),
+                //MessageArgs = message.FormatParameters,
+                GetMessage = new Func<string>(message.FinalString.ToString),
                 TraceEventType = TraceEventType.Verbose,
                 SourceLevel = SourceLevels.Verbose,
                 LogLevel = LogLevel.Debug,
@@ -596,8 +598,9 @@ namespace Common
 
             var entry = new TraceEntry()
             {
-                MessageFormat = message.FormatTemplate?.ToString(),
-                MessageArgs = message.FormatParameters,
+                //MessageFormat = message.FormatTemplate?.ToString(),
+                //MessageArgs = message.FormatParameters,
+                GetMessage = new Func<string>(message.FinalString.ToString),
                 TraceEventType = TraceEventType.Information,
                 SourceLevel = SourceLevels.Information,
                 LogLevel = LogLevel.Information,
@@ -719,8 +722,9 @@ namespace Common
 
             var entry = new TraceEntry()
             {
-                MessageFormat = message.FormatTemplate?.ToString(),
-                MessageArgs = message.FormatParameters,
+                //MessageFormat = message.FormatTemplate?.ToString(),
+                //MessageArgs = message.FormatParameters,
+                GetMessage = new Func<string>(message.FinalString.ToString),
                 TraceEventType = TraceEventType.Warning,
                 SourceLevel = SourceLevels.Warning,
                 LogLevel = LogLevel.Warning,
@@ -845,8 +849,9 @@ namespace Common
 
             var entry = new TraceEntry()
             {
-                MessageFormat = message.FormatTemplate?.ToString(),
-                MessageArgs = message.FormatParameters,
+                //MessageFormat = message.FormatTemplate?.ToString(),
+                //MessageArgs = message.FormatParameters,
+                GetMessage = new Func<string>(message.FinalString.ToString),
                 TraceEventType = TraceEventType.Error,
                 SourceLevel = SourceLevels.Error,
                 LogLevel = LogLevel.Error,

@@ -17,6 +17,61 @@ namespace Common
 
     internal ref struct InterpolatedStringHandlerBase
     {
+        public readonly bool IsEnabled;
+        public StringBuilder FinalString { get; }
+        //public StringBuilder FormatTemplate { get; }
+        //public object[] FormatParameters { get; }
+        //int i = 0;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public InterpolatedStringHandlerBase(LogLevel currentLevel, LogLevel logMinimumLevel, int literalLength, int formattedCount, out bool isEnabled)
+        {
+            this.IsEnabled = isEnabled = currentLevel >= logMinimumLevel;
+            if (isEnabled == false) { this.FinalString = default; return; } // this.FormatTemplate = default; this.FormatParameters = default; 
+
+            this.FinalString = new StringBuilder(literalLength + 3 * formattedCount);
+            //this.FormatTemplate = new StringBuilder(literalLength + 3 * formattedCount);
+            //this.FormatParameters = new object[formattedCount];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly void AppendLiteral(string s)
+        {
+            //this.FormatTemplate.Append(s.Replace("{", "{{").Replace("}", "}}"));
+            this.FinalString.Append(s);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AppendFormatted<T>(T t)
+        {
+            //this.FormatTemplate.Append($"{{{i}}}");
+            //this.FormatParameters[i] = t;
+            //i++;
+            if (t != null) { this.FinalString.Append(t.ToString()); }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AppendFormatted<T>(T t, string format)
+        {
+            //this.FormatTemplate.Append(t is IFormattable ? $"{{{i}:{format}}}" : $"{{{i}}}");
+            //this.FormatParameters[i] = t;
+            //i++;
+            if (t != null)
+            {
+                if (t is IFormattable { } tf)
+                {
+                    this.FinalString.Append(tf.ToString(format, null));
+                }
+                else { t.ToString(); }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly string GetFormattedText() => this.FinalString.ToString();
+
+    }
+    internal ref struct InterpolatedStringHandlerBaseV2
+    {
         public StringBuilder FormatTemplate { get; }
         public object[] FormatParameters { get; }
 
@@ -25,15 +80,17 @@ namespace Common
         int i = 0;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public InterpolatedStringHandlerBase(LogLevel currentLevel, LogLevel logMinimumLevel, int literalLength, int formattedCount, out bool isEnabled)
+        public InterpolatedStringHandlerBaseV2(LogLevel currentLevel, LogLevel logMinimumLevel, int literalLength, int formattedCount, out bool isEnabled)
         {
             this.IsEnabled = isEnabled = currentLevel >= logMinimumLevel;
-            this.FormatTemplate = isEnabled ? new StringBuilder(literalLength + 3 * formattedCount) : default!;
-            this.FormatParameters = isEnabled ? new object[formattedCount] : default!;
+            if (isEnabled == false) { this.FormatTemplate = default; this.FormatParameters = default; return; }
+
+            this.FormatTemplate = new StringBuilder(literalLength + 3 * formattedCount);
+            this.FormatParameters = new object[formattedCount];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void AppendLiteral(string s)=> this.FormatTemplate.Append(s.Replace("{", "{{").Replace("}", "}}"));
+        public readonly void AppendLiteral(string s) => this.FormatTemplate.Append(s.Replace("{", "{{").Replace("}", "}}"));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AppendFormatted<T>(T t)
@@ -56,12 +113,13 @@ namespace Common
 
     }
 
-
     [InterpolatedStringHandler]
     public ref struct TraceLoggerInterpolatedStringHandler
     {
-        public readonly StringBuilder FormatTemplate => handler.FormatTemplate;
-        public readonly object[] FormatParameters => handler.FormatParameters;
+        //[PropertyImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly StringBuilder FinalString => handler.FinalString;
+        //public readonly StringBuilder FormatTemplate => handler.FormatTemplate;
+        //public readonly object[] FormatParameters => handler.FormatParameters;
 
         private InterpolatedStringHandlerBase handler;
         public readonly LogLevel Level = LogLevel.Trace;
@@ -147,8 +205,9 @@ namespace Common
     [InterpolatedStringHandler]
     public ref struct DebugLoggerInterpolatedStringHandler
     {
-        public readonly StringBuilder FormatTemplate => handler.FormatTemplate;
-        public readonly object[] FormatParameters => handler.FormatParameters;
+        public readonly StringBuilder FinalString => handler.FinalString;
+        //public readonly StringBuilder FormatTemplate => handler.FormatTemplate;
+        //public readonly object[] FormatParameters => handler.FormatParameters;
 
         private InterpolatedStringHandlerBase handler;
         public readonly LogLevel Level = LogLevel.Debug;
@@ -232,10 +291,11 @@ namespace Common
     }
 
     [InterpolatedStringHandler]
-    public ref struct InformationLoggerInterpolatedStringHandler 
+    public ref struct InformationLoggerInterpolatedStringHandler
     {
-        public readonly StringBuilder FormatTemplate => handler.FormatTemplate;
-        public readonly object[] FormatParameters => handler.FormatParameters;
+        public readonly StringBuilder FinalString => handler.FinalString;
+        //public readonly StringBuilder FormatTemplate => handler.FormatTemplate;
+        //public readonly object[] FormatParameters => handler.FormatParameters;
 
         private InterpolatedStringHandlerBase handler;
         public readonly LogLevel Level = LogLevel.Information;
@@ -248,7 +308,7 @@ namespace Common
                                                     [CallerLineNumber] int sourceLineNumber = 0)
             : this(literalLength,
                    formattedCount,
-                   CodeSectionScope.Current.Value != null ? CodeSectionScope.Current.Value.GetInnerSection() 
+                   CodeSectionScope.Current.Value != null ? CodeSectionScope.Current.Value.GetInnerSection()
                                                           : new CodeSection(typeof(InternalClass),
                                                                             null,
                                                                             null,
@@ -288,7 +348,7 @@ namespace Common
                                                     [CallerLineNumber] int sourceLineNumber = 0)
             : this(literalLength,
                    formattedCount,
-                   CodeSectionScope.Current.Value != null ? CodeSectionScope.Current.Value.GetInnerSection() 
+                   CodeSectionScope.Current.Value != null ? CodeSectionScope.Current.Value.GetInnerSection()
                                                           : new CodeSectionScope(logger,
                                                                                  null,
                                                                                  typeof(InternalClass),
@@ -321,8 +381,9 @@ namespace Common
     [InterpolatedStringHandler]
     public ref struct WarningLoggerInterpolatedStringHandler
     {
-        public readonly StringBuilder FormatTemplate => handler.FormatTemplate;
-        public readonly object[] FormatParameters => handler.FormatParameters;
+        public readonly StringBuilder FinalString => handler.FinalString;
+        //public readonly StringBuilder FormatTemplate => handler.FormatTemplate;
+        //public readonly object[] FormatParameters => handler.FormatParameters;
 
         private InterpolatedStringHandlerBase handler;
         public readonly LogLevel Level = LogLevel.Warning;
@@ -408,8 +469,9 @@ namespace Common
     [InterpolatedStringHandler]
     public ref struct ErrorLoggerInterpolatedStringHandler
     {
-        public readonly StringBuilder FormatTemplate => handler.FormatTemplate;
-        public readonly object[] FormatParameters => handler.FormatParameters;
+        public readonly StringBuilder FinalString => handler.FinalString;
+        //public readonly StringBuilder FormatTemplate => handler.FormatTemplate;
+        //public readonly object[] FormatParameters => handler.FormatParameters;
 
         private InterpolatedStringHandlerBase handler;
         public readonly LogLevel Level = LogLevel.Error;
@@ -495,8 +557,9 @@ namespace Common
     [InterpolatedStringHandler]
     public ref struct CriticalLoggerInterpolatedStringHandler
     {
-        public readonly StringBuilder FormatTemplate => handler.FormatTemplate;
-        public readonly object[] FormatParameters => handler.FormatParameters;
+        public readonly StringBuilder FinalString => handler.FinalString;
+        //public readonly StringBuilder FormatTemplate => handler.FormatTemplate;
+        //public readonly object[] FormatParameters => handler.FormatParameters;
 
         private InterpolatedStringHandlerBase handler;
         public readonly LogLevel Level = LogLevel.Critical;
