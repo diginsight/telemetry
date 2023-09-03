@@ -73,6 +73,7 @@ still without compromises on performance.</Description>
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="Dismissed\" />
 	  <Folder Include="Interface\" />
 	  <Folder Include="Service\" />
 	</ItemGroup>

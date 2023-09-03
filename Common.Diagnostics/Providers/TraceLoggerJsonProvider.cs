@@ -29,6 +29,7 @@ namespace Common
         public const string CONFIGSETTING_TIMESTAMPFORMAT = "TimestampFormat"; public const string CONFIGDEFAULT_TIMESTAMPFORMAT = "HH:mm:ss.fff"; // dd/MM/yyyy 
         public const string CONFIGSETTING_FLUSHONWRITE = "FlushOnWrite"; public const bool CONFIGDEFAULT_FLUSHONWRITE = false;
         public const string CONFIGSETTING_WRITESTARTUPENTRIES = "WriteStartupEntries"; public const bool CONFIGDEFAULT_WRITESTARTUPENTRIES = true;
+        public const string CONFIGSETTING_MERGEMESSAGEANDPAYLOAD = "MergeMessageAndPayload"; public const bool CONFIGDEFAULT_MERGEMESSAGEANDPAYLOAD = true;
         #endregion
         #region internal state
         private static Type T = typeof(TraceLoggerJsonProvider);
@@ -43,6 +44,7 @@ namespace Common
         public bool _showNestedFlow, _showTraceCost, _flushOnWrite;
         public string _traceDeltaDefault;
         public bool _writeStartupEntries;
+        public bool _mergeMessageAndPayload;
         public TraceEventType _allowedEventTypes = TraceEventType.Critical | TraceEventType.Error | TraceEventType.Warning | TraceEventType.Information | TraceEventType.Verbose | TraceEventType.Start | TraceEventType.Stop | TraceEventType.Suspend | TraceEventType.Resume | TraceEventType.Transfer;
         TraceEntry lastWrite = default(TraceEntry);
         ILoggerProvider _provider;
@@ -66,7 +68,7 @@ namespace Common
                     var prefix = provider?.GetType()?.Name?.Split('.')?.Last();
                     this.ConfigurationSuffix = prefix;
                 }
-                
+
                 var classConfigurationGetter = new ClassConfigurationGetter<TraceLoggerJsonProvider>(TraceLogger.Configuration);
 
                 //_CRReplace = ConfigurationHelper.GetClassSetting<TraceLoggerJsonProvider, string>(CONFIGSETTING_CRREPLACE, CONFIGDEFAULT_CRREPLACE, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
@@ -77,6 +79,7 @@ namespace Common
                 _timestampFormat = classConfigurationGetter.Get(CONFIGSETTING_TIMESTAMPFORMAT, CONFIGDEFAULT_TIMESTAMPFORMAT);
                 //_writeStartupEntries = ConfigurationHelper.GetClassSetting<TraceLoggerFormatProvider, bool>(CONFIGSETTING_WRITESTARTUPENTRIES, CONFIGDEFAULT_WRITESTARTUPENTRIES, CultureInfo.InvariantCulture, this.ConfigurationSuffix);
                 _writeStartupEntries = classConfigurationGetter.Get(CONFIGSETTING_WRITESTARTUPENTRIES, CONFIGDEFAULT_WRITESTARTUPENTRIES);
+                _mergeMessageAndPayload = classConfigurationGetter.Get(CONFIGSETTING_MERGEMESSAGEANDPAYLOAD, CONFIGDEFAULT_MERGEMESSAGEANDPAYLOAD);
 
                 var thicksPerMillisecond = TraceLogger.Stopwatch.ElapsedTicks / TraceLogger.Stopwatch.ElapsedMilliseconds;
                 string fileName = null, workingDirectory = null;
@@ -107,15 +110,30 @@ namespace Common
             return entryJson;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static TraceEntrySurrogate GetTraceSurrogate(TraceEntry entry)
+        private TraceEntrySurrogate GetTraceSurrogate(TraceEntry entry)
         {
             var codeSection = entry.CodeSectionBase;
+            var message = entry.GetMessage != null ? entry.GetMessage() : entry.Message;
+            if (_mergeMessageAndPayload && entry.MessageObject != null)
+            {
+                var payloadJson = entry.MessageObject.GetLogString();
+                message = payloadJson;
+            }
+            var payload = codeSection.Payload is Func<object> func ? func() : codeSection.Payload;
+            if (_mergeMessageAndPayload && payload != null)
+            {
+                var payloadJson = payload.GetLogString();
+                payload = payloadJson;
+            }
+
             return new TraceEntrySurrogate()
             {
                 TraceEventType = entry.TraceEventType,
+                TraceEventTypeDesc = entry.TraceEventType.ToString(),
                 TraceSourceName = entry.TraceSource?.Name,
                 LogLevel = entry.LogLevel,
-                Message = entry.Message,
+                Message = message,
+                MessageObject = _mergeMessageAndPayload == false ? entry.MessageObject : null,
                 Properties = entry.Properties,
                 Source = entry.Source,
                 Category = entry.Category,
@@ -130,7 +148,7 @@ namespace Common
                 {
                     NestingLevel = codeSection.NestingLevel,
                     OperationDept = codeSection.OperationDept,
-                    Payload = codeSection.Payload is Func<object> func? func(): codeSection.Payload, 
+                    Payload = payload,
                     Result = codeSection.Result,
                     Name = codeSection.Name,
                     MemberName = codeSection.MemberName,

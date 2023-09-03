@@ -19,7 +19,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Common
 {
-    public struct TraceEntry
+    public struct TraceEntry //ref 
     {
         public string Message { get; set; }
         [JsonIgnore]
@@ -70,9 +70,11 @@ namespace Common
     public struct TraceEntrySurrogate
     {
         public TraceEventType TraceEventType { get; set; }
+        public string TraceEventTypeDesc { get; set; }
         public LogLevel LogLevel { get; set; }
         public string TraceSourceName { get; set; }
         public string Message { get; set; }
+        public object MessageObject { get; set; }
         public IDictionary<string, object> Properties { get; set; }
         public string Source { get; set; }
         public string Category { get; set; }
