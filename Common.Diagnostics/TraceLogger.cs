@@ -1,4 +1,5 @@
-﻿#region using
+﻿
+#region using
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -42,7 +43,7 @@ namespace Common
         public static Stopwatch Stopwatch = TraceManager.Stopwatch;
         public static IHost Host { get; set; }
         // public static ILoggerFactory LoggerFactory { get; set; }
-        internal static Process CurrentProcess { get; set; }
+        public static Process CurrentProcess { get; set; }
         internal static SafeProcessHandle CurrentProcessSafeProcessHandle { get; set; }
         internal static Assembly EntryAssembly { get; set; }
         public static SystemDiagnosticsConfig Config { get; set; }
