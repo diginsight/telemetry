@@ -80,7 +80,7 @@ namespace Common
             this.logger = logger;
 
             var host = TraceLogger.Host;
-            if (traceLoggerMinimumLevelService == null && host != null) { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); }
+            if (traceLoggerMinimumLevelService == null && host != null) { try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { } }
             this.TraceLoggerMinimumLevelService = traceLoggerMinimumLevelService;
             this.MinimumLogLevel = traceLoggerMinimumLevelService?.MinimumLevel ?? LogLevel.Trace;
             //this._isLogEnabled = logLevel >= this.MinimumLogLevel;
@@ -167,7 +167,7 @@ namespace Common
             this.logger = logger;
 
             var host = TraceLogger.Host;
-            if (traceLoggerMinimumLevelService == null && host != null) { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); }
+            if (traceLoggerMinimumLevelService == null && host != null) { try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { }  }
             this.TraceLoggerMinimumLevelService = traceLoggerMinimumLevelService;
             this.MinimumLogLevel = traceLoggerMinimumLevelService?.MinimumLevel ?? LogLevel.Trace;
             //this._isLogEnabled = logLevel >= this.MinimumLogLevel;

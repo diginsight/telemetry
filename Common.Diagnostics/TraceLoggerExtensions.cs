@@ -29,11 +29,11 @@ namespace Common
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
             var host = TraceLogger.Host;
-            if (logger == null && host != null) { logger = host.Services?.GetService<ILogger<T>>(); }
+            if (logger == null && host != null) { try { logger = host.Services?.GetService<ILogger<T>>(); } catch (Exception _) { } }
             var traceLoggerMinimumLevelService = default(ITraceLoggerMinimumLevel);
             if (host != null)
             {
-                traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>();
+                try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { }
             }
 
             var sec = new CodeSectionScope(logger, traceLoggerMinimumLevelService, typeof(T), null, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
@@ -48,10 +48,10 @@ namespace Common
             var traceLoggerMinimumLevelService = default(ITraceLoggerMinimumLevel);
             ILogger<T> logger = null;
             if (host == null) { host = TraceLogger.Host; }
-            if (host != null) { logger = host.Services.GetService<ILogger<T>>(); }
+            if (host != null) { try { logger = host.Services?.GetService<ILogger<T>>(); } catch (Exception _) { } }
             if (host != null)
             {
-                traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>();
+                try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { }
             }
 
             //var loggerFactory = host.Services.GetService<ILoggerFactory>();
@@ -78,7 +78,7 @@ namespace Common
             }
             if (host != null)
             {
-                traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>();
+                try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { }
             }
 
             var sec = new CodeSectionScope(logger, traceLoggerMinimumLevelService, t, null, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
@@ -93,7 +93,7 @@ namespace Common
 
             var traceLoggerMinimumLevelService = default(ITraceLoggerMinimumLevel);
             var host = TraceLogger.Host;
-            if (logger == null && host != null) { logger = host.Services?.GetService<ILogger<T>>(); }
+            if (logger == null && host != null) { try { logger = host.Services?.GetService<ILogger<T>>(); } catch (Exception _) { } }
             //if (host != null)
             //{
             //    var traceLoggerMinimumLevel = host.Services?.GetService<ITraceLoggerMinimumLevel>();
@@ -102,9 +102,9 @@ namespace Common
             //}
             if (host != null)
             {
-                traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>();
+                try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { }
             }
-            
+
             var sec = new CodeSectionScope(logger, traceLoggerMinimumLevelService, typeof(T), name, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
             var stopTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var delta = stopTicks - startTicks;
@@ -117,10 +117,10 @@ namespace Common
             var traceLoggerMinimumLevelService = default(ITraceLoggerMinimumLevel);
             ILogger<T> logger = null;
             if (host == null) { host = TraceLogger.Host; }
-            if (host != null) { logger = host.Services.GetService<ILogger<T>>(); }
+            if (host != null) { try { logger = host.Services?.GetService<ILogger<T>>(); } catch (Exception _) { } }
             if (host != null)
             {
-                traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>();
+                try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { }
             }
 
             var sec = new CodeSectionScope(logger, traceLoggerMinimumLevelService, typeof(T), name, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
@@ -143,7 +143,7 @@ namespace Common
             }
             if (host != null)
             {
-                traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>();
+                try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { }
             }
 
 
