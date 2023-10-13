@@ -109,6 +109,9 @@ namespace EasySample
                             //loggingBuilder.AddDiginsightJson(new ApplicationInsightsLoggerProvider(tco, aio), configuration);
                             loggingBuilder.AddDiginsightFormatted(new ApplicationInsightsLoggerProvider(tco, aio), configuration);
 
+                            // appinsight metrics provider
+                            // opentelemetry metrics provider
+
                         }).Build();
 
                 Host.InitTraceLogger();
