@@ -22,9 +22,6 @@
 		</Content>
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\..\..\Common.Diagnostics.AppInsights\Common.Diagnostics.AppInsights.csproj" />
-		<ProjectReference Include="..\..\..\Common.Diagnostics.Log4net\Common.Diagnostics.Log4net.csproj" />
-		<ProjectReference Include="..\..\..\Common.Diagnostics.Win\Common.Diagnostics.Win.csproj" />
 		<ProjectReference Include="..\..\..\Common.Diagnostics\Common.Diagnostics.csproj" />
 	</ItemGroup>
 </Project>

@@ -21,7 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Common.Diagnostics.Log4net\Common.Diagnostics.Log4net.csproj" />
     <ProjectReference Include="..\..\..\Common.Diagnostics\Common.Diagnostics.csproj" />
   </ItemGroup>
 

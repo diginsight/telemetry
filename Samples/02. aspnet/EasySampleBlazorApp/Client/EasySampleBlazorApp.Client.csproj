@@ -7,11 +7,10 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.10" PrivateAssets="all" />
-    <PackageReference Include="System.Net.Http.Json" Version="6.0.0" />
+    <PackageReference Include="System.Net.Http.Json" Version="7.0.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Common.Diagnostics.AppInsights\Common.Diagnostics.AppInsights.csproj" />
     <ProjectReference Include="..\..\..\..\Common.Diagnostics\Common.Diagnostics.csproj" />
     <ProjectReference Include="..\Shared\EasySampleBlazorApp.Shared.csproj" />
   </ItemGroup>

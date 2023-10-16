@@ -202,18 +202,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Common.Diagnostics.AppInsights\Common.Diagnostics.AppInsights.csproj">
-      <Project>{01de7f71-3764-4faf-8b94-c366f7e708eb}</Project>
-      <Name>Common.Diagnostics.AppInsights</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Common.Diagnostics.Log4net\Common.Diagnostics.Log4net.csproj">
-      <Project>{7f27c78d-a7f8-46ab-89d6-42aa58d80c12}</Project>
-      <Name>Common.Diagnostics.Log4net</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Common.Diagnostics.Win\Common.Diagnostics.Win.csproj">
-      <Project>{5f18acf7-4384-4584-b42e-ec5a37f89d45}</Project>
-      <Name>Common.Diagnostics.Win</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\Common.Diagnostics\Common.Diagnostics.csproj">
       <Project>{5e56a4c7-6a7e-42e7-aea8-5fe522c735b0}</Project>
       <Name>Common.Diagnostics</Name>
