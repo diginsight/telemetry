@@ -4,9 +4,11 @@ using EasySample600v2;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using OpenTelemetry.Resources;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -30,6 +32,7 @@ namespace EasySample
     /// <summary>Interaction logic for MainWindow.xaml</summary>
     public partial class MainWindow : Window
     {
+        private static ActivitySource source = new ActivitySource("EasySamplev3.MainWindow", "1.0.0");
         static Type T = typeof(MainWindow);
         private ILogger<MainWindow> logger;
         private IClassConfigurationGetter<MainWindow> classConfigurationGetter;
@@ -38,6 +41,7 @@ namespace EasySample
 
         static MainWindow()
         {
+            using Activity activity = source.StartActivity(TraceLogger.GetMethodName());
             var host = App.Host;
             //var logger = host.GetLogger<MainWindow>();
             //using (var scope = logger.BeginMethodScope())
@@ -53,14 +57,15 @@ namespace EasySample
             this.logger = logger;
             this.classConfigurationGetter = classConfigurationGetter;
             // using (_logger.BeginMethodScope())
-            using (logger.BeginScope(TraceLogger.GetMethodName()))
-            {
-                InitializeComponent();
-            }
+            using var d = logger.BeginScope(TraceLogger.GetMethodName());
+            using Activity activity = source.StartActivity(TraceLogger.GetMethodName());
+
+            InitializeComponent();
         }
         private async void MainWindow_Initialized(object sender, EventArgs e)
         {
             using var scope = logger.BeginMethodScope(() => new { sender, e });
+            using Activity activity = source.StartActivity(TraceLogger.GetMethodName());
 
             classConfigurationGetter.Get("SampleConfig", "");
             sampleMethod();
@@ -107,6 +112,7 @@ namespace EasySample
         }
         void sampleMethod()
         {
+            using Activity activity = source.StartActivity(TraceLogger.GetMethodName());
             logger.LogDebug("pippo");
 
         }
@@ -114,105 +120,23 @@ namespace EasySample
         int i = 0;
         private void btnRun_Click(object sender, RoutedEventArgs e)
         {
-            // _logger.PushOperationId();
             using var scope = logger.BeginMethodScope(() => new { sender = sender.GetLogString(), e = e.GetLogString() }, SourceLevels.Verbose, LogLevel.Debug, null, new Dictionary<string, object>() { { "OperationId", Guid.NewGuid().ToString() } });
+            using Activity activity = source.StartActivity(TraceLogger.GetMethodName());
 
-            //var logger1 = new SampleLogger() { EnabledLevel = LogLevel.Warning };
-            //var time = DateTime.Now;
-            //logger1.LogDebug($"Error Level. CurrentTime: {time}. This is an error. It will be printed.");
-            var time = DateTime.Now;
-            var responseString = "pippo";
-            logger.LogDebug($"Response {{ body ({(double?)responseString?.Length / 1024:#,##0} KB): {responseString}");
-            // TODO: interpolated string should not be created => OK
-            // TODO: placeholders should not be evaluated (with log )
+            // Custom metrics for the application
+            var greeterMeter = new Meter("OtPrGrYa.Example", "1.0.0");
+            var countGreetings = greeterMeter.CreateCounter<int>("greetings.count", description: "Counts the number of greetings");
 
-            try
-            {
-                scope.LogDebug(() => new { sender = sender.GetLogString(), e = e.GetLogString() });
+            // Custom ActivitySource for the application
+            var greeterActivitySource = new ActivitySource("OtPrGrJa.Example");
 
-                {
-                    using var scopeInner = logger.BeginNamedScope("OptimizedByInterpolatedStringHandler");
 
-                    // log by means of the scope variable
-                    scopeInner.LogTrace($"this is a long trace trace ({e.GetLogString()})", null, new Dictionary<string, object>() { { "MaxMessageLen", 0 } }); //  TraceLogger.LogDebug($"requestBody: {requestBody}");
-                    scopeInner.LogDebug($"this is a debug trace ({e.GetLogString()})"); // , properties: new Dictionary<string, object>() { { "", "" } }
-                    scopeInner.LogInformation($"this is a Information trace ({e.GetLogString()})"); // , properties: new Dictionary<string, object>() { { "", "" } }
-                    scopeInner.LogWarning($"this is a Warning trace ({e.GetLogString()})");
-                    scopeInner.LogError($"this is a error trace ({e.GetLogString()})");
-                    scopeInner.LogError($"this is a error trace ({e.GetLogString()})");
-                }
-
-                {
-                    using var scopeInner = logger.BeginNamedScope("OptimizedByDelegate");
-
-                    // log by means of the scope variable
-                    scopeInner.LogTrace(() => "this is a long trace trace", null, new Dictionary<string, object>() { { "MaxMessageLen", 0 } }); //  TraceLogger.LogDebug($"requestBody: {requestBody}");
-                    scopeInner.LogDebug(() => "this is a debug trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
-                    scopeInner.LogInformation(() => "this is a Information trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
-                    scopeInner.LogWarning(() => "this is a Warning trace");
-                    scopeInner.LogError(() => "this is a error trace");
-                    scopeInner.LogError(() => "this is a error trace");
-                }
-
-                {
-                    using var scopeInner = logger.BeginNamedScope("StandardCodeSection");
-
-                    // log by means of standard ILogger Interface
-                    logger.LogTrace("this is a Trace trace");
-                    logger.LogDebug("this is a Debug trace");
-                    logger.LogInformation("this is a Information trace");
-                    logger.LogWarning("this is a Warning trace");
-                    logger.LogError("this is a error trace");
-                    logger.LogCritical("this is a critical trace");
-                }
-
-                {
-                    using var scopeInner = logger.BeginNamedScope("OptimizedByDelegate (static methods)");
-
-                    // log by means of static methods
-                    TraceLogger.LogTrace(() => "this is a trace trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
-                    TraceLogger.LogDebug(() => "this is a debug trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
-                    TraceLogger.LogInformation(() => "this is a Information trace"); // , properties: new Dictionary<string, object>() { { "", "" } }
-                    TraceLogger.LogWarning(() => "this is a Warning trace");
-                    TraceLogger.LogError(() => "this is a error trace");
-                    // TraceLogger.LogCritical(() => "this is a error trace");
-                }
-                {
-                    using var scopeInner = logger.BeginNamedScope("OptimizedByInterpolatedStringHandler (static methods - TraceLogger)");
-
-                    // log by means of the scope variable
-                    TraceLogger.LogTrace($"this is a long trace trace ({e.GetLogString()})", null, new Dictionary<string, object>() { { "MaxMessageLen", 0 } }); //  TraceLogger.LogDebug($"requestBody: {requestBody}");
-                    TraceLogger.LogDebug($"this is a debug trace ({e.GetLogString()})"); // , properties: new Dictionary<string, object>() { { "", "" } }
-                    TraceLogger.LogInformation($"this is a Information trace ({e.GetLogString()})"); // , properties: new Dictionary<string, object>() { { "", "" } }
-                    TraceLogger.LogWarning($"this is a Warning trace ({e.GetLogString()})");
-                    TraceLogger.LogError($"this is a error trace ({e.GetLogString()})");
-                    TraceLogger.LogError($"this is a error trace ({e.GetLogString()})");
-                }
-                {
-                    using var scopeInner = logger.BeginNamedScope("OptimizedByInterpolatedStringHandler (static methods - TraceManager)");
-
-                    // log by means of the scope variable
-                    TraceManager.Trace($"this is a long trace trace ({e.GetLogString()})", null, new Dictionary<string, object>() { { "MaxMessageLen", 0 } }); //  TraceLogger.LogDebug($"requestBody: {requestBody}");
-                    TraceManager.Debug($"this is a debug trace ({e.GetLogString()})"); // , properties: new Dictionary<string, object>() { { "", "" } }
-                    TraceManager.Information($"this is a Information trace ({e.GetLogString()})"); // , properties: new Dictionary<string, object>() { { "", "" } }
-                    TraceManager.Warning($"this is a Warning trace ({e.GetLogString()})");
-                    TraceManager.Error($"this is a error trace ({e.GetLogString()})");
-                    TraceManager.Error($"this is a error trace ({e.GetLogString()})");
-                }
-                int i = 0; string s = "sample parameter";
-                var res = SampleMethodWithResult(i, s);
-
-                throw new NullReferenceException();
-            }
-            catch (Exception ex)
-            {
-                scope.LogException(ex);
-            }
         }
 
         public int SampleMethodWithResult(int i, string s)
         {
             using var scope = logger.BeginMethodScope(new { i, s });
+            using Activity activity = source.StartActivity(TraceLogger.GetMethodName());
 
             var result = 0;
 
@@ -228,34 +152,39 @@ namespace EasySample
         }
         public void SampleMethod()
         {
-            using (var sec = logger.BeginMethodScope())
-            {
-                Thread.Sleep(100);
-                SampleMethodNested();
-                SampleMethodNested1();
+            using var sec = logger.BeginMethodScope();
+            using Activity activity = source.StartActivity(TraceLogger.GetMethodName());
 
-            }
+            Thread.Sleep(100);
+            SampleMethodNested();
+            SampleMethodNested1();
+
         }
         public void SampleMethodNested()
         {
             using var scope = logger.BeginMethodScope();
+            using Activity activity = source.StartActivity(TraceLogger.GetMethodName());
+
             Thread.Sleep(100);
         }
         public void SampleMethodNested1()
         {
             using var scope = logger.BeginMethodScope();
+            using Activity activity = source.StartActivity(TraceLogger.GetMethodName());
+
             Thread.Sleep(10);
         }
         async Task<bool> sampleMethod1Async()
         {
-            using (var scope = logger.BeginMethodScope())
-            {
-                var res = true;
+            using var scope = logger.BeginMethodScope();
+            using Activity activity = source.StartActivity(TraceLogger.GetMethodName());
 
-                await Task.Delay(0); scope.LogDebug($"await Task.Delay(0);");
+            var res = true;
 
-                return res;
-            }
+            await Task.Delay(0); scope.LogDebug($"await Task.Delay(0);");
+
+            return res;
+
         }
     }
 }

@@ -21,6 +21,10 @@ using System.Threading.Tasks;
 using System.Windows;
 using static System.Formats.Asn1.AsnWriter;
 using Microsoft.AspNetCore.Http;
+using System.Diagnostics;
+using OpenTelemetry.Resources;
+using OpenTelemetry;
+using OpenTelemetry.Trace;
 #endregion
 
 namespace EasySample
@@ -31,11 +35,15 @@ namespace EasySample
         static Type T = typeof(App);
         const string CONFIGVALUE_APPINSIGHTSKEY = "AppInsightsKey", DEFAULTVALUE_APPINSIGHTSKEY = "";
 
+        private static ActivitySource source = new ActivitySource("EasySamplev3.App", "1.0.0");
+
+
         public static IHost Host;
         private ILogger<App> _logger;
 
         static App()
         {
+            using (Activity activity = source.StartActivity("App..ctor"))
             using (var scope = TraceLogger.BeginMethodScope(T))
             {
                 try
@@ -53,79 +61,78 @@ namespace EasySample
 
         public App()
         {
+            using (Activity activity = source.StartActivity("App.ctor"))
             using (var scope = Host.BeginMethodScope(T))
             {
             }
         }
         protected override async void OnStartup(StartupEventArgs e)
         {
+            using Activity activity = source.StartActivity("OnStartup");
             var logger = Host.GetLogger<App>();
-            using (var scope = logger.BeginMethodScope())
-            {
-                var configuration = TraceLogger.GetConfiguration();
-                var classConfigurationGetter = new ClassConfigurationGetter<App>(configuration);
-                //var appInsightKey = ConfigurationHelper.GetClassSetting<App, string>(CONFIGVALUE_APPINSIGHTSKEY, DEFAULTVALUE_APPINSIGHTSKEY); // , CultureInfo.InvariantCulture
+            using var scope = logger.BeginMethodScope();
 
-                Host = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder()
-                        .ConfigureAppConfiguration(builder =>
-                        {
-                            builder.Sources.Clear();
-                            builder.AddConfiguration(configuration);
-                            builder.AddEnvironmentVariables();
-                        }).ConfigureServices((context, services) =>
-                        {
-                            ConfigureServices(context.Configuration, services);
-                        })
-                        .ConfigureLogging((context, loggingBuilder) =>
-                        {
-                            //var classConfigurationGetter = new ClassConfigurationGetter<App>(context.Configuration);
-                            var appInsightKey = classConfigurationGetter.Get(CONFIGVALUE_APPINSIGHTSKEY, DEFAULTVALUE_APPINSIGHTSKEY);
+            using var tracerProvider = Sdk.CreateTracerProviderBuilder()
+                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("MySample"))
+                .AddSource("Sample.DistributedTracing")
+                .AddConsoleExporter()
+                .Build();
 
-                            loggingBuilder.AddConfiguration(context.Configuration.GetSection("Logging"));
+            await DoSomeWork("banana", 8);
 
-                            loggingBuilder.ClearProviders();
+            var configuration = TraceLogger.GetConfiguration();
+            var classConfigurationGetter = new ClassConfigurationGetter<App>(configuration);
+            //var appInsightKey = ConfigurationHelper.GetClassSetting<App, string>(CONFIGVALUE_APPINSIGHTSKEY, DEFAULTVALUE_APPINSIGHTSKEY); // , CultureInfo.InvariantCulture
 
-                            //var consoleProvider = new TraceLoggerConsoleProvider();
-                            //loggingBuilder.AddDiginsightFormatted(consoleProvider, configuration);
+            Host = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder()
+                    .ConfigureAppConfiguration(builder =>
+                    {
+                        builder.Sources.Clear();
+                        builder.AddConfiguration(configuration);
+                        builder.AddEnvironmentVariables();
+                    }).ConfigureServices((context, services) =>
+                    {
+                        ConfigureServices(context.Configuration, services);
+                    })
+                    .ConfigureLogging((context, loggingBuilder) =>
+                    {
+                        //var classConfigurationGetter = new ClassConfigurationGetter<App>(context.Configuration);
+                        var appInsightKey = classConfigurationGetter.Get(CONFIGVALUE_APPINSIGHTSKEY, DEFAULTVALUE_APPINSIGHTSKEY);
 
-                            //var actionsRecorderProvider = new ActionsRecorderProvider();
-                            //var diginsightProvider = new TraceLoggerFormatProvider();
-                            //diginsightProvider.AddProvider(actionsRecorderProvider);
-                            //// TraceEntry
-                            ////    classname
-                            ////    methodname
-                            ////    Start(payload), End (result), log
+                        loggingBuilder.AddConfiguration(context.Configuration.GetSection("Logging"));
 
-                            var options = new Log4NetProviderOptions();
-                            options.Log4NetConfigFileName = "log4net.config";
-                            var log4NetProvider = new Log4NetProvider(options);
-                            //loggingBuilder.AddProvider(log4NetProvider);
-                            loggingBuilder.AddDiginsightFormatted(log4NetProvider, configuration);
+                        loggingBuilder.ClearProviders();
 
-                            var telemetryConfiguration = new TelemetryConfiguration(appInsightKey);
-                            var appinsightOptions = new ApplicationInsightsLoggerOptions();
-                            var tco = Options.Create<TelemetryConfiguration>(telemetryConfiguration);
-                            var aio = Options.Create<ApplicationInsightsLoggerOptions>(appinsightOptions);
-                            //loggingBuilder.AddDiginsightJson(new ApplicationInsightsLoggerProvider(tco, aio), configuration);
-                            loggingBuilder.AddDiginsightFormatted(new ApplicationInsightsLoggerProvider(tco, aio), configuration);
+                        var options = new Log4NetProviderOptions();
+                        options.Log4NetConfigFileName = "log4net.config";
+                        var log4NetProvider = new Log4NetProvider(options);
+                        //loggingBuilder.AddProvider(log4NetProvider);
+                        loggingBuilder.AddDiginsightFormatted(log4NetProvider, configuration);
 
-                            // appinsight metrics provider
-                            // opentelemetry metrics provider
+                        var telemetryConfiguration = new TelemetryConfiguration(appInsightKey);
+                        var appinsightOptions = new ApplicationInsightsLoggerOptions();
+                        var tco = Options.Create<TelemetryConfiguration>(telemetryConfiguration);
+                        var aio = Options.Create<ApplicationInsightsLoggerOptions>(appinsightOptions);
+                        //loggingBuilder.AddDiginsightJson(new ApplicationInsightsLoggerProvider(tco, aio), configuration);
+                        loggingBuilder.AddDiginsightFormatted(new ApplicationInsightsLoggerProvider(tco, aio), configuration);
 
-                        }).Build();
+                        // appinsight metrics provider
+                        // opentelemetry metrics provider
 
-                Host.InitTraceLogger();
+                    }).Build();
 
-                // LogStringExtensions.RegisterLogstringProvider(this);
+            Host.InitTraceLogger();
 
-                await Host.StartAsync(); scope.LogDebug($"await Host.StartAsync();");
+            // LogStringExtensions.RegisterLogstringProvider(this);
 
-                var mainWindow = Host.Services.GetRequiredService<MainWindow>(); scope.LogDebug($"Host.Services.GetRequiredService<MainWindow>(); returns {mainWindow.GetLogString()}");
+            await Host.StartAsync(); scope.LogDebug($"await Host.StartAsync();");
 
-                mainWindow.Show(); scope.LogDebug($"mainWindow.Show();");
+            var mainWindow = Host.Services.GetRequiredService<MainWindow>(); scope.LogDebug($"Host.Services.GetRequiredService<MainWindow>(); returns {mainWindow.GetLogString()}");
 
-                base.OnStartup(e); scope.LogDebug($"base.OnStartup(e);");
-            }
+            mainWindow.Show(); scope.LogDebug($"mainWindow.Show();");
+
+            base.OnStartup(e); scope.LogDebug($"base.OnStartup(e);");
+
         }
         private void ConfigureServices(IConfiguration configuration, IServiceCollection services)
         {
@@ -165,7 +172,41 @@ namespace EasySample
                 return traceLoggerMinimumLevel;
             });
 
-            // TODO: register as a singleton ILogger
+            //var tracingOtlpEndpoint = builder.Configuration["OTLP_ENDPOINT_URL"];
+            var otel = services.AddOpenTelemetry();
+
+            //// Configure OpenTelemetry Resources with the application name
+            //otel.ConfigureResource(resource => resource
+            //    .AddService(serviceName: builder.Environment.ApplicationName));
+
+            //// Add Metrics for ASP.NET Core and our custom metrics and export to Prometheus
+            //otel.WithMetrics(metrics => metrics
+            //    // Metrics provider from OpenTelemetry
+            //    .AddAspNetCoreInstrumentation()
+            //    .AddMeter(greeterMeter.Name)
+            //    // Metrics provides by ASP.NET Core in .NET 8
+            //    .AddMeter("Microsoft.AspNetCore.Hosting")
+            //    .AddMeter("Microsoft.AspNetCore.Server.Kestrel")
+            //    .AddPrometheusExporter());
+
+            //// Add Tracing for ASP.NET Core and our custom ActivitySource and export to Jaeger
+            //otel.WithTracing(tracing =>
+            //{
+            //    tracing.AddAspNetCoreInstrumentation();
+            //    tracing.AddHttpClientInstrumentation();
+            //    tracing.AddSource(greeterActivitySource.Name);
+            //    if (tracingOtlpEndpoint != null)
+            //    {
+            //        tracing.AddOtlpExporter(otlpOptions =>
+            //        {
+            //            otlpOptions.Endpoint = new Uri(tracingOtlpEndpoint);
+            //        });
+            //    }
+            //    else
+            //    {
+            //        tracing.AddConsoleExporter();
+            //    }
+            //});
 
         }
         protected override async void OnExit(ExitEventArgs e)
@@ -179,7 +220,26 @@ namespace EasySample
         }
 
         private string GetMethodName([CallerMemberName] string memberName = "") { return memberName; }
+
+
+        // All the functions below simulate doing some arbitrary work
+        static async Task DoSomeWork(string foo, int bar)
+        {
+            await StepOne();
+            await StepTwo();
+        }
+
+        static async Task StepOne()
+        {
+            await Task.Delay(500);
+        }
+
+        static async Task StepTwo()
+        {
+            await Task.Delay(1000);
+        }
     }
+
 
     public class TraceLoggerMinimumLevel : ITraceLoggerMinimumLevel
     {
