@@ -41,13 +41,13 @@ namespace EasySample
 
         static MainWindow()
         {
-            using Activity activity = source.StartActivity(TraceLogger.GetMethodName());
             var host = App.Host;
+            using var scope = host.BeginMethodScope<MainWindow>();
+            using Activity activity = source.StartActivity(TraceLogger.GetMethodName());
             //var logger = host.GetLogger<MainWindow>();
             //using (var scope = logger.BeginMethodScope())
             //{
             //}
-            using var scope = host.BeginMethodScope<MainWindow>();
         }
         public MainWindow(
             ILogger<MainWindow> logger,

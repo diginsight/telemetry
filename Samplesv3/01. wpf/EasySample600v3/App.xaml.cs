@@ -43,20 +43,27 @@ namespace EasySample
 
         static App()
         {
-            using (Activity activity = source.StartActivity("App..ctor"))
-            using (var scope = TraceLogger.BeginMethodScope(T))
-            {
-                try
-                {
-                    // sec.Debug("this is a debug trace");
-                    // sec.Information("this is a Information trace");
-                    // sec.Warning("this is a Warning trace");
-                    // sec.Error("this is a error trace");
+            using var scope = TraceLogger.BeginMethodScope(T);
+            using Activity activity = source.StartActivity("App..ctor");
 
-                    throw new InvalidOperationException("this is an exception");
-                }
-                catch (Exception /*ex*/) { /*sec.Exception(ex);*/ }
+            ActivitySource.AddActivityListener(new ActivityListener()
+            {
+                ShouldListenTo = (source) => true,
+                Sample = (ref ActivityCreationOptions<ActivityContext> options) => ActivitySamplingResult.AllDataAndRecorded,
+                ActivityStarted = activity => Console.WriteLine("Started: {0,-15} {1,-60}", activity.OperationName, activity.Id),
+                ActivityStopped = activity => Console.WriteLine("Stopped: {0,-15} {1,-60} {2,-15}", activity.OperationName, activity.Id, activity.Duration)
+            });
+
+            try
+            {
+                // sec.Debug("this is a debug trace");
+                // sec.Information("this is a Information trace");
+                // sec.Warning("this is a Warning trace");
+                // sec.Error("this is a error trace");
+
+                throw new InvalidOperationException("this is an exception");
             }
+            catch (Exception /*ex*/) { /*sec.Exception(ex);*/ }
         }
 
         public App()
@@ -73,8 +80,8 @@ namespace EasySample
             using var scope = logger.BeginMethodScope();
 
             using var tracerProvider = Sdk.CreateTracerProviderBuilder()
-                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("MySample"))
-                .AddSource("Sample.DistributedTracing")
+                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("EasySample600v3"))
+                .AddSource("EasySamplev3.App")
                 .AddConsoleExporter()
                 .Build();
 
