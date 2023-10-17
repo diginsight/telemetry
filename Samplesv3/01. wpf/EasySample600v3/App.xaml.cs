@@ -33,6 +33,8 @@ using OpenTelemetry.Trace;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Refit;
+using Polly;
 #endregion
 
 namespace EasySample
@@ -85,26 +87,26 @@ namespace EasySample
             var logger = Host.GetLogger<App>();
             using var scope = logger.BeginMethodScope();
 
-            using var tracerProvider = Sdk.CreateTracerProviderBuilder()
-                                          .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("EasySample600v3"))
-                                          .AddSource(ActivitySource.Name)
-                                          .AddConsoleExporter()
-                                          .Build();
+            //using var tracerProvider = Sdk.CreateTracerProviderBuilder()
+            //                              .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("EasySample600v3"))
+            //                              .AddSource(ActivitySource.Name)
+            //                              .AddConsoleExporter()
+            //                              .Build();
 
-            //// Create a new logger factory. It is important to keep the LoggerFactory instance active throughout the process lifetime.
-            //var loggerFactory = LoggerFactory.Create(builder =>
-            //{
-            //    var oTel = builder.AddOpenTelemetry(options =>
-            //    {
-            //        options.AddAzureMonitorLogExporter();
-            //    });
-            //    //oTel.UseAzureMonitor(options =>
-            //    //{
-            //    //    options.ConnectionString = "<Your Connection String>";
-            //    //});
-            //});
+            ////// Create a new logger factory. It is important to keep the LoggerFactory instance active throughout the process lifetime.
+            ////var loggerFactory = LoggerFactory.Create(builder =>
+            ////{
+            ////    var oTel = builder.AddOpenTelemetry(options =>
+            ////    {
+            ////        options.AddAzureMonitorLogExporter();
+            ////    });
+            ////    //oTel.UseAzureMonitor(options =>
+            ////    //{
+            ////    //    options.ConnectionString = "<Your Connection String>";
+            ////    //});
+            ////});
 
-            await DoSomeWork("banana", 8);
+            //await DoSomeWork("banana", 8);
 
             var configuration = TraceLogger.GetConfiguration();
             var classConfigurationGetter = new ClassConfigurationGetter<App>(configuration);
@@ -115,6 +117,7 @@ namespace EasySample
                     {
                         builder.Sources.Clear();
                         builder.AddConfiguration(configuration);
+                        builder.AddUserSecrets<App>();
                         builder.AddEnvironmentVariables();
                     }).ConfigureServices((context, services) =>
                     {
@@ -177,17 +180,41 @@ namespace EasySample
             services.AddHttpContextAccessor();
             services.AddClassConfiguration();
 
+            var appSettingsSection = configuration.GetSection(nameof(AppSettings));
+            var settings = appSettingsSection.Get<AppSettings>();
+
+            services.AddRefitClient<ITestCachePreload>()
+                .ConfigureHttpClient(client =>
+                {
+                    client.BaseAddress = new Uri(settings.CachePreload.BaseUrl);
+                    client.Timeout = TimeSpan.FromMinutes(25); // TODO: reduce and implement async handling on runaggregate!
+                })
+                .AddTransientHttpErrorPolicy(builder => builder.WaitAndRetryAsync(new[]
+                {
+                            TimeSpan.FromSeconds(1),
+                            TimeSpan.FromSeconds(5),
+                            TimeSpan.FromSeconds(10)
+                }));
+
             services.AddApplicationInsightsTelemetry();
 
-
-
             var connectionString = configuration["Logging:ApplicationInsights:ConnectionString"];
+            var oTel = services.AddOpenTelemetry();
+            oTel.UseAzureMonitor(options =>
+            {
+                options.ConnectionString = connectionString;
+            });
 
-            //var oTel = services.AddOpenTelemetry();
-            //oTel.UseAzureMonitor(options =>
-            //{
-            //    options.ConnectionString = "InstrumentationKey=0c1c53b0-8507-4fd4-b0a8-6d9232acacab;IngestionEndpoint=https://westeurope-5.in.applicationinsights.azure.com/;LiveEndpoint=https://westeurope.livediagnostics.monitor.azure.com/";
-            //});
+            // Create a dictionary of resource attributes.
+            var resourceAttributes = new Dictionary<string, object> {
+                { "service.name", "my-service" },
+                { "service.namespace", "my-namespace" },
+                { "service.instance.id", "my-instance" }};
+
+            // Configure the OpenTelemetry tracer provider to add the resource attributes to all traces.
+            services.ConfigureOpenTelemetryTracerProvider((sp, builder) =>
+                builder.ConfigureResource(resourceBuilder => resourceBuilder.AddAttributes(resourceAttributes)));
+
 
             //oTel.WithMetrics(metrics => metrics
             //    .AddMeter("Microsoft.AspNetCore.Hosting")
