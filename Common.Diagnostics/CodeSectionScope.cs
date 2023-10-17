@@ -141,9 +141,9 @@ namespace Common
 
                 this.logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) =>
                 {
-                    if (DiginsightFormattedConsoleProvider.Instance == null) { return e.ToString(); }
-                    var message = DiginsightFormattedConsoleProvider.Instance.FormatTraceEntry(e, ex);
-                    return message;
+                    if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                    var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                    return ret;
                 });
             }
             else
@@ -242,7 +242,12 @@ namespace Common
             {
                 if (this.logger == null) { this.logger = GetEntrylogger(ref entry); }
 
-                this.logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                this.logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) =>
+                {
+                    if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                    var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                    return ret;
+                });
             }
             else
             {
@@ -271,7 +276,12 @@ namespace Common
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) =>
+                {
+                    if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                    var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                    return ret;
+                });
             }
             else
             {
@@ -311,7 +321,12 @@ namespace Common
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) =>
+                {
+                    if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                    var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                    return ret;
+                });
             }
             else
             {
@@ -332,7 +347,12 @@ namespace Common
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => 
+                {
+                    if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                    var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                    return ret;
+                });
             }
             else
             {
@@ -350,7 +370,12 @@ namespace Common
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => 
+                {
+                    if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                    var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                    return ret;
+                });
             }
             else
             {
@@ -385,7 +410,12 @@ namespace Common
                 {
                     if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                    logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                    logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => 
+                    {
+                        if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                        var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                        return ret;
+                    });
                 }
                 else
                 {
@@ -411,7 +441,12 @@ namespace Common
                 {
                     if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                    logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                    logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) =>
+                    {
+                        if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                        var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                        return ret;
+                    });
                 }
                 else
                 {
@@ -441,7 +476,12 @@ namespace Common
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) =>
+                {
+                    if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                    var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                    return ret;
+                });
             }
             else
             {
@@ -481,7 +521,12 @@ namespace Common
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) =>
+                {
+                    if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                    var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                    return ret;
+                });
             }
             else
             {
@@ -502,7 +547,12 @@ namespace Common
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) =>
+                {
+                    if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                    var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                    return ret;
+                });
             }
             else
             {
@@ -520,7 +570,12 @@ namespace Common
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => 
+                {
+                    if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                    var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                    return ret;
+                });
             }
             else
             {
@@ -555,7 +610,12 @@ namespace Common
                 {
                     if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                    logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                    logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => 
+                {
+                    if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                    var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                    return ret;
+                });
                 }
                 else
                 {
@@ -581,7 +641,12 @@ namespace Common
                 {
                     if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                    logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                    logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) =>
+                    {
+                        if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                        var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                        return ret;
+                    });
                 }
                 else
                 {
@@ -625,7 +690,12 @@ namespace Common
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) =>
+                {
+                    if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                    var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                    return ret;
+                });
             }
             else
             {
@@ -646,7 +716,12 @@ namespace Common
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) =>
+                {
+                    if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                    var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                    return ret;
+                });
             }
             else
             {
@@ -664,7 +739,12 @@ namespace Common
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => 
+                {
+                    if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                    var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                    return ret;
+                });
             }
             else
             {
@@ -681,7 +761,12 @@ namespace Common
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => 
+                {
+                    if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                    var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                    return ret;
+                });
             }
             else
             {
@@ -705,7 +790,12 @@ namespace Common
                 {
                     if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                    logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                    logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) =>
+                    {
+                        if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                        var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                        return ret;
+                    });
                 }
                 else
                 {
@@ -749,7 +839,12 @@ namespace Common
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) =>
+                {
+                    if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                    var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                    return ret;
+                });
             }
             else
             {
@@ -771,7 +866,12 @@ namespace Common
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) =>
+                {
+                    if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                    var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                    return ret;
+                });
             }
             else
             {
@@ -790,7 +890,12 @@ namespace Common
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => 
+                {
+                    if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                    var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                    return ret;
+                });
             }
             else
             {
@@ -808,7 +913,12 @@ namespace Common
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => 
+                {
+                    if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                    var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                    return ret;
+                });
             }
             else
             {
@@ -832,7 +942,12 @@ namespace Common
                 {
                     if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                    logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                    logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) =>
+                    {
+                        if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                        var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                        return ret;
+                    });
                 }
                 else
                 {
@@ -876,7 +991,12 @@ namespace Common
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) =>
+                {
+                    if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                    var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                    return ret;
+                });
             }
             else
             {
@@ -897,7 +1017,12 @@ namespace Common
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) =>
+                {
+                    if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                    var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                    return ret;
+                });
             }
             else
             {
@@ -915,7 +1040,12 @@ namespace Common
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => 
+                {
+                    if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                    var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                    return ret;
+                });
             }
             else
             {
@@ -932,7 +1062,12 @@ namespace Common
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => 
+                {
+                    if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                    var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                    return ret;
+                });
             }
             else
             {
@@ -956,7 +1091,12 @@ namespace Common
                 {
                     if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                    logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                    logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) =>
+                    {
+                        if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                        var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                        return ret;
+                    });
                 }
                 else
                 {
@@ -999,7 +1139,12 @@ namespace Common
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) =>
+                {
+                    if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                    var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                    return ret;
+                });
             }
             else
             {
@@ -1028,7 +1173,12 @@ namespace Common
                     var entry = new TraceEntry() { TraceEventType = TraceEventType.Stop, LogLevel = this.LogLevel, TraceSource = this.TraceSource, Message = null, Properties = this.Properties, Source = this.Source, Category = this.Category, SourceLevel = this.SourceLevel, CodeSectionBase = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
                     if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                    logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                    logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) =>
+                    {
+                        if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
+                        var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
+                        return ret;
+                    });
                 }
                 else
                 {

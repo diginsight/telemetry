@@ -113,7 +113,6 @@ namespace EasySample
                         var log4NetProvider = new Log4NetProvider(options);
                         loggingBuilder.AddProvider(log4NetProvider); // , configuration
 
-                        //var options = new Log4NetProviderOptions();
                         //options.Log4NetConfigFileName = "log4net.config";
                         //var log4NetProvider = new Log4NetProvider(options);
                         ////loggingBuilder.AddProvider(log4NetProvider);

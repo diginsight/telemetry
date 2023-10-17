@@ -569,5 +569,12 @@ namespace Common
         public DiginsightFormattedDebugProvider() { }
         public DiginsightFormattedDebugProvider(IConfiguration configuration) : base(configuration) { }
         #endregion
+
+        static DiginsightFormattedConsoleProvider _instance;
+        public static DiginsightFormattedConsoleProvider Instance
+        {
+            get { return _instance; }
+            set { _instance = value; }
+        }
     }
 }
