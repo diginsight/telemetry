@@ -32,7 +32,7 @@ namespace EasySample
     /// <summary>Interaction logic for MainWindow.xaml</summary>
     public partial class MainWindow : Window
     {
-        private static ActivitySource source = new ActivitySource("EasySamplev3.MainWindow", "1.0.0");
+        //private static ActivitySource source = new ActivitySource("EasySamplev3.MainWindow", "1.0.0");
         static Type T = typeof(MainWindow);
         private ILogger<MainWindow> logger;
         private IClassConfigurationGetter<MainWindow> classConfigurationGetter;
@@ -43,7 +43,7 @@ namespace EasySample
         {
             var host = App.Host;
             using var scope = host.BeginMethodScope<MainWindow>();
-            using Activity activity = source.StartActivity(TraceLogger.GetMethodName());
+            using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
             //var logger = host.GetLogger<MainWindow>();
             //using (var scope = logger.BeginMethodScope())
             //{
@@ -59,14 +59,14 @@ namespace EasySample
             this.classConfigurationGetter = classConfigurationGetter;
             // using (_logger.BeginMethodScope())
             using var d = logger.BeginScope(TraceLogger.GetMethodName());
-            using Activity activity = source.StartActivity(TraceLogger.GetMethodName());
+            using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
 
             InitializeComponent();
         }
         private async void MainWindow_Initialized(object sender, EventArgs e)
         {
             using var scope = logger.BeginMethodScope(() => new { sender, e });
-            using Activity activity = source.StartActivity(TraceLogger.GetMethodName());
+            using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
 
             classConfigurationGetter.Get("SampleConfig", "");
             sampleMethod();
@@ -113,7 +113,7 @@ namespace EasySample
         }
         void sampleMethod()
         {
-            using Activity activity = source.StartActivity(TraceLogger.GetMethodName());
+            using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
             logger.LogDebug("pippo");
 
         }
@@ -122,14 +122,14 @@ namespace EasySample
         private void btnRun_Click(object sender, RoutedEventArgs e)
         {
             using var scope = logger.BeginMethodScope(() => new { sender, e }, SourceLevels.Verbose, LogLevel.Debug, null, new Dictionary<string, object>() { { "OperationId", Guid.NewGuid().ToString() } });
-            using Activity activity = source.StartActivity(TraceLogger.GetMethodName());
+            using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
 
             // Custom metrics for the application
             var greeterMeter = new Meter("OtPrGrYa.Example", "1.0.0");
             var countGreetings = greeterMeter.CreateCounter<int>("greetings.count", description: "Counts the number of greetings");
 
             // Custom ActivitySource for the application
-            var greeterActivitySource = new ActivitySource("OtPrGrJa.Example");
+            //var greeterActivitySource = new ActivitySource("OtPrGrJa.Example");
 
 
         }
@@ -137,7 +137,7 @@ namespace EasySample
         public int SampleMethodWithResult(int i, string s)
         {
             using var scope = logger.BeginMethodScope(new { i, s });
-            using Activity activity = source.StartActivity(TraceLogger.GetMethodName());
+            using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
 
             var result = 0;
 
@@ -154,7 +154,7 @@ namespace EasySample
         public void SampleMethod()
         {
             using var sec = logger.BeginMethodScope();
-            using Activity activity = source.StartActivity(TraceLogger.GetMethodName());
+            using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
 
             Thread.Sleep(100);
             SampleMethodNested();
@@ -164,21 +164,21 @@ namespace EasySample
         public void SampleMethodNested()
         {
             using var scope = logger.BeginMethodScope();
-            using Activity activity = source.StartActivity(TraceLogger.GetMethodName());
+            using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
 
             Thread.Sleep(100);
         }
         public void SampleMethodNested1()
         {
             using var scope = logger.BeginMethodScope();
-            using Activity activity = source.StartActivity(TraceLogger.GetMethodName());
+            using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
 
             Thread.Sleep(10);
         }
         async Task<bool> sampleMethod1Async()
         {
             using var scope = logger.BeginMethodScope();
-            using Activity activity = source.StartActivity(TraceLogger.GetMethodName());
+            using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
 
             var res = true;
 

@@ -25,6 +25,14 @@ using System.Diagnostics;
 using OpenTelemetry.Resources;
 using OpenTelemetry;
 using OpenTelemetry.Trace;
+using Azure.Monitor.OpenTelemetry.Exporter;
+using Azure.Monitor.OpenTelemetry.AspNetCore;
+using OpenTelemetry;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 #endregion
 
 namespace EasySample
@@ -35,7 +43,7 @@ namespace EasySample
         static Type T = typeof(App);
         const string CONFIGVALUE_APPINSIGHTSKEY = "AppInsightsKey", DEFAULTVALUE_APPINSIGHTSKEY = "";
 
-        private static ActivitySource source = new ActivitySource("EasySamplev3.App", "1.0.0");
+        public static ActivitySource ActivitySource = new ActivitySource("EasySamplev3.App"); // , "1.0.0"
 
         public static IHost Host;
         private ILogger<App> _logger;
@@ -43,7 +51,7 @@ namespace EasySample
         static App()
         {
             using var scope = TraceLogger.BeginMethodScope(T);
-            using Activity activity = source.StartActivity("App..ctor");
+            using Activity activity = ActivitySource.StartActivity(TraceLogger.GetMethodName());
 
             ActivitySource.AddActivityListener(new ActivityListener()
             {
@@ -66,22 +74,35 @@ namespace EasySample
 
         public App()
         {
-            using (Activity activity = source.StartActivity("App.ctor"))
+            using Activity activity = ActivitySource.StartActivity(TraceLogger.GetMethodName());
             using (var scope = Host.BeginMethodScope(T))
             {
             }
         }
         protected override async void OnStartup(StartupEventArgs e)
         {
-            using Activity activity = source.StartActivity("OnStartup");
+            using Activity activity = ActivitySource.StartActivity(TraceLogger.GetMethodName());
             var logger = Host.GetLogger<App>();
             using var scope = logger.BeginMethodScope();
 
             using var tracerProvider = Sdk.CreateTracerProviderBuilder()
-                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("EasySample600v3"))
-                .AddSource("EasySamplev3.App")
-                .AddConsoleExporter()
-                .Build();
+                                          .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("EasySample600v3"))
+                                          .AddSource(ActivitySource.Name)
+                                          .AddConsoleExporter()
+                                          .Build();
+
+            //// Create a new logger factory. It is important to keep the LoggerFactory instance active throughout the process lifetime.
+            //var loggerFactory = LoggerFactory.Create(builder =>
+            //{
+            //    var oTel = builder.AddOpenTelemetry(options =>
+            //    {
+            //        options.AddAzureMonitorLogExporter();
+            //    });
+            //    //oTel.UseAzureMonitor(options =>
+            //    //{
+            //    //    options.ConnectionString = "<Your Connection String>";
+            //    //});
+            //});
 
             await DoSomeWork("banana", 8);
 
@@ -113,6 +134,12 @@ namespace EasySample
                         var log4NetProvider = new Log4NetProvider(options);
                         loggingBuilder.AddProvider(log4NetProvider); // , configuration
                         TraceLogger.InitConfiguration(configuration);
+
+                        var connectionString = configuration["Logging:ApplicationInsights:ConnectionString"];
+
+                        //loggingBuilder.AddApplicationInsights(configureTelemetryConfiguration: (config) =>
+                        //        config.ConnectionString = configuration.GetConnectionString(connectionString),
+                        //        configureApplicationInsightsLoggerOptions: (options) => { });
 
                         //options.Log4NetConfigFileName = "log4net.config";
                         //var log4NetProvider = new Log4NetProvider(options);
@@ -149,7 +176,31 @@ namespace EasySample
             //services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddHttpContextAccessor();
             services.AddClassConfiguration();
-            services.AddSingleton<MainWindow>();
+
+            services.AddApplicationInsightsTelemetry();
+
+
+
+            var connectionString = configuration["Logging:ApplicationInsights:ConnectionString"];
+
+            //var oTel = services.AddOpenTelemetry();
+            //oTel.UseAzureMonitor(options =>
+            //{
+            //    options.ConnectionString = "InstrumentationKey=0c1c53b0-8507-4fd4-b0a8-6d9232acacab;IngestionEndpoint=https://westeurope-5.in.applicationinsights.azure.com/;LiveEndpoint=https://westeurope.livediagnostics.monitor.azure.com/";
+            //});
+
+            //oTel.WithMetrics(metrics => metrics
+            //    .AddMeter("Microsoft.AspNetCore.Hosting")
+            //    .AddMeter("Microsoft.AspNetCore.Server.Kestrel"));
+
+            //oTel.WithTracing(tracing =>
+            //{
+            //    tracing.AddSource(ActivitySource.Name);
+            //});
+
+            //// Configure the OpenTelemetry tracer provider to add a source named "ActivitySourceName". This will ensure that all activities created by the activity source are traced.
+            //services.ConfigureOpenTelemetryTracerProvider((sp, builder) => builder.AddSource(ActivitySource.Name));
+            //.AddMeter(greeterMeter.Name)
 
             services.AddScoped<ITraceLoggerMinimumLevel, TraceLoggerMinimumLevel>(sp =>
             {
@@ -181,9 +232,7 @@ namespace EasySample
                 }
                 return traceLoggerMinimumLevel;
             });
-
-            //var tracingOtlpEndpoint = builder.Configuration["OTLP_ENDPOINT_URL"];
-            var otel = services.AddOpenTelemetry();
+            services.AddSingleton<MainWindow>();
 
             //// Configure OpenTelemetry Resources with the application name
             //otel.ConfigureResource(resource => resource
