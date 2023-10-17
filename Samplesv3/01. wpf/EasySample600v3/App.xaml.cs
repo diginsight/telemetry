@@ -49,8 +49,8 @@ namespace EasySample
             {
                 ShouldListenTo = (source) => true,
                 Sample = (ref ActivityCreationOptions<ActivityContext> options) => ActivitySamplingResult.AllDataAndRecorded,
-                ActivityStarted = activity => Console.WriteLine("Started: {0,-15} {1,-60}", activity.OperationName, activity.Id),
-                ActivityStopped = activity => Console.WriteLine("Stopped: {0,-15} {1,-60} {2,-15}", activity.OperationName, activity.Id, activity.Duration)
+                ActivityStarted = (Activity activity) => TraceLogger.LogDebug($"Started: {activity.OperationName} {activity.Id}"),
+                ActivityStopped = (Activity activity) => TraceLogger.LogDebug($"Stopped: {activity.OperationName} {activity.Id} {activity.Duration}")
             });
 
             try
@@ -112,10 +112,11 @@ namespace EasySample
                         options.Log4NetConfigFileName = "log4net.config";
                         var log4NetProvider = new Log4NetProvider(options);
                         loggingBuilder.AddProvider(log4NetProvider); // , configuration
+                        TraceLogger.InitConfiguration(configuration);
 
                         //options.Log4NetConfigFileName = "log4net.config";
                         //var log4NetProvider = new Log4NetProvider(options);
-                        ////loggingBuilder.AddProvider(log4NetProvider);
+                        //loggingBuilder.AddProvider(log4NetProvider);
                         //loggingBuilder.AddDiginsightFormatted(log4NetProvider, configuration);
 
                         //var telemetryConfiguration = new TelemetryConfiguration(appInsightKey);
