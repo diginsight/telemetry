@@ -114,14 +114,20 @@ namespace EasySample
                         options.Log4NetConfigFileName = "log4net.config";
                         var log4NetProvider = new Log4NetProvider(options);
                         //loggingBuilder.AddProvider(log4NetProvider);
-                        loggingBuilder.AddDiginsightFormatted(log4NetProvider, configuration);
+                        loggingBuilder.AddProvider(log4NetProvider); // , configuration
 
-                        var telemetryConfiguration = new TelemetryConfiguration(appInsightKey);
-                        var appinsightOptions = new ApplicationInsightsLoggerOptions();
-                        var tco = Options.Create<TelemetryConfiguration>(telemetryConfiguration);
-                        var aio = Options.Create<ApplicationInsightsLoggerOptions>(appinsightOptions);
-                        //loggingBuilder.AddDiginsightJson(new ApplicationInsightsLoggerProvider(tco, aio), configuration);
-                        loggingBuilder.AddDiginsightFormatted(new ApplicationInsightsLoggerProvider(tco, aio), configuration);
+                        //var options = new Log4NetProviderOptions();
+                        //options.Log4NetConfigFileName = "log4net.config";
+                        //var log4NetProvider = new Log4NetProvider(options);
+                        ////loggingBuilder.AddProvider(log4NetProvider);
+                        //loggingBuilder.AddDiginsightFormatted(log4NetProvider, configuration);
+
+                        //var telemetryConfiguration = new TelemetryConfiguration(appInsightKey);
+                        //var appinsightOptions = new ApplicationInsightsLoggerOptions();
+                        //var tco = Options.Create<TelemetryConfiguration>(telemetryConfiguration);
+                        //var aio = Options.Create<ApplicationInsightsLoggerOptions>(appinsightOptions);
+                        ////loggingBuilder.AddDiginsightJson(new ApplicationInsightsLoggerProvider(tco, aio), configuration);
+                        //loggingBuilder.AddDiginsightFormatted(new ApplicationInsightsLoggerProvider(tco, aio), configuration);
 
                         // appinsight metrics provider
                         // opentelemetry metrics provider

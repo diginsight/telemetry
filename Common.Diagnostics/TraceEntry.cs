@@ -15,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using System.IO;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
+using System.Text;
 #endregion
 
 namespace Common
@@ -64,7 +65,12 @@ namespace Common
 
         public override string ToString()
         {
-            return base.ToString();
+            ////FormatTraceEntry
+            //TraceLoggerFormatProvider.formattra
+            var ret = base.ToString();
+            if (!ret.EndsWith("\r\n")) { ret += "\r\n"; }
+            
+            return ret;
         }
     }
     public struct TraceEntrySurrogate

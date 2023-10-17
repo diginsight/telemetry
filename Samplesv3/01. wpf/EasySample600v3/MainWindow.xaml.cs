@@ -48,6 +48,7 @@ namespace EasySample
             //using (var scope = logger.BeginMethodScope())
             //{
             //}
+
         }
         public MainWindow(
             ILogger<MainWindow> logger,
@@ -74,7 +75,7 @@ namespace EasySample
             int i = 0;
 
             // scope.LogDebug
-            logger.LogDebug(() => new { i, e = e.GetLogString(), sender = sender.GetLogString() }); // , properties: new Dictionary<string, object>() { { "", "" } }
+            logger.LogDebug(() => new { i, e , sender }); // , properties: new Dictionary<string, object>() { { "", "" } }
 
 
             {
@@ -120,7 +121,7 @@ namespace EasySample
         int i = 0;
         private void btnRun_Click(object sender, RoutedEventArgs e)
         {
-            using var scope = logger.BeginMethodScope(() => new { sender = sender.GetLogString(), e = e.GetLogString() }, SourceLevels.Verbose, LogLevel.Debug, null, new Dictionary<string, object>() { { "OperationId", Guid.NewGuid().ToString() } });
+            using var scope = logger.BeginMethodScope(() => new { sender, e }, SourceLevels.Verbose, LogLevel.Debug, null, new Dictionary<string, object>() { { "OperationId", Guid.NewGuid().ToString() } });
             using Activity activity = source.StartActivity(TraceLogger.GetMethodName());
 
             // Custom metrics for the application

@@ -319,7 +319,6 @@ namespace Common
 
             // check the global filter
             //if (isLastWriteContinuation) { sbMessages.Remove(sbMessages.Length - 2, 2); }
-
             lastWrite = entry;
             if (entry.Equals(default(TraceEntry))) { lastWrite.ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds; }
 
