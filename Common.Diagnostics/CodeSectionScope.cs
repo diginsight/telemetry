@@ -139,7 +139,12 @@ namespace Common
             {
                 if (this.logger == null) { this.logger = GetEntrylogger(ref entry); }
 
-                this.logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => e.ToString());
+                this.logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) =>
+                {
+                    if (DiginsightFormattedConsoleProvider.Instance == null) { return e.ToString(); }
+                    var message = DiginsightFormattedConsoleProvider.Instance.FormatTraceEntry(e, ex);
+                    return message;
+                });
             }
             else
             {
@@ -167,7 +172,7 @@ namespace Common
             this.logger = logger;
 
             var host = TraceLogger.Host;
-            if (traceLoggerMinimumLevelService == null && host != null) { try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { }  }
+            if (traceLoggerMinimumLevelService == null && host != null) { try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { } }
             this.TraceLoggerMinimumLevelService = traceLoggerMinimumLevelService;
             this.MinimumLogLevel = traceLoggerMinimumLevelService?.MinimumLevel ?? LogLevel.Trace;
             //this._isLogEnabled = logLevel >= this.MinimumLogLevel;

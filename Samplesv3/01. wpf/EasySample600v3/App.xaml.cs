@@ -37,7 +37,6 @@ namespace EasySample
 
         private static ActivitySource source = new ActivitySource("EasySamplev3.App", "1.0.0");
 
-
         public static IHost Host;
         private ILogger<App> _logger;
 
@@ -60,7 +59,6 @@ namespace EasySample
                 // sec.Information("this is a Information trace");
                 // sec.Warning("this is a Warning trace");
                 // sec.Error("this is a error trace");
-
                 throw new InvalidOperationException("this is an exception");
             }
             catch (Exception /*ex*/) { /*sec.Exception(ex);*/ }
@@ -113,7 +111,6 @@ namespace EasySample
                         var options = new Log4NetProviderOptions();
                         options.Log4NetConfigFileName = "log4net.config";
                         var log4NetProvider = new Log4NetProvider(options);
-                        //loggingBuilder.AddProvider(log4NetProvider);
                         loggingBuilder.AddProvider(log4NetProvider); // , configuration
 
                         //var options = new Log4NetProviderOptions();
