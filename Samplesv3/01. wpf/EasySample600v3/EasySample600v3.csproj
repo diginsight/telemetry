@@ -65,8 +65,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Helpers\" />
-		<Folder Include="Models\" />
+		<Folder Include="Extensions\" />
 		<Folder Include="Services\" />
 	</ItemGroup>
 

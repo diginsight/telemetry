@@ -32,9 +32,5 @@ namespace EasySample
         public Guid OrganizationId { get; set; }
         public Guid SiteId { get; set; }
     }
-    public static class Constants
-    {
-        public static Type T = typeof(Constants);
-    }
    
 }

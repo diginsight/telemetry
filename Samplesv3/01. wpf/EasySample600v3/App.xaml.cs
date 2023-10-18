@@ -42,10 +42,10 @@ namespace EasySample
     /// <summary>Interaction logic for App.xaml</summary>
     public partial class App : Application
     {
-        static Type T = typeof(App);
         const string CONFIGVALUE_APPINSIGHTSKEY = "AppInsightsKey", DEFAULTVALUE_APPINSIGHTSKEY = "";
-
-        public static ActivitySource ActivitySource = new ActivitySource("EasySamplev3.App"); // , "1.0.0"
+        
+        static Type T = typeof(App);
+        public static ActivitySource ActivitySource = new ActivitySource(typeof(App).Assembly.GetName().Name); // , "1.0.0"
 
         public static IHost Host;
         private ILogger<App> _logger;
@@ -83,9 +83,9 @@ namespace EasySample
         }
         protected override async void OnStartup(StartupEventArgs e)
         {
-            using Activity activity = ActivitySource.StartActivity(TraceLogger.GetMethodName());
             var logger = Host.GetLogger<App>();
             using var scope = logger.BeginMethodScope();
+            using Activity activity = ActivitySource.StartActivity(TraceLogger.GetMethodName());
 
             //using var tracerProvider = Sdk.CreateTracerProviderBuilder()
             //                              .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("EasySample600v3"))
@@ -196,38 +196,10 @@ namespace EasySample
                             TimeSpan.FromSeconds(10)
                 }));
 
-            services.AddApplicationInsightsTelemetry();
+            //services.AddApplicationInsightsTelemetry();
+            var aiConnectionString = configuration.GetValue<string>(Constants.APPINSIGHTSCONNECTIONSTRING);
+            services.AddObservability(aiConnectionString, App.Current.GetType().Assembly.GetName().Name, App.Current.GetType().Assembly.GetName().FullName, App.Current.GetType().Assembly.GetName().FullName);
 
-            var connectionString = configuration["Logging:ApplicationInsights:ConnectionString"];
-            var oTel = services.AddOpenTelemetry();
-            oTel.UseAzureMonitor(options =>
-            {
-                options.ConnectionString = connectionString;
-            });
-
-            // Create a dictionary of resource attributes.
-            var resourceAttributes = new Dictionary<string, object> {
-                { "service.name", "my-service" },
-                { "service.namespace", "my-namespace" },
-                { "service.instance.id", "my-instance" }};
-
-            // Configure the OpenTelemetry tracer provider to add the resource attributes to all traces.
-            services.ConfigureOpenTelemetryTracerProvider((sp, builder) =>
-                builder.ConfigureResource(resourceBuilder => resourceBuilder.AddAttributes(resourceAttributes)));
-
-
-            //oTel.WithMetrics(metrics => metrics
-            //    .AddMeter("Microsoft.AspNetCore.Hosting")
-            //    .AddMeter("Microsoft.AspNetCore.Server.Kestrel"));
-
-            //oTel.WithTracing(tracing =>
-            //{
-            //    tracing.AddSource(ActivitySource.Name);
-            //});
-
-            //// Configure the OpenTelemetry tracer provider to add a source named "ActivitySourceName". This will ensure that all activities created by the activity source are traced.
-            //services.ConfigureOpenTelemetryTracerProvider((sp, builder) => builder.AddSource(ActivitySource.Name));
-            //.AddMeter(greeterMeter.Name)
 
             services.AddScoped<ITraceLoggerMinimumLevel, TraceLoggerMinimumLevel>(sp =>
             {
@@ -260,39 +232,6 @@ namespace EasySample
                 return traceLoggerMinimumLevel;
             });
             services.AddSingleton<MainWindow>();
-
-            //// Configure OpenTelemetry Resources with the application name
-            //otel.ConfigureResource(resource => resource
-            //    .AddService(serviceName: builder.Environment.ApplicationName));
-
-            //// Add Metrics for ASP.NET Core and our custom metrics and export to Prometheus
-            //otel.WithMetrics(metrics => metrics
-            //    // Metrics provider from OpenTelemetry
-            //    .AddAspNetCoreInstrumentation()
-            //    .AddMeter(greeterMeter.Name)
-            //    // Metrics provides by ASP.NET Core in .NET 8
-            //    .AddMeter("Microsoft.AspNetCore.Hosting")
-            //    .AddMeter("Microsoft.AspNetCore.Server.Kestrel")
-            //    .AddPrometheusExporter());
-
-            //// Add Tracing for ASP.NET Core and our custom ActivitySource and export to Jaeger
-            //otel.WithTracing(tracing =>
-            //{
-            //    tracing.AddAspNetCoreInstrumentation();
-            //    tracing.AddHttpClientInstrumentation();
-            //    tracing.AddSource(greeterActivitySource.Name);
-            //    if (tracingOtlpEndpoint != null)
-            //    {
-            //        tracing.AddOtlpExporter(otlpOptions =>
-            //        {
-            //            otlpOptions.Endpoint = new Uri(tracingOtlpEndpoint);
-            //        });
-            //    }
-            //    else
-            //    {
-            //        tracing.AddConsoleExporter();
-            //    }
-            //});
 
         }
         protected override async void OnExit(ExitEventArgs e)
