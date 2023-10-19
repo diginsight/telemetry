@@ -1,13 +1,13 @@
 # This workflow will build a .NET project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
 
-name: Common.Diagnostics build and deploy
+name: Diginsight build and deploy
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "feature/v3" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "feature/v3"  ]
 
 jobs:
   installActions:
@@ -38,7 +38,7 @@ jobs:
     runs-on: self-hosted
 
     env:  # Define environment variables here
-      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY_v3 }}
 
     steps:
     - name: Run pwsh Dump Variables
@@ -95,14 +95,20 @@ jobs:
         $csprojFiles | %{ (Get-Content $_.FullName) -replace $pattern, $replacement | Set-Content $_.FullName }
 
     - name: Restore dependencies
-      run: dotnet restore Common.Diagnostics.Build.sln 
+      run: dotnet restore Diginsight.Build.sln 
       
     - name: Build DLL Debug
-      run: dotnet build Common.Diagnostics.Build.sln --configuration Debug --no-restore 
-      # --verbosity detailed
+      run: |
+        $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables.outputs.assemblyVersion }}"
+        Write-Host "Setting assembly version to: $env:ASSEMBLY_VERSION"
+        dotnet build Diginsight.Build.sln --configuration Debug --no-restore 
+        # --verbosity detailed "/p:Version=$env:ASSEMBLY_VERSION" "/p:AssemblyVersion=$(($env:ASSEMBLY_VERSION -split '-')[0])" 3.0.0-alpha.1234 
       
     - name: Build DLL Release
-      run: dotnet build Common.Diagnostics.Build.sln --configuration Release --no-restore 
+      run: |
+        $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables.outputs.assemblyVersion }}"
+        Write-Host "Setting assembly version to: $env:ASSEMBLY_VERSION"
+        dotnet build Diginsight.Build.sln --configuration Release --no-restore 
       # --verbosity detailed
       
     - name: Copy bin folder to artifactFolder Release
@@ -147,7 +153,7 @@ jobs:
     runs-on: self-hosted
 
     env:
-      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY_v3 }}
 
     steps:
       - name: Download artifact
@@ -160,7 +166,7 @@ jobs:
         run: |
           $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables.outputs.assemblyVersion }}"
           Write-Host "Setting assembly version to: $env:ASSEMBLY_VERSION"
-          dotnet nuget push artifactFolder/Release/Common.Diagnostics.$env:ASSEMBLY_VERSION.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
+          dotnet nuget push artifactFolder/Release/Diginsight.Core.$env:ASSEMBLY_VERSION.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY_v3 }}
 
   upload2AzureFolder:
     needs: [getCompositeVariables, getKeyVaultSecrets, build]
@@ -173,7 +179,7 @@ jobs:
       azureShare: azureshare
       packagesFolder: artifactFolder
       rootDir: '\_releases\97. Diginsight'
-      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY_v3 }}
 
     steps:
       - name: Download artifact
