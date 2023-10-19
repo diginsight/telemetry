@@ -107,10 +107,6 @@ public static class ObservabilityExtensions
     public static ILoggingBuilder AddObservability(this ILoggingBuilder loggingBuilder)
     {
         return loggingBuilder
-            .AddConsoleFormatter<ObservabilityConsoleFormatter, ObservabilityConsoleFormatterOptions>()
-            .AddConsole(
-                static consoleLoggerOptions => { consoleLoggerOptions.FormatterName = ObservabilityConsoleFormatter.FormatterName; }
-            )
             .Configure(
                 static loggerFactoryOptions => { loggerFactoryOptions.ActivityTrackingOptions = ActivityTrackingOptions.SpanId | ActivityTrackingOptions.TraceId | ActivityTrackingOptions.TraceFlags; }
             )
@@ -120,6 +116,17 @@ public static class ObservabilityExtensions
                     openTelemetryLoggerOptions.IncludeFormattedMessage = true;
                     openTelemetryLoggerOptions.IncludeScopes = true;
                 }
+            );
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ILoggingBuilder AddObservabilityConsole(this ILoggingBuilder loggingBuilder)
+    {
+        return loggingBuilder
+            .AddObservability()
+            .AddConsoleFormatter<ObservabilityConsoleFormatter, ObservabilityConsoleFormatterOptions>()
+            .AddConsole(
+                static consoleLoggerOptions => { consoleLoggerOptions.FormatterName = ObservabilityConsoleFormatter.FormatterName; }
             );
     }
 

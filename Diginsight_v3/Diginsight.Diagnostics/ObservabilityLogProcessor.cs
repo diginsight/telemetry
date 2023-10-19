@@ -28,19 +28,15 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
         ExtractLoggingInfo(
             activity,
             observabilityOptionsMonitor.CurrentValue,
-            out ILogger? providedLogger,
-            out ILogger innerLogger,
-            out ILogger activityLogger,
+            out bool isStandalone,
+            out ILogger textLogger,
+            out ILogger otlpLogger,
             out LogLevel logLevel
         );
 
-        if (providedLogger is null)
+        if (isStandalone)
         {
-            using (SuppressInstrumentationScope.Begin())
-            {
-                activityLogger.Log(logLevel, "{ActivityName} START", activity.OperationName);
-            }
-            return;
+            textLogger.Log(logLevel, "{ActivityName} START", activity.OperationName);
         }
 
         object? inputs = activity.GetCustomProperty(ActivityCustomPropertyNames.Inputs) switch
@@ -86,14 +82,11 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
             inputsAsString = sb.ToString();
         }
 
-        using (SuppressInstrumentationScope.Begin())
-        {
-            activityLogger.Log(logLevel, "{ActivityName}({Inputs}) START", activity.OperationName, inputsAsString);
-        }
+        textLogger.Log(logLevel, "{ActivityName}({Inputs}) START", activity.OperationName, inputsAsString);
 
         if (inputsAsDict is not null)
         {
-            new BypassConsoleLogger(innerLogger).Log(
+            otlpLogger.Log(
                 logLevel,
                 default,
                 inputsAsDict,
@@ -108,18 +101,15 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
         ExtractLoggingInfo(
             activity,
             observabilityOptionsMonitor.CurrentValue,
-            out ILogger? providedLogger,
-            out ILogger innerLogger,
-            out ILogger activityLogger,
+            out bool isStandalone,
+            out ILogger textLogger,
+            out ILogger otlpLogger,
             out LogLevel logLevel
         );
 
-        if (providedLogger is null)
+        if (isStandalone)
         {
-            using (SuppressInstrumentationScope.Begin())
-            {
-                activityLogger.Log(logLevel, "{ActivityName} END", activity.OperationName);
-            }
+            textLogger.Log(logLevel, "{ActivityName} END", activity.OperationName);
             return;
         }
 
@@ -131,10 +121,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
                 break;
 
             case null:
-                using (SuppressInstrumentationScope.Begin())
-                {
-                    activityLogger.Log(logLevel, "{ActivityName}() END", activity.OperationName);
-                }
+                textLogger.Log(logLevel, "{ActivityName}() END", activity.OperationName);
                 return;
 
             default:
@@ -143,7 +130,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
 
         string outputAsString = output?.ToString() ?? "<null>";
 
-        new BypassConsoleLogger(innerLogger).Log(
+        otlpLogger.Log(
             logLevel,
             default,
             new Dictionary<string, object?>() { ["Output"] = output },
@@ -151,29 +138,30 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
             (_, _) => $"Method output: {outputAsString}"
         );
 
-        using (SuppressInstrumentationScope.Begin())
-        {
-            activityLogger.Log(logLevel, "{ActivityName}() END returned => {Output}", activity.OperationName, outputAsString);
-        }
+        textLogger.Log(logLevel, "{ActivityName}() END returned => {Output}", activity.OperationName, outputAsString);
     }
 
     private void ExtractLoggingInfo(
         Activity activity,
         IObservabilityOptions observabilityOptions,
-        out ILogger? providedLogger,
-        out ILogger innerLogger,
-        out ILogger activityLogger,
+        out bool isStandalone,
+        out ILogger textLogger,
+        out ILogger otlpLogger,
         out LogLevel logLevel
     )
     {
-        providedLogger = activity.GetCustomProperty(ActivityCustomPropertyNames.Logger) switch
+        ILogger? providedLogger = activity.GetCustomProperty(ActivityCustomPropertyNames.Logger) switch
         {
             ILogger l => l,
             null => null,
             _ => throw new InvalidOperationException("Invalid logger in activity"),
         };
-        innerLogger = providedLogger ?? logger;
-        activityLogger = new ActivityMarkingLogger(innerLogger, activity.IsStopped ? activity.Duration : null);
+
+        isStandalone = providedLogger is null;
+        ILogger innerLogger = providedLogger ?? logger;
+
+        textLogger = new ActivityLogger(innerLogger, activity.IsStopped ? activity.Duration : null);
+        otlpLogger = new OtlpLogger(innerLogger);
 
         logLevel = activity.GetCustomProperty(ActivityCustomPropertyNames.LogLevel) switch
         {
@@ -183,12 +171,12 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
         };
     }
 
-    private sealed class ActivityMarkingLogger : ILogger
+    private sealed class ActivityLogger : ILogger
     {
         private readonly ILogger decoratee;
         private readonly TimeSpan? duration;
 
-        public ActivityMarkingLogger(ILogger decoratee, TimeSpan? duration = null)
+        public ActivityLogger(ILogger decoratee, TimeSpan? duration = null)
         {
             this.decoratee = decoratee;
             this.duration = duration;
@@ -196,13 +184,16 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
         {
-            decoratee.Log(
-                logLevel,
-                eventId,
-                new ActivityMark<TState>(state, duration),
-                exception,
-                (s, e) => formatter(s.State, e)
-            );
+            using (SuppressInstrumentationScope.Begin())
+            {
+                decoratee.Log(
+                    logLevel,
+                    eventId,
+                    new ActivityMark<TState>(state, duration),
+                    exception,
+                    (s, e) => formatter(s.State, e)
+                );
+            }
         }
 
         public bool IsEnabled(LogLevel logLevel) => decoratee.IsEnabled(logLevel);
@@ -214,7 +205,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
             => throw new NotSupportedException();
     }
 
-    private sealed class ActivityMark<TState> : IActivityMark, Tags
+    private sealed class ActivityMark<TState> : ObservabilityTextWriter.IActivityMark, Tags
     {
         public TState State { get; }
         public TimeSpan? Duration { get; }
@@ -230,11 +221,11 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
-    private sealed class BypassConsoleLogger : ILogger
+    private sealed class OtlpLogger : ILogger
     {
         private readonly ILogger decoratee;
 
-        public BypassConsoleLogger(ILogger decoratee)
+        public OtlpLogger(ILogger decoratee)
         {
             this.decoratee = decoratee;
         }
@@ -244,7 +235,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
             decoratee.Log(
                 logLevel,
                 eventId,
-                new BypassConsole((IDictionary<string, object?>)state!),
+                new OtlpOnly((IDictionary<string, object?>)state!),
                 exception,
                 (s, e) => formatter((TState)s.State, e)
             );
@@ -259,11 +250,11 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
             => throw new NotSupportedException();
     }
 
-    private sealed class BypassConsole : IBypassConsole, Tags
+    private sealed class OtlpOnly : ObservabilityTextWriter.IOtlpOnly, Tags
     {
         public Tags State { get; }
 
-        public BypassConsole(IDictionary<string, object?> state)
+        public OtlpOnly(IDictionary<string, object?> state)
         {
             State = state;
         }
