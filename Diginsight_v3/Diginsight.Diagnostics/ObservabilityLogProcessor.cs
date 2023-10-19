@@ -1,0 +1,275 @@
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using OpenTelemetry;
+using System.Collections;
+using System.Diagnostics;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Text;
+
+namespace Diginsight.Diagnostics;
+
+internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
+{
+    private readonly ILogger<ObservabilityLogProcessor> logger;
+    private readonly IOptionsMonitor<ObservabilityOptions> observabilityOptionsMonitor;
+
+    public ObservabilityLogProcessor(
+        ILogger<ObservabilityLogProcessor> logger,
+        IOptionsMonitor<ObservabilityOptions> observabilityOptionsMonitor
+    )
+    {
+        this.logger = logger;
+        this.observabilityOptionsMonitor = observabilityOptionsMonitor;
+    }
+
+    public override void OnStart(Activity activity)
+    {
+        ExtractLoggingInfo(
+            activity,
+            observabilityOptionsMonitor.CurrentValue,
+            out ILogger? providedLogger,
+            out ILogger innerLogger,
+            out ILogger activityLogger,
+            out LogLevel logLevel
+        );
+
+        if (providedLogger is null)
+        {
+            using (SuppressInstrumentationScope.Begin())
+            {
+                activityLogger.Log(logLevel, "{ActivityName} START", activity.OperationName);
+            }
+            return;
+        }
+
+        object? inputs = activity.GetCustomProperty(ActivityCustomPropertyNames.Inputs) switch
+        {
+            Func<object?> makeInputs => makeInputs(),
+            null => null,
+            _ => throw new InvalidOperationException("Invalid inputs in activity"),
+        };
+        string inputsAsString;
+        IDictionary<string, object?>? inputsAsDict;
+        if (inputs is null)
+        {
+            inputsAsString = "";
+            inputsAsDict = null;
+        }
+        else
+        {
+            inputsAsDict = new Dictionary<string, object?>();
+
+            StringBuilder sb = new ();
+            bool first = true;
+            IEnumerable<PropertyInfo> properties = inputs.GetType()
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(static p => p.GetMethod?.GetParameters().Length == 0);
+            foreach (PropertyInfo property in properties)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    sb.Append(", ");
+                }
+
+                string propertyName = property.Name;
+                string propertyValue = property.GetValue(inputs)?.ToString() ?? "<null>";
+
+                inputsAsDict[$"Inputs.{propertyName}"] = propertyValue;
+                sb.Append($"{propertyName}={propertyValue}");
+            }
+
+            inputsAsString = sb.ToString();
+        }
+
+        using (SuppressInstrumentationScope.Begin())
+        {
+            activityLogger.Log(logLevel, "{ActivityName}({Inputs}) START", activity.OperationName, inputsAsString);
+        }
+
+        if (inputsAsDict is not null)
+        {
+            new BypassConsoleLogger(innerLogger).Log(
+                logLevel,
+                default,
+                inputsAsDict,
+                null,
+                (_, _) => $"Method inputs: {inputsAsString}"
+            );
+        }
+    }
+
+    public override void OnEnd(Activity activity)
+    {
+        ExtractLoggingInfo(
+            activity,
+            observabilityOptionsMonitor.CurrentValue,
+            out ILogger? providedLogger,
+            out ILogger innerLogger,
+            out ILogger activityLogger,
+            out LogLevel logLevel
+        );
+
+        if (providedLogger is null)
+        {
+            using (SuppressInstrumentationScope.Begin())
+            {
+                activityLogger.Log(logLevel, "{ActivityName} END", activity.OperationName);
+            }
+            return;
+        }
+
+        object? output;
+        switch (activity.GetCustomProperty(ActivityCustomPropertyNames.Output))
+        {
+            case StrongBox<object?> outputBox:
+                output = outputBox.Value;
+                break;
+
+            case null:
+                using (SuppressInstrumentationScope.Begin())
+                {
+                    activityLogger.Log(logLevel, "{ActivityName}() END", activity.OperationName);
+                }
+                return;
+
+            default:
+                throw new InvalidOperationException("Invalid output in activity");
+        }
+
+        string outputAsString = output?.ToString() ?? "<null>";
+
+        new BypassConsoleLogger(innerLogger).Log(
+            logLevel,
+            default,
+            new Dictionary<string, object?>() { ["Output"] = output },
+            null,
+            (_, _) => $"Method output: {outputAsString}"
+        );
+
+        using (SuppressInstrumentationScope.Begin())
+        {
+            activityLogger.Log(logLevel, "{ActivityName}() END returned => {Output}", activity.OperationName, outputAsString);
+        }
+    }
+
+    private void ExtractLoggingInfo(
+        Activity activity,
+        IObservabilityOptions observabilityOptions,
+        out ILogger? providedLogger,
+        out ILogger innerLogger,
+        out ILogger activityLogger,
+        out LogLevel logLevel
+    )
+    {
+        providedLogger = activity.GetCustomProperty(ActivityCustomPropertyNames.Logger) switch
+        {
+            ILogger l => l,
+            null => null,
+            _ => throw new InvalidOperationException("Invalid logger in activity"),
+        };
+        innerLogger = providedLogger ?? logger;
+        activityLogger = new ActivityMarkingLogger(innerLogger, activity.IsStopped ? activity.Duration : null);
+
+        logLevel = activity.GetCustomProperty(ActivityCustomPropertyNames.LogLevel) switch
+        {
+            LogLevel ll => ll,
+            null => observabilityOptions.DefaultActivityLogLevel,
+            _ => throw new InvalidOperationException("Invalid log level in activity"),
+        };
+    }
+
+    private sealed class ActivityMarkingLogger : ILogger
+    {
+        private readonly ILogger decoratee;
+        private readonly TimeSpan? duration;
+
+        public ActivityMarkingLogger(ILogger decoratee, TimeSpan? duration = null)
+        {
+            this.decoratee = decoratee;
+            this.duration = duration;
+        }
+
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+        {
+            decoratee.Log(
+                logLevel,
+                eventId,
+                new ActivityMark<TState>(state, duration),
+                exception,
+                (s, e) => formatter(s.State, e)
+            );
+        }
+
+        public bool IsEnabled(LogLevel logLevel) => decoratee.IsEnabled(logLevel);
+
+        public IDisposable BeginScope<TState>(TState state)
+#if NET7_0_OR_GREATER
+            where TState : notnull
+#endif
+            => throw new NotSupportedException();
+    }
+
+    private sealed class ActivityMark<TState> : IActivityMark, Tags
+    {
+        public TState State { get; }
+        public TimeSpan? Duration { get; }
+
+        public ActivityMark(TState state, TimeSpan? duration)
+        {
+            State = state;
+            Duration = duration;
+        }
+
+        public IEnumerator<Tag> GetEnumerator() => (State as Tags ?? Enumerable.Empty<Tag>()).GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    private sealed class BypassConsoleLogger : ILogger
+    {
+        private readonly ILogger decoratee;
+
+        public BypassConsoleLogger(ILogger decoratee)
+        {
+            this.decoratee = decoratee;
+        }
+
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+        {
+            decoratee.Log(
+                logLevel,
+                eventId,
+                new BypassConsole((IDictionary<string, object?>)state!),
+                exception,
+                (s, e) => formatter((TState)s.State, e)
+            );
+        }
+
+        public bool IsEnabled(LogLevel logLevel) => decoratee.IsEnabled(logLevel);
+
+        public IDisposable BeginScope<TState>(TState state)
+#if NET7_0_OR_GREATER
+            where TState : notnull
+#endif
+            => throw new NotSupportedException();
+    }
+
+    private sealed class BypassConsole : IBypassConsole, Tags
+    {
+        public Tags State { get; }
+
+        public BypassConsole(IDictionary<string, object?> state)
+        {
+            State = state;
+        }
+
+        public IEnumerator<Tag> GetEnumerator() => State.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+}

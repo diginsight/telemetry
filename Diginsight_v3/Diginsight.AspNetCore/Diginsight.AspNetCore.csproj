@@ -5,21 +5,19 @@
   </PropertyGroup>
 
   <Choose>
-    <When Condition="'$(TargetFramework)' != 'net7.0'">
+    <When Condition="$(TargetFramework.StartsWith('netstandard'))">
       <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.*" />
+        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.*">
+          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+        </PackageReference>
       </ItemGroup>
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.*" />
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
       </ItemGroup>
     </Otherwise>
   </Choose>
-
-  <ItemGroup>
-    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.*" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Diginsight.Core\Diginsight.Core.csproj" />

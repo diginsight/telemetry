@@ -2,6 +2,41 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0</TargetFrameworks>
+    <RootNamespace>Diginsight</RootNamespace>
   </PropertyGroup>
+
+  <Choose>
+    <When Condition="'$(TargetFramework)' == 'net7.0'">
+      <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.*" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.*" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.*" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.*" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+
+  <ItemGroup>
+    <None Update="TupleEqualityComparer.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TupleEqualityComparer.g.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="TupleEqualityComparer.g.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TupleEqualityComparer.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
 
 </Project>
