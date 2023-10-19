@@ -26,13 +26,13 @@ jobs:
       assemblyVersion: ${{ steps.get_assembly_version.outputs.assemblyVersion }}
 
     env:  
-      versionPrefix: '1.0.2'
+      versionPrefix: '3.0.0-alpha'
       solutionsFilter: '*.sln'
       projectsFilter: '*.csproj'
-      projectBaseName: Common.Diagnostics
+      projectBaseName: Diginsight
       buildPlatform: 'Any CPU'
       buildConfiguration: 'Release' #Debug,
-      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY_v3 }}
 
     steps:
     ################################
