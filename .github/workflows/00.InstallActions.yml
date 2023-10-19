@@ -28,10 +28,10 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 7.0.x
     - name: Setup NuGet.exe for use with actions
       id: setup_nuget
-      uses: NuGet/setup-nuget@v1.2.0
+      uses: NuGet/setup-nuget@latest
     
     # - name: Install PowerShell Core
     #   id: install_powershell_core
