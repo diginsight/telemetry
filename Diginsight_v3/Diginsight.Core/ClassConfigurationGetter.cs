@@ -26,7 +26,7 @@ public static class ClassConfigurationGetter
     {
         public IClassConfigurationGetter GetFor(Type @class)
         {
-            return (IClassConfigurationGetter)Activator.CreateInstance(typeof(EmptyClassConfigurationGetter<>).MakeGenericType(@class));
+            return (IClassConfigurationGetter)Activator.CreateInstance(typeof(EmptyClassConfigurationGetter<>).MakeGenericType(@class))!;
         }
     }
 }

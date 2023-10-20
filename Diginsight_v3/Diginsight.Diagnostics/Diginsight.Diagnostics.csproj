@@ -27,4 +27,32 @@
     <ProjectReference Include="..\Diginsight.Core\Diginsight.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="LoggerExtensions_Levels.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>LoggerExtensions_Levels.g.cs</LastGenOutput>
+    </None>
+    <None Update="LogInterpolatedStringHandler_Levels.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>LogInterpolatedStringHandler_Levels.g.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="LoggerExtensions_Levels.g.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>LoggerExtensions_Levels.tt</DependentUpon>
+    </Compile>
+    <Compile Update="LogInterpolatedStringHandler_Levels.g.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>LogInterpolatedStringHandler_Levels.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
 </Project>

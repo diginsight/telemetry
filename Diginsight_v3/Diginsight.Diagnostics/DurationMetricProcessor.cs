@@ -14,7 +14,6 @@ public sealed class DurationMetricProcessor : BaseProcessor<Activity>
     {
         double duration = activity.Duration.TotalMilliseconds;
 
-        // TODO move tag names in an appropriate class
         SpanDurationMetric.Record(
             duration,
             new Tag("span_name", activity.OperationName),

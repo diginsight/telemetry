@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Diginsight;
 
-public static class LoggingExtensions
+public static class LogStringExtensions
 {
     private static readonly IEnumerable<Type> FixedForbiddenTypes = new[]
     {
@@ -57,6 +57,20 @@ public static class LoggingExtensions
     public static StringBuilder Append(this StringBuilder stringBuilder, ILoggable loggable, LoggingContext loggingContext)
     {
         loggable.AppendTo(stringBuilder, loggingContext);
+        return stringBuilder;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static StringBuilder AppendLogString(
+        this StringBuilder stringBuilder,
+        object? obj,
+        LoggingContext loggingContext,
+        bool incrementDepth = true,
+        Action<LogStringThresholdConfiguration>? configureThresholds = null,
+        Action<IDictionary<string, object?>>? configureMetaProperties = null
+    )
+    {
+        loggingContext.Append(obj, stringBuilder, incrementDepth, configureThresholds, configureMetaProperties);
         return stringBuilder;
     }
 
