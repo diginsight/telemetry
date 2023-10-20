@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Diginsight.Strings;
 
-internal sealed class LoggableDirect : ILoggable
+public sealed class LoggableDirect : ILoggable
 {
     private readonly object obj;
     private readonly string? format;

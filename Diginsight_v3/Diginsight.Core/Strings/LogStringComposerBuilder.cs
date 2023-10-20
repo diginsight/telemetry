@@ -10,7 +10,7 @@ public sealed class LogStringComposerBuilder
 
     public LogStringComposerBuilder()
     {
-        Services.AddLogStringSupport();
+        Services.AddLogStringComposer();
     }
 
     public LogStringComposerBuilder Configure(ILogStringConfiguration configuration)

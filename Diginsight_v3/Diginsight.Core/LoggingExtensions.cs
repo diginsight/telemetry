@@ -1,6 +1,5 @@
 ﻿using Diginsight.Strings;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -28,17 +27,6 @@ public static class LoggingExtensions
     private static readonly IMemoryCache ForbiddenTypesCache = new MemoryCache(
         Options.Create(new MemoryCacheOptions() { SizeLimit = 2000 })
     );
-
-    public static IServiceCollection AddLogStringSupport(this IServiceCollection services)
-    {
-        if (services.Any(static x => x.ServiceType == typeof(ILogStringComposer)))
-            return services;
-
-        return services
-            .AddOptions()
-            .AddSingleton<ILogStringComposer, LogStringComposer>()
-            .AddSingleton<IMemberLogStringProvider, MemberLogStringProvider>();
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string ToLogString(

@@ -6,13 +6,13 @@
     <LangVersion>11</LangVersion>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageLicenseFile>$(MSBuildThisFileDirectory)LICENSE.md</PackageLicenseFile>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/diginsight/telemetry</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/diginsight/telemetry.git</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
     <PackageTags>diginsight;telemetry</PackageTags>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <!-- TODO <PackageIcon> -->
     <!-- TODO <Description> in each csproj -->
     <Authors>diginsight</Authors>
