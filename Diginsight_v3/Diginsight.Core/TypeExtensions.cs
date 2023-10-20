@@ -1,7 +1,14 @@
-﻿namespace Diginsight;
+﻿using System.Collections;
+using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+
+namespace Diginsight;
 
 public static class TypeExtensions
 {
+    private static readonly IDictionary<Type, bool> AnonymousCache = new Dictionary<Type, bool>();
+
     public static bool IsGenericAssignableFrom(this Type target, Type source)
     {
         if (target is null)
@@ -88,5 +95,40 @@ public static class TypeExtensions
                 current = current.BaseType;
             }
         }
+    }
+
+    public static bool IsAnonymous(this Type type)
+    {
+        lock (((ICollection)AnonymousCache).SyncRoot)
+        {
+            bool IsAnonymousCore()
+            {
+                return type is { IsClass: true, IsSealed: true, IsNotPublic: true }
+                    && type.IsDefined(typeof(CompilerGeneratedAttribute))
+                    && type.Name.Contains("AnonymousType");
+            }
+
+            if (!AnonymousCache.TryGetValue(type, out bool isAnonymous))
+            {
+                AnonymousCache[type] = isAnonymous = IsAnonymousCore();
+            }
+
+            return isAnonymous;
+        }
+    }
+
+    public static bool IsKeyValuePair(this Type type, [NotNullWhen(true)] out Type? tKey, [NotNullWhen(true)] out Type? tValue)
+    {
+        if (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(KeyValuePair<,>))
+        {
+            tKey = null;
+            tValue = null;
+            return false;
+        }
+
+        Type[] typeArgs = type.GetGenericArguments();
+        tKey = typeArgs[0];
+        tValue = typeArgs[1];
+        return true;
     }
 }

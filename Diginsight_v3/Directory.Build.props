@@ -5,6 +5,19 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>11</LangVersion>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageLicenseFile>$(MSBuildThisFileDirectory)LICENSE.md</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/diginsight/telemetry</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/diginsight/telemetry.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>diginsight;telemetry</PackageTags>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <!-- TODO <PackageIcon> -->
+    <!-- TODO <Description> in each csproj -->
+    <Authors>diginsight</Authors>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)diginsight.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
 </Project>

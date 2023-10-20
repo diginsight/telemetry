@@ -12,15 +12,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Directory.Build.targets = Directory.Build.targets
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.LogStrings.NewtonsoftJson", "Diginsight.LogStrings.NewtonsoftJson\Diginsight.LogStrings.NewtonsoftJson.csproj", "{26F89501-980C-4644-884B-C4BA296194CA}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Diagnostics", "Diginsight.Diagnostics\Diginsight.Diagnostics.csproj", "{08D73A2D-4D12-475F-9DFD-2B4B0A6FBC0E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Diagnostics.Log4Net", "Diginsight.Diagnostics.Log4Net\Diginsight.Diagnostics.Log4Net.csproj", "{3E07004C-4CE2-43C6-ADC0-3E44243594F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Diginsight.SmartCache", "Diginsight.SmartCache\Diginsight.SmartCache.csproj", "{9CDE8D58-A053-4E8A-80F2-60BA2824B6AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.SmartCache", "Diginsight.SmartCache\Diginsight.SmartCache.csproj", "{9CDE8D58-A053-4E8A-80F2-60BA2824B6AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Diginsight.AspNetCore", "Diginsight.AspNetCore\Diginsight.AspNetCore.csproj", "{59C51162-61BD-46E8-996C-8CF2C6336C11}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.AspNetCore", "Diginsight.AspNetCore\Diginsight.AspNetCore.csproj", "{59C51162-61BD-46E8-996C-8CF2C6336C11}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,10 +30,6 @@ Global
 		{4D5BAF4B-E1E6-46AB-89F2-596E0CE91A93}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D5BAF4B-E1E6-46AB-89F2-596E0CE91A93}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D5BAF4B-E1E6-46AB-89F2-596E0CE91A93}.Release|Any CPU.Build.0 = Release|Any CPU
-		{26F89501-980C-4644-884B-C4BA296194CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{26F89501-980C-4644-884B-C4BA296194CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{26F89501-980C-4644-884B-C4BA296194CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{26F89501-980C-4644-884B-C4BA296194CA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{08D73A2D-4D12-475F-9DFD-2B4B0A6FBC0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{08D73A2D-4D12-475F-9DFD-2B4B0A6FBC0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08D73A2D-4D12-475F-9DFD-2B4B0A6FBC0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
