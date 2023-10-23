@@ -153,28 +153,28 @@ namespace Common
             return sec;
         }
 
-        public static ILogger<T> GetLogger<T>(this IHost host)
-        {
-            if (host == null) return null;
+        //public static ILogger<T> GetLogger<T>(this IHost host)
+        //{
+        //    if (host == null) return null;
 
-            TraceLogger.Host = host;
-            var logger = host.Services.GetService<ILogger<T>>();
+        //    TraceLogger.Host = host;
+        //    var logger = host.Services.GetService<ILogger<T>>();
 
-            //TraceLogger.LoggerFactory = host?.Services?.GetService<ILoggerFactory>();
-            //var logger = TraceLogger.LoggerFactory?.CreateLogger<T>();
-            return logger;
-        }
-        public static void InitTraceLogger(this IHost host)
-        {
-            using (new SwitchOnDispose(TraceLogger._lockListenersNotifications, true))
-            using (new SwitchOnDispose(TraceLogger._isInitializing, true))
-            using (new SwitchOnDispose(TraceLogger._isInitializeComplete, false))
-            {
-                TraceLogger.Host = host;
-                //TraceLogger.LoggerFactory = host.Services.GetService<ILoggerFactory>();
-            }
-            return;
-        }
+        //    //TraceLogger.LoggerFactory = host?.Services?.GetService<ILoggerFactory>();
+        //    //var logger = TraceLogger.LoggerFactory?.CreateLogger<T>();
+        //    return logger;
+        //}
+        //public static void InitTraceLogger(this IHost host)
+        //{
+        //    using (new SwitchOnDispose(TraceLogger._lockListenersNotifications, true))
+        //    using (new SwitchOnDispose(TraceLogger._isInitializing, true))
+        //    using (new SwitchOnDispose(TraceLogger._isInitializeComplete, false))
+        //    {
+        //        TraceLogger.Host = host;
+        //        //TraceLogger.LoggerFactory = host.Services.GetService<ILoggerFactory>();
+        //    }
+        //    return;
+        //}
 
         //public static SectionScope BeginMethodScope(Type t, object payload = null, SourceLevels sourceLevel = SourceLevels.Verbose, LogLevel LogLevel = LogLevel.Trace, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         //{
@@ -397,38 +397,38 @@ namespace Common
             innerCodeSectionLogger.Exception(exception, category, properties, source);
         }
 
-        public static ILoggingBuilder AddDiginsightFormatted(this ILoggingBuilder builder, ILoggerProvider logProvider, IConfiguration config = null, string configurationPrefix = null) // , IServiceProvider serviceProvider
-        {
-            TraceLogger.InitConfiguration(config);
+        //public static ILoggingBuilder AddDiginsightFormatted(this ILoggingBuilder builder, ILoggerProvider logProvider, IConfiguration config = null, string configurationPrefix = null) // , IServiceProvider serviceProvider
+        //{
+        //    TraceLogger.InitConfiguration(config);
 
-            var traceLoggerFormatProvider = default(TraceLoggerFormatProvider);
-            if (logProvider.GetType().Name == "Log4NetProvider") { traceLoggerFormatProvider = new DiginsightFormattedLog4NetProvider() { ConfigurationSuffix = configurationPrefix }; }
-            else if (logProvider.GetType().Name == "ApplicationInsightsLoggerProvider") { traceLoggerFormatProvider = new DiginsightFormattedApplicationInsightsProvider() { ConfigurationSuffix = configurationPrefix }; }
-            else if (logProvider.GetType().Name == "ConsoleProvider") { traceLoggerFormatProvider = new DiginsightFormattedConsoleProvider() { ConfigurationSuffix = configurationPrefix }; }
-            else if (logProvider.GetType().Name == "DebugProvider") { traceLoggerFormatProvider = new DiginsightFormattedDebugProvider() { ConfigurationSuffix = configurationPrefix }; }
-            else { traceLoggerFormatProvider = new TraceLoggerFormatProvider() { ConfigurationSuffix = configurationPrefix }; }
+        //    var traceLoggerFormatProvider = default(TraceLoggerFormatProvider);
+        //    if (logProvider.GetType().Name == "Log4NetProvider") { traceLoggerFormatProvider = new DiginsightFormattedLog4NetProvider() { ConfigurationSuffix = configurationPrefix }; }
+        //    else if (logProvider.GetType().Name == "ApplicationInsightsLoggerProvider") { traceLoggerFormatProvider = new DiginsightFormattedApplicationInsightsProvider() { ConfigurationSuffix = configurationPrefix }; }
+        //    else if (logProvider.GetType().Name == "ConsoleProvider") { traceLoggerFormatProvider = new DiginsightFormattedConsoleProvider() { ConfigurationSuffix = configurationPrefix }; }
+        //    else if (logProvider.GetType().Name == "DebugProvider") { traceLoggerFormatProvider = new DiginsightFormattedDebugProvider() { ConfigurationSuffix = configurationPrefix }; }
+        //    else { traceLoggerFormatProvider = new TraceLoggerFormatProvider() { ConfigurationSuffix = configurationPrefix }; }
 
-            traceLoggerFormatProvider.AddProvider(logProvider);
+        //    traceLoggerFormatProvider.AddProvider(logProvider);
 
-            builder.AddProvider(traceLoggerFormatProvider);
-            return builder;
-        }
-        public static ILoggingBuilder AddDiginsightJson(this ILoggingBuilder builder, ILoggerProvider logProvider, IConfiguration config = null, string configurationPrefix = null) // , IServiceProvider serviceProvider
-        {
-            TraceLogger.InitConfiguration(config);
+        //    builder.AddProvider(traceLoggerFormatProvider);
+        //    return builder;
+        //}
+        //public static ILoggingBuilder AddDiginsightJson(this ILoggingBuilder builder, ILoggerProvider logProvider, IConfiguration config = null, string configurationPrefix = null) // , IServiceProvider serviceProvider
+        //{
+        //    TraceLogger.InitConfiguration(config);
 
-            var traceLoggerJsonProvider = default(TraceLoggerJsonProvider);
-            if (logProvider.GetType().Name == "Log4NetProvider") { traceLoggerJsonProvider = new DiginsightJsonLog4NetProvider() { ConfigurationSuffix = configurationPrefix }; }
-            else if (logProvider.GetType().Name == "ApplicationInsightsLoggerProvider") { traceLoggerJsonProvider = new DiginsightJsonApplicationInsightsProvider() { ConfigurationSuffix = configurationPrefix }; }
-            else if (logProvider.GetType().Name == "ConsoleProvider") { traceLoggerJsonProvider = new DiginsightJsonConsoleProvider() { ConfigurationSuffix = configurationPrefix }; }
-            else if (logProvider.GetType().Name == "DebugProvider") { traceLoggerJsonProvider = new DiginsightJsonDebugProvider() { ConfigurationSuffix = configurationPrefix }; }
-            else { traceLoggerJsonProvider = new TraceLoggerJsonProvider() { ConfigurationSuffix = configurationPrefix }; }
-            //TraceLoggerConsoleProvider, TraceLoggerDebugProvider
-            traceLoggerJsonProvider.AddProvider(logProvider);
+        //    var traceLoggerJsonProvider = default(TraceLoggerJsonProvider);
+        //    if (logProvider.GetType().Name == "Log4NetProvider") { traceLoggerJsonProvider = new DiginsightJsonLog4NetProvider() { ConfigurationSuffix = configurationPrefix }; }
+        //    else if (logProvider.GetType().Name == "ApplicationInsightsLoggerProvider") { traceLoggerJsonProvider = new DiginsightJsonApplicationInsightsProvider() { ConfigurationSuffix = configurationPrefix }; }
+        //    else if (logProvider.GetType().Name == "ConsoleProvider") { traceLoggerJsonProvider = new DiginsightJsonConsoleProvider() { ConfigurationSuffix = configurationPrefix }; }
+        //    else if (logProvider.GetType().Name == "DebugProvider") { traceLoggerJsonProvider = new DiginsightJsonDebugProvider() { ConfigurationSuffix = configurationPrefix }; }
+        //    else { traceLoggerJsonProvider = new TraceLoggerJsonProvider() { ConfigurationSuffix = configurationPrefix }; }
+        //    //TraceLoggerConsoleProvider, TraceLoggerDebugProvider
+        //    traceLoggerJsonProvider.AddProvider(logProvider);
 
-            builder.AddProvider(traceLoggerJsonProvider);
-            return builder;
-        }
+        //    builder.AddProvider(traceLoggerJsonProvider);
+        //    return builder;
+        //}
 
         //public static ILoggingBuilder AddDiginsightApplicationInsight(this ILoggingBuilder builder, ILoggerProvider logProvider, IConfiguration config = null, string configurationPrefix = null) // , IServiceProvider serviceProvider
         //{

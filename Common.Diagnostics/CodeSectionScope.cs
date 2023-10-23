@@ -347,7 +347,7 @@ namespace Common
             {
                 if (logger == null) { logger = GetEntrylogger(ref entry); }
 
-                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) => 
+                logger?.Log<TraceEntry>(entry.LogLevel, default(EventId), entry, null, (e, ex) =>
                 {
                     if (TraceLogger.DefaultFormatTraceEntry == null) { return e.ToString(); }
                     var ret = TraceLogger.DefaultFormatTraceEntry.FormatTraceEntry(e, ex);
@@ -1158,6 +1158,15 @@ namespace Common
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             if (IsDisposed) { return; }
+
+            var activityObject = default(object);
+            var activity = default(Activity);
+            var ok = this.Properties?.TryGetValue("Activity", out activityObject) ?? false;
+            if (ok)
+            {
+                activity = activityObject as Activity;
+                if (activity != null) { activity.Dispose(); }
+            }
 
             base.Dispose();
 
