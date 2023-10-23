@@ -43,7 +43,9 @@ namespace EasySample
         {
             var host = App.Host;
             using var scope = host.BeginMethodScope<MainWindow>();
-            using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            using Activity activity = App.ActivitySource.StartActivity();
+            //using var scope = App.ActivitySource.StartMethodActivity(logger);
+
             //var logger = host.GetLogger<MainWindow>();
             //using (var scope = logger.BeginMethodScope())
             //{
@@ -58,15 +60,17 @@ namespace EasySample
             this.logger = logger;
             this.classConfigurationGetter = classConfigurationGetter;
             // using (_logger.BeginMethodScope())
-            using var d = logger.BeginScope(TraceLogger.GetMethodName());
-            using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            //using var d = logger.BeginScope(TraceLogger.GetMethodName());
+            //using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            using var scope = App.ActivitySource.StartMethodActivity(logger);
 
             InitializeComponent();
         }
         private async void MainWindow_Initialized(object sender, EventArgs e)
         {
-            using var scope = logger.BeginMethodScope(() => new { sender, e });
-            using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            //using var scope = logger.BeginMethodScope(() => new { sender, e });
+            //using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            using var scope = App.ActivitySource.StartMethodActivity(logger, new { e, sender });
 
             classConfigurationGetter.Get("SampleConfig", "");
             sampleMethod();
@@ -75,7 +79,7 @@ namespace EasySample
             int i = 0;
 
             // scope.LogDebug
-            logger.LogDebug(() => new { i, e , sender }); // , properties: new Dictionary<string, object>() { { "", "" } }
+            logger.LogDebug(() => new { i, e, sender }); // , properties: new Dictionary<string, object>() { { "", "" } }
 
 
             {
@@ -113,7 +117,9 @@ namespace EasySample
         }
         void sampleMethod()
         {
-            using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            //using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            using var scope = App.ActivitySource.StartMethodActivity(logger);
+
             logger.LogDebug("pippo");
 
         }
@@ -121,8 +127,9 @@ namespace EasySample
         int i = 0;
         private void btnRun_Click(object sender, RoutedEventArgs e)
         {
-            using var scope = logger.BeginMethodScope(() => new { sender, e }, SourceLevels.Verbose, LogLevel.Debug, null, new Dictionary<string, object>() { { "OperationId", Guid.NewGuid().ToString() } });
-            using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            //using var scope = logger.BeginMethodScope(() => new { sender, e }, SourceLevels.Verbose, LogLevel.Debug, null, new Dictionary<string, object>() { { "OperationId", Guid.NewGuid().ToString() } });
+            //using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            using var scope = App.ActivitySource.StartMethodActivity(logger, new { e, sender });
 
             // Custom metrics for the application
             var greeterMeter = new Meter("OtPrGrYa.Example", "1.0.0");
@@ -136,8 +143,9 @@ namespace EasySample
 
         public int SampleMethodWithResult(int i, string s)
         {
-            using var scope = logger.BeginMethodScope(new { i, s });
-            using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            //using var scope = logger.BeginMethodScope(new { i, s });
+            //using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            using var scope = App.ActivitySource.StartMethodActivity(logger, new { i, s });
 
             var result = 0;
 
@@ -153,8 +161,9 @@ namespace EasySample
         }
         public void SampleMethod()
         {
-            using var sec = logger.BeginMethodScope();
-            using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            //using var sec = logger.BeginMethodScope();
+            //using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            using var scope = App.ActivitySource.StartMethodActivity(logger);
 
             Thread.Sleep(100);
             SampleMethodNested();
@@ -163,22 +172,25 @@ namespace EasySample
         }
         public void SampleMethodNested()
         {
-            using var scope = logger.BeginMethodScope();
-            using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            //using var scope = logger.BeginMethodScope();
+            //using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            using var scope = App.ActivitySource.StartMethodActivity(logger);
 
             Thread.Sleep(100);
         }
         public void SampleMethodNested1()
         {
-            using var scope = logger.BeginMethodScope();
-            using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            //using var scope = logger.BeginMethodScope();
+            //using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            using var scope = App.ActivitySource.StartMethodActivity(logger);
 
             Thread.Sleep(10);
         }
         async Task<bool> sampleMethod1Async()
         {
-            using var scope = logger.BeginMethodScope();
-            using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            //using var scope = logger.BeginMethodScope();
+            //using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            using var scope = App.ActivitySource.StartMethodActivity(logger);
 
             var res = true;
 

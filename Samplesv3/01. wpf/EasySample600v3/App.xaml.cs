@@ -53,15 +53,15 @@ namespace EasySample
         static App()
         {
             using var scope = TraceLogger.BeginMethodScope(T);
-            using Activity activity = ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            using Activity activity = ActivitySource.StartActivity(); // TraceLogger.GetMethodName()
 
-            ActivitySource.AddActivityListener(new ActivityListener()
-            {
-                ShouldListenTo = (source) => true,
-                Sample = (ref ActivityCreationOptions<ActivityContext> options) => ActivitySamplingResult.AllDataAndRecorded,
-                ActivityStarted = (Activity activity) => TraceLogger.LogDebug($"Started: {activity.OperationName} {activity.Id}"),
-                ActivityStopped = (Activity activity) => TraceLogger.LogDebug($"Stopped: {activity.OperationName} {activity.Id} {activity.Duration}")
-            });
+            //ActivitySource.AddActivityListener(new ActivityListener()
+            //{
+            //    ShouldListenTo = (source) => true,
+            //    Sample = (ref ActivityCreationOptions<ActivityContext> options) => ActivitySamplingResult.AllDataAndRecorded,
+            //    ActivityStarted = (Activity activity) => TraceLogger.LogDebug($"Started: {activity.OperationName} {activity.Id}"),
+            //    ActivityStopped = (Activity activity) => TraceLogger.LogDebug($"Stopped: {activity.OperationName} {activity.Id} {activity.Duration}")
+            //});
 
             try
             {
@@ -76,7 +76,7 @@ namespace EasySample
 
         public App()
         {
-            using Activity activity = ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            using Activity activity = ActivitySource.StartActivity(); // TraceLogger.GetMethodName()
             using (var scope = Host.BeginMethodScope(T))
             {
             }
@@ -84,8 +84,9 @@ namespace EasySample
         protected override async void OnStartup(StartupEventArgs e)
         {
             var logger = Host.GetLogger<App>();
-            using var scope = logger.BeginMethodScope();
-            using Activity activity = ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            //using var scope = logger.BeginMethodScope();
+            //using Activity activity = ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            using var scope = App.ActivitySource.StartMethodActivity(logger);
 
             //using var tracerProvider = Sdk.CreateTracerProviderBuilder()
             //                              .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("EasySample600v3"))
@@ -163,8 +164,9 @@ namespace EasySample
 
             Host.InitTraceLogger();
 
-            // LogStringExtensions.RegisterLogstringProvider(this);
-
+            //LogStringExtensions.RegisterLogstringProvider(this);
+            LogStringExtensions.RegisterLogstringProvider(new LogStringProviderWpf());
+            
             await Host.StartAsync(); scope.LogDebug($"await Host.StartAsync();");
 
             var mainWindow = Host.Services.GetRequiredService<MainWindow>(); scope.LogDebug($"Host.Services.GetRequiredService<MainWindow>(); returns {mainWindow.GetLogString()}");
