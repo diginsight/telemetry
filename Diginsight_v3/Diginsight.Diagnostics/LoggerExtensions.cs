@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿#if NET7_0_OR_GREATER
+using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
+#endif
 
 namespace Diginsight.Diagnostics;
 

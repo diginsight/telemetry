@@ -2,11 +2,13 @@
 #if NET7_0_OR_GREATER
 using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
+#endif
 
 namespace Diginsight.Diagnostics;
 
 public static partial class LoggerExtensions
 {
+#if NET7_0_OR_GREATER
     public static void LogTrace(
         // ReSharper disable once EntityNameCapturedOnly.Global
         this ILogger logger,
@@ -205,5 +207,5 @@ public static partial class LoggerExtensions
         LogCritical(logger, null, in message);
     }
 
-}
 #endif
+}

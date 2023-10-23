@@ -4,16 +4,16 @@ namespace Diginsight.Strings;
 
 internal sealed class ForbiddenLogStringProvider : ILogStringProvider
 {
-    public bool TryAsLoggable(object obj, [NotNullWhen(true)] out ILoggable? loggable)
+    public bool TryAsLogStringable(object obj, [NotNullWhen(true)] out ILogStringable? logStringable)
     {
         Type type = obj.GetType();
         if (type.IsForbidden())
         {
-            loggable = new NonLoggable(type);
+            logStringable = new NonLogStringable(type);
             return true;
         }
 
-        loggable = null;
+        logStringable = null;
         return false;
     }
 }

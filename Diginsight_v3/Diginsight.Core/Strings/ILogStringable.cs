@@ -2,7 +2,7 @@
 
 namespace Diginsight.Strings;
 
-public interface ILoggable
+public interface ILogStringable
 {
     bool IsDeep { get; }
     bool CanCycle { get; }

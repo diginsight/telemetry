@@ -11,7 +11,7 @@ public interface ILogStringConfiguration : ILogStringThresholdConfiguration
     bool IsNamespaceExplicitIfUnspecified { get; }
     bool IsNamespaceExplicitIfAmbiguous { get; }
     bool ShortenKnownTypes { get; }
-    bool IsMemberwiseLoggableByDefault { get; }
+    bool IsMemberwiseLogStringableByDefault { get; }
     StringComparison MetaPropertyKeyComparison { get; }
 
     void ResetFrom(ILogStringConfiguration source);

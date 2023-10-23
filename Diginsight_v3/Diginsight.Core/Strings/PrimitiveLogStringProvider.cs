@@ -11,51 +11,51 @@ internal sealed class PrimitiveLogStringProvider : ILogStringProvider
     private static readonly string PTR_FORMAT = $"^{{0:X{IntPtr.Size}}}";
     private static readonly IDictionary<Type, (Enum[] Values, Enum Zero)> EnumCache = new Dictionary<Type, (Enum[] Values, Enum Zero)>();
 
-    public bool TryAsLoggable(object obj, [NotNullWhen(true)] out ILoggable? loggable)
+    public bool TryAsLogStringable(object obj, [NotNullWhen(true)] out ILogStringable? logStringable)
     {
         switch (obj)
         {
             case string:
-                loggable = new LoggableDirect(obj, "\"{0}\"");
+                logStringable = new LogStringableDirect(obj, "\"{0}\"");
                 return true;
 
             case bool:
-                loggable = new LoggableDirect(obj);
+                logStringable = new LogStringableDirect(obj);
                 return true;
 
             case char:
-                loggable = new LoggableDirect(obj, "'{0}'");
+                logStringable = new LogStringableDirect(obj, "'{0}'");
                 return true;
 
             case byte or sbyte:
-                loggable = new LoggableDirect(obj, "#{0:X2}");
+                logStringable = new LogStringableDirect(obj, "#{0:X2}");
                 return true;
 
             case short or ushort or int or uint or long or ulong or float or double or decimal:
-                loggable = new LoggableConvertible((IConvertible)obj);
+                logStringable = new LogStringableConvertible((IConvertible)obj);
                 return true;
 
             case IntPtr or UIntPtr:
-                loggable = new LoggableDirect(obj, PTR_FORMAT);
+                logStringable = new LogStringableDirect(obj, PTR_FORMAT);
                 return true;
 
             case Enum e:
-                loggable = e.GetType().IsDefined(typeof(FlagsAttribute)) ? new LoggableFlaggedEnum(e) : new LoggableConvertible(e);
+                logStringable = e.GetType().IsDefined(typeof(FlagsAttribute)) ? new LogStringableFlaggedEnum(e) : new LogStringableConvertible(e);
                 return true;
         }
 
-        loggable = null;
+        logStringable = null;
         return false;
     }
 
-    private sealed class LoggableConvertible : ILoggable
+    private sealed class LogStringableConvertible : ILogStringable
     {
         private readonly IConvertible convertible;
 
         public bool IsDeep => false;
         public bool CanCycle => false;
 
-        public LoggableConvertible(IConvertible convertible)
+        public LogStringableConvertible(IConvertible convertible)
         {
             this.convertible = convertible;
         }
@@ -66,14 +66,14 @@ internal sealed class PrimitiveLogStringProvider : ILogStringProvider
         }
     }
 
-    private sealed class LoggableFlaggedEnum : ILoggable
+    private sealed class LogStringableFlaggedEnum : ILogStringable
     {
         private readonly Enum e;
 
         public bool IsDeep => false;
         public bool CanCycle => false;
 
-        public LoggableFlaggedEnum(Enum e)
+        public LogStringableFlaggedEnum(Enum e)
         {
             this.e = e;
         }

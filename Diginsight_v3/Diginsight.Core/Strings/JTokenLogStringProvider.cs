@@ -7,13 +7,13 @@ namespace Diginsight.Strings;
 
 internal sealed class JTokenLogStringProvider : ILogStringProvider
 {
-    public bool TryAsLoggable(object obj, [NotNullWhen(true)] out ILoggable? loggable)
+    public bool TryAsLogStringable(object obj, [NotNullWhen(true)] out ILogStringable? logStringable)
     {
-        loggable = obj is JToken jt ? new LoggableJToken(jt) : null;
-        return loggable is not null;
+        logStringable = obj is JToken jt ? new LogStringableJToken(jt) : null;
+        return logStringable is not null;
     }
 
-    private sealed class LoggableJToken : ILoggable, IJTokenVisitor<StringBuilder, (StringBuilder, LoggingContext)>
+    private sealed class LogStringableJToken : ILogStringable, IJTokenVisitor<StringBuilder, (StringBuilder, LoggingContext)>
     {
         private readonly JToken root;
 
@@ -21,7 +21,7 @@ internal sealed class JTokenLogStringProvider : ILogStringProvider
 
         public bool CanCycle => false;
 
-        public LoggableJToken(JToken root)
+        public LogStringableJToken(JToken root)
         {
             this.root = root;
         }

@@ -25,23 +25,23 @@ internal abstract class ReflectionLogStringProvider : ILogStringProvider
         this.serviceProvider = serviceProvider;
     }
 
-    public bool TryAsLoggable(object obj, [NotNullWhen(true)] out ILoggable? loggable)
+    public bool TryAsLogStringable(object obj, [NotNullWhen(true)] out ILogStringable? logStringable)
     {
         Type type = obj.GetType();
 
         if (IsHandled(type))
         {
-            loggable = new Loggable(obj, this);
+            logStringable = new LogStringable(obj, this);
             return true;
         }
         else
         {
-            loggable = null;
+            logStringable = null;
             return false;
         }
     }
 
-    private sealed class Loggable : ILoggable
+    private sealed class LogStringable : ILogStringable
     {
         private readonly object obj;
         private readonly ReflectionLogStringProvider owner;
@@ -49,7 +49,7 @@ internal abstract class ReflectionLogStringProvider : ILogStringProvider
         public bool IsDeep => true;
         public bool CanCycle => true;
 
-        public Loggable(object obj, ReflectionLogStringProvider owner)
+        public LogStringable(object obj, ReflectionLogStringProvider owner)
         {
             this.obj = obj;
             this.owner = owner;
@@ -141,7 +141,11 @@ internal abstract class ReflectionLogStringProvider : ILogStringProvider
                 }
             }
 
-            finalGetValue = obj => getValue(obj) is { } value ? customProvider.TryAsLoggable(value, out ILoggable? loggable) ? loggable : value : null;
+            finalGetValue = obj => getValue(obj) is { } value
+                ? customProvider.TryAsLogStringable(value, out ILogStringable? logStringable)
+                    ? logStringable
+                    : value
+                : null;
         }
 
         return (obj, stringBuilder, loggingContext) =>

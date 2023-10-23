@@ -38,28 +38,28 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
         logStringConfiguration = logStringConfigurationOptions.Value;
     }
 
-    public bool TryAsLoggable(object obj, [NotNullWhen(true)] out ILoggable? loggable)
+    public bool TryAsLogStringable(object obj, [NotNullWhen(true)] out ILogStringable? logStringable)
     {
         switch (obj)
         {
             case Type type:
-                loggable = new LoggableType(type, this);
+                logStringable = new LogStringableType(type, this);
                 return true;
 
             case MemberInfo member:
-                loggable = new LoggableMember(member, this);
+                logStringable = new LogStringableMember(member, this);
                 return true;
 
             case ParameterInfo parameter:
-                loggable = new LoggableParameter(parameter, this);
+                logStringable = new LogStringableParameter(parameter, this);
                 return true;
 
             case Assembly assembly:
-                loggable = new LoggableAssembly(assembly);
+                logStringable = new LogStringableAssembly(assembly);
                 return true;
 
             default:
-                loggable = null;
+                logStringable = null;
                 return false;
         }
     }
@@ -233,7 +233,7 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
         Append(parameter.ParameterType, stringBuilder, loggingContext);
     }
 
-    private sealed class LoggableType : ILoggable
+    private sealed class LogStringableType : ILogStringable
     {
         private readonly Type type;
         private readonly MemberLogStringProvider owner;
@@ -241,7 +241,7 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
         public bool IsDeep => true;
         public bool CanCycle => true;
 
-        public LoggableType(Type type, MemberLogStringProvider owner)
+        public LogStringableType(Type type, MemberLogStringProvider owner)
         {
             this.type = type;
             this.owner = owner;
@@ -253,7 +253,7 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
         }
     }
 
-    private sealed class LoggableMember : ILoggable
+    private sealed class LogStringableMember : ILogStringable
     {
         private readonly MemberInfo member;
         private readonly MemberLogStringProvider owner;
@@ -261,7 +261,7 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
         public bool IsDeep => true;
         public bool CanCycle => true;
 
-        public LoggableMember(MemberInfo member, MemberLogStringProvider owner)
+        public LogStringableMember(MemberInfo member, MemberLogStringProvider owner)
         {
             this.member = member;
             this.owner = owner;
@@ -299,7 +299,7 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
         }
     }
 
-    private sealed class LoggableParameter : ILoggable
+    private sealed class LogStringableParameter : ILogStringable
     {
         private readonly ParameterInfo parameter;
         private readonly MemberLogStringProvider owner;
@@ -307,7 +307,7 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
         public bool IsDeep => false;
         public bool CanCycle => false;
 
-        public LoggableParameter(ParameterInfo parameter, MemberLogStringProvider owner)
+        public LogStringableParameter(ParameterInfo parameter, MemberLogStringProvider owner)
         {
             this.parameter = parameter;
             this.owner = owner;
@@ -319,14 +319,14 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
         }
     }
 
-    private sealed class LoggableAssembly : ILoggable
+    private sealed class LogStringableAssembly : ILogStringable
     {
         private readonly Assembly assembly;
 
         public bool IsDeep => false;
         public bool CanCycle => false;
 
-        public LoggableAssembly(Assembly assembly)
+        public LogStringableAssembly(Assembly assembly)
         {
             this.assembly = assembly;
         }

@@ -18,35 +18,35 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
         this.memberLogStringProvider = memberLogStringProvider;
     }
 
-    public bool TryAsLoggable(object obj, [NotNullWhen(true)] out ILoggable? loggable)
+    public bool TryAsLogStringable(object obj, [NotNullWhen(true)] out ILogStringable? logStringable)
     {
         switch (obj)
         {
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             case ITuple tuple:
-                loggable = new LoggableTuple(tuple);
+                logStringable = new LogStringableTuple(tuple);
                 return true;
 #endif
 
             case StringBuilder sb:
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                loggable = new LoggableStringBuilder(sb);
+                logStringable = new LogStringableStringBuilder(sb);
 #else
-                loggable = new LoggableDirect(sb);
+                logStringable = new LogStringableDirect(sb);
 #endif
                 return true;
 
             case Regex:
-                loggable = new LoggableDirect(obj, "/{0}/");
+                logStringable = new LogStringableDirect(obj, "/{0}/");
                 return true;
 
             case Uri:
-                loggable = new LoggableDirect(obj, LogStringTokens.LiteralBegin + "{0}" + LogStringTokens.LiteralEnd);
+                logStringable = new LogStringableDirect(obj, LogStringTokens.LiteralBegin + "{0}" + LogStringTokens.LiteralEnd);
                 return true;
 
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             case Index or Range:
-                loggable = new LoggableDirect(obj);
+                logStringable = new LogStringableDirect(obj);
                 return true;
 #endif
 
@@ -55,41 +55,41 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
                 or DateOnly or TimeOnly
 #endif
                 :
-                loggable = new LoggableDirect(obj, LogStringTokens.LiteralBegin + "{0:O}" + LogStringTokens.LiteralEnd);
+                logStringable = new LogStringableDirect(obj, LogStringTokens.LiteralBegin + "{0:O}" + LogStringTokens.LiteralEnd);
                 return true;
 
             case Guid:
-                loggable = new LoggableDirect(obj, LogStringTokens.LiteralBegin + "{0:D}" + LogStringTokens.LiteralEnd);
+                logStringable = new LogStringableDirect(obj, LogStringTokens.LiteralBegin + "{0:D}" + LogStringTokens.LiteralEnd);
                 return true;
 
             case Delegate del:
-                loggable = new LoggableDelegate(del, this);
+                logStringable = new LogStringableDelegate(del, this);
                 return true;
         }
 
         Type type = obj.GetType();
         if (type.IsKeyValuePair(out Type? tKey, out Type? tValue))
         {
-            loggable = (ILoggable)typeof(LoggableKeyValuePair<,>)
+            logStringable = (ILogStringable)typeof(LogStringableKeyValuePair<,>)
                 .MakeGenericType(tKey, tValue)
                 .GetConstructors()[0]
                 .Invoke(new[] { obj });
             return true;
         }
 
-        loggable = null;
+        logStringable = null;
         return false;
     }
 
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-    private sealed class LoggableTuple : ILoggable
+    private sealed class LogStringableTuple : ILogStringable
     {
         private readonly ITuple tuple;
 
         public bool IsDeep => true;
         public bool CanCycle => false;
 
-        public LoggableTuple(ITuple tuple)
+        public LogStringableTuple(ITuple tuple)
         {
             this.tuple = tuple;
         }
@@ -123,14 +123,14 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
         }
     }
 
-    private sealed class LoggableStringBuilder : ILoggable
+    private sealed class LogStringableStringBuilder : ILogStringable
     {
         private readonly StringBuilder sb;
 
         public bool IsDeep => false;
         public bool CanCycle => false;
 
-        public LoggableStringBuilder(StringBuilder sb)
+        public LogStringableStringBuilder(StringBuilder sb)
         {
             this.sb = sb;
         }
@@ -142,7 +142,7 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
     }
 #endif
 
-    private sealed class LoggableDelegate : ILoggable
+    private sealed class LogStringableDelegate : ILogStringable
     {
         private readonly Delegate del;
         private readonly BasicLogStringProvider owner;
@@ -150,7 +150,7 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
         public bool IsDeep => true;
         public bool CanCycle => true;
 
-        public LoggableDelegate(Delegate del, BasicLogStringProvider owner)
+        public LogStringableDelegate(Delegate del, BasicLogStringProvider owner)
         {
             this.del = del;
             this.owner = owner;
@@ -165,14 +165,14 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
         }
     }
 
-    private sealed class LoggableKeyValuePair<TKey, TValue> : ILoggable
+    private sealed class LogStringableKeyValuePair<TKey, TValue> : ILogStringable
     {
         private readonly KeyValuePair<TKey, TValue> kvp;
 
         public bool IsDeep => true;
         public bool CanCycle => false;
 
-        public LoggableKeyValuePair(KeyValuePair<TKey, TValue> kvp)
+        public LogStringableKeyValuePair(KeyValuePair<TKey, TValue> kvp)
         {
             this.kvp = kvp;
         }

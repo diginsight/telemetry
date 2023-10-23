@@ -6,17 +6,17 @@ namespace Diginsight.Strings;
 
 internal sealed class CollectionsLogStringProvider : ILogStringProvider
 {
-    public bool TryAsLoggable(object obj, [NotNullWhen(true)] out ILoggable? loggable)
+    public bool TryAsLogStringable(object obj, [NotNullWhen(true)] out ILogStringable? logStringable)
     {
         if (obj is IDictionary dict)
         {
-            loggable = new LoggableDictionary(dict);
+            logStringable = new LogStringableDictionary(dict);
             return true;
         }
 
         if (IsIEnumerableOfKeyValuePair(obj.GetType(), out Type? tKey, out Type? tValue))
         {
-            loggable = (ILoggable)typeof(LoggableKVPCollection<,>)
+            logStringable = (ILogStringable)typeof(LogStringableKvpCollection<,>)
                 .MakeGenericType(tKey, tValue)
                 .GetConstructors()[0]
                 .Invoke(new[] { obj });
@@ -25,11 +25,11 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
 
         if (obj is IEnumerable coll)
         {
-            loggable = new LoggableCollection(coll);
+            logStringable = new LogStringableCollection(coll);
             return true;
         }
 
-        loggable = null;
+        logStringable = null;
         return false;
     }
 
@@ -51,7 +51,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
         return false;
     }
 
-    private abstract class LoggableCollectionBase<T> : ILoggable
+    private abstract class LogStringableCollectionBase<T> : ILogStringable
         where T : notnull
     {
         protected readonly T subject;
@@ -62,7 +62,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
         protected abstract char BeginToken { get; }
         protected abstract char EndToken { get; }
 
-        protected LoggableCollectionBase(T subject)
+        protected LogStringableCollectionBase(T subject)
         {
             this.subject = subject;
         }
@@ -88,12 +88,12 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
         protected abstract void AppendToCore(StringBuilder stringBuilder, LoggingContext loggingContext);
     }
 
-    private sealed class LoggableDictionary : LoggableCollectionBase<IDictionary>
+    private sealed class LogStringableDictionary : LogStringableCollectionBase<IDictionary>
     {
         protected override char BeginToken => LogStringTokens.MapBegin;
         protected override char EndToken => LogStringTokens.MapEnd;
 
-        public LoggableDictionary(IDictionary subject)
+        public LogStringableDictionary(IDictionary subject)
             : base(subject) { }
 
         protected override void AppendToCore(StringBuilder stringBuilder, LoggingContext loggingContext)
@@ -132,12 +132,12 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
         }
     }
 
-    private sealed class LoggableKVPCollection<TKey, TValue> : LoggableCollectionBase<IEnumerable<KeyValuePair<TKey, TValue>>>
+    private sealed class LogStringableKvpCollection<TKey, TValue> : LogStringableCollectionBase<IEnumerable<KeyValuePair<TKey, TValue>>>
     {
         protected override char BeginToken => LogStringTokens.MapBegin;
         protected override char EndToken => LogStringTokens.MapEnd;
 
-        public LoggableKVPCollection(IEnumerable<KeyValuePair<TKey, TValue>> subject)
+        public LogStringableKvpCollection(IEnumerable<KeyValuePair<TKey, TValue>> subject)
             : base(subject) { }
 
         protected override void AppendToCore(StringBuilder stringBuilder, LoggingContext loggingContext)
@@ -178,12 +178,12 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
         }
     }
 
-    private sealed class LoggableCollection : LoggableCollectionBase<IEnumerable>
+    private sealed class LogStringableCollection : LogStringableCollectionBase<IEnumerable>
     {
         protected override char BeginToken => '[';
         protected override char EndToken => ']';
 
-        public LoggableCollection(IEnumerable subject)
+        public LogStringableCollection(IEnumerable subject)
             : base(subject) { }
 
         protected override void AppendToCore(StringBuilder stringBuilder, LoggingContext loggingContext)

@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Diginsight.Strings;
 
-public sealed class LoggableDirect : ILoggable
+public sealed class LogStringableDirect : ILogStringable
 {
     private readonly object obj;
     private readonly string? format;
@@ -11,7 +11,7 @@ public sealed class LoggableDirect : ILoggable
     public bool IsDeep => false;
     public bool CanCycle => false;
 
-    public LoggableDirect(object obj, string? format = null)
+    public LogStringableDirect(object obj, string? format = null)
     {
         this.obj = obj;
         this.format = format;

@@ -46,7 +46,7 @@ public sealed class LogStringConfiguration : ILogStringConfiguration
 
     public bool ShortenKnownTypes { get; set; } = true;
 
-    public bool IsMemberwiseLoggableByDefault { get; set; } = true;
+    public bool IsMemberwiseLogStringableByDefault { get; set; } = true;
 
     public StringComparison MetaPropertyKeyComparison { get; set; } = StringComparison.OrdinalIgnoreCase;
 
@@ -82,7 +82,7 @@ public sealed class LogStringConfiguration : ILogStringConfiguration
         IsNamespaceExplicitIfUnspecified = source.IsNamespaceExplicitIfUnspecified;
         IsNamespaceExplicitIfAmbiguous = source.IsNamespaceExplicitIfAmbiguous;
         ShortenKnownTypes = source.ShortenKnownTypes;
-        IsMemberwiseLoggableByDefault = source.IsMemberwiseLoggableByDefault;
+        IsMemberwiseLogStringableByDefault = source.IsMemberwiseLogStringableByDefault;
         MetaPropertyKeyComparison = source.MetaPropertyKeyComparison;
     }
 }

@@ -42,20 +42,20 @@ public sealed class LoggingContext
         using IDisposable? _1 = WithMetaPropertiesSafe(configureMetaProperties);
         using IDisposable? _2 = this.IncrementDepth(incrementDepth, out bool isMaxDepth);
 
-        ILoggable? loggable = obj as ILoggable;
-        if (loggable is null)
+        ILogStringable? logStringable = obj as ILogStringable;
+        if (logStringable is null)
         {
             foreach (ILogStringProvider logStringProvider in logStringProviders)
             {
-                if (logStringProvider.TryAsLoggable(obj, out loggable))
+                if (logStringProvider.TryAsLogStringable(obj, out logStringable))
                     break;
             }
         }
 
         Type type = obj.GetType();
-        loggable ??= new NonLoggable(type);
+        logStringable ??= new NonLogStringable(type);
 
-        if (isMaxDepth && loggable.IsDeep)
+        if (isMaxDepth && logStringable.IsDeep)
         {
             stringBuilder.Append(LogStringTokens.Deep);
             return;
@@ -63,8 +63,8 @@ public sealed class LoggingContext
 
         try
         {
-            using IDisposable? _3 = loggable.CanCycle ? AddSeen(obj) : null;
-            loggable.AppendTo(stringBuilder, this);
+            using IDisposable? _3 = logStringable.CanCycle ? AddSeen(obj) : null;
+            logStringable.AppendTo(stringBuilder, this);
         }
         catch (AlreadySeenShortCircuit)
         {

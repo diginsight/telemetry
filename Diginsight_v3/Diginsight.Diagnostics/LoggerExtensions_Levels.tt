@@ -5,11 +5,13 @@
 #if NET7_0_OR_GREATER
 using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
+#endif
 
 namespace Diginsight.Diagnostics;
 
 public static partial class LoggerExtensions
 {
+#if NET7_0_OR_GREATER
 <#
     foreach (string logLevel in new[] { "Trace", "Debug", "Information", "Warning", "Error", "Critical" })
     {
@@ -48,5 +50,5 @@ public static partial class LoggerExtensions
     }
 
 <# } #>
-}
 #endif
+}

@@ -54,9 +54,9 @@ public static class LogStringExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static StringBuilder Append(this StringBuilder stringBuilder, ILoggable loggable, LoggingContext loggingContext)
+    public static StringBuilder Append(this StringBuilder stringBuilder, ILogStringable logStringable, LoggingContext loggingContext)
     {
-        loggable.AppendTo(stringBuilder, loggingContext);
+        logStringable.AppendTo(stringBuilder, loggingContext);
         return stringBuilder;
     }
 
