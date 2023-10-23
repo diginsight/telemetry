@@ -40,7 +40,7 @@ namespace Common
             var callerType = typeof(T);
             var scope = new CodeSectionScope(logger, traceLoggerMinimumLevelService, callerType, null, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
             var fullCallerMemberName = !string.IsNullOrEmpty(scope.Name) ? $"{scope.MemberName}.{scope.Name}" : scope.MemberName;
-            var activity = activitySource.CreateActivity($"{callerType.Name}.{fullCallerMemberName}", ActivityKind.Internal);
+            var activity = activitySource.StartActivity($"{callerType.Name}.{fullCallerMemberName}"); // , ActivityKind.Internal
             //activity.SetCustomProperty("Scope", scope);
             //activity.SetCustomProperty("Logger", logger);
             //activity.SetCustomProperty("LogLevel", logLevel);
@@ -72,7 +72,7 @@ namespace Common
         //    var callerType = typeof(T);
         //    var scope = new CodeSectionScope(logger, traceLoggerMinimumLevelService, callerType, null, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
         //    var fullCallerMemberName = !string.IsNullOrEmpty(scope.Name) ? $"{scope.MemberName}.{scope.Name}" : scope.MemberName;
-        //    var activity = activitySource.CreateActivity($"{callerType.Name}.{fullCallerMemberName}", ActivityKind.Internal);
+        //    var activity = activitySource.StartActivity($"{callerType.Name}.{fullCallerMemberName}", ActivityKind.Internal);
         //    activity.SetCustomProperty("Scope", scope);
         //    activity.SetCustomProperty("Logger", logger);
         //    activity.SetCustomProperty("LogLevel", logLevel);
@@ -82,6 +82,7 @@ namespace Common
         //    //var delta = stopTicks - startTicks;
         //    return scope;
         //}
+
         //public static CodeSectionScope StartMethodActivity(this IHost host, Type callerType, object payload = null, SourceLevels sourceLevel = SourceLevels.Verbose, LogLevel logLevel = LogLevel.Debug, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         //{
         //    var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
@@ -102,7 +103,7 @@ namespace Common
 
         //    var scope = new CodeSectionScope(logger, traceLoggerMinimumLevelService, callerType, null, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
         //    var fullCallerMemberName = !string.IsNullOrEmpty(scope.Name) ? $"{scope.MemberName}.{scope.Name}" : scope.MemberName;
-        //    var activity = activitySource.CreateActivity($"{callerType.Name}.{fullCallerMemberName}", ActivityKind.Internal);
+        //    var activity = activitySource.StartActivity($"{callerType.Name}.{fullCallerMemberName}", ActivityKind.Internal);
         //    activity.SetCustomProperty("Scope", scope);
         //    activity.SetCustomProperty("Logger", logger);
         //    activity.SetCustomProperty("LogLevel", logLevel);
@@ -134,7 +135,7 @@ namespace Common
             var callerType = typeof(T);
             var scope = new CodeSectionScope(logger, traceLoggerMinimumLevelService, callerType, name, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
             var fullCallerMemberName = !string.IsNullOrEmpty(scope.Name) ? $"{scope.MemberName}.{scope.Name}" : scope.MemberName;
-            var activity = activitySource.CreateActivity($"{callerType.Name}.{fullCallerMemberName}", ActivityKind.Internal);
+            var activity = activitySource.StartActivity($"{callerType.Name}.{fullCallerMemberName}", ActivityKind.Internal);
             //activity.SetCustomProperty("Scope", scope);
             //activity.SetCustomProperty("Logger", logger);
             //activity.SetCustomProperty("LogLevel", logLevel);
@@ -162,7 +163,7 @@ namespace Common
         //    var callerType = typeof(T);
         //    var scope = new CodeSectionScope(logger, traceLoggerMinimumLevelService, callerType, name, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
         //    var fullCallerMemberName = !string.IsNullOrEmpty(scope.Name) ? $"{scope.MemberName}.{scope.Name}" : scope.MemberName;
-        //    var activity = activitySource.CreateActivity($"{callerType.Name}.{fullCallerMemberName}", ActivityKind.Internal);
+        //    var activity = activitySource.StartActivity($"{callerType.Name}.{fullCallerMemberName}", ActivityKind.Internal);
         //    activity.SetCustomProperty("Scope", scope);
         //    activity.SetCustomProperty("Logger", logger);
         //    activity.SetCustomProperty("LogLevel", logLevel);
@@ -193,7 +194,7 @@ namespace Common
 
         //    var scope = new CodeSectionScope(logger, traceLoggerMinimumLevelService, callerType, name, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
         //    var fullCallerMemberName = !string.IsNullOrEmpty(scope.Name) ? $"{scope.MemberName}.{scope.Name}" : scope.MemberName;
-        //    var activity = activitySource.CreateActivity($"{callerType.Name}.{fullCallerMemberName}", ActivityKind.Internal);
+        //    var activity = activitySource.StartActivity($"{callerType.Name}.{fullCallerMemberName}", ActivityKind.Internal);
         //    activity.SetCustomProperty("Scope", scope);
         //    activity.SetCustomProperty("Logger", logger);
         //    activity.SetCustomProperty("LogLevel", logLevel);

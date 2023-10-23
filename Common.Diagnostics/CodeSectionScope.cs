@@ -1165,7 +1165,10 @@ namespace Common
             if (ok)
             {
                 activity = activityObject as Activity;
-                if (activity != null) { activity.Dispose(); }
+                if (activity != null) { 
+                    activity.Dispose();
+                    this.Properties.Remove("Activity");
+                }
             }
 
             base.Dispose();
