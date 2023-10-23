@@ -43,7 +43,7 @@ namespace EasySample
     public partial class App : Application
     {
         const string CONFIGVALUE_APPINSIGHTSKEY = "AppInsightsKey", DEFAULTVALUE_APPINSIGHTSKEY = "";
-        
+
         static Type T = typeof(App);
         public static ActivitySource ActivitySource = new ActivitySource(typeof(App).Assembly.GetName().Name); // , "1.0.0"
 
@@ -166,7 +166,7 @@ namespace EasySample
 
             //LogStringExtensions.RegisterLogstringProvider(this);
             LogStringExtensions.RegisterLogstringProvider(new LogStringProviderWpf());
-            
+
             await Host.StartAsync(); scope.LogDebug($"await Host.StartAsync();");
 
             var mainWindow = Host.Services.GetRequiredService<MainWindow>(); scope.LogDebug($"Host.Services.GetRequiredService<MainWindow>(); returns {mainWindow.GetLogString()}");

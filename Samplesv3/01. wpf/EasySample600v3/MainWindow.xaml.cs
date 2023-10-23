@@ -127,16 +127,23 @@ namespace EasySample
         int i = 0;
         private void btnRun_Click(object sender, RoutedEventArgs e)
         {
-            //using var scope = logger.BeginMethodScope(() => new { sender, e }, SourceLevels.Verbose, LogLevel.Debug, null, new Dictionary<string, object>() { { "OperationId", Guid.NewGuid().ToString() } });
-            //using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
-            using var scope = App.ActivitySource.StartMethodActivity(logger, new { e, sender });
+            try
+            {
+                //using var scope = logger.BeginMethodScope(() => new { sender, e }, SourceLevels.Verbose, LogLevel.Debug, null, new Dictionary<string, object>() { { "OperationId", Guid.NewGuid().ToString() } });
+                //using Activity activity = App.ActivitySource.StartActivity(TraceLogger.GetMethodName());
+                using var scope = App.ActivitySource.StartMethodActivity(logger, new { e, sender });
 
-            // Custom metrics for the application
-            var greeterMeter = new Meter("OtPrGrYa.Example", "1.0.0");
-            var countGreetings = greeterMeter.CreateCounter<int>("greetings.count", description: "Counts the number of greetings");
+                // Custom metrics for the application
+                var greeterMeter = new Meter("OtPrGrYa.Example", "1.0.0");
+                var countGreetings = greeterMeter.CreateCounter<int>("greetings.count", description: "Counts the number of greetings");
 
-            // Custom ActivitySource for the application
-            //var greeterActivitySource = new ActivitySource("OtPrGrJa.Example");
+                // Custom ActivitySource for the application
+                //var greeterActivitySource = new ActivitySource("OtPrGrJa.Example");
+                throw new InvalidOperationException("sample ex");
+            
+            
+            }
+            catch (Exception _) { }
 
 
         }
