@@ -85,7 +85,7 @@ public static class ActivitySourceExtensions
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static (Type DeclaringType, string? LocalFunctionName) GetCaller()
     {
-        MethodBase method = new StackFrame(2).GetMethod()!;
+        MethodBase method = new StackFrame(2, false).GetMethod()!;
 
         lock (((ICollection)CallerCache).SyncRoot)
         {
