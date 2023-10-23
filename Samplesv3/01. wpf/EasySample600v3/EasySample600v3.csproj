@@ -48,6 +48,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\Common.Diagnostics\Common.Diagnostics.csproj" />
+		<ProjectReference Include="..\..\..\Diginsight_v3\Diginsight.Diagnostics\Diginsight.Diagnostics.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

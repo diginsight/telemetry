@@ -55,13 +55,13 @@ namespace EasySample
             using var scope = TraceLogger.BeginMethodScope(T);
             using Activity activity = ActivitySource.StartActivity(TraceLogger.GetMethodName());
 
-            ActivitySource.AddActivityListener(new ActivityListener()
-            {
-                ShouldListenTo = (source) => true,
-                Sample = (ref ActivityCreationOptions<ActivityContext> options) => ActivitySamplingResult.AllDataAndRecorded,
-                ActivityStarted = (Activity activity) => TraceLogger.LogDebug($"Started: {activity.OperationName} {activity.Id}"),
-                ActivityStopped = (Activity activity) => TraceLogger.LogDebug($"Stopped: {activity.OperationName} {activity.Id} {activity.Duration}")
-            });
+            //ActivitySource.AddActivityListener(new ActivityListener()
+            //{
+            //    ShouldListenTo = (source) => true,
+            //    Sample = (ref ActivityCreationOptions<ActivityContext> options) => ActivitySamplingResult.AllDataAndRecorded,
+            //    ActivityStarted = (Activity activity) => TraceLogger.LogDebug($"Started: {activity.OperationName} {activity.Id}"),
+            //    ActivityStopped = (Activity activity) => TraceLogger.LogDebug($"Stopped: {activity.OperationName} {activity.Id} {activity.Duration}")
+            //});
 
             try
             {
@@ -112,7 +112,7 @@ namespace EasySample
             var classConfigurationGetter = new ClassConfigurationGetter<App>(configuration);
             //var appInsightKey = ConfigurationHelper.GetClassSetting<App, string>(CONFIGVALUE_APPINSIGHTSKEY, DEFAULTVALUE_APPINSIGHTSKEY); // , CultureInfo.InvariantCulture
 
-            Host = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder()
+            var hostbuilder = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder()
                     .ConfigureAppConfiguration(builder =>
                     {
                         builder.Sources.Clear();
@@ -140,6 +140,9 @@ namespace EasySample
 
                         var connectionString = configuration["Logging:ApplicationInsights:ConnectionString"];
 
+                        var consoleProvider = new TraceLoggerConsoleProvider();
+                        loggingBuilder.AddProvider(consoleProvider); // i.e. builder.Services.AddSingleton(traceLoggerProvider);
+
                         //loggingBuilder.AddApplicationInsights(configureTelemetryConfiguration: (config) =>
                         //        config.ConnectionString = configuration.GetConnectionString(connectionString),
                         //        configureApplicationInsightsLoggerOptions: (options) => { });
@@ -159,19 +162,21 @@ namespace EasySample
                         // appinsight metrics provider
                         // opentelemetry metrics provider
 
-                    }).Build();
+                    });
+            
+            Host = hostbuilder.Build();
 
             Host.InitTraceLogger();
 
             // LogStringExtensions.RegisterLogstringProvider(this);
-
             await Host.StartAsync(); scope.LogDebug($"await Host.StartAsync();");
+
+            base.OnStartup(e); scope.LogDebug($"base.OnStartup(e);");
 
             var mainWindow = Host.Services.GetRequiredService<MainWindow>(); scope.LogDebug($"Host.Services.GetRequiredService<MainWindow>(); returns {mainWindow.GetLogString()}");
 
             mainWindow.Show(); scope.LogDebug($"mainWindow.Show();");
 
-            base.OnStartup(e); scope.LogDebug($"base.OnStartup(e);");
 
         }
         private void ConfigureServices(IConfiguration configuration, IServiceCollection services)

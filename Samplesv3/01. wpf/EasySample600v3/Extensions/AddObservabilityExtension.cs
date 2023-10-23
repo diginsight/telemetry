@@ -3,11 +3,15 @@ using Azure.Monitor.OpenTelemetry.Exporter;
 using Common;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using OpenTelemetry.Exporter;
+using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Hosting;
 
 namespace EasySample
 {
@@ -24,7 +28,7 @@ namespace EasySample
             return app;
         }
 
-        public static IServiceCollection AddObservability(this IServiceCollection services, string aiConnectionString, string cloudRoleNamespace, string cloudRoleName, string cloudRoleInstance)
+        public static IServiceCollection AddObservability(this IServiceCollection services, string aiConnectionString, string cloudRoleName, string cloudRoleNamespace, string cloudRoleInstance)
         {
             using var scope = TraceLogger.BeginMethodScope(T, new { services, aiConnectionString, cloudRoleNamespace, cloudRoleName, cloudRoleInstance });
 
@@ -41,13 +45,27 @@ namespace EasySample
                 
                 builder.AddAspNetCoreInstrumentation();
                 builder.AddHttpClientInstrumentation();
+
                 builder.AddConsoleExporter();
+                //builder.AddConsoleExporter(options =>
+                //{
+                //    options.Targets = ConsoleExporterOutputTargets.Console | ConsoleExporterOutputTargets.Debug;
+                //});
                 builder.AddAzureMonitorTraceExporter();
                 // builder.AddRedisInstrumentation();
 
                 builder.AddSource("Azure.*");
                 builder.AddSource(App.ActivitySource.Name);
                 builder.AddSource(ApplicationMetrics.Instance.ObservabilityName);
+
+                //provider.GetService(typeof(T))
+
+                builder.AddProcessor(sp =>
+                {
+                    //var options = sp.GetRequiredService<IOptionsMonitor<ConsoleExporterOptions>>().Get(name);
+                    return new ActivityProcessor(new ActivityExporter());
+                });
+
                 //builder.SetSampler(serviceProvider => new HttpHeaderSampler(serviceProvider, new ParentBasedSampler(new TraceIdRatioBasedSampler(openTelemetryOptions.TracingSamplingRatio))));
                 //builder.AddOtlpExporter(options =>
                 //    {
