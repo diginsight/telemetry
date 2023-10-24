@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Diginsight.Strings;
@@ -86,21 +87,19 @@ internal sealed class PrimitiveLogStringProvider : ILogStringProvider
             Enum zero;
             lock (((ICollection)EnumCache).SyncRoot)
             {
+                (values, zero) = EnumCache.TryGetValue(enumType, out var valuesAndZero)
+                    ? valuesAndZero
+                    : EnumCache[enumType] = ValuesAndZeroCore();
+
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 (Enum[] Values, Enum Zero) ValuesAndZeroCore()
                 {
                     Enum z = (Enum)Enum.ToObject(enumType, 0);
                     return (Enum.GetValues(enumType).Cast<Enum>().Where(x => !z.Equals(x)).ToArray(), z);
                 }
-
-                if (!EnumCache.TryGetValue(enumType, out var valuesAndZero))
-                {
-                    EnumCache[enumType] = valuesAndZero = ValuesAndZeroCore();
-                }
-
-                (values, zero) = valuesAndZero;
             }
 
-            Enum[] flaggedValues = values.Where(x => e.HasFlag(x)).DefaultIfEmpty(zero).ToArray();
+            Enum[] flaggedValues = values.Where(e.HasFlag).DefaultIfEmpty(zero).ToArray();
             Enum[] skimmedFlaggedValues = flaggedValues.Where(x => flaggedValues.All(y => x.Equals(y) || !y.HasFlag(x))).ToArray();
 
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER

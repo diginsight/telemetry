@@ -33,6 +33,7 @@ public sealed class HttpRequestHeadersClassConfigurationSource : IClassConfigura
             {
                 var converter = TypeDescriptor.GetConverter(typeof(T));
 #pragma warning disable CS8604 // Possible null reference argument
+                // ReSharper disable once AssignNullToNotNullAttribute
                 value = (T?)converter.ConvertFrom(null, CultureInfo.InvariantCulture, stringValues.LastOrDefault());
 #pragma warning restore CS8604
                 return true;

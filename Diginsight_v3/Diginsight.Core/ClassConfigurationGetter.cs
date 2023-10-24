@@ -53,7 +53,10 @@ internal sealed class ClassConfigurationGetter<TClass> : IClassConfigurationGett
 
             var availableShorthands = type.Assembly.GetCustomAttributes<ClassConfigurationNamespaceShorthandAttribute>().ToDictionary(static x => x.Namespace, static x => x.Shorthand);
 
-            IEnumerable<string> namespaceShorthands = namespaceSegments.Select(x => availableShorthands.TryGetValue(x, out var val) ? val : null).OfType<string>().ToArray();
+            IEnumerable<string> namespaceShorthands = namespaceSegments
+                .Select(x => availableShorthands.TryGetValue(x, out string? val) ? val : null)
+                .OfType<string>()
+                .ToArray();
 
             if (type.FullName != null)
             {

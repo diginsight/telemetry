@@ -99,26 +99,30 @@ public static class TypeExtensions
 
     public static bool IsAnonymous(this Type type)
     {
+        if (type is null)
+            throw new ArgumentNullException(nameof(type));
+
         lock (((ICollection)AnonymousCache).SyncRoot)
         {
+            return AnonymousCache.TryGetValue(type, out bool isAnonymous)
+                ? isAnonymous
+                : AnonymousCache[type] = IsAnonymousCore();
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             bool IsAnonymousCore()
             {
                 return type is { IsClass: true, IsSealed: true, IsNotPublic: true }
                     && type.IsDefined(typeof(CompilerGeneratedAttribute))
                     && type.Name.Contains("AnonymousType");
             }
-
-            if (!AnonymousCache.TryGetValue(type, out bool isAnonymous))
-            {
-                AnonymousCache[type] = isAnonymous = IsAnonymousCore();
-            }
-
-            return isAnonymous;
         }
     }
 
     public static bool IsKeyValuePair(this Type type, [NotNullWhen(true)] out Type? tKey, [NotNullWhen(true)] out Type? tValue)
     {
+        if (type is null)
+            throw new ArgumentNullException(nameof(type));
+
         if (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(KeyValuePair<,>))
         {
             tKey = null;

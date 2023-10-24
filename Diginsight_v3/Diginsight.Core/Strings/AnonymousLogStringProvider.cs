@@ -10,7 +10,7 @@ internal sealed class AnonymousLogStringProvider : ReflectionLogStringProvider
     )
         : base(memberLogStringProvider, serviceProvider) { }
 
-    protected override bool IsHandled(Type type) => type.IsAnonymous();
+    protected override Handling IsHandled(Type type) => type.IsAnonymous() ? Handling.Handle : Handling.Pass;
 
     protected override Action<object, StringBuilder, LoggingContext>[] MakeAppenders(Type type)
     {

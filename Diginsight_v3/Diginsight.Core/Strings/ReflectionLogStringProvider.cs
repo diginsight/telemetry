@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System.Collections;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text;
@@ -29,16 +30,15 @@ internal abstract class ReflectionLogStringProvider : ILogStringProvider
     {
         Type type = obj.GetType();
 
-        if (IsHandled(type))
+        logStringable = IsHandled(type) switch
         {
-            logStringable = new LogStringable(obj, this);
-            return true;
-        }
-        else
-        {
-            logStringable = null;
-            return false;
-        }
+            Handling.Pass => null,
+            Handling.Handle => new LogStringable(obj, this),
+            Handling.Forbid => new NonLogStringable(type),
+            _ => throw new UnreachableException($"Unrecognized {nameof(Handling)}"),
+        };
+
+        return logStringable is not null;
     }
 
     private sealed class LogStringable : ILogStringable
@@ -65,7 +65,7 @@ internal abstract class ReflectionLogStringProvider : ILogStringProvider
         }
     }
 
-    protected abstract bool IsHandled(Type type);
+    protected abstract Handling IsHandled(Type type);
 
     private void AppendCore(object obj, StringBuilder stringBuilder, LoggingContext loggingContext)
     {
@@ -74,12 +74,9 @@ internal abstract class ReflectionLogStringProvider : ILogStringProvider
             Type type = obj.GetType();
             lock (((ICollection)appendersCache).SyncRoot)
             {
-                if (!appendersCache.TryGetValue(type, out var appenders))
-                {
-                    appendersCache[type] = appenders = MakeAppenders(type);
-                }
-
-                return appenders;
+                return appendersCache.TryGetValue(type, out var appenders)
+                    ? appenders
+                    : appendersCache[type] = MakeAppenders(type);
             }
         }
 
@@ -137,7 +134,7 @@ internal abstract class ReflectionLogStringProvider : ILogStringProvider
             {
                 if (!customProvidersCache.TryGetValue(providerType, out customProvider))
                 {
-                    customProvidersCache[providerType] = customProvider = (ILogStringProvider)ActivatorUtilities.CreateInstance(serviceProvider, providerType);
+                    customProvider = customProvidersCache[providerType] = (ILogStringProvider)ActivatorUtilities.CreateInstance(serviceProvider, providerType);
                 }
             }
 
@@ -158,4 +155,11 @@ internal abstract class ReflectionLogStringProvider : ILogStringProvider
     }
 
     protected abstract AllottingCounter Count(LoggingContext loggingContext);
+
+    protected enum Handling : byte
+    {
+        Pass,
+        Handle,
+        Forbid,
+    }
 }
