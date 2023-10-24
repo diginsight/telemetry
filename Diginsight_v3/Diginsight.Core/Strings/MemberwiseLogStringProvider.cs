@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
+using System.Collections;
 using System.Reflection;
-using System.Text;
+using Appender = System.Action<object, System.Text.StringBuilder, Diginsight.Strings.LoggingContext>;
 
 namespace Diginsight.Strings;
 
@@ -8,6 +9,8 @@ internal sealed class MemberwiseLogStringProvider : ReflectionLogStringProvider
 {
     private readonly ILogStringConfiguration logStringConfiguration;
     private readonly IReadOnlyDictionary<Type, LogStringTypeContract> typeContracts;
+
+    private readonly IDictionary<Type, Handling> handlingCache = new Dictionary<Type, Handling>();
 
     public MemberwiseLogStringProvider(
         IMemberLogStringProvider memberLogStringProvider,
@@ -23,50 +26,118 @@ internal sealed class MemberwiseLogStringProvider : ReflectionLogStringProvider
 
     protected override Handling IsHandled(Type type)
     {
-        throw new NotImplementedException();
+        lock (((ICollection)handlingCache).SyncRoot)
+        {
+            return handlingCache.TryGetValue(type, out Handling handling)
+                ? handling
+                : handlingCache[type] = IsHandledCore();
 
-        // TODO Scan type closure
-        //bool directLogStringable = type.IsDefined(typeof(LogStringableObjectAttribute), false);
-        //bool directNonLogStringable = type.IsDefined(typeof(NonLogStringableObjectAttribute), false);
+            Handling IsHandledCore()
+            {
+                foreach (Type t in GetClosure(type))
+                {
+                    if (typeContracts.TryGetValue(t, out LogStringTypeContract? typeContract))
+                    {
+                        switch (typeContract.Included)
+                        {
+                            case true:
+                                return Handling.Handle;
 
-        //return logStringConfiguration.IsMemberwiseLogStringableByDefault
-        //    ? !(directNonLogStringable || (type.IsDefined(typeof(NonLogStringableObjectAttribute), true) && !directLogStringable))
-        //    : directLogStringable || (type.IsDefined(typeof(LogStringableObjectAttribute), true) && !directNonLogStringable);
+                            case false:
+                                return Handling.Forbid;
+                        }
+                    }
+
+                    if (t.IsDefined(typeof(LogStringableObjectAttribute), false))
+                    {
+                        return Handling.Handle;
+                    }
+                    if (t.IsDefined(typeof(NonLogStringableObjectAttribute), false))
+                    {
+                        return Handling.Forbid;
+                    }
+                }
+
+                return logStringConfiguration.IsMemberwiseLogStringableByDefault ? Handling.Handle : Handling.Pass;
+            }
+        }
     }
 
-    protected override Action<object, StringBuilder, LoggingContext>[] MakeAppenders(Type type)
+    protected override Appender[] MakeAppenders(Type type)
     {
-        var fieldAppenders = type.GetFields()
-            .Where(
-                static f => !f.IsDefined(typeof(NonLogStringableMemberAttribute))
-                    && !f.FieldType.IsForbidden()
-            )
-            .Select(static f => (f, a: f.GetCustomAttribute<LogStringableMemberAttribute>()))
-            .Where(IsIncluded)
-            .Select(x => MakeAppender(x.a?.Name, x.a?.Provider, x.f));
-        var propertyAppenders = type.GetProperties()
-            .Where(
-                static p => p.GetMethod is not null
-                    && p.GetIndexParameters().Length == 0
-                    && !p.IsDefined(typeof(NonLogStringableMemberAttribute))
-                    && !p.PropertyType.IsForbidden()
-            )
-            .Select(static p => (p, a: p.GetCustomAttribute<LogStringableMemberAttribute>()))
-            .Where(IsIncluded)
-            .Select(x => MakeAppender(x.a?.Name, x.a?.Provider, x.p));
+        IEnumerable<Appender> MakeAppendersCore<TMember>(
+            IEnumerable<TMember> members, Func<TMember, bool> isUnreadable, Func<TMember, bool> isPublic, Func<TMember, Func<object, object?>> getGetValue
+        )
+            where TMember : MemberInfo
+        {
+            foreach (TMember member in members)
+            {
+                if (isUnreadable(member))
+                    continue;
+
+                LogStringMemberContract memberContract = FindMemberContract();
+
+                LogStringMemberContract FindMemberContract()
+                {
+                    foreach (Type t in GetClosure(type))
+                    {
+                        if (typeContracts.TryGetValue(t, out LogStringTypeContract? tc) &&
+                            tc.MemberContracts.TryGetValue(member, out LogStringMemberContract? mc))
+                        {
+                            return mc;
+                        }
+
+                        if (member.DeclaringType == t)
+                            break;
+                    }
+
+                    return LogStringMemberContract.Empty;
+                }
+
+                bool? included = memberContract.Included;
+                if (included == false || included == null && member.IsDefined(typeof(NonLogStringableMemberAttribute)))
+                    continue;
+
+                LogStringableMemberAttribute? attribute = member.GetCustomAttribute<LogStringableMemberAttribute>();
+                if (!(included == true || attribute is not null || isPublic(member)))
+                    continue;
+
+                yield return MakeAppender(
+                    memberContract.Name ?? attribute?.Name ?? member.Name,
+                    memberContract.ProviderType ?? attribute?.Provider,
+                    getGetValue(member)
+                );
+            }
+        }
+
+        IEnumerable<Appender> fieldAppenders = MakeAppendersCore(
+            type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic),
+            static f => f.FieldType.IsForbidden(),
+            static f => f.IsPublic,
+            static f => f.GetValue
+        );
+        IEnumerable<Appender> propertyAppenders = MakeAppendersCore(
+            type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic),
+            static p => p.PropertyType.IsForbidden() || p.GetMethod is null || p.GetIndexParameters().Length != 0,
+            static p => p.GetMethod!.IsPublic,
+            static p => p.GetValue
+        );
         return fieldAppenders.Concat(propertyAppenders).ToArray();
     }
 
-    private static bool IsIncluded((FieldInfo, LogStringableMemberAttribute?) pair)
+    private static IEnumerable<Type> GetClosure(Type type)
     {
-        (FieldInfo field, LogStringableMemberAttribute? attribute) = pair;
-        return attribute is not null || field.IsPublic;
-    }
+        Type? currentType = type;
+        while (currentType is not null)
+        {
+            yield return currentType;
+            currentType = currentType.BaseType;
+        }
 
-    private static bool IsIncluded((PropertyInfo, LogStringableMemberAttribute?) pair)
-    {
-        (PropertyInfo property, LogStringableMemberAttribute? attribute) = pair;
-        return attribute is not null || property.GetMethod!.IsPublic;
+        foreach (Type @interface in type.GetInterfaces())
+        {
+            yield return @interface;
+        }
     }
 
     protected override AllottingCounter Count(LoggingContext loggingContext) => loggingContext.CountMemberwiseProperties();

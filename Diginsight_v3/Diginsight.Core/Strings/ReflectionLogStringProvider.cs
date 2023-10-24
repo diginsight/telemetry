@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text;
+using Appender = System.Action<object, System.Text.StringBuilder, Diginsight.Strings.LoggingContext>;
 
 namespace Diginsight.Strings;
 
@@ -69,7 +70,7 @@ internal abstract class ReflectionLogStringProvider : ILogStringProvider
 
     private void AppendCore(object obj, StringBuilder stringBuilder, LoggingContext loggingContext)
     {
-        IEnumerable<Action<object, StringBuilder, LoggingContext>> GetAppenders()
+        IEnumerable<Appender> GetAppenders()
         {
             Type type = obj.GetType();
             lock (((ICollection)appendersCache).SyncRoot)
@@ -80,7 +81,7 @@ internal abstract class ReflectionLogStringProvider : ILogStringProvider
             }
         }
 
-        using IEnumerator<Action<object, StringBuilder, LoggingContext>> appenderEnumerator = GetAppenders().GetEnumerator();
+        using IEnumerator<Appender> appenderEnumerator = GetAppenders().GetEnumerator();
 
         if (!appenderEnumerator.MoveNext())
             return;
@@ -108,19 +109,19 @@ internal abstract class ReflectionLogStringProvider : ILogStringProvider
         }
     }
 
-    protected abstract Action<object, StringBuilder, LoggingContext>[] MakeAppenders(Type type);
+    protected abstract Appender[] MakeAppenders(Type type);
 
-    protected Action<object, StringBuilder, LoggingContext> MakeAppender(string? outputName, Type? providerType, PropertyInfo property)
+    protected Appender MakeAppender(string? outputName, Type? providerType, PropertyInfo property)
     {
-        return MakeAppender(outputName, providerType, property, property.GetValue);
+        return MakeAppender(outputName ?? property.Name, providerType, property.GetValue);
     }
 
-    protected Action<object, StringBuilder, LoggingContext> MakeAppender(string? outputName, Type? providerType, FieldInfo field)
+    protected Appender MakeAppender(string? outputName, Type? providerType, FieldInfo field)
     {
-        return MakeAppender(outputName, providerType, field, field.GetValue);
+        return MakeAppender(outputName ?? field.Name, providerType, field.GetValue);
     }
 
-    private Action<object, StringBuilder, LoggingContext> MakeAppender(string? outputName, Type? providerType, MemberInfo member, Func<object, object?> getValue)
+    protected Appender MakeAppender(string outputName, Type? providerType, Func<object, object?> getValue)
     {
         Func<object, object?> finalGetValue;
         if (providerType is null)
@@ -148,7 +149,7 @@ internal abstract class ReflectionLogStringProvider : ILogStringProvider
         return (obj, stringBuilder, loggingContext) =>
         {
             stringBuilder
-                .Append(outputName ?? member.Name)
+                .Append(outputName)
                 .Append(LogStringTokens.Value)
                 .AppendLogString(finalGetValue(obj), loggingContext);
         };

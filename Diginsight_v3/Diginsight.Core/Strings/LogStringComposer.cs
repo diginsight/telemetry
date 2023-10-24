@@ -33,7 +33,7 @@ internal sealed class LogStringComposer : ILogStringComposer
     {
         ILogStringProvider[] logStringProviders = logStringConfiguration.Registrations
             .Select(static x => x ?? throw new ArgumentNullException($"item in {nameof(ILogStringConfiguration)}.{nameof(ILogStringConfiguration.Registrations)}", (Exception?)null))
-            .OrderBy(static x => x.Priority)
+            .OrderByDescending(static x => x.Priority)
             .Select(x => (ILogStringProvider)ActivatorUtilities.GetServiceOrCreateInstance(serviceProvider, x.Type))
             .ToArray();
 

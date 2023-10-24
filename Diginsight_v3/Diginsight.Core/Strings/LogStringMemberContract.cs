@@ -1,19 +1,12 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
-namespace Diginsight.Strings;
+﻿namespace Diginsight.Strings;
 
 public sealed class LogStringMemberContract
 {
     public static readonly LogStringMemberContract Empty = new (null, null, null, false);
 
-    private readonly Func<IServiceProvider, ILogStringProvider?> makeProvider;
-
-    private ILogStringProvider? provider;
-    private bool isInitialized;
-    private object initLock = new ();
-
     public bool? Included { get; }
     public string? Name { get; }
+    public Type? ProviderType { get; }
 
     public LogStringMemberContract(bool? included, string? name, Type? providerType)
         : this(included, name, providerType, true) { }
@@ -27,13 +20,6 @@ public sealed class LogStringMemberContract
 
         Included = included;
         Name = name;
-        makeProvider = providerType is { } pt
-            ? sp => (ILogStringProvider)ActivatorUtilities.CreateInstance(sp, pt)
-            : static _ => null;
-    }
-
-    public ILogStringProvider? GetProvider(IServiceProvider serviceProvider)
-    {
-        return LazyInitializer.EnsureInitialized(ref provider, ref isInitialized, ref initLock, () => makeProvider(serviceProvider));
+        ProviderType = providerType;
     }
 }
