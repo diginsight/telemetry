@@ -140,12 +140,8 @@ namespace EasySample
                 // Custom ActivitySource for the application
                 //var greeterActivitySource = new ActivitySource("OtPrGrJa.Example");
                 throw new InvalidOperationException("sample ex");
-            
-            
             }
             catch (Exception _) { }
-
-
         }
 
         public int SampleMethodWithResult(int i, string s)
@@ -164,7 +160,6 @@ namespace EasySample
 
             scope.Result = result;
             return result;
-
         }
         public void SampleMethod()
         {

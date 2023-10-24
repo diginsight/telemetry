@@ -1,7 +1,7 @@
-﻿  <Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;net6.0;net7.0</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0</TargetFrameworks>
 		<!--<TargetFramework>netstandard2.0</TargetFramework>-->
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -13,8 +13,10 @@
 		<PackageTags>telemetry diginsight diagnostic insight</PackageTags>
 		<PackageIcon>TelemetryBig.png</PackageIcon>
 		<Authors>diginsight</Authors>
-		<Description>Common.Diagnostics is a .Net package that provides readable log with application execution flow to .Net Log providers such as Log4Net, Serilog or Application Insights, etc.&lt;br&gt;
-still without compromises on performance.</Description>
+		<Description>
+			Common.Diagnostics is a .Net package that provides readable log with application execution flow to .Net Log providers such as Log4Net, Serilog or Application Insights, etc.&lt;br&gt;
+			still without compromises on performance.
+		</Description>
 		<SignAssembly>true</SignAssembly>
 		<AssemblyOriginatorKeyFile>diginsight.snk</AssemblyOriginatorKeyFile>
 		<UserSecretsId>ea6bafb2-fe5a-4acb-820e-78ff096f00c7</UserSecretsId>
@@ -22,12 +24,12 @@ still without compromises on performance.</Description>
 		<Version>1.0.0.0</Version>
 		<PackageReadmeFile>README.nuget.md</PackageReadmeFile>
 		<Configurations>Debug;Release;DebugWithProjectReferences</Configurations>
-		<!--<LangVersion>7.3</LangVersion>-->
+		<LangVersion>10.0</LangVersion>
 		<!--<PackageReadmeFile>README.nuget.md</PackageReadmeFile>-->
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Providers\TraceLoggerAppinsightProvider.cs" />
+		<Compile Remove="Providers\TraceLoggerAppinsightProvider.cs" />
 	</ItemGroup>
 
 	<!--<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">
@@ -41,6 +43,20 @@ still without compromises on performance.</Description>
 		<Reference Include="System.Configuration" />
 	</ItemGroup>-->
 
+
+	<Choose>
+		<When Condition="'$(TargetFramework)' != 'net7.0'">
+			<ItemGroup>
+				<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.*" />
+			</ItemGroup>
+		</When>
+		<Otherwise>
+			<ItemGroup>
+				<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.*" />
+			</ItemGroup>
+		</Otherwise>
+	</Choose>
+
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
@@ -52,8 +68,9 @@ still without compromises on performance.</Description>
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.1" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
-		<PackageReference Include="OpenTelemetry" Version="1.6.0" />
+		<!--<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />-->
+		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.*" />
+		<PackageReference Include="OpenTelemetry" Version="1.*" />
 		<PackageReference Include="System.Net.Http.Json" Version="7.0.1" />
 		<PackageReference Include="System.Text.Json" Version="7.0.3" />
 		<PackageReference Include="System.Threading.Tasks.Dataflow" Version="7.0.0" />
@@ -61,8 +78,8 @@ still without compromises on performance.</Description>
 
 	<ItemGroup>
 		<None Include="..\README.nuget.md">
-		  <Pack>True</Pack>
-		  <PackagePath>\</PackagePath>
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
 		</None>
 		<None Include="..\images\01. Project image\Telemetry\TelemetryBig.png">
 			<Pack>True</Pack>
@@ -75,9 +92,9 @@ still without compromises on performance.</Description>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Dismissed\" />
-	  <Folder Include="Interface\" />
-	  <Folder Include="Service\" />
+		<Folder Include="Dismissed\" />
+		<Folder Include="Interface\" />
+		<Folder Include="Service\" />
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">

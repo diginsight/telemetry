@@ -23,7 +23,7 @@ using System.Threading;
 
 namespace Common
 {
-    public static class ActivityExtensions
+    public static partial class ActivityExtensions
     {
         public static CodeSectionScope StartMethodActivity<T>(this ActivitySource activitySource, ILogger<T> logger, object payload = null, SourceLevels sourceLevel = SourceLevels.Verbose, LogLevel logLevel = LogLevel.Debug, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
