@@ -3,6 +3,10 @@
 public interface ILogStringMemberContract
 {
     bool? Included { get; }
+
     string? Name { get; }
+
     Type? ProviderType { get; }
+
+    object?[] ProviderArgs { get; }
 }

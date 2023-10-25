@@ -115,4 +115,19 @@ public static class LogStringExtensions
             }
         );
     }
+
+    internal static IEnumerable<Type> GetClosure(this Type type)
+    {
+        Type? currentType = type;
+        while (currentType is not null)
+        {
+            yield return currentType;
+            currentType = currentType.BaseType;
+        }
+
+        foreach (Type @interface in type.GetInterfaces())
+        {
+            yield return @interface;
+        }
+    }
 }

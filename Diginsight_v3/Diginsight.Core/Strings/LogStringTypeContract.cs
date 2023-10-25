@@ -32,9 +32,23 @@ public sealed class LogStringTypeContract : ILogStringTypeContract
         };
     }
 
+    public LogStringTypeContract GetOrAdd(string memberName, Action<LogStringMemberContract> configureContract)
+    {
+        LogStringMemberContract contract = GetOrAdd(memberName);
+        configureContract(contract);
+        return this;
+    }
+
     public LogStringMemberContract GetOrAdd(MemberInfo member)
     {
         return GetOrAddCore(member, true);
+    }
+
+    public LogStringTypeContract GetOrAdd(MemberInfo member, Action<LogStringMemberContract> configureContract)
+    {
+        LogStringMemberContract contract = GetOrAdd(member);
+        configureContract(contract);
+        return this;
     }
 
     private LogStringMemberContract GetOrAddCore(MemberInfo member, bool validateMembership)
@@ -93,5 +107,11 @@ public sealed class LogStringTypeContract : ILogStringTypeContract
     public ILogStringMemberContract? TryGet(MemberInfo member)
     {
         return memberContracts.TryGetValue(member, out LogStringMemberContract? memberContract) ? memberContract : null;
+    }
+
+    // ReSharper disable once ParameterHidesMember
+    ILogStringTypeContract? ILogStringTypeContractAccessor.TryGet(Type type)
+    {
+        return type == this.type ? this : null;
     }
 }

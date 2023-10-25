@@ -6,10 +6,16 @@ public sealed class LogStringTypeContractAccessor : ILogStringTypeContractAccess
 
     public LogStringTypeContractAccessor()
     {
-        LogStringTypeContract exceptionContract = GetOrAdd(typeof(Exception));
-        exceptionContract.GetOrAdd(nameof(Exception.TargetSite)).Included = false;
-        exceptionContract.GetOrAdd(nameof(Exception.Data)).Included = false;
-        exceptionContract.GetOrAdd(nameof(Exception.HelpLink)).Included = false;
+        GetOrAdd(
+            typeof(Exception),
+            static tc =>
+            {
+                tc
+                    .GetOrAdd(nameof(Exception.TargetSite), static mc => { mc.Included = false; })
+                    .GetOrAdd(nameof(Exception.Data), static mc => { mc.Included = false; })
+                    .GetOrAdd(nameof(Exception.HelpLink), static mc => { mc.Included = false; });
+            }
+        );
     }
 
     public LogStringTypeContract GetOrAdd(Type type)
@@ -25,6 +31,13 @@ public sealed class LogStringTypeContractAccessor : ILogStringTypeContractAccess
         }
 
         return contracts[type] = new LogStringTypeContract(type);
+    }
+
+    public LogStringTypeContractAccessor GetOrAdd(Type type, Action<LogStringTypeContract> configureContract)
+    {
+        LogStringTypeContract contract = GetOrAdd(type);
+        configureContract(contract);
+        return this;
     }
 
     public ILogStringTypeContract? TryGet(Type type)

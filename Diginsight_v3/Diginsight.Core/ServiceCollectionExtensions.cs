@@ -21,6 +21,7 @@ public static class ServiceCollectionExtensions
         return services
             .AddOptions()
             .AddSingleton<ILogStringComposer, LogStringComposer>()
-            .AddSingleton<IMemberLogStringProvider, MemberLogStringProvider>();
+            .AddSingleton<IMemberLogStringProvider, MemberLogStringProvider>()
+            .AddSingleton<IReflectionLogStringHelper, ReflectionLogStringHelper>();
     }
 }
