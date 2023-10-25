@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Metrics;
 using System.Diagnostics;
 using System.Text;
-using System.Linq
+using System.Linq;
 
 namespace Common
 {
@@ -17,11 +17,13 @@ namespace Common
         public override void OnEnd(Activity activity)
         {
             double duration = activity.Duration.TotalMilliseconds;
+            
             TagList tags = new()
             {
                 new Tag("span_name", activity.OperationName),
                 new Tag("status", activity.Status.ToString())
             };
+            
             tags.Concat(activity.TagObjects);
             SpanDurationMetric.Record(duration, tags);
             switch (activity.GetCustomProperty(ActivityCustomPropertyNames.DurationMetric))
