@@ -5,9 +5,10 @@ using ILogger = log4net.Core.ILogger;
 
 namespace Diginsight.Diagnostics.Log4Net;
 
-// TODO Register in DI
-public sealed class ObservabilityLoggingEventFactory : ILog4NetLoggingEventFactory
+internal sealed class ObservabilityLoggingEventFactory : ILog4NetLoggingEventFactory
 {
+    private readonly ILog4NetLoggingEventFactory decoratee = new Log4NetLoggingEventFactory();
+
     public LoggingEvent? CreateLoggingEvent<TState>(
         in MessageCandidate<TState> messageCandidate,
         ILogger logger,
@@ -17,6 +18,12 @@ public sealed class ObservabilityLoggingEventFactory : ILog4NetLoggingEventFacto
     {
         TState state = messageCandidate.State;
         if (state is ObservabilityTextWriter.IOtlpOnly)
+        {
+            return null;
+        }
+
+        LoggingEvent? loggingEvent = decoratee.CreateLoggingEvent(messageCandidate, logger, options, scopeProvider);
+        if (loggingEvent is null)
         {
             return null;
         }
@@ -34,32 +41,6 @@ public sealed class ObservabilityLoggingEventFactory : ILog4NetLoggingEventFacto
             duration = null;
         }
 
-        Func<TState, Exception?, string> formatter =
-#if NET7_0_OR_GREATER
-            messageCandidate.Formatter;
-#else
-            messageCandidate.Formatter ?? (static (s, _) => s?.ToString() ?? "");
-#endif
-
-        Level? logLevel = options.LogLevelTranslator.TranslateLogLevel(messageCandidate.LogLevel, options);
-        if (logLevel == null)
-        {
-            return null;
-        }
-
-        string message = formatter(state, messageCandidate.Exception);
-        if (string.IsNullOrEmpty(message) && messageCandidate.Exception is null)
-        {
-            return null;
-        }
-
-        return new LoggingEvent(
-            typeof(Microsoft.Extensions.Logging.LoggerExtensions),
-            logger.Repository,
-            logger.Name,
-            logLevel,
-            new Log4NetMessage(message, isActivity, duration),
-            messageCandidate.Exception
-        );
+        return new ObservabilityLoggingEvent(loggingEvent, isActivity, duration);
     }
 }

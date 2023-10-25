@@ -6,7 +6,7 @@ using System.Globalization;
 
 namespace Diginsight.Diagnostics;
 
-public sealed class ObservabilityConsoleFormatter : ConsoleFormatter
+internal sealed class ObservabilityConsoleFormatter : ConsoleFormatter
 {
     public const string FormatterName = "observability";
 

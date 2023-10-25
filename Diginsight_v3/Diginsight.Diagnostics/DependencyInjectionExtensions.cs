@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 using System.Runtime.CompilerServices;
@@ -12,9 +13,9 @@ namespace Diginsight.Diagnostics;
 public static class DependencyInjectionExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IServiceCollection AddObservability(this IServiceCollection services)
+    public static OpenTelemetryBuilder AddObservability(this IServiceCollection services)
     {
-        return services;
+        return services.AddOpenTelemetry();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -53,8 +54,22 @@ public static class DependencyInjectionExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TracerProviderBuilder AddObservability(this TracerProviderBuilder tracerProviderBuilder)
     {
-        return tracerProviderBuilder
-            .AddProcessor<ObservabilityLogProcessor>();
+        return tracerProviderBuilder.AddProcessor<ObservabilityLogProcessor>();
+
+        // TODO Idempotent hacky version
+        //tracerProviderBuilder.ConfigureServices(static services => services.TryAddSingleton<ObservabilityLogProcessor>());
+
+        //static void AddObservabilityLogProcessor(IServiceProvider sp, TracerProviderBuilder tpb)
+        //{
+        //    IList<BaseProcessor<Activity>> processors = ((dynamic)tpb).Processors;
+        //    if (!processors.Any(static x => x is ObservabilityLogProcessor))
+        //    {
+        //        processors.Add(sp.GetRequiredService<ObservabilityLogProcessor>());
+        //    }
+        //}
+
+        //((dynamic)tracerProviderBuilder).ConfigureBuilder((Action<IServiceProvider, TracerProviderBuilder>)AddObservabilityLogProcessor);
+        //return tracerProviderBuilder;
     }
 
     public static MeterProviderBuilder AddViews(

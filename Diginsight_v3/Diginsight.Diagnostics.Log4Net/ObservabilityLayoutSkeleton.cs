@@ -22,11 +22,7 @@ internal sealed class ObservabilityLayoutSkeleton : LayoutSkeleton
     public override void Format(TextWriter writer, LoggingEvent loggingEvent)
     {
         IObservabilityConsoleFormatterOptions formatterOptions = formatterOptionsMonitor.CurrentValue;
-
-        if (loggingEvent.MessageObject is not Log4NetMessage message)
-        {
-            return;
-        }
+        ObservabilityLoggingEvent myLoggingEvent = (ObservabilityLoggingEvent)loggingEvent;
 
         ObservabilityTextWriter.Write(
             writer,
@@ -34,12 +30,12 @@ internal sealed class ObservabilityLayoutSkeleton : LayoutSkeleton
             formatterOptions.TimestampFormat,
             formatterOptions.TimestampCulture is { } cultureName ? CultureInfo.GetCultureInfo(cultureName) : null,
             TranslateLogLevel(loggingEvent.Level),
-            "category", // TODO Category
+            myLoggingEvent.LoggerName,
             formatterOptions.MaxCategoryLength,
-            message.Message,
+            myLoggingEvent.RenderedMessage,
             loggingEvent.ExceptionObject,
-            message.IsActivity,
-            message.Duration
+            myLoggingEvent.IsActivity,
+            myLoggingEvent.Duration
         );
     }
 
