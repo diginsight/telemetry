@@ -47,14 +47,17 @@ namespace Common
             var scope = new CodeSectionScope(logger, callerType, null, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
 
             // TODO: if (scopeSetting.Get(methodName.PublishMetrics, PublishFlow)) 
-            var fullCallerMemberName = !string.IsNullOrEmpty(scope.Name) ? $"{scope.MemberName}.{scope.Name}" : scope.MemberName;
-            var activity = activitySource.StartActivity($"{callerType.Name}.{fullCallerMemberName}"); // , ActivityKind.Internal
-            //activity.SetCustomProperty("Scope", scope);
-            //activity.SetCustomProperty("Logger", logger);
-            //activity.SetCustomProperty("LogLevel", logLevel);
-            //activity.SetCustomProperty("Payload", payload);
-            if (scope.Properties == null) { scope.Properties = new Dictionary<string, object>(); }
-            scope.Properties.Add("Activity", activity);
+            if (scope.PublishFlow || scope.PublishMetrics)
+            {
+                var fullCallerMemberName = !string.IsNullOrEmpty(scope.Name) ? $"{scope.MemberName}.{scope.Name}" : scope.MemberName;
+                var activity = activitySource.StartActivity($"{callerType.Name}.{fullCallerMemberName}"); // , ActivityKind.Internal
+                //activity.SetCustomProperty("Scope", scope);
+                //activity.SetCustomProperty("Logger", logger);
+                //activity.SetCustomProperty("LogLevel", logLevel);
+                //activity.SetCustomProperty("Payload", payload);
+                if (scope.Properties == null) { scope.Properties = new Dictionary<string, object>(); }
+                scope.Properties.Add("Activity", activity);
+            }
 
             // var stopTicks = TraceLogger.Stopwatch.ElapsedTicks;
             // var delta = stopTicks - startTicks;
@@ -312,7 +315,7 @@ namespace Common
             innerCodeSectionLogger.Information(message, category, properties, source);
         }
 #else
-        public static void LogInformation<T>(this Activity activity,  ILogger<T> logger, NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
+        public static void LogInformation<T>(this Activity activity, ILogger<T> logger, NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var type = typeof(InternalClass);
@@ -321,7 +324,7 @@ namespace Common
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Information(message, category, properties, source);
         }
-        public static void LogInformation<T>(this Activity activity,  ILogger<T> logger, FormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
+        public static void LogInformation<T>(this Activity activity, ILogger<T> logger, FormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var type = typeof(InternalClass);
@@ -359,7 +362,7 @@ namespace Common
             innerCodeSectionLogger.Warning(message, category, properties, source);
         }
 #else
-        public static void LogWarning<T>(this Activity activity,  ILogger<T> logger, NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
+        public static void LogWarning<T>(this Activity activity, ILogger<T> logger, NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var type = typeof(InternalClass);
@@ -368,7 +371,7 @@ namespace Common
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Warning(message, category, properties, source);
         }
-        public static void LogWarning<T>(this Activity activity,  ILogger<T> logger, FormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
+        public static void LogWarning<T>(this Activity activity, ILogger<T> logger, FormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var type = typeof(InternalClass);
@@ -406,7 +409,7 @@ namespace Common
             innerCodeSectionLogger.Error(message, category, properties, source);
         }
 #else
-        public static void LogError<T>(this Activity activity,  ILogger<T> logger, NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
+        public static void LogError<T>(this Activity activity, ILogger<T> logger, NonFormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var type = typeof(InternalClass);
@@ -415,7 +418,7 @@ namespace Common
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Error(message, category, properties, source);
         }
-        public static void LogError<T>(this Activity activity,  ILogger<T> logger, FormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
+        public static void LogError<T>(this Activity activity, ILogger<T> logger, FormattableString message, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var type = typeof(InternalClass);

@@ -241,4 +241,9 @@ namespace Common
     {
         public T? GetValue<T>(string key, T defaultValue);
     }
+    public interface IScopedClassConfigurationGetter<TClass>: IScopedConfiguration
+    {
+        public T? GetValue<T>(string key, T defaultValue);
+    }
+    
 }

@@ -49,7 +49,8 @@ namespace Common
         private readonly IConfiguration configuration;
         private Dictionary<string, object> scopedValues = new Dictionary<string, object>();
 
-        public ScopedConfiguration(IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
+        public ScopedConfiguration(IHttpContextAccessor httpContextAccessor,
+                                    IConfiguration configuration)
         {
             this.httpContextAccessor = httpContextAccessor;
             this.configuration = configuration;
@@ -131,6 +132,87 @@ namespace Common
 
             return false;
         }
-    #endregion
+        #endregion
+    }
+    public class ScopedClassConfigurationGetter<TClass> : IScopedConfiguration
+    {
+        //private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly IClassConfigurationGetter<TClass> configurationGetter;
+        private Dictionary<string, object> scopedValues = new Dictionary<string, object>();
+
+        public ScopedClassConfigurationGetter(IHttpContextAccessor httpContextAccessor,
+                                              IClassConfigurationGetter<TClass> configurationGetter)
+        {
+            //this.httpContextAccessor = httpContextAccessor;
+            this.configurationGetter = configurationGetter;
+        }
+
+        public T? GetValue<T>(string key, T defaultValue)
+        {
+            if (scopedValues.TryGetValue(key, out var valueObject)) { return (T)valueObject; }
+
+            var value = configurationGetter.Get<T>($"{key}", defaultValue);
+            scopedValues[key] = value;
+            return value;
+        }
+
+        #region ConvertValue
+        private static object ConvertValue(Type type, string value, string path)
+        {
+            object result;
+            Exception error;
+            TryConvertValue(type, value, out result, out error);
+            if (error != null) { throw error; }
+            return result;
+        }
+        private static bool TryConvertValue(Type type, string value, out object result, out Exception error)
+        {
+            error = null;
+            result = null;
+            if (type == typeof(object))
+            {
+                result = value;
+                return true;
+            }
+
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                if (string.IsNullOrEmpty(value))
+                {
+                    return true;
+                }
+                return TryConvertValue(Nullable.GetUnderlyingType(type), value, out result, out error);
+            }
+
+            TypeConverter converter = TypeDescriptor.GetConverter(type);
+            if (converter.CanConvertFrom(typeof(string)))
+            {
+                try
+                {
+                    result = converter.ConvertFromInvariantString(value);
+                }
+                catch (Exception ex)
+                {
+                    error = new InvalidOperationException("", ex); // SR.Format(SR.Error_FailedBinding, path, type)
+                }
+                return true;
+            }
+
+            if (type == typeof(byte[]))
+            {
+                try
+                {
+                    result = Convert.FromBase64String(value);
+                }
+                catch (FormatException ex)
+                {
+                    error = new InvalidOperationException("", ex); // SR.Format(SR.Error_FailedBinding, path, type)
+                }
+                return true;
+            }
+
+            return false;
+        }
+        #endregion
     }
 }
