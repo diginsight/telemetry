@@ -10,20 +10,15 @@ namespace Diginsight.Strings;
 
 internal abstract class ReflectionLogStringProvider : ILogStringProvider
 {
-    private readonly IMemberLogStringProvider memberLogStringProvider;
     private readonly IServiceProvider serviceProvider;
 
-    private readonly IDictionary<Type, IEnumerable<Action<object, StringBuilder, LoggingContext>>> appendersCache
-        = new Dictionary<Type, IEnumerable<Action<object, StringBuilder, LoggingContext>>>();
+    private readonly IDictionary<Type, IEnumerable<Appender>> appendersCache
+        = new Dictionary<Type, IEnumerable<Appender>>();
 
     private readonly IDictionary<Type, ILogStringProvider> customProvidersCache = new Dictionary<Type, ILogStringProvider>();
 
-    protected ReflectionLogStringProvider(
-        IMemberLogStringProvider memberLogStringProvider,
-        IServiceProvider serviceProvider
-    )
+    protected ReflectionLogStringProvider(IServiceProvider serviceProvider)
     {
-        this.memberLogStringProvider = memberLogStringProvider;
         this.serviceProvider = serviceProvider;
     }
 
@@ -34,7 +29,7 @@ internal abstract class ReflectionLogStringProvider : ILogStringProvider
         logStringable = IsHandled(type) switch
         {
             Handling.Pass => null,
-            Handling.Handle => new LogStringable(obj, this),
+            Handling.Handle => MakeLogStringable(obj),
             Handling.Forbid => new NonLogStringable(type),
             _ => throw new UnreachableException($"Unrecognized {nameof(Handling)}"),
         };
@@ -42,7 +37,11 @@ internal abstract class ReflectionLogStringProvider : ILogStringProvider
         return logStringable is not null;
     }
 
-    private sealed class LogStringable : ILogStringable
+    protected abstract Handling IsHandled(Type type);
+
+    protected abstract ILogStringable MakeLogStringable(object obj);
+
+    protected abstract class ReflectionLogStringable : ILogStringable
     {
         private readonly object obj;
         private readonly ReflectionLogStringProvider owner;
@@ -50,7 +49,7 @@ internal abstract class ReflectionLogStringProvider : ILogStringProvider
         public bool IsDeep => true;
         public bool CanCycle => true;
 
-        public LogStringable(object obj, ReflectionLogStringProvider owner)
+        protected ReflectionLogStringable(object obj, ReflectionLogStringProvider owner)
         {
             this.obj = obj;
             this.owner = owner;
@@ -58,104 +57,106 @@ internal abstract class ReflectionLogStringProvider : ILogStringProvider
 
         public void AppendTo(StringBuilder stringBuilder, LoggingContext loggingContext)
         {
-            owner.memberLogStringProvider.Append(obj.GetType(), stringBuilder, loggingContext);
+            loggingContext.Append(obj.GetType(), stringBuilder);
 
             stringBuilder.Append(LogStringTokens.MapBegin);
-            owner.AppendCore(obj, stringBuilder, loggingContext);
+            AppendCore(stringBuilder, loggingContext);
             stringBuilder.Append(LogStringTokens.MapEnd);
         }
-    }
 
-    protected abstract Handling IsHandled(Type type);
-
-    private void AppendCore(object obj, StringBuilder stringBuilder, LoggingContext loggingContext)
-    {
-        IEnumerable<Appender> GetAppenders()
+        private void AppendCore(StringBuilder stringBuilder, LoggingContext loggingContext)
         {
-            Type type = obj.GetType();
-            lock (((ICollection)appendersCache).SyncRoot)
+            IEnumerable<Appender> GetAppenders()
             {
-                return appendersCache.TryGetValue(type, out var appenders)
-                    ? appenders
-                    : appendersCache[type] = MakeAppenders(type);
-            }
-        }
+                Type type = obj.GetType();
+                IDictionary<Type, IEnumerable<Appender>> appendersCache = owner.appendersCache;
 
-        using IEnumerator<Appender> appenderEnumerator = GetAppenders().GetEnumerator();
-
-        if (!appenderEnumerator.MoveNext())
-            return;
-
-        AllottingCounter counter = Count(loggingContext);
-
-        try
-        {
-            void AppendEntry()
-            {
-                counter.Decrement();
-                appenderEnumerator.Current!(obj, stringBuilder, loggingContext);
-            }
-
-            AppendEntry();
-            while (appenderEnumerator.MoveNext())
-            {
-                stringBuilder.Append(LogStringTokens.Separator2);
-                AppendEntry();
-            }
-        }
-        catch (MaxAllottedShortCircuit)
-        {
-            stringBuilder.Append(LogStringTokens.Ellipsis);
-        }
-    }
-
-    protected abstract Appender[] MakeAppenders(Type type);
-
-    protected Appender MakeAppender(string? outputName, Type? providerType, PropertyInfo property)
-    {
-        return MakeAppender(outputName ?? property.Name, providerType, property.GetValue);
-    }
-
-    protected Appender MakeAppender(string? outputName, Type? providerType, FieldInfo field)
-    {
-        return MakeAppender(outputName ?? field.Name, providerType, field.GetValue);
-    }
-
-    protected Appender MakeAppender(string outputName, Type? providerType, Func<object, object?> getValue)
-    {
-        Func<object, object?> finalGetValue;
-        if (providerType is null)
-        {
-            finalGetValue = getValue;
-        }
-        else
-        {
-            ILogStringProvider? customProvider;
-            lock (((ICollection)customProvidersCache).SyncRoot)
-            {
-                if (!customProvidersCache.TryGetValue(providerType, out customProvider))
+                lock (((ICollection)appendersCache).SyncRoot)
                 {
-                    customProvider = customProvidersCache[providerType] = (ILogStringProvider)ActivatorUtilities.CreateInstance(serviceProvider, providerType);
+                    return appendersCache.TryGetValue(type, out var appenders)
+                        ? appenders
+                        : appendersCache[type] = MakeAppenders(type);
                 }
             }
 
-            finalGetValue = obj => getValue(obj) is { } value
-                ? customProvider.TryAsLogStringable(value, out ILogStringable? logStringable)
-                    ? logStringable
-                    : value
-                : null;
+            using IEnumerator<Appender> appenderEnumerator = GetAppenders().GetEnumerator();
+
+            if (!appenderEnumerator.MoveNext())
+                return;
+
+            AllottingCounter counter = Count(loggingContext);
+
+            try
+            {
+                void AppendEntry()
+                {
+                    counter.Decrement();
+                    appenderEnumerator.Current!(obj, stringBuilder, loggingContext);
+                }
+
+                AppendEntry();
+                while (appenderEnumerator.MoveNext())
+                {
+                    stringBuilder.Append(LogStringTokens.Separator2);
+                    AppendEntry();
+                }
+            }
+            catch (MaxAllottedShortCircuit)
+            {
+                stringBuilder.Append(LogStringTokens.Ellipsis);
+            }
         }
 
-        return (obj, stringBuilder, loggingContext) =>
-        {
-            stringBuilder
-                .Append(outputName)
-                .Append(LogStringTokens.Value)
-                .AppendLogString(finalGetValue(obj), loggingContext);
-        };
-    }
+        protected abstract Appender[] MakeAppenders(Type type);
 
-    protected abstract AllottingCounter Count(LoggingContext loggingContext);
+        protected Appender MakeAppender(string? outputName, Type? providerType, PropertyInfo property)
+        {
+            return MakeAppender(outputName ?? property.Name, providerType, property.GetValue);
+        }
+
+        protected Appender MakeAppender(string? outputName, Type? providerType, FieldInfo field)
+        {
+            return MakeAppender(outputName ?? field.Name, providerType, field.GetValue);
+        }
+
+        protected Appender MakeAppender(string outputName, Type? providerType, Func<object, object?> getValue)
+        {
+            Func<object, object?> finalGetValue;
+            if (providerType is null)
+            {
+                finalGetValue = getValue;
+            }
+            else
+            {
+                IDictionary<Type, ILogStringProvider> customProvidersCache = owner.customProvidersCache;
+
+                ILogStringProvider? customProvider;
+                lock (((ICollection)customProvidersCache).SyncRoot)
+                {
+                    if (!customProvidersCache.TryGetValue(providerType, out customProvider))
+                    {
+                        customProvider = customProvidersCache[providerType] = (ILogStringProvider)ActivatorUtilities.CreateInstance(owner.serviceProvider, providerType);
+                    }
+                }
+
+                finalGetValue = o => getValue(o) is { } value
+                    ? customProvider.TryAsLogStringable(value, out ILogStringable? logStringable)
+                        ? logStringable
+                        : value
+                    : null;
+            }
+
+            return (o, stringBuilder, loggingContext) =>
+            {
+                stringBuilder
+                    .Append(outputName)
+                    .Append(LogStringTokens.Value)
+                    .AppendLogString(finalGetValue(o), loggingContext);
+            };
+        }
+
+        protected abstract AllottingCounter Count(LoggingContext loggingContext);
+    }
 
     protected enum Handling : byte
     {

@@ -8,20 +8,34 @@ namespace Diginsight.Strings;
 internal sealed class MemberwiseLogStringProvider : ReflectionLogStringProvider
 {
     private readonly ILogStringConfiguration logStringConfiguration;
-    private readonly IReadOnlyDictionary<Type, LogStringTypeContract> typeContracts;
+    private readonly ILogStringTypeContractAccessor contractAccessor;
 
     private readonly IDictionary<Type, Handling> handlingCache = new Dictionary<Type, Handling>();
 
     public MemberwiseLogStringProvider(
-        IMemberLogStringProvider memberLogStringProvider,
         IServiceProvider serviceProvider,
         IOptions<LogStringConfiguration> logStringConfigurationOptions,
-        IOptions<LogStringTypeContractDictionary> typeContractsOptions
+        IOptions<LogStringTypeContractAccessor> contractAccessorOptions
     )
-        : base(memberLogStringProvider, serviceProvider)
+        : base(serviceProvider)
     {
         logStringConfiguration = logStringConfigurationOptions.Value;
-        typeContracts = typeContractsOptions.Value;
+        contractAccessor = contractAccessorOptions.Value;
+    }
+
+    private static IEnumerable<Type> GetClosure(Type type)
+    {
+        Type? currentType = type;
+        while (currentType is not null)
+        {
+            yield return currentType;
+            currentType = currentType.BaseType;
+        }
+
+        foreach (Type @interface in type.GetInterfaces())
+        {
+            yield return @interface;
+        }
     }
 
     protected override Handling IsHandled(Type type)
@@ -36,7 +50,7 @@ internal sealed class MemberwiseLogStringProvider : ReflectionLogStringProvider
             {
                 foreach (Type t in GetClosure(type))
                 {
-                    if (typeContracts.TryGetValue(t, out LogStringTypeContract? typeContract))
+                    if (contractAccessor.TryGet(t) is { } typeContract)
                     {
                         switch (typeContract.Included)
                         {
@@ -63,82 +77,83 @@ internal sealed class MemberwiseLogStringProvider : ReflectionLogStringProvider
         }
     }
 
-    protected override Appender[] MakeAppenders(Type type)
+    protected override ILogStringable MakeLogStringable(object obj) => new MemberwiseLogStringable(obj, this);
+
+    private sealed class MemberwiseLogStringable : ReflectionLogStringable
     {
-        IEnumerable<Appender> MakeAppendersCore<TMember>(
-            IEnumerable<TMember> members, Func<TMember, bool> isUnreadable, Func<TMember, bool> isPublic, Func<TMember, Func<object, object?>> getGetValue
-        )
-            where TMember : MemberInfo
+        private readonly MemberwiseLogStringProvider owner;
+
+        public MemberwiseLogStringable(object obj, MemberwiseLogStringProvider owner)
+            : base(obj, owner)
         {
-            foreach (TMember member in members)
+            this.owner = owner;
+        }
+
+        protected override Appender[] MakeAppenders(Type type)
+        {
+            IEnumerable<Appender> MakeAppendersCore<TMember>(
+                IEnumerable<TMember> members,
+                Func<TMember, bool> isUnreadable,
+                Func<TMember, bool> isPublic,
+                Func<TMember, Func<object, object?>> getGetValue
+            )
+                where TMember : MemberInfo
             {
-                if (isUnreadable(member))
-                    continue;
-
-                LogStringMemberContract memberContract = FindMemberContract();
-
-                LogStringMemberContract FindMemberContract()
+                foreach (TMember member in members)
                 {
-                    foreach (Type t in GetClosure(type))
+                    if (isUnreadable(member))
+                        continue;
+
+                    ILogStringMemberContract memberContract = FindMemberContract();
+
+                    ILogStringMemberContract FindMemberContract()
                     {
-                        if (typeContracts.TryGetValue(t, out LogStringTypeContract? tc) &&
-                            tc.MemberContracts.TryGetValue(member, out LogStringMemberContract? mc))
+                        foreach (Type t in GetClosure(type))
                         {
-                            return mc;
+                            if (owner.contractAccessor.TryGet(t) is { } tc &&
+                                tc.TryGet(member) is { } mc)
+                            {
+                                return mc;
+                            }
+
+                            if (member.DeclaringType == t)
+                                break;
                         }
 
-                        if (member.DeclaringType == t)
-                            break;
+                        return LogStringMemberContract.Empty;
                     }
 
-                    return LogStringMemberContract.Empty;
+                    bool? included = memberContract.Included;
+                    if (included == false || included == null && member.IsDefined(typeof(NonLogStringableMemberAttribute)))
+                        continue;
+
+                    LogStringableMemberAttribute? attribute = member.GetCustomAttribute<LogStringableMemberAttribute>();
+                    if (!(included == true || attribute is not null || isPublic(member)))
+                        continue;
+
+                    yield return MakeAppender(
+                        memberContract.Name ?? attribute?.Name ?? member.Name,
+                        memberContract.ProviderType ?? attribute?.Provider,
+                        getGetValue(member)
+                    );
                 }
-
-                bool? included = memberContract.Included;
-                if (included == false || included == null && member.IsDefined(typeof(NonLogStringableMemberAttribute)))
-                    continue;
-
-                LogStringableMemberAttribute? attribute = member.GetCustomAttribute<LogStringableMemberAttribute>();
-                if (!(included == true || attribute is not null || isPublic(member)))
-                    continue;
-
-                yield return MakeAppender(
-                    memberContract.Name ?? attribute?.Name ?? member.Name,
-                    memberContract.ProviderType ?? attribute?.Provider,
-                    getGetValue(member)
-                );
             }
+
+            IEnumerable<Appender> fieldAppenders = MakeAppendersCore(
+                type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic),
+                static f => f.FieldType.IsForbidden(),
+                static f => f.IsPublic,
+                static f => f.GetValue
+            );
+            IEnumerable<Appender> propertyAppenders = MakeAppendersCore(
+                type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic),
+                static p => p.PropertyType.IsForbidden() || p.GetMethod is null || p.GetIndexParameters().Length != 0,
+                static p => p.GetMethod!.IsPublic,
+                static p => p.GetValue
+            );
+            return fieldAppenders.Concat(propertyAppenders).ToArray();
         }
 
-        IEnumerable<Appender> fieldAppenders = MakeAppendersCore(
-            type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic),
-            static f => f.FieldType.IsForbidden(),
-            static f => f.IsPublic,
-            static f => f.GetValue
-        );
-        IEnumerable<Appender> propertyAppenders = MakeAppendersCore(
-            type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic),
-            static p => p.PropertyType.IsForbidden() || p.GetMethod is null || p.GetIndexParameters().Length != 0,
-            static p => p.GetMethod!.IsPublic,
-            static p => p.GetValue
-        );
-        return fieldAppenders.Concat(propertyAppenders).ToArray();
+        protected override AllottingCounter Count(LoggingContext loggingContext) => loggingContext.CountMemberwiseProperties();
     }
-
-    private static IEnumerable<Type> GetClosure(Type type)
-    {
-        Type? currentType = type;
-        while (currentType is not null)
-        {
-            yield return currentType;
-            currentType = currentType.BaseType;
-        }
-
-        foreach (Type @interface in type.GetInterfaces())
-        {
-            yield return @interface;
-        }
-    }
-
-    protected override AllottingCounter Count(LoggingContext loggingContext) => loggingContext.CountMemberwiseProperties();
 }

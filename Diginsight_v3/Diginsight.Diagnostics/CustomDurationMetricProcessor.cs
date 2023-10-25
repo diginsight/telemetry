@@ -4,21 +4,13 @@ using System.Diagnostics.Metrics;
 
 namespace Diginsight.Diagnostics;
 
-public sealed class DurationMetricProcessor : BaseProcessor<Activity>
+public sealed class CustomDurationMetricProcessor : BaseProcessor<Activity>
 {
-    private static readonly Histogram<double> SpanDurationMetric = ObservabilityDefaults.Meter.CreateHistogram<double>("span_duration", "ms");
-
     public override void OnStart(Activity activity) { }
 
     public override void OnEnd(Activity activity)
     {
         double duration = activity.Duration.TotalMilliseconds;
-
-        SpanDurationMetric.Record(
-            duration,
-            new Tag("span_name", activity.OperationName),
-            new Tag("status", activity.Status.ToString())
-        );
 
         switch (activity.GetCustomProperty(ActivityCustomPropertyNames.DurationMetric))
         {

@@ -32,21 +32,21 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                 logStringable = new LogStringableStringBuilder(sb);
 #else
-                logStringable = new LogStringableDirect(sb);
+                logStringable = new DirectLogStringable(sb);
 #endif
                 return true;
 
             case Regex:
-                logStringable = new LogStringableDirect(obj, "/{0}/");
+                logStringable = new DirectLogStringable(obj, "/{0}/");
                 return true;
 
             case Uri:
-                logStringable = new LogStringableDirect(obj, LogStringTokens.LiteralBegin + "{0}" + LogStringTokens.LiteralEnd);
+                logStringable = new DirectLogStringable(obj, LogStringTokens.LiteralBegin + "{0}" + LogStringTokens.LiteralEnd);
                 return true;
 
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             case Index or Range:
-                logStringable = new LogStringableDirect(obj);
+                logStringable = new DirectLogStringable(obj);
                 return true;
 #endif
 
@@ -55,11 +55,11 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
                 or DateOnly or TimeOnly
 #endif
                 :
-                logStringable = new LogStringableDirect(obj, LogStringTokens.LiteralBegin + "{0:O}" + LogStringTokens.LiteralEnd);
+                logStringable = new DirectLogStringable(obj, LogStringTokens.LiteralBegin + "{0:O}" + LogStringTokens.LiteralEnd);
                 return true;
 
             case Guid:
-                logStringable = new LogStringableDirect(obj, LogStringTokens.LiteralBegin + "{0:D}" + LogStringTokens.LiteralEnd);
+                logStringable = new DirectLogStringable(obj, LogStringTokens.LiteralBegin + "{0:D}" + LogStringTokens.LiteralEnd);
                 return true;
 
             case Delegate del:

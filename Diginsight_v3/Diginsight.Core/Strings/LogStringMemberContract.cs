@@ -1,25 +1,27 @@
 ﻿namespace Diginsight.Strings;
 
-public sealed class LogStringMemberContract
+public sealed class LogStringMemberContract : ILogStringMemberContract
 {
-    public static readonly LogStringMemberContract Empty = new (null, null, null, false);
+    public static readonly ILogStringMemberContract Empty = new LogStringMemberContract();
 
-    public bool? Included { get; }
-    public string? Name { get; }
-    public Type? ProviderType { get; }
+    private Type? providerType;
 
-    public LogStringMemberContract(bool? included, string? name, Type? providerType)
-        : this(included, name, providerType, true) { }
+    public bool? Included { get; set; }
+    public string? Name { get; set; }
 
-    internal LogStringMemberContract(bool? included, string? name, Type? providerType, bool validateProvider)
+    public Type? ProviderType
     {
-        if (validateProvider && providerType is not null && !typeof(ILogStringProvider).IsAssignableFrom(providerType))
+        get => providerType;
+        set
         {
-            throw new ArgumentException($"Type '{providerType.Name}' is not assignable to {nameof(ILogStringProvider)}");
-        }
+            if (value is not null && !typeof(ILogStringProvider).IsAssignableFrom(value))
+            {
+                throw new ArgumentException($"Type '{value.Name}' is not assignable to {nameof(ILogStringProvider)}");
+            }
 
-        Included = included;
-        Name = name;
-        ProviderType = providerType;
+            providerType = value;
+        }
     }
+
+    internal LogStringMemberContract() { }
 }

@@ -17,19 +17,19 @@ internal sealed class PrimitiveLogStringProvider : ILogStringProvider
         switch (obj)
         {
             case string:
-                logStringable = new LogStringableDirect(obj, "\"{0}\"");
+                logStringable = new DirectLogStringable(obj, "\"{0}\"");
                 return true;
 
             case bool:
-                logStringable = new LogStringableDirect(obj);
+                logStringable = new DirectLogStringable(obj);
                 return true;
 
             case char:
-                logStringable = new LogStringableDirect(obj, "'{0}'");
+                logStringable = new DirectLogStringable(obj, "'{0}'");
                 return true;
 
             case byte or sbyte:
-                logStringable = new LogStringableDirect(obj, "#{0:X2}");
+                logStringable = new DirectLogStringable(obj, "#{0:X2}");
                 return true;
 
             case short or ushort or int or uint or long or ulong or float or double or decimal:
@@ -37,7 +37,7 @@ internal sealed class PrimitiveLogStringProvider : ILogStringProvider
                 return true;
 
             case IntPtr or UIntPtr:
-                logStringable = new LogStringableDirect(obj, PTR_FORMAT);
+                logStringable = new DirectLogStringable(obj, PTR_FORMAT);
                 return true;
 
             case Enum e:
