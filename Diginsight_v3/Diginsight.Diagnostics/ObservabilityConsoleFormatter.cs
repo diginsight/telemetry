@@ -26,16 +26,15 @@ public sealed class ObservabilityConsoleFormatter : ConsoleFormatter
         TextWriter textWriter
     )
     {
-        if (logEntry.State is ObservabilityTextWriter.IOtlpOnly)
+        TState state = logEntry.State;
+        if (state is ObservabilityTextWriter.IOtlpOnly)
         {
             return;
         }
 
-        IObservabilityConsoleFormatterOptions formatterOptions = formatterOptionsMonitor.CurrentValue;
-
         bool isActivity;
         TimeSpan? duration;
-        if (logEntry.State is ObservabilityTextWriter.IActivityMark activityMark)
+        if (state is ObservabilityTextWriter.IActivityMark activityMark)
         {
             isActivity = true;
             duration = activityMark.Duration;
@@ -53,6 +52,8 @@ public sealed class ObservabilityConsoleFormatter : ConsoleFormatter
             logEntry.Formatter ?? (static (s, _) => s?.ToString() ?? "");
 #endif
 
+        IObservabilityConsoleFormatterOptions formatterOptions = formatterOptionsMonitor.CurrentValue;
+
         ObservabilityTextWriter.Write(
             textWriter,
             formatterOptions.UseUtcTimestamp ? DateTime.UtcNow : DateTime.Now,
@@ -61,7 +62,7 @@ public sealed class ObservabilityConsoleFormatter : ConsoleFormatter
             logEntry.LogLevel,
             logEntry.Category,
             formatterOptions.MaxCategoryLength,
-            formatter(logEntry.State, logEntry.Exception),
+            formatter(state, logEntry.Exception),
             logEntry.Exception,
             isActivity,
             duration

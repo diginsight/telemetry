@@ -13,8 +13,8 @@
       },
       "log4net": {
         "type": "Transitive",
-        "resolved": "2.0.15",
-        "contentHash": "GahnO9ZgFka+xYcFwAfIFjW+k86P2nxFoaEpH6t3v4hiGj7tv2ksVZphxCVIHmJxoySS0HeU3dgCW+bSCcfD0A==",
+        "resolved": "2.0.13",
+        "contentHash": "VUx7nr+IovTkL8ZFeKqGtAGCYmzOk1rCvE8NqH2NucZudVb47i99FhwcpTI4UroOBGuUstXCh5F6Zx3/x1nd2w==",
         "dependencies": {
           "System.Configuration.ConfigurationManager": "4.5.0"
         }
@@ -165,14 +165,14 @@
       },
       "Microsoft.Extensions.Logging.Log4Net.AspNetCore": {
         "type": "Transitive",
-        "resolved": "7.0.0",
-        "contentHash": "K0u/4yxRNfIDI0xGHCZUwIRGsIBJ13FSP8SWmfGvyMTm8Fzf9GlwRaGenRuopQs4/Yg0Aa1KFB1wpCVUkEpmEw==",
+        "resolved": "6.1.0",
+        "contentHash": "qHb3GudscgrgEVByh86kAq3FMmjOdPIVoqvff3eokEP+QkZHzr42l4PlgxBsqhhlIX02SazC7ZdbfiFGDPRv9A==",
         "dependencies": {
           "Microsoft.Extensions.Configuration": "2.2.0",
           "Microsoft.Extensions.Configuration.Abstractions": "2.2.0",
           "Microsoft.Extensions.Configuration.Binder": "2.2.4",
           "Microsoft.Extensions.Logging": "2.2.0",
-          "log4net": "2.0.15"
+          "log4net": "2.0.13"
         }
       },
       "Microsoft.Extensions.Options": {
@@ -375,7 +375,7 @@
         "dependencies": {
           "Diginsight.Core": "[1.0.0, )",
           "Microsoft.Extensions.Logging.Console": "[6.*, )",
-          "Microsoft.Extensions.Logging.Log4Net.AspNetCore": "[7.0.0, )",
+          "Microsoft.Extensions.Logging.Log4Net.AspNetCore": "[6.*, )",
           "OpenTelemetry.Extensions.Hosting": "[1.*, )"
         }
       }
@@ -383,8 +383,8 @@
     ".NETStandard,Version=v2.1": {
       "log4net": {
         "type": "Transitive",
-        "resolved": "2.0.15",
-        "contentHash": "GahnO9ZgFka+xYcFwAfIFjW+k86P2nxFoaEpH6t3v4hiGj7tv2ksVZphxCVIHmJxoySS0HeU3dgCW+bSCcfD0A==",
+        "resolved": "2.0.13",
+        "contentHash": "VUx7nr+IovTkL8ZFeKqGtAGCYmzOk1rCvE8NqH2NucZudVb47i99FhwcpTI4UroOBGuUstXCh5F6Zx3/x1nd2w==",
         "dependencies": {
           "System.Configuration.ConfigurationManager": "4.5.0"
         }
@@ -525,14 +525,14 @@
       },
       "Microsoft.Extensions.Logging.Log4Net.AspNetCore": {
         "type": "Transitive",
-        "resolved": "7.0.0",
-        "contentHash": "K0u/4yxRNfIDI0xGHCZUwIRGsIBJ13FSP8SWmfGvyMTm8Fzf9GlwRaGenRuopQs4/Yg0Aa1KFB1wpCVUkEpmEw==",
+        "resolved": "6.1.0",
+        "contentHash": "qHb3GudscgrgEVByh86kAq3FMmjOdPIVoqvff3eokEP+QkZHzr42l4PlgxBsqhhlIX02SazC7ZdbfiFGDPRv9A==",
         "dependencies": {
           "Microsoft.Extensions.Configuration": "3.0.0",
           "Microsoft.Extensions.Configuration.Abstractions": "3.0.0",
           "Microsoft.Extensions.Configuration.Binder": "3.0.0",
           "Microsoft.Extensions.Logging": "3.0.0",
-          "log4net": "2.0.15"
+          "log4net": "2.0.13"
         }
       },
       "Microsoft.Extensions.Options": {
@@ -724,7 +724,7 @@
         "dependencies": {
           "Diginsight.Core": "[1.0.0, )",
           "Microsoft.Extensions.Logging.Console": "[6.*, )",
-          "Microsoft.Extensions.Logging.Log4Net.AspNetCore": "[7.0.0, )",
+          "Microsoft.Extensions.Logging.Log4Net.AspNetCore": "[6.*, )",
           "OpenTelemetry.Extensions.Hosting": "[1.*, )"
         }
       }
@@ -732,8 +732,8 @@
     "net6.0": {
       "log4net": {
         "type": "Transitive",
-        "resolved": "2.0.15",
-        "contentHash": "GahnO9ZgFka+xYcFwAfIFjW+k86P2nxFoaEpH6t3v4hiGj7tv2ksVZphxCVIHmJxoySS0HeU3dgCW+bSCcfD0A==",
+        "resolved": "2.0.13",
+        "contentHash": "VUx7nr+IovTkL8ZFeKqGtAGCYmzOk1rCvE8NqH2NucZudVb47i99FhwcpTI4UroOBGuUstXCh5F6Zx3/x1nd2w==",
         "dependencies": {
           "System.Configuration.ConfigurationManager": "4.5.0"
         }
@@ -863,14 +863,14 @@
       },
       "Microsoft.Extensions.Logging.Log4Net.AspNetCore": {
         "type": "Transitive",
-        "resolved": "7.0.0",
-        "contentHash": "K0u/4yxRNfIDI0xGHCZUwIRGsIBJ13FSP8SWmfGvyMTm8Fzf9GlwRaGenRuopQs4/Yg0Aa1KFB1wpCVUkEpmEw==",
+        "resolved": "6.1.0",
+        "contentHash": "qHb3GudscgrgEVByh86kAq3FMmjOdPIVoqvff3eokEP+QkZHzr42l4PlgxBsqhhlIX02SazC7ZdbfiFGDPRv9A==",
         "dependencies": {
           "Microsoft.Extensions.Configuration": "6.0.0",
           "Microsoft.Extensions.Configuration.Abstractions": "6.0.0",
           "Microsoft.Extensions.Configuration.Binder": "6.0.0",
           "Microsoft.Extensions.Logging": "6.0.0",
-          "log4net": "2.0.15"
+          "log4net": "2.0.13"
         }
       },
       "Microsoft.Extensions.Options": {
@@ -1031,7 +1031,7 @@
         "dependencies": {
           "Diginsight.Core": "[1.0.0, )",
           "Microsoft.Extensions.Logging.Console": "[6.*, )",
-          "Microsoft.Extensions.Logging.Log4Net.AspNetCore": "[7.0.0, )",
+          "Microsoft.Extensions.Logging.Log4Net.AspNetCore": "[6.*, )",
           "OpenTelemetry.Extensions.Hosting": "[1.*, )"
         }
       }
@@ -1321,7 +1321,7 @@
         "dependencies": {
           "Diginsight.Core": "[1.0.0, )",
           "Microsoft.Extensions.Logging.Console": "[7.*, )",
-          "Microsoft.Extensions.Logging.Log4Net.AspNetCore": "[7.0.0, )",
+          "Microsoft.Extensions.Logging.Log4Net.AspNetCore": "[7.*, )",
           "OpenTelemetry.Extensions.Hosting": "[1.*, )"
         }
       }
