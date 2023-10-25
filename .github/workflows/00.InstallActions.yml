@@ -32,7 +32,11 @@ jobs:
         dotnet-version: 7.0.x
     # - name: Setup NuGet.exe for use with actions
     #   id: setup_nuget
-    #   uses: NuGet/setup-nuget@v1.2.0
+    #   uses: NuGet/setup-nuget@latest
+    - uses: nuget/setup-nuget@v1
+      with:
+        nuget-api-key: ${{ secrets.NUGET_API_KEY }}
+        nuget-version: '5.x'
     
     # - name: Install PowerShell Core
     #   id: install_powershell_core
