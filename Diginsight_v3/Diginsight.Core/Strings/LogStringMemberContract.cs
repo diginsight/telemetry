@@ -5,7 +5,7 @@ public sealed class LogStringMemberContract : ILogStringMemberContract
     public static readonly ILogStringMemberContract Empty = new LogStringMemberContract();
 
     private Type? providerType;
-    private object?[]? providerArgs;
+    private object[]? providerArgs;
 
     public bool? Included { get; set; }
     public string? Name { get; set; }
@@ -24,9 +24,9 @@ public sealed class LogStringMemberContract : ILogStringMemberContract
         }
     }
 
-    public object?[] ProviderArgs
+    public object[] ProviderArgs
     {
-        get => providerArgs ??= Array.Empty<object?>();
+        get => providerArgs ??= Array.Empty<object>();
         set => providerArgs = value;
     }
 

@@ -4,5 +4,5 @@ public interface IReflectionLogStringHelper
 {
     IEnumerable<LogStringAppender> GetCachedAppenders(Type type, Func<Type, LogStringAppender[]> makeAppenders);
 
-    ILogStringProvider GetLogStringProvider(Type providerType);
+    ILogStringProvider GetLogStringProvider(Type providerType, object[] providerArgs);
 }

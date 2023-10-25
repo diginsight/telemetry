@@ -60,7 +60,9 @@ public sealed class MemberwiseLogStringable : ReflectionLogStringable
 
                 yield return MakeAppender(
                     memberContract.Name ?? attribute?.Name ?? member.Name,
-                    memberContract.ProviderType ?? attribute?.ProviderType,
+                    memberContract.ProviderType is { } cpt ? (cpt, memberContract.ProviderArgs)
+                    : attribute?.ProviderType is { } apt ? (apt, attribute.ProviderArgs)
+                    : null,
                     getGetValue(member)
                 );
             }

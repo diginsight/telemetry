@@ -62,31 +62,31 @@ public abstract class ReflectionLogStringable : ILogStringable
 
     protected abstract LogStringAppender[] MakeAppenders(Type type);
 
-    protected LogStringAppender MakeAppender(string? outputName, Type? providerType, PropertyInfo property)
+    protected LogStringAppender MakeAppender(string? outputName, (Type, object[])? providerInfo, PropertyInfo property)
     {
-        return MakeAppender(outputName ?? property.Name, providerType, property.GetValue);
+        return MakeAppender(outputName ?? property.Name, providerInfo, property.GetValue);
     }
 
-    protected LogStringAppender MakeAppender(string? outputName, Type? providerType, FieldInfo field)
+    protected LogStringAppender MakeAppender(string? outputName, (Type, object[])? providerInfo, FieldInfo field)
     {
-        return MakeAppender(outputName ?? field.Name, providerType, field.GetValue);
+        return MakeAppender(outputName ?? field.Name, providerInfo, field.GetValue);
     }
 
-    protected LogStringAppender MakeAppender(string outputName, Type? providerType, Func<object, object?> getValue)
+    protected LogStringAppender MakeAppender(string outputName, (Type, object[])? providerInfo, Func<object, object?> getValue)
     {
         Func<object, object?> finalGetValue;
-        if (providerType is null)
+        if (providerInfo is var (providerType, providerArgs))
         {
-            finalGetValue = getValue;
-        }
-        else
-        {
-            ILogStringProvider customLogStringProvider = helper.GetLogStringProvider(providerType);
+            ILogStringProvider customLogStringProvider = helper.GetLogStringProvider(providerType, providerArgs);
             finalGetValue = o => getValue(o) is { } value
                 ? customLogStringProvider.TryAsLogStringable(value, out ILogStringable? logStringable)
                     ? logStringable
                     : value
                 : null;
+        }
+        else
+        {
+            finalGetValue = getValue;
         }
 
         return (o, stringBuilder, loggingContext) =>

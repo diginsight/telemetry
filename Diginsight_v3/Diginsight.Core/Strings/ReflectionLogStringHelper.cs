@@ -24,8 +24,13 @@ internal sealed class ReflectionLogStringHelper : IReflectionLogStringHelper
         }
     }
 
-    public ILogStringProvider GetLogStringProvider(Type providerType)
+    public ILogStringProvider GetLogStringProvider(Type providerType, object[] providerArgs)
     {
+        if (providerArgs.Length != 0)
+        {
+            return (ILogStringProvider)ActivatorUtilities.CreateInstance(serviceProvider, providerType, providerArgs);
+        }
+
         lock (((ICollection)customProvidersCache).SyncRoot)
         {
             return customProvidersCache.TryGetValue(providerType, out ILogStringProvider? customProvider)

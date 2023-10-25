@@ -8,5 +8,5 @@ public interface ILogStringMemberContract
 
     Type? ProviderType { get; }
 
-    object?[] ProviderArgs { get; }
+    object[] ProviderArgs { get; }
 }
