@@ -17,6 +17,7 @@ using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using NanoId = Nanoid.Nanoid;
+using Microsoft.AspNetCore.Http;
 #endregion
 
 namespace Common
@@ -61,7 +62,7 @@ namespace Common
             this.ModuleContext = pCopy.ModuleContext;
         }
 
-        public CodeSectionScope(ILogger logger, ITraceLoggerMinimumLevel traceLoggerMinimumLevelService, Type type, string name = null, object payload = null,
+        public CodeSectionScope(ILogger logger, Type type, string name = null, object payload = null,
                                 TraceSource traceSource = null, SourceLevels sourceLevel = SourceLevels.Verbose, LogLevel logLevel = LogLevel.Debug,
                                 string category = null, IDictionary<string, object> properties = null, string source = null, long startTicks = 0,
                                 [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0,
@@ -80,9 +81,19 @@ namespace Common
             this.logger = logger;
 
             var host = TraceLogger.Host;
-            if (traceLoggerMinimumLevelService == null && host != null) { try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { } }
-            this.TraceLoggerMinimumLevelService = traceLoggerMinimumLevelService;
-            this.MinimumLogLevel = traceLoggerMinimumLevelService?.MinimumLevel ?? LogLevel.Trace;
+
+            //if (traceLoggerMinimumLevelService == null && host != null) { try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { } }
+            //this.TraceLoggerMinimumLevelService = traceLoggerMinimumLevelService;
+            //this.MinimumLogLevel = traceLoggerMinimumLevelService?.MinimumLevel ?? LogLevel.Trace;
+            IHttpContextAccessor httpContextAccessor = null;
+            IScopedConfiguration scopedConfiguration = null;
+            if (host != null)
+            {
+                try { httpContextAccessor = host.Services?.GetService<IHttpContextAccessor>(); } catch (Exception _) { }
+                try { scopedConfiguration = httpContextAccessor?.HttpContext?.RequestServices?.GetService<IScopedConfiguration>(); } catch (Exception _) { }
+            }
+            this.ScopedConfiguration = scopedConfiguration;
+            this.MinimumLogLevel = scopedConfiguration?.GetValue("MinimumLevel", LogLevel.Trace) ?? LogLevel.Trace;
             //this._isLogEnabled = logLevel >= this.MinimumLogLevel;
 
             if (type == null && logger != null) { type = logger.GetType().GenericTypeArguments.FirstOrDefaultChecked(); }
@@ -153,7 +164,7 @@ namespace Common
             }
         }
 
-        internal CodeSectionScope(ILogger logger, ITraceLoggerMinimumLevel traceLoggerMinimumLevelService, string typeName, string name = null, object payload = null,
+        internal CodeSectionScope(ILogger logger, string typeName, string name = null, object payload = null,
                                   TraceSource traceSource = null, SourceLevels sourceLevel = SourceLevels.Verbose, LogLevel logLevel = LogLevel.Debug,
                                   string category = null, IDictionary<string, object> properties = null, string source = null, long startTicks = 0,
                                   [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0,
@@ -172,10 +183,20 @@ namespace Common
             this.logger = logger;
 
             var host = TraceLogger.Host;
-            if (traceLoggerMinimumLevelService == null && host != null) { try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { } }
-            this.TraceLoggerMinimumLevelService = traceLoggerMinimumLevelService;
-            this.MinimumLogLevel = traceLoggerMinimumLevelService?.MinimumLevel ?? LogLevel.Trace;
+            //if (traceLoggerMinimumLevelService == null && host != null) { try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { } }
+            //this.TraceLoggerMinimumLevelService = traceLoggerMinimumLevelService;
+            //this.MinimumLogLevel = traceLoggerMinimumLevelService?.MinimumLevel ?? LogLevel.Trace;
             //this._isLogEnabled = logLevel >= this.MinimumLogLevel;
+            IHttpContextAccessor httpContextAccessor = null;
+            IScopedConfiguration scopedConfiguration = null;
+            if (host != null)
+            {
+                try { httpContextAccessor = host.Services?.GetService<IHttpContextAccessor>(); } catch (Exception _) { }
+                try { scopedConfiguration = httpContextAccessor?.HttpContext?.RequestServices?.GetService<IScopedConfiguration>(); } catch (Exception _) { }
+            }
+            this.ScopedConfiguration = scopedConfiguration;
+            this.MinimumLogLevel = scopedConfiguration?.GetValue("MinimumLevel", LogLevel.Trace) ?? LogLevel.Trace;
+
 
             var type = logger?.GetType()?.GenericTypeArguments?.FirstOrDefault();
             this.T = type;
@@ -1165,7 +1186,8 @@ namespace Common
             if (ok)
             {
                 activity = activityObject as Activity;
-                if (activity != null) { 
+                if (activity != null)
+                {
                     activity.Dispose();
                     this.Properties.Remove("Activity");
                 }

@@ -37,6 +37,7 @@ namespace Common
         public int? _maxMessageLenDebug { get; set; }
 
         public ITraceLoggerMinimumLevel TraceLoggerMinimumLevelService { get; set; }
+        public IScopedConfiguration ScopedConfiguration { get; set; }
 
         public ICodeSection Caller { get; set; }
         public int NestingLevel { get; set; }
