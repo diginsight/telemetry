@@ -16,12 +16,13 @@ namespace Common
         public override void OnEnd(Activity activity)
         {
             double duration = activity.Duration.TotalMilliseconds;
-
-            SpanDurationMetric.Record(duration,
+            TagList tags = new()
+            {
                 new Tag("span_name", activity.OperationName),
                 new Tag("status", activity.Status.ToString())
-            );
-
+            };
+            tags.Concat(activity.TagObjects);
+            SpanDurationMetric.Record(duration, tags);
             switch (activity.GetCustomProperty(ActivityCustomPropertyNames.DurationMetric))
             {
                 case Histogram<double> durationMetric:
