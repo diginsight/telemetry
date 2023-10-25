@@ -70,6 +70,7 @@ namespace Common
             }
 
             var value = configuration.GetValue<T>($"AppSettings:{key}", defaultValue);
+            scopedValues[key] = value;
             return value;
         }
 
