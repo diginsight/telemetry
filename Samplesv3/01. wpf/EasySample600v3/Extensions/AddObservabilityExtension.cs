@@ -3,15 +3,12 @@ using Azure.Monitor.OpenTelemetry.Exporter;
 using Common;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using OpenTelemetry.Exporter;
-using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.Hosting;
 
 namespace EasySample
 {
@@ -30,8 +27,6 @@ namespace EasySample
 
         public static IServiceCollection AddObservability(this IServiceCollection services, string aiConnectionString, string cloudRoleName, string cloudRoleNamespace, string cloudRoleInstance)
         {
-            using var scope = TraceLogger.BeginMethodScope(T, new { services, aiConnectionString, cloudRoleNamespace, cloudRoleName, cloudRoleInstance });
-
             // https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-configuration?tabs=aspnetcore
             // Create a dictionary of resource attributes.
             var resourceAttributes = new Dictionary<string, object> {
@@ -39,50 +34,68 @@ namespace EasySample
                 { "service.namespace", cloudRoleNamespace },
                 { "service.instance.id", cloudRoleInstance }};
 
-            services.ConfigureOpenTelemetryTracerProvider((sp, builder) =>
+            //.AddTraceProvider();
+            //services.AddOpenTelemetryTracing((builder) => builder
+            //    // Configure the resource attribute `service.name` to MyServiceName
+            //    .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("MyServiceName"))
+            //    // Add tracing of the AspNetCore instrumentation library
+            //    .AddAspNetCoreInstrumentation()
+            //    .AddConsoleExporter()
+            //);
+
+            services.AddOpenTelemetry().WithTracing(builder =>
             {
                 builder.ConfigureResource(resourceBuilder => resourceBuilder.AddAttributes(resourceAttributes));
-                
+
+                builder.AddProcessor<ObservabilityLogProcessor>();
                 builder.AddAspNetCoreInstrumentation();
                 builder.AddHttpClientInstrumentation();
-
-                builder.AddConsoleExporter();
-                //builder.AddConsoleExporter(options =>
-                //{
-                //    options.Targets = ConsoleExporterOutputTargets.Console | ConsoleExporterOutputTargets.Debug;
-                //});
+                //builder.AddConsoleExporter();
+                builder.AddConsoleExporter(options => options.Targets = ConsoleExporterOutputTargets.Debug);
                 builder.AddAzureMonitorTraceExporter();
                 // builder.AddRedisInstrumentation();
 
                 builder.AddSource("Azure.*");
                 builder.AddSource(App.ActivitySource.Name);
-                builder.AddSource(ApplicationMetrics.Instance.ObservabilityName);
-
-                //provider.GetService(typeof(T))
-
-                builder.AddProcessor(sp =>
-                {
-                    //var options = sp.GetRequiredService<IOptionsMonitor<ConsoleExporterOptions>>().Get(name);
-                    return new ActivityProcessor(new ActivityExporter());
-                });
-
+                // builder.AddSource(KeyVaultSampleMetrics.Instance.ObservabilityName);
                 //builder.SetSampler(serviceProvider => new HttpHeaderSampler(serviceProvider, new ParentBasedSampler(new TraceIdRatioBasedSampler(openTelemetryOptions.TracingSamplingRatio))));
                 //builder.AddOtlpExporter(options =>
                 //    {
                 //        options.Endpoint = new Uri(openTelemetryOptions.OltpEndpoint);
-                //    });
+                //    }); 
+
             });
+            //services.ConfigureOpenTelemetryTracerProvider((sp, builder) =>
+            //{
+            //    builder.ConfigureResource(resourceBuilder => resourceBuilder.AddAttributes(resourceAttributes));
+
+            //    //builder.AddAspNetCoreInstrumentation();
+            //    builder.AddHttpClientInstrumentation();
+            //    //builder.AddConsoleExporter();
+            //    builder.AddConsoleExporter(options => options.Targets = ConsoleExporterOutputTargets.Debug);
+            //    builder.AddAzureMonitorTraceExporter();
+            //    // builder.AddRedisInstrumentation();
+
+            //    builder.AddSource("Azure.*");
+            //    builder.AddSource(App.ActivitySource.Name);
+            //    builder.AddSource(KeyVaultSampleMetrics.Instance.ObservabilityName);
+            //    //builder.SetSampler(serviceProvider => new HttpHeaderSampler(serviceProvider, new ParentBasedSampler(new TraceIdRatioBasedSampler(openTelemetryOptions.TracingSamplingRatio))));
+            //    //builder.AddOtlpExporter(options =>
+            //    //    {
+            //    //        options.Endpoint = new Uri(openTelemetryOptions.OltpEndpoint);
+            //    //    });
+            //});
 
             services.ConfigureOpenTelemetryMeterProvider((sp, builder) =>
             {
-                builder.AddAspNetCoreInstrumentation();
+                //builder.AddAspNetCoreInstrumentation();
                 builder.AddHttpClientInstrumentation();
                 builder.AddConsoleExporter();
                 builder.AddPrometheusExporter();
 
                 //builder.AddOtlpExporter();
-                builder.AddMetrics<ApplicationMetrics>();
-                builder.AddMeter(ApplicationMetrics.StaticObservabilityName);
+                //builder.AddMetrics<KeyVaultSampleMetrics>();
+                //builder.AddMeter(KeyVaultSampleMetrics.StaticObservabilityName);
                 builder.AddAzureMonitorMetricExporter();
                 builder.ConfigureResource(resourceBuilder => resourceBuilder.AddAttributes(resourceAttributes));
             });

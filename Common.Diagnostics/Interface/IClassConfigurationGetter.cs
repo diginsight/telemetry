@@ -6,7 +6,7 @@ namespace Common
         IClassConfigurationGetter Empty { get; }
         T Get<T>(string key, T defaultValue = default);
     }
-    internal sealed class EmptyClassConfigurationGetter : IClassConfigurationGetter
+    public sealed class EmptyClassConfigurationGetter : IClassConfigurationGetter
     {
         internal static IClassConfigurationGetter _empty = new EmptyClassConfigurationGetter();
         IClassConfigurationGetter IClassConfigurationGetter.Empty => _empty;
@@ -19,7 +19,7 @@ namespace Common
     {
         IClassConfigurationGetter<TClass> Empty { get; }
     }
-    internal sealed class EmptyClassConfigurationGetter<TClass> : IClassConfigurationGetter<TClass>
+    public sealed class EmptyClassConfigurationGetter<TClass> : IClassConfigurationGetter<TClass>
     {
         internal static IClassConfigurationGetter<TClass> _empty = new EmptyClassConfigurationGetter<TClass>();
         public IClassConfigurationGetter<TClass> Empty => _empty;

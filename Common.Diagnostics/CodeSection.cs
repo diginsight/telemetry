@@ -45,6 +45,7 @@ namespace Common
             this.OperationDept = pCopy.OperationDept;
 
             this.ModuleContext = pCopy.ModuleContext;
+
         }
         public CodeSection(object pthis, string name = null, object payload = null, TraceSource traceSource = null, SourceLevels sourceLevel = SourceLevels.Verbose,
                            string category = null, IDictionary<string, object> properties = null, string source = null, long startTicks = 0, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
@@ -65,7 +66,11 @@ namespace Common
             this.T = type;
             this.Assembly = type?.Assembly;
             this.Category = category;
-            if (string.IsNullOrEmpty(source)) { source = this.Assembly?.GetName()?.Name; }
+            if (string.IsNullOrEmpty(source))
+            {
+                var assemplyName = this.Assembly?.GetName();
+                source = assemplyName?.Name;
+            }
 
             this.Properties = properties;
             this.Source = source;

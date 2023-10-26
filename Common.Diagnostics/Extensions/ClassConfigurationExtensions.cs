@@ -17,6 +17,9 @@ namespace Common
         {
             services.TryAddSingleton(typeof(IClassConfigurationGetter<>), typeof(ClassConfigurationGetter<>));
             services.TryAddSingleton<IClassConfigurationGetterProvider, ClassConfigurationGetterProvider>();
+
+            services.TryAddScoped(typeof(IScopedClassConfigurationGetter<>), typeof(ScopedClassConfigurationGetter<>));
+            services.AddScoped<IScopedConfiguration, ScopedConfiguration>();
             return services;
         }
 

@@ -47,6 +47,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\..\Common.Diagnostics.Logstrings.Wpf\Common.Diagnostics.Logstrings.Wpf.csproj" />
 		<ProjectReference Include="..\..\..\Common.Diagnostics\Common.Diagnostics.csproj" />
 		<ProjectReference Include="..\..\..\Diginsight_v3\Diginsight.Diagnostics\Diginsight.Diagnostics.csproj" />
 	</ItemGroup>

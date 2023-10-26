@@ -36,7 +36,9 @@ namespace Common
         public int? _maxMessageLenVerbose { get; set; }
         public int? _maxMessageLenDebug { get; set; }
 
-        public ITraceLoggerMinimumLevel TraceLoggerMinimumLevelService { get; set; }
+        public IClassConfigurationGetter ClassConfigurationGetter { get; set; }
+        //public ITraceLoggerMinimumLevel TraceLoggerMinimumLevelService { get; set; }
+        //public IScopedConfiguration ScopedConfiguration { get; set; }
 
         public ICodeSection Caller { get; set; }
         public int NestingLevel { get; set; }
@@ -71,6 +73,8 @@ namespace Common
         public LogLevel MinimumLogLevel { get; set; }
         public IDictionary<string, object> Properties { get; set; }
         public bool IsInnerScope { get; set; }
+        public bool PublishMetrics { get; set; }
+        public bool PublishFlow { get; set; }
         public ICodeSection InnerScope { get; set; }
 
         public static AsyncLocal<ICodeSection> Current { get; set; } = new AsyncLocal<ICodeSection>();

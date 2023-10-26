@@ -30,13 +30,13 @@ namespace Common
 
             var host = TraceLogger.Host;
             if (logger == null && host != null) { try { logger = host.Services?.GetService<ILogger<T>>(); } catch (Exception _) { } }
-            var traceLoggerMinimumLevelService = default(ITraceLoggerMinimumLevel);
-            if (host != null)
-            {
-                try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { }
-            }
+            //var traceLoggerMinimumLevelService = default(ITraceLoggerMinimumLevel);
+            //if (host != null)
+            //{
+            //    try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { }
+            //}
 
-            var sec = new CodeSectionScope(logger, traceLoggerMinimumLevelService, typeof(T), null, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
+            var sec = new CodeSectionScope(logger, typeof(T), null, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
             var stopTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var delta = stopTicks - startTicks;
             return sec;
@@ -45,20 +45,20 @@ namespace Common
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
-            var traceLoggerMinimumLevelService = default(ITraceLoggerMinimumLevel);
             ILogger<T> logger = null;
             if (host == null) { host = TraceLogger.Host; }
             if (host != null) { try { logger = host.Services?.GetService<ILogger<T>>(); } catch (Exception _) { } }
-            if (host != null)
-            {
-                try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { }
-            }
+            //var traceLoggerMinimumLevelService = default(ITraceLoggerMinimumLevel);
+            //if (host != null)
+            //{
+            //    try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { }
+            //}
 
             //var loggerFactory = host.Services.GetService<ILoggerFactory>();
             //if (loggerFactory == null) { loggerFactory = TraceLogger.LoggerFactory; }
             //logger = loggerFactory.CreateLogger<T>();
 
-            var sec = new CodeSectionScope(logger, traceLoggerMinimumLevelService, typeof(T), null, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
+            var sec = new CodeSectionScope(logger, typeof(T), null, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
             var stopTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var delta = stopTicks - startTicks;
             return sec;
@@ -76,12 +76,12 @@ namespace Common
                 loggerType = loggerType.MakeGenericType(new[] { t });
                 logger = host.Services.GetService(loggerType) as ILogger;
             }
-            if (host != null)
-            {
-                try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { }
-            }
+            //if (host != null)
+            //{
+            //    try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { }
+            //}
 
-            var sec = new CodeSectionScope(logger, traceLoggerMinimumLevelService, t, null, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
+            var sec = new CodeSectionScope(logger, t, null, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
             var stopTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var delta = stopTicks - startTicks;
             return sec;
@@ -91,21 +91,21 @@ namespace Common
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
-            var traceLoggerMinimumLevelService = default(ITraceLoggerMinimumLevel);
             var host = TraceLogger.Host;
             if (logger == null && host != null) { try { logger = host.Services?.GetService<ILogger<T>>(); } catch (Exception _) { } }
+            //var traceLoggerMinimumLevelService = default(ITraceLoggerMinimumLevel);
+            ////if (host != null)
+            ////{
+            ////    var traceLoggerMinimumLevel = host.Services?.GetService<ITraceLoggerMinimumLevel>();
+            ////    var minimumLevel = traceLoggerMinimumLevel?.MinimumLevel;
+            ////    if (minimumLevel.HasValue && minimumLevel.Value > logLevel) { return null; }
+            ////}
             //if (host != null)
             //{
-            //    var traceLoggerMinimumLevel = host.Services?.GetService<ITraceLoggerMinimumLevel>();
-            //    var minimumLevel = traceLoggerMinimumLevel?.MinimumLevel;
-            //    if (minimumLevel.HasValue && minimumLevel.Value > logLevel) { return null; }
+            //    try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { }
             //}
-            if (host != null)
-            {
-                try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { }
-            }
 
-            var sec = new CodeSectionScope(logger, traceLoggerMinimumLevelService, typeof(T), name, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
+            var sec = new CodeSectionScope(logger, typeof(T), name, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
             var stopTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var delta = stopTicks - startTicks;
             return sec;
@@ -114,16 +114,16 @@ namespace Common
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
-            var traceLoggerMinimumLevelService = default(ITraceLoggerMinimumLevel);
             ILogger<T> logger = null;
             if (host == null) { host = TraceLogger.Host; }
             if (host != null) { try { logger = host.Services?.GetService<ILogger<T>>(); } catch (Exception _) { } }
-            if (host != null)
-            {
-                try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { }
-            }
+            //var traceLoggerMinimumLevelService = default(ITraceLoggerMinimumLevel);
+            //if (host != null)
+            //{
+            //    try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { }
+            //}
 
-            var sec = new CodeSectionScope(logger, traceLoggerMinimumLevelService, typeof(T), name, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
+            var sec = new CodeSectionScope(logger, typeof(T), name, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
             var stopTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var delta = stopTicks - startTicks;
             return sec;
@@ -132,7 +132,6 @@ namespace Common
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
-            var traceLoggerMinimumLevelService = default(ITraceLoggerMinimumLevel);
             ILogger logger = null;
             if (host == null) { host = TraceLogger.Host; }
             if (host != null)
@@ -141,40 +140,41 @@ namespace Common
                 loggerType = loggerType.MakeGenericType(new[] { t });
                 logger = host.Services.GetService(loggerType) as ILogger;
             }
-            if (host != null)
-            {
-                try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { }
-            }
+            //var traceLoggerMinimumLevelService = default(ITraceLoggerMinimumLevel);
+            //if (host != null)
+            //{
+            //    try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { }
+            //}
 
 
-            var sec = new CodeSectionScope(logger, traceLoggerMinimumLevelService, t, name, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
+            var sec = new CodeSectionScope(logger, t, name, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
             var stopTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var delta = stopTicks - startTicks;
             return sec;
         }
 
-        public static ILogger<T> GetLogger<T>(this IHost host)
-        {
-            if (host == null) return null;
+        //public static ILogger<T> GetLogger<T>(this IHost host)
+        //{
+        //    if (host == null) return null;
 
-            TraceLogger.Host = host;
-            var logger = host.Services.GetService<ILogger<T>>();
+        //    TraceLogger.Host = host;
+        //    var logger = host.Services.GetService<ILogger<T>>();
 
-            //TraceLogger.LoggerFactory = host?.Services?.GetService<ILoggerFactory>();
-            //var logger = TraceLogger.LoggerFactory?.CreateLogger<T>();
-            return logger;
-        }
-        public static void InitTraceLogger(this IHost host)
-        {
-            using (new SwitchOnDispose(TraceLogger._lockListenersNotifications, true))
-            using (new SwitchOnDispose(TraceLogger._isInitializing, true))
-            using (new SwitchOnDispose(TraceLogger._isInitializeComplete, false))
-            {
-                TraceLogger.Host = host;
-                //TraceLogger.LoggerFactory = host.Services.GetService<ILoggerFactory>();
-            }
-            return;
-        }
+        //    //TraceLogger.LoggerFactory = host?.Services?.GetService<ILoggerFactory>();
+        //    //var logger = TraceLogger.LoggerFactory?.CreateLogger<T>();
+        //    return logger;
+        //}
+        //public static void InitTraceLogger(this IHost host)
+        //{
+        //    using (new SwitchOnDispose(TraceLogger._lockListenersNotifications, true))
+        //    using (new SwitchOnDispose(TraceLogger._isInitializing, true))
+        //    using (new SwitchOnDispose(TraceLogger._isInitializeComplete, false))
+        //    {
+        //        TraceLogger.Host = host;
+        //        //TraceLogger.LoggerFactory = host.Services.GetService<ILoggerFactory>();
+        //    }
+        //    return;
+        //}
 
         //public static SectionScope BeginMethodScope(Type t, object payload = null, SourceLevels sourceLevel = SourceLevels.Verbose, LogLevel LogLevel = LogLevel.Trace, string category = null, IDictionary<string, object> properties = null, string source = null, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         //{
@@ -195,7 +195,7 @@ namespace Common
             var startticks = TraceLogger.Stopwatch.ElapsedTicks;
             //var type = typeof(InternalClass);
             var caller = CodeSectionScope.Current.Value;
-            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, null, typeof(T), null, null, null, SourceLevels.Verbose, LogLevel.Debug, category, properties, source, startticks, membername, sourcefilepath, sourcelinenumber, true);
+            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, typeof(T), null, null, null, SourceLevels.Verbose, LogLevel.Debug, category, properties, source, startticks, membername, sourcefilepath, sourcelinenumber, true);
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Debug(obj, category, properties, source);
         }
@@ -204,7 +204,7 @@ namespace Common
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var caller = CodeSectionScope.Current.Value;
-            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, null, typeof(T), null, null, null, SourceLevels.Verbose, LogLevel.Debug, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
+            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, typeof(T), null, null, null, SourceLevels.Verbose, LogLevel.Debug, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Debug(ref message, category, properties, source);
         }
@@ -212,7 +212,7 @@ namespace Common
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var caller = CodeSectionScope.Current.Value;
-            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, null, typeof(T), null, null, null, SourceLevels.Verbose, LogLevel.Debug, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
+            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, typeof(T), null, null, null, SourceLevels.Verbose, LogLevel.Debug, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Debug(message, category, properties, source);
         }
@@ -222,7 +222,7 @@ namespace Common
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var type = typeof(InternalClass);
             var caller = CodeSectionScope.Current.Value;
-            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, null, typeof(T), null, null, null, SourceLevels.Verbose, LogLevel.Debug, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
+            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, typeof(T), null, null, null, SourceLevels.Verbose, LogLevel.Debug, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Debug(message, category, properties, source);
         }
@@ -231,7 +231,7 @@ namespace Common
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var type = typeof(InternalClass);
             var caller = CodeSectionScope.Current.Value;
-            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, null, typeof(T), null, null, null, SourceLevels.Verbose, LogLevel.Debug, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
+            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, typeof(T), null, null, null, SourceLevels.Verbose, LogLevel.Debug, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Debug(message, category, properties, source);
         }
@@ -241,7 +241,7 @@ namespace Common
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             //var type = typeof(InternalClass);
             var caller = CodeSectionScope.Current.Value;
-            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, null, typeof(T), null, null, null, SourceLevels.Verbose, LogLevel.Debug, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
+            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, typeof(T), null, null, null, SourceLevels.Verbose, LogLevel.Debug, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Debug(getMessage, category, properties, source);
         }
@@ -251,7 +251,7 @@ namespace Common
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var caller = CodeSectionScope.Current.Value;
-            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, null, typeof(T), null, null, null, SourceLevels.Information, LogLevel.Information, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
+            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, typeof(T), null, null, null, SourceLevels.Information, LogLevel.Information, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Information(ref message, category, properties, source);
         }
@@ -259,7 +259,7 @@ namespace Common
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var caller = CodeSectionScope.Current.Value;
-            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, null, typeof(T), null, null, null, SourceLevels.Information, LogLevel.Information, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
+            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, typeof(T), null, null, null, SourceLevels.Information, LogLevel.Information, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Information(message, category, properties, source);
         }
@@ -269,7 +269,7 @@ namespace Common
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var type = typeof(InternalClass);
             var caller = CodeSectionScope.Current.Value;
-            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, null, typeof(T), null, null, null, SourceLevels.Information, LogLevel.Information, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
+            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, typeof(T), null, null, null, SourceLevels.Information, LogLevel.Information, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Information(message, category, properties, source);
         }
@@ -278,7 +278,7 @@ namespace Common
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var type = typeof(InternalClass);
             var caller = CodeSectionScope.Current.Value;
-            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, null, typeof(T), null, null, null, SourceLevels.Information, LogLevel.Information, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
+            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, typeof(T), null, null, null, SourceLevels.Information, LogLevel.Information, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Information(message, category, properties, source);
         }
@@ -288,7 +288,7 @@ namespace Common
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             //var type = typeof(InternalClass);
             var caller = CodeSectionScope.Current.Value;
-            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, null, typeof(T), null, null, null, SourceLevels.Information, LogLevel.Information, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
+            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, typeof(T), null, null, null, SourceLevels.Information, LogLevel.Information, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Information(getMessage, category, properties, source);
         }
@@ -298,7 +298,7 @@ namespace Common
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var caller = CodeSectionScope.Current.Value;
-            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, null, typeof(T), null, null, null, SourceLevels.Warning, LogLevel.Warning, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
+            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, typeof(T), null, null, null, SourceLevels.Warning, LogLevel.Warning, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Warning(ref message, category, properties, source);
         }
@@ -306,7 +306,7 @@ namespace Common
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var caller = CodeSectionScope.Current.Value;
-            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, null, typeof(T), null, null, null, SourceLevels.Warning, LogLevel.Warning, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
+            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, typeof(T), null, null, null, SourceLevels.Warning, LogLevel.Warning, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Warning(message, category, properties, source);
         }
@@ -316,7 +316,7 @@ namespace Common
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var type = typeof(InternalClass);
             var caller = CodeSectionScope.Current.Value;
-            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, null, typeof(T), null, null, null, SourceLevels.Warning, LogLevel.Warning, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
+            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, typeof(T), null, null, null, SourceLevels.Warning, LogLevel.Warning, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Warning(message, category, properties, source);
         }
@@ -325,7 +325,7 @@ namespace Common
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var type = typeof(InternalClass);
             var caller = CodeSectionScope.Current.Value;
-            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, null, typeof(T), null, null, null, SourceLevels.Warning, LogLevel.Warning, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
+            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, typeof(T), null, null, null, SourceLevels.Warning, LogLevel.Warning, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Warning(message, category, properties, source);
         }
@@ -335,7 +335,7 @@ namespace Common
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             //var type = typeof(InternalClass);
             var caller = CodeSectionScope.Current.Value;
-            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, null, typeof(T), null, null, null, SourceLevels.Warning, LogLevel.Warning, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
+            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, typeof(T), null, null, null, SourceLevels.Warning, LogLevel.Warning, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Warning(getMessage, category, properties, source);
         }
@@ -345,7 +345,7 @@ namespace Common
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var caller = CodeSectionScope.Current.Value;
-            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, null, typeof(T), null, null, null, SourceLevels.Error, LogLevel.Error, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
+            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, typeof(T), null, null, null, SourceLevels.Error, LogLevel.Error, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Error(ref message, category, properties, source);
         }
@@ -353,7 +353,7 @@ namespace Common
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var caller = CodeSectionScope.Current.Value;
-            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, null, typeof(T), null, null, null, SourceLevels.Error, LogLevel.Error, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
+            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, typeof(T), null, null, null, SourceLevels.Error, LogLevel.Error, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Error(message, category, properties, source);
         }
@@ -363,7 +363,7 @@ namespace Common
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var type = typeof(InternalClass);
             var caller = CodeSectionScope.Current.Value;
-            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, null, typeof(T), null, null, null, SourceLevels.Error, LogLevel.Error, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
+            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, typeof(T), null, null, null, SourceLevels.Error, LogLevel.Error, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Error(message, category, properties, source);
         }
@@ -372,7 +372,7 @@ namespace Common
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             var type = typeof(InternalClass);
             var caller = CodeSectionScope.Current.Value;
-            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, null, typeof(T), null, null, null, SourceLevels.Error, LogLevel.Error, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
+            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, typeof(T), null, null, null, SourceLevels.Error, LogLevel.Error, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Error(message, category, properties, source);
         }
@@ -382,7 +382,7 @@ namespace Common
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             //var type = typeof(InternalClass);
             var caller = CodeSectionScope.Current.Value;
-            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, null, typeof(T), null, null, null, SourceLevels.Error, LogLevel.Error, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
+            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, typeof(T), null, null, null, SourceLevels.Error, LogLevel.Error, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Error(getMessage, category, properties, source);
         }
@@ -392,43 +392,43 @@ namespace Common
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
             //var type = typeof(InternalClass);
             var caller = CodeSectionScope.Current.Value;
-            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, null, typeof(T), null, null, null, SourceLevels.Error, LogLevel.Error, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
+            var innerSectionScope = caller != null ? caller = caller.GetInnerSection() : caller = new CodeSectionScope(logger, typeof(T), null, null, null, SourceLevels.Error, LogLevel.Error, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber, true);
             var innerCodeSectionLogger = innerSectionScope as ICodeSectionLogger;
             innerCodeSectionLogger.Exception(exception, category, properties, source);
         }
 
-        public static ILoggingBuilder AddDiginsightFormatted(this ILoggingBuilder builder, ILoggerProvider logProvider, IConfiguration config = null, string configurationPrefix = null) // , IServiceProvider serviceProvider
-        {
-            TraceLogger.InitConfiguration(config);
+        //public static ILoggingBuilder AddDiginsightFormatted(this ILoggingBuilder builder, ILoggerProvider logProvider, IConfiguration config = null, string configurationPrefix = null) // , IServiceProvider serviceProvider
+        //{
+        //    TraceLogger.InitConfiguration(config);
 
-            var traceLoggerFormatProvider = default(TraceLoggerFormatProvider);
-            if (logProvider.GetType().Name == "Log4NetProvider") { traceLoggerFormatProvider = new DiginsightFormattedLog4NetProvider() { ConfigurationSuffix = configurationPrefix }; }
-            else if (logProvider.GetType().Name == "ApplicationInsightsLoggerProvider") { traceLoggerFormatProvider = new DiginsightFormattedApplicationInsightsProvider() { ConfigurationSuffix = configurationPrefix }; }
-            else if (logProvider.GetType().Name == "ConsoleProvider") { traceLoggerFormatProvider = new DiginsightFormattedConsoleProvider() { ConfigurationSuffix = configurationPrefix }; }
-            else if (logProvider.GetType().Name == "DebugProvider") { traceLoggerFormatProvider = new DiginsightFormattedDebugProvider() { ConfigurationSuffix = configurationPrefix }; }
-            else { traceLoggerFormatProvider = new TraceLoggerFormatProvider() { ConfigurationSuffix = configurationPrefix }; }
+        //    var traceLoggerFormatProvider = default(TraceLoggerFormatProvider);
+        //    if (logProvider.GetType().Name == "Log4NetProvider") { traceLoggerFormatProvider = new DiginsightFormattedLog4NetProvider() { ConfigurationSuffix = configurationPrefix }; }
+        //    else if (logProvider.GetType().Name == "ApplicationInsightsLoggerProvider") { traceLoggerFormatProvider = new DiginsightFormattedApplicationInsightsProvider() { ConfigurationSuffix = configurationPrefix }; }
+        //    else if (logProvider.GetType().Name == "ConsoleProvider") { traceLoggerFormatProvider = new DiginsightFormattedConsoleProvider() { ConfigurationSuffix = configurationPrefix }; }
+        //    else if (logProvider.GetType().Name == "DebugProvider") { traceLoggerFormatProvider = new DiginsightFormattedDebugProvider() { ConfigurationSuffix = configurationPrefix }; }
+        //    else { traceLoggerFormatProvider = new TraceLoggerFormatProvider() { ConfigurationSuffix = configurationPrefix }; }
 
-            traceLoggerFormatProvider.AddProvider(logProvider);
+        //    traceLoggerFormatProvider.AddProvider(logProvider);
 
-            builder.AddProvider(traceLoggerFormatProvider);
-            return builder;
-        }
-        public static ILoggingBuilder AddDiginsightJson(this ILoggingBuilder builder, ILoggerProvider logProvider, IConfiguration config = null, string configurationPrefix = null) // , IServiceProvider serviceProvider
-        {
-            TraceLogger.InitConfiguration(config);
+        //    builder.AddProvider(traceLoggerFormatProvider);
+        //    return builder;
+        //}
+        //public static ILoggingBuilder AddDiginsightJson(this ILoggingBuilder builder, ILoggerProvider logProvider, IConfiguration config = null, string configurationPrefix = null) // , IServiceProvider serviceProvider
+        //{
+        //    TraceLogger.InitConfiguration(config);
 
-            var traceLoggerJsonProvider = default(TraceLoggerJsonProvider);
-            if (logProvider.GetType().Name == "Log4NetProvider") { traceLoggerJsonProvider = new DiginsightJsonLog4NetProvider() { ConfigurationSuffix = configurationPrefix }; }
-            else if (logProvider.GetType().Name == "ApplicationInsightsLoggerProvider") { traceLoggerJsonProvider = new DiginsightJsonApplicationInsightsProvider() { ConfigurationSuffix = configurationPrefix }; }
-            else if (logProvider.GetType().Name == "ConsoleProvider") { traceLoggerJsonProvider = new DiginsightJsonConsoleProvider() { ConfigurationSuffix = configurationPrefix }; }
-            else if (logProvider.GetType().Name == "DebugProvider") { traceLoggerJsonProvider = new DiginsightJsonDebugProvider() { ConfigurationSuffix = configurationPrefix }; }
-            else { traceLoggerJsonProvider = new TraceLoggerJsonProvider() { ConfigurationSuffix = configurationPrefix }; }
-            //TraceLoggerConsoleProvider, TraceLoggerDebugProvider
-            traceLoggerJsonProvider.AddProvider(logProvider);
+        //    var traceLoggerJsonProvider = default(TraceLoggerJsonProvider);
+        //    if (logProvider.GetType().Name == "Log4NetProvider") { traceLoggerJsonProvider = new DiginsightJsonLog4NetProvider() { ConfigurationSuffix = configurationPrefix }; }
+        //    else if (logProvider.GetType().Name == "ApplicationInsightsLoggerProvider") { traceLoggerJsonProvider = new DiginsightJsonApplicationInsightsProvider() { ConfigurationSuffix = configurationPrefix }; }
+        //    else if (logProvider.GetType().Name == "ConsoleProvider") { traceLoggerJsonProvider = new DiginsightJsonConsoleProvider() { ConfigurationSuffix = configurationPrefix }; }
+        //    else if (logProvider.GetType().Name == "DebugProvider") { traceLoggerJsonProvider = new DiginsightJsonDebugProvider() { ConfigurationSuffix = configurationPrefix }; }
+        //    else { traceLoggerJsonProvider = new TraceLoggerJsonProvider() { ConfigurationSuffix = configurationPrefix }; }
+        //    //TraceLoggerConsoleProvider, TraceLoggerDebugProvider
+        //    traceLoggerJsonProvider.AddProvider(logProvider);
 
-            builder.AddProvider(traceLoggerJsonProvider);
-            return builder;
-        }
+        //    builder.AddProvider(traceLoggerJsonProvider);
+        //    return builder;
+        //}
 
         //public static ILoggingBuilder AddDiginsightApplicationInsight(this ILoggingBuilder builder, ILoggerProvider logProvider, IConfiguration config = null, string configurationPrefix = null) // , IServiceProvider serviceProvider
         //{

@@ -43,7 +43,7 @@ namespace EasySample
     public partial class App : Application
     {
         const string CONFIGVALUE_APPINSIGHTSKEY = "AppInsightsKey", DEFAULTVALUE_APPINSIGHTSKEY = "";
-        
+
         static Type T = typeof(App);
         public static ActivitySource ActivitySource = new ActivitySource(typeof(App).Assembly.GetName().Name); // , "1.0.0"
 
@@ -53,7 +53,7 @@ namespace EasySample
         static App()
         {
             using var scope = TraceLogger.BeginMethodScope(T);
-            using Activity activity = ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            using Activity activity = ActivitySource.StartActivity(); // TraceLogger.GetMethodName()
 
             //ActivitySource.AddActivityListener(new ActivityListener()
             //{
@@ -76,7 +76,7 @@ namespace EasySample
 
         public App()
         {
-            using Activity activity = ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            using Activity activity = ActivitySource.StartActivity(); // TraceLogger.GetMethodName()
             using (var scope = Host.BeginMethodScope(T))
             {
             }
@@ -84,8 +84,9 @@ namespace EasySample
         protected override async void OnStartup(StartupEventArgs e)
         {
             var logger = Host.GetLogger<App>();
-            using var scope = logger.BeginMethodScope();
-            using Activity activity = ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            //using var scope = logger.BeginMethodScope();
+            //using Activity activity = ActivitySource.StartActivity(TraceLogger.GetMethodName());
+            using var scope = App.ActivitySource.StartMethodActivity(logger);
 
             //using var tracerProvider = Sdk.CreateTracerProviderBuilder()
             //                              .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("EasySample600v3"))
@@ -112,7 +113,7 @@ namespace EasySample
             var classConfigurationGetter = new ClassConfigurationGetter<App>(configuration);
             //var appInsightKey = ConfigurationHelper.GetClassSetting<App, string>(CONFIGVALUE_APPINSIGHTSKEY, DEFAULTVALUE_APPINSIGHTSKEY); // , CultureInfo.InvariantCulture
 
-            var hostbuilder = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder()
+            Host = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder()
                     .ConfigureAppConfiguration(builder =>
                     {
                         builder.Sources.Clear();
@@ -140,9 +141,6 @@ namespace EasySample
 
                         var connectionString = configuration["Logging:ApplicationInsights:ConnectionString"];
 
-                        var consoleProvider = new TraceLoggerConsoleProvider();
-                        loggingBuilder.AddProvider(consoleProvider); // i.e. builder.Services.AddSingleton(traceLoggerProvider);
-
                         //loggingBuilder.AddApplicationInsights(configureTelemetryConfiguration: (config) =>
                         //        config.ConnectionString = configuration.GetConnectionString(connectionString),
                         //        configureApplicationInsightsLoggerOptions: (options) => { });
@@ -162,21 +160,20 @@ namespace EasySample
                         // appinsight metrics provider
                         // opentelemetry metrics provider
 
-                    });
-            
-            Host = hostbuilder.Build();
+                    }).Build();
 
             Host.InitTraceLogger();
 
-            // LogStringExtensions.RegisterLogstringProvider(this);
-            await Host.StartAsync(); scope.LogDebug($"await Host.StartAsync();");
+            //LogStringExtensions.RegisterLogstringProvider(this);
+            LogStringExtensions.RegisterLogstringProvider(new LogStringProviderWpf());
 
-            base.OnStartup(e); scope.LogDebug($"base.OnStartup(e);");
+            await Host.StartAsync(); scope.LogDebug($"await Host.StartAsync();");
 
             var mainWindow = Host.Services.GetRequiredService<MainWindow>(); scope.LogDebug($"Host.Services.GetRequiredService<MainWindow>(); returns {mainWindow.GetLogString()}");
 
             mainWindow.Show(); scope.LogDebug($"mainWindow.Show();");
 
+            base.OnStartup(e); scope.LogDebug($"base.OnStartup(e);");
 
         }
         private void ConfigureServices(IConfiguration configuration, IServiceCollection services)

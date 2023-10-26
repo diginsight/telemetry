@@ -24,7 +24,19 @@ namespace Common
         public static string ToLogStringInternal(ExecutedRoutedEventArgs pthis)
         {
             if (pthis == null) { return null; }
-            string logString = $"{{ExecutedRoutedEventArgs:{{Parameter:Command:{pthis.Command.GetLogString()},{pthis.Parameter.GetLogString()},RoutedEvent:{pthis.RoutedEvent.GetLogString()},Source:{pthis.Source},OriginalSource:{pthis.OriginalSource}}}}}";
+            string logString = $"{{ExecutedRoutedEventArgs:{{Command:{pthis.Command.GetLogString()},{pthis.Parameter.GetLogString()},RoutedEvent:{pthis.RoutedEvent.GetLogString()},Source:{pthis.Source},OriginalSource:{pthis.OriginalSource}}}}}";
+            return logString;
+        }
+        public static string ToLogStringInternal(RoutedEventArgs pthis)
+        {
+            if (pthis == null) { return null; }
+            string logString = $"{{RoutedEventArgs:{{RoutedEvent:{pthis.RoutedEvent.GetLogString()},Source:{pthis.Source.GetLogString()},OriginalSource:{pthis.OriginalSource.GetLogString()}}}}}";
+            return logString;
+        }
+        public static string ToLogStringInternal(RoutedEvent pthis)
+        {
+            if (pthis == null) { return null; }
+            string logString = $"{{RoutedEvent:{{Name:{pthis.Name},OwnerType:{pthis.OwnerType},RoutingStrategy:{pthis.RoutingStrategy},HandlerType:{pthis.HandlerType}}}}}";
             return logString;
         }
         public static string ToLogStringInternal(RoutedUICommand pthis)
@@ -49,6 +61,10 @@ namespace Common
                 case RoutedUICommand w: arg.Handled = true; return ToLogStringInternal(w);
                 case ExecutedRoutedEventArgs w: arg.Handled = true; return ToLogStringInternal(w);
                 case PropertyChangedEventArgs w: arg.Handled = true; return ToLogStringInternal(w);
+                case RoutedEventArgs w: arg.Handled = true; return ToLogStringInternal(w);
+                case RoutedEvent w: arg.Handled = true; return ToLogStringInternal(w);
+                    
+                //
                 //case Thread w: arg.Handled = true; return LogstringHelper.ToLogStringInternal(w);
                 //case Microsoft.Graph.Models.Application w: arg.Handled = true; return LogstringHelper.ToLogStringInternal(w);
                 //case Identity w: arg.Handled = true; return LogstringHelper.ToLogStringInternal(w);
