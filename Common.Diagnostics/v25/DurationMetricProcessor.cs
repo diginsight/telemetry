@@ -23,8 +23,11 @@ namespace Common
                 new Tag("span_name", activity.OperationName),
                 new Tag("status", activity.Status.ToString())
             };
-            
-            tags.Concat(activity.TagObjects);
+
+            foreach(var tag in activity.TagObjects)
+            {
+                tags.Add(tag);
+            }
             SpanDurationMetric.Record(duration, tags);
             switch (activity.GetCustomProperty(ActivityCustomPropertyNames.DurationMetric))
             {
