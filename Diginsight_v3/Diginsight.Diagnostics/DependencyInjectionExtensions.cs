@@ -1,8 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 #if !NET7_0_OR_GREATER
 using System.Reflection;
@@ -55,21 +57,6 @@ public static class DependencyInjectionExtensions
     public static TracerProviderBuilder AddObservability(this TracerProviderBuilder tracerProviderBuilder)
     {
         return tracerProviderBuilder.AddProcessor<ObservabilityLogProcessor>();
-
-        // TODO Idempotent hacky version
-        //tracerProviderBuilder.ConfigureServices(static services => services.TryAddSingleton<ObservabilityLogProcessor>());
-
-        //static void AddObservabilityLogProcessor(IServiceProvider sp, TracerProviderBuilder tpb)
-        //{
-        //    IList<BaseProcessor<Activity>> processors = ((dynamic)tpb).Processors;
-        //    if (!processors.Any(static x => x is ObservabilityLogProcessor))
-        //    {
-        //        processors.Add(sp.GetRequiredService<ObservabilityLogProcessor>());
-        //    }
-        //}
-
-        //((dynamic)tracerProviderBuilder).ConfigureBuilder((Action<IServiceProvider, TracerProviderBuilder>)AddObservabilityLogProcessor);
-        //return tracerProviderBuilder;
     }
 
     public static MeterProviderBuilder AddViews(
