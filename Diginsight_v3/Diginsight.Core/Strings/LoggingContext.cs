@@ -47,7 +47,7 @@ public sealed class LoggingContext
         {
             foreach (ILogStringProvider logStringProvider in logStringProviders)
             {
-                if (logStringProvider.TryAsLogStringable(obj, out logStringable))
+                if ((logStringable = logStringProvider.TryAsLogStringable(obj)) is not null)
                     break;
             }
         }
@@ -87,7 +87,7 @@ public sealed class LoggingContext
         throw new AlreadySeenShortCircuit();
     }
 
-    private IDisposable? WithThresholdsSafe(Action<LogStringThresholdConfiguration>? configureThresholds)
+    public IDisposable? WithThresholdsSafe(Action<LogStringThresholdConfiguration>? configureThresholds)
     {
         return configureThresholds is null ? null : WithThresholds(configureThresholds);
     }
@@ -101,7 +101,7 @@ public sealed class LoggingContext
         return new CallbackDisposable(() => thresholdConfiguration = previous);
     }
 
-    private IDisposable? WithMetaPropertiesSafe(Action<IDictionary<string, object?>>? configureMetaProperties)
+    public IDisposable? WithMetaPropertiesSafe(Action<IDictionary<string, object?>>? configureMetaProperties)
     {
         return configureMetaProperties is null ? null : WithMetaProperties(configureMetaProperties);
     }

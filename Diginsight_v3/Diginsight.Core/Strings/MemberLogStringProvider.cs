@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Reflection;
 using System.Text;
 
@@ -7,6 +8,8 @@ namespace Diginsight.Strings;
 
 internal sealed class MemberLogStringProvider : IMemberLogStringProvider
 {
+    public const string CollectionLengthMetaProperty = "collectionLength";
+
     private static readonly IReadOnlyDictionary<Type, string> KNOWN_TYPE_NAMES = new Dictionary<Type, string>()
     {
         [typeof(bool)] = "bool",
@@ -38,30 +41,16 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
         logStringConfiguration = logStringConfigurationOptions.Value;
     }
 
-    public bool TryAsLogStringable(object obj, [NotNullWhen(true)] out ILogStringable? logStringable)
+    public ILogStringable? TryAsLogStringable(object obj)
     {
-        switch (obj)
+        return obj switch
         {
-            case Type type:
-                logStringable = new LogStringableType(type, this);
-                return true;
-
-            case MemberInfo member:
-                logStringable = new LogStringableMember(member, this);
-                return true;
-
-            case ParameterInfo parameter:
-                logStringable = new LogStringableParameter(parameter, this);
-                return true;
-
-            case Assembly assembly:
-                logStringable = new LogStringableAssembly(assembly);
-                return true;
-
-            default:
-                logStringable = null;
-                return false;
-        }
+            Type type => new LogStringableType(type, this),
+            MemberInfo member => new LogStringableMember(member, this),
+            ParameterInfo parameter => new LogStringableParameter(parameter, this),
+            Assembly assembly => new LogStringableAssembly(assembly),
+            _ => null,
+        };
     }
 
     public void Append(Type type, StringBuilder stringBuilder, LoggingContext loggingContext)
@@ -84,10 +73,31 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
             }
         }
 
+        _ = loggingContext.MetaProperties.TryGetValue(CollectionLengthMetaProperty, out object? rawCollectionLength);
+
+        using IDisposable _0 = loggingContext.WithMetaProperties(static x => { x.Remove(CollectionLengthMetaProperty); });
+
         if (type.IsArray)
         {
             Append(type.GetElementType()!, stringBuilder, loggingContext);
-            stringBuilder.Append("[]");
+
+            stringBuilder.Append("[");
+
+            if (rawCollectionLength is int[] arrayLengths)
+            {
+                for (int i = 0; i < arrayLengths.Length; i++)
+                {
+                    if (i > 0)
+                        stringBuilder.Append(',');
+                    stringBuilder.Append(arrayLengths[i].ToString(CultureInfo.InvariantCulture));
+                }
+            }
+            else
+            {
+                stringBuilder.Append(new string(',', type.GetArrayRank() - 1));
+            }
+
+            stringBuilder.Append("]");
         }
         else if (type.IsPointer)
         {
@@ -171,6 +181,11 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
                 stringBuilder.Append(type.Name);
             }
         }
+
+        if (rawCollectionLength is int collectionLength)
+        {
+            stringBuilder.Append('(').Append(collectionLength.ToString(CultureInfo.InvariantCulture)).Append(')');
+        }
     }
 
     private static bool IsValueTuple(Type type, [NotNullWhen(true)] out Type[]? itemTypes)
@@ -238,8 +253,10 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
         private readonly Type type;
         private readonly MemberLogStringProvider owner;
 
+#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
         public bool IsDeep => true;
         public bool CanCycle => true;
+#endif
 
         public LogStringableType(Type type, MemberLogStringProvider owner)
         {
@@ -258,8 +275,10 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
         private readonly MemberInfo member;
         private readonly MemberLogStringProvider owner;
 
+#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
         public bool IsDeep => true;
         public bool CanCycle => true;
+#endif
 
         public LogStringableMember(MemberInfo member, MemberLogStringProvider owner)
         {

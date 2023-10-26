@@ -1,16 +1,14 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace Diginsight.Strings;
 
 internal sealed class JTokenLogStringProvider : ILogStringProvider
 {
-    public bool TryAsLogStringable(object obj, [NotNullWhen(true)] out ILogStringable? logStringable)
+    public ILogStringable? TryAsLogStringable(object obj)
     {
-        logStringable = obj is JToken jt ? new LogStringableJToken(jt) : null;
-        return logStringable is not null;
+        return obj is JToken jt ? new LogStringableJToken(jt) : null;
     }
 
     private sealed class LogStringableJToken : ILogStringable, IJTokenVisitor<StringBuilder, (StringBuilder, LoggingContext)>

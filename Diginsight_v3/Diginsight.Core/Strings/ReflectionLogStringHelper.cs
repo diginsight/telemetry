@@ -16,9 +16,14 @@ internal sealed class ReflectionLogStringHelper : IReflectionLogStringHelper
 
     public IEnumerable<LogStringAppender> GetCachedAppenders(Type type, Func<Type, LogStringAppender[]> makeAppenders)
     {
+        if (appendersCache.TryGetValue(type, out var appenders))
+        {
+            return appenders;
+        }
+
         lock (((ICollection)appendersCache).SyncRoot)
         {
-            return appendersCache.TryGetValue(type, out var appenders)
+            return appendersCache.TryGetValue(type, out appenders)
                 ? appenders
                 : appendersCache[type] = makeAppenders(type);
         }

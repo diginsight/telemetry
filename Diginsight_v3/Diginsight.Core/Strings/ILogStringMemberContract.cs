@@ -1,12 +1,6 @@
 ﻿namespace Diginsight.Strings;
 
-public interface ILogStringMemberContract
+public interface ILogStringMemberContract : ILogStringableMemberDescriptor
 {
     bool? Included { get; }
-
-    string? Name { get; }
-
-    Type? ProviderType { get; }
-
-    object[] ProviderArgs { get; }
 }

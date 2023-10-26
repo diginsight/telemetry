@@ -24,9 +24,14 @@ internal sealed class MemberwiseLogStringProvider : ReflectionLogStringProvider
 
     protected override Handling IsHandled(Type type)
     {
+        if (handlingCache.TryGetValue(type, out Handling handling))
+        {
+            return handling;
+        }
+
         lock (((ICollection)handlingCache).SyncRoot)
         {
-            return handlingCache.TryGetValue(type, out Handling handling)
+            return handlingCache.TryGetValue(type, out handling)
                 ? handling
                 : handlingCache[type] = IsHandledCore();
 

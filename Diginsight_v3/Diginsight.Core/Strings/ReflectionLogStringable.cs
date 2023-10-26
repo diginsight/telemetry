@@ -9,8 +9,10 @@ public abstract class ReflectionLogStringable : ILogStringable
     private readonly IReflectionLogStringHelper helper;
     private readonly bool dontCacheAppenders;
 
+#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
     public bool IsDeep => true;
     public bool CanCycle => true;
+#endif
 
     protected ReflectionLogStringable(object obj, IReflectionLogStringHelper helper, bool dontCacheAppenders = false)
     {
@@ -79,9 +81,7 @@ public abstract class ReflectionLogStringable : ILogStringable
         {
             ILogStringProvider customLogStringProvider = helper.GetLogStringProvider(providerType, providerArgs);
             finalGetValue = o => getValue(o) is { } value
-                ? customLogStringProvider.TryAsLogStringable(value, out ILogStringable? logStringable)
-                    ? logStringable
-                    : value
+                ? customLogStringProvider.TryAsLogStringable(value) ?? value
                 : null;
         }
         else

@@ -1,19 +1,10 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace Diginsight.Strings;
+﻿namespace Diginsight.Strings;
 
 internal sealed class ForbiddenLogStringProvider : ILogStringProvider
 {
-    public bool TryAsLogStringable(object obj, [NotNullWhen(true)] out ILogStringable? logStringable)
+    public ILogStringable? TryAsLogStringable(object obj)
     {
         Type type = obj.GetType();
-        if (type.IsForbidden())
-        {
-            logStringable = new NonLogStringable(type);
-            return true;
-        }
-
-        logStringable = null;
-        return false;
+        return type.IsForbidden() ? new NonLogStringable(type) : null;
     }
 }

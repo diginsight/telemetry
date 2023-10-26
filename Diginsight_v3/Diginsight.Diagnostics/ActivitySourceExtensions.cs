@@ -17,10 +17,11 @@ public static class ActivitySourceExtensions
         object inputs,
         [CallerMemberName] string callerMemberName = "",
         LogLevel logLevel = LogLevel.Debug,
-        ActivityKind activityKind = ActivityKind.Internal
+        ActivityKind activityKind = ActivityKind.Internal,
+        int stackDepth = 0
     )
     {
-        (Type callerType, string? localFunctionName) = GetCaller();
+        (Type callerType, string? localFunctionName) = GetCaller(stackDepth);
         return source.StartMethodActivity(logger, () => inputs, callerType, callerMemberName, localFunctionName, logLevel, activityKind);
     }
 
@@ -31,10 +32,11 @@ public static class ActivitySourceExtensions
         Func<object?>? makeInputs = null,
         [CallerMemberName] string callerMemberName = "",
         LogLevel logLevel = LogLevel.Debug,
-        ActivityKind activityKind = ActivityKind.Internal
+        ActivityKind activityKind = ActivityKind.Internal,
+        int stackDepth = 0
     )
     {
-        (Type callerType, string? localFunctionName) = GetCaller();
+        (Type callerType, string? localFunctionName) = GetCaller(stackDepth);
         return source.StartMethodActivity(logger, makeInputs, callerType, callerMemberName, localFunctionName, logLevel, activityKind);
     }
 
@@ -83,13 +85,23 @@ public static class ActivitySourceExtensions
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static (Type DeclaringType, string? LocalFunctionName) GetCaller()
+    private static (Type DeclaringType, string? LocalFunctionName) GetCaller(int stackDepth)
     {
-        MethodBase method = new StackFrame(2, false).GetMethod()!;
+        if (stackDepth < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(stackDepth), "Negative stack depth");
+        }
+
+        MethodBase method = new StackFrame(stackDepth + 2, false).GetMethod()!;
+        // ReSharper disable once InconsistentlySynchronizedField
+        if (CallerCache.TryGetValue(method, out var caller))
+        {
+            return caller;
+        }
 
         lock (((ICollection)CallerCache).SyncRoot)
         {
-            if (CallerCache.TryGetValue(method, out var caller))
+            if (CallerCache.TryGetValue(method, out caller))
             {
                 return caller;
             }

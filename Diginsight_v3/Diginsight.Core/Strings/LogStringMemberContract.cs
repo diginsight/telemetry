@@ -11,6 +11,7 @@ public sealed class LogStringMemberContract : ILogStringMemberContract
     private object[]? providerArgs;
 
     public bool? Included { get; set; }
+
     public string? Name { get; set; }
 
     public Type? ProviderType
@@ -32,6 +33,8 @@ public sealed class LogStringMemberContract : ILogStringMemberContract
         get => providerArgs ??= Array.Empty<object>();
         set => providerArgs = value;
     }
+
+    public int? Order { get; set; }
 
     private LogStringMemberContract()
     {

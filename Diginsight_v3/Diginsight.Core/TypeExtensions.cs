@@ -118,7 +118,7 @@ public static class TypeExtensions
         }
     }
 
-    public static bool IsKeyValuePair(this Type type, [NotNullWhen(true)] out Type? tKey, [NotNullWhen(true)] out Type? tValue)
+    internal static bool IsKeyValuePair(this Type type, [NotNullWhen(true)] out Type? tKey, [NotNullWhen(true)] out Type? tValue)
     {
         if (type is null)
             throw new ArgumentNullException(nameof(type));

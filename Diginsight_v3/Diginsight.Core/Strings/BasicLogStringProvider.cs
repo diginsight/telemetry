@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
 using System.Runtime.CompilerServices;
@@ -18,36 +17,31 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
         this.memberLogStringProvider = memberLogStringProvider;
     }
 
-    public bool TryAsLogStringable(object obj, [NotNullWhen(true)] out ILogStringable? logStringable)
+    public ILogStringable? TryAsLogStringable(object obj)
     {
         switch (obj)
         {
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             case ITuple tuple:
-                logStringable = new LogStringableTuple(tuple);
-                return true;
+                return new LogStringableTuple(tuple);
 #endif
 
             case StringBuilder sb:
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                logStringable = new LogStringableStringBuilder(sb);
+                return new LogStringableStringBuilder(sb);
 #else
-                logStringable = new DirectLogStringable(sb);
+                return new DirectLogStringable(sb);
 #endif
-                return true;
 
             case Regex:
-                logStringable = new DirectLogStringable(obj, "/{0}/");
-                return true;
+                return new DirectLogStringable(obj, "/{0}/");
 
             case Uri:
-                logStringable = new DirectLogStringable(obj, LogStringTokens.LiteralBegin + "{0}" + LogStringTokens.LiteralEnd);
-                return true;
+                return new DirectLogStringable(obj, LogStringTokens.LiteralBegin + "{0}" + LogStringTokens.LiteralEnd);
 
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             case Index or Range:
-                logStringable = new DirectLogStringable(obj);
-                return true;
+                return new DirectLogStringable(obj);
 #endif
 
             case DateTime or DateTimeOffset or TimeSpan
@@ -55,30 +49,25 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
                 or DateOnly or TimeOnly
 #endif
                 :
-                logStringable = new DirectLogStringable(obj, LogStringTokens.LiteralBegin + "{0:O}" + LogStringTokens.LiteralEnd);
-                return true;
+                return new DirectLogStringable(obj, LogStringTokens.LiteralBegin + "{0:O}" + LogStringTokens.LiteralEnd);
 
             case Guid:
-                logStringable = new DirectLogStringable(obj, LogStringTokens.LiteralBegin + "{0:D}" + LogStringTokens.LiteralEnd);
-                return true;
+                return new DirectLogStringable(obj, LogStringTokens.LiteralBegin + "{0:D}" + LogStringTokens.LiteralEnd);
 
             case Delegate del:
-                logStringable = new LogStringableDelegate(del, this);
-                return true;
+                return new LogStringableDelegate(del, this);
         }
 
         Type type = obj.GetType();
         if (type.IsKeyValuePair(out Type? tKey, out Type? tValue))
         {
-            logStringable = (ILogStringable)typeof(LogStringableKeyValuePair<,>)
+            return (ILogStringable)typeof(LogStringableKeyValuePair<,>)
                 .MakeGenericType(tKey, tValue)
                 .GetConstructors()[0]
                 .Invoke(new[] { obj });
-            return true;
         }
 
-        logStringable = null;
-        return false;
+        return null;
     }
 
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
@@ -86,7 +75,9 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
     {
         private readonly ITuple tuple;
 
+#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
         public bool IsDeep => true;
+#endif
         public bool CanCycle => false;
 
         public LogStringableTuple(ITuple tuple)
@@ -147,8 +138,10 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
         private readonly Delegate del;
         private readonly BasicLogStringProvider owner;
 
+#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
         public bool IsDeep => true;
         public bool CanCycle => true;
+#endif
 
         public LogStringableDelegate(Delegate del, BasicLogStringProvider owner)
         {
@@ -169,7 +162,9 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
     {
         private readonly KeyValuePair<TKey, TValue> kvp;
 
+#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
         public bool IsDeep => true;
+#endif
         public bool CanCycle => false;
 
         public LogStringableKeyValuePair(KeyValuePair<TKey, TValue> kvp)

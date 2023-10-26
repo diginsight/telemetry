@@ -2,6 +2,8 @@
 
 public static class LogStringTokens
 {
+    public const char CollectionBegin = '[';
+    public const char CollectionEnd = ']';
     public const char Cycle = '~';
     public const char Deep = '»';
     public const char Ellipsis = '…';

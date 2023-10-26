@@ -18,7 +18,7 @@ public sealed class MemberwiseLogStringable : ReflectionLogStringable
 
     protected override LogStringAppender[] MakeAppenders(Type type)
     {
-        IEnumerable<LogStringAppender> MakeAppendersCore<TMember>(
+        IEnumerable<(LogStringAppender, int)> MakeAppendersWithOrder<TMember>(
             IEnumerable<TMember> members,
             Func<TMember, bool> isUnreadable,
             Func<TMember, bool> isPublic,
@@ -54,33 +54,38 @@ public sealed class MemberwiseLogStringable : ReflectionLogStringable
                 if (included == false || included == null && member.IsDefined(typeof(NonLogStringableMemberAttribute)))
                     continue;
 
-                LogStringableMemberAttribute? attribute = member.GetCustomAttribute<LogStringableMemberAttribute>();
+                ILogStringableMemberDescriptor? attribute = member.GetCustomAttribute<LogStringableMemberAttribute>();
                 if (!(included == true || attribute is not null || isPublic(member)))
                     continue;
 
-                yield return MakeAppender(
+                LogStringAppender appender = MakeAppender(
                     memberContract.Name ?? attribute?.Name ?? member.Name,
                     memberContract.ProviderType is { } cpt ? (cpt, memberContract.ProviderArgs)
                     : attribute?.ProviderType is { } apt ? (apt, attribute.ProviderArgs)
                     : null,
                     getGetValue(member)
                 );
+
+                yield return (appender, memberContract.Order ?? attribute?.Order ?? 0);
             }
         }
 
-        IEnumerable<LogStringAppender> fieldAppenders = MakeAppendersCore(
+        IEnumerable<(LogStringAppender Appender, int Order)> fieldAppendersWithOrder = MakeAppendersWithOrder(
             type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic),
             static f => f.FieldType.IsForbidden(),
             static f => f.IsPublic,
             static f => f.GetValue
         );
-        IEnumerable<LogStringAppender> propertyAppenders = MakeAppendersCore(
+        IEnumerable<(LogStringAppender Appender, int Order)> propertyAppendersWithOrder = MakeAppendersWithOrder(
             type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic),
             static p => p.PropertyType.IsForbidden() || p.GetMethod is null || p.GetIndexParameters().Length != 0,
             static p => p.GetMethod!.IsPublic,
             static p => p.GetValue
         );
-        return fieldAppenders.Concat(propertyAppenders).ToArray();
+        return fieldAppendersWithOrder.Concat(propertyAppendersWithOrder)
+            .OrderByDescending(static x => x.Order)
+            .Select(static x => x.Appender)
+            .ToArray();
     }
 
     protected override AllottingCounter Count(LoggingContext loggingContext) => loggingContext.CountMemberwiseProperties();

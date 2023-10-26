@@ -12,41 +12,19 @@ internal sealed class PrimitiveLogStringProvider : ILogStringProvider
     private static readonly string PTR_FORMAT = $"^{{0:X{IntPtr.Size}}}";
     private static readonly IDictionary<Type, (Enum[] Values, Enum Zero)> EnumCache = new Dictionary<Type, (Enum[] Values, Enum Zero)>();
 
-    public bool TryAsLogStringable(object obj, [NotNullWhen(true)] out ILogStringable? logStringable)
+    public ILogStringable? TryAsLogStringable(object obj)
     {
-        switch (obj)
+        return obj switch
         {
-            case string:
-                logStringable = new DirectLogStringable(obj, "\"{0}\"");
-                return true;
-
-            case bool:
-                logStringable = new DirectLogStringable(obj);
-                return true;
-
-            case char:
-                logStringable = new DirectLogStringable(obj, "'{0}'");
-                return true;
-
-            case byte or sbyte:
-                logStringable = new DirectLogStringable(obj, "#{0:X2}");
-                return true;
-
-            case short or ushort or int or uint or long or ulong or float or double or decimal:
-                logStringable = new LogStringableConvertible((IConvertible)obj);
-                return true;
-
-            case IntPtr or UIntPtr:
-                logStringable = new DirectLogStringable(obj, PTR_FORMAT);
-                return true;
-
-            case Enum e:
-                logStringable = e.GetType().IsDefined(typeof(FlagsAttribute)) ? new LogStringableFlaggedEnum(e) : new LogStringableConvertible(e);
-                return true;
-        }
-
-        logStringable = null;
-        return false;
+            string => new DirectLogStringable(obj, "\"{0}\""),
+            bool => new DirectLogStringable(obj),
+            char => new DirectLogStringable(obj, "'{0}'"),
+            byte or sbyte => new DirectLogStringable(obj, "#{0:X2}"),
+            short or ushort or int or uint or long or ulong or float or double or decimal => new LogStringableConvertible((IConvertible)obj),
+            IntPtr or UIntPtr => new DirectLogStringable(obj, PTR_FORMAT),
+            Enum e => e.GetType().IsDefined(typeof(FlagsAttribute)) ? new LogStringableFlaggedEnum(e) : new LogStringableConvertible(e),
+            _ => null,
+        };
     }
 
     private sealed class LogStringableConvertible : ILogStringable
