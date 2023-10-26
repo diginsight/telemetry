@@ -101,7 +101,7 @@ public sealed class LogStringTypeContract : ILogStringTypeContract
                 throw new ArgumentException($"Member '{memberName}' is not a field or a property");
         }
 
-        return memberContracts[member] = new LogStringMemberContract();
+        return memberContracts[member] = new LogStringMemberContract(memberType);
     }
 
     public ILogStringMemberContract? TryGet(MemberInfo member)

@@ -4,8 +4,21 @@ namespace Diginsight.Strings;
 
 public sealed class CustomMemberwiseLogStringProvider : ILogStringProvider
 {
+    private readonly IReflectionLogStringHelper helper;
+    private readonly ILogStringTypeContract contract;
+
+    public CustomMemberwiseLogStringProvider(
+        IReflectionLogStringHelper helper,
+        ILogStringTypeContract contract
+    )
+    {
+        this.helper = helper;
+        this.contract = contract;
+    }
+
     public bool TryAsLogStringable(object obj, [NotNullWhen(true)] out ILogStringable? logStringable)
     {
-        throw new NotImplementedException();
+        logStringable = new MemberwiseLogStringable(obj, helper, contract);
+        return true;
     }
 }

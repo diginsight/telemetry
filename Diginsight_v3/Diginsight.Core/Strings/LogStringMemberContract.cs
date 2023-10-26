@@ -1,9 +1,12 @@
-﻿namespace Diginsight.Strings;
+﻿using System.Diagnostics;
+
+namespace Diginsight.Strings;
 
 public sealed class LogStringMemberContract : ILogStringMemberContract
 {
     public static readonly ILogStringMemberContract Empty = new LogStringMemberContract();
 
+    private readonly Type? memberType;
     private Type? providerType;
     private object[]? providerArgs;
 
@@ -30,5 +33,24 @@ public sealed class LogStringMemberContract : ILogStringMemberContract
         set => providerArgs = value;
     }
 
-    internal LogStringMemberContract() { }
+    private LogStringMemberContract()
+    {
+        memberType = null;
+    }
+
+    internal LogStringMemberContract(Type memberType)
+    {
+        this.memberType = memberType;
+    }
+
+    public LogStringMemberContract WithCustomTypeContract(Action<LogStringTypeContract> configureContract)
+    {
+        LogStringTypeContract typeContract = new (memberType ?? throw new UnreachableException("Dummy member contract"));
+        configureContract(typeContract);
+
+        providerType = typeof(CustomMemberwiseLogStringProvider);
+        providerArgs = new object[] { typeContract };
+
+        return this;
+    }
 }
