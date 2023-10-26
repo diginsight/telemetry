@@ -1,7 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 #if !NET7_0_OR_GREATER
 using System.Reflection;
@@ -12,9 +15,9 @@ namespace Diginsight.Diagnostics;
 public static class DependencyInjectionExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IServiceCollection AddObservability(this IServiceCollection services)
+    public static OpenTelemetryBuilder AddObservability(this IServiceCollection services)
     {
-        return services;
+        return services.AddOpenTelemetry();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -53,8 +56,7 @@ public static class DependencyInjectionExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TracerProviderBuilder AddObservability(this TracerProviderBuilder tracerProviderBuilder)
     {
-        return tracerProviderBuilder
-            .AddProcessor<ObservabilityLogProcessor>();
+        return tracerProviderBuilder.AddProcessor<ObservabilityLogProcessor>();
     }
 
     public static MeterProviderBuilder AddViews(
