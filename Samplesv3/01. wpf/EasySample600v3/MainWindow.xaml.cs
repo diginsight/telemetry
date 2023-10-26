@@ -78,7 +78,6 @@ namespace EasySample
 
             int i = 0;
 
-            // scope.LogDebug
             logger.LogDebug(() => new { i, e, sender }); // , properties: new Dictionary<string, object>() { { "", "" } }
 
 

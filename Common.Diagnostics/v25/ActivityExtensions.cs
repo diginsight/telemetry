@@ -37,7 +37,6 @@ namespace Common
             //var httpContextAccessor = default(IHttpContextAccessor);
             //if (host != null)
             //{
-
             //    try { httpContextAccessor = host.Services?.GetService<IHttpContextAccessor>(); } catch (Exception _) { }
             //    try { scopedConfigurationService = httpContextAccessor?.HttpContext?.RequestServices?.GetService<IScopedConfiguration>(); } catch (Exception _) { }
             //    try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { }

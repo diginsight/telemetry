@@ -101,7 +101,7 @@ namespace Common
                 this.ClassConfigurationGetter = classConfigurationGetter;
             }
             //this.ScopedConfiguration = scopedConfiguration;
-            this.MinimumLogLevel = classConfigurationGetter?.Get("MinimumLevel", LogLevel.Trace) ?? LogLevel.Trace;
+            this.MinimumLogLevel = classConfigurationGetter?.Get("TraceLoggerMinimumLevel", LogLevel.Trace) ?? LogLevel.Trace;
             this.PublishFlow = classConfigurationGetter?.Get("PublishFlow", false) ?? false;
             this.PublishMetrics = classConfigurationGetter?.Get("PublishMetrics", false) ?? false;
             //this._isLogEnabled = logLevel >= this.MinimumLogLevel;
