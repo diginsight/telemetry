@@ -2,7 +2,7 @@
 
 namespace Diginsight.Strings;
 
-public sealed class LogStringConfiguration : ILogStringConfiguration
+public sealed class LogStringOverallConfiguration : ILogStringOverallConfiguration
 {
     private static readonly LogStringProviderRegistration[] FIXED_REGISTRATIONS =
     {
@@ -34,8 +34,6 @@ public sealed class LogStringConfiguration : ILogStringConfiguration
 
     public LogThreshold MaxDepth { get; set; } = 5;
 
-    public TimeSpan MaxTime { get; set; } = TimeSpan.FromSeconds(1);
-
     public Regex? ImplicitNamespaces { get; set; }
 
     public Regex? ExplicitNamespaces { get; set; }
@@ -43,6 +41,8 @@ public sealed class LogStringConfiguration : ILogStringConfiguration
     public bool IsNamespaceExplicitIfUnspecified { get; set; }
 
     public bool IsNamespaceExplicitIfAmbiguous { get; set; }
+
+    public TimeSpan MaxTime { get; set; } = TimeSpan.FromSeconds(1);
 
     public bool ShortenKnownTypes { get; set; } = true;
 
@@ -58,7 +58,7 @@ public sealed class LogStringConfiguration : ILogStringConfiguration
         .GroupBy(static x => x.Type, static (_, xs) => xs.First());
 #endif
 
-    public void ResetFrom(ILogStringConfiguration source)
+    public void ResetFrom(ILogStringOverallConfiguration source)
     {
         CustomRegistrations.Clear();
         CustomRegistrations.AddRange(
@@ -76,11 +76,11 @@ public sealed class LogStringConfiguration : ILogStringConfiguration
         MaxTupleItemCount = source.MaxTupleItemCount;
         MaxMethodParameterCount = source.MaxMethodParameterCount;
         MaxDepth = source.MaxDepth;
-        MaxTime = source.MaxTime;
         ImplicitNamespaces = source.ImplicitNamespaces;
         ExplicitNamespaces = source.ExplicitNamespaces;
         IsNamespaceExplicitIfUnspecified = source.IsNamespaceExplicitIfUnspecified;
         IsNamespaceExplicitIfAmbiguous = source.IsNamespaceExplicitIfAmbiguous;
+        MaxTime = source.MaxTime;
         ShortenKnownTypes = source.ShortenKnownTypes;
         IsMemberwiseLogStringableByDefault = source.IsMemberwiseLogStringableByDefault;
         MetaPropertyKeyComparison = source.MetaPropertyKeyComparison;

@@ -5,20 +5,20 @@ namespace Diginsight.Strings;
 
 internal sealed class MemberwiseLogStringProvider : ReflectionLogStringProvider
 {
-    private readonly ILogStringConfiguration logStringConfiguration;
+    private readonly ILogStringOverallConfiguration overallConfiguration;
     private readonly IReflectionLogStringHelper helper;
     private readonly ILogStringTypeContractAccessor contractAccessor;
 
     private readonly IDictionary<Type, Handling> handlingCache = new Dictionary<Type, Handling>();
 
     public MemberwiseLogStringProvider(
-        IOptions<LogStringConfiguration> logStringConfigurationOptions,
+        IOptions<LogStringOverallConfiguration> overallConfigurationOptions,
         IReflectionLogStringHelper helper,
         IOptions<LogStringTypeContractAccessor> contractAccessorOptions
     )
     {
         this.helper = helper;
-        logStringConfiguration = logStringConfigurationOptions.Value;
+        overallConfiguration = overallConfigurationOptions.Value;
         contractAccessor = contractAccessorOptions.Value;
     }
 
@@ -61,7 +61,7 @@ internal sealed class MemberwiseLogStringProvider : ReflectionLogStringProvider
                     }
                 }
 
-                return logStringConfiguration.IsMemberwiseLogStringableByDefault ? Handling.Handle : Handling.Pass;
+                return overallConfiguration.IsMemberwiseLogStringableByDefault ? Handling.Handle : Handling.Pass;
             }
         }
     }

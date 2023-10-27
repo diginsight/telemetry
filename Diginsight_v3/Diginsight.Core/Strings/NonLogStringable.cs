@@ -14,10 +14,10 @@ public sealed class NonLogStringable : ILogStringable
         this.type = type;
     }
 
-    public void AppendTo(StringBuilder stringBuilder, LoggingContext loggingContext)
+    public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
     {
         stringBuilder
-            .AppendLogString(type, loggingContext, false)
+            .AppendLogString(type, appendingContext, false)
             .Append('!');
     }
 }

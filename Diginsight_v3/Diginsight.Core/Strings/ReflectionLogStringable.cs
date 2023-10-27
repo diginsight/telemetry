@@ -21,16 +21,16 @@ public abstract class ReflectionLogStringable : ILogStringable
         this.dontCacheAppenders = dontCacheAppenders;
     }
 
-    public void AppendTo(StringBuilder stringBuilder, LoggingContext loggingContext)
+    public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
     {
-        loggingContext.Append(obj.GetType(), stringBuilder);
+        appendingContext.Append(obj.GetType(), stringBuilder);
 
         stringBuilder.Append(LogStringTokens.MapBegin);
-        AppendCore(stringBuilder, loggingContext);
+        AppendCore(stringBuilder, appendingContext);
         stringBuilder.Append(LogStringTokens.MapEnd);
     }
 
-    private void AppendCore(StringBuilder stringBuilder, LoggingContext loggingContext)
+    private void AppendCore(StringBuilder stringBuilder, AppendingContext appendingContext)
     {
         Type type = obj.GetType();
         IEnumerable<LogStringAppender> appenders = dontCacheAppenders ? MakeAppenders(type) : helper.GetCachedAppenders(type, MakeAppenders);
@@ -39,14 +39,14 @@ public abstract class ReflectionLogStringable : ILogStringable
         if (!appenderEnumerator.MoveNext())
             return;
 
-        AllottingCounter counter = Count(loggingContext);
+        AllottingCounter counter = Count(appendingContext);
 
         try
         {
             void AppendEntry()
             {
                 counter.Decrement();
-                appenderEnumerator.Current!(obj, stringBuilder, loggingContext);
+                appenderEnumerator.Current!(obj, stringBuilder, appendingContext);
             }
 
             AppendEntry();
@@ -89,14 +89,14 @@ public abstract class ReflectionLogStringable : ILogStringable
             finalGetValue = getValue;
         }
 
-        return (o, stringBuilder, loggingContext) =>
+        return (o, stringBuilder, appendingContext) =>
         {
             stringBuilder
                 .Append(outputName)
                 .Append(LogStringTokens.Value)
-                .AppendLogString(finalGetValue(o), loggingContext);
+                .AppendLogString(finalGetValue(o), appendingContext);
         };
     }
 
-    protected abstract AllottingCounter Count(LoggingContext loggingContext);
+    protected abstract AllottingCounter Count(AppendingContext appendingContext);
 }

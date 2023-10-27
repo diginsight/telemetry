@@ -7,7 +7,7 @@ public interface ILogStringComposer
     void Append(
         object? obj,
         StringBuilder stringBuilder,
-        Action<LogStringThresholdConfiguration>? configureThresholds = null,
+        Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     );
 

@@ -13,12 +13,12 @@ public sealed class LogStringComposerBuilder
         Services.AddLogStringComposer();
     }
 
-    public LogStringComposerBuilder Configure(ILogStringConfiguration configuration)
+    public LogStringComposerBuilder Configure(ILogStringOverallConfiguration configuration)
     {
         return Configure(x => x.ResetFrom(configuration));
     }
 
-    public LogStringComposerBuilder Configure(Action<LogStringConfiguration> configure)
+    public LogStringComposerBuilder Configure(Action<LogStringOverallConfiguration> configure)
     {
         Services.Configure(configure);
         return this;
@@ -26,7 +26,7 @@ public sealed class LogStringComposerBuilder
 
     public LogStringComposerBuilder RegisterProvider(Type providerType, int priority = 0)
     {
-        Services.Configure<LogStringConfiguration>(
+        Services.Configure<LogStringOverallConfiguration>(
             configuration => { configuration.CustomRegistrations.Add(new LogStringProviderRegistration(providerType, priority)); }
         );
         return this;

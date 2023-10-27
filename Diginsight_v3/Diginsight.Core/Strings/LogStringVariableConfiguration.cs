@@ -1,6 +1,8 @@
-﻿namespace Diginsight.Strings;
+﻿using System.Text.RegularExpressions;
 
-public sealed class LogStringThresholdConfiguration : ILogStringThresholdConfiguration
+namespace Diginsight.Strings;
+
+public sealed class LogStringVariableConfiguration : ILogStringVariableConfiguration
 {
     private LogThreshold maxDepth;
 
@@ -16,6 +18,14 @@ public sealed class LogStringThresholdConfiguration : ILogStringThresholdConfigu
         get => maxDepth;
         set => maxDepth = value.Value == 0 ? throw new ArgumentOutOfRangeException(nameof(MaxDepth), "expected positive value") : value;
     }
+
+    public Regex? ImplicitNamespaces { get; set; }
+
+    public Regex? ExplicitNamespaces { get; set; }
+
+    public bool IsNamespaceExplicitIfUnspecified { get; set; }
+
+    public bool IsNamespaceExplicitIfAmbiguous { get; set; }
 
     public int? EffectiveMaxCollectionItemCount => MaxCollectionItemCount.Value;
 
@@ -34,7 +44,7 @@ public sealed class LogStringThresholdConfiguration : ILogStringThresholdConfigu
 
     public int? EffectiveMaxDepth => MaxDepth.Value;
 
-    public LogStringThresholdConfiguration(ILogStringThresholdConfiguration source)
+    public LogStringVariableConfiguration(ILogStringVariableConfiguration source)
     {
         MaxCollectionItemCount = source.MaxCollectionItemCount;
         MaxDictionaryItemCount = source.MaxDictionaryItemCount;
@@ -43,5 +53,9 @@ public sealed class LogStringThresholdConfiguration : ILogStringThresholdConfigu
         MaxTupleItemCount = source.MaxTupleItemCount;
         MaxMethodParameterCount = source.MaxMethodParameterCount;
         MaxDepth = source.MaxDepth;
+        ImplicitNamespaces = source.ImplicitNamespaces;
+        ExplicitNamespaces = source.ExplicitNamespaces;
+        IsNamespaceExplicitIfUnspecified = source.IsNamespaceExplicitIfUnspecified;
+        IsNamespaceExplicitIfAmbiguous = source.IsNamespaceExplicitIfAmbiguous;
     }
 }

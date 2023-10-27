@@ -7,46 +7,46 @@ namespace Diginsight.Strings;
 internal sealed class LogStringComposer : ILogStringComposer
 {
     private readonly IServiceProvider serviceProvider;
-    private readonly ILogStringConfiguration logStringConfiguration;
+    private readonly ILogStringOverallConfiguration overallConfiguration;
 
     public LogStringComposer(
         IServiceProvider serviceProvider,
-        IOptions<LogStringConfiguration> logStringConfigurationOptions
+        IOptions<LogStringOverallConfiguration> overallConfigurationOptions
     )
     {
         this.serviceProvider = serviceProvider;
-        logStringConfiguration = logStringConfigurationOptions.Value;
+        overallConfiguration = overallConfigurationOptions.Value;
     }
 
     // TODO MaxLength
     public void Append(
         object? obj,
         StringBuilder stringBuilder,
-        Action<LogStringThresholdConfiguration>? configureThresholds = null,
+        Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
-        stringBuilder.AppendLogString(obj, MakeLoggingContext(), false, configureThresholds, configureMetaProperties);
+        stringBuilder.AppendLogString(obj, MakeAppendingContext(), false, configureVariables, configureMetaProperties);
     }
 
-    private LoggingContext MakeLoggingContext()
+    private AppendingContext MakeAppendingContext()
     {
-        ILogStringProvider[] logStringProviders = logStringConfiguration.Registrations
-            .Select(static x => x ?? throw new ArgumentNullException($"item in {nameof(ILogStringConfiguration)}.{nameof(ILogStringConfiguration.Registrations)}", (Exception?)null))
+        ILogStringProvider[] logStringProviders = overallConfiguration.Registrations
+            .Select(static x => x ?? throw new ArgumentNullException($"item in {nameof(ILogStringOverallConfiguration)}.{nameof(ILogStringOverallConfiguration.Registrations)}", (Exception?)null))
             .OrderByDescending(static x => x.Priority)
             .Select(x => (ILogStringProvider)ActivatorUtilities.GetServiceOrCreateInstance(serviceProvider, x.Type))
             .ToArray();
 
-        LogStringThresholdConfiguration thresholdConfiguration = new LogStringThresholdConfiguration(logStringConfiguration);
+        LogStringVariableConfiguration variableConfiguration = new LogStringVariableConfiguration(overallConfiguration);
 
         // TODO MaxTime
-        return new LoggingContext(
+        return new AppendingContext(
             logStringProviders,
-            thresholdConfiguration,
+            variableConfiguration,
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            StringComparer.FromComparison(logStringConfiguration.MetaPropertyKeyComparison)
+            StringComparer.FromComparison(overallConfiguration.MetaPropertyKeyComparison)
 #else
-            logStringConfiguration.MetaPropertyKeyComparison switch
+            overallConfiguration.MetaPropertyKeyComparison switch
             {
                 StringComparison.CurrentCulture => StringComparer.CurrentCulture,
                 StringComparison.CurrentCultureIgnoreCase => StringComparer.CurrentCultureIgnoreCase,
@@ -62,6 +62,6 @@ internal sealed class LogStringComposer : ILogStringComposer
 
     public LogStringComposerBuilder PrepareClone()
     {
-        return new LogStringComposerBuilder().Configure(logStringConfiguration);
+        return new LogStringComposerBuilder().Configure(overallConfiguration);
     }
 }

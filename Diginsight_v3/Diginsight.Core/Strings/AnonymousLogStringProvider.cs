@@ -27,6 +27,6 @@ internal sealed class AnonymousLogStringProvider : ReflectionLogStringProvider
                 .ToArray();
         }
 
-        protected override AllottingCounter Count(LoggingContext loggingContext) => loggingContext.CountAnonymousObjectProperties();
+        protected override AllottingCounter Count(AppendingContext appendingContext) => appendingContext.CountAnonymousObjectProperties();
     }
 }

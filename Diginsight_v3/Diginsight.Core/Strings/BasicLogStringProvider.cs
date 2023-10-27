@@ -85,17 +85,17 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
             this.tuple = tuple;
         }
 
-        public void AppendTo(StringBuilder stringBuilder, LoggingContext loggingContext)
+        public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
         {
             stringBuilder.Append(LogStringTokens.TupleBegin);
-            AllottingCounter counter = loggingContext.CountTupleItems();
+            AllottingCounter counter = appendingContext.CountTupleItems();
 
             try
             {
                 void AppendItem(int i)
                 {
                     counter.Decrement();
-                    stringBuilder.AppendLogString(tuple[i], loggingContext);
+                    stringBuilder.AppendLogString(tuple[i], appendingContext);
                 }
 
                 AppendItem(0);
@@ -126,7 +126,7 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
             this.sb = sb;
         }
 
-        public void AppendTo(StringBuilder stringBuilder, LoggingContext loggingContext)
+        public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
         {
             stringBuilder.Append(sb);
         }
@@ -149,12 +149,12 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
             this.owner = owner;
         }
 
-        public void AppendTo(StringBuilder stringBuilder, LoggingContext loggingContext)
+        public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
         {
             stringBuilder.Append('λ');
-            owner.memberLogStringProvider.Append(del.Method.GetParameters(), stringBuilder, loggingContext);
+            owner.memberLogStringProvider.Append(del.Method.GetParameters(), stringBuilder, appendingContext);
             stringBuilder.Append(':');
-            owner.memberLogStringProvider.Append(del.Method.ReturnType, stringBuilder, loggingContext);
+            owner.memberLogStringProvider.Append(del.Method.ReturnType, stringBuilder, appendingContext);
         }
     }
 
@@ -172,14 +172,14 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
             this.kvp = kvp;
         }
 
-        public void AppendTo(StringBuilder stringBuilder, LoggingContext loggingContext)
+        public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
         {
             stringBuilder
-                .AppendLogString(kvp.GetType(), loggingContext, false)
+                .AppendLogString(kvp.GetType(), appendingContext, false)
                 .Append(LogStringTokens.MapBegin)
-                .AppendLogString(kvp.Key, loggingContext)
+                .AppendLogString(kvp.Key, appendingContext)
                 .Append(LogStringTokens.Value)
-                .AppendLogString(kvp.Value, loggingContext)
+                .AppendLogString(kvp.Value, appendingContext)
                 .Append(LogStringTokens.MapEnd);
         }
     }

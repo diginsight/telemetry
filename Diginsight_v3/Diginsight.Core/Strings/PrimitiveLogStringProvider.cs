@@ -38,7 +38,7 @@ internal sealed class PrimitiveLogStringProvider : ILogStringProvider
             this.convertible = convertible;
         }
 
-        public void AppendTo(StringBuilder stringBuilder, LoggingContext loggingContext)
+        public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
         {
             stringBuilder.Append(convertible.ToString(CultureInfo.InvariantCulture));
         }
@@ -56,7 +56,7 @@ internal sealed class PrimitiveLogStringProvider : ILogStringProvider
             this.e = e;
         }
 
-        public void AppendTo(StringBuilder stringBuilder, LoggingContext loggingContext)
+        public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
         {
             Type enumType = e.GetType();
 

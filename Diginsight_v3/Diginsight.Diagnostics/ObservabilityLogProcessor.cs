@@ -1,3 +1,4 @@
+using Diginsight.Strings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OpenTelemetry;
@@ -12,14 +13,17 @@ namespace Diginsight.Diagnostics;
 internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
 {
     private readonly ILogger<ObservabilityLogProcessor> logger;
+    private readonly ILogStringComposer logStringComposer;
     private readonly IOptionsMonitor<ObservabilityOptions> observabilityOptionsMonitor;
 
     public ObservabilityLogProcessor(
         ILogger<ObservabilityLogProcessor> logger,
+        ILogStringComposer logStringComposer,
         IOptionsMonitor<ObservabilityOptions> observabilityOptionsMonitor
     )
     {
         this.logger = logger;
+        this.logStringComposer = logStringComposer;
         this.observabilityOptionsMonitor = observabilityOptionsMonitor;
     }
 
@@ -45,23 +49,25 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
             null => null,
             _ => throw new InvalidOperationException("Invalid inputs in activity"),
         };
+
         string inputsAsString;
-        IDictionary<string, object?>? inputsAsDict;
+        IDictionary<string, string>? inputsAsDict;
         if (inputs is null)
         {
             inputsAsString = "";
             inputsAsDict = null;
         }
+        else if (!inputs.GetType().IsAnonymous())
+        {
+            throw new InvalidOperationException("Invalid inputs in activity");
+        }
         else
         {
-            inputsAsDict = new Dictionary<string, object?>();
+            inputsAsDict = new Dictionary<string, string>();
 
             StringBuilder sb = new ();
             bool first = true;
-            IEnumerable<PropertyInfo> properties = inputs.GetType()
-                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(static p => p.GetMethod?.GetParameters().Length == 0);
-            foreach (PropertyInfo property in properties)
+            foreach (PropertyInfo property in inputs.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
                 if (first)
                 {
@@ -69,14 +75,14 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
                 }
                 else
                 {
-                    sb.Append(", ");
+                    sb.Append(LogStringTokens.Separator2);
                 }
 
                 string propertyName = property.Name;
-                string propertyValue = property.GetValue(inputs)?.ToString() ?? "<null>";
+                string propertyValue = logStringComposer.MakeLogString(property.GetValue(inputs));
 
                 inputsAsDict[$"Inputs.{propertyName}"] = propertyValue;
-                sb.Append($"{propertyName}={propertyValue}");
+                sb.Append($"{propertyName}{LogStringTokens.Value}{propertyValue}");
             }
 
             inputsAsString = sb.ToString();
@@ -128,7 +134,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
                 throw new InvalidOperationException("Invalid output in activity");
         }
 
-        string outputAsString = output?.ToString() ?? "<null>";
+        string outputAsString = logStringComposer.MakeLogString(output);
 
         otlpLogger.Log(
             logLevel,

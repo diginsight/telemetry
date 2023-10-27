@@ -12,5 +12,5 @@ public interface ILogStringable
     bool CanCycle { get; }
 #endif
 
-    void AppendTo(StringBuilder stringBuilder, LoggingContext loggingContext);
+    void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext);
 }

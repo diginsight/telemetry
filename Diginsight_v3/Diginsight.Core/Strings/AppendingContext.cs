@@ -2,25 +2,27 @@
 
 namespace Diginsight.Strings;
 
-public sealed class LoggingContext
+public sealed class AppendingContext
 {
     private readonly IEnumerable<ILogStringProvider> logStringProviders;
     private readonly ISet<object> renderedObjs = new HashSet<object>(ReferenceEqualityComparer.Instance);
 
-    private LogStringThresholdConfiguration thresholdConfiguration;
+    private LogStringVariableConfiguration variableConfiguration;
     private Dictionary<string, object?> metaProperties;
     private int currentDepth = 0;
 
+    public ILogStringNamespaceConfiguration NamespaceConfiguration => variableConfiguration;
+
     public IReadOnlyDictionary<string, object?> MetaProperties => metaProperties;
 
-    internal LoggingContext(
+    internal AppendingContext(
         IEnumerable<ILogStringProvider> logStringProviders,
-        LogStringThresholdConfiguration thresholdConfiguration,
+        LogStringVariableConfiguration variableConfiguration,
         IEqualityComparer<string> metaPropertyKeyComparer
     )
     {
         this.logStringProviders = logStringProviders;
-        this.thresholdConfiguration = thresholdConfiguration;
+        this.variableConfiguration = variableConfiguration;
         metaProperties = new Dictionary<string, object?>(metaPropertyKeyComparer);
     }
 
@@ -28,7 +30,7 @@ public sealed class LoggingContext
         object? obj,
         StringBuilder stringBuilder,
         bool incrementDepth = true,
-        Action<LogStringThresholdConfiguration>? configureThresholds = null,
+        Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
@@ -38,7 +40,7 @@ public sealed class LoggingContext
             return;
         }
 
-        using IDisposable? _0 = WithThresholdsSafe(configureThresholds);
+        using IDisposable? _0 = WithVariablesSafe(configureVariables);
         using IDisposable? _1 = WithMetaPropertiesSafe(configureMetaProperties);
         using IDisposable? _2 = this.IncrementDepth(incrementDepth, out bool isMaxDepth);
 
@@ -87,18 +89,18 @@ public sealed class LoggingContext
         throw new AlreadySeenShortCircuit();
     }
 
-    public IDisposable? WithThresholdsSafe(Action<LogStringThresholdConfiguration>? configureThresholds)
+    public IDisposable? WithVariablesSafe(Action<LogStringVariableConfiguration>? configureVariables)
     {
-        return configureThresholds is null ? null : WithThresholds(configureThresholds);
+        return configureVariables is null ? null : WithVariables(configureVariables);
     }
 
-    public IDisposable WithThresholds(Action<LogStringThresholdConfiguration> configureThresholds)
+    public IDisposable WithVariables(Action<LogStringVariableConfiguration> configureVariables)
     {
-        LogStringThresholdConfiguration previous = thresholdConfiguration;
-        LogStringThresholdConfiguration clone = new (previous);
-        configureThresholds(clone);
-        thresholdConfiguration = clone;
-        return new CallbackDisposable(() => thresholdConfiguration = previous);
+        LogStringVariableConfiguration previous = variableConfiguration;
+        LogStringVariableConfiguration clone = new (previous);
+        configureVariables(clone);
+        variableConfiguration = clone;
+        return new CallbackDisposable(() => variableConfiguration = previous);
     }
 
     public IDisposable? WithMetaPropertiesSafe(Action<IDictionary<string, object?>>? configureMetaProperties)
@@ -118,21 +120,21 @@ public sealed class LoggingContext
     public IDisposable IncrementDepth(out bool isMaxDepth)
     {
         currentDepth += 1;
-        isMaxDepth = currentDepth >= thresholdConfiguration.EffectiveMaxDepth;
+        isMaxDepth = currentDepth >= variableConfiguration.EffectiveMaxDepth;
         return new CallbackDisposable(() => currentDepth -= 1);
     }
 
-    public AllottingCounter CountCollectionItems() => Count(thresholdConfiguration.EffectiveMaxCollectionItemCount);
+    public AllottingCounter CountCollectionItems() => Count(variableConfiguration.EffectiveMaxCollectionItemCount);
 
-    public AllottingCounter CountDictionaryItems() => Count(thresholdConfiguration.EffectiveMaxDictionaryItemCount);
+    public AllottingCounter CountDictionaryItems() => Count(variableConfiguration.EffectiveMaxDictionaryItemCount);
 
-    public AllottingCounter CountMemberwiseProperties() => Count(thresholdConfiguration.EffectiveMaxMemberwisePropertyCount);
+    public AllottingCounter CountMemberwiseProperties() => Count(variableConfiguration.EffectiveMaxMemberwisePropertyCount);
 
-    public AllottingCounter CountAnonymousObjectProperties() => Count(thresholdConfiguration.EffectiveMaxAnonymousObjectPropertyCount);
+    public AllottingCounter CountAnonymousObjectProperties() => Count(variableConfiguration.EffectiveMaxAnonymousObjectPropertyCount);
 
-    public AllottingCounter CountTupleItems() => Count(thresholdConfiguration.EffectiveMaxTupleItemCount);
+    public AllottingCounter CountTupleItems() => Count(variableConfiguration.EffectiveMaxTupleItemCount);
 
-    public AllottingCounter CountMethodParameters() => Count(thresholdConfiguration.EffectiveMaxMethodParameterCount);
+    public AllottingCounter CountMethodParameters() => Count(variableConfiguration.EffectiveMaxMethodParameterCount);
 
     private static AllottingCounter Count(int? maybeMax)
     {

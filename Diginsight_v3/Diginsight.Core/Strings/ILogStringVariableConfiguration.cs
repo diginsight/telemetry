@@ -1,6 +1,6 @@
 ﻿namespace Diginsight.Strings;
 
-public interface ILogStringThresholdConfiguration
+public interface ILogStringVariableConfiguration : ILogStringNamespaceConfiguration
 {
     LogThreshold MaxCollectionItemCount { get; }
     InheritableLogThreshold MaxDictionaryItemCount { get; }

@@ -32,31 +32,31 @@ public static class LogStringExtensions
     public static string ToLogString(
         this object? obj,
         ILogStringComposer? logStringComposer = null,
-        Action<LogStringThresholdConfiguration>? configureThresholds = null,
+        Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
         return (logStringComposer ?? LogStringComposers.Default)
-            .MakeLogString(obj, configureThresholds, configureMetaProperties);
+            .MakeLogString(obj, configureVariables, configureMetaProperties);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string MakeLogString(
         this ILogStringComposer logStringComposer,
         object? obj,
-        Action<LogStringThresholdConfiguration>? configureThresholds = null,
+        Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
         StringBuilder stringBuilder = new ();
-        logStringComposer.Append(obj, stringBuilder, configureThresholds, configureMetaProperties);
+        logStringComposer.Append(obj, stringBuilder, configureVariables, configureMetaProperties);
         return stringBuilder.ToString();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static StringBuilder Append(this StringBuilder stringBuilder, ILogStringable logStringable, LoggingContext loggingContext)
+    public static StringBuilder Append(this StringBuilder stringBuilder, ILogStringable logStringable, AppendingContext appendingContext)
     {
-        logStringable.AppendTo(stringBuilder, loggingContext);
+        logStringable.AppendTo(stringBuilder, appendingContext);
         return stringBuilder;
     }
 
@@ -64,33 +64,33 @@ public static class LogStringExtensions
     public static StringBuilder AppendLogString(
         this StringBuilder stringBuilder,
         object? obj,
-        LoggingContext loggingContext,
+        AppendingContext appendingContext,
         bool incrementDepth = true,
-        Action<LogStringThresholdConfiguration>? configureThresholds = null,
+        Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
-        loggingContext.Append(obj, stringBuilder, incrementDepth, configureThresholds, configureMetaProperties);
+        appendingContext.Append(obj, stringBuilder, incrementDepth, configureVariables, configureMetaProperties);
         return stringBuilder;
     }
 
     public static StringBuilder AppendMap(
         this StringBuilder stringBuilder,
         Type type,
-        LoggingContext loggingContext,
-        Action<StringBuilder, LoggingContext> appendContent,
+        AppendingContext appendingContext,
+        Action<StringBuilder, AppendingContext> appendContent,
         bool incrementDepth = true,
-        Action<LogStringThresholdConfiguration>? configureThresholds = null,
+        Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
         stringBuilder
-            .AppendLogString(type, loggingContext, false)
+            .AppendLogString(type, appendingContext, false)
             .Append(LogStringTokens.MapBegin);
 
-        using (loggingContext.WithThresholdsSafe(configureThresholds))
-        using (loggingContext.WithMetaPropertiesSafe(configureMetaProperties))
-        using (loggingContext.IncrementDepth(incrementDepth, out bool isMaxDepth))
+        using (appendingContext.WithVariablesSafe(configureVariables))
+        using (appendingContext.WithMetaPropertiesSafe(configureMetaProperties))
+        using (appendingContext.IncrementDepth(incrementDepth, out bool isMaxDepth))
         {
             if (isMaxDepth)
             {
@@ -98,7 +98,7 @@ public static class LogStringExtensions
             }
             else
             {
-                appendContent(stringBuilder, loggingContext);
+                appendContent(stringBuilder, appendingContext);
             }
         }
 
@@ -108,26 +108,26 @@ public static class LogStringExtensions
     public static StringBuilder AppendCollection(
         this StringBuilder stringBuilder,
         Type type,
-        LoggingContext loggingContext,
-        Action<StringBuilder, LoggingContext> appendContent,
+        AppendingContext appendingContext,
+        Action<StringBuilder, AppendingContext> appendContent,
         int? count = null,
         bool incrementDepth = true,
-        Action<LogStringThresholdConfiguration>? configureThresholds = null,
+        Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
         stringBuilder
             .AppendLogString(
                 type,
-                loggingContext,
+                appendingContext,
                 false,
                 configureMetaProperties: x => { x[MemberLogStringProvider.CollectionLengthMetaProperty] = count; }
             )
             .Append(LogStringTokens.CollectionBegin);
 
-        using (loggingContext.WithThresholdsSafe(configureThresholds))
-        using (loggingContext.WithMetaPropertiesSafe(configureMetaProperties))
-        using (loggingContext.IncrementDepth(incrementDepth, out bool isMaxDepth))
+        using (appendingContext.WithVariablesSafe(configureVariables))
+        using (appendingContext.WithMetaPropertiesSafe(configureMetaProperties))
+        using (appendingContext.IncrementDepth(incrementDepth, out bool isMaxDepth))
         {
             if (isMaxDepth)
             {
@@ -135,7 +135,7 @@ public static class LogStringExtensions
             }
             else
             {
-                appendContent(stringBuilder, loggingContext);
+                appendContent(stringBuilder, appendingContext);
             }
         }
 
@@ -146,13 +146,13 @@ public static class LogStringExtensions
         this StringBuilder stringBuilder,
         string memberName,
         object? memberValue,
-        LoggingContext loggingContext,
+        AppendingContext appendingContext,
         bool incrementDepth = true,
-        Action<LogStringThresholdConfiguration>? configureThresholds = null,
+        Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
-        AllottingCounter counter = loggingContext.CountMemberwiseProperties();
+        AllottingCounter counter = appendingContext.CountMemberwiseProperties();
 
         bool isAlive;
         try
@@ -163,7 +163,7 @@ public static class LogStringExtensions
             stringBuilder
                 .Append(memberName)
                 .Append(LogStringTokens.Value)
-                .AppendLogString(memberValue, loggingContext, incrementDepth, configureThresholds, configureMetaProperties);
+                .AppendLogString(memberValue, appendingContext, incrementDepth, configureVariables, configureMetaProperties);
         }
         catch (MaxAllottedShortCircuit)
         {
@@ -171,19 +171,19 @@ public static class LogStringExtensions
             isAlive = false;
         }
 
-        return new MemberAppender(stringBuilder, loggingContext, counter, isAlive);
+        return new MemberAppender(stringBuilder, appendingContext, counter, isAlive);
     }
 
     public static ItemAppender AppendItem(
         this StringBuilder stringBuilder,
         object? itemValue,
-        LoggingContext loggingContext,
+        AppendingContext appendingContext,
         bool incrementDepth = true,
-        Action<LogStringThresholdConfiguration>? configureThresholds = null,
+        Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
-        AllottingCounter counter = loggingContext.CountCollectionItems();
+        AllottingCounter counter = appendingContext.CountCollectionItems();
 
         bool isAlive;
         try
@@ -192,7 +192,7 @@ public static class LogStringExtensions
             isAlive = true;
 
             stringBuilder
-                .AppendLogString(itemValue, loggingContext, incrementDepth, configureThresholds, configureMetaProperties);
+                .AppendLogString(itemValue, appendingContext, incrementDepth, configureVariables, configureMetaProperties);
         }
         catch (MaxAllottedShortCircuit)
         {
@@ -200,15 +200,15 @@ public static class LogStringExtensions
             isAlive = false;
         }
 
-        return new ItemAppender(stringBuilder, loggingContext, counter, isAlive);
+        return new ItemAppender(stringBuilder, appendingContext, counter, isAlive);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IDisposable? IncrementDepth(this LoggingContext loggingContext, bool condition, out bool isMaxDepth)
+    public static IDisposable? IncrementDepth(this AppendingContext appendingContext, bool condition, out bool isMaxDepth)
     {
         if (condition)
         {
-            return loggingContext.IncrementDepth(out isMaxDepth);
+            return appendingContext.IncrementDepth(out isMaxDepth);
         }
         else
         {

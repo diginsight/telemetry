@@ -87,12 +87,12 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
             this.subject = subject;
         }
 
-        public void AppendTo(StringBuilder stringBuilder, LoggingContext loggingContext)
+        public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
         {
             try
             {
                 object? collectionLength = subject is Array ? GetLengths() : GetCount();
-                loggingContext.Append(
+                appendingContext.Append(
                     subject.GetType(),
                     stringBuilder,
                     false,
@@ -100,7 +100,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
                 );
 
                 stringBuilder.Append(BeginToken);
-                AppendToCore(stringBuilder, loggingContext);
+                AppendToCore(stringBuilder, appendingContext);
                 stringBuilder.Append(EndToken);
             }
             catch (AlreadySeenShortCircuit)
@@ -113,7 +113,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
 
         protected abstract int[] GetLengths();
 
-        protected abstract void AppendToCore(StringBuilder stringBuilder, LoggingContext loggingContext);
+        protected abstract void AppendToCore(StringBuilder stringBuilder, AppendingContext appendingContext);
     }
 
     private sealed class LogStringableDictionary : LogStringableCollectionBase<IDictionary>
@@ -128,22 +128,22 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
 
         protected override int[] GetLengths() => throw new UnreachableException("Unexpected array");
 
-        protected override void AppendToCore(StringBuilder stringBuilder, LoggingContext loggingContext)
+        protected override void AppendToCore(StringBuilder stringBuilder, AppendingContext appendingContext)
         {
             IDictionaryEnumerator enumerator = subject.GetEnumerator();
             if (!enumerator.MoveNext())
                 return;
 
-            AllottingCounter counter = loggingContext.CountDictionaryItems();
+            AllottingCounter counter = appendingContext.CountDictionaryItems();
             try
             {
                 void AppendEntry()
                 {
                     counter.Decrement();
                     stringBuilder
-                        .AppendLogString(enumerator.Key, loggingContext)
+                        .AppendLogString(enumerator.Key, appendingContext)
                         .Append(LogStringTokens.Value)
-                        .AppendLogString(enumerator.Value, loggingContext);
+                        .AppendLogString(enumerator.Value, appendingContext);
                 }
 
                 AppendEntry();
@@ -183,13 +183,13 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
             return new[] { ((Array)subject).Length };
         }
 
-        protected override void AppendToCore(StringBuilder stringBuilder, LoggingContext loggingContext)
+        protected override void AppendToCore(StringBuilder stringBuilder, AppendingContext appendingContext)
         {
             using IEnumerator<KeyValuePair<TKey, TValue>> enumerator = subject.GetEnumerator();
             if (!enumerator.MoveNext())
                 return;
 
-            AllottingCounter counter = loggingContext.CountDictionaryItems();
+            AllottingCounter counter = appendingContext.CountDictionaryItems();
             try
             {
                 void AppendEntry()
@@ -202,9 +202,9 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
                     TValue value = enumerator.Current.Value;
 #endif
                     stringBuilder
-                        .AppendLogString(key, loggingContext)
+                        .AppendLogString(key, appendingContext)
                         .Append(LogStringTokens.Value)
-                        .AppendLogString(value, loggingContext);
+                        .AppendLogString(value, appendingContext);
                 }
 
                 AppendEntry();
@@ -239,19 +239,19 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
             return new[] { ((T[])subject).Length };
         }
 
-        protected override void AppendToCore(StringBuilder stringBuilder, LoggingContext loggingContext)
+        protected override void AppendToCore(StringBuilder stringBuilder, AppendingContext appendingContext)
         {
             using IEnumerator<T> enumerator = subject.GetEnumerator();
             if (!enumerator.MoveNext())
                 return;
 
-            AllottingCounter counter = loggingContext.CountCollectionItems();
+            AllottingCounter counter = appendingContext.CountCollectionItems();
             try
             {
                 void AppendItem()
                 {
                     counter.Decrement();
-                    stringBuilder.AppendLogString(enumerator.Current, loggingContext);
+                    stringBuilder.AppendLogString(enumerator.Current, appendingContext);
                 }
 
                 AppendItem();
@@ -287,19 +287,19 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
             return Enumerable.Range(0, array.Rank).Select(array.GetLength).ToArray();
         }
 
-        protected override void AppendToCore(StringBuilder stringBuilder, LoggingContext loggingContext)
+        protected override void AppendToCore(StringBuilder stringBuilder, AppendingContext appendingContext)
         {
             IEnumerator enumerator = subject.GetEnumerator();
             if (!enumerator.MoveNext())
                 return;
 
-            AllottingCounter counter = loggingContext.CountCollectionItems();
+            AllottingCounter counter = appendingContext.CountCollectionItems();
             try
             {
                 void AppendItem()
                 {
                     counter.Decrement();
-                    stringBuilder.AppendLogString(enumerator.Current, loggingContext);
+                    stringBuilder.AppendLogString(enumerator.Current, appendingContext);
                 }
 
                 AppendItem();

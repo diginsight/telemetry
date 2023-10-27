@@ -88,5 +88,5 @@ public sealed class MemberwiseLogStringable : ReflectionLogStringable
             .ToArray();
     }
 
-    protected override AllottingCounter Count(LoggingContext loggingContext) => loggingContext.CountMemberwiseProperties();
+    protected override AllottingCounter Count(AppendingContext appendingContext) => appendingContext.CountMemberwiseProperties();
 }

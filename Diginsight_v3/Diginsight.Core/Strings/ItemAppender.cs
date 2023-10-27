@@ -5,14 +5,14 @@ namespace Diginsight.Strings;
 public ref struct ItemAppender
 {
     private readonly StringBuilder stringBuilder;
-    private readonly LoggingContext loggingContext;
+    private readonly AppendingContext appendingContext;
     private readonly AllottingCounter counter;
     private bool isAlive;
 
-    internal ItemAppender(StringBuilder stringBuilder, LoggingContext loggingContext, AllottingCounter counter, bool isAlive)
+    internal ItemAppender(StringBuilder stringBuilder, AppendingContext appendingContext, AllottingCounter counter, bool isAlive)
     {
         this.stringBuilder = stringBuilder;
-        this.loggingContext = loggingContext;
+        this.appendingContext = appendingContext;
         this.counter = counter;
         this.isAlive = isAlive;
     }
@@ -20,7 +20,7 @@ public ref struct ItemAppender
     public ItemAppender ThenItem(
         object? itemValue,
         bool incrementDepth = true,
-        Action<LogStringThresholdConfiguration>? configureThresholds = null,
+        Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
@@ -37,7 +37,7 @@ public ref struct ItemAppender
             isAlive = true;
 
             stringBuilder
-                .AppendLogString(itemValue, loggingContext, incrementDepth, configureThresholds, configureMetaProperties);
+                .AppendLogString(itemValue, appendingContext, incrementDepth, configureVariables, configureMetaProperties);
         }
         catch (MaxAllottedShortCircuit)
         {

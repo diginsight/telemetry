@@ -11,7 +11,7 @@ internal sealed class JTokenLogStringProvider : ILogStringProvider
         return obj is JToken jt ? new LogStringableJToken(jt) : null;
     }
 
-    private sealed class LogStringableJToken : ILogStringable, IJTokenVisitor<StringBuilder, (StringBuilder, LoggingContext)>
+    private sealed class LogStringableJToken : ILogStringable, IJTokenVisitor<StringBuilder, (StringBuilder, AppendingContext)>
     {
         private readonly JToken root;
 
@@ -24,16 +24,16 @@ internal sealed class JTokenLogStringProvider : ILogStringProvider
             this.root = root;
         }
 
-        public void AppendTo(StringBuilder stringBuilder, LoggingContext loggingContext)
+        public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
         {
-            root.Accept(this, (stringBuilder.Append(LogStringTokens.LiteralBegin), loggingContext)).Append(LogStringTokens.LiteralEnd);
+            root.Accept(this, (stringBuilder.Append(LogStringTokens.LiteralBegin), appendingContext)).Append(LogStringTokens.LiteralEnd);
         }
 
-        public StringBuilder Visit(JArray jarray, (StringBuilder, LoggingContext) arg)
+        public StringBuilder Visit(JArray jarray, (StringBuilder, AppendingContext) arg)
         {
-            var (stringBuilder, loggingContext) = arg;
+            var (stringBuilder, appendingContext) = arg;
 
-            using IDisposable? _0 = loggingContext.IncrementDepth(jarray != root, out bool isMaxDepth);
+            using IDisposable? _0 = appendingContext.IncrementDepth(jarray != root, out bool isMaxDepth);
             if (isMaxDepth)
             {
                 return stringBuilder.Append(LogStringTokens.Deep);
@@ -51,13 +51,13 @@ internal sealed class JTokenLogStringProvider : ILogStringProvider
                 if (!enumerator.MoveNext())
                     return;
 
-                AllottingCounter counter = loggingContext.CountCollectionItems();
+                AllottingCounter counter = appendingContext.CountCollectionItems();
                 try
                 {
                     void AppendItem()
                     {
                         counter.Decrement();
-                        enumerator.Current!.Accept(this, (stringBuilder, loggingContext));
+                        enumerator.Current!.Accept(this, (stringBuilder, appendingContext));
                     }
 
                     AppendItem();
@@ -74,11 +74,11 @@ internal sealed class JTokenLogStringProvider : ILogStringProvider
             }
         }
 
-        public StringBuilder Visit(JConstructor jconstructor, (StringBuilder, LoggingContext) arg)
+        public StringBuilder Visit(JConstructor jconstructor, (StringBuilder, AppendingContext) arg)
         {
-            var (stringBuilder, loggingContext) = arg;
+            var (stringBuilder, appendingContext) = arg;
 
-            using IDisposable? _0 = loggingContext.IncrementDepth(jconstructor != root, out bool isMaxDepth);
+            using IDisposable? _0 = appendingContext.IncrementDepth(jconstructor != root, out bool isMaxDepth);
             if (isMaxDepth)
             {
                 return stringBuilder.Append(LogStringTokens.Deep);
@@ -96,13 +96,13 @@ internal sealed class JTokenLogStringProvider : ILogStringProvider
                 if (!enumerator.MoveNext())
                     return;
 
-                AllottingCounter counter = loggingContext.CountCollectionItems();
+                AllottingCounter counter = appendingContext.CountCollectionItems();
                 try
                 {
                     void AppendItem()
                     {
                         counter.Decrement();
-                        enumerator.Current!.Accept(this, (stringBuilder, loggingContext));
+                        enumerator.Current!.Accept(this, (stringBuilder, appendingContext));
                     }
 
                     AppendItem();
@@ -119,11 +119,11 @@ internal sealed class JTokenLogStringProvider : ILogStringProvider
             }
         }
 
-        public StringBuilder Visit(JObject jobject, (StringBuilder, LoggingContext) arg)
+        public StringBuilder Visit(JObject jobject, (StringBuilder, AppendingContext) arg)
         {
-            var (stringBuilder, loggingContext) = arg;
+            var (stringBuilder, appendingContext) = arg;
 
-            using IDisposable? _0 = loggingContext.IncrementDepth(jobject != root, out bool isMaxDepth);
+            using IDisposable? _0 = appendingContext.IncrementDepth(jobject != root, out bool isMaxDepth);
             if (isMaxDepth)
             {
                 return stringBuilder.Append(LogStringTokens.Deep);
@@ -141,13 +141,13 @@ internal sealed class JTokenLogStringProvider : ILogStringProvider
                 if (!enumerator.MoveNext())
                     return;
 
-                AllottingCounter counter = loggingContext.CountDictionaryItems();
+                AllottingCounter counter = appendingContext.CountDictionaryItems();
                 try
                 {
                     void AppendItem()
                     {
                         counter.Decrement();
-                        enumerator.Current!.Accept(this, (stringBuilder, loggingContext));
+                        enumerator.Current!.Accept(this, (stringBuilder, appendingContext));
                     }
 
                     AppendItem();
@@ -164,18 +164,18 @@ internal sealed class JTokenLogStringProvider : ILogStringProvider
             }
         }
 
-        public StringBuilder Visit(JProperty jproperty, (StringBuilder, LoggingContext) arg)
+        public StringBuilder Visit(JProperty jproperty, (StringBuilder, AppendingContext) arg)
         {
-            var (stringBuilder, loggingContext) = arg;
+            var (stringBuilder, appendingContext) = arg;
 
             stringBuilder
                 .Append(new JValue(jproperty.Name).ToString(Formatting.None))
                 .Append(':');
 
-            return jproperty.Value.Accept(this, (stringBuilder, loggingContext));
+            return jproperty.Value.Accept(this, (stringBuilder, appendingContext));
         }
 
-        public StringBuilder Visit(JValue jvalue, (StringBuilder, LoggingContext) arg)
+        public StringBuilder Visit(JValue jvalue, (StringBuilder, AppendingContext) arg)
         {
             var (stringBuilder, _) = arg;
             return stringBuilder.Append(jvalue.ToString(Formatting.None));

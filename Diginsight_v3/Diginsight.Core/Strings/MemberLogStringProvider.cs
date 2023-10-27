@@ -32,13 +32,13 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
         [typeof(void)] = "void",
     };
 
-    private readonly ILogStringConfiguration logStringConfiguration;
+    private readonly ILogStringOverallConfiguration overallConfiguration;
 
     public MemberLogStringProvider(
-        IOptions<LogStringConfiguration> logStringConfigurationOptions
+        IOptions<LogStringOverallConfiguration> overallConfigurationOptions
     )
     {
-        logStringConfiguration = logStringConfigurationOptions.Value;
+        overallConfiguration = overallConfigurationOptions.Value;
     }
 
     public ILogStringable? TryAsLogStringable(object obj)
@@ -53,18 +53,20 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
         };
     }
 
-    public void Append(Type type, StringBuilder stringBuilder, LoggingContext loggingContext)
+    public void Append(Type type, StringBuilder stringBuilder, AppendingContext appendingContext)
     {
         void AppendNamespace(string? ns)
         {
             if (ns == null)
                 return;
 
-            bool isImplicit = logStringConfiguration.ImplicitNamespaces?.IsMatch(ns) ?? false;
-            bool isExplicit = logStringConfiguration.ExplicitNamespaces?.IsMatch(ns) ?? false;
+            ILogStringNamespaceConfiguration namespaceConfiguration = appendingContext.NamespaceConfiguration;
 
-            if ((isImplicit && isExplicit && logStringConfiguration.IsNamespaceExplicitIfAmbiguous) ||
-                (!isImplicit && !isExplicit && logStringConfiguration.IsNamespaceExplicitIfUnspecified) ||
+            bool isImplicit = namespaceConfiguration.ImplicitNamespaces?.IsMatch(ns) ?? false;
+            bool isExplicit = namespaceConfiguration.ExplicitNamespaces?.IsMatch(ns) ?? false;
+
+            if ((isImplicit && isExplicit && namespaceConfiguration.IsNamespaceExplicitIfAmbiguous) ||
+                (!isImplicit && !isExplicit && namespaceConfiguration.IsNamespaceExplicitIfUnspecified) ||
                 isExplicit)
             {
                 stringBuilder
@@ -73,13 +75,13 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
             }
         }
 
-        _ = loggingContext.MetaProperties.TryGetValue(CollectionLengthMetaProperty, out object? rawCollectionLength);
+        _ = appendingContext.MetaProperties.TryGetValue(CollectionLengthMetaProperty, out object? rawCollectionLength);
 
-        using IDisposable _0 = loggingContext.WithMetaProperties(static x => { x.Remove(CollectionLengthMetaProperty); });
+        using IDisposable _0 = appendingContext.WithMetaProperties(static x => { x.Remove(CollectionLengthMetaProperty); });
 
         if (type.IsArray)
         {
-            Append(type.GetElementType()!, stringBuilder, loggingContext);
+            Append(type.GetElementType()!, stringBuilder, appendingContext);
 
             stringBuilder.Append("[");
 
@@ -101,17 +103,17 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
         }
         else if (type.IsPointer)
         {
-            Append(type.GetElementType()!, stringBuilder, loggingContext);
+            Append(type.GetElementType()!, stringBuilder, appendingContext);
             stringBuilder.Append('*');
         }
         else if (type.IsByRef)
         {
-            Append(type.GetElementType()!, stringBuilder, loggingContext);
+            Append(type.GetElementType()!, stringBuilder, appendingContext);
             stringBuilder.Append('&');
         }
         else if (type.IsNested)
         {
-            Append(type.DeclaringType!, stringBuilder, loggingContext);
+            Append(type.DeclaringType!, stringBuilder, appendingContext);
             stringBuilder
                 .Append('+')
                 .Append(type.Name);
@@ -122,7 +124,7 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
         }
         else if (Nullable.GetUnderlyingType(type) is { } nullableType)
         {
-            Append(nullableType, stringBuilder, loggingContext);
+            Append(nullableType, stringBuilder, appendingContext);
             stringBuilder.Append('?');
         }
         else if (type.IsAnonymous())
@@ -134,11 +136,11 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
             stringBuilder.Append(LogStringTokens.TupleBegin);
             if (itemTypes.Length > 0)
             {
-                Append(itemTypes[0], stringBuilder, loggingContext);
+                Append(itemTypes[0], stringBuilder, appendingContext);
                 foreach (Type itemType in itemTypes.Skip(1))
                 {
                     stringBuilder.Append(LogStringTokens.Separator);
-                    Append(itemType, stringBuilder, loggingContext);
+                    Append(itemType, stringBuilder, appendingContext);
                 }
             }
             stringBuilder.Append(LogStringTokens.TupleEnd);
@@ -160,18 +162,18 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
             else
             {
                 Type[] typeArgs = type.GetGenericArguments();
-                Append(typeArgs[0], stringBuilder, loggingContext);
+                Append(typeArgs[0], stringBuilder, appendingContext);
                 foreach (Type typeArg in typeArgs.Skip(1))
                 {
                     stringBuilder.Append(LogStringTokens.Separator);
-                    Append(typeArg, stringBuilder, loggingContext);
+                    Append(typeArg, stringBuilder, appendingContext);
                 }
             }
             stringBuilder.Append('>');
         }
         else
         {
-            if (logStringConfiguration.ShortenKnownTypes && KNOWN_TYPE_NAMES.TryGetValue(type, out string? name))
+            if (overallConfiguration.ShortenKnownTypes && KNOWN_TYPE_NAMES.TryGetValue(type, out string? name))
             {
                 stringBuilder.Append(name);
             }
@@ -200,26 +202,26 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
         return true;
     }
 
-    public void Append(ParameterInfo[] parameters, StringBuilder stringBuilder, LoggingContext loggingContext)
+    public void Append(ParameterInfo[] parameters, StringBuilder stringBuilder, AppendingContext appendingContext)
     {
         stringBuilder.Append('(');
-        AppendCore(parameters, stringBuilder, loggingContext);
+        AppendCore(parameters, stringBuilder, appendingContext);
         stringBuilder.Append(')');
     }
 
-    private void AppendCore(IReadOnlyList<ParameterInfo> parameters, StringBuilder stringBuilder, LoggingContext loggingContext)
+    private void AppendCore(IReadOnlyList<ParameterInfo> parameters, StringBuilder stringBuilder, AppendingContext appendingContext)
     {
         if (parameters.Count <= 0)
             return;
 
-        AllottingCounter counter = loggingContext.CountMethodParameters();
+        AllottingCounter counter = appendingContext.CountMethodParameters();
 
         try
         {
             void AppendItem(int i)
             {
                 counter.Decrement();
-                Append(parameters[i], stringBuilder, loggingContext);
+                Append(parameters[i], stringBuilder, appendingContext);
             }
 
             AppendItem(0);
@@ -235,7 +237,7 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
         }
     }
 
-    private void Append(ParameterInfo parameter, StringBuilder stringBuilder, LoggingContext loggingContext)
+    private void Append(ParameterInfo parameter, StringBuilder stringBuilder, AppendingContext appendingContext)
     {
         if (parameter.IsIn)
         {
@@ -245,7 +247,7 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
         {
             stringBuilder.Append('↑');
         }
-        Append(parameter.ParameterType, stringBuilder, loggingContext);
+        Append(parameter.ParameterType, stringBuilder, appendingContext);
     }
 
     private sealed class LogStringableType : ILogStringable
@@ -264,9 +266,9 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
             this.owner = owner;
         }
 
-        public void AppendTo(StringBuilder stringBuilder, LoggingContext loggingContext)
+        public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
         {
-            owner.Append(type, stringBuilder, loggingContext);
+            owner.Append(type, stringBuilder, appendingContext);
         }
     }
 
@@ -286,11 +288,11 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
             this.owner = owner;
         }
 
-        public void AppendTo(StringBuilder stringBuilder, LoggingContext loggingContext)
+        public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
         {
             if (member.DeclaringType is { } declaringType)
             {
-                owner.Append(declaringType, stringBuilder, loggingContext);
+                owner.Append(declaringType, stringBuilder, appendingContext);
                 stringBuilder.Append('#');
             }
 
@@ -313,7 +315,7 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
 
             if (parameters != null)
             {
-                owner.Append(parameters, stringBuilder, loggingContext);
+                owner.Append(parameters, stringBuilder, appendingContext);
             }
         }
     }
@@ -332,9 +334,9 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
             this.owner = owner;
         }
 
-        public void AppendTo(StringBuilder stringBuilder, LoggingContext loggingContext)
+        public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
         {
-            owner.Append(parameter, stringBuilder, loggingContext);
+            owner.Append(parameter, stringBuilder, appendingContext);
         }
     }
 
@@ -350,7 +352,7 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
             this.assembly = assembly;
         }
 
-        public void AppendTo(StringBuilder stringBuilder, LoggingContext loggingContext)
+        public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
         {
             stringBuilder.Append(assembly.FullName);
         }

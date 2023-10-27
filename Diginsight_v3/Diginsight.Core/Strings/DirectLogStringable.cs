@@ -17,7 +17,7 @@ public sealed class DirectLogStringable : ILogStringable
         this.format = format;
     }
 
-    public void AppendTo(StringBuilder stringBuilder, LoggingContext loggingContext)
+    public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
     {
         if (format is null)
             stringBuilder.Append(obj);
