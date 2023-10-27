@@ -67,6 +67,7 @@ public static class ActivitySourceExtensions
         activity.SetCustomProperty(ActivityCustomPropertyNames.Logger, logger);
         activity.SetCustomProperty(ActivityCustomPropertyNames.LogLevel, logLevel);
         activity.SetCustomProperty(ActivityCustomPropertyNames.Inputs, makeInputs);
+        activity.SetCustomProperty(ActivityCustomPropertyNames.CallerType, callerType);
 
         activity.Start();
 

@@ -29,6 +29,16 @@ public static class ClassConfigurationGetter
             return (IClassConfigurationGetter)Activator.CreateInstance(typeof(EmptyClassConfigurationGetter<>).MakeGenericType(@class))!;
         }
     }
+
+    internal sealed class ConfigurationWrapper
+    {
+        public IConfiguration Configuration { get; }
+
+        public ConfigurationWrapper(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+    }
 }
 
 internal sealed class ClassConfigurationGetter<TClass> : IClassConfigurationGetter<TClass>
@@ -86,10 +96,11 @@ internal sealed class ClassConfigurationGetter<TClass> : IClassConfigurationGett
 
     public ClassConfigurationGetter(
         IConfiguration configuration,
-        IEnumerable<IClassConfigurationSource> classConfigurationSources
+        IEnumerable<IClassConfigurationSource> classConfigurationSources,
+        ClassConfigurationGetter.ConfigurationWrapper? configurationWrapper = null
     )
     {
-        this.configuration = configuration;
+        this.configuration = configurationWrapper?.Configuration ?? configuration;
         this.classConfigurationSources = classConfigurationSources;
     }
 

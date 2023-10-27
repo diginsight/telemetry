@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry;
@@ -13,9 +14,11 @@ namespace Diginsight.Diagnostics;
 public static class DependencyInjectionExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static OpenTelemetryBuilder AddObservability(this IServiceCollection services)
+    public static OpenTelemetryBuilder AddObservability(this IServiceCollection services, IConfiguration rootForClassConfigurationGetter)
     {
-        return services.AddOpenTelemetry();
+        return services
+            .AddClassConfigurationGetter(rootForClassConfigurationGetter)
+            .AddOpenTelemetry();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

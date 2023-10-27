@@ -1,5 +1,6 @@
 using Diginsight.Strings;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using OpenTelemetry;
 using System.Collections;
@@ -14,16 +15,19 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
 {
     private readonly ILogger<ObservabilityLogProcessor> logger;
     private readonly ILogStringComposer logStringComposer;
+    private readonly IClassConfigurationGetterProvider classConfigurationGetterProvider;
     private readonly IOptionsMonitor<ObservabilityOptions> observabilityOptionsMonitor;
 
     public ObservabilityLogProcessor(
         ILogger<ObservabilityLogProcessor> logger,
         ILogStringComposer logStringComposer,
+        IClassConfigurationGetterProvider classConfigurationGetterProvider,
         IOptionsMonitor<ObservabilityOptions> observabilityOptionsMonitor
     )
     {
         this.logger = logger;
         this.logStringComposer = logStringComposer;
+        this.classConfigurationGetterProvider = classConfigurationGetterProvider;
         this.observabilityOptionsMonitor = observabilityOptionsMonitor;
     }
 
@@ -33,14 +37,21 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
             activity,
             observabilityOptionsMonitor.CurrentValue,
             out bool isStandalone,
+            out bool suppressRecording,
             out ILogger textLogger,
             out ILogger otlpLogger,
             out LogLevel logLevel
         );
 
+        if (suppressRecording)
+        {
+            activity.ActivityTraceFlags &= ~ActivityTraceFlags.Recorded;
+        }
+
         if (isStandalone)
         {
             textLogger.Log(logLevel, "{ActivityName} START", activity.OperationName);
+            return;
         }
 
         object? inputs = activity.GetCustomProperty(ActivityCustomPropertyNames.Inputs) switch
@@ -108,6 +119,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
             activity,
             observabilityOptionsMonitor.CurrentValue,
             out bool isStandalone,
+            out bool _,
             out ILogger textLogger,
             out ILogger otlpLogger,
             out LogLevel logLevel
@@ -151,6 +163,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
         Activity activity,
         IObservabilityOptions observabilityOptions,
         out bool isStandalone,
+        out bool suppressRecording,
         out ILogger textLogger,
         out ILogger otlpLogger,
         out LogLevel logLevel
@@ -163,11 +176,21 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
             _ => throw new InvalidOperationException("Invalid logger in activity"),
         };
 
+        Type? callerType = activity.GetCustomProperty(ActivityCustomPropertyNames.CallerType) switch
+        {
+            Type t => t,
+            null => null,
+            _ => throw new InvalidOperationException("Invalid caller type in activity"),
+        };
+
+        suppressRecording = callerType is not null &&
+            !classConfigurationGetterProvider.GetFor(callerType).Get("RecordActivities", false);
+
         isStandalone = providedLogger is null;
         ILogger innerLogger = providedLogger ?? logger;
 
         textLogger = new ActivityLogger(innerLogger, activity.IsStopped ? activity.Duration : null);
-        otlpLogger = new OtlpLogger(innerLogger);
+        otlpLogger = suppressRecording ? NullLogger.Instance : new OtlpLogger(innerLogger);
 
         logLevel = activity.GetCustomProperty(ActivityCustomPropertyNames.LogLevel) switch
         {
