@@ -152,7 +152,7 @@ namespace Common
             {
                 var fullCallerMemberName = !string.IsNullOrEmpty(this.Name) ? $"{this.MemberName}.{this.Name}" : this.MemberName;
                 if (activitySource == null) { activitySource = TraceLogger.ActivitySource; }
-                var activity = activitySource.StartActivity($"{this.ClassName}.{fullCallerMemberName}"); // , ActivityKind.Internal
+                var activity = activitySource.StartActivity($"{type?.Name ?? this.ClassName}.{fullCallerMemberName}"); // , ActivityKind.Internal
                 //activity.SetCustomProperty("Scope", scope);
                 //activity.SetCustomProperty("Logger", logger);
                 //activity.SetCustomProperty("LogLevel", logLevel);
@@ -276,7 +276,7 @@ namespace Common
             {
                 var fullCallerMemberName = !string.IsNullOrEmpty(this.Name) ? $"{this.MemberName}.{this.Name}" : this.MemberName;
                 if (activitySource == null) { activitySource = TraceLogger.ActivitySource; }
-                var activity = activitySource.StartActivity($"{this.ClassName}.{fullCallerMemberName}"); // , ActivityKind.Internal
+                var activity = activitySource.StartActivity($"{type?.Name ?? this.ClassName}.{fullCallerMemberName}"); // , ActivityKind.Internal
                 //activity.SetCustomProperty("Scope", scope);
                 //activity.SetCustomProperty("Logger", logger);
                 //activity.SetCustomProperty("LogLevel", logLevel);
