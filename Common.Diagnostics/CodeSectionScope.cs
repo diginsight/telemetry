@@ -148,9 +148,6 @@ namespace Common
 
             if (this.DisableStartEndTraces == true) { return; }
 
-            // if (this?._isLogEnabled == false) { return; }
-            if (logLevel < this.MinimumLogLevel) { return; }
-
             if (this.PublishFlow || this.PublishMetrics)
             {
                 var fullCallerMemberName = !string.IsNullOrEmpty(this.Name) ? $"{this.MemberName}.{this.Name}" : this.MemberName;
@@ -163,6 +160,9 @@ namespace Common
                 if (this.Properties == null) { this.Properties = new Dictionary<string, object>(); }
                 this.Properties.Add("Activity", activity);
             }
+
+            // if (this?._isLogEnabled == false) { return; }
+            if (logLevel < this.MinimumLogLevel) { return; }
 
             var entry = new TraceEntry() { TraceEventType = TraceEventType.Start, LogLevel = logLevel, TraceSource = this.TraceSource, Message = null, Properties = properties, Source = source, Category = category, SourceLevel = sourceLevel, CodeSectionBase = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
             if (!TraceLogger._lockListenersNotifications.Value)
@@ -272,9 +272,6 @@ namespace Common
 
             if (this.DisableStartEndTraces == true) { return; }
 
-            //if (this?._isLogEnabled == false) { return; }
-            if (logLevel < this.MinimumLogLevel) { return; }
-
             if (this.PublishFlow || this.PublishMetrics)
             {
                 var fullCallerMemberName = !string.IsNullOrEmpty(this.Name) ? $"{this.MemberName}.{this.Name}" : this.MemberName;
@@ -287,6 +284,9 @@ namespace Common
                 if (this.Properties == null) { this.Properties = new Dictionary<string, object>(); }
                 this.Properties.Add("Activity", activity);
             }
+
+            //if (this?._isLogEnabled == false) { return; }
+            if (logLevel < this.MinimumLogLevel) { return; }
 
             var entry = new TraceEntry() { TraceEventType = TraceEventType.Start, TraceSource = this.TraceSource, SourceLevel = sourceLevel, LogLevel = logLevel, Message = null, Properties = properties, Source = source, Category = category, CodeSectionBase = this, Thread = Thread.CurrentThread, ThreadID = Thread.CurrentThread.ManagedThreadId, ApartmentState = Thread.CurrentThread.GetApartmentState(), ElapsedMilliseconds = TraceLogger.Stopwatch.ElapsedMilliseconds, TraceStartTicks = startTicks };
             if (!TraceLogger._lockListenersNotifications.Value)
