@@ -1,7 +1,7 @@
 # This workflow will build a .NET project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
 
-name: Diginsight build and deploy
+name: Diginsight build and deploy_v3
 
 on:
   push:
@@ -20,22 +20,22 @@ jobs:
     #  config-path: .github/labeler.yml
     secrets: inherit
 
-  getCompositeVariables:
+  getCompositeVariables_v3:
     needs: installActions
-    uses: ./.github/workflows/01.GetCompositeVariables.yml
+    uses: ./.github/workflows/01.GetCompositeVariables_v3.yml
     #with:
     #  config-path: .github/labeler.yml
     secrets: inherit
 
-  getKeyVaultSecrets:
+  getKeyVaultSecrets_v3:
     needs: installActions
-    uses: ./.github/workflows/02.GetKeyVaultSecrets.yml
+    uses: ./.github/workflows/02.GetKeyVaultSecrets_v3.yml
     #with:
     #  config-path: .github/labeler.yml
     secrets: inherit
 
   build:
-    needs: [getCompositeVariables, getKeyVaultSecrets]
+    needs: [getCompositeVariables_v3, getKeyVaultSecrets_v3]
     #strategy:
     #  matrix:
     #    configuration:
@@ -90,7 +90,7 @@ jobs:
 
       - name: Set Assemblies Version
         run: |
-          $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables.outputs.assemblyVersion }}"
+          $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables_v3.outputs.assemblyVersion }}"
           Write-Host "Setting assembly version to: $env:ASSEMBLY_VERSION"
           # (Get-Content Common.Diagnostics/Common.Diagnostics.csproj) -replace '<Version>.*<\/Version>', "<Version>$env:ASSEMBLY_VERSION</Version>" | Set-Content Common.Diagnostics/Common.Diagnostics.csproj
           # Define the replacement pattern
@@ -105,14 +105,14 @@ jobs:
       
       - name: Build DLL Debug
         run: |
-          $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables.outputs.assemblyVersion }}"
+          $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables_v3.outputs.assemblyVersion }}"
           Write-Host "Setting assembly version to: $env:ASSEMBLY_VERSION"
           dotnet build Diginsight.sln --configuration Debug --no-restore 
           # --verbosity detailed "/p:Version=$env:ASSEMBLY_VERSION" "/p:AssemblyVersion=$(($env:ASSEMBLY_VERSION -split '-')[0])" 3.0.0-alpha.1234
 
       - name: Build DLL Release
         run: |
-          $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables.outputs.assemblyVersion }}"
+          $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables_v3.outputs.assemblyVersion }}"
           Write-Host "Setting assembly version to: $env:ASSEMBLY_VERSION"
           dotnet build Diginsight.sln --configuration Release --no-restore
         # --verbosity detailed
@@ -152,7 +152,7 @@ jobs:
     #  run: dotnet test --no-build --verbosity normal
 
   publishNugetPackage:
-    needs: [getCompositeVariables, getKeyVaultSecrets, build]
+    needs: [getCompositeVariables_v3, getKeyVaultSecrets_v3, build]
     strategy:
       matrix:
         configuration: [Release]
@@ -170,7 +170,7 @@ jobs:
 
       - name: Publish NuGet package
         run: |
-          $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables.outputs.assemblyVersion }}"
+          $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables_v3.outputs.assemblyVersion }}"
           Write-Host "Setting assembly version to: $env:ASSEMBLY_VERSION"
           $nupkgFiles = Get-ChildItem -Path artifactFolder/Release -Filter "*.nupkg" -File 
           Write-Host "nupkgFiles: $nupkgFiles"
@@ -178,7 +178,7 @@ jobs:
           #dotnet nuget push artifactFolder/Release/Diginsight.Core.$env:ASSEMBLY_VERSION.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY_v3 }}
 
   upload2AzureFolder:
-    needs: [getCompositeVariables, getKeyVaultSecrets, build]
+    needs: [getCompositeVariables_v3, getKeyVaultSecrets_v3, build]
     strategy:
       matrix:
         configuration: [Release]
@@ -199,9 +199,9 @@ jobs:
 
       - name: Upload artifacts to azure folder
         run: |
-          $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables.outputs.assemblyVersion }}"
+          $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables_v3.outputs.assemblyVersion }}"
           Write-Host "ASSEMBLY_VERSION: $env:ASSEMBLY_VERSION"
-          $env:CONNECTIONSTRINGDEVDGWSAMPLESSTORAGE="${{ needs.getKeyVaultSecrets.outputs.ConnectionStringDevdgwsamplesstorage }}"
+          $env:CONNECTIONSTRINGDEVDGWSAMPLESSTORAGE="${{ needs.getKeyVaultSecrets_v3.outputs.ConnectionStringDevdgwsamplesstorage }}"
           $env:default_branch="${{ github.event.repository.default_branch }}"
           $env:repository="${{ github.repository }}"
           Write-Host "CONNECTIONSTRINGDEVDGWSAMPLESSTORAGE: $env:CONNECTIONSTRINGDEVDGWSAMPLESSTORAGE"
