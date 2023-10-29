@@ -100,6 +100,9 @@ jobs:
           $replacement = "<Version>$env:ASSEMBLY_VERSION</Version>"
           $csprojFiles | %{ (Get-Content $_.FullName) -replace $pattern, $replacement | Set-Content $_.FullName }
 
+      - name: Restore dependencies
+        run: dotnet restore Diginsight.sln 
+      
       - name: Build DLL Debug
         run: |
           $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables.outputs.assemblyVersion }}"
