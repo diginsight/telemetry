@@ -10,7 +10,7 @@ on:
         required: false
         type: string
     secrets:
-      NUGET_API_KEY:
+      NUGET_API_KEY_V3:
         required: false
       #token:
       #  required: true
@@ -20,7 +20,7 @@ jobs:
     runs-on: self-hosted
 
     env: # Define environment variables here
-      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY_v3 }}
+      NUGET_API_KEY_V3: ${{ secrets.NUGET_API_KEY_v3 }}
 
     steps:
       - uses: actions/checkout@v3
@@ -34,7 +34,7 @@ jobs:
       #  uses: NuGet/setup-nuget@latest
       - uses: nuget/setup-nuget@v1
         with:
-          nuget-api-key: ${{ secrets.NUGET_API_KEY }}
+          nuget-api-key: ${{ secrets.NUGET_API_KEY_V3 }}
           nuget-version: '5.x'
 
       #- name: Install PowerShell Core

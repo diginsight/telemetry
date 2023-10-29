@@ -44,7 +44,7 @@ jobs:
     runs-on: self-hosted
 
     env: # Define environment variables here
-      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY_v3 }}
+      NUGET_API_KEY_V3: ${{ secrets.NUGET_API_KEY_v3 }}
 
     steps:
       - name: Run pwsh Dump Variables
@@ -159,7 +159,7 @@ jobs:
     runs-on: self-hosted
 
     env:
-      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY_v3 }}
+      NUGET_API_KEY_V3: ${{ secrets.NUGET_API_KEY_v3 }}
 
     steps:
       - name: Download artifact
@@ -172,7 +172,10 @@ jobs:
         run: |
           $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables.outputs.assemblyVersion }}"
           Write-Host "Setting assembly version to: $env:ASSEMBLY_VERSION"
-          dotnet nuget push artifactFolder/Release/Diginsight.Core.$env:ASSEMBLY_VERSION.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY_v3 }}
+          $nupkgFiles = Get-ChildItem -Path artifactFolder/Release -Filter "*.nupkg" -File 
+          Write-Host "nupkgFiles: $nupkgFiles"
+          $nupkgFiles | %{ dotnet nuget push $_.FullName --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY_v3 }} }
+          #dotnet nuget push artifactFolder/Release/Diginsight.Core.$env:ASSEMBLY_VERSION.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY_v3 }}
 
   upload2AzureFolder:
     needs: [getCompositeVariables, getKeyVaultSecrets, build]
@@ -185,7 +188,7 @@ jobs:
       azureShare: azureshare
       packagesFolder: artifactFolder
       rootDir: '\_releases\97. Diginsight'
-      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY_v3 }}
+      NUGET_API_KEY_V3: ${{ secrets.NUGET_API_KEY_v3 }}
 
     steps:
       - name: Download artifact

@@ -14,7 +14,7 @@ on:
         description: 'assembly Version for the current build'
         value: ${{ jobs.main.outputs.assemblyVersion }}
     #secrets:
-    #  NUGET_API_KEY:
+    #  NUGET_API_KEY_V3:
     #    required: false
     #  #token:
     #  #  required: true
@@ -32,7 +32,7 @@ jobs:
       projectBaseName: Diginsight
       buildPlatform: 'Any CPU'
       buildConfiguration: 'Release' # 'Debug'
-      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY_v3 }}
+      NUGET_API_KEY_V3: ${{ secrets.NUGET_API_KEY_v3 }}
 
     steps:
       ##########################
