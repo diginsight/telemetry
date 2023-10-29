@@ -24,7 +24,7 @@
 		<Version>1.0.0.0</Version>
 		<PackageReadmeFile>README.nuget.md</PackageReadmeFile>
 		<Configurations>Debug;Release;DebugWithProjectReferences</Configurations>
-		<LangVersion>10.0</LangVersion>
+		<!--<LangVersion>10.0</LangVersion>-->
 		<!--<PackageReadmeFile>README.nuget.md</PackageReadmeFile>-->
 	</PropertyGroup>
 

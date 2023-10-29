@@ -1,0 +1,126 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ output extension=".g.cs" #>
+<#@ import namespace="System.Globalization" #>
+<#@ import namespace="System.Linq" #>
+#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+namespace Diginsight;
+
+<#
+    for (int componentCount = 1; componentCount <= 16; componentCount++)
+    {
+        string[] range = Enumerable.Range(1, componentCount).Select(static x => x.ToString(CultureInfo.InvariantCulture)).ToArray();
+        string ts = string.Join(", ", range.Select(static x => $"T{x}"));
+        string valueTupleType = componentCount == 1 ? $"ValueTuple<{ts}>" : $"({ts})";
+        string tupleType = $"Tuple<{ts}>";
+#>
+public class TupleEqualityComparer<<#= ts #>>
+    : IEqualityComparer<<#= valueTupleType #>><#
+        if (componentCount < 8)
+        {
+#>, IEqualityComparer<<#= tupleType #>><#
+        }
+#>
+
+{
+<#
+        foreach (string x in range)
+        {
+#>
+    private readonly IEqualityComparer<T<#= x #>> c<#= x #>;
+<#
+        }
+#>
+
+    public TupleEqualityComparer(
+        <#= string.Join(", ", range.Select(static x => $"IEqualityComparer<T{x}> c{x} = null")) #>
+    )
+    {
+<#
+        foreach (string x in range)
+        {
+#>
+        this.c<#= x #> = c<#= x #> ?? EqualityComparer<T<#= x #>>.Default;
+<#
+        }
+#>
+    }
+
+    public bool Equals(<#= valueTupleType #> x, <#= valueTupleType #> y)
+    {
+        return <#= string.Join(" && ", range.Select(static x => $"c{x}.Equals(x.Item{x}, y.Item{x})")) #>;
+    }
+
+    public int GetHashCode(<#= valueTupleType #> obj)
+    {
+<#
+        if (componentCount == 1)
+        {
+#>
+        T1 o1 = obj.Item1;
+<#
+        }
+        else
+        {
+#>
+        (<#= string.Join(", ", range.Select(static x => $"T{x} o{x}")) #>) = obj;
+<#
+        }
+#>
+        HashCode hashCode = new();
+<#
+        foreach (string x in range)
+        {
+#>
+        hashCode.Add(o<#= x #>, c<#= x #>);
+<#
+        }
+#>
+        return hashCode.ToHashCode();
+    }
+    
+<#
+        if (componentCount < 8)
+        {
+#>
+    public bool Equals(<#= tupleType #> x, <#= tupleType #> y)
+    {
+        return <#= string.Join(" && ", range.Select(static x => $"c{x}.Equals(x.Item{x}, y.Item{x})")) #>;
+    }
+
+    public int GetHashCode(<#= tupleType #> obj)
+    {
+<#
+            if (componentCount == 1)
+            {
+#>
+        T1 o1 = obj.Item1;
+<#
+            }
+            else
+            {
+#>
+        (<#= string.Join(", ", range.Select(static x => $"T{x} o{x}")) #>) = obj;
+<#
+            }
+#>
+        HashCode hashCode = new();
+<#
+            foreach (string x in range)
+            {
+#>
+        hashCode.Add(o<#= x #>, c<#= x #>);
+<#
+            }
+#>
+        return hashCode.ToHashCode();
+    }    
+<#
+        }
+#>
+}
+
+<#
+    }
+#>
+#endif
