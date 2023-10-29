@@ -8,10 +8,14 @@ on:
     branches:
       - main
       - feature/v3
+    paths:
+      - 'Diginsight.**'
   pull_request:
     branches:
       - main
       - feature/v3
+    paths:
+      - 'Diginsight.**'
 
 jobs:
   installActions:

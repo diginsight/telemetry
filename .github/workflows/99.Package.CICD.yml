@@ -6,9 +6,12 @@ name: Common.Diagnostics build and deploy
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'Common.**'
   pull_request:
     branches: [ "main" ]
-
+    paths:
+      - 'Common.**'
 jobs:
   installActions:
     uses: ./.github/workflows/00.InstallActions.yml

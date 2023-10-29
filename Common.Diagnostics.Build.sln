@@ -5,9 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common.Diagnostics", "Common.Diagnostics\Common.Diagnostics.csproj", "{5E56A4C7-6A7E-42E7-AEA8-5FE522C735B0}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Listeners", "Listeners", "{8570159F-CCAC-43C7-A924-09472652B6F1}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{E67DBCDE-D001-4264-A0E9-BFCD34D2169D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Diginsight_v2", "Diginsight_v2", "{E67DBCDE-D001-4264-A0E9-BFCD34D2169D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{918F6ECA-9663-4A56-BD86-F1786B173A39}"
 EndProject
