@@ -104,14 +104,14 @@ jobs:
         run: |
           $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables.outputs.assemblyVersion }}"
           Write-Host "Setting assembly version to: $env:ASSEMBLY_VERSION"
-          dotnet build Diginsight.Build.sln --configuration Debug --no-restore 
+          dotnet build Diginsight.sln --configuration Debug --no-restore 
           # --verbosity detailed "/p:Version=$env:ASSEMBLY_VERSION" "/p:AssemblyVersion=$(($env:ASSEMBLY_VERSION -split '-')[0])" 3.0.0-alpha.1234
 
       - name: Build DLL Release
         run: |
           $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables.outputs.assemblyVersion }}"
           Write-Host "Setting assembly version to: $env:ASSEMBLY_VERSION"
-          dotnet build Diginsight.Build.sln --configuration Release --no-restore
+          dotnet build Diginsight.sln --configuration Release --no-restore
         # --verbosity detailed
 
       - name: Copy bin folder to artifactFolder Release
