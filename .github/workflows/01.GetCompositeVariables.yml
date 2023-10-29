@@ -52,6 +52,38 @@ jobs:
           Write-Host "steps.composite_variables.outputs.solution: ${{ steps.composite_variables.outputs.solution }}"
           echo "solution=$env:solution"
 
+<<<<<<< HEAD
+    - name: Get build number
+      id: get_build_number
+      run: |
+        $env:VERSION_PREFIX="${{ env.versionPrefix }}"
+        $env:BUILD_NUMBER="${{ github.run_number }}"
+        Write-Host "VERSION_PREFIX=$env:VERSION_PREFIX"
+        Write-Host "BUILD_NUMBER=$env:BUILD_NUMBER"
+        if (-not [string]::IsNullOrEmpty("${{ vars.BUILD_NUMBER_OFFSET_V3 }}")) {
+            $env:BUILD_NUMBER=$(( [int]$env:BUILD_NUMBER + [int]${{ vars.BUILD_NUMBER_OFFSET_V3 }}))
+            # echo "vars.BUILD_NUMBER=$env:BUILD_NUMBER" >> $GITHUB_ENV
+        }
+        Write-Host "BUILD_NUMBER=$env:BUILD_NUMBER"
+        echo "BUILD_NUMBER=$env:BUILD_NUMBER" >> $GITHUB_ENV
+        echo "::set-output name=BUILD_NUMBER::$env:BUILD_NUMBER"
+        echo "VERSION_PREFIX=$env:VERSION_PREFIX" >> $GITHUB_ENV
+        echo "::set-output name=VERSION_PREFIX::$env:VERSION_PREFIX"
+
+    - name: Get Assembly Version
+      id: get_assembly_version
+      run: |
+        Write-Host "get_build_number.outputs.VERSION_PREFIX: ${{ steps.get_build_number.outputs.VERSION_PREFIX }}"
+        $env:VERSION_PREFIX="${{ steps.get_build_number.outputs.VERSION_PREFIX }}"
+        Write-Host "get_build_number.outputs.BUILD_NUMBER: ${{ steps.get_build_number.outputs.BUILD_NUMBER }}"
+        $env:BUILD_NUMBER="${{ steps.get_build_number.outputs.BUILD_NUMBER }}"
+        Write-Host "env:VERSION_PREFIX: $env:VERSION_PREFIX"
+        Write-Host "env:BUILD_NUMBER: $env:BUILD_NUMBER"
+        $env:ASSEMBLY_VERSION="$env:VERSION_PREFIX.$env:BUILD_NUMBER"
+        Write-Host "$env:ASSEMBLY_VERSION: $env:ASSEMBLY_VERSION"
+        echo "assemblyVersion=$env:ASSEMBLY_VERSION" >> $GITHUB_OUTPUT
+        echo "::set-output name=assemblyVersion::$env:ASSEMBLY_VERSION"
+=======
       - name: Get build number
         id: get_build_number
         run: |
@@ -68,6 +100,7 @@ jobs:
           echo "::set-output name=BUILD_NUMBER::$env:BUILD_NUMBER"
           echo "VERSION_PREFIX=$env:VERSION_PREFIX" >> $GITHUB_ENV
           echo "::set-output name=VERSION_PREFIX::$env:VERSION_PREFIX"
+>>>>>>> 5b419dda07e3420ccac92ead36c49fb31698487b
 
       - name: Get Assembly Version
         id: get_assembly_version

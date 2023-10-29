@@ -96,9 +96,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasySample600v3", "Samplesv
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Diginsight_v3", "Diginsight_v3", "{42F0EADD-633C-4DDB-80B5-36B2D766DCEB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Core", "Diginsight_v3\Diginsight.Core\Diginsight.Core.csproj", "{51E53B22-6954-484A-972B-8614E2E25826}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Core", "Diginsight.Core\Diginsight.Core.csproj", "{51E53B22-6954-484A-972B-8614E2E25826}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Diagnostics", "Diginsight_v3\Diginsight.Diagnostics\Diginsight.Diagnostics.csproj", "{5CC9C341-02ED-41C4-8099-E24E189E4A47}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Diagnostics", "Diginsight.Diagnostics\Diginsight.Diagnostics.csproj", "{5CC9C341-02ED-41C4-8099-E24E189E4A47}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

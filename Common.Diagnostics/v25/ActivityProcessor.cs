@@ -49,43 +49,43 @@ namespace Common
 
     }
 
-    public class ActivityExporter : BaseExporter<Activity>
-        //where T : class
-    {
-        //private readonly ConsoleExporterOptions options;
+    //public class ActivityExporter : BaseExporter<Activity>
+    //    //where T : class
+    //{
+    //    //private readonly ConsoleExporterOptions options;
 
-        public ActivityExporter() // ConsoleExporterOptions options
-        {
-            //this.options = options ?? new ConsoleExporterOptions();
-            //ConsoleTagTransformer.LogUnsupportedAttributeType = (string tagValueType, string tagKey) =>
-            //{
-            //    this.WriteLine($"Unsupported attribute type {tagValueType} for {tagKey}.");
-            //};
-            this.WriteLine($"ActivityExporter() added");
-        }
-        public override ExportResult Export(in Batch<Activity> batch)
-        {
-            foreach (var activity in batch)
-            {
+    //    public ActivityExporter() // ConsoleExporterOptions options
+    //    {
+    //        //this.options = options ?? new ConsoleExporterOptions();
+    //        //ConsoleTagTransformer.LogUnsupportedAttributeType = (string tagValueType, string tagKey) =>
+    //        //{
+    //        //    this.WriteLine($"Unsupported attribute type {tagValueType} for {tagKey}.");
+    //        //};
+    //        this.WriteLine($"ActivityExporter() added");
+    //    }
+    //    public override ExportResult Export(in Batch<Activity> batch)
+    //    {
+    //        foreach (var activity in batch)
+    //        {
                 
-                this.WriteLine($"activity {activity.DisplayName} (IsStopped:{activity.IsStopped},Duration:{activity.Duration}) export");
-            }
+    //            this.WriteLine($"activity {activity.DisplayName} (IsStopped:{activity.IsStopped},Duration:{activity.Duration}) export");
+    //        }
 
-            return ExportResult.Success;
-        }
+    //        return ExportResult.Success;
+    //    }
 
-        public void WriteLine(string message)
-        {
-            //if (this.options.Targets.HasFlag(ConsoleExporterOutputTargets.Console))
-            //{
-            Console.WriteLine(message);
-            Debug.WriteLine(message);
-            //}
+    //    public void WriteLine(string message)
+    //    {
+    //        //if (this.options.Targets.HasFlag(ConsoleExporterOutputTargets.Console))
+    //        //{
+    //        Console.WriteLine(message);
+    //        Debug.WriteLine(message);
+    //        //}
 
-            //if (this.options.Targets.HasFlag(ConsoleExporterOutputTargets.Debug))
-            //{
-            //    System.Diagnostics.Trace.WriteLine(message);
-            //}
-        }
-    }
+    //        //if (this.options.Targets.HasFlag(ConsoleExporterOutputTargets.Debug))
+    //        //{
+    //        //    System.Diagnostics.Trace.WriteLine(message);
+    //        //}
+    //    }
+    //}
 }
