@@ -37,7 +37,7 @@ public ref struct ItemAppender
             isAlive = true;
 
             stringBuilder
-                .AppendLogString(itemValue, appendingContext, incrementDepth, configureVariables, configureMetaProperties);
+                .ComposeAndAppend(itemValue, appendingContext, incrementDepth, configureVariables, configureMetaProperties);
         }
         catch (MaxAllottedCountShortCircuit)
         {

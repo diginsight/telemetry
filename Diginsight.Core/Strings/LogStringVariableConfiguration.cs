@@ -27,23 +27,6 @@ public sealed class LogStringVariableConfiguration : ILogStringVariableConfigura
 
     public bool IsNamespaceExplicitIfAmbiguous { get; set; }
 
-    public int? EffectiveMaxCollectionItemCount => MaxCollectionItemCount.Value;
-
-    public int? EffectiveMaxDictionaryItemCount =>
-        MaxDictionaryItemCount.GetValue(MaxCollectionItemCount);
-
-    public int? EffectiveMaxMemberwisePropertyCount =>
-        MaxMemberwisePropertyCount.GetValue(MaxCollectionItemCount, MaxDictionaryItemCount);
-
-    public int? EffectiveMaxAnonymousObjectPropertyCount =>
-        MaxAnonymousObjectPropertyCount.GetValue(MaxCollectionItemCount, MaxDictionaryItemCount, MaxMemberwisePropertyCount);
-
-    public int? EffectiveMaxTupleItemCount => MaxTupleItemCount.Value;
-
-    public int? EffectiveMaxMethodParameterCount => MaxMethodParameterCount.Value;
-
-    public int? EffectiveMaxDepth => MaxDepth.Value;
-
     public LogStringVariableConfiguration(ILogStringVariableConfiguration source)
     {
         MaxCollectionItemCount = source.MaxCollectionItemCount;

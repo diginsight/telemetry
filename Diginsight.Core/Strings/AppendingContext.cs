@@ -12,7 +12,7 @@ public sealed class AppendingContext
     private Dictionary<string, object?> metaProperties;
     private int currentDepth = 0;
 
-    public ILogStringNamespaceConfiguration NamespaceConfiguration => variableConfiguration;
+    public ILogStringVariableConfiguration VariableConfiguration => variableConfiguration;
 
     public IReadOnlyDictionary<string, object?> MetaProperties => metaProperties;
 
@@ -37,7 +37,7 @@ public sealed class AppendingContext
         }
     }
 
-    public void Append(
+    public void ComposeAndAppend(
         object? obj,
         StringBuilder stringBuilder,
         bool incrementDepth = true,
@@ -45,7 +45,11 @@ public sealed class AppendingContext
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
-        ThrowIfTimeIsOver();
+        if (IsTimeOver)
+        {
+            stringBuilder.Append(LogStringTokens.Ellipsis);
+            return;
+        }
 
         if (obj == null)
         {
@@ -84,7 +88,7 @@ public sealed class AppendingContext
         catch (AlreadySeenShortCircuit)
         {
             stringBuilder
-                .AppendLogString(type, this, false)
+                .ComposeAndAppend(type, this, false)
                 .Append(LogStringTokens.Cycle);
         }
     }
@@ -133,7 +137,7 @@ public sealed class AppendingContext
     public IDisposable IncrementDepth(out bool isMaxDepth)
     {
         currentDepth += 1;
-        isMaxDepth = currentDepth >= variableConfiguration.EffectiveMaxDepth;
+        isMaxDepth = currentDepth >= VariableConfiguration.GetEffectiveMaxDepth();
         return new CallbackDisposable(() => currentDepth -= 1);
     }
 
@@ -143,44 +147,5 @@ public sealed class AppendingContext
         {
             throw new MaxAllottedTimeShortCircuit();
         }
-    }
-
-    public AllottingCounter CountCollectionItems() => Count(variableConfiguration.EffectiveMaxCollectionItemCount);
-
-    public AllottingCounter CountDictionaryItems() => Count(variableConfiguration.EffectiveMaxDictionaryItemCount);
-
-    public AllottingCounter CountMemberwiseProperties() => Count(variableConfiguration.EffectiveMaxMemberwisePropertyCount);
-
-    public AllottingCounter CountAnonymousObjectProperties() => Count(variableConfiguration.EffectiveMaxAnonymousObjectPropertyCount);
-
-    public AllottingCounter CountTupleItems() => Count(variableConfiguration.EffectiveMaxTupleItemCount);
-
-    public AllottingCounter CountMethodParameters() => Count(variableConfiguration.EffectiveMaxMethodParameterCount);
-
-    private AllottingCounter Count(int? maybeMax)
-    {
-        ThrowIfTimeIsOver();
-        return maybeMax is { } max ? new LimitedAllottingCounter(max) : UnlimitedAllottingCounter.Instance;
-    }
-
-    private sealed class UnlimitedAllottingCounter : AllottingCounter
-    {
-        public static readonly AllottingCounter Instance = new UnlimitedAllottingCounter();
-
-        private UnlimitedAllottingCounter() { }
-
-        protected override bool TryDecrement() => true;
-    }
-
-    private sealed class LimitedAllottingCounter : AllottingCounter
-    {
-        private int current;
-
-        public LimitedAllottingCounter(int max)
-        {
-            current = max;
-        }
-
-        protected override bool TryDecrement() => --current >= 0;
     }
 }

@@ -19,7 +19,7 @@ internal sealed class LogStringComposer : ILogStringComposer
     }
 
     // TODO MaxLength
-    public void Append(
+    public void ComposeTo(
         object? obj,
         StringBuilder stringBuilder,
         Action<LogStringVariableConfiguration>? configureVariables = null,
@@ -28,7 +28,7 @@ internal sealed class LogStringComposer : ILogStringComposer
     {
         try
         {
-            stringBuilder.AppendLogString(obj, MakeAppendingContext(), false, configureVariables, configureMetaProperties);
+            stringBuilder.ComposeAndAppend(obj, MakeAppendingContext(), false, configureVariables, configureMetaProperties);
         }
         catch (MaxAllottedTimeShortCircuit)
         {

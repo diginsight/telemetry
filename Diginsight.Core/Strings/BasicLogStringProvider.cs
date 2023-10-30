@@ -88,14 +88,14 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
         public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
         {
             stringBuilder.Append(LogStringTokens.TupleBegin);
-            AllottingCounter counter = appendingContext.CountTupleItems();
+            AllottingCounter counter = AllottingCounter.Count(appendingContext.VariableConfiguration.GetEffectiveMaxTupleItemCount());
 
             try
             {
                 void AppendItem(int i)
                 {
                     counter.Decrement();
-                    stringBuilder.AppendLogString(tuple[i], appendingContext);
+                    stringBuilder.ComposeAndAppend(tuple[i], appendingContext);
                 }
 
                 AppendItem(0);
@@ -140,8 +140,8 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
 
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
         public bool IsDeep => true;
-        public bool CanCycle => true;
 #endif
+        public bool CanCycle => false;
 
         public LogStringableDelegate(Delegate del, BasicLogStringProvider owner)
         {
@@ -175,11 +175,11 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
         public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
         {
             stringBuilder
-                .AppendLogString(kvp.GetType(), appendingContext, false)
+                .ComposeAndAppend(kvp.GetType(), appendingContext, false)
                 .Append(LogStringTokens.MapBegin)
-                .AppendLogString(kvp.Key, appendingContext)
+                .ComposeAndAppend(kvp.Key, appendingContext)
                 .Append(LogStringTokens.Value)
-                .AppendLogString(kvp.Value, appendingContext)
+                .ComposeAndAppend(kvp.Value, appendingContext)
                 .Append(LogStringTokens.MapEnd);
         }
     }

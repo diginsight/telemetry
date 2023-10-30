@@ -23,7 +23,7 @@ public abstract class ReflectionLogStringable : ILogStringable
 
     public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
     {
-        appendingContext.Append(obj.GetType(), stringBuilder);
+        appendingContext.ComposeAndAppend(obj.GetType(), stringBuilder);
 
         stringBuilder.Append(LogStringTokens.MapBegin);
         AppendCore(stringBuilder, appendingContext);
@@ -94,7 +94,7 @@ public abstract class ReflectionLogStringable : ILogStringable
             stringBuilder
                 .Append(outputName)
                 .Append(LogStringTokens.Value)
-                .AppendLogString(finalGetValue(o), appendingContext);
+                .ComposeAndAppend(finalGetValue(o), appendingContext);
         };
     }
 

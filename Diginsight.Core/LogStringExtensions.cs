@@ -49,19 +49,12 @@ public static class LogStringExtensions
     )
     {
         StringBuilder stringBuilder = new ();
-        logStringComposer.Append(obj, stringBuilder, configureVariables, configureMetaProperties);
+        logStringComposer.ComposeTo(obj, stringBuilder, configureVariables, configureMetaProperties);
         return stringBuilder.ToString();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static StringBuilder Append(this StringBuilder stringBuilder, ILogStringable logStringable, AppendingContext appendingContext)
-    {
-        logStringable.AppendTo(stringBuilder, appendingContext);
-        return stringBuilder;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static StringBuilder AppendLogString(
+    public static StringBuilder ComposeAndAppend(
         this StringBuilder stringBuilder,
         object? obj,
         AppendingContext appendingContext,
@@ -70,7 +63,7 @@ public static class LogStringExtensions
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
-        appendingContext.Append(obj, stringBuilder, incrementDepth, configureVariables, configureMetaProperties);
+        appendingContext.ComposeAndAppend(obj, stringBuilder, incrementDepth, configureVariables, configureMetaProperties);
         return stringBuilder;
     }
 
@@ -85,7 +78,7 @@ public static class LogStringExtensions
     )
     {
         stringBuilder
-            .AppendLogString(type, appendingContext, false)
+            .ComposeAndAppend(type, appendingContext, false)
             .Append(LogStringTokens.MapBegin);
 
         using (appendingContext.WithVariablesSafe(configureVariables))
@@ -117,7 +110,7 @@ public static class LogStringExtensions
     )
     {
         stringBuilder
-            .AppendLogString(
+            .ComposeAndAppend(
                 type,
                 appendingContext,
                 false,
@@ -163,7 +156,7 @@ public static class LogStringExtensions
             stringBuilder
                 .Append(memberName)
                 .Append(LogStringTokens.Value)
-                .AppendLogString(memberValue, appendingContext, incrementDepth, configureVariables, configureMetaProperties);
+                .ComposeAndAppend(memberValue, appendingContext, incrementDepth, configureVariables, configureMetaProperties);
         }
         catch (MaxAllottedCountShortCircuit)
         {
@@ -192,7 +185,7 @@ public static class LogStringExtensions
             isAlive = true;
 
             stringBuilder
-                .AppendLogString(itemValue, appendingContext, incrementDepth, configureVariables, configureMetaProperties);
+                .ComposeAndAppend(itemValue, appendingContext, incrementDepth, configureVariables, configureMetaProperties);
         }
         catch (MaxAllottedCountShortCircuit)
         {
@@ -201,20 +194,6 @@ public static class LogStringExtensions
         }
 
         return new ItemAppender(stringBuilder, appendingContext, counter, isAlive);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IDisposable? IncrementDepth(this AppendingContext appendingContext, bool condition, out bool isMaxDepth)
-    {
-        if (condition)
-        {
-            return appendingContext.IncrementDepth(out isMaxDepth);
-        }
-        else
-        {
-            isMaxDepth = false;
-            return null;
-        }
     }
 
     internal static bool IsForbidden(this Type type)

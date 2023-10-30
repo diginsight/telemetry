@@ -92,7 +92,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
             try
             {
                 object? collectionLength = subject is Array ? GetLengths() : GetCount();
-                appendingContext.Append(
+                appendingContext.ComposeAndAppend(
                     subject.GetType(),
                     stringBuilder,
                     false,
@@ -141,9 +141,9 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
                 {
                     counter.Decrement();
                     stringBuilder
-                        .AppendLogString(enumerator.Key, appendingContext)
+                        .ComposeAndAppend(enumerator.Key, appendingContext)
                         .Append(LogStringTokens.Value)
-                        .AppendLogString(enumerator.Value, appendingContext);
+                        .ComposeAndAppend(enumerator.Value, appendingContext);
                 }
 
                 AppendEntry();
@@ -202,9 +202,9 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
                     TValue value = enumerator.Current.Value;
 #endif
                     stringBuilder
-                        .AppendLogString(key, appendingContext)
+                        .ComposeAndAppend(key, appendingContext)
                         .Append(LogStringTokens.Value)
-                        .AppendLogString(value, appendingContext);
+                        .ComposeAndAppend(value, appendingContext);
                 }
 
                 AppendEntry();
@@ -251,7 +251,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
                 void AppendItem()
                 {
                     counter.Decrement();
-                    stringBuilder.AppendLogString(enumerator.Current, appendingContext);
+                    stringBuilder.ComposeAndAppend(enumerator.Current, appendingContext);
                 }
 
                 AppendItem();
@@ -299,7 +299,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
                 void AppendItem()
                 {
                     counter.Decrement();
-                    stringBuilder.AppendLogString(enumerator.Current, appendingContext);
+                    stringBuilder.ComposeAndAppend(enumerator.Current, appendingContext);
                 }
 
                 AppendItem();

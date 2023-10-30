@@ -60,7 +60,7 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
             if (ns == null)
                 return;
 
-            ILogStringNamespaceConfiguration namespaceConfiguration = appendingContext.NamespaceConfiguration;
+            ILogStringNamespaceConfiguration namespaceConfiguration = appendingContext.VariableConfiguration;
 
             bool isImplicit = namespaceConfiguration.ImplicitNamespaces?.IsMatch(ns) ?? false;
             bool isExplicit = namespaceConfiguration.ExplicitNamespaces?.IsMatch(ns) ?? false;
@@ -214,7 +214,7 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
         if (parameters.Count <= 0)
             return;
 
-        AllottingCounter counter = appendingContext.CountMethodParameters();
+        AllottingCounter counter = AllottingCounter.Count(appendingContext.VariableConfiguration.GetEffectiveMaxMethodParameterCount());
 
         try
         {

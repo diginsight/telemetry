@@ -4,7 +4,7 @@ namespace Diginsight.Strings;
 
 public interface ILogStringComposer
 {
-    void Append(
+    void ComposeTo(
         object? obj,
         StringBuilder stringBuilder,
         Action<LogStringVariableConfiguration>? configureVariables = null,

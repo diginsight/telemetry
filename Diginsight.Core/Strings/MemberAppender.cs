@@ -40,7 +40,7 @@ public ref struct MemberAppender
             stringBuilder
                 .Append(memberName)
                 .Append(LogStringTokens.Value)
-                .AppendLogString(memberValue, appendingContext, incrementDepth, configureVariables, configureMetaProperties);
+                .ComposeAndAppend(memberValue, appendingContext, incrementDepth, configureVariables, configureMetaProperties);
         }
         catch (MaxAllottedCountShortCircuit)
         {
