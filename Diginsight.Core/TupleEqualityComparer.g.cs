@@ -25,7 +25,7 @@ public class TupleEqualityComparer<T1>
         hashCode.Add(o1, c1);
         return hashCode.ToHashCode();
     }
-    
+
     public bool Equals(Tuple<T1> x, Tuple<T1> y)
     {
         return c1.Equals(x.Item1, y.Item1);
@@ -37,7 +37,7 @@ public class TupleEqualityComparer<T1>
         HashCode hashCode = new();
         hashCode.Add(o1, c1);
         return hashCode.ToHashCode();
-    }    
+    }
 }
 
 public class TupleEqualityComparer<T1, T2>
@@ -67,7 +67,7 @@ public class TupleEqualityComparer<T1, T2>
         hashCode.Add(o2, c2);
         return hashCode.ToHashCode();
     }
-    
+
     public bool Equals(Tuple<T1, T2> x, Tuple<T1, T2> y)
     {
         return c1.Equals(x.Item1, y.Item1) && c2.Equals(x.Item2, y.Item2);
@@ -80,7 +80,7 @@ public class TupleEqualityComparer<T1, T2>
         hashCode.Add(o1, c1);
         hashCode.Add(o2, c2);
         return hashCode.ToHashCode();
-    }    
+    }
 }
 
 public class TupleEqualityComparer<T1, T2, T3>
@@ -113,7 +113,7 @@ public class TupleEqualityComparer<T1, T2, T3>
         hashCode.Add(o3, c3);
         return hashCode.ToHashCode();
     }
-    
+
     public bool Equals(Tuple<T1, T2, T3> x, Tuple<T1, T2, T3> y)
     {
         return c1.Equals(x.Item1, y.Item1) && c2.Equals(x.Item2, y.Item2) && c3.Equals(x.Item3, y.Item3);
@@ -127,7 +127,7 @@ public class TupleEqualityComparer<T1, T2, T3>
         hashCode.Add(o2, c2);
         hashCode.Add(o3, c3);
         return hashCode.ToHashCode();
-    }    
+    }
 }
 
 public class TupleEqualityComparer<T1, T2, T3, T4>
@@ -163,7 +163,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4>
         hashCode.Add(o4, c4);
         return hashCode.ToHashCode();
     }
-    
+
     public bool Equals(Tuple<T1, T2, T3, T4> x, Tuple<T1, T2, T3, T4> y)
     {
         return c1.Equals(x.Item1, y.Item1) && c2.Equals(x.Item2, y.Item2) && c3.Equals(x.Item3, y.Item3) && c4.Equals(x.Item4, y.Item4);
@@ -178,7 +178,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4>
         hashCode.Add(o3, c3);
         hashCode.Add(o4, c4);
         return hashCode.ToHashCode();
-    }    
+    }
 }
 
 public class TupleEqualityComparer<T1, T2, T3, T4, T5>
@@ -217,7 +217,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5>
         hashCode.Add(o5, c5);
         return hashCode.ToHashCode();
     }
-    
+
     public bool Equals(Tuple<T1, T2, T3, T4, T5> x, Tuple<T1, T2, T3, T4, T5> y)
     {
         return c1.Equals(x.Item1, y.Item1) && c2.Equals(x.Item2, y.Item2) && c3.Equals(x.Item3, y.Item3) && c4.Equals(x.Item4, y.Item4) && c5.Equals(x.Item5, y.Item5);
@@ -233,7 +233,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5>
         hashCode.Add(o4, c4);
         hashCode.Add(o5, c5);
         return hashCode.ToHashCode();
-    }    
+    }
 }
 
 public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6>
@@ -275,7 +275,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6>
         hashCode.Add(o6, c6);
         return hashCode.ToHashCode();
     }
-    
+
     public bool Equals(Tuple<T1, T2, T3, T4, T5, T6> x, Tuple<T1, T2, T3, T4, T5, T6> y)
     {
         return c1.Equals(x.Item1, y.Item1) && c2.Equals(x.Item2, y.Item2) && c3.Equals(x.Item3, y.Item3) && c4.Equals(x.Item4, y.Item4) && c5.Equals(x.Item5, y.Item5) && c6.Equals(x.Item6, y.Item6);
@@ -292,7 +292,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6>
         hashCode.Add(o5, c5);
         hashCode.Add(o6, c6);
         return hashCode.ToHashCode();
-    }    
+    }
 }
 
 public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7>
@@ -337,7 +337,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7>
         hashCode.Add(o7, c7);
         return hashCode.ToHashCode();
     }
-    
+
     public bool Equals(Tuple<T1, T2, T3, T4, T5, T6, T7> x, Tuple<T1, T2, T3, T4, T5, T6, T7> y)
     {
         return c1.Equals(x.Item1, y.Item1) && c2.Equals(x.Item2, y.Item2) && c3.Equals(x.Item3, y.Item3) && c4.Equals(x.Item4, y.Item4) && c5.Equals(x.Item5, y.Item5) && c6.Equals(x.Item6, y.Item6) && c7.Equals(x.Item7, y.Item7);
@@ -355,7 +355,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7>
         hashCode.Add(o6, c6);
         hashCode.Add(o7, c7);
         return hashCode.ToHashCode();
-    }    
+    }
 }
 
 public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8>
@@ -403,7 +403,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8>
         hashCode.Add(o8, c8);
         return hashCode.ToHashCode();
     }
-    
+
 }
 
 public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9>
@@ -454,7 +454,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9>
         hashCode.Add(o9, c9);
         return hashCode.ToHashCode();
     }
-    
+
 }
 
 public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
@@ -508,7 +508,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
         hashCode.Add(o10, c10);
         return hashCode.ToHashCode();
     }
-    
+
 }
 
 public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>
@@ -565,7 +565,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>
         hashCode.Add(o11, c11);
         return hashCode.ToHashCode();
     }
-    
+
 }
 
 public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>
@@ -625,7 +625,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
         hashCode.Add(o12, c12);
         return hashCode.ToHashCode();
     }
-    
+
 }
 
 public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>
@@ -688,7 +688,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
         hashCode.Add(o13, c13);
         return hashCode.ToHashCode();
     }
-    
+
 }
 
 public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>
@@ -754,7 +754,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
         hashCode.Add(o14, c14);
         return hashCode.ToHashCode();
     }
-    
+
 }
 
 public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>
@@ -823,7 +823,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
         hashCode.Add(o15, c15);
         return hashCode.ToHashCode();
     }
-    
+
 }
 
 public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>
@@ -895,7 +895,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
         hashCode.Add(o16, c16);
         return hashCode.ToHashCode();
     }
-    
+
 }
 
 #endif

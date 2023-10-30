@@ -78,7 +78,7 @@ public class TupleEqualityComparer<<#= ts #>>
 #>
         return hashCode.ToHashCode();
     }
-    
+
 <#
         if (componentCount < 8)
         {
@@ -114,7 +114,7 @@ public class TupleEqualityComparer<<#= ts #>>
             }
 #>
         return hashCode.ToHashCode();
-    }    
+    }
 <#
         }
 #>

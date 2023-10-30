@@ -1,15 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0</TargetFrameworks>
-		<Title>Diginsight Diagnostics log4net extensions</Title>
-		<PackageTags>$(PackageTags);diagnostics;log4net</PackageTags>
-		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<Version>1.0.0.0</Version>
-	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0</TargetFrameworks>
+    <Title>Diginsight Diagnostics log4net extensions</Title>
+    <PackageTags>$(PackageTags);diagnostics;log4net</PackageTags>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Version>1.0.0.0</Version>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\Diginsight.Diagnostics\Diginsight.Diagnostics.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Diginsight.Diagnostics\Diginsight.Diagnostics.csproj" />
+  </ItemGroup>
 
 </Project>

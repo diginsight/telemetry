@@ -14,12 +14,12 @@
     <PackageTags>diginsight;telemetry</PackageTags>
     <!-- TODO <PackageIcon> -->
     <!-- TODO <Description> in each csproj -->
-    
+
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    
+
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)diginsight.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
