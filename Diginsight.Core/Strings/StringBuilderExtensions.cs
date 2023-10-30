@@ -96,7 +96,7 @@ public static class StringBuilderExtensions
 
     public static StringBuilder AppendMap(
         this StringBuilder stringBuilder,
-        Type type,
+        Type mapType,
         AppendingContext appendingContext,
         Action<StringBuilder, AppendingContext> appendContent,
         bool incrementDepth = true,
@@ -104,30 +104,25 @@ public static class StringBuilderExtensions
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
-        stringBuilder
-            .ComposeAndAppend(type, appendingContext, false)
-            .Append(LogStringTokens.MapBegin);
-
-        using (appendingContext.WithVariablesSafe(configureVariables))
-        using (appendingContext.WithMetaPropertiesSafe(configureMetaProperties))
-        using (appendingContext.IncrementDepth(incrementDepth, out bool isMaxDepth))
+        using (appendingContext.WithAtomic())
         {
-            if (isMaxDepth)
-            {
-                stringBuilder.Append(LogStringTokens.Deep);
-            }
-            else
-            {
-                appendContent(stringBuilder, appendingContext);
-            }
+            stringBuilder.ComposeAndAppend(mapType, appendingContext, false);
         }
 
-        return stringBuilder.Append(LogStringTokens.MapEnd);
+        return stringBuilder.AppendDelimited(
+            LogStringTokens.MapBegin,
+            LogStringTokens.MapEnd,
+            appendingContext,
+            appendContent,
+            incrementDepth,
+            configureVariables,
+            configureMetaProperties
+        );
     }
 
     public static StringBuilder AppendCollection(
         this StringBuilder stringBuilder,
-        Type type,
+        Type collectionType,
         AppendingContext appendingContext,
         Action<StringBuilder, AppendingContext> appendContent,
         int? count = null,
@@ -136,30 +131,26 @@ public static class StringBuilderExtensions
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
-        stringBuilder
-            .ComposeAndAppend(
-                type,
-                appendingContext,
-                false,
-                configureMetaProperties: x => { x[MemberInfoLogStringProvider.CollectionLengthMetaProperty] = count; }
-            )
-            .Append(LogStringTokens.CollectionBegin);
-
-        using (appendingContext.WithVariablesSafe(configureVariables))
-        using (appendingContext.WithMetaPropertiesSafe(configureMetaProperties))
-        using (appendingContext.IncrementDepth(incrementDepth, out bool isMaxDepth))
+        using (appendingContext.WithAtomic())
         {
-            if (isMaxDepth)
-            {
-                stringBuilder.Append(LogStringTokens.Deep);
-            }
-            else
-            {
-                appendContent(stringBuilder, appendingContext);
-            }
+            stringBuilder
+                .ComposeAndAppend(
+                    collectionType,
+                    appendingContext,
+                    false,
+                    configureMetaProperties: x => { x[MemberInfoLogStringProvider.CollectionLengthMetaProperty] = count; }
+                );
         }
 
-        return stringBuilder.Append(LogStringTokens.CollectionEnd);
+        return stringBuilder.AppendDelimited(
+            LogStringTokens.CollectionBegin,
+            LogStringTokens.CollectionEnd,
+            appendingContext,
+            appendContent,
+            incrementDepth,
+            configureVariables,
+            configureMetaProperties
+        );
     }
 
     public static MemberAppender ComposeAndAppendMember(

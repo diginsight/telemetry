@@ -1,21 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-	  <TargetFramework>net6.0-windows</TargetFramework>
-	  <UseWPF>true</UseWPF>
-	  <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	  <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-	  <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-	  <PackageProjectUrl>https://github.com/diginsight/telemetry</PackageProjectUrl>
-	  <RepositoryUrl>https://github.com/diginsight/telemetry.git</RepositoryUrl>
-	  <RepositoryType>git</RepositoryType>
-	  <PackageTags>telemetry diginsight diagnostic insight</PackageTags>
-	  <PackageIcon>TelemetryBig.png</PackageIcon>
-	  <Authors>diginsight</Authors>
-	  <Description>Common.Diagnostics.Logstrings.Azure provides logstrings for Wpf classes</Description>
-	  <SignAssembly>true</SignAssembly>
-	  <AssemblyOriginatorKeyFile>diginsight.snk</AssemblyOriginatorKeyFile>
-	  <Version>1.0.0.0</Version>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/diginsight/telemetry</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/diginsight/telemetry.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>telemetry diginsight diagnostic insight</PackageTags>
+    <PackageIcon>TelemetryBig.png</PackageIcon>
+    <Authors>diginsight</Authors>
+    <Description>Common.Diagnostics.Logstrings.Azure provides logstrings for Wpf classes</Description>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>diginsight.snk</AssemblyOriginatorKeyFile>
+    <Version>1.0.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

@@ -18,7 +18,7 @@ public sealed class AppendingContext
 
     public IReadOnlyDictionary<string, object?> MetaProperties => metaProperties;
 
-    public bool IsTimeOver => !isAtomic && isTimeOver;
+    public bool IsTimeOver => isTimeOver && !isAtomic;
 
     internal AppendingContext(
         IEnumerable<ILogStringProvider> logStringProviders,
