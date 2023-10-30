@@ -11,12 +11,14 @@ public sealed class AppendingContext
     private LogStringVariableConfiguration variableConfiguration;
     private Dictionary<string, object?> metaProperties;
     private int currentDepth = 0;
+    private bool isAtomic = false;
+    private bool isTimeOver = false;
 
     public ILogStringVariableConfiguration VariableConfiguration => variableConfiguration;
 
     public IReadOnlyDictionary<string, object?> MetaProperties => metaProperties;
 
-    public bool IsTimeOver { get; private set; }
+    public bool IsTimeOver => !isAtomic && isTimeOver;
 
     internal AppendingContext(
         IEnumerable<ILogStringProvider> logStringProviders,
@@ -32,7 +34,7 @@ public sealed class AppendingContext
         if (maxTime > TimeSpan.Zero)
         {
             Timer timer = new (maxTime.TotalMilliseconds);
-            timer.Elapsed += (_, _) => IsTimeOver = true;
+            timer.Elapsed += (_, _) => isTimeOver = true;
             timer.Start();
         }
     }
@@ -106,6 +108,13 @@ public sealed class AppendingContext
         throw new AlreadySeenShortCircuit();
     }
 
+    public IDisposable WithAtomic()
+    {
+        bool prevIsAtomic = isAtomic;
+        isAtomic = true;
+        return new CallbackDisposable(() => { isAtomic = prevIsAtomic; });
+    }
+
     public IDisposable? WithVariablesSafe(Action<LogStringVariableConfiguration>? configureVariables)
     {
         return configureVariables is null ? null : WithVariables(configureVariables);
@@ -117,7 +126,7 @@ public sealed class AppendingContext
         LogStringVariableConfiguration clone = new (previous);
         configureVariables(clone);
         variableConfiguration = clone;
-        return new CallbackDisposable(() => variableConfiguration = previous);
+        return new CallbackDisposable(() => { variableConfiguration = previous; });
     }
 
     public IDisposable? WithMetaPropertiesSafe(Action<IDictionary<string, object?>>? configureMetaProperties)
@@ -131,7 +140,7 @@ public sealed class AppendingContext
         Dictionary<string, object?> clone = new (previous, previous.Comparer);
         configureMetaProperties(clone);
         metaProperties = clone;
-        return new CallbackDisposable(() => metaProperties = previous);
+        return new CallbackDisposable(() => { metaProperties = previous; });
     }
 
     public IDisposable IncrementDepth(out bool isMaxDepth)

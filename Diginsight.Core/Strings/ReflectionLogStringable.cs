@@ -36,30 +36,12 @@ public abstract class ReflectionLogStringable : ILogStringable
         IEnumerable<LogStringAppender> appenders = dontCacheAppenders ? MakeAppenders(type) : helper.GetCachedAppenders(type, MakeAppenders);
         using IEnumerator<LogStringAppender> appenderEnumerator = appenders.GetEnumerator();
 
-        if (!appenderEnumerator.MoveNext())
-            return;
-
-        AllottingCounter counter = Count(appendingContext);
-
-        try
-        {
-            void AppendEntry()
-            {
-                counter.Decrement();
-                appenderEnumerator.Current!(obj, stringBuilder, appendingContext);
-            }
-
-            AppendEntry();
-            while (appenderEnumerator.MoveNext())
-            {
-                stringBuilder.Append(LogStringTokens.Separator2);
-                AppendEntry();
-            }
-        }
-        catch (MaxAllottedCountShortCircuit)
-        {
-            stringBuilder.Append(LogStringTokens.Ellipsis);
-        }
+        stringBuilder.AppendEnumerator(
+            appenderEnumerator,
+            e => { e.Current!(obj, stringBuilder, appendingContext); },
+            Count(appendingContext),
+            appendingContext
+        );
     }
 
     protected abstract LogStringAppender[] MakeAppenders(Type type);

@@ -157,7 +157,7 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
                 .Append('<');
             if (type.IsGenericTypeDefinition)
             {
-                stringBuilder.Append(new string(LogStringTokens.Separator, type.GetGenericArguments().Length - 1));
+                stringBuilder.Append(new string(',', type.GetGenericArguments().Length - 1));
             }
             else
             {
@@ -205,36 +205,16 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
     public void Append(ParameterInfo[] parameters, StringBuilder stringBuilder, AppendingContext appendingContext)
     {
         stringBuilder.Append('(');
-        AppendCore(parameters, stringBuilder, appendingContext);
+        using (IEnumerator<ParameterInfo> enumerator = ((IReadOnlyList<ParameterInfo>)parameters).GetEnumerator())
+        {
+            stringBuilder.AppendEnumerator(
+                enumerator,
+                e => { Append(e.Current, stringBuilder, appendingContext); },
+                AllottingCounter.Count(appendingContext.VariableConfiguration.GetEffectiveMaxMethodParameterCount()),
+                appendingContext
+            );
+        }
         stringBuilder.Append(')');
-    }
-
-    private void AppendCore(IReadOnlyList<ParameterInfo> parameters, StringBuilder stringBuilder, AppendingContext appendingContext)
-    {
-        if (parameters.Count <= 0)
-            return;
-
-        AllottingCounter counter = AllottingCounter.Count(appendingContext.VariableConfiguration.GetEffectiveMaxMethodParameterCount());
-
-        try
-        {
-            void AppendItem(int i)
-            {
-                counter.Decrement();
-                Append(parameters[i], stringBuilder, appendingContext);
-            }
-
-            AppendItem(0);
-            for (int i = 1; i < parameters.Count; i++)
-            {
-                stringBuilder.Append(LogStringTokens.Separator2);
-                AppendItem(i);
-            }
-        }
-        catch (MaxAllottedCountShortCircuit)
-        {
-            stringBuilder.Append(LogStringTokens.Ellipsis);
-        }
     }
 
     private void Append(ParameterInfo parameter, StringBuilder stringBuilder, AppendingContext appendingContext)

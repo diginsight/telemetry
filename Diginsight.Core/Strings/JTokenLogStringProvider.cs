@@ -40,38 +40,19 @@ internal sealed class JTokenLogStringProvider : ILogStringProvider
             }
 
             stringBuilder.Append('[');
-            VisitCore();
+            using (IEnumerator<JToken> enumerator = jarray.Children().GetEnumerator())
+            {
+                stringBuilder.AppendEnumerator(
+                    enumerator,
+                    e => { e.Current.Accept(this, (stringBuilder, appendingContext)); },
+                    appendingContext.CountCollectionItems(),
+                    appendingContext,
+                    ","
+                );
+            }
             stringBuilder.Append(']');
 
             return stringBuilder;
-
-            void VisitCore()
-            {
-                using IEnumerator<JToken> enumerator = jarray.Children().GetEnumerator();
-                if (!enumerator.MoveNext())
-                    return;
-
-                AllottingCounter counter = appendingContext.CountCollectionItems();
-                try
-                {
-                    void AppendItem()
-                    {
-                        counter.Decrement();
-                        enumerator.Current!.Accept(this, (stringBuilder, appendingContext));
-                    }
-
-                    AppendItem();
-                    while (enumerator.MoveNext())
-                    {
-                        stringBuilder.Append(',');
-                        AppendItem();
-                    }
-                }
-                catch (MaxAllottedCountShortCircuit)
-                {
-                    stringBuilder.Append(LogStringTokens.Ellipsis);
-                }
-            }
         }
 
         public StringBuilder Visit(JConstructor jconstructor, (StringBuilder, AppendingContext) arg)
@@ -85,38 +66,19 @@ internal sealed class JTokenLogStringProvider : ILogStringProvider
             }
 
             stringBuilder.Append($"new {jconstructor.Name}(");
-            VisitCore();
+            using (IEnumerator<JToken> enumerator = jconstructor.Children().GetEnumerator())
+            {
+                stringBuilder.AppendEnumerator(
+                    enumerator,
+                    e => { e.Current!.Accept(this, (stringBuilder, appendingContext)); },
+                    appendingContext.CountCollectionItems(),
+                    appendingContext,
+                    ","
+                );
+            }
             stringBuilder.Append(')');
 
             return stringBuilder;
-
-            void VisitCore()
-            {
-                using IEnumerator<JToken> enumerator = jconstructor.Children().GetEnumerator();
-                if (!enumerator.MoveNext())
-                    return;
-
-                AllottingCounter counter = appendingContext.CountCollectionItems();
-                try
-                {
-                    void AppendItem()
-                    {
-                        counter.Decrement();
-                        enumerator.Current!.Accept(this, (stringBuilder, appendingContext));
-                    }
-
-                    AppendItem();
-                    while (enumerator.MoveNext())
-                    {
-                        stringBuilder.Append(',');
-                        AppendItem();
-                    }
-                }
-                catch (MaxAllottedCountShortCircuit)
-                {
-                    stringBuilder.Append(LogStringTokens.Ellipsis);
-                }
-            }
         }
 
         public StringBuilder Visit(JObject jobject, (StringBuilder, AppendingContext) arg)
@@ -130,38 +92,19 @@ internal sealed class JTokenLogStringProvider : ILogStringProvider
             }
 
             stringBuilder.Append('{');
-            VisitCore();
+            using (IEnumerator<JProperty> enumerator = jobject.Properties().GetEnumerator())
+            {
+                stringBuilder.AppendEnumerator(
+                    enumerator,
+                    e => { e.Current!.Accept(this, (stringBuilder, appendingContext)); },
+                    appendingContext.CountDictionaryItems(),
+                    appendingContext,
+                    ","
+                );
+            }
             stringBuilder.Append('}');
 
             return stringBuilder;
-
-            void VisitCore()
-            {
-                using IEnumerator<JProperty> enumerator = jobject.Properties().GetEnumerator();
-                if (!enumerator.MoveNext())
-                    return;
-
-                AllottingCounter counter = appendingContext.CountDictionaryItems();
-                try
-                {
-                    void AppendItem()
-                    {
-                        counter.Decrement();
-                        enumerator.Current!.Accept(this, (stringBuilder, appendingContext));
-                    }
-
-                    AppendItem();
-                    while (enumerator.MoveNext())
-                    {
-                        stringBuilder.Append(',');
-                        AppendItem();
-                    }
-                }
-                catch (MaxAllottedCountShortCircuit)
-                {
-                    stringBuilder.Append(LogStringTokens.Ellipsis);
-                }
-            }
         }
 
         public StringBuilder Visit(JProperty jproperty, (StringBuilder, AppendingContext) arg)

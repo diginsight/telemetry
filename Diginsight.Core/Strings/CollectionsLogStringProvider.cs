@@ -131,31 +131,22 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
         protected override void AppendToCore(StringBuilder stringBuilder, AppendingContext appendingContext)
         {
             IDictionaryEnumerator enumerator = subject.GetEnumerator();
-            if (!enumerator.MoveNext())
-                return;
 
-            AllottingCounter counter = appendingContext.CountDictionaryItems();
             try
             {
-                void AppendEntry()
-                {
-                    counter.Decrement();
-                    stringBuilder
-                        .ComposeAndAppend(enumerator.Key, appendingContext)
-                        .Append(LogStringTokens.Value)
-                        .ComposeAndAppend(enumerator.Value, appendingContext);
-                }
-
-                AppendEntry();
-                while (enumerator.MoveNext())
-                {
-                    stringBuilder.Append(LogStringTokens.Separator2);
-                    AppendEntry();
-                }
-            }
-            catch (MaxAllottedCountShortCircuit)
-            {
-                stringBuilder.Append(LogStringTokens.Ellipsis);
+                stringBuilder
+                    .AppendEnumerator(
+                        enumerator,
+                        e =>
+                        {
+                            stringBuilder
+                                .ComposeAndAppend(e.Key, appendingContext)
+                                .Append(LogStringTokens.Value)
+                                .ComposeAndAppend(e.Value, appendingContext);
+                        },
+                        appendingContext.CountDictionaryItems(),
+                        appendingContext
+                    );
             }
             finally
             {
@@ -186,38 +177,25 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
         protected override void AppendToCore(StringBuilder stringBuilder, AppendingContext appendingContext)
         {
             using IEnumerator<KeyValuePair<TKey, TValue>> enumerator = subject.GetEnumerator();
-            if (!enumerator.MoveNext())
-                return;
 
-            AllottingCounter counter = appendingContext.CountDictionaryItems();
-            try
-            {
-                void AppendEntry()
+            stringBuilder.AppendEnumerator(
+                enumerator,
+                e =>
                 {
-                    counter.Decrement();
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                    (TKey key, TValue value) = enumerator.Current;
+                    (TKey key, TValue value) = e.Current;
 #else
-                    TKey key = enumerator.Current.Key;
-                    TValue value = enumerator.Current.Value;
+                    TKey key = e.Current.Key;
+                    TValue value = e.Current.Value;
 #endif
                     stringBuilder
                         .ComposeAndAppend(key, appendingContext)
                         .Append(LogStringTokens.Value)
                         .ComposeAndAppend(value, appendingContext);
-                }
-
-                AppendEntry();
-                while (enumerator.MoveNext())
-                {
-                    stringBuilder.Append(LogStringTokens.Separator2);
-                    AppendEntry();
-                }
-            }
-            catch (MaxAllottedCountShortCircuit)
-            {
-                stringBuilder.Append(LogStringTokens.Ellipsis);
-            }
+                },
+                appendingContext.CountDictionaryItems(),
+                appendingContext
+            );
         }
     }
 
@@ -242,29 +220,13 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
         protected override void AppendToCore(StringBuilder stringBuilder, AppendingContext appendingContext)
         {
             using IEnumerator<T> enumerator = subject.GetEnumerator();
-            if (!enumerator.MoveNext())
-                return;
 
-            AllottingCounter counter = appendingContext.CountCollectionItems();
-            try
-            {
-                void AppendItem()
-                {
-                    counter.Decrement();
-                    stringBuilder.ComposeAndAppend(enumerator.Current, appendingContext);
-                }
-
-                AppendItem();
-                while (enumerator.MoveNext())
-                {
-                    stringBuilder.Append(LogStringTokens.Separator2);
-                    AppendItem();
-                }
-            }
-            catch (MaxAllottedCountShortCircuit)
-            {
-                stringBuilder.Append(LogStringTokens.Ellipsis);
-            }
+            stringBuilder.AppendEnumerator(
+                enumerator,
+                e => { stringBuilder.ComposeAndAppend(e.Current, appendingContext); },
+                appendingContext.CountCollectionItems(),
+                appendingContext
+            );
         }
     }
 
@@ -290,28 +252,15 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
         protected override void AppendToCore(StringBuilder stringBuilder, AppendingContext appendingContext)
         {
             IEnumerator enumerator = subject.GetEnumerator();
-            if (!enumerator.MoveNext())
-                return;
 
-            AllottingCounter counter = appendingContext.CountCollectionItems();
             try
             {
-                void AppendItem()
-                {
-                    counter.Decrement();
-                    stringBuilder.ComposeAndAppend(enumerator.Current, appendingContext);
-                }
-
-                AppendItem();
-                while (enumerator.MoveNext())
-                {
-                    stringBuilder.Append(LogStringTokens.Separator2);
-                    AppendItem();
-                }
-            }
-            catch (MaxAllottedCountShortCircuit)
-            {
-                stringBuilder.Append(LogStringTokens.Ellipsis);
+                stringBuilder.AppendEnumerator(
+                    enumerator,
+                    e => { stringBuilder.ComposeAndAppend(e.Current, appendingContext); },
+                    appendingContext.CountCollectionItems(),
+                    appendingContext
+                );
             }
             finally
             {
