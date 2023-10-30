@@ -121,7 +121,7 @@ public static class LogStringExtensions
                 type,
                 appendingContext,
                 false,
-                configureMetaProperties: x => { x[MemberLogStringProvider.CollectionLengthMetaProperty] = count; }
+                configureMetaProperties: x => { x[MemberInfoLogStringProvider.CollectionLengthMetaProperty] = count; }
             )
             .Append(LogStringTokens.CollectionBegin);
 
@@ -165,7 +165,7 @@ public static class LogStringExtensions
                 .Append(LogStringTokens.Value)
                 .AppendLogString(memberValue, appendingContext, incrementDepth, configureVariables, configureMetaProperties);
         }
-        catch (MaxAllottedShortCircuit)
+        catch (MaxAllottedCountShortCircuit)
         {
             stringBuilder.Append(LogStringTokens.Ellipsis);
             isAlive = false;
@@ -194,7 +194,7 @@ public static class LogStringExtensions
             stringBuilder
                 .AppendLogString(itemValue, appendingContext, incrementDepth, configureVariables, configureMetaProperties);
         }
-        catch (MaxAllottedShortCircuit)
+        catch (MaxAllottedCountShortCircuit)
         {
             stringBuilder.Append(LogStringTokens.Ellipsis);
             isAlive = false;

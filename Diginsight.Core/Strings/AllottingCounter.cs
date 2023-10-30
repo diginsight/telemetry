@@ -6,7 +6,7 @@ public abstract class AllottingCounter
     {
         if (!TryDecrement())
         {
-            throw new MaxAllottedItemsShortCircuit();
+            throw new MaxAllottedCountShortCircuit();
         }
     }
 

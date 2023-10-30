@@ -96,7 +96,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
                     subject.GetType(),
                     stringBuilder,
                     false,
-                    configureMetaProperties: x => { x[MemberLogStringProvider.CollectionLengthMetaProperty] = collectionLength; }
+                    configureMetaProperties: x => { x[MemberInfoLogStringProvider.CollectionLengthMetaProperty] = collectionLength; }
                 );
 
                 stringBuilder.Append(BeginToken);
@@ -153,7 +153,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
                     AppendEntry();
                 }
             }
-            catch (MaxAllottedShortCircuit)
+            catch (MaxAllottedCountShortCircuit)
             {
                 stringBuilder.Append(LogStringTokens.Ellipsis);
             }
@@ -214,7 +214,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
                     AppendEntry();
                 }
             }
-            catch (MaxAllottedShortCircuit)
+            catch (MaxAllottedCountShortCircuit)
             {
                 stringBuilder.Append(LogStringTokens.Ellipsis);
             }
@@ -261,7 +261,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
                     AppendItem();
                 }
             }
-            catch (MaxAllottedShortCircuit)
+            catch (MaxAllottedCountShortCircuit)
             {
                 stringBuilder.Append(LogStringTokens.Ellipsis);
             }
@@ -309,7 +309,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
                     AppendItem();
                 }
             }
-            catch (MaxAllottedShortCircuit)
+            catch (MaxAllottedCountShortCircuit)
             {
                 stringBuilder.Append(LogStringTokens.Ellipsis);
             }

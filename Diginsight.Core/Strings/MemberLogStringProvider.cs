@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Diginsight.Strings;
 
-internal sealed class MemberLogStringProvider : IMemberLogStringProvider
+internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
 {
     public const string CollectionLengthMetaProperty = "collectionLength";
 
@@ -34,7 +34,7 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
 
     private readonly ILogStringOverallConfiguration overallConfiguration;
 
-    public MemberLogStringProvider(
+    public MemberInfoLogStringProvider(
         IOptions<LogStringOverallConfiguration> overallConfigurationOptions
     )
     {
@@ -231,7 +231,7 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
                 AppendItem(i);
             }
         }
-        catch (MaxAllottedShortCircuit)
+        catch (MaxAllottedCountShortCircuit)
         {
             stringBuilder.Append(LogStringTokens.Ellipsis);
         }
@@ -253,14 +253,14 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
     private sealed class LogStringableType : ILogStringable
     {
         private readonly Type type;
-        private readonly MemberLogStringProvider owner;
+        private readonly MemberInfoLogStringProvider owner;
 
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
         public bool IsDeep => true;
         public bool CanCycle => true;
 #endif
 
-        public LogStringableType(Type type, MemberLogStringProvider owner)
+        public LogStringableType(Type type, MemberInfoLogStringProvider owner)
         {
             this.type = type;
             this.owner = owner;
@@ -275,14 +275,14 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
     private sealed class LogStringableMember : ILogStringable
     {
         private readonly MemberInfo member;
-        private readonly MemberLogStringProvider owner;
+        private readonly MemberInfoLogStringProvider owner;
 
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
         public bool IsDeep => true;
         public bool CanCycle => true;
 #endif
 
-        public LogStringableMember(MemberInfo member, MemberLogStringProvider owner)
+        public LogStringableMember(MemberInfo member, MemberInfoLogStringProvider owner)
         {
             this.member = member;
             this.owner = owner;
@@ -323,12 +323,12 @@ internal sealed class MemberLogStringProvider : IMemberLogStringProvider
     private sealed class LogStringableParameter : ILogStringable
     {
         private readonly ParameterInfo parameter;
-        private readonly MemberLogStringProvider owner;
+        private readonly MemberInfoLogStringProvider owner;
 
         public bool IsDeep => false;
         public bool CanCycle => false;
 
-        public LogStringableParameter(ParameterInfo parameter, MemberLogStringProvider owner)
+        public LogStringableParameter(ParameterInfo parameter, MemberInfoLogStringProvider owner)
         {
             this.parameter = parameter;
             this.owner = owner;

@@ -26,7 +26,14 @@ internal sealed class LogStringComposer : ILogStringComposer
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
-        stringBuilder.AppendLogString(obj, MakeAppendingContext(), false, configureVariables, configureMetaProperties);
+        try
+        {
+            stringBuilder.AppendLogString(obj, MakeAppendingContext(), false, configureVariables, configureMetaProperties);
+        }
+        catch (MaxAllottedTimeShortCircuit)
+        {
+            stringBuilder.Append(LogStringTokens.Ellipsis);
+        }
     }
 
     private AppendingContext MakeAppendingContext()
@@ -39,10 +46,10 @@ internal sealed class LogStringComposer : ILogStringComposer
 
         LogStringVariableConfiguration variableConfiguration = new LogStringVariableConfiguration(overallConfiguration);
 
-        // TODO MaxTime
         return new AppendingContext(
             logStringProviders,
             variableConfiguration,
+            overallConfiguration.MaxTime,
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             StringComparer.FromComparison(overallConfiguration.MetaPropertyKeyComparison)
 #else

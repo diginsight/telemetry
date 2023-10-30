@@ -67,7 +67,7 @@ internal sealed class JTokenLogStringProvider : ILogStringProvider
                         AppendItem();
                     }
                 }
-                catch (MaxAllottedShortCircuit)
+                catch (MaxAllottedCountShortCircuit)
                 {
                     stringBuilder.Append(LogStringTokens.Ellipsis);
                 }
@@ -112,7 +112,7 @@ internal sealed class JTokenLogStringProvider : ILogStringProvider
                         AppendItem();
                     }
                 }
-                catch (MaxAllottedShortCircuit)
+                catch (MaxAllottedCountShortCircuit)
                 {
                     stringBuilder.Append(LogStringTokens.Ellipsis);
                 }
@@ -157,7 +157,7 @@ internal sealed class JTokenLogStringProvider : ILogStringProvider
                         AppendItem();
                     }
                 }
-                catch (MaxAllottedShortCircuit)
+                catch (MaxAllottedCountShortCircuit)
                 {
                     stringBuilder.Append(LogStringTokens.Ellipsis);
                 }

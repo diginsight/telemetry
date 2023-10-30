@@ -56,7 +56,7 @@ public abstract class ReflectionLogStringable : ILogStringable
                 AppendEntry();
             }
         }
-        catch (MaxAllottedShortCircuit)
+        catch (MaxAllottedCountShortCircuit)
         {
             stringBuilder.Append(LogStringTokens.Ellipsis);
         }

@@ -8,13 +8,13 @@ namespace Diginsight.Strings;
 
 internal sealed class BasicLogStringProvider : ILogStringProvider
 {
-    private readonly IMemberLogStringProvider memberLogStringProvider;
+    private readonly IMemberInfoLogStringProvider memberInfoLogStringProvider;
 
     public BasicLogStringProvider(
-        IMemberLogStringProvider memberLogStringProvider
+        IMemberInfoLogStringProvider memberInfoLogStringProvider
     )
     {
-        this.memberLogStringProvider = memberLogStringProvider;
+        this.memberInfoLogStringProvider = memberInfoLogStringProvider;
     }
 
     public ILogStringable? TryAsLogStringable(object obj)
@@ -105,7 +105,7 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
                     AppendItem(i);
                 }
             }
-            catch (MaxAllottedShortCircuit)
+            catch (MaxAllottedCountShortCircuit)
             {
                 stringBuilder.Append(LogStringTokens.Ellipsis);
             }
@@ -152,9 +152,9 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
         public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
         {
             stringBuilder.Append('λ');
-            owner.memberLogStringProvider.Append(del.Method.GetParameters(), stringBuilder, appendingContext);
+            owner.memberInfoLogStringProvider.Append(del.Method.GetParameters(), stringBuilder, appendingContext);
             stringBuilder.Append(':');
-            owner.memberLogStringProvider.Append(del.Method.ReturnType, stringBuilder, appendingContext);
+            owner.memberInfoLogStringProvider.Append(del.Method.ReturnType, stringBuilder, appendingContext);
         }
     }
 

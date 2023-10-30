@@ -42,7 +42,7 @@ public ref struct MemberAppender
                 .Append(LogStringTokens.Value)
                 .AppendLogString(memberValue, appendingContext, incrementDepth, configureVariables, configureMetaProperties);
         }
-        catch (MaxAllottedShortCircuit)
+        catch (MaxAllottedCountShortCircuit)
         {
             stringBuilder.Append(LogStringTokens.Ellipsis);
             isAlive = false;

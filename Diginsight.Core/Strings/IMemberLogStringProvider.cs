@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Diginsight.Strings;
 
-internal interface IMemberLogStringProvider : ILogStringProvider
+internal interface IMemberInfoLogStringProvider : ILogStringProvider
 {
     void Append(Type type, StringBuilder stringBuilder, AppendingContext appendingContext);
 

@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Timer = System.Timers.Timer;
 
 namespace Diginsight.Strings;
 
@@ -15,15 +16,25 @@ public sealed class AppendingContext
 
     public IReadOnlyDictionary<string, object?> MetaProperties => metaProperties;
 
+    public bool IsTimeOver { get; private set; }
+
     internal AppendingContext(
         IEnumerable<ILogStringProvider> logStringProviders,
         LogStringVariableConfiguration variableConfiguration,
+        TimeSpan maxTime,
         IEqualityComparer<string> metaPropertyKeyComparer
     )
     {
         this.logStringProviders = logStringProviders;
         this.variableConfiguration = variableConfiguration;
         metaProperties = new Dictionary<string, object?>(metaPropertyKeyComparer);
+
+        if (maxTime > TimeSpan.Zero)
+        {
+            Timer timer = new (maxTime.TotalMilliseconds);
+            timer.Elapsed += (_, _) => IsTimeOver = true;
+            timer.Start();
+        }
     }
 
     public void Append(
@@ -34,6 +45,8 @@ public sealed class AppendingContext
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
+        ThrowIfTimeIsOver();
+
         if (obj == null)
         {
             stringBuilder.Append('□');
@@ -124,6 +137,14 @@ public sealed class AppendingContext
         return new CallbackDisposable(() => currentDepth -= 1);
     }
 
+    public void ThrowIfTimeIsOver()
+    {
+        if (IsTimeOver)
+        {
+            throw new MaxAllottedTimeShortCircuit();
+        }
+    }
+
     public AllottingCounter CountCollectionItems() => Count(variableConfiguration.EffectiveMaxCollectionItemCount);
 
     public AllottingCounter CountDictionaryItems() => Count(variableConfiguration.EffectiveMaxDictionaryItemCount);
@@ -136,8 +157,9 @@ public sealed class AppendingContext
 
     public AllottingCounter CountMethodParameters() => Count(variableConfiguration.EffectiveMaxMethodParameterCount);
 
-    private static AllottingCounter Count(int? maybeMax)
+    private AllottingCounter Count(int? maybeMax)
     {
+        ThrowIfTimeIsOver();
         return maybeMax is { } max ? new LimitedAllottingCounter(max) : UnlimitedAllottingCounter.Instance;
     }
 

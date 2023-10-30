@@ -9,7 +9,7 @@ public sealed class LogStringOverallConfiguration : ILogStringOverallConfigurati
         new LogStringProviderRegistration(typeof(ForbiddenLogStringProvider), int.MaxValue),
         new LogStringProviderRegistration(typeof(PrimitiveLogStringProvider), int.MaxValue - 1),
         new LogStringProviderRegistration(typeof(BasicLogStringProvider), int.MaxValue - 2),
-        new LogStringProviderRegistration(typeof(IMemberLogStringProvider), int.MaxValue - 3),
+        new LogStringProviderRegistration(typeof(IMemberInfoLogStringProvider), int.MaxValue - 3),
         new LogStringProviderRegistration(typeof(AnonymousLogStringProvider), int.MaxValue - 4),
         new LogStringProviderRegistration(typeof(JTokenLogStringProvider), int.MaxValue - 5),
         new LogStringProviderRegistration(typeof(CollectionsLogStringProvider), int.MinValue + 1),

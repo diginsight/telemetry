@@ -39,7 +39,7 @@ public ref struct ItemAppender
             stringBuilder
                 .AppendLogString(itemValue, appendingContext, incrementDepth, configureVariables, configureMetaProperties);
         }
-        catch (MaxAllottedShortCircuit)
+        catch (MaxAllottedCountShortCircuit)
         {
             stringBuilder.Append(LogStringTokens.Ellipsis);
             isAlive = false;
