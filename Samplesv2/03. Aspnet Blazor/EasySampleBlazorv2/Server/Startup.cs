@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using System.Linq;
 using Common;
 using System;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 #endregion
 
 namespace EasySampleBlazorv2.Server
@@ -35,8 +36,15 @@ namespace EasySampleBlazorv2.Server
         {
             using var scope = _logger.BeginMethodScope(new { services });
 
+            services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddSingleton<IParallelService, ParallelService>();
+            services.AddClassConfiguration();
+            services.AddClassConfiguration();
+            services.AddObservability(Configuration); scope.LogDebug($"services.AddRazorPages();");
+
             services.AddControllersWithViews(); scope.LogDebug($"services.AddControllersWithViews();");
             services.AddRazorPages(); scope.LogDebug($"services.AddRazorPages();");
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

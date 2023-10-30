@@ -9,13 +9,12 @@ using System.Threading.Tasks;
 
 namespace Common
 {
-    internal class DebugHelper
+    public class DebugHelper
     {
         #region internal state
         private static bool _isDebugBuild = false;
         //private static ConcurrentDictionary<string, object> _dicOverrides = new ConcurrentDictionary<string, object>();
         #endregion
-
         #region properties
         public static bool IsDebugBuild { get => _isDebugBuild; set => _isDebugBuild = value; }
         public static bool IsReleaseBuild { get => !_isDebugBuild; set => _isDebugBuild = !value; }
@@ -34,6 +33,61 @@ namespace Common
         {
             if (!_isDebugBuild) { return; }
             action();
+        }
+
+        public static bool IsTest(string environment = "Test")
+        {
+            var currentEnvironment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            return environment.Equals(currentEnvironment, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        public static bool IsEnvironment(string environment)
+        {
+            var currentEnvironment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            return environment.Equals(currentEnvironment, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        public static bool IsDevOrTest(string[] environments = null)
+        {
+            environments ??= new[] { "Development", "Test" };
+            var currentEnvironment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+            return environments.Any(environment => environment.Equals(currentEnvironment, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        public static void IfDebug(Action action, bool rethrowExceptions = false)
+        {
+            try
+            {
+                if (!IsDebugBuild) { return; }
+
+                action();
+            }
+            catch (Exception ex)
+            {
+                TraceLogger.LogException(ex);
+                if (rethrowExceptions)
+                {
+                    throw;
+                }
+            }
+        }
+
+        public static void IfDevOrTest(Action action, Action fallbackAction = null)
+        {
+            if (IsDevOrTest())
+            {
+                action();
+            }
+            else
+            {
+                fallbackAction?.Invoke();
+            }
+        }
+
+        public static string GetEnvironment()
+        {
+            return Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
         }
     }
 
