@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Diginsight.Strings;
+﻿namespace Diginsight.Strings;
 
 public interface ILogStringable
 {
@@ -12,5 +10,5 @@ public interface ILogStringable
     bool CanCycle { get; }
 #endif
 
-    void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext);
+    void AppendTo(AppendingContext appendingContext);
 }

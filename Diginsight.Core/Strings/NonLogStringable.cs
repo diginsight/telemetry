@@ -2,6 +2,7 @@
 
 namespace Diginsight.Strings;
 
+// FIXME NonLogStringable
 public sealed class NonLogStringable : ILogStringable
 {
     private readonly Type type;

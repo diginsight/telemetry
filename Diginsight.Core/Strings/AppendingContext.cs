@@ -3,30 +3,36 @@ using Timer = System.Timers.Timer;
 
 namespace Diginsight.Strings;
 
+// FIXME AppendingContext
 public sealed class AppendingContext
 {
+    private readonly Stack<StringBuilder> stringBuilders = new ();
     private readonly IEnumerable<ILogStringProvider> logStringProviders;
     private readonly ISet<object> renderedObjs = new HashSet<object>(ReferenceEqualityComparer.Instance);
 
+    private StringBuilder stringBuilder;
     private LogStringVariableConfiguration variableConfiguration;
     private Dictionary<string, object?> metaProperties;
     private int currentDepth = 0;
-    private bool isAtomic = false;
-    private bool isTimeOver = false;
+    //private bool isAtomic = false;
+    //private bool isTimeOver = false;
 
     public ILogStringVariableConfiguration VariableConfiguration => variableConfiguration;
 
     public IReadOnlyDictionary<string, object?> MetaProperties => metaProperties;
 
-    public bool IsTimeOver => isTimeOver && !isAtomic;
+    public bool IsTimeOver { get; private set; } //=> isTimeOver && !isAtomic;
 
     internal AppendingContext(
+        StringBuilder stringBuilder,
         IEnumerable<ILogStringProvider> logStringProviders,
         LogStringVariableConfiguration variableConfiguration,
         TimeSpan maxTime,
         IEqualityComparer<string> metaPropertyKeyComparer
     )
     {
+        stringBuilders.Push(this.stringBuilder = stringBuilder);
+
         this.logStringProviders = logStringProviders;
         this.variableConfiguration = variableConfiguration;
         metaProperties = new Dictionary<string, object?>(metaPropertyKeyComparer);
@@ -34,14 +40,13 @@ public sealed class AppendingContext
         if (maxTime > TimeSpan.Zero)
         {
             Timer timer = new (maxTime.TotalMilliseconds);
-            timer.Elapsed += (_, _) => isTimeOver = true;
+            timer.Elapsed += (_, _) => IsTimeOver = true;
             timer.Start();
         }
     }
 
-    public void ComposeAndAppend(
+    public AppendingContext ComposeAndAppend(
         object? obj,
-        StringBuilder stringBuilder,
         bool incrementDepth = true,
         Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
@@ -49,14 +54,14 @@ public sealed class AppendingContext
     {
         if (IsTimeOver)
         {
-            stringBuilder.Append(LogStringTokens.Ellipsis);
-            return;
+            AppendPunctuation(LogStringTokens.Ellipsis);
+            return this;
         }
 
         if (obj == null)
         {
-            stringBuilder.Append('□');
-            return;
+            AppendPunctuation('□');
+            return this;
         }
 
         using IDisposable? _0 = WithVariablesSafe(configureVariables);
@@ -78,21 +83,41 @@ public sealed class AppendingContext
 
         if (isMaxDepth && logStringable.IsDeep)
         {
-            stringBuilder.Append(LogStringTokens.Deep);
-            return;
+            AppendPunctuation(LogStringTokens.Deep);
+            return this;
         }
 
         try
         {
             using IDisposable? _3 = logStringable.CanCycle ? AddSeen(obj) : null;
-            logStringable.AppendTo(stringBuilder, this);
+            logStringable.AppendTo(this);
         }
         catch (AlreadySeenShortCircuit)
         {
-            stringBuilder
-                .ComposeAndAppend(type, this, false)
-                .Append(LogStringTokens.Cycle);
+            ComposeAndAppend(type, false)
+                .AppendPunctuation(LogStringTokens.Cycle);
         }
+
+        return this;
+    }
+
+    public AppendingContext AppendDirect(Action<StringBuilder> appendContent)
+    {
+        ThrowIfTimeIsOver();
+        appendContent(stringBuilder);
+        return this;
+    }
+
+    public AppendingContext AppendPunctuation(char c)
+    {
+        stringBuilder.Append(c);
+        return this;
+    }
+
+    public AppendingContext AppendPunctuation(string s)
+    {
+        stringBuilder.Append(s);
+        return this;
     }
 
     public IDisposable? AddSeen(object obj)
@@ -108,12 +133,12 @@ public sealed class AppendingContext
         throw new AlreadySeenShortCircuit();
     }
 
-    public IDisposable WithAtomic()
-    {
-        bool prevIsAtomic = isAtomic;
-        isAtomic = true;
-        return new CallbackDisposable(() => { isAtomic = prevIsAtomic; });
-    }
+    //public IDisposable WithAtomic()
+    //{
+    //    bool prevIsAtomic = isAtomic;
+    //    isAtomic = true;
+    //    return new CallbackDisposable(() => { isAtomic = prevIsAtomic; });
+    //}
 
     public IDisposable? WithVariablesSafe(Action<LogStringVariableConfiguration>? configureVariables)
     {

@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 
 namespace Diginsight.Strings;
 
+// FIXME AppendingContextExtensions
 public static class AppendingContextExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

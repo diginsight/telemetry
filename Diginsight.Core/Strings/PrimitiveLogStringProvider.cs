@@ -6,6 +6,7 @@ using System.Text;
 
 namespace Diginsight.Strings;
 
+// FIXME PrimitiveLogStringProvider
 internal sealed class PrimitiveLogStringProvider : ILogStringProvider
 {
     private static readonly string PTR_FORMAT = $"^{{0:X{IntPtr.Size}}}";

@@ -4,6 +4,7 @@ using System.Text;
 
 namespace Diginsight.Strings;
 
+// FIXME JTokenLogStringProvider
 internal sealed class JTokenLogStringProvider : ILogStringProvider
 {
     public ILogStringable? TryAsLogStringable(object obj)

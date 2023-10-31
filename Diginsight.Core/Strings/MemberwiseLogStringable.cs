@@ -2,6 +2,7 @@
 
 namespace Diginsight.Strings;
 
+// FIXME MemberwiseLogStringable
 public sealed class MemberwiseLogStringable : ReflectionLogStringable
 {
     private readonly ILogStringTypeContractAccessor contractAccessor;

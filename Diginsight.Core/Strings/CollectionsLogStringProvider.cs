@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
 
 namespace Diginsight.Strings;
 
@@ -87,23 +86,22 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
             this.subject = subject;
         }
 
-        public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
+        public void AppendTo(AppendingContext appendingContext)
         {
             try
             {
                 object? collectionLength = subject is Array ? GetLengths() : GetCount();
                 appendingContext.ComposeAndAppend(
                     subject.GetType(),
-                    stringBuilder,
                     false,
                     configureMetaProperties: x => { x[MemberInfoLogStringProvider.CollectionLengthMetaProperty] = collectionLength; }
                 );
 
-                stringBuilder.AppendDelimited(BeginDelim, EndDelim, appendingContext, AppendToCore);
+                appendingContext.AppendDelimited(BeginDelim, EndDelim, AppendToCore);
             }
             catch (AlreadySeenShortCircuit)
             {
-                stringBuilder.Append(LogStringTokens.Cycle);
+                appendingContext.AppendPunctuation(LogStringTokens.Cycle);
             }
         }
 
@@ -111,7 +109,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
 
         protected abstract int[] GetLengths();
 
-        protected abstract void AppendToCore(StringBuilder stringBuilder, AppendingContext appendingContext);
+        protected abstract void AppendToCore(AppendingContext appendingContext);
     }
 
     private sealed class LogStringableDictionary : LogStringableCollectionBase<IDictionary>
@@ -126,24 +124,23 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
 
         protected override int[] GetLengths() => throw new UnreachableException("Unexpected array");
 
-        protected override void AppendToCore(StringBuilder stringBuilder, AppendingContext appendingContext)
+        protected override void AppendToCore(AppendingContext appendingContext)
         {
             IDictionaryEnumerator enumerator = subject.GetEnumerator();
 
             try
             {
-                stringBuilder
+                appendingContext
                     .AppendEnumerator(
                         enumerator,
-                        e =>
+                        static (ac,e) =>
                         {
-                            stringBuilder
-                                .ComposeAndAppend(e.Key, appendingContext)
-                                .Append(LogStringTokens.Value)
-                                .ComposeAndAppend(e.Value, appendingContext);
+                            ac
+                                .ComposeAndAppend(e.Key)
+                                .AppendPunctuation(LogStringTokens.Value)
+                                .ComposeAndAppend(e.Value);
                         },
-                        appendingContext.CountDictionaryItems(),
-                        appendingContext
+                        appendingContext.CountDictionaryItems()
                     );
             }
             finally
@@ -172,13 +169,13 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
             return new[] { ((Array)subject).Length };
         }
 
-        protected override void AppendToCore(StringBuilder stringBuilder, AppendingContext appendingContext)
+        protected override void AppendToCore(AppendingContext appendingContext)
         {
             using IEnumerator<KeyValuePair<TKey, TValue>> enumerator = subject.GetEnumerator();
 
-            stringBuilder.AppendEnumerator(
+            appendingContext.AppendEnumerator(
                 enumerator,
-                e =>
+                static (ac, e) =>
                 {
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                     (TKey key, TValue value) = e.Current;
@@ -186,13 +183,12 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
                     TKey key = e.Current.Key;
                     TValue value = e.Current.Value;
 #endif
-                    stringBuilder
-                        .ComposeAndAppend(key, appendingContext)
-                        .Append(LogStringTokens.Value)
-                        .ComposeAndAppend(value, appendingContext);
+                    ac
+                        .ComposeAndAppend(key)
+                        .AppendPunctuation(LogStringTokens.Value)
+                        .ComposeAndAppend(value);
                 },
-                appendingContext.CountDictionaryItems(),
-                appendingContext
+                appendingContext.CountDictionaryItems()
             );
         }
     }
@@ -215,15 +211,14 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
             return new[] { ((T[])subject).Length };
         }
 
-        protected override void AppendToCore(StringBuilder stringBuilder, AppendingContext appendingContext)
+        protected override void AppendToCore(AppendingContext appendingContext)
         {
             using IEnumerator<T> enumerator = subject.GetEnumerator();
 
-            stringBuilder.AppendEnumerator(
+            appendingContext.AppendEnumerator(
                 enumerator,
-                e => { stringBuilder.ComposeAndAppend(e.Current, appendingContext); },
-                appendingContext.CountCollectionItems(),
-                appendingContext
+                static (ac, e) => { ac.ComposeAndAppend(e.Current); },
+                appendingContext.CountCollectionItems()
             );
         }
     }
@@ -247,17 +242,16 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
             return Enumerable.Range(0, array.Rank).Select(array.GetLength).ToArray();
         }
 
-        protected override void AppendToCore(StringBuilder stringBuilder, AppendingContext appendingContext)
+        protected override void AppendToCore(AppendingContext appendingContext)
         {
             IEnumerator enumerator = subject.GetEnumerator();
 
             try
             {
-                stringBuilder.AppendEnumerator(
+                appendingContext.AppendEnumerator(
                     enumerator,
-                    e => { stringBuilder.ComposeAndAppend(e.Current, appendingContext); },
-                    appendingContext.CountCollectionItems(),
-                    appendingContext
+                    static (ac, e) => { ac.ComposeAndAppend(e.Current); },
+                    appendingContext.CountCollectionItems()
                 );
             }
             finally

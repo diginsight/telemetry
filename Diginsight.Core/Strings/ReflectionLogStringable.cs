@@ -3,6 +3,7 @@ using System.Text;
 
 namespace Diginsight.Strings;
 
+// FIXME ReflectionLogStringable
 public abstract class ReflectionLogStringable : ILogStringable
 {
     private readonly object obj;

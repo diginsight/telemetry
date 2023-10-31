@@ -6,6 +6,7 @@ using System.Text;
 
 namespace Diginsight.Strings;
 
+// FIXME MemberInfoLogStringProvider
 internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
 {
     public const string CollectionLengthMetaProperty = "collectionLength";

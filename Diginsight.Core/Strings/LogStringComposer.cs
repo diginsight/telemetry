@@ -4,6 +4,7 @@ using System.Text;
 
 namespace Diginsight.Strings;
 
+// FIXME LogStringComposer
 internal sealed class LogStringComposer : ILogStringComposer
 {
     private readonly IServiceProvider serviceProvider;

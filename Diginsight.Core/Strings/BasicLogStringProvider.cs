@@ -85,50 +85,54 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
             this.tuple = tuple;
         }
 
-        public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
+        public void AppendTo(AppendingContext appendingContext)
         {
-            stringBuilder.Append(LogStringTokens.TupleBegin);
-            AllottingCounter counter = AllottingCounter.Count(appendingContext.VariableConfiguration.GetEffectiveMaxTupleItemCount());
-
-            try
-            {
-                void AppendItem(int i)
+            appendingContext.AppendDelimited(
+                LogStringTokens.TupleBegin,
+                LogStringTokens.TupleEnd,
+                ac =>
                 {
-                    counter.Decrement();
-                    stringBuilder.ComposeAndAppend(tuple[i], appendingContext);
-                }
+                    AllottingCounter counter = AllottingCounter.Count(ac.VariableConfiguration.GetEffectiveMaxTupleItemCount());
 
-                AppendItem(0);
-                for (int i = 1; i < tuple.Length; i++)
-                {
-                    stringBuilder.Append(LogStringTokens.Separator2);
-                    AppendItem(i);
-                }
-            }
-            catch (MaxAllottedCountShortCircuit)
-            {
-                stringBuilder.Append(LogStringTokens.Ellipsis);
-            }
+                    try
+                    {
+                        void AppendItem(int i)
+                        {
+                            counter.Decrement();
+                            ac.ComposeAndAppend(tuple[i]);
+                        }
 
-            stringBuilder.Append(LogStringTokens.TupleEnd);
+                        AppendItem(0);
+                        for (int i = 1; i < tuple.Length; i++)
+                        {
+                            ac.AppendPunctuation(LogStringTokens.Separator2);
+                            AppendItem(i);
+                        }
+                    }
+                    catch (MaxAllottedCountShortCircuit)
+                    {
+                        ac.AppendPunctuation(LogStringTokens.Ellipsis);
+                    }
+                }
+            );
         }
     }
 
     private sealed class LogStringableStringBuilder : ILogStringable
     {
-        private readonly StringBuilder sb;
+        private readonly StringBuilder stringBuilder;
 
         public bool IsDeep => false;
         public bool CanCycle => false;
 
-        public LogStringableStringBuilder(StringBuilder sb)
+        public LogStringableStringBuilder(StringBuilder stringBuilder)
         {
-            this.sb = sb;
+            this.stringBuilder = stringBuilder;
         }
 
-        public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
+        public void AppendTo(AppendingContext appendingContext)
         {
-            stringBuilder.Append(sb);
+            appendingContext.AppendDirect(sb => sb.Append(stringBuilder));
         }
     }
 #endif
@@ -149,12 +153,12 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
             this.owner = owner;
         }
 
-        public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
+        public void AppendTo(AppendingContext appendingContext)
         {
-            stringBuilder.Append('λ');
-            owner.memberInfoLogStringProvider.Append(del.Method.GetParameters(), stringBuilder, appendingContext);
-            stringBuilder.Append(':');
-            owner.memberInfoLogStringProvider.Append(del.Method.ReturnType, stringBuilder, appendingContext);
+            appendingContext.AppendPunctuation('λ');
+            owner.memberInfoLogStringProvider.Append(del.Method.GetParameters(), appendingContext);
+            appendingContext.AppendPunctuation(':');
+            owner.memberInfoLogStringProvider.Append(del.Method.ReturnType, appendingContext);
         }
     }
 
@@ -172,15 +176,15 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
             this.kvp = kvp;
         }
 
-        public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
+        public void AppendTo(AppendingContext appendingContext)
         {
-            stringBuilder
-                .ComposeAndAppend(kvp.GetType(), appendingContext, false)
-                .Append(LogStringTokens.MapBegin)
-                .ComposeAndAppend(kvp.Key, appendingContext)
-                .Append(LogStringTokens.Value)
-                .ComposeAndAppend(kvp.Value, appendingContext)
-                .Append(LogStringTokens.MapEnd);
+            appendingContext
+                .ComposeAndAppend(kvp.GetType(), false)
+                .AppendPunctuation(LogStringTokens.MapBegin)
+                .ComposeAndAppend(kvp.Key)
+                .AppendPunctuation(LogStringTokens.Value)
+                .ComposeAndAppend(kvp.Value)
+                .AppendPunctuation(LogStringTokens.MapEnd);
         }
     }
 }

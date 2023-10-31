@@ -3,6 +3,7 @@ using System.Collections;
 
 namespace Diginsight.Strings;
 
+// FIXME MemberwiseLogStringProvider
 internal sealed class MemberwiseLogStringProvider : ReflectionLogStringProvider
 {
     private readonly ILogStringOverallConfiguration overallConfiguration;

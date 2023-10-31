@@ -1,17 +1,13 @@
-﻿using System.Text;
-
-namespace Diginsight.Strings;
+﻿namespace Diginsight.Strings;
 
 public ref struct ItemAppender
 {
-    private readonly StringBuilder stringBuilder;
     private readonly AppendingContext appendingContext;
     private readonly AllottingCounter counter;
     private bool isAlive;
 
-    internal ItemAppender(StringBuilder stringBuilder, AppendingContext appendingContext, AllottingCounter counter, bool isAlive)
+    internal ItemAppender(AppendingContext appendingContext, AllottingCounter counter, bool isAlive)
     {
-        this.stringBuilder = stringBuilder;
         this.appendingContext = appendingContext;
         this.counter = counter;
         this.isAlive = isAlive;
@@ -29,24 +25,24 @@ public ref struct ItemAppender
             return this;
         }
 
-        stringBuilder.Append(LogStringTokens.Separator2);
+        appendingContext.AppendPunctuation(LogStringTokens.Separator2);
 
         try
         {
             counter.Decrement();
             isAlive = true;
 
-            stringBuilder
-                .ComposeAndAppend(itemValue, appendingContext, incrementDepth, configureVariables, configureMetaProperties);
+            appendingContext
+                .ComposeAndAppend(itemValue, incrementDepth, configureVariables, configureMetaProperties);
         }
         catch (MaxAllottedCountShortCircuit)
         {
-            stringBuilder.Append(LogStringTokens.Ellipsis);
+            appendingContext.AppendPunctuation(LogStringTokens.Ellipsis);
             isAlive = false;
         }
 
         return this;
     }
 
-    public StringBuilder End() => stringBuilder;
+    public AppendingContext End() => appendingContext;
 }

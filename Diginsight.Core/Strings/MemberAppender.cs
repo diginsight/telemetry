@@ -1,17 +1,13 @@
-﻿using System.Text;
-
-namespace Diginsight.Strings;
+﻿namespace Diginsight.Strings;
 
 public ref struct MemberAppender
 {
-    private readonly StringBuilder stringBuilder;
     private readonly AppendingContext appendingContext;
     private readonly AllottingCounter counter;
     private bool isAlive;
 
-    internal MemberAppender(StringBuilder stringBuilder, AppendingContext appendingContext, AllottingCounter counter, bool isAlive)
+    internal MemberAppender(AppendingContext appendingContext, AllottingCounter counter, bool isAlive)
     {
-        this.stringBuilder = stringBuilder;
         this.appendingContext = appendingContext;
         this.counter = counter;
         this.isAlive = isAlive;
@@ -30,26 +26,26 @@ public ref struct MemberAppender
             return this;
         }
 
-        stringBuilder.Append(LogStringTokens.Separator2);
+        appendingContext.AppendPunctuation(LogStringTokens.Separator2);
 
         try
         {
             counter.Decrement();
             isAlive = true;
 
-            stringBuilder
-                .Append(memberName)
-                .Append(LogStringTokens.Value)
-                .ComposeAndAppend(memberValue, appendingContext, incrementDepth, configureVariables, configureMetaProperties);
+            appendingContext
+                .AppendDirect(sb => sb.Append(memberName))
+                .AppendPunctuation(LogStringTokens.Value)
+                .ComposeAndAppend(memberValue, incrementDepth, configureVariables, configureMetaProperties);
         }
-        catch (MaxAllottedCountShortCircuit)
+        catch (MaxAllottedShortCircuit)
         {
-            stringBuilder.Append(LogStringTokens.Ellipsis);
+            appendingContext.AppendPunctuation(LogStringTokens.Ellipsis);
             isAlive = false;
         }
 
         return this;
     }
 
-    public StringBuilder End() => stringBuilder;
+    public AppendingContext End() => appendingContext;
 }

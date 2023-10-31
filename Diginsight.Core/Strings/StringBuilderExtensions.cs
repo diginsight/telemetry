@@ -1,38 +1,22 @@
 using System.Collections;
-using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace Diginsight.Strings;
 
+// FIXME StringBuilderExtensions
 public static class StringBuilderExtensions
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static StringBuilder ComposeAndAppend(
-        this StringBuilder stringBuilder,
-        object? obj,
-        AppendingContext appendingContext,
-        bool incrementDepth = true,
-        Action<LogStringVariableConfiguration>? configureVariables = null,
-        Action<IDictionary<string, object?>>? configureMetaProperties = null
-    )
-    {
-        appendingContext.ComposeAndAppend(obj, stringBuilder, incrementDepth, configureVariables, configureMetaProperties);
-        return stringBuilder;
-    }
-
-    public static StringBuilder AppendEnumerator<T>(
-        this StringBuilder stringBuilder,
+    public static AppendingContext AppendEnumerator<T>(
+        this AppendingContext appendingContext,
         T enumerator,
-        Action<T> appendCurrent,
+        Action<AppendingContext, T> appendCurrent,
         AllottingCounter counter,
-        AppendingContext appendingContext,
         string separator = LogStringTokens.Separator2
     )
         where T : IEnumerator
     {
         if (!enumerator.MoveNext())
         {
-            return stringBuilder;
+            return appendingContext;
         }
 
         try
@@ -41,30 +25,29 @@ public static class StringBuilderExtensions
             {
                 counter.Decrement();
                 appendingContext.ThrowIfTimeIsOver();
-                appendCurrent(enumerator);
+                appendCurrent(appendingContext, enumerator);
             }
 
             AppendEntry();
             while (enumerator.MoveNext())
             {
-                stringBuilder.Append(separator);
+                appendingContext.AppendPunctuation(separator);
                 AppendEntry();
             }
         }
         catch (MaxAllottedShortCircuit)
         {
-            stringBuilder.Append(LogStringTokens.Ellipsis);
+            appendingContext.AppendPunctuation(LogStringTokens.Ellipsis);
         }
 
-        return stringBuilder;
+        return appendingContext;
     }
 
-    public static StringBuilder AppendDelimited(
-        this StringBuilder stringBuilder,
+    public static AppendingContext AppendDelimited(
+        this AppendingContext appendingContext,
         char beginDelim,
         char endDelim,
-        AppendingContext appendingContext,
-        Action<StringBuilder, AppendingContext> appendContent,
+        Action<AppendingContext> appendContent,
         bool incrementDepth = true,
         Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
@@ -72,10 +55,10 @@ public static class StringBuilderExtensions
     {
         if (appendingContext.IsTimeOver)
         {
-            return stringBuilder.Append(LogStringTokens.Ellipsis);
+            return appendingContext.AppendPunctuation(LogStringTokens.Ellipsis);
         }
 
-        stringBuilder.Append(beginDelim);
+        appendingContext.AppendPunctuation(beginDelim);
 
         using (appendingContext.WithVariablesSafe(configureVariables))
         using (appendingContext.WithMetaPropertiesSafe(configureMetaProperties))
@@ -83,36 +66,35 @@ public static class StringBuilderExtensions
         {
             if (isMaxDepth)
             {
-                stringBuilder.Append(LogStringTokens.Deep);
+                appendingContext.AppendPunctuation(LogStringTokens.Deep);
             }
             else
             {
-                appendContent(stringBuilder, appendingContext);
+                appendContent(appendingContext);
             }
         }
 
-        return stringBuilder.Append(endDelim);
+        return appendingContext.AppendPunctuation(endDelim);
     }
 
-    public static StringBuilder AppendMap(
-        this StringBuilder stringBuilder,
+    // FIXME StringBuilderExtensions.AppendMap
+    public static AppendingContext AppendMap(
+        this AppendingContext appendingContext,
         Type mapType,
-        AppendingContext appendingContext,
-        Action<StringBuilder, AppendingContext> appendContent,
+        Action<AppendingContext> appendContent,
         bool incrementDepth = true,
         Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
-        using (appendingContext.WithAtomic())
+        //using (appendingContext.WithAtomic())
         {
-            stringBuilder.ComposeAndAppend(mapType, appendingContext, false);
+            appendingContext.ComposeAndAppend(mapType, false);
         }
 
-        return stringBuilder.AppendDelimited(
+        return appendingContext.AppendDelimited(
             LogStringTokens.MapBegin,
             LogStringTokens.MapEnd,
-            appendingContext,
             appendContent,
             incrementDepth,
             configureVariables,
@@ -120,32 +102,30 @@ public static class StringBuilderExtensions
         );
     }
 
-    public static StringBuilder AppendCollection(
-        this StringBuilder stringBuilder,
+    // FIXME StringBuilderExtensions.AppendCollection
+    public static AppendingContext AppendCollection(
+        this AppendingContext appendingContext,
         Type collectionType,
-        AppendingContext appendingContext,
-        Action<StringBuilder, AppendingContext> appendContent,
+        Action<AppendingContext> appendContent,
         int? count = null,
         bool incrementDepth = true,
         Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
-        using (appendingContext.WithAtomic())
+        //using (appendingContext.WithAtomic())
         {
-            stringBuilder
+            appendingContext
                 .ComposeAndAppend(
                     collectionType,
-                    appendingContext,
                     false,
                     configureMetaProperties: x => { x[MemberInfoLogStringProvider.CollectionLengthMetaProperty] = count; }
                 );
         }
 
-        return stringBuilder.AppendDelimited(
+        return appendingContext.AppendDelimited(
             LogStringTokens.CollectionBegin,
             LogStringTokens.CollectionEnd,
-            appendingContext,
             appendContent,
             incrementDepth,
             configureVariables,
@@ -154,10 +134,9 @@ public static class StringBuilderExtensions
     }
 
     public static MemberAppender ComposeAndAppendMember(
-        this StringBuilder stringBuilder,
+        this AppendingContext appendingContext,
         string memberName,
         object? memberValue,
-        AppendingContext appendingContext,
         bool incrementDepth = true,
         Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
@@ -171,24 +150,23 @@ public static class StringBuilderExtensions
             counter.Decrement();
             isAlive = true;
 
-            stringBuilder
-                .Append(memberName)
-                .Append(LogStringTokens.Value)
-                .ComposeAndAppend(memberValue, appendingContext, incrementDepth, configureVariables, configureMetaProperties);
+            appendingContext
+                .AppendDirect(sb => sb.Append(memberName))
+                .AppendPunctuation(LogStringTokens.Value)
+                .ComposeAndAppend(memberValue, incrementDepth, configureVariables, configureMetaProperties);
         }
-        catch (MaxAllottedCountShortCircuit)
+        catch (MaxAllottedShortCircuit)
         {
-            stringBuilder.Append(LogStringTokens.Ellipsis);
+            appendingContext.AppendPunctuation(LogStringTokens.Ellipsis);
             isAlive = false;
         }
 
-        return new MemberAppender(stringBuilder, appendingContext, counter, isAlive);
+        return new MemberAppender(appendingContext, counter, isAlive);
     }
 
     public static ItemAppender AppendItem(
-        this StringBuilder stringBuilder,
+        this AppendingContext appendingContext,
         object? itemValue,
-        AppendingContext appendingContext,
         bool incrementDepth = true,
         Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
@@ -202,15 +180,15 @@ public static class StringBuilderExtensions
             counter.Decrement();
             isAlive = true;
 
-            stringBuilder
-                .ComposeAndAppend(itemValue, appendingContext, incrementDepth, configureVariables, configureMetaProperties);
+            appendingContext
+                .ComposeAndAppend(itemValue, incrementDepth, configureVariables, configureMetaProperties);
         }
         catch (MaxAllottedCountShortCircuit)
         {
-            stringBuilder.Append(LogStringTokens.Ellipsis);
+            appendingContext.AppendPunctuation(LogStringTokens.Ellipsis);
             isAlive = false;
         }
 
-        return new ItemAppender(stringBuilder, appendingContext, counter, isAlive);
+        return new ItemAppender(appendingContext, counter, isAlive);
     }
 }
