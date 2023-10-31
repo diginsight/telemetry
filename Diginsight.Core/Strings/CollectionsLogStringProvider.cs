@@ -79,8 +79,8 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
         public bool CanCycle => true;
 #endif
 
-        protected abstract char BeginToken { get; }
-        protected abstract char EndToken { get; }
+        protected abstract char BeginDelim { get; }
+        protected abstract char EndDelim { get; }
 
         protected LogStringableCollectionBase(T subject)
         {
@@ -99,9 +99,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
                     configureMetaProperties: x => { x[MemberInfoLogStringProvider.CollectionLengthMetaProperty] = collectionLength; }
                 );
 
-                stringBuilder.Append(BeginToken);
-                AppendToCore(stringBuilder, appendingContext);
-                stringBuilder.Append(EndToken);
+                stringBuilder.AppendDelimited(BeginDelim, EndDelim, appendingContext, AppendToCore);
             }
             catch (AlreadySeenShortCircuit)
             {
@@ -118,8 +116,8 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
 
     private sealed class LogStringableDictionary : LogStringableCollectionBase<IDictionary>
     {
-        protected override char BeginToken => LogStringTokens.MapBegin;
-        protected override char EndToken => LogStringTokens.MapEnd;
+        protected override char BeginDelim => LogStringTokens.MapBegin;
+        protected override char EndDelim => LogStringTokens.MapEnd;
 
         public LogStringableDictionary(IDictionary subject)
             : base(subject) { }
@@ -157,8 +155,8 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
 
     private sealed class LogStringableKvpCollection<TKey, TValue> : LogStringableCollectionBase<IEnumerable<KeyValuePair<TKey, TValue>>>
     {
-        protected override char BeginToken => LogStringTokens.MapBegin;
-        protected override char EndToken => LogStringTokens.MapEnd;
+        protected override char BeginDelim => LogStringTokens.MapBegin;
+        protected override char EndDelim => LogStringTokens.MapEnd;
 
         public LogStringableKvpCollection(IEnumerable<KeyValuePair<TKey, TValue>> subject)
             : base(subject) { }
@@ -201,8 +199,8 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
 
     private sealed class LogStringableGenericCollection<T> : LogStringableCollectionBase<IEnumerable<T>>
     {
-        protected override char BeginToken => LogStringTokens.CollectionBegin;
-        protected override char EndToken => LogStringTokens.CollectionEnd;
+        protected override char BeginDelim => LogStringTokens.CollectionBegin;
+        protected override char EndDelim => LogStringTokens.CollectionEnd;
 
         public LogStringableGenericCollection(IEnumerable<T> subject)
             : base(subject) { }
@@ -232,8 +230,8 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
 
     private sealed class LogStringableCollection : LogStringableCollectionBase<IEnumerable>
     {
-        protected override char BeginToken => LogStringTokens.CollectionBegin;
-        protected override char EndToken => LogStringTokens.CollectionEnd;
+        protected override char BeginDelim => LogStringTokens.CollectionBegin;
+        protected override char EndDelim => LogStringTokens.CollectionEnd;
 
         public LogStringableCollection(IEnumerable subject)
             : base(subject) { }
