@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Runtime.CompilerServices;
+using System.Text;
 using Timer = System.Timers.Timer;
 
 namespace Diginsight.Strings;
@@ -54,13 +55,13 @@ public sealed class AppendingContext
     {
         if (IsTimeOver)
         {
-            AppendPunctuation(LogStringTokens.Ellipsis);
+            this.AppendEllipsis();
             return this;
         }
 
         if (obj == null)
         {
-            AppendPunctuation('□');
+            AppendDirect('□');
             return this;
         }
 
@@ -83,7 +84,7 @@ public sealed class AppendingContext
 
         if (isMaxDepth && logStringable.IsDeep)
         {
-            AppendPunctuation(LogStringTokens.Deep);
+            this.AppendDeep();
             return this;
         }
 
@@ -95,28 +96,30 @@ public sealed class AppendingContext
         catch (AlreadySeenShortCircuit)
         {
             ComposeAndAppend(type, false)
-                .AppendPunctuation(LogStringTokens.Cycle);
+                .AppendDirect(LogStringTokens.Cycle);
         }
 
         return this;
     }
 
-    public AppendingContext AppendDirect(Action<StringBuilder> appendContent)
-    {
-        ThrowIfTimeIsOver();
-        appendContent(stringBuilder);
-        return this;
-    }
-
-    public AppendingContext AppendPunctuation(char c)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AppendingContext AppendDirect(char c)
     {
         stringBuilder.Append(c);
         return this;
     }
 
-    public AppendingContext AppendPunctuation(string s)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AppendingContext AppendDirect(string s)
     {
         stringBuilder.Append(s);
+        return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AppendingContext AppendDirect(Action<StringBuilder> appendContent)
+    {
+        appendContent(stringBuilder);
         return this;
     }
 
@@ -140,6 +143,7 @@ public sealed class AppendingContext
     //    return new CallbackDisposable(() => { isAtomic = prevIsAtomic; });
     //}
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IDisposable? WithVariablesSafe(Action<LogStringVariableConfiguration>? configureVariables)
     {
         return configureVariables is null ? null : WithVariables(configureVariables);
@@ -154,6 +158,7 @@ public sealed class AppendingContext
         return new CallbackDisposable(() => { variableConfiguration = previous; });
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IDisposable? WithMetaPropertiesSafe(Action<IDictionary<string, object?>>? configureMetaProperties)
     {
         return configureMetaProperties is null ? null : WithMetaProperties(configureMetaProperties);
@@ -175,6 +180,7 @@ public sealed class AppendingContext
         return new CallbackDisposable(() => currentDepth -= 1);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ThrowIfTimeIsOver()
     {
         if (IsTimeOver)

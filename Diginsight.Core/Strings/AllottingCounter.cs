@@ -2,6 +2,8 @@
 
 public abstract class AllottingCounter
 {
+    public static AllottingCounter Unlimited => UnlimitedAllottingCounter.Instance;
+
     public void Decrement()
     {
         if (!TryDecrement())
@@ -14,7 +16,7 @@ public abstract class AllottingCounter
 
     public static AllottingCounter Count(int? max)
     {
-        return max is { } max0 ? new LimitedAllottingCounter(max0) : UnlimitedAllottingCounter.Instance;
+        return max is { } max0 ? new LimitedAllottingCounter(max0) : Unlimited;
     }
 
     private sealed class UnlimitedAllottingCounter : AllottingCounter

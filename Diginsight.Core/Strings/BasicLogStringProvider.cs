@@ -105,13 +105,13 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
                         AppendItem(0);
                         for (int i = 1; i < tuple.Length; i++)
                         {
-                            ac.AppendPunctuation(LogStringTokens.Separator2);
+                            ac.AppendDirect(LogStringTokens.Separator2);
                             AppendItem(i);
                         }
                     }
                     catch (MaxAllottedCountShortCircuit)
                     {
-                        ac.AppendPunctuation(LogStringTokens.Ellipsis);
+                        ac.AppendEllipsis();
                     }
                 }
             );
@@ -155,9 +155,9 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
 
         public void AppendTo(AppendingContext appendingContext)
         {
-            appendingContext.AppendPunctuation('λ');
+            appendingContext.AppendDirect('λ');
             owner.memberInfoLogStringProvider.Append(del.Method.GetParameters(), appendingContext);
-            appendingContext.AppendPunctuation(':');
+            appendingContext.AppendDirect(':');
             owner.memberInfoLogStringProvider.Append(del.Method.ReturnType, appendingContext);
         }
     }
@@ -180,11 +180,11 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
         {
             appendingContext
                 .ComposeAndAppend(kvp.GetType(), false)
-                .AppendPunctuation(LogStringTokens.MapBegin)
+                .AppendDirect(LogStringTokens.MapBegin)
                 .ComposeAndAppend(kvp.Key)
-                .AppendPunctuation(LogStringTokens.Value)
+                .AppendDirect(LogStringTokens.Value)
                 .ComposeAndAppend(kvp.Value)
-                .AppendPunctuation(LogStringTokens.MapEnd);
+                .AppendDirect(LogStringTokens.MapEnd);
         }
     }
 }

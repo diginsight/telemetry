@@ -88,21 +88,14 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
 
         public void AppendTo(AppendingContext appendingContext)
         {
-            try
-            {
-                object? collectionLength = subject is Array ? GetLengths() : GetCount();
-                appendingContext.ComposeAndAppend(
-                    subject.GetType(),
-                    false,
-                    configureMetaProperties: x => { x[MemberInfoLogStringProvider.CollectionLengthMetaProperty] = collectionLength; }
-                );
+            object? collectionLength = subject is Array ? GetLengths() : GetCount();
+            appendingContext.ComposeAndAppend(
+                subject.GetType(),
+                false,
+                configureMetaProperties: x => { x[MemberInfoLogStringProvider.CollectionLengthMetaProperty] = collectionLength; }
+            );
 
-                appendingContext.AppendDelimited(BeginDelim, EndDelim, AppendToCore);
-            }
-            catch (AlreadySeenShortCircuit)
-            {
-                appendingContext.AppendPunctuation(LogStringTokens.Cycle);
-            }
+            appendingContext.AppendDelimited(BeginDelim, EndDelim, AppendToCore);
         }
 
         protected abstract int? GetCount();
@@ -137,7 +130,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
                         {
                             ac
                                 .ComposeAndAppend(e.Key)
-                                .AppendPunctuation(LogStringTokens.Value)
+                                .AppendDirect(LogStringTokens.Value)
                                 .ComposeAndAppend(e.Value);
                         },
                         appendingContext.CountDictionaryItems()
@@ -185,7 +178,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
 #endif
                     ac
                         .ComposeAndAppend(key)
-                        .AppendPunctuation(LogStringTokens.Value)
+                        .AppendDirect(LogStringTokens.Value)
                         .ComposeAndAppend(value);
                 },
                 appendingContext.CountDictionaryItems()

@@ -2,11 +2,9 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
-using System.Text;
 
 namespace Diginsight.Strings;
 
-// FIXME MemberInfoLogStringProvider
 internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
 {
     public const string CollectionLengthMetaProperty = "collectionLength";
@@ -54,7 +52,7 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
         };
     }
 
-    public void Append(Type type, StringBuilder stringBuilder, AppendingContext appendingContext)
+    public void Append(Type type, AppendingContext appendingContext)
     {
         void AppendNamespace(string? ns)
         {
@@ -70,9 +68,9 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
                 (!isImplicit && !isExplicit && namespaceConfiguration.IsNamespaceExplicitIfUnspecified) ||
                 isExplicit)
             {
-                stringBuilder
-                    .Append(ns)
-                    .Append('.');
+                appendingContext
+                    .AppendDirect(ns)
+                    .AppendDirect('.');
             }
         }
 
@@ -82,66 +80,69 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
 
         if (type.IsArray)
         {
-            Append(type.GetElementType()!, stringBuilder, appendingContext);
-
-            stringBuilder.Append("[");
-
-            if (rawCollectionLength is int[] arrayLengths)
-            {
-                for (int i = 0; i < arrayLengths.Length; i++)
+            Append(type.GetElementType()!, appendingContext);
+            appendingContext.AppendDelimited(
+                '[',
+                ']',
+                ac =>
                 {
-                    if (i > 0)
-                        stringBuilder.Append(',');
-                    stringBuilder.Append(arrayLengths[i].ToString(CultureInfo.InvariantCulture));
+                    if (rawCollectionLength is int[] arrayLengths)
+                    {
+                        using IEnumerator<int> enumerator = arrayLengths.AsEnumerable().GetEnumerator();
+                        ac.AppendEnumerator(
+                            enumerator,
+                            static (ac1, e) => { ac1.AppendDirect(e.Current.ToStringInvariant()); },
+                            AllottingCounter.Unlimited,
+                            ","
+                        );
+                    }
+                    else
+                    {
+                        ac.AppendDirect(new string(',', type.GetArrayRank() - 1));
+                    }
                 }
-            }
-            else
-            {
-                stringBuilder.Append(new string(',', type.GetArrayRank() - 1));
-            }
-
-            stringBuilder.Append("]");
+            );
         }
         else if (type.IsPointer)
         {
-            Append(type.GetElementType()!, stringBuilder, appendingContext);
-            stringBuilder.Append('*');
+            Append(type.GetElementType()!, appendingContext);
+            appendingContext.AppendDirect('*');
         }
         else if (type.IsByRef)
         {
-            Append(type.GetElementType()!, stringBuilder, appendingContext);
-            stringBuilder.Append('&');
+            Append(type.GetElementType()!, appendingContext);
+            appendingContext.AppendDirect('&');
         }
         else if (type.IsNested)
         {
-            Append(type.DeclaringType!, stringBuilder, appendingContext);
-            stringBuilder
-                .Append('+')
-                .Append(type.Name);
+            Append(type.DeclaringType!, appendingContext);
+            appendingContext
+                .AppendDirect('+')
+                .AppendDirect(type.Name);
         }
         else if (type.IsGenericParameter)
         {
-            stringBuilder.Append(type.Name);
+            appendingContext.AppendDirect(type.Name);
         }
         else if (Nullable.GetUnderlyingType(type) is { } nullableType)
         {
-            Append(nullableType, stringBuilder, appendingContext);
-            stringBuilder.Append('?');
+            Append(nullableType, appendingContext);
+            appendingContext.AppendDirect('?');
         }
         else if (type.IsAnonymous())
         {
-            stringBuilder.Append('¤');
+            appendingContext.AppendDirect('¤');
         }
         else if (IsValueTuple(type, out Type[]? itemTypes))
         {
-            stringBuilder.Append(LogStringTokens.TupleBegin);
+            appendingContext.Append(LogStringTokens.TupleBegin);
             if (itemTypes.Length > 0)
             {
-                Append(itemTypes[0], stringBuilder, appendingContext);
+                Append(itemTypes[0], appendingContext);
                 foreach (Type itemType in itemTypes.Skip(1))
                 {
                     stringBuilder.Append(LogStringTokens.Separator);
-                    Append(itemType, stringBuilder, appendingContext);
+                    Append(itemType, appendingContext);
                 }
             }
             stringBuilder.Append(LogStringTokens.TupleEnd);
@@ -149,45 +150,50 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
         else if (type.IsGenericType)
         {
             AppendNamespace(type.Namespace);
-            stringBuilder
+            appendingContext
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                .Append(type.Name[..type.Name.IndexOf('`')])
+                .AppendDirect(type.Name[..type.Name.IndexOf('`')])
 #else
-                .Append(type.Name.Substring(0, type.Name.IndexOf('`')))
+                .AppendDirect(type.Name.Substring(0, type.Name.IndexOf('`')))
 #endif
-                .Append('<');
-            if (type.IsGenericTypeDefinition)
-            {
-                stringBuilder.Append(new string(',', type.GetGenericArguments().Length - 1));
-            }
-            else
-            {
-                Type[] typeArgs = type.GetGenericArguments();
-                Append(typeArgs[0], stringBuilder, appendingContext);
-                foreach (Type typeArg in typeArgs.Skip(1))
-                {
-                    stringBuilder.Append(LogStringTokens.Separator);
-                    Append(typeArg, stringBuilder, appendingContext);
-                }
-            }
-            stringBuilder.Append('>');
+                .AppendDelimited(
+                    '<',
+                    '>',
+                    ac =>
+                    {
+                        if (type.IsGenericTypeDefinition)
+                        {
+                            ac.AppendDirect(new string(',', type.GetGenericArguments().Length - 1));
+                        }
+                        else
+                        {
+                            using IEnumerator<Type> enumerator = type.GetGenericArguments().AsEnumerable().GetEnumerator();
+                            ac.AppendEnumerator(
+                                enumerator,
+                                (ac1, e) => { Append(e.Current!, ac1); },
+                                AllottingCounter.Unlimited,
+                                ","
+                            );
+                        }
+                    }
+                );
         }
         else
         {
             if (overallConfiguration.ShortenKnownTypes && KNOWN_TYPE_NAMES.TryGetValue(type, out string? name))
             {
-                stringBuilder.Append(name);
+                appendingContext.AppendDirect(name);
             }
             else
             {
                 AppendNamespace(type.Namespace);
-                stringBuilder.Append(type.Name);
+                appendingContext.AppendDirect(type.Name);
             }
         }
 
         if (rawCollectionLength is int collectionLength)
         {
-            stringBuilder.Append('(').Append(collectionLength.ToString(CultureInfo.InvariantCulture)).Append(')');
+            appendingContext.AppendDirect('(').AppendDirect(collectionLength.ToString(CultureInfo.InvariantCulture)).AppendDirect(')');
         }
     }
 
@@ -203,32 +209,35 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
         return true;
     }
 
-    public void Append(ParameterInfo[] parameters, StringBuilder stringBuilder, AppendingContext appendingContext)
+    public void Append(ParameterInfo[] parameters, AppendingContext appendingContext)
     {
-        stringBuilder.Append('(');
-        using (IEnumerator<ParameterInfo> enumerator = ((IReadOnlyList<ParameterInfo>)parameters).GetEnumerator())
-        {
-            stringBuilder.AppendEnumerator(
-                enumerator,
-                e => { Append(e.Current, stringBuilder, appendingContext); },
-                AllottingCounter.Count(appendingContext.VariableConfiguration.GetEffectiveMaxMethodParameterCount()),
-                appendingContext
+        appendingContext
+            .AppendDelimited(
+                '(',
+                ')',
+                ac =>
+                {
+                    using IEnumerator<ParameterInfo> enumerator = ((IReadOnlyList<ParameterInfo>)parameters).GetEnumerator();
+                    ac.AppendEnumerator(
+                        enumerator,
+                        (ac1, e) => { Append(e.Current!, ac1); },
+                        AllottingCounter.Count(appendingContext.VariableConfiguration.GetEffectiveMaxMethodParameterCount())
+                    );
+                }
             );
-        }
-        stringBuilder.Append(')');
     }
 
-    private void Append(ParameterInfo parameter, StringBuilder stringBuilder, AppendingContext appendingContext)
+    private void Append(ParameterInfo parameter, AppendingContext appendingContext)
     {
         if (parameter.IsIn)
         {
-            stringBuilder.Append('↓');
+            appendingContext.AppendDirect('↓');
         }
         if (parameter.IsOut)
         {
-            stringBuilder.Append('↑');
+            appendingContext.AppendDirect('↑');
         }
-        Append(parameter.ParameterType, stringBuilder, appendingContext);
+        Append(parameter.ParameterType, appendingContext);
     }
 
     private sealed class LogStringableType : ILogStringable
@@ -247,9 +256,9 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
             this.owner = owner;
         }
 
-        public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
+        public void AppendTo(AppendingContext appendingContext)
         {
-            owner.Append(type, stringBuilder, appendingContext);
+            owner.Append(type, appendingContext);
         }
     }
 
@@ -269,15 +278,15 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
             this.owner = owner;
         }
 
-        public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
+        public void AppendTo(AppendingContext appendingContext)
         {
             if (member.DeclaringType is { } declaringType)
             {
-                owner.Append(declaringType, stringBuilder, appendingContext);
-                stringBuilder.Append('#');
+                owner.Append(declaringType, appendingContext);
+                appendingContext.AppendDirect('#');
             }
 
-            stringBuilder.Append(member.Name);
+            appendingContext.AppendDirect(member.Name);
 
             ParameterInfo[]? parameters;
             if (member is MethodBase method)
@@ -296,7 +305,7 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
 
             if (parameters != null)
             {
-                owner.Append(parameters, stringBuilder, appendingContext);
+                owner.Append(parameters, appendingContext);
             }
         }
     }
@@ -315,9 +324,9 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
             this.owner = owner;
         }
 
-        public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
+        public void AppendTo(AppendingContext appendingContext)
         {
-            owner.Append(parameter, stringBuilder, appendingContext);
+            owner.Append(parameter, appendingContext);
         }
     }
 
@@ -333,9 +342,9 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
             this.assembly = assembly;
         }
 
-        public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
+        public void AppendTo(AppendingContext appendingContext)
         {
-            stringBuilder.Append(assembly.FullName);
+            appendingContext.AppendDirect(assembly.FullName);
         }
     }
 }

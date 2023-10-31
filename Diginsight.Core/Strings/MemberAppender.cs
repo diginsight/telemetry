@@ -26,7 +26,7 @@ public ref struct MemberAppender
             return this;
         }
 
-        appendingContext.AppendPunctuation(LogStringTokens.Separator2);
+        appendingContext.AppendDirect(LogStringTokens.Separator2);
 
         try
         {
@@ -34,13 +34,13 @@ public ref struct MemberAppender
             isAlive = true;
 
             appendingContext
-                .AppendDirect(sb => sb.Append(memberName))
-                .AppendPunctuation(LogStringTokens.Value)
+                .AppendDirect(memberName)
+                .AppendDirect(LogStringTokens.Value)
                 .ComposeAndAppend(memberValue, incrementDepth, configureVariables, configureMetaProperties);
         }
         catch (MaxAllottedShortCircuit)
         {
-            appendingContext.AppendPunctuation(LogStringTokens.Ellipsis);
+            appendingContext.AppendEllipsis();
             isAlive = false;
         }
 

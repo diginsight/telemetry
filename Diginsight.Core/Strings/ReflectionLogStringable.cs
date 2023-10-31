@@ -1,9 +1,7 @@
 ﻿using System.Reflection;
-using System.Text;
 
 namespace Diginsight.Strings;
 
-// FIXME ReflectionLogStringable
 public abstract class ReflectionLogStringable : ILogStringable
 {
     private readonly object obj;
@@ -22,26 +20,27 @@ public abstract class ReflectionLogStringable : ILogStringable
         this.dontCacheAppenders = dontCacheAppenders;
     }
 
-    public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
+    public void AppendTo(AppendingContext appendingContext)
     {
-        appendingContext.ComposeAndAppend(obj.GetType(), stringBuilder);
-
-        stringBuilder.Append(LogStringTokens.MapBegin);
-        AppendCore(stringBuilder, appendingContext);
-        stringBuilder.Append(LogStringTokens.MapEnd);
+        appendingContext
+            .ComposeAndAppend(obj.GetType())
+            .AppendDelimited(
+                LogStringTokens.MapBegin,
+                LogStringTokens.MapEnd,
+                AppendCore
+            );
     }
 
-    private void AppendCore(StringBuilder stringBuilder, AppendingContext appendingContext)
+    private void AppendCore(AppendingContext appendingContext)
     {
         Type type = obj.GetType();
         IEnumerable<LogStringAppender> appenders = dontCacheAppenders ? MakeAppenders(type) : helper.GetCachedAppenders(type, MakeAppenders);
         using IEnumerator<LogStringAppender> appenderEnumerator = appenders.GetEnumerator();
 
-        stringBuilder.AppendEnumerator(
+        appendingContext.AppendEnumerator(
             appenderEnumerator,
-            e => { e.Current!(obj, stringBuilder, appendingContext); },
-            Count(appendingContext),
-            appendingContext
+            (ac, e) => { e.Current(obj, ac); },
+            Count(appendingContext)
         );
     }
 
@@ -72,12 +71,12 @@ public abstract class ReflectionLogStringable : ILogStringable
             finalGetValue = getValue;
         }
 
-        return (o, stringBuilder, appendingContext) =>
+        return (o, appendingContext) =>
         {
-            stringBuilder
-                .Append(outputName)
-                .Append(LogStringTokens.Value)
-                .ComposeAndAppend(finalGetValue(o), appendingContext);
+            appendingContext
+                .AppendDirect(outputName)
+                .AppendDirect(LogStringTokens.Value)
+                .ComposeAndAppend(finalGetValue(o));
         };
     }
 

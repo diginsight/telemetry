@@ -25,7 +25,7 @@ public ref struct ItemAppender
             return this;
         }
 
-        appendingContext.AppendPunctuation(LogStringTokens.Separator2);
+        appendingContext.AppendDirect(LogStringTokens.Separator2);
 
         try
         {
@@ -37,7 +37,7 @@ public ref struct ItemAppender
         }
         catch (MaxAllottedCountShortCircuit)
         {
-            appendingContext.AppendPunctuation(LogStringTokens.Ellipsis);
+            appendingContext.AppendEllipsis();
             isAlive = false;
         }
 

@@ -27,17 +27,10 @@ internal sealed class LogStringComposer : ILogStringComposer
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
-        try
-        {
-            stringBuilder.ComposeAndAppend(obj, MakeAppendingContext(), false, configureVariables, configureMetaProperties);
-        }
-        catch (MaxAllottedTimeShortCircuit)
-        {
-            stringBuilder.Append(LogStringTokens.Ellipsis);
-        }
+        MakeAppendingContext(stringBuilder).ComposeAndAppend(obj, false, configureVariables, configureMetaProperties);
     }
 
-    private AppendingContext MakeAppendingContext()
+    private AppendingContext MakeAppendingContext(StringBuilder stringBuilder)
     {
         ILogStringProvider[] logStringProviders = overallConfiguration.Registrations
             .Select(static x => x ?? throw new ArgumentNullException($"item in {nameof(ILogStringOverallConfiguration)}.{nameof(ILogStringOverallConfiguration.Registrations)}", (Exception?)null))
@@ -48,6 +41,7 @@ internal sealed class LogStringComposer : ILogStringComposer
         LogStringVariableConfiguration variableConfiguration = new LogStringVariableConfiguration(overallConfiguration);
 
         return new AppendingContext(
+            stringBuilder,
             logStringProviders,
             variableConfiguration,
             overallConfiguration.MaxTime,

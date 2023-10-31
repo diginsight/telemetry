@@ -15,7 +15,6 @@ internal sealed class AnonymousLogStringProvider : ReflectionLogStringProvider
 
     protected override ReflectionLogStringable MakeLogStringable(object obj) => new AnonymousLogStringable(obj, helper);
 
-    // FIXME AnonymousLogStringable
     private sealed class AnonymousLogStringable : ReflectionLogStringable
     {
         public AnonymousLogStringable(object obj, IReflectionLogStringHelper helper)

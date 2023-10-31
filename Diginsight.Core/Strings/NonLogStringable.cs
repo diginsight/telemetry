@@ -1,8 +1,5 @@
-﻿using System.Text;
+﻿namespace Diginsight.Strings;
 
-namespace Diginsight.Strings;
-
-// FIXME NonLogStringable
 public sealed class NonLogStringable : ILogStringable
 {
     private readonly Type type;
@@ -15,10 +12,10 @@ public sealed class NonLogStringable : ILogStringable
         this.type = type;
     }
 
-    public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
+    public void AppendTo(AppendingContext appendingContext)
     {
-        stringBuilder
-            .ComposeAndAppend(type, appendingContext, false)
-            .Append('!');
+        appendingContext
+            .ComposeAndAppend(type, false)
+            .AppendDirect('!');
     }
 }

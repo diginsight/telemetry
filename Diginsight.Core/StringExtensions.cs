@@ -5,6 +5,7 @@ namespace Diginsight;
 
 public static class StringExtensions
 {
+    [return: NotNullIfNotNull(nameof(obj))]
     public static string? ToStringInvariant(this object? obj)
     {
         return obj switch

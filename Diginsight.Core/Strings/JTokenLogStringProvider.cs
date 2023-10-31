@@ -1,10 +1,8 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Text;
 
 namespace Diginsight.Strings;
 
-// FIXME JTokenLogStringProvider
 internal sealed class JTokenLogStringProvider : ILogStringProvider
 {
     public ILogStringable? TryAsLogStringable(object obj)
@@ -12,7 +10,7 @@ internal sealed class JTokenLogStringProvider : ILogStringProvider
         return obj is JToken jt ? new LogStringableJToken(jt) : null;
     }
 
-    private sealed class LogStringableJToken : ILogStringable, IJTokenVisitor<StringBuilder, (StringBuilder, AppendingContext)>
+    private sealed class LogStringableJToken : ILogStringable, IJTokenVisitor<AppendingContext, AppendingContext>
     {
         private readonly JToken root;
 
@@ -25,104 +23,96 @@ internal sealed class JTokenLogStringProvider : ILogStringProvider
             this.root = root;
         }
 
-        public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
+        public void AppendTo(AppendingContext appendingContext)
         {
-            root.Accept(this, (stringBuilder.Append(LogStringTokens.LiteralBegin), appendingContext)).Append(LogStringTokens.LiteralEnd);
+            appendingContext.AppendDelimited(
+                LogStringTokens.LiteralBegin,
+                LogStringTokens.LiteralEnd,
+                ac => { root.Accept(this, ac); }
+            );
         }
 
-        public StringBuilder Visit(JArray jarray, (StringBuilder, AppendingContext) arg)
+        public AppendingContext Visit(JArray jarray, AppendingContext appendingContext)
         {
-            var (stringBuilder, appendingContext) = arg;
-
             using IDisposable? _0 = appendingContext.IncrementDepth(jarray != root, out bool isMaxDepth);
             if (isMaxDepth)
             {
-                return stringBuilder.Append(LogStringTokens.Deep);
+                return appendingContext.AppendDeep();
             }
 
-            stringBuilder.Append('[');
+            appendingContext.AppendDirect('[');
             using (IEnumerator<JToken> enumerator = jarray.Children().GetEnumerator())
             {
-                stringBuilder.AppendEnumerator(
+                appendingContext.AppendEnumerator(
                     enumerator,
-                    e => { e.Current.Accept(this, (stringBuilder, appendingContext)); },
+                    (ac, e) => { e.Current!.Accept(this, ac); },
                     appendingContext.CountCollectionItems(),
-                    appendingContext,
                     ","
                 );
             }
-            stringBuilder.Append(']');
+            appendingContext.AppendDirect(']');
 
-            return stringBuilder;
+            return appendingContext;
         }
 
-        public StringBuilder Visit(JConstructor jconstructor, (StringBuilder, AppendingContext) arg)
+        public AppendingContext Visit(JConstructor jconstructor, AppendingContext appendingContext)
         {
-            var (stringBuilder, appendingContext) = arg;
-
             using IDisposable? _0 = appendingContext.IncrementDepth(jconstructor != root, out bool isMaxDepth);
             if (isMaxDepth)
             {
-                return stringBuilder.Append(LogStringTokens.Deep);
+                return appendingContext.AppendDeep();
             }
 
-            stringBuilder.Append($"new {jconstructor.Name}(");
+            appendingContext.AppendDirect($"new {jconstructor.Name}(");
             using (IEnumerator<JToken> enumerator = jconstructor.Children().GetEnumerator())
             {
-                stringBuilder.AppendEnumerator(
+                appendingContext.AppendEnumerator(
                     enumerator,
-                    e => { e.Current!.Accept(this, (stringBuilder, appendingContext)); },
+                    (ac, e) => { e.Current!.Accept(this, ac); },
                     appendingContext.CountCollectionItems(),
-                    appendingContext,
                     ","
                 );
             }
-            stringBuilder.Append(')');
+            appendingContext.AppendDirect(')');
 
-            return stringBuilder;
+            return appendingContext;
         }
 
-        public StringBuilder Visit(JObject jobject, (StringBuilder, AppendingContext) arg)
+        public AppendingContext Visit(JObject jobject, AppendingContext appendingContext)
         {
-            var (stringBuilder, appendingContext) = arg;
-
             using IDisposable? _0 = appendingContext.IncrementDepth(jobject != root, out bool isMaxDepth);
             if (isMaxDepth)
             {
-                return stringBuilder.Append(LogStringTokens.Deep);
+                return appendingContext.AppendDeep();
             }
 
-            stringBuilder.Append('{');
+            appendingContext.AppendDirect('{');
             using (IEnumerator<JProperty> enumerator = jobject.Properties().GetEnumerator())
             {
-                stringBuilder.AppendEnumerator(
+                appendingContext.AppendEnumerator(
                     enumerator,
-                    e => { e.Current!.Accept(this, (stringBuilder, appendingContext)); },
+                    (ac, e) => { e.Current!.Accept(this, ac); },
                     appendingContext.CountDictionaryItems(),
-                    appendingContext,
                     ","
                 );
             }
-            stringBuilder.Append('}');
+            appendingContext.AppendDirect('}');
 
-            return stringBuilder;
+            return appendingContext;
         }
 
-        public StringBuilder Visit(JProperty jproperty, (StringBuilder, AppendingContext) arg)
+        public AppendingContext Visit(JProperty jproperty, AppendingContext appendingContext)
         {
-            var (stringBuilder, appendingContext) = arg;
+            appendingContext
+                .AppendDirect(new JValue(jproperty.Name).ToString(Formatting.None))
+                .AppendDirect(':');
 
-            stringBuilder
-                .Append(new JValue(jproperty.Name).ToString(Formatting.None))
-                .Append(':');
-
-            return jproperty.Value.Accept(this, (stringBuilder, appendingContext));
+            return jproperty.Value.Accept(this, appendingContext);
         }
 
-        public StringBuilder Visit(JValue jvalue, (StringBuilder, AppendingContext) arg)
+        public AppendingContext Visit(JValue jvalue, AppendingContext appendingContext)
         {
-            var (stringBuilder, _) = arg;
-            return stringBuilder.Append(jvalue.ToString(Formatting.None));
+            return appendingContext.AppendDirect(jvalue.ToString(Formatting.None));
         }
     }
 }

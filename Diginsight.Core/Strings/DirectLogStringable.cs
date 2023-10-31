@@ -1,9 +1,7 @@
 ﻿using System.Globalization;
-using System.Text;
 
 namespace Diginsight.Strings;
 
-// FIXME DirectLogStringable
 public sealed class DirectLogStringable : ILogStringable
 {
     private readonly object obj;
@@ -18,11 +16,16 @@ public sealed class DirectLogStringable : ILogStringable
         this.format = format;
     }
 
-    public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
+    public void AppendTo(AppendingContext appendingContext)
     {
-        if (format is null)
-            stringBuilder.Append(obj);
-        else
-            stringBuilder.AppendFormat(CultureInfo.InvariantCulture, format, obj);
+        appendingContext.AppendDirect(
+            sb =>
+            {
+                if (format is null)
+                    sb.Append(obj);
+                else
+                    sb.AppendFormat(CultureInfo.InvariantCulture, format, obj);
+            }
+        );
     }
 }

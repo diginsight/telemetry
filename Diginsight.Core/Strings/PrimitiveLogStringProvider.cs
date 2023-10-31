@@ -2,11 +2,9 @@
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace Diginsight.Strings;
 
-// FIXME PrimitiveLogStringProvider
 internal sealed class PrimitiveLogStringProvider : ILogStringProvider
 {
     private static readonly string PTR_FORMAT = $"^{{0:X{IntPtr.Size}}}";
@@ -39,9 +37,9 @@ internal sealed class PrimitiveLogStringProvider : ILogStringProvider
             this.convertible = convertible;
         }
 
-        public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
+        public void AppendTo(AppendingContext appendingContext)
         {
-            stringBuilder.Append(convertible.ToString(CultureInfo.InvariantCulture));
+            appendingContext.AppendDirect(convertible.ToString(CultureInfo.InvariantCulture));
         }
     }
 
@@ -57,7 +55,7 @@ internal sealed class PrimitiveLogStringProvider : ILogStringProvider
             this.e = e;
         }
 
-        public void AppendTo(StringBuilder stringBuilder, AppendingContext appendingContext)
+        public void AppendTo(AppendingContext appendingContext)
         {
             Type enumType = e.GetType();
 
@@ -81,7 +79,7 @@ internal sealed class PrimitiveLogStringProvider : ILogStringProvider
             Enum[] skimmedFlaggedValues = flaggedValues.Where(x => flaggedValues.All(y => x.Equals(y) || !y.HasFlag(x))).ToArray();
 
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            stringBuilder.AppendJoin('|', (IEnumerable<Enum>)skimmedFlaggedValues);
+            appendingContext.AppendDirect(sb => sb.AppendJoin('|', (IEnumerable<Enum>)skimmedFlaggedValues));
 #else
             stringBuilder.Append(skimmedFlaggedValues[0]);
             foreach (Enum skimmedFlaggedValue in skimmedFlaggedValues.Skip(1))
