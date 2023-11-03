@@ -8,6 +8,7 @@ public sealed class AppendingContext
 {
     private readonly StringBuilder stringBuilder;
     private readonly IEnumerable<ILogStringProvider> logStringProviders;
+    private readonly IMemberInfoLogStringProvider memberInfoLogStringProvider;
     private readonly ISet<object> renderedObjs = new HashSet<object>(ReferenceEqualityComparer.Instance);
     private readonly long maxTimeTicks;
     private readonly Stopwatch? stopwatch;
@@ -37,6 +38,7 @@ public sealed class AppendingContext
     internal AppendingContext(
         StringBuilder stringBuilder,
         IEnumerable<ILogStringProvider> logStringProviders,
+        IMemberInfoLogStringProvider memberInfoLogStringProvider,
         LogStringVariableConfiguration variableConfiguration,
         TimeSpan maxTime,
         IEqualityComparer<string> metaPropertyKeyComparer
@@ -44,6 +46,7 @@ public sealed class AppendingContext
     {
         this.stringBuilder = stringBuilder;
         this.logStringProviders = logStringProviders;
+        this.memberInfoLogStringProvider = memberInfoLogStringProvider;
         this.variableConfiguration = variableConfiguration;
         metaProperties = new Dictionary<string, object?>(metaPropertyKeyComparer);
 
@@ -91,9 +94,9 @@ public sealed class AppendingContext
             return;
         }
 
-        using IDisposable? _1 = WithVariablesSafe(configureVariables);
-        using IDisposable? _2 = WithMetaPropertiesSafe(configureMetaProperties);
-        using IDisposable? _3 = this.IncrementDepth(incrementDepth, out bool isMaxDepth);
+        using IDisposable? _0 = WithVariablesSafe(configureVariables);
+        using IDisposable? _1 = WithMetaPropertiesSafe(configureMetaProperties);
+        using IDisposable? _2 = this.IncrementDepth(incrementDepth, out bool isMaxDepth);
 
         ILogStringable? logStringable = obj as ILogStringable;
         if (logStringable is null)
@@ -116,13 +119,12 @@ public sealed class AppendingContext
 
         try
         {
-            using IDisposable? _4 = logStringable.CanCycle ? AddSeen(obj) : null;
+            using IDisposable? _3 = logStringable.CanCycle ? AddSeen(obj) : null;
             logStringable.AppendTo(this);
         }
         catch (AlreadySeenShortCircuit)
         {
-            ComposeAndAppend(type, false)
-                .AppendDirect(LogStringTokens.Cycle);
+            ComposeAndAppendType(type).AppendDirect(LogStringTokens.Cycle);
         }
     }
 
@@ -144,6 +146,19 @@ public sealed class AppendingContext
     public AppendingContext AppendDirect(Action<StringBuilder> appendContent)
     {
         appendContent(stringBuilder);
+        return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AppendingContext ComposeAndAppendType(Type type, object? collectionLength = null)
+    {
+        using IDisposable? _0 = WithMetaPropertiesSafe(
+            configureMetaProperties: collectionLength is null
+                ? null
+                : x => { x[MemberInfoLogStringProvider.CollectionLengthMetaProperty] = collectionLength; }
+        );
+
+        memberInfoLogStringProvider.Append(type, this);
         return this;
     }
 

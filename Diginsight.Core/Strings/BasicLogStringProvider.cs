@@ -181,7 +181,7 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
         public void AppendTo(AppendingContext appendingContext)
         {
             appendingContext
-                .ComposeAndAppend(kvp.GetType(), false)
+                .ComposeAndAppendType(kvp.GetType())
                 .AppendDirect(LogStringTokens.MapBegin)
                 .ComposeAndAppend(kvp.Key)
                 .AppendDirect(LogStringTokens.Value)

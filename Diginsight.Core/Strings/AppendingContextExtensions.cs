@@ -95,7 +95,7 @@ public static class AppendingContextExtensions
     )
     {
         return appendingContext
-            .ComposeAndAppend(mapType, false)
+            .ComposeAndAppendType(mapType)
             .AppendDelimited(
                 LogStringTokens.MapBegin,
                 LogStringTokens.MapEnd,
@@ -117,11 +117,7 @@ public static class AppendingContextExtensions
     )
     {
         return appendingContext
-            .ComposeAndAppend(
-                collectionType,
-                false,
-                configureMetaProperties: x => { x[MemberInfoLogStringProvider.CollectionLengthMetaProperty] = count; }
-            )
+            .ComposeAndAppendType(collectionType, count)
             .AppendDelimited(
                 LogStringTokens.CollectionBegin,
                 LogStringTokens.CollectionEnd,

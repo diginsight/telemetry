@@ -62,7 +62,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
         };
 
         string inputsAsString;
-        IDictionary<string, string>? inputsAsDict;
+        IDictionary<string, object?>? inputsAsDict;
         if (inputs is null)
         {
             inputsAsString = "";
@@ -74,7 +74,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
         }
         else
         {
-            inputsAsDict = new Dictionary<string, string>();
+            inputsAsDict = new Dictionary<string, object?>();
 
             StringBuilder sb = new ();
             bool first = true;

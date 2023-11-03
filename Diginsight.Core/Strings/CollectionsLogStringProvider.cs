@@ -89,11 +89,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
         public void AppendTo(AppendingContext appendingContext)
         {
             object? collectionLength = subject is Array ? GetLengths() : GetCount();
-            appendingContext.ComposeAndAppend(
-                subject.GetType(),
-                false,
-                configureMetaProperties: x => { x[MemberInfoLogStringProvider.CollectionLengthMetaProperty] = collectionLength; }
-            );
+            appendingContext.ComposeAndAppendType(subject.GetType(), collectionLength);
 
             appendingContext.AppendDelimited(BeginDelim, EndDelim, AppendToCore);
         }

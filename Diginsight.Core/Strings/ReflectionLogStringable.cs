@@ -23,7 +23,7 @@ public abstract class ReflectionLogStringable : ILogStringable
     public void AppendTo(AppendingContext appendingContext)
     {
         appendingContext
-            .ComposeAndAppend(obj.GetType())
+            .ComposeAndAppendType(obj.GetType())
             .AppendDelimited(
                 LogStringTokens.MapBegin,
                 LogStringTokens.MapEnd,

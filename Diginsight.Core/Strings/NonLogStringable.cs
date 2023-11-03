@@ -15,7 +15,7 @@ public sealed class NonLogStringable : ILogStringable
     public void AppendTo(AppendingContext appendingContext)
     {
         appendingContext
-            .ComposeAndAppend(type, false)
+            .ComposeAndAppendType(type)
             .AppendDirect('!');
     }
 }
