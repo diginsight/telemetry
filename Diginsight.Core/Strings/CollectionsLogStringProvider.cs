@@ -126,7 +126,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
                 appendingContext
                     .AppendEnumerator(
                         enumerator,
-                        static (ac,e) =>
+                        static (ac, e) =>
                         {
                             ac
                                 .ComposeAndAppend(e.Key)

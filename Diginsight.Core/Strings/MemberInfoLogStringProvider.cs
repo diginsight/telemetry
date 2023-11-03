@@ -135,17 +135,20 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
         }
         else if (IsValueTuple(type, out Type[]? itemTypes))
         {
-            appendingContext.Append(LogStringTokens.TupleBegin);
-            if (itemTypes.Length > 0)
-            {
-                Append(itemTypes[0], appendingContext);
-                foreach (Type itemType in itemTypes.Skip(1))
+            appendingContext.AppendDelimited(
+                LogStringTokens.TupleBegin,
+                LogStringTokens.TupleEnd,
+                ac =>
                 {
-                    stringBuilder.Append(LogStringTokens.Separator);
-                    Append(itemType, appendingContext);
+                    using IEnumerator<Type> enumerator = itemTypes.AsEnumerable().GetEnumerator();
+                    ac.AppendEnumerator(
+                        enumerator,
+                        (ac1, e) => { Append(e.Current, ac1); },
+                        AllottingCounter.Unlimited,
+                        ","
+                    );
                 }
-            }
-            stringBuilder.Append(LogStringTokens.TupleEnd);
+            );
         }
         else if (type.IsGenericType)
         {
@@ -344,7 +347,7 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
 
         public void AppendTo(AppendingContext appendingContext)
         {
-            appendingContext.AppendDirect(assembly.FullName);
+            appendingContext.AppendDirect(assembly.FullName!);
         }
     }
 }

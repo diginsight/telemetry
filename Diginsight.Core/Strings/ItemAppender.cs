@@ -4,18 +4,21 @@ public ref struct ItemAppender
 {
     private readonly AppendingContext appendingContext;
     private readonly AllottingCounter counter;
+    private readonly string separator;
     private bool isAlive;
 
-    internal ItemAppender(AppendingContext appendingContext, AllottingCounter counter, bool isAlive)
+    internal ItemAppender(AppendingContext appendingContext, AllottingCounter counter, string separator, bool isAlive)
     {
         this.appendingContext = appendingContext;
         this.counter = counter;
+        this.separator = separator;
         this.isAlive = isAlive;
     }
 
     public ItemAppender ThenItem(
         object? itemValue,
         bool incrementDepth = true,
+        bool? atomic = null,
         Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
@@ -25,17 +28,18 @@ public ref struct ItemAppender
             return this;
         }
 
-        appendingContext.AppendDirect(LogStringTokens.Separator2);
+        appendingContext.AppendDirect(separator);
 
         try
         {
             counter.Decrement();
+            appendingContext.ThrowIfTimeIsOver();
             isAlive = true;
 
             appendingContext
-                .ComposeAndAppend(itemValue, incrementDepth, configureVariables, configureMetaProperties);
+                .ComposeAndAppend(itemValue, incrementDepth, atomic, configureVariables, configureMetaProperties);
         }
-        catch (MaxAllottedCountShortCircuit)
+        catch (MaxAllottedShortCircuit)
         {
             appendingContext.AppendEllipsis();
             isAlive = false;

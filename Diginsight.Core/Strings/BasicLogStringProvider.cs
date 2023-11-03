@@ -99,6 +99,8 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
                         void AppendItem(int i)
                         {
                             counter.Decrement();
+                            ac.ThrowIfTimeIsOver();
+
                             ac.ComposeAndAppend(tuple[i]);
                         }
 
@@ -109,7 +111,7 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
                             AppendItem(i);
                         }
                     }
-                    catch (MaxAllottedCountShortCircuit)
+                    catch (MaxAllottedShortCircuit)
                     {
                         ac.AppendEllipsis();
                     }

@@ -37,6 +37,7 @@ public static class AppendingContextExtensions
             {
                 counter.Decrement();
                 appendingContext.ThrowIfTimeIsOver();
+
                 appendCurrent(appendingContext, enumerator);
             }
 
@@ -65,11 +66,6 @@ public static class AppendingContextExtensions
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
-        if (appendingContext.IsTimeOver)
-        {
-            return appendingContext.AppendEllipsis();
-        }
-
         appendingContext.AppendDirect(beginDelim);
 
         using (appendingContext.WithVariablesSafe(configureVariables))
@@ -89,7 +85,6 @@ public static class AppendingContextExtensions
         return appendingContext.AppendDirect(endDelim);
     }
 
-    // FIXME StringBuilderExtensions.AppendMap
     public static AppendingContext AppendMap(
         this AppendingContext appendingContext,
         Type mapType,
@@ -99,22 +94,18 @@ public static class AppendingContextExtensions
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
-        //using (appendingContext.WithAtomic())
-        {
-            appendingContext.ComposeAndAppend(mapType, false);
-        }
-
-        return appendingContext.AppendDelimited(
-            LogStringTokens.MapBegin,
-            LogStringTokens.MapEnd,
-            appendContent,
-            incrementDepth,
-            configureVariables,
-            configureMetaProperties
-        );
+        return appendingContext
+            .ComposeAndAppend(mapType, false)
+            .AppendDelimited(
+                LogStringTokens.MapBegin,
+                LogStringTokens.MapEnd,
+                appendContent,
+                incrementDepth,
+                configureVariables,
+                configureMetaProperties
+            );
     }
 
-    // FIXME StringBuilderExtensions.AppendCollection
     public static AppendingContext AppendCollection(
         this AppendingContext appendingContext,
         Type collectionType,
@@ -125,31 +116,29 @@ public static class AppendingContextExtensions
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
-        //using (appendingContext.WithAtomic())
-        {
-            appendingContext
-                .ComposeAndAppend(
-                    collectionType,
-                    false,
-                    configureMetaProperties: x => { x[MemberInfoLogStringProvider.CollectionLengthMetaProperty] = count; }
-                );
-        }
-
-        return appendingContext.AppendDelimited(
-            LogStringTokens.CollectionBegin,
-            LogStringTokens.CollectionEnd,
-            appendContent,
-            incrementDepth,
-            configureVariables,
-            configureMetaProperties
-        );
+        return appendingContext
+            .ComposeAndAppend(
+                collectionType,
+                false,
+                configureMetaProperties: x => { x[MemberInfoLogStringProvider.CollectionLengthMetaProperty] = count; }
+            )
+            .AppendDelimited(
+                LogStringTokens.CollectionBegin,
+                LogStringTokens.CollectionEnd,
+                appendContent,
+                incrementDepth,
+                configureVariables,
+                configureMetaProperties
+            );
     }
 
     public static MemberAppender ComposeAndAppendMember(
         this AppendingContext appendingContext,
         string memberName,
         object? memberValue,
+        string separator = LogStringTokens.Separator2,
         bool incrementDepth = true,
+        bool? atomic = null,
         Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
@@ -160,12 +149,13 @@ public static class AppendingContextExtensions
         try
         {
             counter.Decrement();
+            appendingContext.ThrowIfTimeIsOver();
             isAlive = true;
 
             appendingContext
                 .AppendDirect(memberName)
                 .AppendDirect(LogStringTokens.Value)
-                .ComposeAndAppend(memberValue, incrementDepth, configureVariables, configureMetaProperties);
+                .ComposeAndAppend(memberValue, incrementDepth, atomic, configureVariables, configureMetaProperties);
         }
         catch (MaxAllottedShortCircuit)
         {
@@ -173,13 +163,15 @@ public static class AppendingContextExtensions
             isAlive = false;
         }
 
-        return new MemberAppender(appendingContext, counter, isAlive);
+        return new MemberAppender(appendingContext, counter, separator, isAlive);
     }
 
     public static ItemAppender ComposeAndAppendItem(
         this AppendingContext appendingContext,
         object? itemValue,
+        string separator = LogStringTokens.Separator2,
         bool incrementDepth = true,
+        bool? atomic = null,
         Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
@@ -190,18 +182,19 @@ public static class AppendingContextExtensions
         try
         {
             counter.Decrement();
+            appendingContext.ThrowIfTimeIsOver();
             isAlive = true;
 
             appendingContext
-                .ComposeAndAppend(itemValue, incrementDepth, configureVariables, configureMetaProperties);
+                .ComposeAndAppend(itemValue, incrementDepth, atomic, configureVariables, configureMetaProperties);
         }
-        catch (MaxAllottedCountShortCircuit)
+        catch (MaxAllottedShortCircuit)
         {
             appendingContext.AppendEllipsis();
             isAlive = false;
         }
 
-        return new ItemAppender(appendingContext, counter, isAlive);
+        return new ItemAppender(appendingContext, counter, separator, isAlive);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

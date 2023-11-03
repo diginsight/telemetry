@@ -4,12 +4,14 @@ public ref struct MemberAppender
 {
     private readonly AppendingContext appendingContext;
     private readonly AllottingCounter counter;
+    private readonly string separator;
     private bool isAlive;
 
-    internal MemberAppender(AppendingContext appendingContext, AllottingCounter counter, bool isAlive)
+    internal MemberAppender(AppendingContext appendingContext, AllottingCounter counter, string separator, bool isAlive)
     {
         this.appendingContext = appendingContext;
         this.counter = counter;
+        this.separator = separator;
         this.isAlive = isAlive;
     }
 
@@ -17,6 +19,7 @@ public ref struct MemberAppender
         string memberName,
         object? memberValue,
         bool incrementDepth = true,
+        bool? atomic = null,
         Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
@@ -26,17 +29,18 @@ public ref struct MemberAppender
             return this;
         }
 
-        appendingContext.AppendDirect(LogStringTokens.Separator2);
+        appendingContext.AppendDirect(separator);
 
         try
         {
             counter.Decrement();
+            appendingContext.ThrowIfTimeIsOver();
             isAlive = true;
 
             appendingContext
                 .AppendDirect(memberName)
                 .AppendDirect(LogStringTokens.Value)
-                .ComposeAndAppend(memberValue, incrementDepth, configureVariables, configureMetaProperties);
+                .ComposeAndAppend(memberValue, incrementDepth, atomic, configureVariables, configureMetaProperties);
         }
         catch (MaxAllottedShortCircuit)
         {

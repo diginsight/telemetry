@@ -1,28 +1,38 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text;
-using Timer = System.Timers.Timer;
 
 namespace Diginsight.Strings;
 
-// FIXME AppendingContext
 public sealed class AppendingContext
 {
-    private readonly Stack<StringBuilder> stringBuilders = new ();
+    private readonly StringBuilder stringBuilder;
     private readonly IEnumerable<ILogStringProvider> logStringProviders;
     private readonly ISet<object> renderedObjs = new HashSet<object>(ReferenceEqualityComparer.Instance);
+    private readonly long maxTimeTicks;
+    private readonly Stopwatch? stopwatch;
 
-    private StringBuilder stringBuilder;
     private LogStringVariableConfiguration variableConfiguration;
     private Dictionary<string, object?> metaProperties;
     private int currentDepth = 0;
-    //private bool isAtomic = false;
-    //private bool isTimeOver = false;
+    private bool isTimeOver = false;
 
     public ILogStringVariableConfiguration VariableConfiguration => variableConfiguration;
 
     public IReadOnlyDictionary<string, object?> MetaProperties => metaProperties;
 
-    public bool IsTimeOver { get; private set; } //=> isTimeOver && !isAtomic;
+    public bool IsTimeOver
+    {
+        get
+        {
+            if (isTimeOver)
+                return true;
+            if (stopwatch is null || stopwatch.ElapsedTicks <= maxTimeTicks)
+                return false;
+            stopwatch.Stop();
+            return isTimeOver = true;
+        }
+    }
 
     internal AppendingContext(
         StringBuilder stringBuilder,
@@ -32,42 +42,58 @@ public sealed class AppendingContext
         IEqualityComparer<string> metaPropertyKeyComparer
     )
     {
-        stringBuilders.Push(this.stringBuilder = stringBuilder);
-
+        this.stringBuilder = stringBuilder;
         this.logStringProviders = logStringProviders;
         this.variableConfiguration = variableConfiguration;
         metaProperties = new Dictionary<string, object?>(metaPropertyKeyComparer);
 
         if (maxTime > TimeSpan.Zero)
         {
-            Timer timer = new (maxTime.TotalMilliseconds);
-            timer.Elapsed += (_, _) => IsTimeOver = true;
-            timer.Start();
+            maxTimeTicks = maxTime.Ticks;
+            stopwatch = Stopwatch.StartNew();
+        }
+        else
+        {
+            maxTimeTicks = 0;
+            stopwatch = null;
         }
     }
 
     public AppendingContext ComposeAndAppend(
         object? obj,
         bool incrementDepth = true,
+        bool? atomic = null,
         Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
-        if (IsTimeOver)
+        if (atomic ?? incrementDepth)
         {
-            this.AppendEllipsis();
+            return AppendAtom(ac => ac.ComposeAndAppendCore(obj, incrementDepth, configureVariables, configureMetaProperties));
+        }
+        else
+        {
+            ComposeAndAppendCore(obj, incrementDepth, configureVariables, configureMetaProperties);
             return this;
         }
+    }
 
+    private void ComposeAndAppendCore(
+        object? obj,
+        bool incrementDepth,
+        Action<LogStringVariableConfiguration>? configureVariables,
+        Action<IDictionary<string, object?>>? configureMetaProperties
+    )
+    {
         if (obj == null)
         {
             AppendDirect('□');
-            return this;
+            return;
         }
 
-        using IDisposable? _0 = WithVariablesSafe(configureVariables);
-        using IDisposable? _1 = WithMetaPropertiesSafe(configureMetaProperties);
-        using IDisposable? _2 = this.IncrementDepth(incrementDepth, out bool isMaxDepth);
+        using IDisposable? _1 = WithVariablesSafe(configureVariables);
+        using IDisposable? _2 = WithMetaPropertiesSafe(configureMetaProperties);
+        using IDisposable? _3 = this.IncrementDepth(incrementDepth, out bool isMaxDepth);
 
         ILogStringable? logStringable = obj as ILogStringable;
         if (logStringable is null)
@@ -85,12 +111,12 @@ public sealed class AppendingContext
         if (isMaxDepth && logStringable.IsDeep)
         {
             this.AppendDeep();
-            return this;
+            return;
         }
 
         try
         {
-            using IDisposable? _3 = logStringable.CanCycle ? AddSeen(obj) : null;
+            using IDisposable? _4 = logStringable.CanCycle ? AddSeen(obj) : null;
             logStringable.AppendTo(this);
         }
         catch (AlreadySeenShortCircuit)
@@ -98,8 +124,6 @@ public sealed class AppendingContext
             ComposeAndAppend(type, false)
                 .AppendDirect(LogStringTokens.Cycle);
         }
-
-        return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -123,6 +147,23 @@ public sealed class AppendingContext
         return this;
     }
 
+    public AppendingContext AppendAtom(Action<AppendingContext> appendContent)
+    {
+        int prevLength = stringBuilder.Length;
+        try
+        {
+            ThrowIfTimeIsOver();
+            appendContent(this);
+        }
+        catch (MaxAllottedTimeShortCircuit)
+        {
+            stringBuilder.Remove(prevLength, stringBuilder.Length - prevLength);
+            this.AppendEllipsis();
+        }
+
+        return this;
+    }
+
     public IDisposable? AddSeen(object obj)
     {
         if (obj is ValueType)
@@ -135,13 +176,6 @@ public sealed class AppendingContext
         }
         throw new AlreadySeenShortCircuit();
     }
-
-    //public IDisposable WithAtomic()
-    //{
-    //    bool prevIsAtomic = isAtomic;
-    //    isAtomic = true;
-    //    return new CallbackDisposable(() => { isAtomic = prevIsAtomic; });
-    //}
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IDisposable? WithVariablesSafe(Action<LogStringVariableConfiguration>? configureVariables)

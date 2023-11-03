@@ -45,19 +45,19 @@ internal sealed class PrimitiveLogStringProvider : ILogStringProvider
 
     private sealed class LogStringableFlaggedEnum : ILogStringable
     {
-        private readonly Enum e;
+        private readonly Enum @enum;
 
         public bool IsDeep => false;
         public bool CanCycle => false;
 
-        public LogStringableFlaggedEnum(Enum e)
+        public LogStringableFlaggedEnum(Enum @enum)
         {
-            this.e = e;
+            this.@enum = @enum;
         }
 
         public void AppendTo(AppendingContext appendingContext)
         {
-            Type enumType = e.GetType();
+            Type enumType = @enum.GetType();
 
             Enum[] values;
             Enum zero;
@@ -75,19 +75,16 @@ internal sealed class PrimitiveLogStringProvider : ILogStringProvider
                 }
             }
 
-            Enum[] flaggedValues = values.Where(e.HasFlag).DefaultIfEmpty(zero).ToArray();
-            Enum[] skimmedFlaggedValues = flaggedValues.Where(x => flaggedValues.All(y => x.Equals(y) || !y.HasFlag(x))).ToArray();
+            Enum[] flaggedValues = values.Where(@enum.HasFlag).DefaultIfEmpty(zero).ToArray();
+            IEnumerable<Enum> skimmedFlaggedValues = flaggedValues.Where(x => flaggedValues.All(y => x.Equals(y) || !y.HasFlag(x)));
 
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            appendingContext.AppendDirect(sb => sb.AppendJoin('|', (IEnumerable<Enum>)skimmedFlaggedValues));
-#else
-            stringBuilder.Append(skimmedFlaggedValues[0]);
-            foreach (Enum skimmedFlaggedValue in skimmedFlaggedValues.Skip(1))
-            {
-                stringBuilder.Append('|');
-                stringBuilder.Append(skimmedFlaggedValue);
-            }
-#endif
+            using IEnumerator<Enum> enumerator = skimmedFlaggedValues.GetEnumerator();
+            appendingContext.AppendEnumerator(
+                enumerator,
+                static (ac, e) => { ac.AppendDirect(e.Current.ToString()); },
+                AllottingCounter.Unlimited,
+                "|"
+            );
         }
     }
 }

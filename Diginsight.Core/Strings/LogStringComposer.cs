@@ -4,7 +4,6 @@ using System.Text;
 
 namespace Diginsight.Strings;
 
-// FIXME LogStringComposer
 internal sealed class LogStringComposer : ILogStringComposer
 {
     private readonly IServiceProvider serviceProvider;
@@ -27,7 +26,7 @@ internal sealed class LogStringComposer : ILogStringComposer
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
-        MakeAppendingContext(stringBuilder).ComposeAndAppend(obj, false, configureVariables, configureMetaProperties);
+        MakeAppendingContext(stringBuilder).ComposeAndAppend(obj, false, true, configureVariables, configureMetaProperties);
     }
 
     private AppendingContext MakeAppendingContext(StringBuilder stringBuilder)
