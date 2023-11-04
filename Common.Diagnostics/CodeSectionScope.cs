@@ -88,13 +88,13 @@ namespace Common
 
             this.logger = logger;
 
-            var host = TraceLogger.Host;
+            var services = TraceLogger.Services;
 
             IClassConfigurationGetter classConfigurationGetter = null;
-            if (host != null)
+            if (services != null)
             {
                 var classConfigurationGetterType = classConfigurationGetterGenericType.MakeGenericType(type ?? typeof(CodeSectionScope));
-                try { classConfigurationGetter = host.Services?.GetService(classConfigurationGetterType) as IClassConfigurationGetter; } catch (Exception _) { }
+                try { classConfigurationGetter = services?.GetService(classConfigurationGetterType) as IClassConfigurationGetter; } catch (Exception _) { }
                 this.ClassConfigurationGetter = classConfigurationGetter;
             }
             this.MinimumLogLevel = classConfigurationGetter?.Get("TraceLoggerMinimumLevel", LogLevel.Trace) ?? LogLevel.Trace;
@@ -205,13 +205,13 @@ namespace Common
             this.T = type;
             this.TypeName = typeName;
 
-            var host = TraceLogger.Host;
+            var services = TraceLogger.Services;
 
             IClassConfigurationGetter classConfigurationGetter = null;
-            if (host != null)
+            if (services != null)
             {
                 var classConfigurationGetterType = classConfigurationGetterGenericType.MakeGenericType(type ?? typeof(CodeSectionScope));
-                try { classConfigurationGetter = host.Services?.GetService(classConfigurationGetterType) as IClassConfigurationGetter; } catch (Exception _) { }
+                try { classConfigurationGetter = services?.GetService(classConfigurationGetterType) as IClassConfigurationGetter; } catch (Exception _) { }
                 this.ClassConfigurationGetter = classConfigurationGetter;
             }
             //this.ScopedConfiguration = scopedConfiguration;
@@ -1264,12 +1264,12 @@ namespace Common
             Type loggerType = typeof(ILogger<>);
             loggerType = loggerType.MakeGenericType(new[] { t });
 
-            var host = TraceLogger.Host;
+            var services = TraceLogger.Services;
             var logger = default(ILogger);
-            try { logger = host.Services.GetRequiredService(loggerType) as ILogger; }
+            try { logger = services.GetRequiredService(loggerType) as ILogger; }
             catch (Exception) { }
 
-            //var logger = host.Services.GetRequiredService(loggerType) as ILogger;
+            //var logger = services.GetRequiredService(loggerType) as ILogger;
             //var loggerFactory = TraceLogger.LoggerFactory;
             //var logger = loggerFactory.CreateLogger(loggerType);
 

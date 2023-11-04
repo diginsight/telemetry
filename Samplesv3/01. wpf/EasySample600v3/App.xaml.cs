@@ -199,8 +199,8 @@ namespace EasySample
                 }));
 
             //services.AddApplicationInsightsTelemetry();
-            var aiConnectionString = configuration.GetValue<string>(Constants.APPINSIGHTSCONNECTIONSTRING);
-            services.AddObservability(aiConnectionString, App.Current.GetType().Assembly.GetName().Name, App.Current.GetType().Assembly.GetName().FullName, App.Current.GetType().Assembly.GetName().FullName);
+            //var aiConnectionString = configuration.GetValue<string>(Constants.APPINSIGHTSCONNECTIONSTRING);
+            services.AddObservability(configuration);
 
 
             services.AddScoped<ITraceLoggerMinimumLevel, TraceLoggerMinimumLevel>(sp =>
