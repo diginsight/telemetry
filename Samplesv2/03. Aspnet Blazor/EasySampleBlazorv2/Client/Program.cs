@@ -19,7 +19,7 @@ namespace EasySampleBlazorv2.Client
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
 
-            builder.Logging.SetMinimumLevel(LogLevel.Debug);
+            builder.Logging.SetMinimumLevel(LogLevel.Trace);
 
             var serviceProvider = builder.Services.BuildServiceProvider();
             //// Gets the standard ILoggerProvider (i.e. the console provider)
