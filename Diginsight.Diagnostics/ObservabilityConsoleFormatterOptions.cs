@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging.Console;
+﻿using Microsoft.Extensions.Logging.Console;
 
 namespace Diginsight.Diagnostics;
 

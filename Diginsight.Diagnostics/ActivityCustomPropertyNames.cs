@@ -1,4 +1,4 @@
-namespace Diginsight.Diagnostics;
+﻿namespace Diginsight.Diagnostics;
 
 internal static class ActivityCustomPropertyNames
 {

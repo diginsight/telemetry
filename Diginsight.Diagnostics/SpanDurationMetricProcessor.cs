@@ -1,4 +1,4 @@
-using OpenTelemetry;
+﻿using OpenTelemetry;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 

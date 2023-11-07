@@ -1,4 +1,4 @@
-using OpenTelemetry.Metrics;
+﻿using OpenTelemetry.Metrics;
 using System.Diagnostics.Metrics;
 
 namespace Diginsight.Diagnostics;
