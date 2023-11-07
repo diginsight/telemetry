@@ -1,0 +1,202 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: Common.Diagnostics build and deploy
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'Common.**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'Common.**'
+jobs:
+  installActions:
+    uses: ./.github/workflows/00.InstallActions.yml
+    # with:
+    #   config-path: .github/labeler.yml
+    secrets: inherit
+
+  getCompositeVariables:
+    needs: installActions
+    uses: ./.github/workflows/01.GetCompositeVariables.yml
+    # with:
+    #   config-path: .github/labeler.yml
+    secrets: inherit
+
+  getKeyVaultSecrets:
+    needs: installActions
+    uses: ./.github/workflows/02.GetKeyVaultSecrets.yml
+    # with:
+    #   config-path: .github/labeler.yml
+    secrets: inherit
+
+  build:
+    needs: [getCompositeVariables, getKeyVaultSecrets]
+    # strategy:
+    #   matrix:
+    #     configuration: [Debug, Release]
+    runs-on: self-hosted
+
+    env:  # Define environment variables here
+      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+
+    steps:
+    - name: Run pwsh Dump Variables
+      run: |
+        pwsh -File "scripts/v2/00. DumpVariables.ps1"
+
+    - name: Dump contexts
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+        JOB_CONTEXT: ${{ toJson(job) }}
+        STEPS_CONTEXT: ${{ toJson(steps) }}
+        RUNNER_CONTEXT: ${{ toJson(runner) }}
+        STRATEGY_CONTEXT: ${{ toJson(strategy) }}
+        MATRIX_CONTEXT: ${{ toJson(matrix) }}
+        ENV_CONTEXT: ${{ toJson(env) }}
+        VARS_CONTEXT: ${{ toJson(vars) }}
+        SECRETS_CONTEXT: ${{ toJson(secrets) }}
+        NEEDS_CONTEXT: ${{ toJson(needs) }}
+        INPUTS_CONTEXT: ${{ toJson(inputs) }}
+      run: |
+        echo "$GITHUB_CONTEXT"
+        echo "$env:GITHUB_CONTEXT" >> 01.GITHUB_CONTEXT.log
+        echo "$JOB_CONTEXT"
+        echo "$env:JOB_CONTEXT" >> 02.JOB_CONTEXT.log
+        echo "$STEPS_CONTEXT"
+        echo "$env:STEPS_CONTEXT" >> 03.STEPS_CONTEXT.log
+        echo "$RUNNER_CONTEXT"
+        echo "$env:RUNNER_CONTEXT" >> 04.RUNNER_CONTEXT.log
+        echo "$STRATEGY_CONTEXT"
+        echo "$env:STRATEGY_CONTEXT" >> 05.STRATEGY_CONTEXT.log
+        echo "$MATRIX_CONTEXT"
+        echo "$env:MATRIX_CONTEXT" >> 06.MATRIX_CONTEXT.log
+        echo "$ENV_CONTEXT"
+        echo "$env:ENV_CONTEXT" >> 07.ENV_CONTEXT.log
+        echo "$VARS_CONTEXT"
+        echo "$env:VARS_CONTEXT" >> 08.VARS_CONTEXT.log
+        echo "$SECRETS_CONTEXT"
+        echo "$env:SECRETS_CONTEXT" >> 10.SECRETS_CONTEXT.log
+        echo "$NEEDS_CONTEXT"
+        echo "$env:NEEDS_CONTEXT" >> 11.NEEDS_CONTEXT.log
+        echo "$INPUTS_CONTEXT"
+        echo "$env:INPUTS_CONTEXT" >> 12.INPUTS_CONTEXT.log
+
+    - name: Set Assemblies Version
+      run: |
+        $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables.outputs.assemblyVersion }}"
+        Write-Host "Setting assembly version to: $env:ASSEMBLY_VERSION"
+        # (Get-Content Common.Diagnostics/Common.Diagnostics.csproj) -replace '<Version>.*<\/Version>', "<Version>$env:ASSEMBLY_VERSION</Version>" | Set-Content Common.Diagnostics/Common.Diagnostics.csproj
+        # Define the replacement pattern
+        $csprojFiles = Get-ChildItem -Path . -Filter "*.csproj" -Recurse
+        Write-Host "csprojFiles: $csprojFiles"
+        $pattern = '<Version>.*<\/Version>'
+        $replacement = "<Version>$env:ASSEMBLY_VERSION</Version>"
+        $csprojFiles | %{ (Get-Content $_.FullName) -replace $pattern, $replacement | Set-Content $_.FullName }
+
+    - name: Restore dependencies
+      run: dotnet restore Common.Diagnostics.Build.sln 
+      
+    - name: Build DLL Debug
+      run: dotnet build Common.Diagnostics.Build.sln --configuration Debug --no-restore 
+      # --verbosity detailed
+      
+    - name: Build DLL Release
+      run: dotnet build Common.Diagnostics.Build.sln --configuration Release --no-restore 
+      # --verbosity detailed
+      
+    - name: Copy bin folder to artifactFolder Release
+      run: |
+        $source = "."
+        $destination = "artifactFolder\Release"
+        New-Item -Path $destination -ItemType Directory -Force
+        # Copy-Item -Path $source -Destination $destination -Recurse 
+        $nupkgFiles = Get-ChildItem -Path $source -Filter "*.nupkg" -File -Recurse | Where-Object { $_.DirectoryName -like "*Release*" }
+        Write-Host "nupkgFiles: $nupkgFiles"
+        # Copy .nupkg files to the destination directory (keeping their folder structure)
+        $nupkgFiles | %{ Copy-Item -Path $_.FullName -Destination $destination -Container -Force }
+
+    - name: Copy bin folder to artifactFolder Debug
+      run: |
+        $source = "."
+        $destination = "artifactFolder\Debug"
+        New-Item -Path $destination -ItemType Directory -Force
+        # Copy-Item -Path $source -Destination $destination -Recurse 
+        # Get all .nupkg files in the source directory and its subdirectories
+        $nupkgFiles = Get-ChildItem -Path $source -Filter "*.nupkg" -File -Recurse | Where-Object { $_.DirectoryName -like "*Debug*" }
+        Write-Host "nupkgFiles: $nupkgFiles"
+        $nupkgFiles | %{ Copy-Item -Path $_.FullName -Destination $destination -Container -Force }
+
+    - name: Upload bin folder as an Artifact
+      uses: actions/upload-artifact@v3.1.2
+      with:
+        name: artifact
+        path: |
+          artifactFolder
+        if-no-files-found: warn
+        retention-days: 1
+    
+    # - name: Test
+    #   run: dotnet test --no-build --verbosity normal
+
+  publishNugetPackage:
+    needs: [getCompositeVariables, getKeyVaultSecrets, build]
+    strategy:
+      matrix:
+        configuration: [Release]
+    runs-on: self-hosted
+
+    env:
+      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: artifact  # Name of the uploaded artifact
+          path: artifactFolder
+
+      - name: Publish NuGet package
+        run: |
+          $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables.outputs.assemblyVersion }}"
+          Write-Host "Setting assembly version to: $env:ASSEMBLY_VERSION"
+          dotnet nuget push artifactFolder/Release/Common.Diagnostics.$env:ASSEMBLY_VERSION.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
+
+  upload2AzureFolder:
+    needs: [getCompositeVariables, getKeyVaultSecrets, build]
+    strategy:
+      matrix:
+        configuration: [Release]
+    runs-on: self-hosted
+
+    env:
+      azureShare: azureshare
+      packagesFolder: artifactFolder
+      rootDir: '\_releases\97. Diginsight'
+      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: artifact  # Name of the uploaded artifact
+          path: artifactFolder
+
+      - name: Upload artifacts to azure folder
+        run: |
+          $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables.outputs.assemblyVersion }}"
+          Write-Host "ASSEMBLY_VERSION: $env:ASSEMBLY_VERSION"
+          $env:CONNECTIONSTRINGDEVDGWSAMPLESSTORAGE="${{ needs.getKeyVaultSecrets.outputs.ConnectionStringDevdgwsamplesstorage }}"
+          $env:default_branch="${{ github.event.repository.default_branch }}"
+          $env:repository="${{ github.repository }}"
+          Write-Host "CONNECTIONSTRINGDEVDGWSAMPLESSTORAGE: $env:CONNECTIONSTRINGDEVDGWSAMPLESSTORAGE"
+          Write-Host "azureShare: $env:azureShare"
+          Write-Host "packagesFolder: $env:packagesFolder"
+          Write-Host "rootDir: $env:rootDir"
+          Write-Host "default_branch: $env:default_branch"
+          Write-Host "repository: $env:repository"
+          pwsh -File "scripts/v2/06. Copy2AzureStorage.ps1" -connectionString "$env:CONNECTIONSTRINGDEVDGWSAMPLESSTORAGE" -sourceFolder $env:packagesFolder -azureShare "$env:azureShare" -rootDir "$env:rootDir" -version "$env:ASSEMBLY_VERSION" -branch $env:default_branch -repository $env:repository
+

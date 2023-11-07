@@ -56,7 +56,7 @@ namespace EasySample
                 // builder.AddRedisInstrumentation();
 
                 builder.AddSource("Azure.*");
-                builder.AddSource(App.ActivitySource.Name);
+                builder.AddSource(TraceLogger.ActivitySource.Name);
                 // builder.AddSource(KeyVaultSampleMetrics.Instance.ObservabilityName);
                 //builder.SetSampler(serviceProvider => new HttpHeaderSampler(serviceProvider, new ParentBasedSampler(new TraceIdRatioBasedSampler(openTelemetryOptions.TracingSamplingRatio))));
                 //builder.AddOtlpExporter(options =>
@@ -77,7 +77,7 @@ namespace EasySample
             //    // builder.AddRedisInstrumentation();
 
             //    builder.AddSource("Azure.*");
-            //    builder.AddSource(App.ActivitySource.Name);
+            //    builder.AddSource(TraceLogger.ActivitySource.Name);
             //    builder.AddSource(KeyVaultSampleMetrics.Instance.ObservabilityName);
             //    //builder.SetSampler(serviceProvider => new HttpHeaderSampler(serviceProvider, new ParentBasedSampler(new TraceIdRatioBasedSampler(openTelemetryOptions.TracingSamplingRatio))));
             //    //builder.AddOtlpExporter(options =>

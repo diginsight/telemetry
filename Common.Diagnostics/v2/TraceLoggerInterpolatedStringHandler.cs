@@ -173,7 +173,7 @@ namespace Common
             : this(literalLength,
                    formattedCount,
                    CodeSectionScope.Current.Value != null ? CodeSectionScope.Current.Value.GetInnerSection()
-                                                          : new CodeSectionScope(logger,
+                                                          : new CodeSectionScope(null, logger,
                                                                                  typeof(InternalClass),
                                                                                  null,
                                                                                  null,
@@ -260,7 +260,7 @@ namespace Common
             : this(literalLength,
                    formattedCount,
                    CodeSectionScope.Current.Value != null ? CodeSectionScope.Current.Value.GetInnerSection()
-                                                          : new CodeSectionScope(logger,
+                                                          : new CodeSectionScope(null, logger,
                                                                                  typeof(InternalClass),
                                                                                  null,
                                                                                  null,
@@ -347,7 +347,7 @@ namespace Common
             : this(literalLength,
                    formattedCount,
                    CodeSectionScope.Current.Value != null ? CodeSectionScope.Current.Value.GetInnerSection()
-                                                          : new CodeSectionScope(logger,
+                                                          : new CodeSectionScope(null, logger,
                                                                                  typeof(InternalClass),
                                                                                  null,
                                                                                  null,
@@ -434,7 +434,7 @@ namespace Common
             : this(literalLength,
                    formattedCount,
                    CodeSectionScope.Current.Value != null ? CodeSectionScope.Current.Value.GetInnerSection()
-                                                          : new CodeSectionScope(logger,
+                                                          : new CodeSectionScope(null, logger,
                                                                                  typeof(InternalClass),
                                                                                  null,
                                                                                  null,
@@ -521,7 +521,7 @@ namespace Common
             : this(literalLength,
                    formattedCount,
                    CodeSectionScope.Current.Value != null ? CodeSectionScope.Current.Value.GetInnerSection()
-                                                          : new CodeSectionScope(logger,
+                                                          : new CodeSectionScope(null, logger,
                                                                                  typeof(InternalClass),
                                                                                  null,
                                                                                  null,
@@ -608,7 +608,7 @@ namespace Common
             : this(literalLength,
                    formattedCount,
                    CodeSectionScope.Current.Value != null ? CodeSectionScope.Current.Value.GetInnerSection()
-                                                          : new CodeSectionScope(logger,
+                                                          : new CodeSectionScope(null, logger,
                                                                                  typeof(InternalClass),
                                                                                  null,
                                                                                  null,
@@ -665,7 +665,7 @@ namespace Common
     //    }
 
     //    public DebugLoggerInterpolatedStringHandler(int literalLength, int formattedCount, ILogger logger, out bool isEnabled, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0) // isEnalbed
-    //        : this(literalLength, formattedCount, CodeSectionScope.Current.Value != null ? CodeSectionScope.Current.Value.GetInnerSection() : new CodeSectionScope(logger, typeof(InternalClass), null, null, null, SourceLevels.Verbose, LogLevel.Trace, null, null, null, TraceManager.Stopwatch.ElapsedTicks, memberName, sourceFilePath, sourceLineNumber, true), out isEnabled)
+    //        : this(literalLength, formattedCount, CodeSectionScope.Current.Value != null ? CodeSectionScope.Current.Value.GetInnerSection() : new CodeSectionScope(null, logger, typeof(InternalClass), null, null, null, SourceLevels.Verbose, LogLevel.Trace, null, null, null, TraceManager.Stopwatch.ElapsedTicks, memberName, sourceFilePath, sourceLineNumber, true), out isEnabled)
     //    {
     //    }
 
@@ -718,7 +718,7 @@ namespace Common
     //    }
 
     //    public InformationLoggerInterpolatedStringHandler(int literalLength, int formattedCount, ILogger logger, out bool isEnabled, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0) // isEnalbed
-    //        : this(literalLength, formattedCount, CodeSectionScope.Current.Value != null ? CodeSectionScope.Current.Value.GetInnerSection() : new CodeSectionScope(logger, typeof(InternalClass), null, null, null, SourceLevels.Verbose, LogLevel.Trace, null, null, null, TraceManager.Stopwatch.ElapsedTicks, memberName, sourceFilePath, sourceLineNumber, true), out isEnabled)
+    //        : this(literalLength, formattedCount, CodeSectionScope.Current.Value != null ? CodeSectionScope.Current.Value.GetInnerSection() : new CodeSectionScope(null, logger, typeof(InternalClass), null, null, null, SourceLevels.Verbose, LogLevel.Trace, null, null, null, TraceManager.Stopwatch.ElapsedTicks, memberName, sourceFilePath, sourceLineNumber, true), out isEnabled)
     //    {
     //    }
 
@@ -772,7 +772,7 @@ namespace Common
     //    }
 
     //    public WarningLoggerInterpolatedStringHandler(int literalLength, int formattedCount, ILogger logger, out bool isEnabled, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0) // isEnalbed
-    //        : this(literalLength, formattedCount, CodeSectionScope.Current.Value != null ? CodeSectionScope.Current.Value.GetInnerSection() : new CodeSectionScope(logger, typeof(InternalClass), null, null, null, SourceLevels.Verbose, LogLevel.Trace, null, null, null, TraceManager.Stopwatch.ElapsedTicks, memberName, sourceFilePath, sourceLineNumber, true), out isEnabled)
+    //        : this(literalLength, formattedCount, CodeSectionScope.Current.Value != null ? CodeSectionScope.Current.Value.GetInnerSection() : new CodeSectionScope(null, logger, typeof(InternalClass), null, null, null, SourceLevels.Verbose, LogLevel.Trace, null, null, null, TraceManager.Stopwatch.ElapsedTicks, memberName, sourceFilePath, sourceLineNumber, true), out isEnabled)
     //    {
     //    }
 
@@ -826,7 +826,7 @@ namespace Common
     //    }
 
     //    public ErrorLoggerInterpolatedStringHandler(int literalLength, int formattedCount, ILogger logger, out bool isEnabled, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0) // isEnalbed
-    //        : this(literalLength, formattedCount, CodeSectionScope.Current.Value != null ? CodeSectionScope.Current.Value.GetInnerSection() : new CodeSectionScope(logger, typeof(InternalClass), null, null, null, SourceLevels.Verbose, LogLevel.Trace, null, null, null, TraceManager.Stopwatch.ElapsedTicks, memberName, sourceFilePath, sourceLineNumber, true), out isEnabled)
+    //        : this(literalLength, formattedCount, CodeSectionScope.Current.Value != null ? CodeSectionScope.Current.Value.GetInnerSection() : new CodeSectionScope(null, logger, typeof(InternalClass), null, null, null, SourceLevels.Verbose, LogLevel.Trace, null, null, null, TraceManager.Stopwatch.ElapsedTicks, memberName, sourceFilePath, sourceLineNumber, true), out isEnabled)
     //    {
     //    }
 
@@ -880,7 +880,7 @@ namespace Common
     //    }
 
     //    public CriticalLoggerInterpolatedStringHandler(int literalLength, int formattedCount, ILogger logger, out bool isEnabled, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0) // isEnalbed
-    //        : this(literalLength, formattedCount, CodeSectionScope.Current.Value != null ? CodeSectionScope.Current.Value.GetInnerSection() : new CodeSectionScope(logger, typeof(InternalClass), null, null, null, SourceLevels.Verbose, LogLevel.Trace, null, null, null, TraceManager.Stopwatch.ElapsedTicks, memberName, sourceFilePath, sourceLineNumber, true), out isEnabled)
+    //        : this(literalLength, formattedCount, CodeSectionScope.Current.Value != null ? CodeSectionScope.Current.Value.GetInnerSection() : new CodeSectionScope(null, logger, typeof(InternalClass), null, null, null, SourceLevels.Verbose, LogLevel.Trace, null, null, null, TraceManager.Stopwatch.ElapsedTicks, memberName, sourceFilePath, sourceLineNumber, true), out isEnabled)
     //    {
     //    }
 

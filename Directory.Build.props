@@ -22,6 +22,9 @@
 
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)diginsight.snk</AssemblyOriginatorKeyFile>
+
+	  <OpenTelemetryVersion>1.*</OpenTelemetryVersion>
+	  <OpenTelemetryBetaVersion>1.5.*-*</OpenTelemetryBetaVersion>
   </PropertyGroup>
 
 </Project>

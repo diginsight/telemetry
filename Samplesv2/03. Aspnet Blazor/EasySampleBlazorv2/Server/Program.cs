@@ -13,6 +13,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.Extensions.Logging.Debug;
 using Microsoft.Extensions.Logging.AzureAppServices;
+using OpenTelemetry.Trace;
 #endregion
 
 namespace EasySampleBlazorv2.Server
@@ -70,6 +71,7 @@ namespace EasySampleBlazorv2.Server
                           });
 
             var host = builder.Build();
+            _ = host.Services.GetRequiredService<TracerProvider>();
 
             host.InitTraceLogger();
 

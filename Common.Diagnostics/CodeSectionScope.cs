@@ -18,6 +18,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using NanoId = Nanoid.Nanoid;
 using Microsoft.AspNetCore.Http;
+using Microsoft.VisualBasic;
+//using static System.Formats.Asn1.AsnWriter;
 #endregion
 
 namespace Common
@@ -25,6 +27,7 @@ namespace Common
     public class CodeSectionScope : CodeSectionBase, ICodeSection, IDisposable, ICloneable, ICodeSectionLogger
     {
         public ILogger logger = null;
+        public ActivitySource activitySource = null;
         public static readonly Type classConfigurationGetterGenericType = typeof(IClassConfigurationGetter<>);
 
 
@@ -67,7 +70,7 @@ namespace Common
             this.ModuleContext = pCopy.ModuleContext;
         }
 
-        public CodeSectionScope(ILogger logger, Type type, string name = null, object payload = null,
+        public CodeSectionScope(ActivitySource activitySource, ILogger logger, Type type, string name = null, object payload = null,
                                 TraceSource traceSource = null, SourceLevels sourceLevel = SourceLevels.Verbose, LogLevel logLevel = LogLevel.Debug,
                                 string category = null, IDictionary<string, object> properties = null, string source = null, long startTicks = 0,
                                 [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0,
@@ -87,21 +90,14 @@ namespace Common
 
             var host = TraceLogger.Host;
 
-            //if (traceLoggerMinimumLevelService == null && host != null) { try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { } }
-            //this.TraceLoggerMinimumLevelService = traceLoggerMinimumLevelService;
-            //this.MinimumLogLevel = traceLoggerMinimumLevelService?.MinimumLevel ?? LogLevel.Trace;
-            //IHttpContextAccessor httpContextAccessor = null;
             IClassConfigurationGetter classConfigurationGetter = null;
             if (host != null)
             {
-                //try { httpContextAccessor = host.Services?.GetService<IHttpContextAccessor>(); } catch (Exception _) { }
-                //try { scopedConfiguration = httpContextAccessor?.HttpContext?.RequestServices?.GetService(scopedClassConfigurationGetterType) as IScopedConfiguration; } catch (Exception _) { }
                 var classConfigurationGetterType = classConfigurationGetterGenericType.MakeGenericType(type ?? typeof(CodeSectionScope));
-                classConfigurationGetter = host.Services?.GetService(classConfigurationGetterType) as IClassConfigurationGetter;
+                try { classConfigurationGetter = host.Services?.GetService(classConfigurationGetterType) as IClassConfigurationGetter; } catch (Exception _) { }
                 this.ClassConfigurationGetter = classConfigurationGetter;
             }
-            //this.ScopedConfiguration = scopedConfiguration;
-            this.MinimumLogLevel = classConfigurationGetter?.Get("MinimumLevel", LogLevel.Trace) ?? LogLevel.Trace;
+            this.MinimumLogLevel = classConfigurationGetter?.Get("TraceLoggerMinimumLevel", LogLevel.Trace) ?? LogLevel.Trace;
             this.PublishFlow = classConfigurationGetter?.Get("PublishFlow", false) ?? false;
             this.PublishMetrics = classConfigurationGetter?.Get("PublishMetrics", false) ?? false;
             //this._isLogEnabled = logLevel >= this.MinimumLogLevel;
@@ -152,6 +148,19 @@ namespace Common
 
             if (this.DisableStartEndTraces == true) { return; }
 
+            if (this.PublishFlow || this.PublishMetrics)
+            {
+                var fullCallerMemberName = !string.IsNullOrEmpty(this.Name) ? $"{this.MemberName}.{this.Name}" : this.MemberName;
+                if (activitySource == null) { activitySource = TraceLogger.ActivitySource; }
+                var activity = activitySource.StartActivity($"{type?.Name ?? this.ClassName}.{fullCallerMemberName}"); // , ActivityKind.Internal
+                //activity.SetCustomProperty("Scope", scope);
+                //activity.SetCustomProperty("Logger", logger);
+                //activity.SetCustomProperty("LogLevel", logLevel);
+                //activity.SetCustomProperty("Payload", payload);
+                if (this.Properties == null) { this.Properties = new Dictionary<string, object>(); }
+                this.Properties.Add("Activity", activity);
+            }
+
             // if (this?._isLogEnabled == false) { return; }
             if (logLevel < this.MinimumLogLevel) { return; }
 
@@ -174,7 +183,7 @@ namespace Common
             }
         }
 
-        internal CodeSectionScope(ILogger logger, string typeName, string name = null, object payload = null,
+        internal CodeSectionScope(ActivitySource activitySource, ILogger logger, string typeName, string name = null, object payload = null,
                                   TraceSource traceSource = null, SourceLevels sourceLevel = SourceLevels.Verbose, LogLevel logLevel = LogLevel.Debug,
                                   string category = null, IDictionary<string, object> properties = null, string source = null, long startTicks = 0,
                                   [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0,
@@ -197,17 +206,12 @@ namespace Common
             this.TypeName = typeName;
 
             var host = TraceLogger.Host;
-            //if (traceLoggerMinimumLevelService == null && host != null) { try { traceLoggerMinimumLevelService = host.Services?.GetService<ITraceLoggerMinimumLevel>(); } catch (Exception _) { } }
-            //this.TraceLoggerMinimumLevelService = traceLoggerMinimumLevelService;
-            //this.MinimumLogLevel = traceLoggerMinimumLevelService?.MinimumLevel ?? LogLevel.Trace;
-            //this._isLogEnabled = logLevel >= this.MinimumLogLevel;
+
             IClassConfigurationGetter classConfigurationGetter = null;
             if (host != null)
             {
-                //try { httpContextAccessor = host.Services?.GetService<IHttpContextAccessor>(); } catch (Exception _) { }
-                //try { scopedConfiguration = httpContextAccessor?.HttpContext?.RequestServices?.GetService(scopedClassConfigurationGetterType) as IScopedConfiguration; } catch (Exception _) { }
                 var classConfigurationGetterType = classConfigurationGetterGenericType.MakeGenericType(type ?? typeof(CodeSectionScope));
-                classConfigurationGetter = host.Services?.GetService(classConfigurationGetterType) as IClassConfigurationGetter;
+                try { classConfigurationGetter = host.Services?.GetService(classConfigurationGetterType) as IClassConfigurationGetter; } catch (Exception _) { }
                 this.ClassConfigurationGetter = classConfigurationGetter;
             }
             //this.ScopedConfiguration = scopedConfiguration;
@@ -239,7 +243,6 @@ namespace Common
 
             if (disableStartEndTraces == false) { CodeSectionBase.Current.Value = this; }
 
-            // if _overrideOperationId properties
             if (Caller != null)
             {
                 if (disableStartEndTraces == false) { NestingLevel = Caller.NestingLevel + 1; }
@@ -268,6 +271,19 @@ namespace Common
             //this.ModuleContext = this.Assembly != null ? LoggerFormatter.GetModuleContext(this.Assembly) : null;
 
             if (this.DisableStartEndTraces == true) { return; }
+
+            if (this.PublishFlow || this.PublishMetrics)
+            {
+                var fullCallerMemberName = !string.IsNullOrEmpty(this.Name) ? $"{this.MemberName}.{this.Name}" : this.MemberName;
+                if (activitySource == null) { activitySource = TraceLogger.ActivitySource; }
+                var activity = activitySource.StartActivity($"{type?.Name ?? this.ClassName}.{fullCallerMemberName}"); // , ActivityKind.Internal
+                //activity.SetCustomProperty("Scope", scope);
+                //activity.SetCustomProperty("Logger", logger);
+                //activity.SetCustomProperty("LogLevel", logLevel);
+                //activity.SetCustomProperty("Payload", payload);
+                if (this.Properties == null) { this.Properties = new Dictionary<string, object>(); }
+                this.Properties.Add("Activity", activity);
+            }
 
             //if (this?._isLogEnabled == false) { return; }
             if (logLevel < this.MinimumLogLevel) { return; }

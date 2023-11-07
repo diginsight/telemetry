@@ -145,7 +145,7 @@ namespace Common
         #endregion
 
         public void Trace(object obj, string category = null, IDictionary<string, object> properties = null, string source = null, bool disableCRLFReplace = false)
-        {
+        { 
             var startTicks = TraceManager.Stopwatch.ElapsedTicks;
             if (TraceSource?.Switch != null && !TraceSource.Switch.ShouldTrace(TraceEventType.Verbose)) { return; }
 

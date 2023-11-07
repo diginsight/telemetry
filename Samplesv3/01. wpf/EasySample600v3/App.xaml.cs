@@ -45,7 +45,7 @@ namespace EasySample
         const string CONFIGVALUE_APPINSIGHTSKEY = "AppInsightsKey", DEFAULTVALUE_APPINSIGHTSKEY = "";
 
         static Type T = typeof(App);
-        public static ActivitySource ActivitySource = new ActivitySource(typeof(App).Assembly.GetName().Name); // , "1.0.0"
+        //public static ActivitySource ActivitySource = new ActivitySource(typeof(App).Assembly.GetName().Name); // , "1.0.0"
 
         public static IHost Host;
         private ILogger<App> _logger;
@@ -53,7 +53,7 @@ namespace EasySample
         static App()
         {
             using var scope = TraceLogger.BeginMethodScope(T);
-            using Activity activity = ActivitySource.StartActivity(); // TraceLogger.GetMethodName()
+            using Activity activity = TraceLogger.ActivitySource.StartActivity(); // TraceLogger.GetMethodName()
 
             //ActivitySource.AddActivityListener(new ActivityListener()
             //{
@@ -76,7 +76,7 @@ namespace EasySample
 
         public App()
         {
-            using Activity activity = ActivitySource.StartActivity(); // TraceLogger.GetMethodName()
+            using Activity activity = TraceLogger.ActivitySource.StartActivity(); // TraceLogger.GetMethodName()
             using (var scope = Host.BeginMethodScope(T))
             {
             }
@@ -86,7 +86,7 @@ namespace EasySample
             var logger = Host.GetLogger<App>();
             //using var scope = logger.BeginMethodScope();
             //using Activity activity = ActivitySource.StartActivity(TraceLogger.GetMethodName());
-            using var scope = App.ActivitySource.StartMethodActivity(logger);
+            using var scope = TraceLogger.ActivitySource.StartMethodActivity(logger);
 
             //using var tracerProvider = Sdk.CreateTracerProviderBuilder()
             //                              .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("EasySample600v3"))
