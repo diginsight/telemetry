@@ -14,19 +14,19 @@ namespace Diginsight.Diagnostics;
 internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
 {
     private readonly ILogger<ObservabilityLogProcessor> logger;
-    private readonly ILogStringComposer logStringComposer;
+    private readonly IAppendingContextFactory appendingContextFactory;
     private readonly IClassConfigurationGetterProvider classConfigurationGetterProvider;
     private readonly IOptionsMonitor<ObservabilityOptions> observabilityOptionsMonitor;
 
     public ObservabilityLogProcessor(
         ILogger<ObservabilityLogProcessor> logger,
-        ILogStringComposer logStringComposer,
+        IAppendingContextFactory appendingContextFactory,
         IClassConfigurationGetterProvider classConfigurationGetterProvider,
         IOptionsMonitor<ObservabilityOptions> observabilityOptionsMonitor
     )
     {
         this.logger = logger;
-        this.logStringComposer = logStringComposer;
+        this.appendingContextFactory = appendingContextFactory;
         this.classConfigurationGetterProvider = classConfigurationGetterProvider;
         this.observabilityOptionsMonitor = observabilityOptionsMonitor;
     }
@@ -90,7 +90,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
                 }
 
                 string propertyName = property.Name;
-                string propertyValue = logStringComposer.MakeLogString(property.GetValue(inputs));
+                string propertyValue = appendingContextFactory.MakeLogString(property.GetValue(inputs));
 
                 inputsAsDict[$"Inputs.{propertyName}"] = propertyValue;
                 sb.Append($"{propertyName}{LogStringTokens.Value}{propertyValue}");
@@ -146,7 +146,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
                 throw new InvalidOperationException("Invalid output in activity");
         }
 
-        string outputAsString = logStringComposer.MakeLogString(output);
+        string outputAsString = appendingContextFactory.MakeLogString(output);
 
         otlpLogger.Log(
             logLevel,

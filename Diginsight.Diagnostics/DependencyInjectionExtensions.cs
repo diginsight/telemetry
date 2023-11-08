@@ -59,7 +59,7 @@ public static class DependencyInjectionExtensions
     {
         return tracerProviderBuilder
             .AddProcessor<ObservabilityLogProcessor>()
-            .ConfigureServices(static services => services.AddLogStringComposer());
+            .ConfigureServices(static services => services.AddLogStrings());
     }
 
     public static MeterProviderBuilder AddViews(

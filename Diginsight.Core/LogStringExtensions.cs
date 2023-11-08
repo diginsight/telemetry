@@ -1,7 +1,6 @@
 ﻿using Diginsight.Strings;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using System.Collections;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -32,25 +31,25 @@ public static class LogStringExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string ToLogString(
         this object? obj,
-        ILogStringComposer? logStringComposer = null,
+        IAppendingContextFactory? appendingContextFactory = null,
         Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
-        return (logStringComposer ?? LogStringComposers.Default)
+        return (appendingContextFactory ?? AppendingContextFactoryBuilder.DefaultFactory)
             .MakeLogString(obj, configureVariables, configureMetaProperties);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string MakeLogString(
-        this ILogStringComposer logStringComposer,
+        this IAppendingContextFactory appendingContextFactory,
         object? obj,
         Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
         StringBuilder stringBuilder = new ();
-        logStringComposer.ComposeTo(obj, stringBuilder, configureVariables, configureMetaProperties);
+        appendingContextFactory.MakeAppendingContext(stringBuilder).ComposeAndAppend(obj, false, true, configureVariables, configureMetaProperties);
         return stringBuilder.ToString();
     }
 

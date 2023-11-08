@@ -19,14 +19,14 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddLogStringComposer(this IServiceCollection services)
+    public static IServiceCollection AddLogStrings(this IServiceCollection services)
     {
-        if (services.Any(static x => x.ServiceType == typeof(ILogStringComposer)))
+        if (services.Any(static x => x.ServiceType == typeof(IAppendingContextFactory)))
             return services;
 
         return services
             .AddOptions()
-            .AddSingleton<ILogStringComposer, LogStringComposer>()
+            .AddSingleton<IAppendingContextFactory, AppendingContextFactory>()
             .AddSingleton<IMemberInfoLogStringProvider, MemberInfoLogStringProvider>()
             .AddSingleton<IReflectionLogStringHelper, ReflectionLogStringHelper>();
     }

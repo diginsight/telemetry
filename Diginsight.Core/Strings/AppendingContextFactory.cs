@@ -4,12 +4,12 @@ using System.Text;
 
 namespace Diginsight.Strings;
 
-internal sealed class LogStringComposer : ILogStringComposer
+internal sealed class AppendingContextFactory : IAppendingContextFactory
 {
     private readonly IServiceProvider serviceProvider;
     private readonly ILogStringOverallConfiguration overallConfiguration;
 
-    public LogStringComposer(
+    public AppendingContextFactory(
         IServiceProvider serviceProvider,
         IOptions<LogStringOverallConfiguration> overallConfigurationOptions
     )
@@ -18,18 +18,7 @@ internal sealed class LogStringComposer : ILogStringComposer
         overallConfiguration = overallConfigurationOptions.Value;
     }
 
-    // TODO MaxLength
-    public void ComposeTo(
-        object? obj,
-        StringBuilder stringBuilder,
-        Action<LogStringVariableConfiguration>? configureVariables = null,
-        Action<IDictionary<string, object?>>? configureMetaProperties = null
-    )
-    {
-        MakeAppendingContext(stringBuilder).ComposeAndAppend(obj, false, true, configureVariables, configureMetaProperties);
-    }
-
-    private AppendingContext MakeAppendingContext(StringBuilder stringBuilder)
+    public AppendingContext MakeAppendingContext(StringBuilder stringBuilder)
     {
         ILogStringProvider[] logStringProviders = overallConfiguration.Registrations
             .Select(static x => x ?? throw new ArgumentNullException($"item in {nameof(ILogStringOverallConfiguration)}.{nameof(ILogStringOverallConfiguration.Registrations)}", (Exception?)null))
@@ -62,8 +51,8 @@ internal sealed class LogStringComposer : ILogStringComposer
         );
     }
 
-    public LogStringComposerBuilder PrepareClone()
+    public AppendingContextFactoryBuilder PrepareClone()
     {
-        return new LogStringComposerBuilder().Configure(overallConfiguration);
+        return new AppendingContextFactoryBuilder().Configure(overallConfiguration);
     }
 }

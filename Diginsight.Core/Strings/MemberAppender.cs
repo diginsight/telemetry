@@ -1,6 +1,6 @@
 ﻿namespace Diginsight.Strings;
 
-public ref struct MemberAppender
+public sealed class MemberAppender
 {
     private readonly AppendingContext appendingContext;
     private readonly AllottingCounter counter;

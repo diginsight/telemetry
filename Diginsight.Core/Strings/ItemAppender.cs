@@ -1,6 +1,6 @@
 ﻿namespace Diginsight.Strings;
 
-public ref struct ItemAppender
+public sealed class ItemAppender
 {
     private readonly AppendingContext appendingContext;
     private readonly AllottingCounter counter;
