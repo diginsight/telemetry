@@ -1,6 +1,6 @@
 # INTRODUCTION 
 
-__Common.Diagnostics__ is a .Net package that provides readable log with __application execution flow__ to __.Net Log providers__ such as __Log4Net, Serilog or Application Insights, Console, EventLog and Debug__ __DotNet Log providers__.<br>
+__Common.Diagnostics__ is a .net package that provides a readable __application execution flow__ to __.Net Log providers__ such as __Log4Net, Serilog or Application Insights, Console, EventLog and Debug__ __DotNet Log providers__.<br>
 
 This makes the application flow fully observable, __still without compromises on performance__.<br>
 
