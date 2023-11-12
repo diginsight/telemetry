@@ -274,8 +274,16 @@ as an alternative, you can start testing the __EasySampleBlazorv2.Server__ sampl
 ![Alt text](/images/v3/16.DiginsightServerSample.png)
 
 # Build and Test 
-Clone the repository, open and build solution Common.Diagnostics.sln. 
-run EasySample and open the log file in your **\Log** folder.
+You can easily test Diginsight integration with OpenTelemetry by means of the EasySampleBlazorv2 project:
+- Clone diginsight repository
+- Open and build solution Common.Diagnostics.sln. 
+- Set the __EastSample600v2__ as the startup project
+![Alt text](<03. EasySample600v2 project.png>)
+- run the sample
+run **EastSample600v2** and open the log file in your **\Log** folder.
+![Alt text](<04. EasySample600v2 log file.png>)
+
+<br><br>
 
 # Contribute
 Contribute to the repository with your pull requests. 
