@@ -10,9 +10,8 @@ The image below shows examples about the __3 observability elements__ on Azure M
 <!-- /images/other/ -->
 
 __Application observability__ is evolving with the introduction of __Open Telemetry__.<br>
-__Microsoft technologies for observability__ such as __Azure Monitor__ and __Application Insights__ are embracing __Open Telemetry__ as the future for instrumentation.
-(see. __OpenTelemetry + Azure Monitor__ <br><br>
-([OpenTelemetry + Azure Monitor blog post](https://techcommunity.microsoft.com/t5/azure-observability-blog/opentelemetry-azure-monitor/ba-p/2737823))<br>
+__Microsoft technologies for observability__ such as __Azure Monitor__ and __Application Insights__ are embracing __Open Telemetry__ as the future for instrumentation.<br>
+[OpenTelemetry + Azure Monitor blog post](https://techcommunity.microsoft.com/t5/azure-observability-blog/opentelemetry-azure-monitor/ba-p/2737823)<br>
 ![Alt text](<02. Opentelemetry citatiion.jpg>)
 <br>
 For this reason, connecting diginsight to OpenTelemetry allows reaching Azure Monitor components and standard Open Telemetry targets such as Azure Grafana and Grafana custom implementations (eg. on Kubernetes).
