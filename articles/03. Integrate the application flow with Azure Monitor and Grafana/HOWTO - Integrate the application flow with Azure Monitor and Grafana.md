@@ -5,7 +5,7 @@ __Application observability__ is about aggregating, correlating and analyzing th
 -  __The requests and operations structure__ (sometimes also referred as __Activity, Traces or Spans__) with the structure of application calls, related to an event or exception condition.
 -  __Metrics__: numeric values (such as latencies, payload sizes, frequencies) that can be aggregated and correlated with the operations structure and the logs.
 
-The image below shows examples about the 3 observability elements on Azure Monitor Performance Management (APM) Tools:<br>
+The image below shows examples about the __3 observability elements__ on Azure Monitor Performance Management (APM) Tools:<br>
 ![Alt text](<01. Opentelemetry elements.jpg>)
 <!-- /images/other/ -->
 
