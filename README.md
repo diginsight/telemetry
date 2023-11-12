@@ -5,9 +5,11 @@ __Common.Diagnostics__ is a .net package that provides a readable __application 
 This makes the application flow fully observable, __still without compromises on performance__.<br>
 
 Articles:
-- [HOWTO - Make your application flow observable.md](HOWTO%20-%20Make%20your%20application%20flow%20observable.md): explores how to use diginsight to fully expose our application exeution flow.
+- [HOWTO - Make your application flow observable.md](<articles/01. Make your application flow observable/HOWTO - Make your application flow observable.md>): explores how to use diginsight to fully expose our application exeution flow.
 
-- [HOWTO - Avoid performance impacts using diginsight telemetry.md](HOWTO%20-%20Avoid%20performance%20imacts%20using%20diginsight%20telemetry.md): explores how we can do this ensuring no impact on application performance.
+- [HOWTO - Avoid performance impacts using diginsight telemetry.md](<articles/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.md>): explores how we can do this ensuring no impact on application performance.
+
+- [HOWTO - Integrate the application flow with Azure Monitor and Grafana.md](<articles/03. Integrate the application flow with Azure Monitor and Grafana/HOWTO - Integrate the application flow with Azure Monitor and Grafana.md>): explores how we can connect diginsight telemetry to Azure Monitor and Azure Grafana by means of OpenTelemetry.
 <br><br>
 
 Start and completion of code sections are gathered by means of `using` statements to create `Method or Named scopes`.<br>
@@ -16,7 +18,6 @@ Traces are written to __standard .Net log providers__ so that applications can k
 Common.Diagnostics is supported by __any .Net Framework version__ supporting .Net Standard 2.0, __any .Net Log provider__.<br><br>
 Examples are provided for __.NetCore 3.1+ and .Net Framework 4.6.2+ (including  .Net Framework 6.0)__ and __Blazor WebAssembly__.<br>
 Examples show sending telemetry to  __Log4Net, Serilog or Application Insights, Console, EventLog and Debug__ __DotNet Log providers__.<br>
-Also, examples show sending telemetry __Log4Net, Serilog, Console, Event Log and Application Insights__ and any other __Systen Diagnostics listeners__.
 <br><br>
 
 
