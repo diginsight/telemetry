@@ -1,31 +1,51 @@
 # INTRODUCTION 
+__Common.Diagnostics__ is a .Net package that provides a readable __application execution flow__ to __.Net Log providers__ such as __Log4Net, Serilog or Application Insights, Console, EventLog and Debug__ __.Net Log providers__.<br>
 
-__Common.Diagnostics__ is a .net package that provides a readable __application execution flow__ to __.Net Log providers__ such as __Log4Net, Serilog or Application Insights, Console, EventLog and Debug__ __DotNet Log providers__.<br>
+Also, __Common.Diagnostics__ publishes application flow structure and metrics to __Azure Monitor__ and __Grafana__ by means of __OpenTelemetry__.<br>
 
 This makes the application flow fully observable, __still without compromises on performance__.<br>
+
+# APPLICATION OBSERVABILITY CONCEPTS 
+__Application observability__ is about aggregating, correlating and analyzing the following key elements:<br>
+-  __Logs__ with application execution details and data.
+-  __The requests and operations structure__ (sometimes also referred as __Activity, Traces or Spans__) with the structure of application calls, related to an event or exception condition.
+-  __Metrics__: numeric values (such as latencies, payload sizes, frequencies) that can be aggregated and correlated with the operations structure and the logs.
+
+The image below shows examples about the __3 observability elements__ on Azure Monitor Performance Management (APM) Tools:<br><br>
+![Alt text](<01. Opentelemetry elements.jpg>)
+<!-- /images/other/ -->
+
+
+Common.Diagnostics __Makes observability easy__ as:
+- it __integrates the 3 observability elements__ (Log, Traces, Metrics) into high performance __text-based streams__.<br>
+In particular, traditional File log, Console log or Azure Streaming Console log can be integrated with the full application execution flow.<br>
+- it __publishes the 3 observability elements__ to OpenTelemetry and allowing application analysis by means of remote APM tools such as __Azure Monitor__ and __Grafana__.
+<br>
 
 Articles:
 - [HOWTO - Make your application flow observable.md](<articles/01. Make your application flow observable/HOWTO - Make your application flow observable.md>): explores how to use diginsight to fully expose our application exeution flow.
 
 - [HOWTO - Avoid performance impacts using diginsight telemetry.md](<articles/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.md>): explores how we can do this ensuring no impact on application performance.
 
-- [HOWTO - Integrate the application flow with Azure Monitor and Grafana.md](<articles/03. Integrate the application flow with Azure Monitor and Grafana/HOWTO - Integrate the application flow with Azure Monitor and Grafana.md>): explores how we can connect diginsight telemetry to Azure Monitor and Azure Grafana by means of OpenTelemetry.
+- [HOWTO - Integrate the application flow with OpenTelemetry, Azure Monitor and Grafana.md](<articles/03. Integrate the application flow with Azure Monitor and Grafana/HOWTO - Integrate the application flow with Azure Monitor and Grafana.md>): explores how we can connect diginsight telemetry to Azure Monitor and Azure Grafana by means of OpenTelemetry.
 <br><br>
 
-Start and completion of code sections are gathered by means of `using` statements to create `Method or Named scopes`.<br>
-Traces are written to __standard .Net log providers__ so that applications can keep using their diagnostics system and standard logs are integrated into the execution flow gathered by __Common.Diagnostics__.<br><br>
+# GETTING STARTED
+
+Start and completion of __code sections__ are gathered by means of `using statements` that create `Method or Named scopes`.<br>
+Traces are written to __standard .Net log providers__ so that applications can keep using their diagnostics system and standard logs are integrated into the execution flow gathered by __Common.Diagnostics__.<br>
 
 Common.Diagnostics is supported by __any .Net Framework version__ supporting .Net Standard 2.0, __any .Net Log provider__.<br><br>
 Examples are provided for __.NetCore 3.1+ and .Net Framework 4.6.2+ (including  .Net Framework 6.0)__ and __Blazor WebAssembly__.<br>
 Examples show sending telemetry to  __Log4Net, Serilog or Application Insights, Console, EventLog and Debug__ __DotNet Log providers__.<br>
-<br><br>
+<br>
 
-
-# GETTING STARTED
 Steps to use Common.Diagnostics:
 1.	Add a package reference to the package __Common.Diagnostics.1.0.\*.\*.nupkg__
+![Alt text](<01. Common.Diagnostics package.png>)
+
 2.	Add log providers in the __ConfigureLogging()__ callback and __InitTraceLogger()__ methods
-```c#
+	```c#
 	.ConfigureLogging((context, loggingBuilder) =>
 	{
 		loggingBuilder.ClearProviders();
@@ -45,18 +65,18 @@ Steps to use Common.Diagnostics:
 	}).Build();
 
 	Host.InitTraceLogger();
-```
-in the previous section __standard log4net provider__ and __standard ApplicationInsight provider__ are configured to receive the execution flow, according to __standard .net logging configuration__.
+	```
+	in the previous section __standard log4net provider__ and __standard ApplicationInsight provider__ are configured to receive the execution flow, according to __standard .net logging configuration__.
 
 3.	Add telemetry to your code with __BeginMethodScope(), BeginNamedScope()__ and __ILogger Statements__:
-```c#
+	```c#
 	- using var scope = _logger.BeginMethodScope(); // defines a method scope by means of an ILogger instance (class type is taken by the ILogger instance)
 	- using var scope = _logger.BeginNamedScope("scopeName"); // defines a named scope within a method scope (eg. to describe loop code sections or async method callbacks).
 
 	- using var innerScope = _logger.BeginMethodScope(new { configuration = configuration .GetLogString()}); // defines a method scope where method parameters are specified 
-```
-use the __scope variable__ to add trace messages to the method scope or the named scope
-```c#
+	```
+	use the __scope variable__ to add trace messages to the method scope or the named scope
+	```c#
 	// log statements within a scope
 	- scope.LogTrace("this is a Trace trace");
 	- scope.LogDebug("this is a Debug trace");
@@ -65,10 +85,10 @@ use the __scope variable__ to add trace messages to the method scope or the name
 	- scope.LogError("this is a error trace");
 	- scope.LogCritical("this is a critical trace");
 	- scope.LogException(ex);
-```
-use __standard ILogger statements__ or __TraceLogger static methods__ to add trace messages to the application flow when a scope variable instance is not available.
+	```
+	use __standard ILogger statements__ or __TraceLogger static methods__ to add trace messages to the application flow when a scope variable instance is not available.
 
-```c#
+	```c#
 	// standard Ilogger statements:
 	- _logger.LogTrace("this is a Trace trace");
 	- _logger.LogDebug("this is a Debug trace");
@@ -86,8 +106,8 @@ use __standard ILogger statements__ or __TraceLogger static methods__ to add tra
 	- TraceLogger.LogError("this is a error trace");
 	- TraceLogger.LogCritical("this is a critical trace");
 	- TraceLogger.LogException(ex);
-```
-In this case log traces are added to the most inner scope, for the current thread.
+	```
+	In this case log traces are added to the most inner scope, for the current thread.
 <br><br>
 # TELEMETRY PROVIDERS
 
@@ -113,30 +133,30 @@ where application exceptions traced with __TraceException()__ can be analized in
 Starting telemetry is a matter of configuring the .Net log providers that are suitable for our application.
 
 ```c#
-	.ConfigureLogging((context, loggingBuilder) =>
-	{
-		loggingBuilder.ClearProviders();
+.ConfigureLogging((context, loggingBuilder) =>
+{
+	loggingBuilder.ClearProviders();
 
-		var options = new Log4NetProviderOptions();
-		options.Log4NetConfigFileName = "log4net.config";
-		var log4NetProvider = new Log4NetProvider(options);
-		loggingBuilder.AddDiginsightFormatted(log4NetProvider, configuration);
+	var options = new Log4NetProviderOptions();
+	options.Log4NetConfigFileName = "log4net.config";
+	var log4NetProvider = new Log4NetProvider(options);
+	loggingBuilder.AddDiginsightFormatted(log4NetProvider, configuration);
 
-		var telemetryConfiguration = new TelemetryConfiguration(appInsightKey);
-		var appinsightOptions = new ApplicationInsightsLoggerOptions();
-		var tco = Options.Create<TelemetryConfiguration>(telemetryConfiguration);
-		var aio = Options.Create<ApplicationInsightsLoggerOptions>(appinsightOptions);
-		loggingBuilder.AddDiginsightFormatted(new ApplicationInsightsLoggerProvider(tco, aio), configuration);
+	var telemetryConfiguration = new TelemetryConfiguration(appInsightKey);
+	var appinsightOptions = new ApplicationInsightsLoggerOptions();
+	var tco = Options.Create<TelemetryConfiguration>(telemetryConfiguration);
+	var aio = Options.Create<ApplicationInsightsLoggerOptions>(appinsightOptions);
+	loggingBuilder.AddDiginsightFormatted(new ApplicationInsightsLoggerProvider(tco, aio), configuration);
 
-		loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>("", LogLevel.Debug);
-	}).Build();
+	loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>("", LogLevel.Debug);
+}).Build();
 
-	Host.InitTraceLogger();
+Host.InitTraceLogger();
 ```
 
 notice that the provider is added with the statement 
 ```c#
-		loggingBuilder.AddDiginsightFormatted(log4NetProvider, configuration);
+	loggingBuilder.AddDiginsightFormatted(log4NetProvider, configuration);
 ```
 this adds the `Log4NetProvider` as the inner provider of a diginsight `TraceLoggerFormatProvider`.<br>
 `TraceLoggerFormatProvider` role is to receive trace entries, keep track of the nesting level for the current thread and eventually format a string for the inner provider.
