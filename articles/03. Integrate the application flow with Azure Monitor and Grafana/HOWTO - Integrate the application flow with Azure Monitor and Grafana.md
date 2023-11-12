@@ -14,9 +14,9 @@ __Microsoft technologies for observability__ such as __Azure Monitor__ and __App
 [OpenTelemetry + Azure Monitor blog post](https://techcommunity.microsoft.com/t5/azure-observability-blog/opentelemetry-azure-monitor/ba-p/2737823)<br>
 ![Alt text](<02. Opentelemetry citatiion.jpg>)
 <br>
-For this reason, connecting diginsight to OpenTelemetry allows reaching Azure Monitor components and standard Open Telemetry targets such as Azure Grafana and Grafana custom implementations (eg. on Kubernetes).
+For this reason, __connecting diginsight to OpenTelemetry__ allows reaching __Azure Monitor__ components and standard Open Telemetry targets such as __Azure Grafana__ and __Grafana custom implementations__ (eg. on Kubernetes).
 <br><br>
-In the following paragraphs we'll explore how to integrate diginsight with OpenTelemetry and how we can use grafana and Azure monitor components to analize our application behaviour.
+In the following paragraphs we'll explore __how to integrate diginsight with OpenTelemetry__ and __how we can use grafana and Azure monitor components__ to analize our application behaviour.
 
 # INTEGRATE DIGINSIGHT TO OPENTELEMETRY
 
@@ -24,18 +24,18 @@ In the following paragraphs we'll explore how to integrate diginsight with OpenT
 ![Alt text](<03. AddObservability.png>)
 
     ```c#
-            public void ConfigureServices(IServiceCollection services)
-            {
-                using var scope = _logger.BeginMethodScope(new { services });
+    public void ConfigureServices(IServiceCollection services)
+    {
+        using var scope = _logger.BeginMethodScope(new { services });
 
-                services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-                services.AddSingleton<IParallelService, ParallelService>();
-                services.AddClassConfiguration();
-                services.AddObservability(Configuration); 
+        services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+        services.AddSingleton<IParallelService, ParallelService>();
+        services.AddClassConfiguration();
+        services.AddObservability(Configuration); 
 
-                services.AddControllersWithViews();
-                services.AddRazorPages(); 
-            }
+        services.AddControllersWithViews();
+        services.AddRazorPages(); 
+    }
     ```
 
 2. then, implement the `AddObservability()` extension method as shown below:<br>
@@ -125,7 +125,7 @@ where in this code:
     - __builder.AddAzureMonitorMetricExporter();__: adds the Azure Monitor exporter that sends metrics information to AzureMonitor.
     - __builder.ConfigureResource(builder => builder.AddAttributes(resourceAttributes));__: configures the resource attributes for the metrics such as the module name that is sending the metrics.
 - `builder.ConfigureResource(b => b.AddService(serviceName: cloudRoleName));` configures the entity that is producing the telemetry data, in this case the service name is the assembly name.
-- `builder.UseAzureMonitor(options => {...})` connects the application to the Azure Monitor by means of the Azure Monitor Application Insight Connection String.
+- `builder.UseAzureMonitor(options => {...})` connects the application to the Azure Monitor by means of the Azure Monitor Application Insight Connection String.<br><br>
 
 # ANALYZE TELEMETRY FROM AZURE MONITOR
 Diginsight sends methods durations to Azure Monitor as the __span_duration__ metric where the method name is set in the __span_name__ dimension.
@@ -162,14 +162,14 @@ the same latencies can be shown on a grafana dashboard (or Managed Grafana dashb
 <br><br>
 
 # Build and Test 
-
+You can easily test Diginsight integration with OpenTelemetry by means of the EasySampleBlazorv2 project:
 - Clone diginsight repository
 - Open and build solution Common.Diagnostics.sln. 
 - Set the EasySampleBlazorv2.Server as startup project
-- add the __connection string__ to your Application Insights resource in the project __secrets.json__ file
+- add the __connection string__ to your Application Insights resource in the project __secrets.json__ file<br><br>
 ![Alt text](<08. use EasySampleBlazorv2.png>)
 
-run EasySample and open the log file in your **\Log** folder.
+run **EasySampleBlazorv2.Server** and open the log file in your **\Log** folder.
 
 # Contribute
 Contribute to the repository with your pull requests. 
