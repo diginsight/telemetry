@@ -5,14 +5,14 @@ __Application observability__ is about aggregating, correlating and analyzing th
 -  __The requests and operations structure__ (sometimes also referred as __Activity, Traces or Spans__) with the structure of application calls, related to an event or exception condition.
 -  __Metrics__: numeric values (such as latencies, payload sizes, frequencies) that can be aggregated and correlated with the operations structure and the logs.
 
-the image below shows examples about the observability 3 elements on Azure Monitor Performance Management (APM) Tools:<br>
+The image below shows examples about the 3 observability elements on Azure Monitor Performance Management (APM) Tools:<br>
 ![Alt text](<01. Opentelemetry elements.jpg>)
 <!-- /images/other/ -->
 
 __Application observability__ is evolving with the introduction of __Open Telemetry__.<br>
 __Microsoft technologies for observability__ such as __Azure Monitor__ and __Application Insights__ are embracing __Open Telemetry__ as the future for instrumentation.
-(see. __OpenTelemetry + Azure Monitor__
-![Alt text](https://techcommunity.microsoft.com/t5/azure-observability-blog/opentelemetry-azure-monitor/ba-p/2737823  "OpenTelemetry + Azure Monitor blog post"))
+(see. __OpenTelemetry + Azure Monitor__ <br><br>
+([OpenTelemetry + Azure Monitor blog post](https://techcommunity.microsoft.com/t5/azure-observability-blog/opentelemetry-azure-monitor/ba-p/2737823))
 ![Alt text](<02. Opentelemetry citatiion.jpg>)
 <br>
 For this reason, connecting diginsight to OpenTelemetry allows reaching Azure Monitor components and standard Open Telemetry targets such as Azure Grafana and Grafana custom implementations (eg. on Kubernetes).
