@@ -13,6 +13,9 @@ namespace Diginsight.Diagnostics;
 
 internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
 {
+    private static readonly MethodInfo ExtractLoggableFromKvps_Method =
+        typeof(ObservabilityLogProcessor).GetMethod(nameof(ExtractLoggablesFromKvps), BindingFlags.NonPublic | BindingFlags.Instance)!;
+
     private readonly ILogger<ObservabilityLogProcessor> logger;
     private readonly IAppendingContextFactory appendingContextFactory;
     private readonly IClassConfigurationGetterProvider classConfigurationGetterProvider;
@@ -50,67 +53,30 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
 
         if (isStandalone)
         {
-            textLogger.Log(logLevel, "{ActivityName} START", activity.OperationName);
+            textLogger.Log(logLevel, new EventId(100, "StartActivity"), "{ActivityName} START", activity.OperationName);
             return;
         }
 
-        object? inputs = activity.GetCustomProperty(ActivityCustomPropertyNames.Inputs) switch
+        object? inputs = activity.GetCustomProperty(ActivityCustomPropertyNames.MakeInputs) switch
         {
-            Func<object?> makeInputs => makeInputs(),
+            Func<object> makeObj => makeObj() ?? throw new InvalidOperationException("Invalid inputs in activity"),
             null => null,
             _ => throw new InvalidOperationException("Invalid inputs in activity"),
         };
 
-        string inputsAsString;
-        IDictionary<string, object?>? inputsAsDict;
         if (inputs is null)
         {
-            inputsAsString = "";
-            inputsAsDict = null;
+            textLogger.Log(logLevel, new EventId(110, "StartMethodActivity"), "{ActivityName}() START", activity.OperationName);
+            return;
         }
-        else if (!inputs.GetType().IsAnonymous())
+
+        if (ExtractLoggable("Inputs", inputs) is not var (inputsAsDict, inputsAsString))
         {
             throw new InvalidOperationException("Invalid inputs in activity");
         }
-        else
-        {
-            inputsAsDict = new Dictionary<string, object?>();
 
-            StringBuilder sb = new ();
-            bool first = true;
-            foreach (PropertyInfo property in inputs.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
-            {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    sb.Append(LogStringTokens.Separator2);
-                }
-
-                string propertyName = property.Name;
-                string propertyValue = appendingContextFactory.MakeLogString(property.GetValue(inputs));
-
-                inputsAsDict[$"Inputs.{propertyName}"] = propertyValue;
-                sb.Append($"{propertyName}{LogStringTokens.Value}{propertyValue}");
-            }
-
-            inputsAsString = sb.ToString();
-        }
-
-        textLogger.Log(logLevel, "{ActivityName}({Inputs}) START", activity.OperationName, inputsAsString);
-
-        if (inputsAsDict is not null)
-        {
-            otlpLogger.Log(
-                logLevel,
-                default,
-                inputsAsDict,
-                null,
-                (_, _) => $"Method inputs: {inputsAsString}"
-            );
-        }
+        otlpLogger.Log(logLevel, new EventId(111, "MethodInputs"), inputsAsDict, null, (_, _) => $"Method inputs: {inputsAsString}");
+        textLogger.Log(logLevel, new EventId(110, "StartMethodActivity"), "{ActivityName}({Inputs}) START", activity.OperationName, inputsAsString);
     }
 
     public override void OnEnd(Activity activity)
@@ -127,36 +93,131 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
 
         if (isStandalone)
         {
-            textLogger.Log(logLevel, "{ActivityName} END", activity.OperationName);
+            textLogger.Log(logLevel, new EventId(200, "EndActivity"), "{ActivityName} END", activity.OperationName);
             return;
         }
 
-        object? output;
-        switch (activity.GetCustomProperty(ActivityCustomPropertyNames.Output))
+        string? outputAsString = LogOutput();
+        string? namedOutputsAsString = LogNamedOutputs();
+
+        string? LogOutput()
         {
-            case StrongBox<object?> outputBox:
-                output = outputBox.Value;
-                break;
+            object? output;
+            switch (activity.GetCustomProperty(ActivityCustomPropertyNames.Output))
+            {
+                case StrongBox<object?> outputBox:
+                    output = outputBox.Value;
+                    break;
 
-            case null:
-                textLogger.Log(logLevel, "{ActivityName}() END", activity.OperationName);
-                return;
+                case null:
+                    return null;
 
-            default:
-                throw new InvalidOperationException("Invalid output in activity");
+                default:
+                    throw new InvalidOperationException("Invalid output in activity");
+            }
+
+            outputAsString = appendingContextFactory.MakeLogString(output);
+
+            otlpLogger.Log(logLevel, new EventId(211, "MethodOutput"), new Dictionary<string, object?>() { ["Output"] = output }, null, (_, _) => $"Method output: {outputAsString}");
+
+            return outputAsString;
         }
 
-        string outputAsString = appendingContextFactory.MakeLogString(output);
+        string? LogNamedOutputs()
+        {
+            if (activity.GetCustomProperty(ActivityCustomPropertyNames.NamedOutputs) is not {} namedOutputs)
+            {
+                return null;
+            }
 
-        otlpLogger.Log(
-            logLevel,
-            default,
-            new Dictionary<string, object?>() { ["Output"] = output },
-            null,
-            (_, _) => $"Method output: {outputAsString}"
+            if (ExtractLoggable("NamedOutputs", namedOutputs) is not var (namedOutputAsDict, namedOutputsAsString0))
+            {
+                throw new InvalidOperationException("Invalid named outputs in activity");
+            }
+
+            otlpLogger.Log(logLevel, new EventId(212, "MethodNamedOutputs"), namedOutputAsDict, null, (_, _) => $"Method named outputs: {namedOutputsAsString0}");
+
+            return namedOutputsAsString0;
+        }
+
+        switch (outputAsString, namedOutputsAsString)
+        {
+            case (null, null):
+                textLogger.Log(logLevel, new EventId(210, "EndMethodActivity"), "{ActivityName}() END", activity.OperationName);
+                break;
+
+            case (not null, null):
+                textLogger.Log(logLevel, new EventId(210, "EndMethodActivity"), "{ActivityName}() END => {Output}", activity.OperationName, outputAsString);
+                break;
+
+            case (null, not null):
+                textLogger.Log(logLevel, new EventId(210, "EndMethodActivity"), "{ActivityName}() END [=> {NamedOutputs}]", activity.OperationName, namedOutputsAsString);
+                break;
+
+            case (not null, not null):
+                textLogger.Log(logLevel, new EventId(210, "EndMethodActivity"), "{ActivityName}() END => {Output} [=> {NamedOutputs}]", activity.OperationName, outputAsString, namedOutputsAsString);
+                break;
+        }
+    }
+
+    private (IDictionary<string, object?>, string)? ExtractLoggable(string dictPrefix, object obj)
+    {
+        Type type = obj.GetType();
+        if (type.IsAnonymous())
+        {
+            return ExtractLoggableFromAnonymous(dictPrefix, obj);
+        }
+
+        if (obj is Tags kvps)
+        {
+            return ExtractLoggablesFromKvps(dictPrefix, kvps);
+        }
+
+        if (type.IsIEnumerableOfKeyValuePair(out Type? tKey, out Type? tValue) && tKey == typeof(string))
+        {
+            return ((IDictionary<string, object?>, string))ExtractLoggableFromKvps_Method
+                .MakeGenericMethod(tValue)
+                .Invoke(this, new object?[] { dictPrefix, obj })!;
+        }
+
+        return null;
+    }
+
+    private (IDictionary<string, object?>, string) ExtractLoggableFromAnonymous(string dictPrefix, object anonymous)
+    {
+        return ExtractLoggablesFromKvps(
+            dictPrefix,
+            anonymous.GetType()
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Select(p => new Tag(p.Name, p.GetValue(anonymous)))
         );
+    }
 
-        textLogger.Log(logLevel, "{ActivityName}() END returned => {Output}", activity.OperationName, outputAsString);
+    private (IDictionary<string, object?>, string) ExtractLoggablesFromKvps<TValue>(string dictPrefix, IEnumerable<KeyValuePair<string, TValue>> kvps)
+    {
+        IDictionary<string, object?> dict = new Dictionary<string, object?>();
+
+        StringBuilder sb = new ();
+        bool first = true;
+        foreach (KeyValuePair<string, TValue> kvp in kvps)
+        {
+            if (first)
+            {
+                first = false;
+            }
+            else
+            {
+                sb.Append(LogStringTokens.Separator2);
+            }
+
+            string key = kvp.Key;
+            object? value = kvp.Value;
+            string valueAsString = appendingContextFactory.MakeLogString(value);
+            dict[$"{dictPrefix}.{key}"] = valueAsString;
+            sb.Append($"{key}{LogStringTokens.Value}{valueAsString}");
+        }
+
+        return (dict, sb.ToString());
     }
 
     private void ExtractLoggingInfo(

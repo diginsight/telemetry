@@ -4,19 +4,9 @@ namespace Diginsight.Strings;
 
 public sealed class LogStringOverallConfiguration : ILogStringOverallConfiguration
 {
-    private static readonly LogStringProviderRegistration[] FIXED_REGISTRATIONS =
-    {
-        new LogStringProviderRegistration(typeof(ForbiddenLogStringProvider), int.MaxValue),
-        new LogStringProviderRegistration(typeof(PrimitiveLogStringProvider), int.MaxValue - 1),
-        new LogStringProviderRegistration(typeof(BasicLogStringProvider), int.MaxValue - 2),
-        new LogStringProviderRegistration(typeof(IMemberInfoLogStringProvider), int.MaxValue - 3),
-        new LogStringProviderRegistration(typeof(AnonymousLogStringProvider), int.MaxValue - 4),
-        new LogStringProviderRegistration(typeof(JTokenLogStringProvider), int.MaxValue - 5),
-        new LogStringProviderRegistration(typeof(CollectionsLogStringProvider), int.MinValue + 1),
-        new LogStringProviderRegistration(typeof(MemberwiseLogStringProvider), int.MinValue),
-    };
-
-    private static readonly Type[] FIXED_REGISTRATION_TYPES = FIXED_REGISTRATIONS.Select(static x => x.Type).ToArray();
+    private static readonly LogStringProviderRegistration[] FixedRegistrations;
+    private static readonly Type[] FixedRegistrationTypes;
+    private static readonly int MaxCustomRegistrationPriority;
 
     public IList<LogStringProviderRegistration> CustomRegistrations { get; } = new List<LogStringProviderRegistration>();
 
@@ -50,8 +40,26 @@ public sealed class LogStringOverallConfiguration : ILogStringOverallConfigurati
 
     public StringComparison MetaPropertyKeyComparison { get; set; } = StringComparison.OrdinalIgnoreCase;
 
+    static LogStringOverallConfiguration()
+    {
+        int minFixedRegistrationPriority;
+        FixedRegistrations = new[] {
+            new LogStringProviderRegistration(typeof(ForbiddenLogStringProvider), int.MaxValue),
+            new LogStringProviderRegistration(typeof(PrimitiveLogStringProvider), int.MaxValue - 1),
+            new LogStringProviderRegistration(typeof(BasicLogStringProvider), int.MaxValue - 2),
+            new LogStringProviderRegistration(typeof(IMemberInfoLogStringProvider), int.MaxValue - 3),
+            new LogStringProviderRegistration(typeof(AnonymousLogStringProvider), int.MaxValue - 4),
+            new LogStringProviderRegistration(typeof(JTokenLogStringProvider), minFixedRegistrationPriority = int.MaxValue - 5),
+            new LogStringProviderRegistration(typeof(CollectionsLogStringProvider), int.MinValue + 1),
+            new LogStringProviderRegistration(typeof(MemberwiseLogStringProvider), int.MinValue),
+        };
+        FixedRegistrationTypes = FixedRegistrations.Select(static x => x.Type).ToArray();
+        MaxCustomRegistrationPriority = minFixedRegistrationPriority - 1;
+    }
+
     public IEnumerable<LogStringProviderRegistration> Registrations => CustomRegistrations
-        .Concat(FIXED_REGISTRATIONS)
+        .Select(static x => x.Priority > MaxCustomRegistrationPriority ? new LogStringProviderRegistration(x.Type, MaxCustomRegistrationPriority) : x)
+        .Concat(FixedRegistrations)
 #if NET6_0_OR_GREATER
         .DistinctBy(static x => x.Type);
 #else
@@ -62,10 +70,11 @@ public sealed class LogStringOverallConfiguration : ILogStringOverallConfigurati
     {
         CustomRegistrations.Clear();
         CustomRegistrations.AddRange(
+            source.Registrations
 #if NET6_0_OR_GREATER
-            source.Registrations.ExceptBy(FIXED_REGISTRATION_TYPES, static x => x.Type)
+                .ExceptBy(FixedRegistrationTypes, static x => x.Type)
 #else
-            source.Registrations.Where(static x => !FIXED_REGISTRATION_TYPES.Contains(x.Type))
+                .Where(static x => !FixedRegistrationTypes.Contains(x.Type))
 #endif
         );
 

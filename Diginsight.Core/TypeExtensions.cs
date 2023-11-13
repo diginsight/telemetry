@@ -118,7 +118,25 @@ public static class TypeExtensions
         }
     }
 
-    internal static bool IsKeyValuePair(this Type type, [NotNullWhen(true)] out Type? tKey, [NotNullWhen(true)] out Type? tValue)
+    public static bool IsIEnumerable(this Type type, [NotNullWhen(true)] out Type? tInner)
+    {
+        if (type is null)
+            throw new ArgumentNullException(nameof(type));
+
+        foreach (Type interfaceType in type.GetInterfaces())
+        {
+            if (!interfaceType.IsGenericType || interfaceType.GetGenericTypeDefinition() != typeof(IEnumerable<>))
+                continue;
+
+            tInner = interfaceType.GetGenericArguments()[0];
+            return true;
+        }
+
+        tInner = null;
+        return false;
+    }
+
+    public static bool IsKeyValuePair(this Type type, [NotNullWhen(true)] out Type? tKey, [NotNullWhen(true)] out Type? tValue)
     {
         if (type is null)
             throw new ArgumentNullException(nameof(type));
@@ -134,5 +152,20 @@ public static class TypeExtensions
         tKey = typeArgs[0];
         tValue = typeArgs[1];
         return true;
+    }
+
+    public static bool IsIEnumerableOfKeyValuePair(this Type type, [NotNullWhen(true)] out Type? tKey, [NotNullWhen(true)] out Type? tValue)
+    {
+        foreach (Type interfaceType in type.GetInterfaces())
+        {
+            if (interfaceType.IsIEnumerable(out Type? innerType) && innerType.IsKeyValuePair(out tKey, out tValue))
+            {
+                return true;
+            }
+        }
+
+        tKey = null;
+        tValue = null;
+        return false;
     }
 }

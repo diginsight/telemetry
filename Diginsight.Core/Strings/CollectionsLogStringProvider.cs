@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Diginsight.Strings;
 
@@ -14,7 +13,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
         }
 
         Type type = obj.GetType();
-        if (IsIEnumerableOfKeyValuePair(type, out Type? tKey, out Type? tValue))
+        if (type.IsIEnumerableOfKeyValuePair(out Type? tKey, out Type? tValue))
         {
             return (ILogStringable)typeof(LogStringableKvpCollection<,>)
                 .MakeGenericType(tKey, tValue)
@@ -22,7 +21,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
                 .Invoke(new[] { obj });
         }
 
-        if (IsIEnumerable(type, out Type? tInner))
+        if (type.IsIEnumerable(out Type? tInner))
         {
             return (ILogStringable)typeof(LogStringableGenericCollection<>)
                 .MakeGenericType(tInner)
@@ -36,36 +35,6 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
         }
 
         return null;
-    }
-
-    private static bool IsIEnumerable(Type type, [NotNullWhen(true)] out Type? tInner)
-    {
-        foreach (Type interfaceType in type.GetInterfaces())
-        {
-            if (!interfaceType.IsGenericType || interfaceType.GetGenericTypeDefinition() != typeof(IEnumerable<>))
-                continue;
-
-            tInner = interfaceType.GetGenericArguments()[0];
-            return true;
-        }
-
-        tInner = null;
-        return false;
-    }
-
-    private static bool IsIEnumerableOfKeyValuePair(Type type, [NotNullWhen(true)] out Type? tKey, [NotNullWhen(true)] out Type? tValue)
-    {
-        foreach (Type interfaceType in type.GetInterfaces())
-        {
-            if (IsIEnumerable(interfaceType, out Type? innerType) && innerType.IsKeyValuePair(out tKey, out tValue))
-            {
-                return true;
-            }
-        }
-
-        tKey = null;
-        tValue = null;
-        return false;
     }
 
     private abstract class LogStringableCollectionBase<T> : ILogStringable

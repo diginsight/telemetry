@@ -21,6 +21,11 @@ public static class ActivitySourceExtensions
         int stackDepth = 0
     )
     {
+        if (inputs is null)
+        {
+            throw new ArgumentNullException(nameof(inputs));
+        }
+
         (Type callerType, string? localFunctionName) = GetCaller(stackDepth);
         return source.StartMethodActivity(logger, () => inputs, callerType, callerMemberName, localFunctionName, logLevel, activityKind);
     }
@@ -29,7 +34,7 @@ public static class ActivitySourceExtensions
     public static Activity? StartMethodActivity(
         this ActivitySource source,
         ILogger logger,
-        Func<object?>? makeInputs = null,
+        Func<object>? makeInputs = null,
         [CallerMemberName] string callerMemberName = "",
         LogLevel logLevel = LogLevel.Debug,
         ActivityKind activityKind = ActivityKind.Internal,
@@ -43,7 +48,7 @@ public static class ActivitySourceExtensions
     private static Activity? StartMethodActivity(
         this ActivitySource source,
         ILogger logger,
-        Func<object?>? makeInputs,
+        Func<object>? makeInputs,
         Type callerType,
         string callerMemberName,
         string? localFunctionName,
@@ -66,7 +71,7 @@ public static class ActivitySourceExtensions
 
         activity.SetCustomProperty(ActivityCustomPropertyNames.Logger, logger);
         activity.SetCustomProperty(ActivityCustomPropertyNames.LogLevel, logLevel);
-        activity.SetCustomProperty(ActivityCustomPropertyNames.Inputs, makeInputs);
+        activity.SetCustomProperty(ActivityCustomPropertyNames.MakeInputs, makeInputs);
         activity.SetCustomProperty(ActivityCustomPropertyNames.CallerType, callerType);
 
         activity.Start();
@@ -83,6 +88,21 @@ public static class ActivitySourceExtensions
 
         activity.SetCustomProperty(ActivityCustomPropertyNames.Logger, logger);
         activity.SetCustomProperty(ActivityCustomPropertyNames.Output, new StrongBox<object?>(output));
+    }
+
+    public static void StoreNamedOutputs(this ILogger logger, object namedOutputs)
+    {
+        if (namedOutputs is null)
+        {
+            throw new ArgumentNullException(nameof(namedOutputs));
+        }
+        if (Activity.Current is not { } activity)
+        {
+            return;
+        }
+
+        activity.SetCustomProperty(ActivityCustomPropertyNames.Logger, logger);
+        activity.SetCustomProperty(ActivityCustomPropertyNames.NamedOutputs, namedOutputs);
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
