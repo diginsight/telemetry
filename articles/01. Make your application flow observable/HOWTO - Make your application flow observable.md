@@ -31,7 +31,7 @@ private async Task ctlMain_InitializedAsync(object sender, EventArgs e)
 __BeginMethodScope()__ extension method ensures that method name, class name and other useful information about the execution flow are gathered and used upon need.<br>
 <br>
 The above statement produces the following application log flow where `ctlMain_InitializedAsync` is made evident:<br>
-![alt text](/images/v3/01.%20BeginMethodScope.jpg "Diginsight telemetry Method scope")
+![Alt text](<01. BeginMethodScope.jpg> "Diginsight telemetry Method scope")
 
 Similar code can be used to expose a __named scope__ within an existing method:
 ```c#
@@ -58,7 +58,8 @@ private void SaveExecuted(object sender, ExecutedRoutedEventArgs e)
 __BeginNamedScope()__ applies name 'OnOK' to the code section enclosed by the using statement.<br>
 <br>
 The above statement produces the following application log flow:<br>
-![alt text](/images/v3/02.%20BeginNamedScope.jpg "Diginsight telemetry Named scope")<br>
+![Alt text](<02. BeginNamedScope.jpg> "Diginsight telemetry Named scope")<br>
+
 
 In this flow it __OnOK__ code section is shown as a part (or as en extension) of method __SaveExecuted__.<br>
 
@@ -124,7 +125,7 @@ public async Task<UserProfileResponse> FindUserByEmailAddressAsync(string emailA
 ```
 in this case method `FindUserByEmailAddressAsync` is logged together with its parameter names and parameter values.<br>
 Parameter names and values are shown inline within the method START line, as shown below:
-![alt text](/images/v3/03.%20ParametersLog.jpg "Diginsight telemetry parameters log")<br>
+![Alt text](<03. ParametersLog.jpg> "Diginsight telemetry parameters log")<br>
 
 For Simple types such as strings, numeric etc values are shown properly.<br>
 For complex types __`GetLogString()`__ extension method can be used.
@@ -225,7 +226,7 @@ We can use __standard ILogger statements__ or __TraceLogger static methods__ to 
 ```
 In this case log traces are added to the inner most scope, for the current thread.<br><br>
 In the latter options, we cannot be sure that the trace is performed in the same method where the scope variable is defined; for this reason, output messages are prefixed with a __leading ellipsis__ as shown below:<br>
-![alt text](/images/v3/04.%20LeadingEllipses.jpg "Diginsight telemetry leading ellipses")<br>
+![Alt text](<04. LeadingEllipses.jpg> "Diginsight telemetry leading ellipses")<br>
 
 Variables with their names can be logged with the following syntax:
 ```c#
@@ -240,7 +241,7 @@ Variables with their names can be logged with the following syntax:
 ```
 In this cases the veriables are rendered with their names, in the same way this happens when logging method parameters.
 
-![Alt text](/images/v3/08.%20LogObjectPayload.png "Diginsight telemetry leading ellipses")<br>
+![Alt text](<08. LogObjectPayload-1.png> "Diginsight telemetry leading ellipses")<br>
 
 Please note that variable names and values are taken directly by the LogDebug() payload object and the developer doesn't need to compose a string with them and keep it up to date.
 
@@ -256,7 +257,7 @@ Where dependency injection `ILogger` variables are not available, you can define
 
 The following image shows the application flow of an aspnet core application startup sequence, including the `CreateHostBuilder` method and its callbacks `ConfigureAppConfiguration` and `ConfigureServices`
 
-![alt text](/images/v3/05.%20StartupSequenceLog.jpg "Diginsight telemetry startup sequence log")<br>
+![Alt text](<05. StartupSequenceLog.jpg> "Diginsight telemetry startup sequence log")<br>
 
 Many complex details such as configuration errors and connection failures are often hidden here and troubleshooting for these phases can be very complex.<br>
 Diginsight shows any detail here so that any later application failure can be more easily and quickly understood. 
@@ -270,10 +271,10 @@ A few example below:
 
 The image below shows a call to method `FindUserByEmailAddressAsync` with a latency of __50 seconds__: this makes evident that the invoked service has problem to be understood. 
 
-![alt text](/images/v3/06.%20HighLatencyCall.jpg "Diginsight telemetry startup sequence log")<br>
+![Alt text](<06. HighLatencyCall.jpg> "Diginsight telemetry startup sequence log")<br>
 
 The example below shows a call is shown where the returned payload is higher than 1MB:
-![alt text](/images/v3/07.%20HighPayloadCall.jpg "Diginsight telemetry startup sequence log")<br>
+![Alt text](<07. HighPayloadCall.jpg> "Diginsight telemetry startup sequence log")<br>
 if the method is invoked frequently, this may cause a scalability problem.
 
 <br><br>

@@ -3,7 +3,7 @@ Diginsight brings __application behavior observability__ to the next step.<br>
 In particular it extends dotnet `Ilogger` system and tracks methods execution with their nesting, parameters and variables in a very effective and readable way.<br>
 
 The following example shows the execution flow of a sample application with the execution of a MainWindow constructor and initialization.<br>
-![alt text](/images/v3/09.%20ApplicationFlowExample.png "Diginsight telemetry application flow example")
+![Alt text](<09. ApplicationFlowExample.png> "Diginsight telemetry application flow example")
 
 In the following paragraphs we'll understand how this can be obtained without impact on the application performance.<br>
 Also, you will soon learn that diginsight can be of great help with identifying and reducing `high latency flows` and `redundant flows` within the application execution paths.<br>
@@ -80,7 +80,7 @@ __if the Debug LogLevel is not enabled__ the interpolated string is not construc
 
 A similar logic is applied with delegate overloads.<br>
 In the image below, the `BeginMethodScope()` parameter list and `LogDebug()` parameters are received in the form of delegate. <br><br>
-![Alt text](image.png)<br>
+![Alt text](<18. Logging method extensions with payload as a delegate.png>)
 Also in this case, __if the Debug LogLevel is not enabled__ the delegate is not evaluated and the payload allocation and initialization doesn't happen at all. 
 
 
@@ -98,9 +98,10 @@ in particular, truncation happens by means of the following configurations:
 "MaxMessageLenError" (def. -1): Error messages are not truncated by default
 ```
 When message truncation happens an ellipsis is appended to the end of the string as shown below:<br>
-![alt text](/images/v3/10.MessageTruncation.png "Diginsight telemetry message truncation") <br>
+![Alt text](10.MessageTruncation.png  "Diginsight telemetry message truncation")
+<br>
 When message truncation happens in trace START lines, truncation is applied to the parameter list and the START symbol is preserved<br>
-![alt text](/images/v3/11.MesageTruncationInStartLines.png "Diginsight telemetry message truncation in START lines") <br>
+![Alt text](11.MesageTruncationInStartLines.png "Diginsight telemetry message truncation in START lines")<br>
 
 It may happen that log information such as a Request Body or a Response Content are required not to be truncated.<br>
 The developer may decide to override truncation thresholds by means of the `Log***()` `properties` parameter.<br>
@@ -113,7 +114,7 @@ TraceLogger.LogDebug($"Response content  ({(double)rawContent.Length / 1024:#,##
 ## Strategy n°5: diginsight allows enabling logs dinamically, only when needed
 Application flow is rendered by default at the Debug level.<br>
 ILogger standard configuration can be used to specify which modules are expected to produce their logs.<br>
-![Alt text](/images/v3/12.LogConfiguration.png)<br>
+![Alt text](12.LogConfiguration.png)<br>
 
 Diginsight allows cutting the enabled log level by means of a __special configuration appSetting__ (`TraceLoggerMinimumLevel`) that __can be overridden dinamically by the developer or by the tester__ at the process level or at a single HTTP call level.<br>
 
@@ -121,10 +122,10 @@ The configuration file above shows that for our production environment `TraceLog
 (so, the application flow will not be rendered by default)
 
 The image below shows that calling the server with the HTTP header `TraceLoggerMinimumLevel` `Trace`.<br>  
-![Alt text](/images/v3/13.POstmanWithTraceLoggerMinimumLevel.png)
+![Alt text](13.POstmanWithTraceLoggerMinimumLevel.png)
  
  the appsetting is overridden and the log is produced for our specific call<br>
-![Alt text](/images/v3/14.PostmanTraceWithMinimumLevelOverride.png)
+![Alt text](14.PostmanTraceWithMinimumLevelOverride.png)
 <br>
 
 in this case readability of the application flow is preserved and troubleshooting of the specific case is made possible.

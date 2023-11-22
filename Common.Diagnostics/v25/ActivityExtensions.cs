@@ -30,8 +30,8 @@ namespace Common
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
-            var host = TraceLogger.Host;
-            if (logger == null && host != null) { try { logger = host.Services?.GetService<ILogger<T>>(); } catch (Exception _) { } }
+            var services = TraceLogger.Services;
+            if (logger == null && services != null) { try { logger = services?.GetService<ILogger<T>>(); } catch (Exception _) { } }
 
             var callerType = typeof(T);
             var scope = new CodeSectionScope(activitySource, logger, callerType, null, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
@@ -46,9 +46,9 @@ namespace Common
 
         //    ILogger<T> logger = null;
         //    if (host == null) { host = TraceLogger.Host; }
-        //    if (host != null) { try { logger = host.Services?.GetService<ILogger<T>>(); } catch (Exception _) { } }
+        //    if (host != null) { try { logger = services?.GetService<ILogger<T>>(); } catch (Exception _) { } }
 
-        //    //var loggerFactory = host.Services.GetService<ILoggerFactory>();
+        //    //var loggerFactory = services.GetService<ILoggerFactory>();
         //    //if (loggerFactory == null) { loggerFactory = TraceLogger.LoggerFactory; }
         //    //logger = loggerFactory.CreateLogger<T>();
 
@@ -71,7 +71,7 @@ namespace Common
         //    {
         //        Type loggerType = typeof(ILogger<>);
         //        loggerType = loggerType.MakeGenericType(new[] { callerType });
-        //        logger = host.Services.GetService(loggerType) as ILogger;
+        //        logger = services.GetService(loggerType) as ILogger;
         //    }
 
         //    var scope = new CodeSectionScope(activitySource, logger, traceLoggerMinimumLevelService, callerType, null, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
@@ -85,8 +85,8 @@ namespace Common
         {
             var startTicks = TraceLogger.Stopwatch.ElapsedTicks;
 
-            var host = TraceLogger.Host;
-            if (logger == null && host != null) { try { logger = host.Services?.GetService<ILogger<T>>(); } catch (Exception _) { } }
+            var services = TraceLogger.Services;
+            if (logger == null && services != null) { try { logger = services?.GetService<ILogger<T>>(); } catch (Exception _) { } }
 
             var callerType = typeof(T);
             var scope = new CodeSectionScope(activitySource, logger, callerType, name, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
@@ -103,7 +103,7 @@ namespace Common
 
         //    ILogger<T> logger = null;
         //    if (host == null) { host = TraceLogger.Host; }
-        //    if (host != null) { try { logger = host.Services?.GetService<ILogger<T>>(); } catch (Exception _) { } }
+        //    if (host != null) { try { logger = services?.GetService<ILogger<T>>(); } catch (Exception _) { } }
 
         //    var callerType = typeof(T);
         //    var scope = new CodeSectionScope(activitySource, logger, callerType, name, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
@@ -123,7 +123,7 @@ namespace Common
         //    {
         //        Type loggerType = typeof(ILogger<>);
         //        loggerType = loggerType.MakeGenericType(new[] { callerType });
-        //        logger = host.Services.GetService(loggerType) as ILogger;
+        //        logger = services.GetService(loggerType) as ILogger;
         //    }
 
         //    var scope = new CodeSectionScope(activitySource, logger, callerType, name, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
@@ -137,8 +137,8 @@ namespace Common
         {
             if (host == null) return null;
 
-            TraceLogger.Host = host;
-            var logger = host.Services.GetService<ILogger<T>>();
+            TraceLogger.Services = host?.Services;
+            var logger = TraceLogger.Services.GetService<ILogger<T>>();
 
             //TraceLogger.LoggerFactory = host?.Services?.GetService<ILoggerFactory>();
             //var logger = TraceLogger.LoggerFactory?.CreateLogger<T>();
@@ -151,6 +151,19 @@ namespace Common
             using (new SwitchOnDispose(TraceLogger._isInitializeComplete, false))
             {
                 TraceLogger.Host = host;
+                TraceLogger.Services = host.Services;
+                //TraceLogger.LoggerFactory = host.Services.GetService<ILoggerFactory>();
+            }
+            return;
+        }
+        public static void InitTraceLogger(this IServiceProvider services)
+        {
+            using (new SwitchOnDispose(TraceLogger._lockListenersNotifications, true))
+            using (new SwitchOnDispose(TraceLogger._isInitializing, true))
+            using (new SwitchOnDispose(TraceLogger._isInitializeComplete, false))
+            {
+                TraceLogger.Host = null;
+                TraceLogger.Services = services;
                 //TraceLogger.LoggerFactory = host.Services.GetService<ILoggerFactory>();
 
 

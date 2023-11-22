@@ -39,12 +39,10 @@ namespace EasySampleBlazorv2.Server
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IParallelService, ParallelService>();
             services.AddClassConfiguration();
-            services.AddClassConfiguration();
             services.AddObservability(Configuration); scope.LogDebug($"services.AddRazorPages();");
 
             services.AddControllersWithViews(); scope.LogDebug($"services.AddControllersWithViews();");
             services.AddRazorPages(); scope.LogDebug($"services.AddRazorPages();");
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

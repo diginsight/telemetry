@@ -63,12 +63,15 @@ public static class AddOpenTelemetryExtension
 
     public static IServiceCollection AddObservability(this IServiceCollection services, IConfiguration configuration)
     {
+        using var scope = TraceLogger.BeginMethodScope(T, new { services, configuration });
+        
         // https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-configuration?tabs=aspnetcore
         // Create a dictionary of resource attributes.
         var cloudRoleName = typeof(Program).Assembly.GetName().Name;
         var cloudRoleNamespace = typeof(Program).Assembly.GetName().FullName;
         var cloudRoleInstance = typeof(Program).Assembly.GetName().FullName;
         var aiConnectionString = configuration["ApplicationInsights:ConnectionString"];
+
 
         var resourceAttributes = new Dictionary<string, object> {
                 { "service.name", cloudRoleName },
@@ -97,7 +100,9 @@ public static class AddOpenTelemetryExtension
             builder.AddHttpClientInstrumentation();
             //builder.AddConsoleExporter();
             builder.AddConsoleExporter(options => options.Targets = ConsoleExporterOutputTargets.Debug);
-            builder.AddAzureMonitorTraceExporter();
+
+            if (!string.IsNullOrEmpty(aiConnectionString)) { builder.AddAzureMonitorTraceExporter(); }
+
             // builder.AddRedisInstrumentation();
 
             builder.AddSource("Azure.*");
@@ -144,7 +149,8 @@ public static class AddOpenTelemetryExtension
             builder.AddMetrics<EasySampleMetrics>();
             builder.AddMeter(EasySampleMetrics.StaticObservabilityName);
 
-            builder.AddAzureMonitorMetricExporter();
+            if (!string.IsNullOrEmpty(aiConnectionString)) { builder.AddAzureMonitorMetricExporter(); }
+                
             builder.ConfigureResource(resourceBuilder => resourceBuilder.AddAttributes(resourceAttributes));
         });
         //services.ConfigureOpenTelemetryMeterProvider((sp, builder) =>
@@ -173,10 +179,14 @@ public static class AddOpenTelemetryExtension
 
         //builder.WithTracing(tracing => tracing.AddSource(Startup.ActivitySource.Name));
 
-        builder = builder.UseAzureMonitor(options =>
+        if (!string.IsNullOrEmpty(aiConnectionString))
         {
-            options.ConnectionString = aiConnectionString;
-        });
+            builder = builder.UseAzureMonitor(options =>
+            {
+                options.ConnectionString = aiConnectionString;
+            });
+        }
+
 
         return services;
     }

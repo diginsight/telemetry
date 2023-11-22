@@ -2,6 +2,7 @@ using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Azure.Monitor.OpenTelemetry.Exporter;
 using Common;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Metrics;
@@ -25,8 +26,16 @@ namespace EasySample
             return app;
         }
 
-        public static IServiceCollection AddObservability(this IServiceCollection services, string aiConnectionString, string cloudRoleName, string cloudRoleNamespace, string cloudRoleInstance)
+        public static IServiceCollection AddObservability(this IServiceCollection services, IConfiguration configuration)
         {
+            var assembly = App.Current.GetType().Assembly;
+            
+            string aiConnectionString = configuration.GetValue<string>(Constants.APPINSIGHTSCONNECTIONSTRING);
+            string cloudRoleName = assembly.GetName().Name;
+            string cloudRoleNamespace = assembly.GetName().FullName;
+            string cloudRoleInstance = assembly.GetName().FullName;
+
+
             // https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-configuration?tabs=aspnetcore
             // Create a dictionary of resource attributes.
             var resourceAttributes = new Dictionary<string, object> {
