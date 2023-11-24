@@ -11,12 +11,66 @@ public static class ActivitySourceExtensions
     private static readonly IDictionary<MethodBase, (Type, string?)> CallerCache = new Dictionary<MethodBase, (Type, string?)>();
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public static Activity? StartMethodActivity(
-        this ActivitySource source,
-        object inputs,
-        [CallerMemberName] string callerMemberName = "",
-        LogLevel logLevel = LogLevel.Debug,
+    public static Activity? CreateActivity(
+        this ActivitySource activitySource,
+        string activityName,
         ActivityKind activityKind = ActivityKind.Internal,
+        LogLevel logLevel = LogLevel.Debug,
+        [CallerMemberName] string callerMemberName = "",
+        int stackDepth = 0
+    )
+    {
+        return activitySource.CoreCreateActivity(null, null, activityName, activityKind, logLevel, callerMemberName, stackDepth, false);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static Activity? CreateActivity(
+        this ActivitySource activitySource,
+        ILogger logger,
+        string activityName,
+        ActivityKind activityKind = ActivityKind.Internal,
+        LogLevel logLevel = LogLevel.Debug,
+        [CallerMemberName] string callerMemberName = "",
+        int stackDepth = 0
+    )
+    {
+        return activitySource.CoreCreateActivity(logger, null, activityName, activityKind, logLevel, callerMemberName, stackDepth, false);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static Activity? StartActivity(
+        this ActivitySource activitySource,
+        string activityName,
+        ActivityKind activityKind = ActivityKind.Internal,
+        LogLevel logLevel = LogLevel.Debug,
+        [CallerMemberName] string callerMemberName = "",
+        int stackDepth = 0
+    )
+    {
+        return activitySource.CoreCreateActivity(null, null, activityName, activityKind, logLevel, callerMemberName, stackDepth, true);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static Activity? StartActivity(
+        this ActivitySource activitySource,
+        ILogger logger,
+        string activityName,
+        ActivityKind activityKind = ActivityKind.Internal,
+        LogLevel logLevel = LogLevel.Debug,
+        [CallerMemberName] string callerMemberName = "",
+        int stackDepth = 0
+    )
+    {
+        return activitySource.CoreCreateActivity(logger, null, activityName, activityKind, logLevel, callerMemberName, stackDepth, true);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static Activity? CreateMethodActivity(
+        this ActivitySource activitySource,
+        object inputs,
+        ActivityKind activityKind = ActivityKind.Internal,
+        LogLevel logLevel = LogLevel.Debug,
+        [CallerMemberName] string callerMemberName = "",
         int stackDepth = 0
     )
     {
@@ -25,32 +79,30 @@ public static class ActivitySourceExtensions
             throw new ArgumentNullException(nameof(inputs));
         }
 
-        (Type callerType, string? localFunctionName) = GetCaller(stackDepth);
-        return source.CreateMethodActivity(null, () => inputs, callerType, callerMemberName, localFunctionName, logLevel, activityKind, true);
+        return activitySource.CreateMethodActivity(() => inputs, activityKind, logLevel, callerMemberName, stackDepth + 1);
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public static Activity? StartMethodActivity(
-        this ActivitySource source,
+    public static Activity? CreateMethodActivity(
+        this ActivitySource activitySource,
         Func<object>? makeInputs = null,
-        [CallerMemberName] string callerMemberName = "",
-        LogLevel logLevel = LogLevel.Debug,
         ActivityKind activityKind = ActivityKind.Internal,
+        LogLevel logLevel = LogLevel.Debug,
+        [CallerMemberName] string callerMemberName = "",
         int stackDepth = 0
     )
     {
-        (Type callerType, string? localFunctionName) = GetCaller(stackDepth);
-        return source.CreateMethodActivity(null, makeInputs, callerType, callerMemberName, localFunctionName, logLevel, activityKind, true);
+        return activitySource.CoreCreateActivity(null, makeInputs, null, activityKind, logLevel, callerMemberName, stackDepth, false);
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public static Activity? StartMethodActivity(
-        this ActivitySource source,
+    public static Activity? CreateMethodActivity(
+        this ActivitySource activitySource,
         ILogger logger,
         object inputs,
-        [CallerMemberName] string callerMemberName = "",
-        LogLevel logLevel = LogLevel.Debug,
         ActivityKind activityKind = ActivityKind.Internal,
+        LogLevel logLevel = LogLevel.Debug,
+        [CallerMemberName] string callerMemberName = "",
         int stackDepth = 0
     )
     {
@@ -59,45 +111,119 @@ public static class ActivitySourceExtensions
             throw new ArgumentNullException(nameof(inputs));
         }
 
-        (Type callerType, string? localFunctionName) = GetCaller(stackDepth);
-        return source.CreateMethodActivity(logger, () => inputs, callerType, callerMemberName, localFunctionName, logLevel, activityKind, true);
+        return activitySource.CreateMethodActivity(logger, () => inputs, activityKind, logLevel, callerMemberName, stackDepth + 1);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static Activity? CreateMethodActivity(
+        this ActivitySource activitySource,
+        ILogger logger,
+        Func<object>? makeInputs = null,
+        ActivityKind activityKind = ActivityKind.Internal,
+        LogLevel logLevel = LogLevel.Debug,
+        [CallerMemberName] string callerMemberName = "",
+        int stackDepth = 0
+    )
+    {
+        return activitySource.CoreCreateActivity(logger, makeInputs, null, activityKind, logLevel, callerMemberName, stackDepth, false);
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static Activity? StartMethodActivity(
-        this ActivitySource source,
-        ILogger logger,
-        Func<object>? makeInputs = null,
-        [CallerMemberName] string callerMemberName = "",
-        LogLevel logLevel = LogLevel.Debug,
+        this ActivitySource activitySource,
+        object inputs,
         ActivityKind activityKind = ActivityKind.Internal,
+        LogLevel logLevel = LogLevel.Debug,
+        [CallerMemberName] string callerMemberName = "",
         int stackDepth = 0
     )
     {
-        (Type callerType, string? localFunctionName) = GetCaller(stackDepth);
-        return source.CreateMethodActivity(logger, makeInputs, callerType, callerMemberName, localFunctionName, logLevel, activityKind, true);
+        if (inputs is null)
+        {
+            throw new ArgumentNullException(nameof(inputs));
+        }
+
+        return activitySource.StartMethodActivity(() => inputs, activityKind, logLevel, callerMemberName, stackDepth + 1);
     }
 
-    private static Activity? CreateMethodActivity(
-        this ActivitySource source,
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static Activity? StartMethodActivity(
+        this ActivitySource activitySource,
+        Func<object>? makeInputs = null,
+        ActivityKind activityKind = ActivityKind.Internal,
+        LogLevel logLevel = LogLevel.Debug,
+        [CallerMemberName] string callerMemberName = "",
+        int stackDepth = 0
+    )
+    {
+        return activitySource.CoreCreateActivity(null, makeInputs, null, activityKind, logLevel, callerMemberName, stackDepth, true);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static Activity? StartMethodActivity(
+        this ActivitySource activitySource,
+        ILogger logger,
+        object inputs,
+        ActivityKind activityKind = ActivityKind.Internal,
+        LogLevel logLevel = LogLevel.Debug,
+        [CallerMemberName] string callerMemberName = "",
+        int stackDepth = 0
+    )
+    {
+        if (inputs is null)
+        {
+            throw new ArgumentNullException(nameof(inputs));
+        }
+
+        return activitySource.StartMethodActivity(logger, () => inputs, activityKind, logLevel, callerMemberName, stackDepth + 1);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static Activity? StartMethodActivity(
+        this ActivitySource activitySource,
+        ILogger logger,
+        Func<object>? makeInputs = null,
+        ActivityKind activityKind = ActivityKind.Internal,
+        LogLevel logLevel = LogLevel.Debug,
+        [CallerMemberName] string callerMemberName = "",
+        int stackDepth = 0
+    )
+    {
+        return activitySource.CoreCreateActivity(logger, makeInputs, null, activityKind, logLevel, callerMemberName, stackDepth, true);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static Activity? CoreCreateActivity(
+        this ActivitySource activitySource,
         ILogger? logger,
         Func<object>? makeInputs,
-        Type callerType,
-        string callerMemberName,
-        string? localFunctionName,
-        LogLevel logLevel,
+        string? customActivityName,
         ActivityKind activityKind,
+        LogLevel logLevel,
+        string callerMemberName,
+        int stackDepth,
         bool start
     )
     {
-        string fullCallerMemberName = localFunctionName switch
-        {
-            "" => $"{callerMemberName}+<anon>",
-            not null => $"{callerMemberName}+{localFunctionName}",
-            null => callerMemberName,
-        };
+        (Type callerType, string? localFunctionName) = GetCaller(stackDepth + 1);
 
-        Activity? activity = source.CreateActivity($"{callerType.Name}.{fullCallerMemberName}", activityKind);
+        string finalActivityName;
+        if (customActivityName is null)
+        {
+            string fullCallerMemberName = localFunctionName switch
+            {
+                "" => $"{callerMemberName}+<anon>",
+                not null => $"{callerMemberName}+{localFunctionName}",
+                null => callerMemberName,
+            };
+            finalActivityName = $"{callerType.Name}.{fullCallerMemberName}";
+        }
+        else
+        {
+            finalActivityName = customActivityName;
+        }
+
+        Activity? activity = activitySource.CreateActivity(finalActivityName, activityKind);
         if (activity is null)
         {
             return null;
@@ -107,6 +233,7 @@ public static class ActivitySourceExtensions
         activity.SetCustomProperty(ActivityCustomPropertyNames.LogLevel, logLevel);
         activity.SetCustomProperty(ActivityCustomPropertyNames.MakeInputs, makeInputs);
         activity.SetCustomProperty(ActivityCustomPropertyNames.CallerType, callerType);
+        activity.SetCustomProperty(ActivityCustomPropertyNames.IsStandalone, customActivityName is not null);
 
         if (start)
         {
