@@ -6,5 +6,5 @@ namespace System.Diagnostics.CodeAnalysis;
 
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter)]
 [EditorBrowsable(EditorBrowsableState.Never)]
-internal sealed class DisallowNullAttribute : Attribute { }
+internal sealed class DisallowNullAttribute : Attribute;
 #endif

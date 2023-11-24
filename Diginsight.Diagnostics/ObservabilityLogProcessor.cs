@@ -16,22 +16,24 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
     private static readonly MethodInfo ExtractLoggableFromKvps_Method =
         typeof(ObservabilityLogProcessor).GetMethod(nameof(ExtractLoggablesFromKvps), BindingFlags.NonPublic | BindingFlags.Instance)!;
 
-    private readonly ILogger<ObservabilityLogProcessor> logger;
+    private readonly ILoggerFactory loggerFactory;
     private readonly IAppendingContextFactory appendingContextFactory;
     private readonly IClassConfigurationGetterProvider classConfigurationGetterProvider;
     private readonly IOptionsMonitor<ObservabilityOptions> observabilityOptionsMonitor;
+    private readonly ILogger fallbackLogger;
 
     public ObservabilityLogProcessor(
-        ILogger<ObservabilityLogProcessor> logger,
+        ILoggerFactory loggerFactory,
         IAppendingContextFactory appendingContextFactory,
         IClassConfigurationGetterProvider classConfigurationGetterProvider,
         IOptionsMonitor<ObservabilityOptions> observabilityOptionsMonitor
     )
     {
-        this.logger = logger;
+        this.loggerFactory = loggerFactory;
         this.appendingContextFactory = appendingContextFactory;
         this.classConfigurationGetterProvider = classConfigurationGetterProvider;
         this.observabilityOptionsMonitor = observabilityOptionsMonitor;
+        fallbackLogger = loggerFactory.CreateLogger($"{GetType().Namespace!}.$Activity");
     }
 
     public override void OnStart(Activity activity)
@@ -248,7 +250,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
             !classConfigurationGetterProvider.GetFor(callerType).Get("RecordActivities", false);
 
         isStandalone = providedLogger is null;
-        ILogger innerLogger = providedLogger ?? logger;
+        ILogger innerLogger = providedLogger ?? (callerType is not null ? loggerFactory.CreateLogger(callerType) : fallbackLogger);
 
         textLogger = new ActivityLogger(innerLogger, activity.IsStopped ? activity.Duration : null);
         otlpLogger = suppressRecording ? NullLogger.Instance : new OtlpLogger(innerLogger);
@@ -295,10 +297,12 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
             => throw new NotSupportedException();
     }
 
-    private sealed class ActivityMark<TState> : ObservabilityTextWriter.IActivityMark, Tags
+    private sealed class ActivityMark<TState> : ObservabilityTextWriter.IActivityMark<TState>, Tags
     {
         public TState State { get; }
         public TimeSpan? Duration { get; }
+
+        object? ObservabilityTextWriter.IActivityMark.State => State;
 
         public ActivityMark(TState state, TimeSpan? duration)
         {

@@ -6,4 +6,4 @@ public interface IClassConfigurationGetter
 }
 
 // ReSharper disable once UnusedTypeParameter
-public interface IClassConfigurationGetter<TClass> : IClassConfigurationGetter { }
+public interface IClassConfigurationGetter<TClass> : IClassConfigurationGetter;

@@ -185,8 +185,17 @@ public static class ObservabilityTextWriter
 
     public interface IActivityMark
     {
+        object? State { get; }
         TimeSpan? Duration { get; }
     }
 
-    public interface IOtlpOnly { }
+    public interface IActivityMark<out TState> : IActivityMark
+    {
+        new TState State { get; }
+    }
+
+    public interface IOtlpOnly
+    {
+        Tags State { get; }
+    }
 }

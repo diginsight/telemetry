@@ -1,3 +1,3 @@
 ﻿namespace Diginsight.Strings;
 
-public sealed class MaxAllottedCountShortCircuit : MaxAllottedShortCircuit { }
+public sealed class MaxAllottedCountShortCircuit : MaxAllottedShortCircuit;

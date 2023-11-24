@@ -1,3 +1,3 @@
 ﻿namespace Diginsight.Strings;
 
-public abstract class ShortCircuit : ApplicationException { }
+public abstract class ShortCircuit : ApplicationException;
