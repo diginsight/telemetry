@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Diginsight;
 
@@ -29,5 +30,18 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IAppendingContextFactory, AppendingContextFactory>()
             .AddSingleton<IMemberInfoLogStringProvider, MemberInfoLogStringProvider>()
             .AddSingleton<IReflectionLogStringHelper, ReflectionLogStringHelper>();
+    }
+
+    public static IServiceCollection AddLoggerFactorySetter(this IServiceCollection services)
+    {
+        if (services.Any(static x => x.ServiceType == typeof(ILoggerFactorySetter)))
+        {
+            return services;
+        }
+
+        return services
+            .AddLogging()
+            .Decorate<ILoggerFactory, LoggerFactorySetter>()
+            .AddSingleton(static p => (ILoggerFactorySetter)p.GetRequiredService<ILoggerFactory>());
     }
 }

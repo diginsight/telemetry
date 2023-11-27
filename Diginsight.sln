@@ -20,6 +20,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.SmartCache", "Di
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.AspNetCore", "Diginsight.AspNetCore\Diginsight.AspNetCore.csproj", "{59C51162-61BD-46E8-996C-8CF2C6336C11}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Diagnostics.AspNetCore", "Diginsight.Diagnostics.AspNetCore\Diginsight.Diagnostics.AspNetCore.csproj", "{DD91DE74-D392-45C2-944B-42A90D3BD29E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,10 @@ Global
 		{59C51162-61BD-46E8-996C-8CF2C6336C11}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{59C51162-61BD-46E8-996C-8CF2C6336C11}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{59C51162-61BD-46E8-996C-8CF2C6336C11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD91DE74-D392-45C2-944B-42A90D3BD29E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD91DE74-D392-45C2-944B-42A90D3BD29E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD91DE74-D392-45C2-944B-42A90D3BD29E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD91DE74-D392-45C2-944B-42A90D3BD29E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

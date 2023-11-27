@@ -6,6 +6,13 @@ namespace Diginsight.Diagnostics;
 
 public sealed class CustomDurationMetricProcessor : BaseProcessor<Activity>
 {
+    private readonly IEnumerable<ICustomDurationMetricSampler> samplers;
+
+    public CustomDurationMetricProcessor(IEnumerable<ICustomDurationMetricSampler> samplers)
+    {
+        this.samplers = samplers;
+    }
+
     public override void OnStart(Activity activity) { }
 
     public override void OnEnd(Activity activity)
@@ -15,11 +22,17 @@ public sealed class CustomDurationMetricProcessor : BaseProcessor<Activity>
         switch (activity.GetCustomProperty(ActivityCustomPropertyNames.DurationMetric))
         {
             case Histogram<double> durationMetric:
-                durationMetric.Record(duration, activity.GetDurationMetricTags());
+                if (samplers.All(s => s.ShouldRecord(activity, durationMetric)))
+                {
+                    durationMetric.Record(duration, activity.GetDurationMetricTags());
+                }
                 break;
 
             case Histogram<long> durationMetric:
-                durationMetric.Record((long)duration, activity.GetDurationMetricTags());
+                if (samplers.All(s => s.ShouldRecord(activity, durationMetric)))
+                {
+                    durationMetric.Record((long)duration, activity.GetDurationMetricTags());
+                }
                 break;
 
             case null:

@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0</TargetFrameworks>
+    <Title>Diginsight Diagnostics ASP.NET Core extensions</Title>
+    <PackageTags>$(PackageTags);diagnostics;aspnetcore</PackageTags>
+  </PropertyGroup>
+
+  <Choose>
+    <When Condition="$(TargetFramework.StartsWith('netstandard'))">
+      <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.*">
+          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+        </PackageReference>
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Diginsight.AspNetCore\Diginsight.AspNetCore.csproj" />
+    <ProjectReference Include="..\Diginsight.Diagnostics\Diginsight.Diagnostics.csproj" />
+  </ItemGroup>
+
+</Project>
