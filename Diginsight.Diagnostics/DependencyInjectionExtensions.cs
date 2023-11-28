@@ -38,14 +38,24 @@ public static class DependencyInjectionExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ILoggingBuilder AddObservabilityConsole(this ILoggingBuilder loggingBuilder)
+    public static ILoggingBuilder AddObservabilityConsole(
+        this ILoggingBuilder loggingBuilder, Action<ObservabilityConsoleFormatterOptions>? configureFormatterOptions = null
+    )
     {
-        return loggingBuilder
-            .AddObservability()
-            .AddConsoleFormatter<ObservabilityConsoleFormatter, ObservabilityConsoleFormatterOptions>()
-            .AddConsole(
-                static consoleLoggerOptions => { consoleLoggerOptions.FormatterName = ObservabilityConsoleFormatter.FormatterName; }
-            );
+        loggingBuilder.AddObservability();
+
+        if (configureFormatterOptions is not null)
+        {
+            loggingBuilder.AddConsoleFormatter<ObservabilityConsoleFormatter, ObservabilityConsoleFormatterOptions>(configureFormatterOptions);
+        }
+        else
+        {
+            loggingBuilder.AddConsoleFormatter<ObservabilityConsoleFormatter, ObservabilityConsoleFormatterOptions>();
+        }
+
+        loggingBuilder.AddConsole(static consoleLoggerOptions => { consoleLoggerOptions.FormatterName = ObservabilityConsoleFormatter.FormatterName; });
+
+        return loggingBuilder;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

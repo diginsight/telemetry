@@ -407,7 +407,7 @@
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[6.*, )",
           "Microsoft.Extensions.Logging": "[6.*, )",
           "Newtonsoft.Json": "[13.*, )",
-          "Scrutor": "[4.2.2, )"
+          "Scrutor": "[4.*, )"
         }
       },
       "diginsight.diagnostics": {
@@ -796,7 +796,7 @@
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[6.*, )",
           "Microsoft.Extensions.Logging": "[6.*, )",
           "Newtonsoft.Json": "[13.*, )",
-          "Scrutor": "[4.2.2, )"
+          "Scrutor": "[4.*, )"
         }
       },
       "diginsight.diagnostics": {
@@ -1156,7 +1156,7 @@
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[6.*, )",
           "Microsoft.Extensions.Logging": "[6.*, )",
           "Newtonsoft.Json": "[13.*, )",
-          "Scrutor": "[4.2.2, )"
+          "Scrutor": "[4.*, )"
         }
       },
       "diginsight.diagnostics": {
@@ -1504,7 +1504,7 @@
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[7.*, )",
           "Microsoft.Extensions.Logging": "[7.*, )",
           "Newtonsoft.Json": "[13.*, )",
-          "Scrutor": "[4.2.2, )"
+          "Scrutor": "[4.*, )"
         }
       },
       "diginsight.diagnostics": {
@@ -1854,7 +1854,7 @@
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.*, )",
           "Microsoft.Extensions.Logging": "[8.*, )",
           "Newtonsoft.Json": "[13.*, )",
-          "Scrutor": "[4.2.2, )"
+          "Scrutor": "[4.*, )"
         }
       },
       "diginsight.diagnostics": {

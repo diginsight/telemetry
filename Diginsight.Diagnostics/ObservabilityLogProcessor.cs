@@ -33,7 +33,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
         this.appendingContextFactory = appendingContextFactory;
         this.classConfigurationGetterProvider = classConfigurationGetterProvider;
         this.observabilityOptionsMonitor = observabilityOptionsMonitor;
-        fallbackLogger = loggerFactory.CreateLogger($"{GetType().Namespace!}.$Activity");
+        fallbackLogger = loggerFactory.CreateLogger($"{typeof(ObservabilityLogProcessor).Namespace!}.$Activity");
     }
 
     public override void OnStart(Activity activity)
@@ -127,7 +127,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
 
         string? LogNamedOutputs()
         {
-            if (activity.GetCustomProperty(ActivityCustomPropertyNames.NamedOutputs) is not {} namedOutputs)
+            if (activity.GetCustomProperty(ActivityCustomPropertyNames.NamedOutputs) is not { } namedOutputs)
             {
                 return null;
             }

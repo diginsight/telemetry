@@ -44,10 +44,10 @@ public sealed class HttpHeadersSampler : Sampler
 #endif
             {
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                [_] => samplingParameters.Name != namePattern,
+                [_] => samplingParameters.Name == namePattern,
                 [var startToken, var endToken] => (startToken, endToken) switch
 #else
-                1 => samplingParameters.Name != namePattern,
+                1 => samplingParameters.Name == namePattern,
                 2 => (startToken = tokens[0], endToken = tokens[1]) switch
 #endif
                 {

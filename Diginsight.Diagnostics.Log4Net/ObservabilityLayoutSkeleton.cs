@@ -31,9 +31,12 @@ internal sealed class ObservabilityLayoutSkeleton : LayoutSkeleton
             formatterOptions.TimestampCulture is { } cultureName ? CultureInfo.GetCultureInfo(cultureName) : null,
             TranslateLogLevel(loggingEvent.Level),
             myLoggingEvent.LoggerName,
-            formatterOptions.MaxCategoryLength,
             myLoggingEvent.RenderedMessage,
             loggingEvent.ExceptionObject,
+            formatterOptions.CategoryLength,
+            formatterOptions.MaxMessageLength,
+            formatterOptions.MaxLineLength,
+            formatterOptions.MaxIndentedDepth,
             myLoggingEvent.IsActivity,
             myLoggingEvent.Duration
         );

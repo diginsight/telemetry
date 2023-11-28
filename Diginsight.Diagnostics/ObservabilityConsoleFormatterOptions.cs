@@ -6,7 +6,13 @@ public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptio
 {
     public string? TimestampCulture { get; set; }
 
-    public int MaxCategoryLength { get; set; } = 50;
+    public int CategoryLength { get; set; } = 40;
+
+    public int MaxMessageLength { get; set; }
+
+    public int MaxLineLength { get; set; }
+
+    public int MaxIndentedDepth { get; set; } = 10;
 
     public ObservabilityConsoleFormatterOptions()
     {

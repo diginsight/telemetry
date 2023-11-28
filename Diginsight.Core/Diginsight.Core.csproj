@@ -28,7 +28,7 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.*" />
-    <PackageReference Include="Scrutor" Version="4.2.2">
+    <PackageReference Include="Scrutor" Version="4.*">
       <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
     </PackageReference>
   </ItemGroup>

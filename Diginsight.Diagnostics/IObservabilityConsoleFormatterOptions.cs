@@ -8,5 +8,11 @@ public interface IObservabilityConsoleFormatterOptions
 
     string? TimestampCulture { get; }
 
-    int MaxCategoryLength { get; }
+    int CategoryLength { get; }
+
+    int MaxMessageLength { get; }
+
+    int MaxLineLength { get; }
+
+    int MaxIndentedDepth { get; }
 }

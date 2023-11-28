@@ -61,9 +61,12 @@ internal sealed class ObservabilityConsoleFormatter : ConsoleFormatter
             formatterOptions.TimestampCulture is { } cultureName ? CultureInfo.GetCultureInfo(cultureName) : null,
             logEntry.LogLevel,
             logEntry.Category,
-            formatterOptions.MaxCategoryLength,
             formatter(state, logEntry.Exception),
             logEntry.Exception,
+            formatterOptions.CategoryLength,
+            formatterOptions.MaxMessageLength,
+            formatterOptions.MaxLineLength,
+            formatterOptions.MaxIndentedDepth,
             isActivity,
             duration
         );

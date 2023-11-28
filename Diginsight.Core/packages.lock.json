@@ -87,7 +87,7 @@
       },
       "Scrutor": {
         "type": "Direct",
-        "requested": "[4.2.2, )",
+        "requested": "[4.*, )",
         "resolved": "4.2.2",
         "contentHash": "t5VIYA7WJXoJJo7s4DoHakMGwTu+MeEnZumMOhTCH7kz9xWha24G7dJNxWrHPlu0ZdZAS4jDZCxxAnyaBh7uYw==",
         "dependencies": {
@@ -312,7 +312,7 @@
       },
       "Scrutor": {
         "type": "Direct",
-        "requested": "[4.2.2, )",
+        "requested": "[4.*, )",
         "resolved": "4.2.2",
         "contentHash": "t5VIYA7WJXoJJo7s4DoHakMGwTu+MeEnZumMOhTCH7kz9xWha24G7dJNxWrHPlu0ZdZAS4jDZCxxAnyaBh7uYw==",
         "dependencies": {
@@ -522,7 +522,7 @@
       },
       "Scrutor": {
         "type": "Direct",
-        "requested": "[4.2.2, )",
+        "requested": "[4.*, )",
         "resolved": "4.2.2",
         "contentHash": "t5VIYA7WJXoJJo7s4DoHakMGwTu+MeEnZumMOhTCH7kz9xWha24G7dJNxWrHPlu0ZdZAS4jDZCxxAnyaBh7uYw==",
         "dependencies": {
@@ -699,7 +699,7 @@
       },
       "Scrutor": {
         "type": "Direct",
-        "requested": "[4.2.2, )",
+        "requested": "[4.*, )",
         "resolved": "4.2.2",
         "contentHash": "t5VIYA7WJXoJJo7s4DoHakMGwTu+MeEnZumMOhTCH7kz9xWha24G7dJNxWrHPlu0ZdZAS4jDZCxxAnyaBh7uYw==",
         "dependencies": {
@@ -864,7 +864,7 @@
       },
       "Scrutor": {
         "type": "Direct",
-        "requested": "[4.2.2, )",
+        "requested": "[4.*, )",
         "resolved": "4.2.2",
         "contentHash": "t5VIYA7WJXoJJo7s4DoHakMGwTu+MeEnZumMOhTCH7kz9xWha24G7dJNxWrHPlu0ZdZAS4jDZCxxAnyaBh7uYw==",
         "dependencies": {

@@ -20,9 +20,12 @@ public static class ObservabilityTextWriter
         CultureInfo? timestampCulture,
         LogLevel logLevel,
         string category,
-        int maxCategoryLength,
         string message,
         Exception? exception,
+        int categoryLength,
+        int maxMessageLength,
+        int maxLineLength,
+        int maxIndentedDepth,
         bool isActivity,
         TimeSpan? duration
     )
@@ -55,21 +58,26 @@ public static class ObservabilityTextWriter
             };
         }
 
-        string indentation = new string(' ', depth * 2 - (isActivity ? 1 : 0));
+        int indentationLength = maxIndentedDepth < 0 || depth <= maxIndentedDepth
+            ? depth * 2 - (isActivity ? 1 : 0)
+            : maxIndentedDepth * 2;
+        string indentation = new string(' ', indentationLength);
+
+        const char ellipsisGlyph = '…';
 
         string finalCategory;
-        if (maxCategoryLength >= 1)
+        if (categoryLength >= 1)
         {
-            if (category.Length < maxCategoryLength)
+            if (category.Length < categoryLength)
             {
-                finalCategory = category.PadRight(maxCategoryLength);
+                finalCategory = category.PadRight(categoryLength);
             }
-            else if (category.Length > maxCategoryLength)
+            else if (category.Length > categoryLength)
             {
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                finalCategory = $"…{category[^(maxCategoryLength - 1)..]}";
+                finalCategory = $"{ellipsisGlyph}{category[^(categoryLength - 1)..]}";
 #else
-                finalCategory = $"…{category.Substring(category.Length - (maxCategoryLength - 1))}";
+                finalCategory = $"{ellipsisGlyph}{category.Substring(category.Length - (categoryLength - 1))}";
 #endif
             }
             else
@@ -157,18 +165,41 @@ public static class ObservabilityTextWriter
             depth,
             indentation
         );
-        string blankPrefix = new string(' ', actualPrefix.Length);
+        int prefixLength = actualPrefix.Length;
+        string blankPrefix = new string(' ', prefixLength);
+
+        const char newLine = '\n';
 
         string fullMessage = message;
         if (exception is not null)
         {
             activity.RecordException(exception);
-            fullMessage += $"\n{exception}";
+            fullMessage += $"{newLine}{exception}";
         }
         fullMessage = fullMessage.Replace("\r", "");
 
+        int finalMaxMessageLength = CalculateFinalMaxMessageLength(maxMessageLength, maxLineLength, indentationLength, prefixLength, out bool chop);
+
+        static int CalculateFinalMaxMessageLength(int maxMessage, int maxLine, int indentation, int prefix, out bool chop)
+        {
+            chop = maxMessage < 0 || maxLine < 0;
+
+            int absMaxLine = Math.Abs(maxLine);
+            int absMaxMessage = Math.Abs(maxMessage);
+
+            if (absMaxLine == 0)
+            {
+                return absMaxMessage - indentation;
+            }
+            if (absMaxMessage == 0)
+            {
+                return absMaxLine - prefix;
+            }
+            return Math.Min(absMaxLine, prefix + absMaxMessage - indentation) - prefix;
+        }
+
         bool first = true;
-        foreach (string line in fullMessage.Split('\n'))
+        foreach (string line in ResizeMessage(fullMessage.Split(newLine), finalMaxMessageLength, chop))
         {
             if (first)
             {
@@ -180,6 +211,57 @@ public static class ObservabilityTextWriter
                 textWriter.Write(blankPrefix);
             }
             textWriter.WriteLine(line);
+        }
+
+        static IEnumerable<string> ResizeMessage(IEnumerable<string> lines, int maxLength, bool chop)
+        {
+            if (maxLength == 0)
+            {
+                return lines;
+            }
+
+            if (maxLength < 10)
+            {
+                maxLength = 10;
+                chop = true;
+            }
+
+            Stack<string> inputLines = new (lines.Reverse());
+            ICollection<string> outputLines = new List<string>();
+
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            while (inputLines.TryPop(out string? line))
+            {
+#else
+            while (inputLines.Count > 0)
+            {
+                string line = inputLines.Pop();
+#endif
+                if (line.Length <= maxLength)
+                {
+                    outputLines.Add(line);
+                }
+                else if (chop)
+                {
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+                    outputLines.Add($"{line[..(maxLength - 1)]}{ellipsisGlyph}");
+#else
+                    outputLines.Add($"{line.Substring(0, maxLength - 1)}{ellipsisGlyph}");
+#endif
+                }
+                else
+                {
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+                    outputLines.Add($"{line[..(maxLength - 1)]}↵");
+                    inputLines.Push(line[(maxLength - 1)..]);
+#else
+                    outputLines.Add($"{line.Substring(0, maxLength - 1)}↵");
+                    inputLines.Push(line.Substring(maxLength - 1));
+#endif
+                }
+            }
+
+            return outputLines;
         }
     }
 
