@@ -40,30 +40,29 @@ public sealed class DefaultDynamicLogLevelInjector : IDynamicLogLevelInjector
 
     public ILoggerFactory? TryCreateLoggerFactory(HttpContext context, IEnumerable<ILoggerProvider> loggerProviders)
     {
-        StringValues rawSpecs = context.Request.Headers["Log-Level"];
-        if (rawSpecs.Count < 1)
-        {
-            return null;
-        }
-
         LoggerFilterOptions oldLoggerFilterOptions = loggerFilterOptionsMonitor.CurrentValue;
         LoggerFilterOptions newLoggerFilterOptions = new LoggerFilterOptions()
         {
             CaptureScopes = oldLoggerFilterOptions.CaptureScopes,
             MinLevel = oldLoggerFilterOptions.MinLevel,
         };
+
         IList<LoggerFilterRule> newRules = newLoggerFilterOptions.Rules;
         newRules.AddRange(oldLoggerFilterOptions.Rules);
 
         bool any = false;
-        foreach (string? rawSpec in rawSpecs)
+
+        foreach (string? rawSpec in context.Request.Headers["Log-Level"])
         {
-            if (SpecRegex.Match(rawSpec!) is not { Success: true } match)
+            if (Enum.TryParse(rawSpec!, true, out LogLevel minLogLevel))
             {
+                newLoggerFilterOptions.MinLevel = minLogLevel;
+                any = true;
                 continue;
             }
 
-            if (!Enum.TryParse(match.Groups[2].Value, true, out LogLevel logLevel))
+            if (SpecRegex.Match(rawSpec!) is not { Success: true } match ||
+                !Enum.TryParse(match.Groups[2].Value, true, out LogLevel logLevel))
             {
                 continue;
             }
@@ -88,6 +87,7 @@ public sealed class DefaultDynamicLogLevelInjector : IDynamicLogLevelInjector
         {
             context.Response.Headers["Log-Level"] = newRules
                 .Select(static x => $"{(x.CategoryName is { } category ? $"{category}=" : "")}{x.LogLevel ?? LogLevel.None}{(x.Filter is null ? "" : "!")}{(x.ProviderName is { } provider ? $";p={provider}" : "")}")
+                .Prepend(newLoggerFilterOptions.MinLevel.ToString())
                 .ToArray();
         }
 
