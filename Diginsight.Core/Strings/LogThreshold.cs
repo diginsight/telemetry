@@ -7,7 +7,7 @@ public readonly struct LogThreshold
     public int? Value { get; }
 
     public LogThreshold(int value)
-        : this(value < 0 ? throw new ArgumentOutOfRangeException(nameof(value), "expected non-negative value") : (int?)value) { }
+        : this(value < 0 ? throw new ArgumentOutOfRangeException(nameof(value), "Expected non-negative value") : (int?)value) { }
 
     private LogThreshold(int? value)
     {

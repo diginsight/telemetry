@@ -10,7 +10,7 @@ public readonly struct InheritableLogThreshold
     public bool IsInherited { get; }
 
     public InheritableLogThreshold(int value)
-        : this(value < 0 ? throw new ArgumentOutOfRangeException(nameof(value), "expected non-negative value") : value, false) { }
+        : this(value < 0 ? throw new ArgumentOutOfRangeException(nameof(value), "Expected non-negative value") : value, false) { }
 
     private InheritableLogThreshold(int? value, bool isInherited)
     {

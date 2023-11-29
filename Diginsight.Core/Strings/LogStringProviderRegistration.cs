@@ -10,7 +10,7 @@ public sealed class LogStringProviderRegistration
         if (type == null)
             throw new ArgumentNullException(nameof(type));
         if (!typeof(ILogStringProvider).IsAssignableFrom(type))
-            throw new ArgumentOutOfRangeException(nameof(type), $"should be assignable to {nameof(ILogStringProvider)}");
+            throw new ArgumentOutOfRangeException(nameof(type), $"Should be assignable to {nameof(ILogStringProvider)}");
 
         Type = type;
         Priority = priority;

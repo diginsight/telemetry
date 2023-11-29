@@ -16,7 +16,7 @@ public sealed class LogStringVariableConfiguration : ILogStringVariableConfigura
     public LogThreshold MaxDepth
     {
         get => maxDepth;
-        set => maxDepth = value.Value == 0 ? throw new ArgumentOutOfRangeException(nameof(MaxDepth), "expected positive value") : value;
+        set => maxDepth = value.Value == 0 ? throw new ArgumentOutOfRangeException(nameof(MaxDepth), "Expected positive value") : value;
     }
 
     public Regex? ImplicitNamespaces { get; set; }
