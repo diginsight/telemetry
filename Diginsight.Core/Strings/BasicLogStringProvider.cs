@@ -44,12 +44,15 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
                 return new DirectLogStringable(obj);
 #endif
 
-            case DateTime or DateTimeOffset or TimeSpan
+            case DateTime or DateTimeOffset
 #if NET6_0_OR_GREATER
                 or DateOnly or TimeOnly
 #endif
                 :
                 return new DirectLogStringable(obj, LogStringTokens.LiteralBegin + "{0:O}" + LogStringTokens.LiteralEnd);
+
+            case TimeSpan:
+                return new DirectLogStringable(obj, LogStringTokens.LiteralBegin + "{0:g}" + LogStringTokens.LiteralEnd);
 
             case Guid:
                 return new DirectLogStringable(obj, LogStringTokens.LiteralBegin + "{0:D}" + LogStringTokens.LiteralEnd);

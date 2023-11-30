@@ -6,13 +6,20 @@ namespace Diginsight.Diagnostics;
 
 public sealed class SpanDurationMetricProcessor : BaseProcessor<Activity>
 {
-    private static readonly Histogram<double> Metric = ObservabilityDefaults.Meter.CreateHistogram<double>("span_duration", "ms");
-
     private readonly IEnumerable<ISpanDurationMetricSampler> samplers;
+    private readonly ISpanDurationMetricProvider metricProvider;
 
-    public SpanDurationMetricProcessor(IEnumerable<ISpanDurationMetricSampler> samplers)
+    private Histogram<double>? metric;
+
+    private Histogram<double> Metric => metric ??= metricProvider.Metric;
+
+    public SpanDurationMetricProcessor(
+        IEnumerable<ISpanDurationMetricSampler> samplers,
+        ISpanDurationMetricProvider? metricProvider = null
+    )
     {
         this.samplers = samplers;
+        this.metricProvider = metricProvider ?? new DefaultSpanDurationMetricProvider();
     }
 
     public override void OnStart(Activity activity) { }
@@ -26,5 +33,5 @@ public sealed class SpanDurationMetricProcessor : BaseProcessor<Activity>
         );
     }
 
-    public static bool IsSpanDurationMetric(Instrument instrument) => instrument == Metric;
+    public bool IsSpanDurationMetric(Instrument instrument) => instrument == Metric;
 }

@@ -57,6 +57,10 @@ internal sealed class ClassConfigurationGetter<TClass> : IClassConfigurationGett
         static IEnumerable<string> GetPrefixes()
         {
             Type type = typeof(TClass);
+            if (type.IsArray || type.IsByRef || type.IsGenericParameter || type.IsGenericType || type.IsPointer)
+            {
+                throw new ArgumentException("Array, byref, generic and pointer types not supported");
+            }
 
             string[] namespacePieces = (type.Namespace ?? "").Split('.');
             IEnumerable<string> namespaceSegments = Enumerable.Range(1, namespacePieces.Length).Select(i => string.Join(".", namespacePieces.Take(i))).Reverse().ToArray();

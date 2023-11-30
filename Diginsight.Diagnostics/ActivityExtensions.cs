@@ -6,6 +6,10 @@ namespace Diginsight.Diagnostics;
 
 public static class ActivityExtensions
 {
+#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+    private static readonly char[] StarSeparators = { '*' };
+#endif
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void RecordDurationMetric(this Activity? activity, Histogram<long> durationMetric, params Tag[] tags)
     {
@@ -78,6 +82,36 @@ public static class ActivityExtensions
             Tag[] tags => tags,
             null => Array.Empty<Tag>(),
             _ => throw new InvalidOperationException("Invalid duration metric tags in activity"),
+        };
+    }
+
+    internal static bool MatchesActivityNamePattern(string name, string namePattern)
+    {
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        return namePattern.Split('*', 3) switch
+#else
+        string[] tokens = namePattern.Split(StarSeparators, 3);
+        string startToken;
+        string endToken;
+
+        return tokens.Length switch
+#endif
+        {
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            [_] => name == namePattern,
+            [var startToken, var endToken] => (startToken, endToken) switch
+#else
+            1 => name == namePattern,
+            2 => (startToken = tokens[0], endToken = tokens[1]) switch
+#endif
+            {
+                ("", "") => true,
+                ("", _) => name.EndsWith(endToken, StringComparison.OrdinalIgnoreCase),
+                (_, "") => name.StartsWith(startToken, StringComparison.OrdinalIgnoreCase),
+                (_, _) => name.StartsWith(startToken, StringComparison.OrdinalIgnoreCase) &&
+                    name.EndsWith(endToken, StringComparison.OrdinalIgnoreCase),
+            },
+            _ => throw new ArgumentException("Invalid activity name"),
         };
     }
 }
