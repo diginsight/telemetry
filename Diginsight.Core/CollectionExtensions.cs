@@ -32,14 +32,16 @@ public static class CollectionExtensions
         if (predicate is null)
             throw new ArgumentNullException(nameof(predicate));
 
-        IReadOnlyList<T> evaluated = source.Reverse().ToList();
-        int count = evaluated.Count;
-        for (int index = count - 1; index >= 0; index--)
+        int index = 0;
+        ICollection<T> reverse = source.Reverse().ToArray();
+        int count = reverse.Count;
+        foreach (T item in reverse)
         {
-            if (predicate(evaluated[index]))
+            if (predicate(item))
             {
-                return index;
+                return count - 1 - index;
             }
+            index++;
         }
         return -1;
     }
