@@ -3,7 +3,6 @@
 <#@ output extension=".g.cs" #>
 <#@ import namespace="System.Globalization" #>
 <#@ import namespace="System.Linq" #>
-#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
 namespace Diginsight;
 
 <#
@@ -123,4 +122,3 @@ public class TupleEqualityComparer<<#= ts #>>
 <#
     }
 #>
-#endif

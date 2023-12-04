@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
 
-public sealed class TimerMark : IDisposable
+public sealed class TimerLap : IDisposable
 {
     private readonly Histogram<double> histogram;
     private readonly ICollection<Tag> tags;
@@ -17,7 +17,7 @@ public sealed class TimerMark : IDisposable
 
     public double ElapsedMilliseconds => sw.Elapsed.TotalMilliseconds;
 
-    internal TimerMark(Histogram<double> histogram, Tags tags)
+    internal TimerLap(Histogram<double> histogram, Tags tags)
     {
         this.histogram = histogram;
         this.tags = tags.ToList();
@@ -77,16 +77,16 @@ public sealed class TimerMark : IDisposable
 
     private sealed class Stopper : IDisposable
     {
-        private readonly TimerMark mark;
+        private readonly TimerLap lap;
 
-        public Stopper(TimerMark mark)
+        public Stopper(TimerLap lap)
         {
-            this.mark = mark;
+            this.lap = lap;
         }
 
         public void Dispose()
         {
-            mark.Stop();
+            lap.Stop();
         }
     }
 }

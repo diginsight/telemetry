@@ -1,6 +1,9 @@
 ﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="Microsoft.Extensions.Logging.Abstractions" #>
 <#@ assembly name="System.Core" #>
 <#@ output extension=".g.cs" #>
+<#@ import namespace="Microsoft.Extensions.Logging" #>
+<#@ import namespace="System.Linq" #>
 #nullable enable
 #if NET7_0_OR_GREATER
 using Microsoft.Extensions.Logging;
@@ -9,7 +12,7 @@ using System.Runtime.CompilerServices;
 namespace Diginsight.Diagnostics;
 
 <#
-    foreach (string logLevel in new[] { "Trace", "Debug", "Information", "Warning", "Error", "Critical" })
+    foreach (string logLevel in Enum.GetNames(typeof(LogLevel)).Where(static x => x != LogLevel.None.ToString()))
     {
 #>
 [InterpolatedStringHandler]

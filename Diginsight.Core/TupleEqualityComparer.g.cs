@@ -1,5 +1,4 @@
-﻿#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-namespace Diginsight;
+﻿namespace Diginsight;
 
 public class TupleEqualityComparer<T1>
     : IEqualityComparer<ValueTuple<T1>>, IEqualityComparer<Tuple<T1>>
@@ -898,4 +897,3 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
 
 }
 
-#endif

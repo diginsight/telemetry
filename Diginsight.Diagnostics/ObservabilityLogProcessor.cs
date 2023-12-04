@@ -18,20 +18,17 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
 
     private readonly ILoggerFactory loggerFactory;
     private readonly IAppendingContextFactory appendingContextFactory;
-    private readonly IClassConfigurationGetterProvider classConfigurationGetterProvider;
     private readonly IOptionsMonitor<ObservabilityOptions> observabilityOptionsMonitor;
     private readonly ILogger fallbackLogger;
 
     public ObservabilityLogProcessor(
         ILoggerFactory loggerFactory,
         IAppendingContextFactory appendingContextFactory,
-        IClassConfigurationGetterProvider classConfigurationGetterProvider,
         IOptionsMonitor<ObservabilityOptions> observabilityOptionsMonitor
     )
     {
         this.loggerFactory = loggerFactory;
         this.appendingContextFactory = appendingContextFactory;
-        this.classConfigurationGetterProvider = classConfigurationGetterProvider;
         this.observabilityOptionsMonitor = observabilityOptionsMonitor;
         fallbackLogger = loggerFactory.CreateLogger($"{typeof(ObservabilityLogProcessor).Namespace!}.$Activity");
     }
@@ -246,8 +243,9 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
             _ => throw new InvalidOperationException("Invalid caller type in activity"),
         };
 
-        suppressRecording = callerType is not null &&
-            !classConfigurationGetterProvider.GetFor(callerType).Get("RecordActivities", false);
+        suppressRecording = !observabilityOptions.RecordActivities;
+        //suppressRecording = callerType is not null &&
+        //    !classConfigurationGetterProvider.GetFor(callerType).Get("RecordActivities", false);
 
         isStandalone = activity.GetCustomProperty(ActivityCustomPropertyNames.IsStandalone) switch
         {

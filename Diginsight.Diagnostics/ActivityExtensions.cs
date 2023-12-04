@@ -111,7 +111,7 @@ public static class ActivityExtensions
                 (_, _) => name.StartsWith(startToken, StringComparison.OrdinalIgnoreCase) &&
                     name.EndsWith(endToken, StringComparison.OrdinalIgnoreCase),
             },
-            _ => throw new ArgumentException("Invalid activity name"),
+            _ => throw new ArgumentException("Invalid activity name pattern"),
         };
     }
 }
