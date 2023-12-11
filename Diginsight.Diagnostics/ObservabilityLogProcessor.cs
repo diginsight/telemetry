@@ -19,17 +19,20 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
     private readonly ILoggerFactory loggerFactory;
     private readonly IAppendingContextFactory appendingContextFactory;
     private readonly IOptionsMonitor<ObservabilityOptions> observabilityOptionsMonitor;
+    private readonly IActivityRecordingSampler? activityRecordingSampler;
     private readonly ILogger fallbackLogger;
 
     public ObservabilityLogProcessor(
         ILoggerFactory loggerFactory,
         IAppendingContextFactory appendingContextFactory,
-        IOptionsMonitor<ObservabilityOptions> observabilityOptionsMonitor
+        IOptionsMonitor<ObservabilityOptions> observabilityOptionsMonitor,
+        IActivityRecordingSampler? activityRecordingSampler = null
     )
     {
         this.loggerFactory = loggerFactory;
         this.appendingContextFactory = appendingContextFactory;
         this.observabilityOptionsMonitor = observabilityOptionsMonitor;
+        this.activityRecordingSampler = activityRecordingSampler;
         fallbackLogger = loggerFactory.CreateLogger($"{typeof(ObservabilityLogProcessor).Namespace!}.$Activity");
     }
 
@@ -39,13 +42,13 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
             activity,
             observabilityOptionsMonitor.CurrentValue,
             out bool isStandalone,
-            out bool suppressRecording,
+            out bool shouldRecord,
             out ILogger textLogger,
             out ILogger otlpLogger,
             out LogLevel logLevel
         );
 
-        if (suppressRecording)
+        if (!shouldRecord)
         {
             activity.ActivityTraceFlags &= ~ActivityTraceFlags.Recorded;
         }
@@ -223,7 +226,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
         Activity activity,
         IObservabilityOptions observabilityOptions,
         out bool isStandalone,
-        out bool suppressRecording,
+        out bool shouldRecord,
         out ILogger textLogger,
         out ILogger otlpLogger,
         out LogLevel logLevel
@@ -250,13 +253,16 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
             _ => throw new InvalidOperationException($"Invalid '{ActivityCustomPropertyNames.IsStandalone}' in activity"),
         };
 
-        suppressRecording = activity.MatchesActivityNamePattern(observabilityOptions.NotRecordedActivityNames)
-            || (!activity.MatchesActivityNamePattern(observabilityOptions.RecordedActivityNames) && !observabilityOptions.RecordActivities);
+        bool? tempShouldRecord = activity.MatchesActivityNamePattern(observabilityOptions.NotRecordedActivityNames) ? false
+            : activity.MatchesActivityNamePattern(observabilityOptions.RecordedActivityNames) ? true
+            : null;
+        activityRecordingSampler?.ShouldRecord(activity, ref tempShouldRecord);
+        shouldRecord = tempShouldRecord ?? observabilityOptions.RecordActivities;
 
         ILogger innerLogger = providedLogger ?? (callerType is not null ? loggerFactory.CreateLogger(callerType) : fallbackLogger);
 
         textLogger = new ActivityLogger(innerLogger, activity.IsStopped ? activity.Duration : null);
-        otlpLogger = suppressRecording ? NullLogger.Instance : new OtlpLogger(innerLogger);
+        otlpLogger = shouldRecord ? new OtlpLogger(innerLogger) : NullLogger.Instance;
 
         logLevel = activity.GetCustomProperty(ActivityCustomPropertyNames.LogLevel) switch
         {
