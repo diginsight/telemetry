@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.Options;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Diginsight.CAOptions;
 
@@ -8,21 +8,44 @@ public sealed class ClassAwareOptionsCache<TOptions> : IClassAwareOptionsCache<T
 {
     private readonly ConcurrentDictionary<(string, Type?), Lazy<TOptions>> dict = new (new TupleEqualityComparer<string, Type?>(c1: StringComparer.Ordinal));
 
-    public TOptions GetOrAdd(string? name, Type? @class, Func<TOptions> createOptions)
+    public TOptions GetOrAdd(string name, Type? @class, Func<string, Type?, TOptions> create)
     {
         return dict.GetOrAdd(
+            (name, @class),
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            (name ?? Options.DefaultName, @class), static (_, f) => new Lazy<TOptions>(f), createOptions
+            static ((string Name, Type? Class) k, Func<string, Type?, TOptions> a) =>
+                new Lazy<TOptions>(() => a(k.Name, k.Class)),
+            create
 #else
-            (name ?? Options.DefaultName, @class), _ => new Lazy<TOptions>(createOptions)
+            ((string Name, Type? Class) k) => new Lazy<TOptions>(() => create(k.Name, k.Class))
 #endif
         ).Value;
     }
 
-    public bool TryAdd(string? name, Type? @class, TOptions options)
+    public TOptions GetOrAdd<TArg>(string name, Type? @class, Func<string, Type?, TArg, TOptions> create, TArg creatorArg)
+    {
+        return dict.GetOrAdd(
+            (name, @class),
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            static ((string Name, Type? Class) k, (Func<string, Type?, TArg, TOptions> Create, TArg Arg) a) =>
+                new Lazy<TOptions>(() => a.Create(k.Name, k.Class, a.Arg)),
+            (create, creatorArg)
+#else
+            ((string Name, Type? Class) k) => new Lazy<TOptions>(() => create(k.Name, k.Class, creatorArg))
+#endif
+        ).Value;
+    }
+
+    public bool TryGetValue(string name, Type? @class, [NotNullWhen(true)] out TOptions? options)
+    {
+        options = dict.TryGetValue((name, @class), out Lazy<TOptions>? lazy) ? lazy.Value : null;
+        return options is not null;
+    }
+
+    public bool TryAdd(string name, Type? @class, TOptions options)
     {
         return dict.TryAdd(
-            (name ?? Options.DefaultName, @class),
+            (name, @class),
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             new Lazy<TOptions>(options)
 #else
@@ -31,9 +54,9 @@ public sealed class ClassAwareOptionsCache<TOptions> : IClassAwareOptionsCache<T
         );
     }
 
-    public bool TryRemove(string? name, Type? @class)
+    public bool TryRemove(string name, Type? @class)
     {
-        return dict.TryRemove((name ?? Options.DefaultName, @class), out _);
+        return dict.TryRemove((name, @class), out _);
     }
 
     public void Clear()

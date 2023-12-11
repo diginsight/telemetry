@@ -18,6 +18,13 @@ public sealed class ClassAwareOptionsManager<TOptions, TClass> : IClassAwareOpti
     public TOptions Get(string? name)
     {
         name ??= Options.DefaultName;
-        return cache.GetOrAdd(name, typeof(TClass), () => factory.Create(name, typeof(TClass)));
+        Type @class = typeof(TClass);
+
+        if (!cache.TryGetValue(name, @class, out TOptions? options))
+        {
+            options = cache.GetOrAdd(name, @class, static (n, c, f) => f.Create(n, c), factory);
+        }
+
+        return options;
     }
 }

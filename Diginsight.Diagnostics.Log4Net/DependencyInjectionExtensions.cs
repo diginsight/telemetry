@@ -25,8 +25,8 @@ public static class DependencyInjectionExtensions
                 .AddSingleton<ILoggerProvider>(
                     sp =>
                     {
-                        IOptionsMonitor<ObservabilityConsoleFormatterOptions> formatterOptionsMonitor =
-                            sp.GetRequiredService<IOptionsMonitor<ObservabilityConsoleFormatterOptions>>();
+                        IOptionsMonitor<ObservabilityTextFormatterOptions> formatterOptionsMonitor =
+                            sp.GetRequiredService<IOptionsMonitor<ObservabilityTextFormatterOptions>>();
                         ILayout layout = new ObservabilityLayoutSkeleton(formatterOptionsMonitor);
 
                         BasicConfigurator.Configure(

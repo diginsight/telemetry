@@ -1,13 +1,19 @@
-﻿namespace Diginsight.CAOptions;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Diginsight.CAOptions;
 
 public interface IClassAwareOptionsCache<TOptions>
     where TOptions : class
 {
-    TOptions GetOrAdd(string? name, Type? @class, Func<TOptions> createOptions);
+    TOptions GetOrAdd(string name, Type? @class, Func<string, Type?, TOptions> create);
 
-    bool TryAdd(string? name, Type? @class, TOptions options);
+    TOptions GetOrAdd<TArg>(string name, Type? @class, Func<string, Type?, TArg, TOptions> create, TArg creatorArg);
 
-    bool TryRemove(string? name, Type? @class);
+    bool TryGetValue(string name, Type? @class, [NotNullWhen(true)] out TOptions? options);
+
+    bool TryAdd(string name, Type? @class, TOptions options);
+
+    bool TryRemove(string name, Type? @class);
 
     void Clear();
 }

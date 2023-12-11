@@ -39,18 +39,18 @@ public static class DependencyInjectionExtensions
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ILoggingBuilder AddObservabilityConsole(
-        this ILoggingBuilder loggingBuilder, Action<ObservabilityConsoleFormatterOptions>? configureFormatterOptions = null
+        this ILoggingBuilder loggingBuilder, Action<ObservabilityTextFormatterOptions>? configureFormatterOptions = null
     )
     {
         loggingBuilder.AddObservability();
 
         if (configureFormatterOptions is not null)
         {
-            loggingBuilder.AddConsoleFormatter<ObservabilityConsoleFormatter, ObservabilityConsoleFormatterOptions>(configureFormatterOptions);
+            loggingBuilder.AddConsoleFormatter<ObservabilityConsoleFormatter, ObservabilityTextFormatterOptions>(configureFormatterOptions);
         }
         else
         {
-            loggingBuilder.AddConsoleFormatter<ObservabilityConsoleFormatter, ObservabilityConsoleFormatterOptions>();
+            loggingBuilder.AddConsoleFormatter<ObservabilityConsoleFormatter, ObservabilityTextFormatterOptions>();
         }
 
         loggingBuilder.AddConsole(static consoleLoggerOptions => { consoleLoggerOptions.FormatterName = ObservabilityConsoleFormatter.FormatterName; });

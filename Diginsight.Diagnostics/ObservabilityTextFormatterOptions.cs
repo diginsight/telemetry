@@ -2,7 +2,7 @@
 
 namespace Diginsight.Diagnostics;
 
-public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptions, IObservabilityConsoleFormatterOptions
+public sealed class ObservabilityTextFormatterOptions : ConsoleFormatterOptions, IObservabilityTextFormatterOptions
 {
     public string? TimestampCulture { get; set; }
 
@@ -14,7 +14,7 @@ public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptio
 
     public int MaxIndentedDepth { get; set; } = 10;
 
-    public ObservabilityConsoleFormatterOptions()
+    public ObservabilityTextFormatterOptions()
     {
         UseUtcTimestamp = true;
     }

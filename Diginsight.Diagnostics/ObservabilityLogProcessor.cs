@@ -243,16 +243,15 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
             _ => throw new InvalidOperationException("Invalid caller type in activity"),
         };
 
-        suppressRecording = !observabilityOptions.RecordActivities;
-        //suppressRecording = callerType is not null &&
-        //    !classConfigurationGetterProvider.GetFor(callerType).Get("RecordActivities", false);
-
         isStandalone = activity.GetCustomProperty(ActivityCustomPropertyNames.IsStandalone) switch
         {
             bool b => b,
             null => true,
             _ => throw new InvalidOperationException($"Invalid '{ActivityCustomPropertyNames.IsStandalone}' in activity"),
         };
+
+        suppressRecording = activity.MatchesActivityNamePattern(observabilityOptions.NotRecordedActivityNames)
+            || (!activity.MatchesActivityNamePattern(observabilityOptions.RecordedActivityNames) && !observabilityOptions.RecordActivities);
 
         ILogger innerLogger = providedLogger ?? (callerType is not null ? loggerFactory.CreateLogger(callerType) : fallbackLogger);
 

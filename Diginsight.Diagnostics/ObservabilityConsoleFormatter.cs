@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Console;
 using Microsoft.Extensions.Options;
-using System.Globalization;
 
 namespace Diginsight.Diagnostics;
 
@@ -10,10 +9,10 @@ internal sealed class ObservabilityConsoleFormatter : ConsoleFormatter
 {
     public const string FormatterName = "observability";
 
-    private readonly IOptionsMonitor<ObservabilityConsoleFormatterOptions> formatterOptionsMonitor;
+    private readonly IOptionsMonitor<ObservabilityTextFormatterOptions> formatterOptionsMonitor;
 
     public ObservabilityConsoleFormatter(
-        IOptionsMonitor<ObservabilityConsoleFormatterOptions> formatterOptionsMonitor
+        IOptionsMonitor<ObservabilityTextFormatterOptions> formatterOptionsMonitor
     )
         : base(FormatterName)
     {
@@ -52,23 +51,18 @@ internal sealed class ObservabilityConsoleFormatter : ConsoleFormatter
             logEntry.Formatter ?? (static (s, _) => s?.ToString() ?? "");
 #endif
 
-        IObservabilityConsoleFormatterOptions formatterOptions = formatterOptionsMonitor.CurrentValue;
+        IObservabilityTextFormatterOptions formatterOptions = formatterOptionsMonitor.CurrentValue;
 
         ObservabilityTextWriter.Write(
             textWriter,
             formatterOptions.UseUtcTimestamp ? DateTime.UtcNow : DateTime.Now,
-            formatterOptions.TimestampFormat,
-            formatterOptions.TimestampCulture is { } cultureName ? CultureInfo.GetCultureInfo(cultureName) : null,
             logEntry.LogLevel,
             logEntry.Category,
             formatter(state, logEntry.Exception),
             logEntry.Exception,
-            formatterOptions.CategoryLength,
-            formatterOptions.MaxMessageLength,
-            formatterOptions.MaxLineLength,
-            formatterOptions.MaxIndentedDepth,
             isActivity,
-            duration
+            duration,
+            formatterOptions
         );
     }
 }

@@ -6,6 +6,7 @@ namespace Diginsight.CAOptions;
 public sealed class ClassAwareOptionsMonitor<TOptions, TClass> : IClassAwareOptionsMonitor<TOptions, TClass>, IDisposable
     where TOptions : class
 {
+    private readonly Type @class = typeof(TClass);
     private readonly IClassAwareOptionsFactory<TOptions> factory;
     private readonly IClassAwareOptionsCache<TOptions> cache;
     private readonly ICollection<IDisposable> registrations = new List<IDisposable>();
@@ -22,7 +23,7 @@ public sealed class ClassAwareOptionsMonitor<TOptions, TClass> : IClassAwareOpti
     {
         this.factory = factory;
         this.cache = cache;
-        foreach (IClassAwareOptionsChangeTokenSource<TOptions> source in sources.Where(static x => x.Class == typeof(TClass)))
+        foreach (IClassAwareOptionsChangeTokenSource<TOptions> source in sources.Where(x => x.Class == @class))
         {
             IDisposable item = ChangeToken.OnChange(source.GetChangeToken, InvokeChanged, source.Name);
             registrations.Add(item);
@@ -32,14 +33,14 @@ public sealed class ClassAwareOptionsMonitor<TOptions, TClass> : IClassAwareOpti
     private void InvokeChanged(string? name)
     {
         name ??= Options.DefaultName;
-        cache.TryRemove(name, typeof(TClass));
+        cache.TryRemove(name, @class);
         Change?.Invoke(Get(name), name);
     }
 
     public TOptions Get(string? name)
     {
         name ??= Options.DefaultName;
-        return cache.GetOrAdd(name, typeof(TClass), () => factory.Create(name, typeof(TClass)));
+        return cache.GetOrAdd(name, @class, static (n, c, f) => f.Create(n, c), factory);
     }
 
     public IDisposable OnChange(Action<TOptions, string> listener)

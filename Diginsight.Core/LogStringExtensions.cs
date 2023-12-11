@@ -1,6 +1,8 @@
 ﻿using Diginsight.Strings;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -9,6 +11,8 @@ namespace Diginsight;
 
 public static class LogStringExtensions
 {
+    private static readonly Histogram<double> LogStringDuration = AutoObservabilityUtils.Meter.CreateHistogram<double>("diginsight.log_string_duration", "ms");
+
     private static readonly IEnumerable<Type> FixedForbiddenTypes = new[]
     {
         typeof(Thread),
@@ -48,9 +52,24 @@ public static class LogStringExtensions
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
-        StringBuilder stringBuilder = new ();
-        appendingContextFactory.MakeAppendingContext(stringBuilder).ComposeAndAppend(obj, false, true, configureVariables, configureMetaProperties);
-        return stringBuilder.ToString();
+        bool success = true;
+        Stopwatch stopwatch = Stopwatch.StartNew();
+
+        try
+        {
+            StringBuilder stringBuilder = new ();
+            appendingContextFactory.MakeAppendingContext(stringBuilder).ComposeAndAppend(obj, false, true, configureVariables, configureMetaProperties);
+            return stringBuilder.ToString();
+        }
+        catch (Exception)
+        {
+            success = false;
+            throw;
+        }
+        finally
+        {
+            LogStringDuration.Record(stopwatch.Elapsed.TotalMilliseconds, new KeyValuePair<string, object?>("success", success));
+        }
     }
 
     internal static bool IsForbidden(this Type type)

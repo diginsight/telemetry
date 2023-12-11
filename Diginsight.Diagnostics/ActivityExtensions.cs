@@ -98,10 +98,10 @@ public static class ActivityExtensions
 #endif
         {
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            [_] => name == namePattern,
+            [_] => string.Equals(name, namePattern, StringComparison.OrdinalIgnoreCase),
             [var startToken, var endToken] => (startToken, endToken) switch
 #else
-            1 => name == namePattern,
+            1 => string.Equals(name, namePattern, StringComparison.OrdinalIgnoreCase),
             2 => (startToken = tokens[0], endToken = tokens[1]) switch
 #endif
             {
@@ -113,5 +113,12 @@ public static class ActivityExtensions
             },
             _ => throw new ArgumentException("Invalid activity name pattern"),
         };
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static bool MatchesActivityNamePattern(this Activity activity, IEnumerable<string> namePatterns)
+    {
+        string name = activity.OperationName;
+        return namePatterns.Any(x => MatchesActivityNamePattern(name, x));
     }
 }

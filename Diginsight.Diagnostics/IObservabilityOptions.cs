@@ -7,4 +7,8 @@ public interface IObservabilityOptions
     LogLevel DefaultActivityLogLevel { get; }
 
     bool RecordActivities { get; }
+
+    IEnumerable<string> RecordedActivityNames { get; }
+
+    IEnumerable<string> NotRecordedActivityNames { get; }
 }

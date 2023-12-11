@@ -1,7 +1,13 @@
-﻿namespace Diginsight.CAOptions;
+﻿using Microsoft.Extensions.Options;
 
-public interface IClassAwareOptionsFactory<out TOptions>
+namespace Diginsight.CAOptions;
+
+public interface IClassAwareOptionsFactory<TOptions> : IOptionsFactory<TOptions>
     where TOptions : class
 {
-    TOptions Create(string name, Type? type);
+    TOptions Create(string name, Type? @class);
+
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+    TOptions IOptionsFactory<TOptions>.Create(string name) => Create(name, null);
+#endif
 }

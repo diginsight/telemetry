@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 using System.Text.RegularExpressions;
 #if NET6_0_OR_GREATER
 using Microsoft.Extensions.Hosting;
