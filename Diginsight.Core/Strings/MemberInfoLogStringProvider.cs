@@ -173,7 +173,7 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
                             using IEnumerator<Type> enumerator = type.GetGenericArguments().AsEnumerable().GetEnumerator();
                             ac.AppendEnumerator(
                                 enumerator,
-                                (ac1, e) => { Append(e.Current!, ac1); },
+                                (ac1, e) => { Append(e.Current, ac1); },
                                 AllottingCounter.Unlimited,
                                 ","
                             );
@@ -223,7 +223,7 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
                     using IEnumerator<ParameterInfo> enumerator = ((IReadOnlyList<ParameterInfo>)parameters).GetEnumerator();
                     ac.AppendEnumerator(
                         enumerator,
-                        (ac1, e) => { Append(e.Current!, ac1); },
+                        (ac1, e) => { Append(e.Current, ac1); },
                         AllottingCounter.Count(appendingContext.VariableConfiguration.GetEffectiveMaxMethodParameterCount())
                     );
                 }
@@ -347,7 +347,7 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
 
         public void AppendTo(AppendingContext appendingContext)
         {
-            appendingContext.AppendDirect(assembly.FullName!);
+            appendingContext.AppendDirect(assembly.GetName().FullName);
         }
     }
 }

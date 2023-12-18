@@ -11,6 +11,7 @@ namespace Common
     public sealed class DurationMetricProcessor : BaseProcessor<Activity>
     {
         private static readonly Histogram<double> SpanDurationMetric = ObservabilityDefaults.Meter.CreateHistogram<double>("span_duration", "ms");
+        private static readonly Histogram<long> ResponseSizeMetric = ObservabilityDefaults.Meter.CreateHistogram<long>("http_response_length", unit: "bytes");
 
         public override void OnStart(Activity activity) { }
 

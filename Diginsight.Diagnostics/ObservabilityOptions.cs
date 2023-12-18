@@ -8,6 +8,8 @@ public sealed class ObservabilityOptions : IObservabilityOptions
 
     public bool RecordActivities { get; set; }
 
+    public bool RecordSpanDurations { get; set; } = true;
+
     public ICollection<string> RecordedActivityNames { get; } = new List<string>();
 
     public ICollection<string> NotRecordedActivityNames { get; } = new List<string>();

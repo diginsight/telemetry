@@ -5,5 +5,5 @@ namespace Diginsight.Diagnostics;
 
 public interface ICustomDurationMetricSampler
 {
-    bool ShouldRecord(Activity activity, Instrument instrument);
+    bool? ShouldRecord(Activity activity, Instrument instrument);
 }

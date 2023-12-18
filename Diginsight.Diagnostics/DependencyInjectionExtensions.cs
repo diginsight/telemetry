@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
@@ -14,11 +13,14 @@ namespace Diginsight.Diagnostics;
 public static class DependencyInjectionExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static OpenTelemetryBuilder AddObservability(this IServiceCollection services, IConfiguration rootForClassConfigurationGetter)
+    public static OpenTelemetryBuilder AddObservability(this IServiceCollection services, Action<ObservabilityOptions>? configureObservability = null)
     {
-        return services
-            .AddClassConfigurationGetter(rootForClassConfigurationGetter)
-            .AddOpenTelemetry();
+        if (configureObservability is not null)
+        {
+            services.Configure(configureObservability);
+        }
+
+        return services.AddOpenTelemetry();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -65,11 +67,21 @@ public static class DependencyInjectionExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static TracerProviderBuilder AddObservability(this TracerProviderBuilder tracerProviderBuilder)
+    public static TracerProviderBuilder AddObservability(this TracerProviderBuilder tracerProviderBuilder, LogLevel? defaultActivityLogLevel = null)
     {
         return tracerProviderBuilder
             .AddProcessor<ObservabilityLogProcessor>()
-            .ConfigureServices(static services => services.AddLogStrings());
+            .ConfigureServices(
+                services =>
+                {
+                    services.AddLogStrings();
+
+                    if (defaultActivityLogLevel is not null)
+                    {
+                        services.Configure<ObservabilityOptions>(o => { o.DefaultActivityLogLevel = defaultActivityLogLevel.Value; });
+                    }
+                }
+            );
     }
 
     public static MeterProviderBuilder AddViews(

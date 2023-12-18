@@ -44,13 +44,6 @@ internal sealed class ObservabilityConsoleFormatter : ConsoleFormatter
             duration = null;
         }
 
-        Func<TState, Exception?, string> formatter =
-#if NET7_0_OR_GREATER
-            logEntry.Formatter;
-#else
-            logEntry.Formatter ?? (static (s, _) => s?.ToString() ?? "");
-#endif
-
         IObservabilityTextFormatterOptions formatterOptions = formatterOptionsMonitor.CurrentValue;
 
         ObservabilityTextWriter.Write(
@@ -58,7 +51,7 @@ internal sealed class ObservabilityConsoleFormatter : ConsoleFormatter
             formatterOptions.UseUtcTimestamp ? DateTime.UtcNow : DateTime.Now,
             logEntry.LogLevel,
             logEntry.Category,
-            formatter(state, logEntry.Exception),
+            logEntry.Formatter(state, logEntry.Exception),
             logEntry.Exception,
             isActivity,
             duration,

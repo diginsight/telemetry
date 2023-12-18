@@ -211,7 +211,7 @@ public static class ObservabilityTextWriter
             string fullMessage = message;
             if (exception is not null)
             {
-                activity.RecordException(exception);
+                activity?.RecordException(exception);
                 fullMessage += $"{newLine}{exception}";
             }
             fullMessage = fullMessage.Replace("\r", "");

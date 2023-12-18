@@ -45,7 +45,7 @@ internal sealed class JTokenLogStringProvider : ILogStringProvider
             {
                 appendingContext.AppendEnumerator(
                     enumerator,
-                    (ac, e) => { e.Current!.Accept(this, ac); },
+                    (ac, e) => { e.Current.Accept(this, ac); },
                     appendingContext.CountCollectionItems(),
                     ","
                 );
@@ -68,7 +68,7 @@ internal sealed class JTokenLogStringProvider : ILogStringProvider
             {
                 appendingContext.AppendEnumerator(
                     enumerator,
-                    (ac, e) => { e.Current!.Accept(this, ac); },
+                    (ac, e) => { e.Current.Accept(this, ac); },
                     appendingContext.CountCollectionItems(),
                     ","
                 );
@@ -91,7 +91,7 @@ internal sealed class JTokenLogStringProvider : ILogStringProvider
             {
                 appendingContext.AppendEnumerator(
                     enumerator,
-                    (ac, e) => { e.Current!.Accept(this, ac); },
+                    (ac, e) => { e.Current.Accept(this, ac); },
                     appendingContext.CountDictionaryItems(),
                     ","
                 );
