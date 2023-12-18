@@ -1,12 +1,22 @@
 <Project>
 
-  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-  </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.*" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.*" PrivateAssets="all" />
   </ItemGroup>
+
+  <Choose>
+    <When Condition="'$(GITHUB_ACTIONS)' == 'true'">
+      <PropertyGroup>
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <EnableSourceLink>false</EnableSourceLink>
+        <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
 
   <ItemGroup Condition="Exists('$(MSBuildProjectDirectory)\packages.lock.json')">
     <Content Remove="packages.lock.json" />

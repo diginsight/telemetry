@@ -1,4 +1,5 @@
-﻿using OpenTelemetry;
+﻿using Microsoft.Extensions.Options;
+using OpenTelemetry;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 
@@ -6,7 +7,8 @@ namespace Diginsight.Diagnostics;
 
 public sealed class SpanDurationMetricProcessor : BaseProcessor<Activity>
 {
-    private readonly IEnumerable<ISpanDurationMetricSampler> samplers;
+    private readonly IObservabilityOptions observabilityOptions;
+    private readonly ISpanDurationMetricSampler? sampler;
     private readonly ISpanDurationMetricProvider metricProvider;
 
     private Histogram<double>? metric;
@@ -14,11 +16,13 @@ public sealed class SpanDurationMetricProcessor : BaseProcessor<Activity>
     private Histogram<double> Metric => metric ??= metricProvider.Metric;
 
     public SpanDurationMetricProcessor(
-        IEnumerable<ISpanDurationMetricSampler> samplers,
+        IOptions<ObservabilityOptions> observabilityOptions,
+        ISpanDurationMetricSampler? sampler = null,
         ISpanDurationMetricProvider? metricProvider = null
     )
     {
-        this.samplers = samplers;
+        this.observabilityOptions = observabilityOptions.Value;
+        this.sampler = sampler;
         this.metricProvider = metricProvider ?? new DefaultSpanDurationMetricProvider();
     }
 
@@ -26,6 +30,11 @@ public sealed class SpanDurationMetricProcessor : BaseProcessor<Activity>
 
     public override void OnEnd(Activity activity)
     {
+        if (!(sampler?.ShouldRecord(activity) ?? observabilityOptions.RecordSpanDurations))
+        {
+            return;
+        }
+
         Metric.Record(
             activity.Duration.TotalMilliseconds,
             new Tag("span_name", activity.OperationName),

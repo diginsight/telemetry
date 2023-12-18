@@ -8,6 +8,8 @@ public interface IObservabilityOptions
 
     bool RecordActivities { get; }
 
+    bool RecordSpanDurations { get; }
+
     IEnumerable<string> RecordedActivityNames { get; }
 
     IEnumerable<string> NotRecordedActivityNames { get; }
