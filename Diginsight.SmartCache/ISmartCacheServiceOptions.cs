@@ -1,6 +1,6 @@
 ﻿namespace Diginsight.SmartCache;
 
-public interface ICacheServiceOptions
+public interface ISmartCacheServiceOptions
 {
     int DefaultMaxAge { get; }
 
@@ -18,8 +18,6 @@ public interface ICacheServiceOptions
     long MidPrioritySizeThreshold { get; }
 
     long ReadLatencyThreshold { get; }
-
-    string RedisKeyPrefix { get; }
 
     TimeSpan LocalEntryTolerance { get; }
 }

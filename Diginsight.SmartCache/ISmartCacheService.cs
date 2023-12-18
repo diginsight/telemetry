@@ -2,9 +2,9 @@
 
 namespace Diginsight.SmartCache;
 
-public interface ICacheService
+public interface ISmartCacheService
 {
-    Task<T> GetAsync<T>(ICacheKey key, Func<Task<T>> fetchAsync, ICacheContext? cacheContext = null);
+    Task<T> GetAsync<T>(ICacheKey key, Func<Task<T>> fetchAsync, ISmartCacheOperationOptions? cacheOperationOptions = null);
 
     bool TryGetDirectFromMemory(ICacheKey key, [NotNullWhen(true)] out Type? type, out object? value);
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -12,32 +13,34 @@ public static class SmartCacheExtensions
     private static readonly MethodInfo UnwrapAsArrayMethod = typeof(SmartCacheExtensions)
         .GetMethod(nameof(UnwrapAsArray), BindingFlags.NonPublic | BindingFlags.Static)!;
 
-    public static IServiceCollection AddCacheService(this IServiceCollection services, IConfiguration configuration, IHostEnvironment hostEnvironment)
+    public static IServiceCollection AddSmartCache(this IServiceCollection services, bool addMiddleware = true)
     {
-        services.Configure<CacheServiceOptions>(configuration.GetSection(nameof(CacheServiceOptions)));
         services.AddMemoryCache();
 
-        services.AddSingleton<ICacheService, CacheService>();
-        services.AddSingleton<ICacheKeyService, CacheKeyService>();
+        services.TryAddSingleton<ISmartCacheService, SmartCacheService>();
+        services.TryAddSingleton<ICacheKeyService, CacheKeyService>();
 
-        services.AddHttpClient(nameof(CacheService))
+        services
+            .AddHttpClient(nameof(SmartCacheService))
             .ConfigureHttpClient(
                 static (sp, hc) =>
                 {
-                    ICacheServiceOptions options = sp.GetRequiredService<IOptions<CacheServiceOptions>>().Value;
+                    ISmartCacheServiceOptions options = sp.GetRequiredService<IOptions<SmartCacheServiceOptions>>().Value;
                     hc.Timeout = options.CompanionRequestTimeout > TimeSpan.Zero ? options.CompanionRequestTimeout : TimeSpan.FromSeconds(5);
                 }
             );
 
-        services.AddSingleton<IRedisDatabaseAccessor, RedisDatabaseAccessor>();
-
-        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("POD_IP")))
+        if (addMiddleware && !services.Any(x => x.ServiceType == typeof(SmartCacheMiddleware)))
         {
-            services.AddSingleton<ICacheCompanionProvider, LocalCacheCompanionProvider>();
-        }
-        else
-        {
-            services.AddSingleton<ICacheCompanionProvider, KubernetesCacheCompanionProvider>();
+            services
+                .AddTransient<SmartCacheMiddleware>()
+                .AddOptions<SmartCacheMiddlewareOptions>()
+                .Validate(
+                    static o =>
+                    {
+                        throw new NotImplementedException();
+                    }
+                );
         }
 
         return services;
@@ -84,7 +87,7 @@ public static class SmartCacheExtensions
 
         return (T)UnwrapAsArrayMethod
             .MakeGenericMethod(elementType)
-            .Invoke(null, new object?[] { key })!;
+            .Invoke(null, [key])!;
     }
 
     private static T UnwrapAsPlain<T>(this ICacheKey key)
@@ -133,7 +136,7 @@ public static class SmartCacheExtensions
 
         public override string ToString()
         {
-            return "[" + string.Join(',', array) + "]";
+            return "[" + string.Join(",", array) + "]";
         }
 
         public object Unwrap()

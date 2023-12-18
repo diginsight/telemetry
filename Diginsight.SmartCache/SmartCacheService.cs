@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
@@ -14,16 +15,12 @@ using IDisposable = System.IDisposable;
 
 namespace Diginsight.SmartCache;
 
-public class CacheService : ICacheService
+public class SmartCacheService : ISmartCacheService
 {
-    private static readonly CacheMetrics CacheMetrics = CacheMetrics.Instance;
-    public static readonly ActivitySource ActivitySource = new(CacheMetrics.ObservabilityName);
-
-    // public const string ObservabilityName = "cache-service";
     private const string RedisLocation = "<redis>";
 
-    private readonly ICacheServiceOptions cacheServiceOptions;
-    private readonly ILogger<CacheService> logger;
+    private readonly ISmartCacheServiceOptions cacheServiceOptions;
+    private readonly ILogger<SmartCacheService> logger;
     private readonly IMemoryCache memoryCache;
     private readonly IRedisDatabaseAccessor redisDatabaseAccessor;
     private readonly IHttpContextAccessor httpContextAccessor;
@@ -36,15 +33,15 @@ public class CacheService : ICacheService
 
     private long memoryCacheSize = 0;
 
-    public CacheService(
+    public SmartCacheService(
         IOptions<MemoryCacheOptions> memoryCacheOptionsOptions,
         ILoggerFactory loggerFactory,
-        IOptions<CacheServiceOptions> cacheServiceOptionsOptions,
-        ILogger<CacheService> logger,
+        IOptions<SmartCacheServiceOptions> cacheServiceOptionsOptions,
+        ILogger<SmartCacheService> logger,
         IRedisDatabaseAccessor redisDatabaseAccessor,
         IHttpContextAccessor httpContextAccessor,
         IHttpClientFactory httpClientFactory,
-        IClassConfigurationGetter<CacheService> classConfigurationGetter,
+        IClassConfigurationGetter<SmartCacheService> classConfigurationGetter,
         ICacheCompanionProvider companionProvider)
     {
         cacheServiceOptions = cacheServiceOptionsOptions.Value;
@@ -174,16 +171,16 @@ public class CacheService : ICacheService
             {
                 scope.LogDebug($"Key {keyLogString} is also available and up-to-date in other locations: {locations.GetLogString()}");
 
-                HttpClient httpClient = httpClientFactory.CreateClient(nameof(CacheService));
+                HttpClient httpClient = httpClientFactory.CreateClient(nameof(SmartCacheService));
 
                 string rawKey;
                 using (CacheMetrics.SerializationDuration.StartMark(MetricTags.CacheKey, MetricTags.Serialization))
                 using (ActivitySource.StartActivity("CacheService.Serialize"))
                 {
-                    rawKey = CacheSerialization.SerializeToString(key);
+                    rawKey = SmartCacheSerialization.SerializeToString(key);
                 }
 
-                HttpContent requestContent = new StringContent(rawKey, CacheSerialization.Encoding, "application/json");
+                HttpContent requestContent = new StringContent(rawKey, SmartCacheSerialization.Encoding, "application/json");
                 long keySerializedSize = requestContent.Headers.ContentLength!.Value;
 
                 ConcurrentBag<string> invalidLocations = [];
@@ -216,7 +213,7 @@ public class CacheService : ICacheService
                                 using (CacheMetrics.SerializationDuration.StartMark(MetricTags.CacheValue, MetricTags.Deserialization))
                                 using (ActivitySource.StartActivity("CacheService.Deserialize"))
                                 {
-                                    item = CacheSerialization.Deserialize<TValue>(contentStream);
+                                    item = SmartCacheSerialization.Deserialize<TValue>(contentStream);
                                 }
                             }
                         }
@@ -280,7 +277,7 @@ public class CacheService : ICacheService
                     {
                         using (ActivitySource.StartActivity("CacheService.Deserialize"))
                         {
-                            entry = CacheSerialization.Deserialize<ValueEntry<TValue>>((byte[])redisEntry!);
+                            entry = SmartCacheSerialization.Deserialize<ValueEntry<TValue>>((byte[])redisEntry!);
                         }
                     }
 
@@ -566,7 +563,7 @@ public class CacheService : ICacheService
             {
                 using (ActivitySource.StartActivity("CacheService.Serialize"))
                 {
-                    redisKey = CacheSerialization.SerializeToBytes(key);
+                    redisKey = SmartCacheSerialization.SerializeToBytes(key);
                 }
             }
 
@@ -575,7 +572,7 @@ public class CacheService : ICacheService
             {
                 using (ActivitySource.StartActivity("CacheService.Serialize"))
                 {
-                    rawEntry = CacheSerialization.SerializeToBytes(entry);
+                    rawEntry = SmartCacheSerialization.SerializeToBytes(entry);
                 }
             }
 
@@ -622,7 +619,7 @@ public class CacheService : ICacheService
                     {
                         try
                         {
-                            CacheSerialization.SerializeToStream(value, valueType, valueStream);
+                            SmartCacheSerialization.SerializeToStream(value, valueType, valueStream);
                             valueTuple = (valueType, value);
                         }
                         catch (NotSupportedException) // In case the serialized value is longer than 'size'
@@ -727,7 +724,7 @@ public class CacheService : ICacheService
             {
                 using (ActivitySource.StartActivity("CacheService.Serialize"))
                 {
-                    redisKey = (RedisKey)CacheSerialization.SerializeToString(key);
+                    redisKey = (RedisKey)SmartCacheSerialization.SerializeToString(key);
                 }
             }
 
@@ -835,16 +832,16 @@ public class CacheService : ICacheService
             return;
         }
 
-        HttpClient httpClient = httpClientFactory.CreateClient(nameof(CacheService));
+        HttpClient httpClient = httpClientFactory.CreateClient(nameof(SmartCacheService));
 
         string stringContent;
         using (CacheMetrics.SerializationDuration.StartMark(MetricTags.CacheValue, MetricTags.Serialization))
         using (ActivitySource.StartActivity("CacheService.Serialize"))
         {
-            stringContent = CacheSerialization.SerializeToString(await makeObjAsync());
+            stringContent = SmartCacheSerialization.SerializeToString(await makeObjAsync());
         }
 
-        HttpContent content = new StringContent(stringContent, CacheSerialization.Encoding);
+        HttpContent content = new StringContent(stringContent, SmartCacheSerialization.Encoding);
 
         foreach (string companionIp in companionIps)
         {

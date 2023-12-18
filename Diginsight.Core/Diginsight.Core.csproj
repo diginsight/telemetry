@@ -24,9 +24,6 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(MicrosoftExtensionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsVersion)" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.*" />
     <PackageReference Include="Scrutor" Version="4.*">
       <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>

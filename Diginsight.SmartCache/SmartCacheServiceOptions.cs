@@ -1,6 +1,6 @@
 ﻿namespace Diginsight.SmartCache;
 
-public sealed class CacheServiceOptions : ICacheServiceOptions
+public sealed class SmartCacheServiceOptions : ISmartCacheServiceOptions
 {
     private TimeSpan localEntryTolerance = TimeSpan.FromSeconds(10);
 
@@ -20,9 +20,6 @@ public sealed class CacheServiceOptions : ICacheServiceOptions
     public long MidPrioritySizeThreshold { get; set; } = 10_000;
 
     public long ReadLatencyThreshold { get; set; } = 150;
-
-    public string RedisKeyPrefix { get; set; } = null!;
-
     public TimeSpan LocalEntryTolerance
     {
         get => localEntryTolerance;

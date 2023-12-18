@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace Diginsight.SmartCache;
 
-public static class CacheSerialization
+public static class SmartCacheSerialization
 {
     private static readonly JsonSerializer Serializer = JsonSerializer.CreateDefault(
         new JsonSerializerSettings()
@@ -226,25 +226,43 @@ public static class CacheSerialization
             }
         }
 
-        public Type BindToType(string? assemblyName, string typeName)
+        public Type BindToType(string? assemblyName, string typeName) => BindToType(assemblyName, typeName.AsSpan());
+
+        public Type BindToType(string? assemblyName, ReadOnlySpan<char> typeName)
         {
-            if (typeName.EndsWith("[]", StringComparison.Ordinal))
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            if (typeName.EndsWith("[]"))
+#else
+            if (typeName.EndsWith("[]".AsSpan()))
+#endif
             {
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                 return BindToType(assemblyName, typeName[..^2]).MakeArrayType();
+#else
+                return BindToType(assemblyName, typeName.Slice(0, typeName.Length - 2)).MakeArrayType();
+#endif
             }
 
+#if NET6_0_OR_GREATER
             if (!typeName.Contains('#'))
+#else
+            if (!typeName.Contains("#".AsSpan(), StringComparison.Ordinal))
+#endif
             {
                 if (assemblyName is null)
                 {
-                    return Type.GetType(typeName)!;
+                    return Type.GetType(typeName.ToString())!;
                 }
 
-                Assembly assembly = assemblyName.StartsWith('#')
+                Assembly assembly = assemblyName[0] == '#'
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                     ? NameToAssemblyMap[assemblyName[1..]]
+#else
+                    ? NameToAssemblyMap[assemblyName.Substring(1)]
+#endif
                     : Assembly.Load(assemblyName);
 
-                return assembly.GetType(typeName)!;
+                return assembly.GetType(typeName.ToString())!;
             }
 
             int genericIndex = typeName.IndexOf('[');
@@ -252,16 +270,31 @@ public static class CacheSerialization
             {
                 // By design, if typeName is not a constructed generic type and contains '#',
                 // then it can only be in the form "#Name'; so we are done.
-                return NameToTypeMap[typeName[1..]];
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+                return NameToTypeMap[typeName[1..].ToString()];
+#else
+                return NameToTypeMap[typeName.Slice(1).ToString()];
+#endif
             }
 
-            string rootTypeName = typeName[..genericIndex];
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            ReadOnlySpan<char> rootTypeName = typeName[..genericIndex];
+#else
+            ReadOnlySpan<char> rootTypeName = typeName.Slice(0, genericIndex);
+#endif
             Type rootType = BindToType(assemblyName, rootTypeName);
 
-            string typeArgNames = typeName[(genericIndex + 1)..^1];
-            Type[] typeArgs = TypeArgsRegex.Match(typeArgNames)
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            ReadOnlySpan<char> typeArgNames = typeName[(genericIndex + 1)..^1];
+#else
+            ReadOnlySpan<char> typeArgNames = typeName.Slice(genericIndex + 1, typeName.Length - genericIndex - 2);
+#endif
+            Type[] typeArgs = TypeArgsRegex.Match(typeArgNames.ToString())
                 .Groups[1]
                 .Captures
+#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+                .Cast<Capture>()
+#endif
                 .Select(x => NestedBindToType(x.Value))
                 .ToArray();
 
@@ -270,8 +303,12 @@ public static class CacheSerialization
 
         private Type NestedBindToType(string fullTypeName)
         {
-            return fullTypeName.StartsWith('[')
+            return fullTypeName[0] == '['
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                 ? BindToType(this, fullTypeName[1..^1])
+#else
+                ? BindToType(this, fullTypeName.Substring(1, fullTypeName.Length - 2))
+#endif
                 : BindToType((string?)null, fullTypeName);
         }
 
@@ -295,7 +332,21 @@ public static class CacheSerialization
                 BindToName(serializedType.GetGenericTypeDefinition(), out assemblyName, out string? rootTypeName);
 
                 StringBuilder sb = new ();
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                 sb.AppendJoin(",", serializedType.GetGenericArguments().Select(GetNestedBoundName));
+#else
+                using (IEnumerator<string> nbnEnumerator = serializedType.GetGenericArguments().Select(GetNestedBoundName).GetEnumerator())
+                {
+                    _ = nbnEnumerator.MoveNext();
+                    sb.Append(nbnEnumerator.Current);
+
+                    while (nbnEnumerator.MoveNext())
+                    {
+                        sb.Append(',');
+                        sb.Append(nbnEnumerator.Current);
+                    }
+                }
+#endif
                 typeName = $"{rootTypeName}[{sb}]";
 
                 return;
