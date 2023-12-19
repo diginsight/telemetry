@@ -11,6 +11,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddClassConfigurationGetter(this IServiceCollection services, IConfiguration? rootConfiguration = null)
     {
+        services.TryAddSingleton(typeof(IClassConfigurationGetter), typeof(ClassConfigurationGetter));
         services.TryAddSingleton(typeof(IClassConfigurationGetter<>), typeof(ClassConfigurationGetter<>));
         services.TryAddSingleton<IClassConfigurationGetterProvider, ClassConfigurationGetterProvider>();
         if (rootConfiguration is not null)

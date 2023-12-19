@@ -4,104 +4,24 @@ using System.Reflection;
 
 namespace Diginsight;
 
-public static class ClassConfigurationGetter
+internal class ClassConfigurationGetter : IClassConfigurationGetter
 {
+    private readonly IConfiguration configuration;
+    private readonly IEnumerable<IClassConfigurationSource> classConfigurationSources;
+    private readonly IDictionary<string, object?> cache = new Dictionary<string, object?>();
+
     public static IClassConfigurationGetter Empty => default(EmptyClassConfigurationGetter);
 
     public static IClassConfigurationGetterProvider EmptyProvider => default(EmptyClassConfigurationGetterProvider);
 
     public static IClassConfigurationGetter<TClass> EmptyFor<TClass>() => default(EmptyClassConfigurationGetter<TClass>);
 
-    private readonly struct EmptyClassConfigurationGetter : IClassConfigurationGetter
-    {
-        public T? Get<T>(string key, T? defaultValue) => defaultValue;
-    }
-
-    private readonly struct EmptyClassConfigurationGetter<TClass> : IClassConfigurationGetter<TClass>
-    {
-        public T? Get<T>(string key, T? defaultValue) => defaultValue;
-    }
-
-    private readonly struct EmptyClassConfigurationGetterProvider : IClassConfigurationGetterProvider
-    {
-        public IClassConfigurationGetter GetFor(Type @class)
-        {
-            return (IClassConfigurationGetter)Activator.CreateInstance(typeof(EmptyClassConfigurationGetter<>).MakeGenericType(@class))!;
-        }
-    }
-
-    internal sealed class ConfigurationWrapper
-    {
-        public IConfiguration Configuration { get; }
-
-        public ConfigurationWrapper(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-    }
-}
-
-internal sealed class ClassConfigurationGetter<TClass> : IClassConfigurationGetter<TClass>
-{
-    // ReSharper disable once StaticMemberInGenericType
-    private static readonly string[] Prefixes;
-
-    private readonly IConfiguration configuration;
-    private readonly IEnumerable<IClassConfigurationSource> classConfigurationSources;
-    private readonly IDictionary<string, object?> cache = new Dictionary<string, object?>();
-
-    static ClassConfigurationGetter()
-    {
-        Prefixes = GetPrefixes().ToArray();
-
-        static IEnumerable<string> GetPrefixes()
-        {
-            Type type = typeof(TClass);
-            if (type.IsArray || type.IsByRef || type.IsGenericParameter || type.IsGenericType || type.IsPointer)
-            {
-                throw new ArgumentException("Array, byref, generic and pointer types not supported");
-            }
-
-            string[] namespacePieces = (type.Namespace ?? "").Split('.');
-            IEnumerable<string> namespaceSegments = Enumerable.Range(1, namespacePieces.Length).Select(i => string.Join(".", namespacePieces.Take(i))).Reverse().ToArray();
-
-            var availableShorthands = type.Assembly.GetCustomAttributes<ClassConfigurationNamespaceShorthandAttribute>().ToDictionary(static x => x.Namespace, static x => x.Shorthand);
-
-            IEnumerable<string> namespaceShorthands = namespaceSegments
-                .Select(x => availableShorthands.TryGetValue(x, out string? val) ? val : null)
-                .OfType<string>()
-                .ToArray();
-
-            if (type.FullName != null)
-            {
-                yield return $"{type.FullName}.";
-            }
-
-            foreach (string shorthand in namespaceShorthands)
-            {
-                yield return $"#{shorthand}.{type.Name}.";
-            }
-
-            yield return $"{type.Name}.";
-
-            foreach (string segment in namespaceSegments)
-            {
-                yield return $"{segment}.*.";
-            }
-
-            foreach (string shorthand in namespaceShorthands)
-            {
-                yield return $"#{shorthand}.*.";
-            }
-
-            yield return "";
-        }
-    }
+    protected virtual IEnumerable<string> Prefixes => [""];
 
     public ClassConfigurationGetter(
         IConfiguration configuration,
         IEnumerable<IClassConfigurationSource> classConfigurationSources,
-        ClassConfigurationGetter.ConfigurationWrapper? configurationWrapper = null
+        ConfigurationWrapper? configurationWrapper = null
     )
     {
         this.configuration = configurationWrapper?.Configuration ?? configuration;
@@ -152,4 +72,95 @@ internal sealed class ClassConfigurationGetter<TClass> : IClassConfigurationGett
             return finalValue;
         }
     }
+
+    private readonly struct EmptyClassConfigurationGetter : IClassConfigurationGetter
+    {
+        public T? Get<T>(string key, T? defaultValue) => defaultValue;
+    }
+
+    private readonly struct EmptyClassConfigurationGetter<TClass> : IClassConfigurationGetter<TClass>
+    {
+        public T? Get<T>(string key, T? defaultValue) => defaultValue;
+    }
+
+    private readonly struct EmptyClassConfigurationGetterProvider : IClassConfigurationGetterProvider
+    {
+        public IClassConfigurationGetter GetFor(Type @class)
+        {
+            return (IClassConfigurationGetter)Activator.CreateInstance(typeof(EmptyClassConfigurationGetter<>).MakeGenericType(@class))!;
+        }
+    }
+
+    internal sealed class ConfigurationWrapper
+    {
+        public IConfiguration Configuration { get; }
+
+        public ConfigurationWrapper(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+    }
+}
+
+internal sealed class ClassConfigurationGetter<TClass> : ClassConfigurationGetter, IClassConfigurationGetter<TClass>
+{
+    // ReSharper disable once StaticMemberInGenericType
+    private static readonly string[] PrefixesCore;
+
+    protected override IEnumerable<string> Prefixes => PrefixesCore;
+
+    static ClassConfigurationGetter()
+    {
+        PrefixesCore = GetPrefixes().ToArray();
+
+        static IEnumerable<string> GetPrefixes()
+        {
+            Type type = typeof(TClass);
+            if (type.IsArray || type.IsByRef || type.IsGenericParameter || type.IsGenericType || type.IsPointer)
+            {
+                throw new ArgumentException("Array, byref, generic and pointer types not supported");
+            }
+
+            string[] namespacePieces = (type.Namespace ?? "").Split('.');
+            IEnumerable<string> namespaceSegments = Enumerable.Range(1, namespacePieces.Length).Select(i => string.Join(".", namespacePieces.Take(i))).Reverse().ToArray();
+
+            var availableShorthands = type.Assembly.GetCustomAttributes<ClassConfigurationNamespaceShorthandAttribute>().ToDictionary(static x => x.Namespace, static x => x.Shorthand);
+
+            IEnumerable<string> namespaceShorthands = namespaceSegments
+                .Select(x => availableShorthands.TryGetValue(x, out string? val) ? val : null)
+                .OfType<string>()
+                .ToArray();
+
+            if (type.FullName != null)
+            {
+                yield return $"{type.FullName}.";
+            }
+
+            foreach (string shorthand in namespaceShorthands)
+            {
+                yield return $"#{shorthand}.{type.Name}.";
+            }
+
+            yield return $"{type.Name}.";
+
+            foreach (string segment in namespaceSegments)
+            {
+                yield return $"{segment}.*.";
+            }
+
+            foreach (string shorthand in namespaceShorthands)
+            {
+                yield return $"#{shorthand}.*.";
+            }
+
+            yield return "";
+        }
+    }
+
+    public ClassConfigurationGetter(
+        IConfiguration configuration,
+        IEnumerable<IClassConfigurationSource> classConfigurationSources,
+        ConfigurationWrapper? configurationWrapper = null
+    )
+        : base(configuration, classConfigurationSources, configurationWrapper) { }
 }

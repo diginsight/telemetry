@@ -13,7 +13,10 @@ public static class SmartCacheExtensions
     private static readonly MethodInfo UnwrapAsArrayMethod = typeof(SmartCacheExtensions)
         .GetMethod(nameof(UnwrapAsArray), BindingFlags.NonPublic | BindingFlags.Static)!;
 
-    public static IServiceCollection AddSmartCache(this IServiceCollection services, bool addMiddleware = true)
+    public static IServiceCollection AddSmartCache(
+        this IServiceCollection services,
+        bool addMiddleware = true
+    )
     {
         services.AddMemoryCache();
 
@@ -30,20 +33,45 @@ public static class SmartCacheExtensions
                 }
             );
 
-        if (addMiddleware && !services.Any(x => x.ServiceType == typeof(SmartCacheMiddleware)))
+        if (addMiddleware && !services.Any(static x => x.ServiceType == typeof(SmartCacheMiddleware)))
         {
             services
                 .AddTransient<SmartCacheMiddleware>()
-                .AddOptions<SmartCacheMiddlewareOptions>()
-                .Validate(
-                    static o =>
-                    {
-                        throw new NotImplementedException();
-                    }
-                );
+                .AddSingleton<IValidateOptions<SmartCacheMiddlewareOptions>, ValidateSmartCacheMiddlewareOptions>();
         }
 
         return services;
+    }
+
+    private sealed class ValidateSmartCacheMiddlewareOptions : IValidateOptions<SmartCacheMiddlewareOptions>
+    {
+        public ValidateOptionsResult Validate(string? name, SmartCacheMiddlewareOptions options)
+        {
+            if (name != Options.DefaultName)
+            {
+                return ValidateOptionsResult.Skip;
+            }
+
+            ICollection<string> failureMessages = new List<string>();
+            if (options.RootPath?[0] != '/')
+            {
+                failureMessages.Add($"{nameof(SmartCacheMiddlewareOptions.RootPath)} must be not null and start with '/'");
+            }
+            if (options.GetPathSegment is { } getPathSegment && getPathSegment[0] != '/')
+            {
+                failureMessages.Add($"{nameof(SmartCacheMiddlewareOptions.GetPathSegment)} must start with '/'");
+            }
+            if (options.CacheMissPathSegment is { } cacheMissPathSegment && cacheMissPathSegment[0] != '/')
+            {
+                failureMessages.Add($"{nameof(SmartCacheMiddlewareOptions.CacheMissPathSegment)} must start with '/'");
+            }
+            if (options.InvalidatePathSegment is { } invalidatePathSegment && invalidatePathSegment[0] != '/')
+            {
+                failureMessages.Add($"{nameof(SmartCacheMiddlewareOptions.InvalidatePathSegment)} must start with '/'");
+            }
+
+            return failureMessages.Count > 0 ? ValidateOptionsResult.Fail(failureMessages) : ValidateOptionsResult.Success;
+        }
     }
 
     public static ICacheKey ToKey(this ICacheKeyService cacheKeyService, object obj)

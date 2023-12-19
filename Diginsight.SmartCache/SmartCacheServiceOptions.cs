@@ -4,10 +4,10 @@ public sealed class SmartCacheServiceOptions : ISmartCacheServiceOptions
 {
     private TimeSpan localEntryTolerance = TimeSpan.FromSeconds(10);
 
-    public int DefaultMaxAge { get; set; }
+    public TimeSpan DefaultMaxAge { get; set; }
 
-    public int AbsoluteExpiration { get; set; }
-    public int SlidingExpiration { get; set; }
+    public TimeSpan AbsoluteExpiration { get; set; }
+    public TimeSpan SlidingExpiration { get; set; }
 
     public TimeSpan CompanionRequestTimeout { get; set; }
     public int CompanionPrefetchCount { get; set; } = 5;

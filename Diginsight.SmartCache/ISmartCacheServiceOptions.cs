@@ -2,10 +2,10 @@
 
 public interface ISmartCacheServiceOptions
 {
-    int DefaultMaxAge { get; }
+    TimeSpan DefaultMaxAge { get; }
 
-    int AbsoluteExpiration { get; }
-    int SlidingExpiration { get; }
+    TimeSpan AbsoluteExpiration { get; }
+    TimeSpan SlidingExpiration { get; }
 
     TimeSpan CompanionRequestTimeout { get; }
     int CompanionPrefetchCount { get; }

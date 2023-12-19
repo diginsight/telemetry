@@ -4,11 +4,11 @@ namespace Diginsight.Diagnostics;
 
 public sealed class TimerHistogram
 {
-    private readonly Histogram<double> histogram;
+    public Histogram<double> Underlying { get; }
 
     public TimerHistogram(Meter meter, string name, string? unit = "ms", string? description = null)
     {
-        histogram = meter.CreateHistogram<double>(name, unit, description);
+        Underlying = meter.CreateHistogram<double>(name, unit, description);
     }
 
     public TimerLap CreateLap(params Tag[] tags) => CoreCreateLap(tags, false);
@@ -21,7 +21,7 @@ public sealed class TimerHistogram
 
     private TimerLap CoreCreateLap(Tags tags, bool start)
     {
-        TimerLap lap = new (histogram, tags);
+        TimerLap lap = new (Underlying, tags);
         if (start)
         {
             _ = lap.Start();

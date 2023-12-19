@@ -11,33 +11,33 @@ public static class ActivityExtensions
 #endif
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void RecordDurationMetric(this Activity? activity, Histogram<long> durationMetric, params Tag[] tags)
+    public static void RecordDurationMetric(this Activity activity, Histogram<long> durationMetric, params Tag[] tags)
     {
         activity.RecordDurationMetric((object)durationMetric, tags);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void RecordDurationMetric(this Activity? activity, Histogram<double> durationMetric, params Tag[] tags)
+    public static void RecordDurationMetric(this Activity activity, Histogram<double> durationMetric, params Tag[] tags)
     {
         activity.RecordDurationMetric((object)durationMetric, tags);
     }
 
-    private static void RecordDurationMetric(this Activity? activity, object durationMetric, params Tag[] tags)
+    private static void RecordDurationMetric(this Activity activity, object durationMetric, params Tag[] tags)
     {
         if (activity is null)
         {
-            return;
+            throw new ArgumentNullException(nameof(activity));
         }
 
         activity.SetCustomProperty(ActivityCustomPropertyNames.DurationMetric, durationMetric);
         activity.SetCustomProperty(ActivityCustomPropertyNames.DurationMetricTags, tags);
     }
 
-    public static void AddDurationMetricTags(this Activity? activity, params Tag[] tags)
+    public static void AddDurationMetricTags(this Activity activity, params Tag[] tags)
     {
         if (activity is null)
         {
-            return;
+            throw new ArgumentNullException(nameof(activity));
         }
 
         if (activity.GetCustomProperty(ActivityCustomPropertyNames.DurationMetric) is not (Histogram<double> or Histogram<long>))
