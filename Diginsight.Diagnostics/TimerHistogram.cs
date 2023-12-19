@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.Metrics;
+using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
 
@@ -11,17 +12,28 @@ public sealed class TimerHistogram
         Underlying = meter.CreateHistogram<double>(name, unit, description);
     }
 
-    public TimerLap CreateLap(params Tag[] tags) => CoreCreateLap(tags, false);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TimerLap CreateLap(StrongBox<double> elapsedMillisecondsBox, params Tag[] tags) => CoreCreateLap(tags, false, elapsedMillisecondsBox);
 
-    public TimerLap StartLap(params Tag[] tags) => CoreCreateLap(tags, true);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TimerLap StartLap(StrongBox<double> elapsedMillisecondsBox, params Tag[] tags) => CoreCreateLap(tags, true, elapsedMillisecondsBox);
 
-    public TimerLap CreateLap(Tags tags) => CoreCreateLap(tags, false);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TimerLap CreateLap(params Tag[] tags) => CoreCreateLap(tags, false, null);
 
-    public TimerLap StartLap(Tags tags) => CoreCreateLap(tags, true);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TimerLap StartLap(params Tag[] tags) => CoreCreateLap(tags, true, null);
 
-    private TimerLap CoreCreateLap(Tags tags, bool start)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TimerLap CreateLap(Tags tags, StrongBox<double>? elapsedMillisecondsBox = null) => CoreCreateLap(tags, false, elapsedMillisecondsBox);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TimerLap StartLap(Tags tags, StrongBox<double>? elapsedMillisecondsBox = null) => CoreCreateLap(tags, true, elapsedMillisecondsBox);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private TimerLap CoreCreateLap(Tags tags, bool start, StrongBox<double>? elapsedMillisecondsBox)
     {
-        TimerLap lap = new (Underlying, tags);
+        TimerLap lap = new (Underlying, tags, elapsedMillisecondsBox);
         if (start)
         {
             _ = lap.Start();

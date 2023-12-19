@@ -4,96 +4,19 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json.Linq;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Diagnostics.Metrics;
-using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Activity = System.Diagnostics.Activity;
-using NotImplementedException = System.NotImplementedException;
 
 namespace Diginsight.SmartCache;
 
 public class SmartCacheService : ISmartCacheService
 {
-    private static class Metrics
-    {
-        public static readonly TimerHistogram FetchDuration;
-        public static readonly TimerHistogram SerializationDuration;
-        public static readonly TimerHistogram SizeComputationDuration;
-        public static readonly TimerHistogram CompanionFetchDuration;
-        public static readonly Histogram<double> CompanionFetchRelativeDuration;
-        public static readonly Counter<int> Sources;
-        public static readonly Counter<int> Calls;
-        public static readonly Counter<int> Evictions;
-        public static readonly Histogram<long> KeyObjectSize;
-        public static readonly Histogram<long> ValueObjectSize;
-        public static readonly Histogram<long> KeySerializedSize;
-        public static readonly Histogram<long> ValueSerializedSize;
-        public static readonly UpDownCounter<long> TotalSize;
-
-        static Metrics()
-        {
-            Meter meter = AutoObservabilityUtils.Meter;
-            FetchDuration = meter.CreateTimer("cache.origin_fetch.duration");
-            SizeComputationDuration = meter.CreateTimer("cache.size_computation.duration");
-            CompanionFetchDuration = meter.CreateTimer("cache.companion_fetch.duration");
-            CompanionFetchRelativeDuration = meter.CreateHistogram<double>("cache.companion_fetch.relative_duration", "ms_per_kbyte");
-            Sources = meter.CreateCounter<int>("cache.source.count");
-            Calls = meter.CreateCounter<int>("cache.call.count");
-            Evictions = meter.CreateCounter<int>("cache.eviction.count");
-            KeyObjectSize = meter.CreateHistogram<long>("cache.key.object_size", "vbytes");
-            ValueObjectSize = meter.CreateHistogram<long>("cache.value.object_size", "vbytes");
-            KeySerializedSize = meter.CreateHistogram<long>("cache.key.serialized_size", "bytes");
-            ValueSerializedSize = meter.CreateHistogram<long>("cache.value.serialized_size", "bytes");
-            TotalSize = meter.CreateUpDownCounter<long>("cache.total_size", "vbytes");
-            SerializationDuration = meter.CreateTimer("cache.serialization.duration");
-        }
-
-        public static class Tags
-        {
-            public static class Found
-            {
-                public static readonly KeyValuePair<string, object?> True = new ("found", true);
-                public static readonly KeyValuePair<string, object?> False = new ("found", false);
-            }
-
-            public static class SourceType
-            {
-                public static readonly KeyValuePair<string, object?> Memory = new ("source_type", "memory");
-                public static readonly KeyValuePair<string, object?> Distributed = new ("source_type", "distributed");
-                public static readonly KeyValuePair<string, object?> Redis = new ("source_type", "redis");
-                public static readonly KeyValuePair<string, object?> Miss = new ("source_type", "miss");
-                public static readonly KeyValuePair<string, object?> Disabled = new ("source_type", "disabled");
-            }
-
-            public static class Eviction
-            {
-                public static readonly KeyValuePair<string, object?> Expired = new ("eviction_reason", "expired");
-                public static readonly KeyValuePair<string, object?> Capacity = new ("eviction_reason", "capacity");
-                public static readonly KeyValuePair<string, object?> Removed = new ("eviction_reason", "removed");
-                public static readonly KeyValuePair<string, object?> Replaced = new ("eviction_reason", "replaced");
-            }
-
-            public static class Subject
-            {
-                public static readonly KeyValuePair<string, object?> Key = new ("subject", "cache_key");
-                public static readonly KeyValuePair<string, object?> Value = new ("subject", "cache_value");
-            }
-
-            public static class Operation
-            {
-                public static readonly KeyValuePair<string, object?> Serialization = new ("operation", "serialization");
-                public static readonly KeyValuePair<string, object?> Deserialization = new ("operation", "deserialization");
-            }
-        }
-    }
-
     private readonly ILogger<SmartCacheService> logger;
     private readonly IHttpContextAccessor httpContextAccessor;
     private readonly IHttpClientFactory httpClientFactory;
@@ -157,6 +80,17 @@ public class SmartCacheService : ISmartCacheService
         public DateTimeOffset UtcNow => timeProvider.GetUtcNow();
     }
 
+    internal static DateTime Truncate(DateTime timestamp)
+    {
+        return new DateTime(timestamp.Year, timestamp.Month, timestamp.Day, timestamp.Hour, timestamp.Minute, timestamp.Second);
+    }
+
+    [return: NotNullIfNotNull(nameof(timestamp))]
+    private static DateTime? Truncate(DateTime? timestamp)
+    {
+        return timestamp is { } ts ? Truncate(ts) : null;
+    }
+
     [MethodImpl(MethodImplOptions.NoInlining)]
     public async Task<T> GetAsync<T>(
         ICacheKey key,
@@ -167,16 +101,16 @@ public class SmartCacheService : ISmartCacheService
     {
         callerType ??= RuntimeUtils.GetCaller().DeclaringType;
 
-        using Activity? activity = AutoObservabilityUtils.ActivitySource.StartMethodActivity(logger, new { key, operationOptions });
-        activity?.SetTag("cache.key", key.ToLogString());
+        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key, operationOptions });
+        // TODO activity?.SetTag("cache.key", key.ToLogString());
 
-        Metrics.Calls.Add(1);
+        SmartCacheMetrics.Calls.Add(1);
 
         if (operationOptions?.Enabled != true)
         {
-            Metrics.Sources.Add(1, Metrics.Tags.SourceType.Disabled);
+            SmartCacheMetrics.Sources.Add(1, SmartCacheMetrics.Tags.SourceType.Disabled);
 
-            using (Metrics.FetchDuration.StartLap(Metrics.Tags.SourceType.Disabled))
+            using (SmartCacheMetrics.FetchDuration.StartLap(SmartCacheMetrics.Tags.SourceType.Disabled))
             {
                 activity?.SetTag("cache.disabled", 1);
                 return await fetchAsync();
@@ -195,13 +129,13 @@ public class SmartCacheService : ISmartCacheService
         TimeSpan? sldExpiration = null
     )
     {
-        using Activity? activity = AutoObservabilityUtils.ActivitySource.StartMethodActivity(logger, new { key, maxAge, absExpiration, sldExpiration });
+        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key, maxAge, absExpiration, sldExpiration });
 
         DateTime utcNow = timeProvider.GetUtcNow().UtcDateTime;
         DateTime minimumCreationDate = GetMinimumCreationDate(ref maxAge, callerType, utcNow);
         bool forceFetch = maxAge.Value <= TimeSpan.Zero || minimumCreationDate >= utcNow;
 
-        using TimerLap memoryLap = Metrics.FetchDuration.CreateLap(Metrics.Tags.SourceType.Memory);
+        using TimerLap memoryLap = SmartCacheMetrics.FetchDuration.CreateLap(SmartCacheMetrics.Tags.SourceType.Memory);
         memoryLap.DisableCommit = true;
 
         ValueEntry<TValue>? valueEntry;
@@ -217,7 +151,7 @@ public class SmartCacheService : ISmartCacheService
         else
         {
             using (memoryLap.Start())
-            using (AutoObservabilityUtils.ActivitySource.StartActivity(logger, $"{nameof(SmartCacheService)}.GetFromMemory"))
+            using (SmartCacheMetrics.ActivitySource.StartActivity(logger, $"{nameof(SmartCacheService)}.GetFromMemory"))
             {
                 valueEntry = memoryCache.Get<ValueEntry<TValue>?>(key);
                 externalEntry = discardExternalMiss ? null : externalMissDictionary.Get(key);
@@ -232,11 +166,11 @@ public class SmartCacheService : ISmartCacheService
         [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
         async Task<TValue> FetchAndSetValueAsync()
         {
-            Metrics.Sources.Add(1, Metrics.Tags.SourceType.Miss);
+            SmartCacheMetrics.Sources.Add(1, SmartCacheMetrics.Tags.SourceType.Miss);
             Activity.Current?.SetTag("cache.hit", 0);
 
             TValue value;
-            TimerLap fetchLap = Metrics.FetchDuration.CreateLap(Metrics.Tags.SourceType.Miss);
+            TimerLap fetchLap = SmartCacheMetrics.FetchDuration.CreateLap(SmartCacheMetrics.Tags.SourceType.Miss);
             using (fetchLap.Start())
             {
                 value = await fetchAsync();
@@ -244,7 +178,7 @@ public class SmartCacheService : ISmartCacheService
 
             logger.LogDebug("Fetched in {LatencyMsec} ms", (long)fetchLap.ElapsedMilliseconds);
 
-            using (AutoObservabilityUtils.ActivitySource.StartActivity(logger, $"{nameof(SmartCacheService)}.SetValue"))
+            using (SmartCacheMetrics.ActivitySource.StartActivity(logger, $"{nameof(SmartCacheService)}.SetValue"))
             {
                 SetValue(key, value, absExpiration, sldExpiration, skipPublish: discardExternalMiss);
                 return value;
@@ -262,10 +196,10 @@ public class SmartCacheService : ISmartCacheService
                 HttpClient httpClient = httpClientFactory.CreateClient(nameof(SmartCacheService));
 
                 string rawKey;
-                using (Activity? serializeActivity = AutoObservabilityUtils.ActivitySource.StartActivity(logger, $"{nameof(SmartCacheService)}.Serialize"))
+                using (Activity? serializeActivity = SmartCacheMetrics.ActivitySource.StartActivity(logger, $"{nameof(SmartCacheService)}.Serialize"))
                 {
                     serializeActivity?.RecordDurationMetric(
-                        Metrics.SerializationDuration.Underlying, Metrics.Tags.Subject.Key, Metrics.Tags.Operation.Serialization
+                        SmartCacheMetrics.SerializationDuration.Underlying, SmartCacheMetrics.Tags.Subject.Key, SmartCacheMetrics.Tags.Operation.Serialization
                     );
 
                     rawKey = SmartCacheSerialization.SerializeToString(key);
@@ -529,7 +463,7 @@ public class SmartCacheService : ISmartCacheService
         bool skipPublish = false
     )
     {
-        using var scope = logger.BeginMethodScope(() => new { key = key.ToLogString() });
+        using Activity? activity = logger.BeginMethodScope(() => new { key = key.ToLogString() });
 
         keys[key] = default;
         RemoveExternalMiss(key);
@@ -625,7 +559,7 @@ public class SmartCacheService : ISmartCacheService
             return;
         }
 
-        using var scope = logger.BeginMethodScope(() => new { reason, expiration, key, entry });
+        using Activity? activity = logger.BeginMethodScope(() => new { reason, expiration, key, entry });
 
         try
         {
@@ -694,7 +628,7 @@ public class SmartCacheService : ISmartCacheService
 
     private async Task PublishMissAsync(ICacheKey key, DateTime creationDate, (object?, Type)? valueHolder, bool onRedis)
     {
-        using var scope = logger.BeginMethodScope(() => new { key = key.ToLogString(), creationDate });
+        using Activity? activity = logger.BeginMethodScope(() => new { key = key.ToLogString(), creationDate });
 
         if (onRedis)
         {
@@ -838,7 +772,7 @@ public class SmartCacheService : ISmartCacheService
 
     public bool TryGetDirectFromMemory(ICacheKey key, [NotNullWhen(true)] out Type? type, out object? value)
     {
-        using var scope = logger.BeginMethodScope(() => new { key = key.ToLogString() });
+        using Activity? activity = logger.BeginMethodScope(() => new { key = key.ToLogString() });
 
         if (CacheExtensions.Get<IValueEntry?>(memoryCache, key) is { } entry)
         {
@@ -871,7 +805,7 @@ public class SmartCacheService : ISmartCacheService
 
     private void Invalidate(IInvalidationRule invalidationRule, bool broadcast)
     {
-        using var scope = logger.BeginMethodScope(() => new { invalidationRule = invalidationRule.ToLogString() });
+        using Activity? activity = logger.BeginMethodScope(() => new { invalidationRule = invalidationRule.ToLogString() });
 
         ICollection<Func<Task>> invalidationCallbacks = new List<Func<Task>>();
 
@@ -940,10 +874,10 @@ public class SmartCacheService : ISmartCacheService
         HttpClient httpClient = httpClientFactory.CreateClient(nameof(SmartCacheService));
 
         string stringContent;
-        using (Activity? serializeActivity = AutoObservabilityUtils.ActivitySource.StartActivity(logger, $"{nameof(SmartCacheService)}.Serialize"))
+        using (Activity? serializeActivity = SmartCacheMetrics.ActivitySource.StartActivity(logger, $"{nameof(SmartCacheService)}.Serialize"))
         {
             serializeActivity?.RecordDurationMetric(
-                Metrics.SerializationDuration.Underlying, Metrics.Tags.Subject.Value, Metrics.Tags.Operation.Serialization
+                SmartCacheMetrics.SerializationDuration.Underlying, SmartCacheMetrics.Tags.Subject.Value, SmartCacheMetrics.Tags.Operation.Serialization
             );
 
             stringContent = SmartCacheSerialization.SerializeToString(await makeObjAsync());

@@ -9,7 +9,6 @@ public sealed class SmartCacheServiceOptions : ISmartCacheServiceOptions
     public TimeSpan AbsoluteExpiration { get; set; }
     public TimeSpan SlidingExpiration { get; set; }
 
-    public TimeSpan CompanionRequestTimeout { get; set; }
     public int CompanionPrefetchCount { get; set; } = 5;
     public int CompanionMaxParallelism { get; set; } = 2;
 
@@ -20,6 +19,7 @@ public sealed class SmartCacheServiceOptions : ISmartCacheServiceOptions
     public long MidPrioritySizeThreshold { get; set; } = 10_000;
 
     public long ReadLatencyThreshold { get; set; } = 150;
+
     public TimeSpan LocalEntryTolerance
     {
         get => localEntryTolerance;

@@ -8,6 +8,7 @@ public sealed class TimerLap : IDisposable
 {
     private readonly Histogram<double> histogram;
     private readonly ICollection<Tag> tags;
+    private readonly StrongBox<double>? elapsedMillisecondsBox;
     private readonly Stopwatch sw = new ();
 
     private IDisposable? stopper;
@@ -17,10 +18,16 @@ public sealed class TimerLap : IDisposable
 
     public double ElapsedMilliseconds => sw.Elapsed.TotalMilliseconds;
 
-    internal TimerLap(Histogram<double> histogram, Tags tags)
+    internal TimerLap(Histogram<double> histogram, Tags tags, StrongBox<double>? elapsedMillisecondsBox)
     {
         this.histogram = histogram;
         this.tags = tags.ToList();
+
+        if (elapsedMillisecondsBox is not null)
+        {
+            elapsedMillisecondsBox.Value = double.NaN;
+        }
+        this.elapsedMillisecondsBox = elapsedMillisecondsBox;
     }
 
     // ReSharper disable once ParameterHidesMember
@@ -62,6 +69,11 @@ public sealed class TimerLap : IDisposable
     private void Stop()
     {
         sw.Stop();
+
+        if (elapsedMillisecondsBox is { Value: double.NaN })
+        {
+            elapsedMillisecondsBox.Value = ElapsedMilliseconds;
+        }
     }
 
     private void Commit()

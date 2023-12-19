@@ -2,10 +2,17 @@
 
 internal class LocalCacheCompanionProvider : ICacheCompanionProvider
 {
-    public string SelfIp => "127.0.0.1";
+    public string SelfLocationId => "<self>";
 
-    public Task<IEnumerable<string>> GetCompanionIpsAsync()
+    public IEnumerable<PassiveCacheLocation> PassiveLocations { get; }
+
+    public LocalCacheCompanionProvider(RedisCacheLocation redisLocation)
     {
-        return Task.FromResult(Enumerable.Empty<string>());
+        PassiveLocations = new[] { redisLocation };
+    }
+
+    public Task<IEnumerable<CacheCompanion>> GetCompanionsAsync()
+    {
+        return Task.FromResult(Enumerable.Empty<CacheCompanion>());
     }
 }

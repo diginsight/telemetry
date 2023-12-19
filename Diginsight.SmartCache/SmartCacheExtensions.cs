@@ -23,15 +23,8 @@ public static class SmartCacheExtensions
         services.TryAddSingleton<ISmartCacheService, SmartCacheService>();
         services.TryAddSingleton<ICacheKeyService, CacheKeyService>();
 
-        services
-            .AddHttpClient(nameof(SmartCacheService))
-            .ConfigureHttpClient(
-                static (sp, hc) =>
-                {
-                    ISmartCacheServiceOptions options = sp.GetRequiredService<IOptions<SmartCacheServiceOptions>>().Value;
-                    hc.Timeout = options.CompanionRequestTimeout > TimeSpan.Zero ? options.CompanionRequestTimeout : TimeSpan.FromSeconds(5);
-                }
-            );
+        services.TryAddSingleton<IRedisDatabaseAccessor, RedisDatabaseAccessor>();
+        services.TryAddSingleton<RedisCacheLocation>();
 
         if (addMiddleware && !services.Any(static x => x.ServiceType == typeof(SmartCacheMiddleware)))
         {

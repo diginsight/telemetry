@@ -7,7 +7,6 @@ public interface ISmartCacheServiceOptions
     TimeSpan AbsoluteExpiration { get; }
     TimeSpan SlidingExpiration { get; }
 
-    TimeSpan CompanionRequestTimeout { get; }
     int CompanionPrefetchCount { get; }
     int CompanionMaxParallelism { get; }
 

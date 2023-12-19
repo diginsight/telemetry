@@ -2,7 +2,9 @@
 
 public interface ICacheCompanionProvider
 {
-    string SelfIp { get; }
+    string SelfLocationId { get; }
 
-    Task<IEnumerable<string>> GetCompanionIpsAsync();
+    IEnumerable<PassiveCacheLocation> PassiveLocations { get; }
+
+    Task<IEnumerable<CacheCompanion>> GetCompanionsAsync();
 }
