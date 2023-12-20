@@ -2,7 +2,7 @@
 
 public sealed class SmartCacheRedisOptions : ISmartCacheRedisOptions
 {
-    public string Configuration { get; set; } = null!;
+    public string? Configuration { get; set; }
 
     public string KeyPrefix { get; set; } = null!;
 }

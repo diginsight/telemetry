@@ -1,8 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 #if !NET7_0_OR_GREATER
 using System.Reflection;
@@ -20,7 +23,30 @@ public static class DependencyInjectionExtensions
             services.Configure(configureObservability);
         }
 
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<ObservabilityOptions>, ValidateObservabilityOptions>());
+
         return services.AddOpenTelemetry();
+    }
+
+    private sealed class ValidateObservabilityOptions : IValidateOptions<ObservabilityOptions>
+    {
+        public ValidateOptionsResult Validate(string? name, ObservabilityOptions options)
+        {
+            if (name != Options.DefaultName)
+            {
+                return ValidateOptionsResult.Skip;
+            }
+
+            IEnumerable<string> recordedActivityNames = options.RecordedActivityNames.Distinct().ToArray();
+            options.RecordedActivityNames.Clear();
+            options.RecordedActivityNames.AddRange(recordedActivityNames);
+
+            IEnumerable<string> notRecordedActivityNames = options.NotRecordedActivityNames.Distinct().ToArray();
+            options.NotRecordedActivityNames.Clear();
+            options.NotRecordedActivityNames.AddRange(notRecordedActivityNames);
+
+            return ValidateOptionsResult.Success;
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -41,23 +67,55 @@ public static class DependencyInjectionExtensions
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ILoggingBuilder AddObservabilityConsole(
-        this ILoggingBuilder loggingBuilder, Action<ObservabilityTextFormatterOptions>? configureFormatterOptions = null
+        this ILoggingBuilder loggingBuilder, Action<ObservabilityTextWriterOptions>? configureWriterOptions = null
     )
     {
         loggingBuilder.AddObservability();
 
-        if (configureFormatterOptions is not null)
+        if (configureWriterOptions is not null)
         {
-            loggingBuilder.AddConsoleFormatter<ObservabilityConsoleFormatter, ObservabilityTextFormatterOptions>(configureFormatterOptions);
+            loggingBuilder.AddConsoleFormatter<ObservabilityConsoleFormatter, ObservabilityTextWriterOptions>(configureWriterOptions);
         }
         else
         {
-            loggingBuilder.AddConsoleFormatter<ObservabilityConsoleFormatter, ObservabilityTextFormatterOptions>();
+            loggingBuilder.AddConsoleFormatter<ObservabilityConsoleFormatter, ObservabilityTextWriterOptions>();
         }
+
+        loggingBuilder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<ObservabilityTextWriterOptions>, ValidateObservabilityTextWriterOptions>());
 
         loggingBuilder.AddConsole(static consoleLoggerOptions => { consoleLoggerOptions.FormatterName = ObservabilityConsoleFormatter.FormatterName; });
 
         return loggingBuilder;
+    }
+
+    private sealed class ValidateObservabilityTextWriterOptions : IValidateOptions<ObservabilityTextWriterOptions>
+    {
+        public ValidateOptionsResult Validate(string? name, ObservabilityTextWriterOptions options)
+        {
+            if (name != Options.DefaultName)
+            {
+                return ValidateOptionsResult.Skip;
+            }
+
+            ICollection<string> failures = [];
+            if (options.TimestampCulture is { } culture)
+            {
+                try
+                {
+                    options.TimestampCultureInfo = CultureInfo.GetCultureInfo(culture);
+                }
+                catch (CultureNotFoundException exception)
+                {
+                    failures.Add(exception.Message);
+                }
+            }
+            else
+            {
+                options.TimestampCultureInfo = CultureInfo.InvariantCulture;
+            }
+
+            return failures.Count > 0 ? ValidateOptionsResult.Fail(failures) : ValidateOptionsResult.Success;
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

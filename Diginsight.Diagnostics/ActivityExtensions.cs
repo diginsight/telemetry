@@ -11,18 +11,18 @@ public static class ActivityExtensions
 #endif
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void RecordDurationMetric(this Activity activity, Histogram<long> durationMetric, params Tag[] tags)
+    public static void WithDurationMetric(this Activity activity, Histogram<long> durationMetric, params Tag[] tags)
     {
-        activity.RecordDurationMetric((object)durationMetric, tags);
+        activity.WithDurationMetric((object)durationMetric, tags);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void RecordDurationMetric(this Activity activity, Histogram<double> durationMetric, params Tag[] tags)
+    public static void WithDurationMetric(this Activity activity, Histogram<double> durationMetric, params Tag[] tags)
     {
-        activity.RecordDurationMetric((object)durationMetric, tags);
+        activity.WithDurationMetric((object)durationMetric, tags);
     }
 
-    private static void RecordDurationMetric(this Activity activity, object durationMetric, params Tag[] tags)
+    private static void WithDurationMetric(this Activity activity, object durationMetric, params Tag[] tags)
     {
         if (activity is null)
         {
@@ -33,7 +33,7 @@ public static class ActivityExtensions
         activity.SetCustomProperty(ActivityCustomPropertyNames.DurationMetricTags, tags);
     }
 
-    public static void AddDurationMetricTags(this Activity activity, params Tag[] tags)
+    public static void AddTagsToDurationMetric(this Activity activity, params Tag[] tags)
     {
         if (activity is null)
         {

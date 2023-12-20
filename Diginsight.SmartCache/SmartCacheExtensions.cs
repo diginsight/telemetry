@@ -13,10 +13,7 @@ public static class SmartCacheExtensions
     private static readonly MethodInfo UnwrapAsArrayMethod = typeof(SmartCacheExtensions)
         .GetMethod(nameof(UnwrapAsArray), BindingFlags.NonPublic | BindingFlags.Static)!;
 
-    public static IServiceCollection AddSmartCache(
-        this IServiceCollection services,
-        bool addMiddleware = true
-    )
+    public static IServiceCollection AddSmartCache(this IServiceCollection services, bool addMiddleware = true)
     {
         services.AddMemoryCache();
 
@@ -25,6 +22,7 @@ public static class SmartCacheExtensions
 
         services.TryAddSingleton<IRedisDatabaseAccessor, RedisDatabaseAccessor>();
         services.TryAddSingleton<RedisCacheLocation>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<SmartCacheRedisOptions>, ValidateSmartCacheRedisOptions>());
 
         if (addMiddleware && !services.Any(static x => x.ServiceType == typeof(SmartCacheMiddleware)))
         {
@@ -34,6 +32,24 @@ public static class SmartCacheExtensions
         }
 
         return services;
+    }
+
+    private sealed class ValidateSmartCacheRedisOptions : IValidateOptions<SmartCacheRedisOptions>
+    {
+        public ValidateOptionsResult Validate(string? name, SmartCacheRedisOptions options)
+        {
+            if (name != Options.DefaultName)
+            {
+                return ValidateOptionsResult.Skip;
+            }
+
+            if (options.Configuration is not null && string.IsNullOrEmpty(options.KeyPrefix))
+            {
+                return ValidateOptionsResult.Fail($"{nameof(SmartCacheRedisOptions.KeyPrefix)} must be non-empty");
+            }
+
+            return ValidateOptionsResult.Success;
+        }
     }
 
     private sealed class ValidateSmartCacheMiddlewareOptions : IValidateOptions<SmartCacheMiddlewareOptions>

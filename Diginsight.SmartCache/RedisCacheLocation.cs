@@ -1,9 +1,10 @@
 ﻿using Diginsight.Diagnostics;
-using Diginsight.SmartCache;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 using System.Diagnostics;
+
+namespace Diginsight.SmartCache;
 
 public sealed class RedisCacheLocation : PassiveCacheLocation
 {
@@ -59,9 +60,14 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
         lap.AddTags(SmartCacheMetrics.Tags.Found.True);
 
         ValueEntry<TValue> entry;
-        //using (CacheMetrics.Instance.SerializationDuration.StartMark(MetricTags.CacheValue, MetricTags.Deserialization))
-        using (SmartCacheMetrics.ActivitySource.StartActivity($"{nameof(SmartCacheService)}.Deserialize"))
+        using (Activity? deserializeActivity = SmartCacheMetrics.ActivitySource.StartActivity($"{nameof(SmartCacheService)}.Deserialize"))
         {
+            deserializeActivity?.WithDurationMetric(
+                SmartCacheMetrics.Instruments.SerializationDuration.Underlying,
+                SmartCacheMetrics.Tags.Operation.Deserialization,
+                SmartCacheMetrics.Tags.Subject.Value
+            );
+
             entry = SmartCacheSerialization.Deserialize<ValueEntry<TValue>>((byte[])redisEntry!);
         }
 
@@ -118,7 +124,7 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
         byte[] rawEntry;
         using (Activity? serializeActivity = SmartCacheMetrics.ActivitySource.StartActivity(logger, $"{nameof(SmartCacheService)}.Serialize"))
         {
-            serializeActivity?.RecordDurationMetric(
+            serializeActivity?.WithDurationMetric(
                 SmartCacheMetrics.Instruments.SerializationDuration.Underlying,
                 SmartCacheMetrics.Tags.Operation.Serialization,
                 SmartCacheMetrics.Tags.Subject.Value

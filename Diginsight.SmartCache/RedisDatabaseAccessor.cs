@@ -5,7 +5,7 @@ namespace Diginsight.SmartCache;
 
 public sealed class RedisDatabaseAccessor : IRedisDatabaseAccessor
 {
-    private readonly string redisConfiguration;
+    private readonly string? redisConfiguration;
     private IConnectionMultiplexer? connectionMultiplexer;
 
     public RedisDatabaseAccessor(IOptions<SmartCacheRedisOptions> smartCacheRedisOptions)
@@ -18,6 +18,11 @@ public sealed class RedisDatabaseAccessor : IRedisDatabaseAccessor
     {
         get
         {
+            if (redisConfiguration is null)
+            {
+                return null;
+            }
+
             if (connectionMultiplexer is not null)
             {
                 return connectionMultiplexer.GetDatabase();

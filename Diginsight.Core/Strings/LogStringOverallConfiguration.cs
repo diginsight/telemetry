@@ -43,7 +43,8 @@ public sealed class LogStringOverallConfiguration : ILogStringOverallConfigurati
     static LogStringOverallConfiguration()
     {
         int minFixedRegistrationPriority;
-        FixedRegistrations = new[] {
+        FixedRegistrations =
+        [
             new LogStringProviderRegistration(typeof(ForbiddenLogStringProvider), int.MaxValue),
             new LogStringProviderRegistration(typeof(PrimitiveLogStringProvider), int.MaxValue - 1),
             new LogStringProviderRegistration(typeof(BasicLogStringProvider), int.MaxValue - 2),
@@ -52,7 +53,7 @@ public sealed class LogStringOverallConfiguration : ILogStringOverallConfigurati
             new LogStringProviderRegistration(typeof(JTokenLogStringProvider), minFixedRegistrationPriority = int.MaxValue - 5),
             new LogStringProviderRegistration(typeof(CollectionsLogStringProvider), int.MinValue + 1),
             new LogStringProviderRegistration(typeof(MemberwiseLogStringProvider), int.MinValue),
-        };
+        ];
         FixedRegistrationTypes = FixedRegistrations.Select(static x => x.Type).ToArray();
         MaxCustomRegistrationPriority = minFixedRegistrationPriority - 1;
     }

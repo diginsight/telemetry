@@ -24,7 +24,7 @@ public static class ObservabilityTextWriter
         Exception? exception,
         bool isActivity,
         TimeSpan? duration,
-        IObservabilityTextFormatterOptions formatterOptions
+        IObservabilityTextWriterOptions writerOptions
     )
     {
         Write(
@@ -36,12 +36,12 @@ public static class ObservabilityTextWriter
             exception,
             isActivity,
             duration,
-            formatterOptions.TimestampFormat,
-            formatterOptions.TimestampCulture is { } cultureName ? CultureInfo.GetCultureInfo(cultureName) : null,
-            formatterOptions.CategoryLength,
-            formatterOptions.MaxMessageLength,
-            formatterOptions.MaxLineLength,
-            formatterOptions.MaxIndentedDepth
+            writerOptions.TimestampFormat,
+            writerOptions.TimestampCulture,
+            writerOptions.CategoryLength,
+            writerOptions.MaxMessageLength,
+            writerOptions.MaxLineLength,
+            writerOptions.MaxIndentedDepth
         );
     }
 
@@ -58,7 +58,7 @@ public static class ObservabilityTextWriter
         [StringSyntax(StringSyntaxAttribute.DateTimeFormat)]
 #endif
         string? timestampFormat,
-        CultureInfo? timestampCulture,
+        CultureInfo timestampCulture,
         int categoryLength,
         int maxMessageLength,
         int maxLineLength,
@@ -104,7 +104,7 @@ public static class ObservabilityTextWriter
             const char ellipsisGlyph = '…';
 
             string finalCategory;
-            if (categoryLength >= 1)
+            if (categoryLength >= 2)
             {
                 if (category.Length < categoryLength)
                 {
@@ -194,7 +194,7 @@ public static class ObservabilityTextWriter
             string actualPrefix = string.Format(
                 CultureInfo.InvariantCulture,
                 "[{0}] {1} {2} {3,32} {4,5} {5,5} {6,2} {7}",
-                timestamp.ToString(timestampFormat ?? "yyyy-MM-dd'T'HH:mm:ss.fff", timestampCulture ?? CultureInfo.InvariantCulture),
+                timestamp.ToString(timestampFormat ?? "yyyy-MM-dd'T'HH:mm:ss.fff", timestampCulture),
                 finalCategory,
                 logLevelStr,
                 traceId,

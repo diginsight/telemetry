@@ -4,7 +4,7 @@ namespace Diginsight.SmartCache;
 
 public sealed class CacheKeyService : ICacheKeyService
 {
-    public static readonly ICacheKeyService Empty = new EmptyCacheKeyService();
+    public static readonly ICacheKeyService Empty = new CacheKeyService(Enumerable.Empty<ICacheKeyProvider>());
 
     private readonly IEnumerable<ICacheKeyProvider> cacheKeyProviders;
 
@@ -41,26 +41,5 @@ public sealed class CacheKeyService : ICacheKeyService
 
         key = null;
         return false;
-    }
-
-    private sealed class EmptyCacheKeyService : ICacheKeyService
-    {
-        public bool TryToKey(object? obj, [NotNullWhen(true)] out ICacheKey? key)
-        {
-            switch (obj)
-            {
-                case ICacheKey k:
-                    key = k;
-                    return true;
-
-                case ICachable c:
-                    key = c.GetKey(this);
-                    return true;
-
-                default:
-                    key = null;
-                    return false;
-            }
-        }
     }
 }

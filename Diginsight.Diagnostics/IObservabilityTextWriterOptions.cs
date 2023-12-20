@@ -1,12 +1,14 @@
-﻿namespace Diginsight.Diagnostics;
+﻿using System.Globalization;
 
-public interface IObservabilityTextFormatterOptions
+namespace Diginsight.Diagnostics;
+
+public interface IObservabilityTextWriterOptions
 {
     bool UseUtcTimestamp { get; }
 
     string? TimestampFormat { get; }
 
-    string? TimestampCulture { get; }
+    CultureInfo TimestampCulture { get; }
 
     int CategoryLength { get; }
 

@@ -2,6 +2,6 @@
 
 public interface ISmartCacheRedisOptions
 {
-    string Configuration { get; }
+    string? Configuration { get; }
     string KeyPrefix { get; }
 }

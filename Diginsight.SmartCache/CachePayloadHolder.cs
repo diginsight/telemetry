@@ -38,7 +38,7 @@ public class CachePayloadHolder<T>
             else
             {
                 using Activity? activity = SmartCacheMetrics.ActivitySource.StartActivity($"{nameof(SmartCacheService)}.Serialize");
-                activity?.RecordDurationMetric(
+                activity?.WithDurationMetric(
                     SmartCacheMetrics.Instruments.SerializationDuration.Underlying,
                     SmartCacheMetrics.Tags.Operation.Serialization,
                     metricTag
@@ -69,7 +69,7 @@ public class CachePayloadHolder<T>
             else
             {
                 using Activity? activity = SmartCacheMetrics.ActivitySource.StartActivity($"{nameof(SmartCacheService)}.Serialize");
-                activity?.RecordDurationMetric(
+                activity?.WithDurationMetric(
                     SmartCacheMetrics.Instruments.SerializationDuration.Underlying,
                     SmartCacheMetrics.Tags.Operation.Serialization,
                     metricTag
