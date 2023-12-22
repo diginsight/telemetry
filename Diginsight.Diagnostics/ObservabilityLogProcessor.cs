@@ -179,7 +179,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
         {
             return ((IDictionary<string, object?>, string))ExtractLoggableFromKvps_Method
                 .MakeGenericMethod(tValue)
-                .Invoke(this, new object?[] { dictPrefix, obj })!;
+                .Invoke(this, [ dictPrefix, obj ])!;
         }
 
         return null;
@@ -347,9 +347,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
         public bool IsEnabled(LogLevel logLevel) => decoratee.IsEnabled(logLevel);
 
         public IDisposable BeginScope<TState>(TState state)
-#if NET7_0_OR_GREATER
             where TState : notnull
-#endif
             => throw new NotSupportedException();
     }
 

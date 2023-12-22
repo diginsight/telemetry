@@ -2,7 +2,7 @@
 
 public abstract class CacheCompanion : CacheLocation
 {
-    public override KeyValuePair<string, object?> MetricTag => SmartCacheMetrics.Tags.SourceType.Distributed;
+    public override KeyValuePair<string, object?> MetricTag => SmartCacheMetrics.Tags.Type.Distributed;
 
     protected CacheCompanion(string id)
         : base(id) { }

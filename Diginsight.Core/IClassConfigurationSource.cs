@@ -2,5 +2,7 @@
 
 public interface IClassConfigurationSource
 {
-    bool TryGet<T>(IEnumerable<string> prefixes, string key, out T? value);
+    void PopulateAll<T>(IEnumerable<string> prefixes, string key, IDictionary<string, T> dict, IClassConfigurationGetter.SafeConverter<T>? tryConvert);
+
+    bool TryGet<T>(IEnumerable<string> prefixes, string key, out T value, IClassConfigurationGetter.SafeConverter<T>? tryConvert);
 }

@@ -67,7 +67,7 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
             return (ILogStringable)typeof(LogStringableKeyValuePair<,>)
                 .MakeGenericType(tKey, tValue)
                 .GetConstructors()[0]
-                .Invoke(new[] { obj });
+                .Invoke([ obj ]);
         }
 
         return null;

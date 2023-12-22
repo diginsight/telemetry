@@ -7,7 +7,7 @@ namespace Diginsight.Diagnostics;
 public static class ActivityExtensions
 {
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
-    private static readonly char[] StarSeparators = { '*' };
+    private static readonly char[] StarSeparators = [ '*' ];
 #endif
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

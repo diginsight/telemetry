@@ -13,7 +13,7 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
     private readonly ISmartCacheServiceOptions smartCacheServiceOptions;
     private readonly ISmartCacheRedisOptions smartCacheRedisOptions;
 
-    public override KeyValuePair<string, object?> MetricTag => SmartCacheMetrics.Tags.SourceType.Redis;
+    public override KeyValuePair<string, object?> MetricTag => SmartCacheMetrics.Tags.Type.Redis;
 
     public RedisCacheLocation(
         ILogger<RedisCacheLocation> logger,
@@ -44,7 +44,7 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
         RedisKey redisKey = smartCacheRedisOptions.KeyPrefix + keyHolder.GetAsString();
 
         RedisValue redisEntry;
-        using TimerLap lap = SmartCacheMetrics.Instruments.FetchDuration.CreateLap(SmartCacheMetrics.Tags.SourceType.Redis);
+        using TimerLap lap = SmartCacheMetrics.Instruments.FetchDuration.CreateLap(SmartCacheMetrics.Tags.Type.Redis);
 
         using (lap.Start())
         {
@@ -102,7 +102,7 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
         }
 
         SmartCacheMetrics.Instruments.CompanionFetchRelativeDuration.Record(
-            latencyMsecD / valueSerializedSize * 1000, SmartCacheMetrics.Tags.SourceType.Redis, SmartCacheMetrics.Tags.Found.True
+            latencyMsecD / valueSerializedSize * 1000, SmartCacheMetrics.Tags.Type.Redis, SmartCacheMetrics.Tags.Found.True
         );
 
         return (entry.Data, valueSerializedSize, latencyMsecD / valueSerializedSize);

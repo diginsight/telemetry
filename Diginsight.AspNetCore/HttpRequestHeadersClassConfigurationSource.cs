@@ -14,11 +14,47 @@ public sealed class HttpRequestHeadersClassConfigurationSource : IClassConfigura
         this.httpContextAccessor = httpContextAccessor;
     }
 
-    public bool TryGet<T>(IEnumerable<string> prefixes, string key, out T? value)
+    public void PopulateAll<T>(IEnumerable<string> prefixes, string key, IDictionary<string, T> dict, IClassConfigurationGetter.SafeConverter<T>? tryConvert)
     {
         if (httpContextAccessor.HttpContext?.Request.Headers is not { } headerDictionary)
         {
-            value = default;
+            return;
+        }
+
+        foreach (string prefix in prefixes)
+        {
+            if (!headerDictionary.TryGetValue(prefix + key, out StringValues stringValues))
+            {
+                continue;
+            }
+
+            string rawValue = stringValues.LastOrDefault()!;
+            if (tryConvert?.Invoke(rawValue, out T value) == true)
+            {
+                dict[prefix] = value;
+            }
+            else
+            {
+                try
+                {
+                    TypeConverter converter = TypeDescriptor.GetConverter(typeof(T));
+                    value = (T)converter.ConvertFrom(null, CultureInfo.InvariantCulture, rawValue)!;
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+            }
+
+            dict[prefix] = value;
+        }
+    }
+
+    public bool TryGet<T>(IEnumerable<string> prefixes, string key, out T value, IClassConfigurationGetter.SafeConverter<T>? tryConvert)
+    {
+        if (httpContextAccessor.HttpContext?.Request.Headers is not { } headerDictionary)
+        {
+            value = default!;
             return false;
         }
 
@@ -29,13 +65,16 @@ public sealed class HttpRequestHeadersClassConfigurationSource : IClassConfigura
                 continue;
             }
 
+            string rawValue = stringValues.LastOrDefault()!;
+            if (tryConvert?.Invoke(rawValue, out value) == true)
+            {
+                return true;
+            }
+
             try
             {
-                var converter = TypeDescriptor.GetConverter(typeof(T));
-#pragma warning disable CS8604 // Possible null reference argument
-                // ReSharper disable once AssignNullToNotNullAttribute
-                value = (T?)converter.ConvertFrom(null, CultureInfo.InvariantCulture, stringValues.LastOrDefault());
-#pragma warning restore CS8604
+                TypeConverter converter = TypeDescriptor.GetConverter(typeof(T));
+                value = (T)converter.ConvertFrom(null, CultureInfo.InvariantCulture, rawValue)!;
                 return true;
             }
             catch (Exception e)
@@ -44,7 +83,7 @@ public sealed class HttpRequestHeadersClassConfigurationSource : IClassConfigura
             }
         }
 
-        value = default;
+        value = default!;
         return false;
     }
 }

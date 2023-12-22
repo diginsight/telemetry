@@ -59,7 +59,7 @@ internal static class SmartCacheMetrics
             public static readonly KeyValuePair<string, object?> False = new ("found", false);
         }
 
-        public static class SourceType
+        public static class Type
         {
             public static readonly KeyValuePair<string, object?> Memory = new ("source_type", "memory");
             public static readonly KeyValuePair<string, object?> Distributed = new ("source_type", "distributed");

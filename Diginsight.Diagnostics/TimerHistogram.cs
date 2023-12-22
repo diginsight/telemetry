@@ -25,10 +25,16 @@ public sealed class TimerHistogram
     public TimerLap StartLap(params Tag[] tags) => CoreCreateLap(tags, true, null);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TimerLap CreateLap(Tags tags, StrongBox<double>? elapsedMillisecondsBox = null) => CoreCreateLap(tags, false, elapsedMillisecondsBox);
+    public TimerLap CreateLap(StrongBox<double> elapsedMillisecondsBox, Tags tags) => CoreCreateLap(tags, false, elapsedMillisecondsBox);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TimerLap StartLap(Tags tags, StrongBox<double>? elapsedMillisecondsBox = null) => CoreCreateLap(tags, true, elapsedMillisecondsBox);
+    public TimerLap StartLap(StrongBox<double> elapsedMillisecondsBox, Tags tags) => CoreCreateLap(tags, true, elapsedMillisecondsBox);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TimerLap CreateLap(Tags tags) => CoreCreateLap(tags, false, null);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TimerLap StartLap(Tags tags) => CoreCreateLap(tags, true, null);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TimerLap CoreCreateLap(Tags tags, bool start, StrongBox<double>? elapsedMillisecondsBox)

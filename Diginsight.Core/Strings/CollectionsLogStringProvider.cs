@@ -18,7 +18,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
             return (ILogStringable)typeof(LogStringableKvpCollection<,>)
                 .MakeGenericType(tKey, tValue)
                 .GetConstructors()[0]
-                .Invoke(new[] { obj });
+                .Invoke([ obj ]);
         }
 
         if (type.IsIEnumerable(out Type? tInner))
@@ -26,7 +26,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
             return (ILogStringable)typeof(LogStringableGenericCollection<>)
                 .MakeGenericType(tInner)
                 .GetConstructors()[0]
-                .Invoke(new[] { obj });
+                .Invoke([ obj ]);
         }
 
         if (obj is IEnumerable coll)
@@ -124,7 +124,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
         protected override int[] GetLengths()
         {
             // ReSharper disable once SuspiciousTypeConversion.Global
-            return new[] { ((Array)subject).Length };
+            return [ ((Array)subject).Length ];
         }
 
         protected override void AppendToCore(AppendingContext appendingContext)
@@ -166,7 +166,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
 
         protected override int[] GetLengths()
         {
-            return new[] { ((T[])subject).Length };
+            return [ ((T[])subject).Length ];
         }
 
         protected override void AppendToCore(AppendingContext appendingContext)

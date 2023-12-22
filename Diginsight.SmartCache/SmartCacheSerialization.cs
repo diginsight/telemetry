@@ -14,11 +14,11 @@ public static class SmartCacheSerialization
         {
             TypeNameHandling = TypeNameHandling.Auto,
             TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Full,
-            SerializationBinder = new EMSerializationBinder(),
+            SerializationBinder = new MySerializationBinder(),
             Converters = new JsonConverter[]
             {
-                new EMTypeConverter(),
-                new EMEnumeratorConverter(),
+                new MyTypeConverter(),
+                new MyEnumeratorConverter(),
             },
             DateTimeZoneHandling = DateTimeZoneHandling.Local,
             DateParseHandling = DateParseHandling.DateTimeOffset,
@@ -109,7 +109,7 @@ public static class SmartCacheSerialization
         return JToken.FromObject(typeName).ToObject<Type>(Serializer)!;
     }
 
-    private sealed class EMSerializationBinder : ISerializationBinder
+    private sealed class MySerializationBinder : ISerializationBinder
     {
         private static readonly IReadOnlyDictionary<string, Assembly> NameToAssemblyMap;
         private static readonly IReadOnlyDictionary<Assembly, string> AssemblyToNameMap;
@@ -157,7 +157,7 @@ public static class SmartCacheSerialization
             """,
             RegexOptions.IgnorePatternWhitespace);
 
-        static EMSerializationBinder()
+        static MySerializationBinder()
         {
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
@@ -378,7 +378,7 @@ public static class SmartCacheSerialization
         }
     }
 
-    private sealed class EMTypeConverter : JsonConverter<Type>
+    private sealed class MyTypeConverter : JsonConverter<Type>
     {
         public override void WriteJson(JsonWriter writer, Type? value, JsonSerializer serializer)
         {
@@ -395,13 +395,13 @@ public static class SmartCacheSerialization
         public override Type? ReadJson(JsonReader reader, Type objectType, Type? existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             string? fullTypeName = serializer.Deserialize<string?>(reader);
-            return fullTypeName == null ? null : EMSerializationBinder.BindToType(serializer.SerializationBinder, fullTypeName);
+            return fullTypeName == null ? null : MySerializationBinder.BindToType(serializer.SerializationBinder, fullTypeName);
         }
     }
 
-    private sealed class EMEnumeratorConverter : JsonConverter
+    private sealed class MyEnumeratorConverter : JsonConverter
     {
-        private static readonly MethodInfo WriteJsonGenericMethod = typeof(EMEnumeratorConverter)
+        private static readonly MethodInfo WriteJsonGenericMethod = typeof(MyEnumeratorConverter)
             .GetMethod(nameof(WriteJsonGeneric), BindingFlags.NonPublic | BindingFlags.Instance)!;
 
         public override bool CanWrite => true;
@@ -429,7 +429,7 @@ public static class SmartCacheSerialization
 
             WriteJsonGenericMethod
                 .MakeGenericMethod(elementType)
-                .Invoke(this, new object[] { writer, value, serializer });
+                .Invoke(this, [ writer, value, serializer ]);
         }
 
         private void WriteJsonGeneric<T>(JsonWriter writer, IEnumerable<T> value, JsonSerializer serializer)

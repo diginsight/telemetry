@@ -7,7 +7,7 @@ public interface ISmartCacheService
     Task<T> GetAsync<T>(
         ICacheKey key,
         Func<Task<T>> fetchAsync,
-        ISmartCacheOperationOptions? operationOptions = null,
+        SmartCacheOperationOptions? operationOptions = null,
         Type? callerType = null
     );
 

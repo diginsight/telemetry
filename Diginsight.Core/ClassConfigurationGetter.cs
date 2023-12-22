@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System.Collections;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Diginsight;
 
@@ -8,7 +9,7 @@ internal class ClassConfigurationGetter : IClassConfigurationGetter
 {
     private readonly IConfiguration configuration;
     private readonly IEnumerable<IClassConfigurationSource> classConfigurationSources;
-    private readonly IDictionary<string, object?> cache = new Dictionary<string, object?>();
+    private readonly IDictionary<string, StrongBox<object?>?> cache = new Dictionary<string, StrongBox<object?>?>();
 
     public static IClassConfigurationGetter Empty => default(EmptyClassConfigurationGetter);
 
@@ -28,17 +29,46 @@ internal class ClassConfigurationGetter : IClassConfigurationGetter
         this.classConfigurationSources = classConfigurationSources;
     }
 
-    public T? Get<T>(string key, T? defaultValue)
+    public IEnumerable<T> GetAll<T>(string key, IClassConfigurationGetter.SafeConverter<T>? tryConvert)
     {
-        foreach (IClassConfigurationSource classConfigurationSource in classConfigurationSources)
+        IDictionary<string, T> dict = new Dictionary<string, T>();
+        foreach (string prefix in Prefixes)
         {
-            if (classConfigurationSource.TryGet(Prefixes, key, out T? value))
+            string fullKey = prefix + key;
+            if (configuration.GetSection(fullKey).Value is null)
             {
-                return value;
+                continue;
+            }
+
+            try
+            {
+                dict[prefix] = configuration.GetValue<T>(fullKey)!;
+            }
+            catch (Exception e)
+            {
+                _ = e;
             }
         }
 
-        T? CoreGet()
+        foreach (IClassConfigurationSource classConfigurationSource in classConfigurationSources.Reverse())
+        {
+            classConfigurationSource.PopulateAll(Prefixes, key, dict, tryConvert);
+        }
+
+        return Prefixes.Intersect(dict.Keys).Select(x => dict[x]);
+    }
+
+    public bool TryGet<T>(string key, out T value, IClassConfigurationGetter.SafeConverter<T>? tryConvert)
+    {
+        foreach (IClassConfigurationSource classConfigurationSource in classConfigurationSources)
+        {
+            if (classConfigurationSource.TryGet(Prefixes, key, out value, tryConvert))
+            {
+                return true;
+            }
+        }
+
+        bool TryGetCore(out T value)
         {
             foreach (string fullKey in Prefixes.Select(x => x + key))
             {
@@ -49,7 +79,8 @@ internal class ClassConfigurationGetter : IClassConfigurationGetter
 
                 try
                 {
-                    return configuration.GetValue<T>(fullKey);
+                    value = configuration.GetValue<T>(fullKey)!;
+                    return true;
                 }
                 catch (Exception e)
                 {
@@ -57,30 +88,55 @@ internal class ClassConfigurationGetter : IClassConfigurationGetter
                 }
             }
 
-            return defaultValue;
+            value = default!;
+            return false;
         }
 
+        StrongBox<object?>? box;
         lock (((ICollection)cache).SyncRoot)
         {
-            if (cache.TryGetValue(key, out object? rawValue))
+            if (!cache.TryGetValue(key, out box))
             {
-                return (T?)rawValue;
+                box = cache[key] = TryGetCore(out value) ? new StrongBox<object?>(value) : null;
             }
-
-            T? finalValue = CoreGet();
-            cache[key] = finalValue;
-            return finalValue;
         }
+
+        if (box is null)
+        {
+            value = default!;
+            return false;
+        }
+
+        value = (T)box.Value!;
+        return true;
     }
 
     private readonly struct EmptyClassConfigurationGetter : IClassConfigurationGetter
     {
-        public T? Get<T>(string key, T? defaultValue) => defaultValue;
+        public bool TryGet<T>(string key, out T value, IClassConfigurationGetter.SafeConverter<T>? tryConvert)
+        {
+            value = default!;
+            return false;
+        }
+
+        public IEnumerable<T> GetAll<T>(string key, IClassConfigurationGetter.SafeConverter<T>? tryConvert = null)
+        {
+            return Enumerable.Empty<T>();
+        }
     }
 
     private readonly struct EmptyClassConfigurationGetter<TClass> : IClassConfigurationGetter<TClass>
     {
-        public T? Get<T>(string key, T? defaultValue) => defaultValue;
+        public bool TryGet<T>(string key, out T value, IClassConfigurationGetter.SafeConverter<T>? tryConvert)
+        {
+            value = default!;
+            return false;
+        }
+
+        public IEnumerable<T> GetAll<T>(string key, IClassConfigurationGetter.SafeConverter<T>? tryConvert = null)
+        {
+            return Enumerable.Empty<T>();
+        }
     }
 
     private readonly struct EmptyClassConfigurationGetterProvider : IClassConfigurationGetterProvider

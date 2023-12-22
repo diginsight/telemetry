@@ -52,7 +52,7 @@ public sealed class LogStringMemberContract : ILogStringMemberContract
         configureContract(typeContract);
 
         providerType = typeof(CustomMemberwiseLogStringProvider);
-        providerArgs = new object[] { typeContract };
+        providerArgs = [ typeContract ];
 
         return this;
     }
