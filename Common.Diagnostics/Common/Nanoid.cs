@@ -8,21 +8,21 @@ using System.Threading.Tasks;
 namespace Nanoid
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public static class Nanoid
     {
         private const string DefaultAlphabet = "_-0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
         private static readonly CryptoRandom Random = new CryptoRandom();
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="alphabet"></param>
         /// <param name="size"></param>
         /// <returns></returns>
         public static async Task<string> GenerateAsync(string alphabet = DefaultAlphabet, int size = 21) => await Task.Run(() => Generate(Random, alphabet, size));
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="alphabet"></param>
         /// <param name="size"></param>
@@ -30,7 +30,7 @@ namespace Nanoid
         public static string Generate(string alphabet= DefaultAlphabet, int size=21) => Generate(Random, alphabet, size);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="random"></param>
         /// <param name="alphabet"></param>

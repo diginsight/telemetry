@@ -96,16 +96,6 @@ namespace Common
             object oSave1 = o is string ? (o as string) + Environment.NewLine : o;
             entries.Enqueue(oSave1); // save lines with added NewLine for later playback with Write() method
 
-
-
-
-
-
-
-
-
-
-
             InnerListener.Write(entries);
         }
         public override void Flush()

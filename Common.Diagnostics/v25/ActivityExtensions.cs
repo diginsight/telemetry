@@ -90,7 +90,7 @@ namespace Common
 
             var callerType = typeof(T);
             var scope = new CodeSectionScope(activitySource, logger, callerType, name, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
-            
+
             //var fullCallerMemberName = !string.IsNullOrEmpty(scope.Name) ? $"{scope.MemberName}.{scope.Name}" : scope.MemberName;
 
             // var stopTicks = TraceLogger.Stopwatch.ElapsedTicks;
@@ -165,7 +165,6 @@ namespace Common
                 TraceLogger.Host = null;
                 TraceLogger.Services = services;
                 //TraceLogger.LoggerFactory = host.Services.GetService<ILoggerFactory>();
-
 
             }
             return;

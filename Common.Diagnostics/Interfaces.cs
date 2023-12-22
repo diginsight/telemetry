@@ -245,5 +245,5 @@ namespace Common
     {
         public T? GetValue<T>(string key, T defaultValue);
     }
-    
+
 }

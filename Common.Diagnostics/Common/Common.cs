@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Windows;
 //using System.Windows.Media;
 using System.Diagnostics;
-using System.Collections.Generic; 
+using System.Collections.Generic;
 #endregion
 
 namespace Common
@@ -87,7 +87,7 @@ namespace Common
     internal class ResultReference : ResultReference<object> { }
     #endregion
 
-    #region WeakReference<T> 
+    #region WeakReference<T>
     internal class ABCWeakReference<T> : WeakReference, INotifyPropertyChanged
     {
         #region .ctor
@@ -307,7 +307,6 @@ namespace Common
 
             return null; // could also return string.Empty
         }
-
 
     }
 

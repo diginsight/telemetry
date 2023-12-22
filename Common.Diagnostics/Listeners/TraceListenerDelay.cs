@@ -8,7 +8,7 @@ using System.Windows;
 #endregion
 
 namespace Common
-{ 
+{
     public class TraceListenerDelay : TraceListener, ISupportFilters, ISupportInnerListener
     {
         #region const
@@ -40,7 +40,7 @@ namespace Common
         public TraceListenerDelay(TraceListener innerListener) : this()
         {
             _innerListener = innerListener;
-        } 
+        }
         #endregion
 
         public override void Write(string s) { Write((object)s); }

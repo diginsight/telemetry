@@ -25,7 +25,7 @@ namespace Common
         public const string CONFIGSETTING_LOGFOLDER = "LogFolder"; public const string CONFIGDEFAULT_LOGFOLDER = "\\Log";
         public const string CONFIGSETTING_FILTER = "Filter"; public const string CONFIGDEFAULT_FILTER = null;
         public const string CONFIGSETTING_CATEGORYFILTER = "CategoryFilter"; public const string CONFIGDEFAULT_CATEGORYFILTER = null;
-        public const string CONFIGSETTING_TIMESTAMPFORMAT = "TimestampFormat"; public const string CONFIGDEFAULT_TIMESTAMPFORMAT = "HH:mm:ss.fff"; // dd/MM/yyyy 
+        public const string CONFIGSETTING_TIMESTAMPFORMAT = "TimestampFormat"; public const string CONFIGDEFAULT_TIMESTAMPFORMAT = "HH:mm:ss.fff"; // dd/MM/yyyy
         public const string CONFIGSETTING_FLUSHONWRITE = "FlushOnWrite"; public const bool CONFIGDEFAULT_FLUSHONWRITE = false;
         public const string CONFIGSETTING_SHOWNESTEDFLOW = "ShowNestedFlow"; public const bool CONFIGDEFAULT_SHOWNESTEDFLOW = false;
         public const string CONFIGSETTING_MAXMESSAGELEVEL = "MaxMessageLevel"; public const int CONFIGDEFAULT_MAXMESSAGELEVEL = 3;
@@ -76,8 +76,8 @@ namespace Common
             if (assembly == null) { assembly = Assembly.GetExecutingAssembly(); }
         }
         public SerilogTraceListener() {
-            using (var sec = this.GetCodeSection()) { 
-                Init(); 
+            using (var sec = this.GetCodeSection()) {
+                Init();
             }
         }
         //public SerilogTraceListener(ILog log) { _log = log; }
@@ -85,8 +85,8 @@ namespace Common
         // Parameters:  stream: The System.IO.Stream to receive the output.
         // Exceptions:  T:System.ArgumentNullException: stream is null.
         public SerilogTraceListener(Stream stream) : base() {
-            using (var sec = this.GetCodeSection()) { 
-                Init(); 
+            using (var sec = this.GetCodeSection()) {
+                Init();
             }
         }
 
@@ -414,7 +414,6 @@ namespace Common
                 }
                 if (base.Filter != null && !base.Filter.ShouldTrace(null, null, entry.TraceEventType != 0 ? entry.TraceEventType : TraceEventType.Verbose, 0, null, null, null, null)) { return; }
 
-
                 // check the category filter
                 if (_categoryFilterMustInclude != null && _categoryFilterMustInclude.Length > 0 && _categoryFilterMustInclude.Any(categoryFilterMustInclude => category == null || category.IndexOf(categoryFilterMustInclude, StringComparison.CurrentCultureIgnoreCase) < 0)) { return; }
                 if (_categoryFilterMustExclude != null && _categoryFilterMustExclude.Length > 0 && _categoryFilterMustExclude.Any(categoryFilterMustExclude => category != null && category.IndexOf(categoryFilterMustExclude, StringComparison.CurrentCultureIgnoreCase) >= 0)) { return; }
@@ -608,7 +607,7 @@ namespace Common
             var milliseconds = entry.ElapsedMilliseconds - lastWrite.ElapsedMilliseconds;
             if (milliseconds <= 0) { return ""; }
 
-            var seconds = (float)milliseconds / 1000; // .PadLeft(5) 
+            var seconds = (float)milliseconds / 1000; // .PadLeft(5)
             int minutes = 0, hours = 0, days = 0; // months = 0, years = 0;
             string lastLineDelta = null;
 

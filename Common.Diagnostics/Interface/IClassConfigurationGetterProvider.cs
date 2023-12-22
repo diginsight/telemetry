@@ -1,11 +1,10 @@
-﻿
-using System;
+﻿using System;
 
 namespace Common
 {
     public interface IClassConfigurationGetterProvider
     {
-        IClassConfigurationGetterProvider Empty { get; } 
+        IClassConfigurationGetterProvider Empty { get; }
         IClassConfigurationGetter GetFor(Type @class);
     }
 
@@ -18,5 +17,4 @@ namespace Common
         public IClassConfigurationGetter GetFor(Type @class) => EmptyClassConfigurationGetter._empty;
     }
 }
-
 

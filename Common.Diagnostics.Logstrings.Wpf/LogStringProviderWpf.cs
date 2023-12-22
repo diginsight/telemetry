@@ -63,7 +63,7 @@ namespace Common
                 case PropertyChangedEventArgs w: arg.Handled = true; return ToLogStringInternal(w);
                 case RoutedEventArgs w: arg.Handled = true; return ToLogStringInternal(w);
                 case RoutedEvent w: arg.Handled = true; return ToLogStringInternal(w);
-                    
+
                 //
                 //case Thread w: arg.Handled = true; return LogstringHelper.ToLogStringInternal(w);
                 //case Microsoft.Graph.Models.Application w: arg.Handled = true; return LogstringHelper.ToLogStringInternal(w);

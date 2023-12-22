@@ -1,5 +1,4 @@
-﻿
-#region using
+﻿#region using
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -22,13 +21,13 @@ using System.Threading;
 #endregion
 
 // TODO: options for final naming:
-// . Diginsight.System.Diagnostics 
-// . Diginsight.System.Diagnostics.Log4Net 
+// . Diginsight.System.Diagnostics
+// . Diginsight.System.Diagnostics.Log4Net
 // . Diginsight.System.Diagnostics.Serilog
 // . Diginsight.Dotnet.Logger
 // . Diginsight.Dotnet.Xxxx
 // Microsoft.Extensions.Logging.ExecutionFlow
-// EFDF => TraceEntry 
+// EFDF => TraceEntry
 // Execution entry { MethodName, ClassName, TID   ,,,,,,,,, }
 
 namespace Common
@@ -135,7 +134,7 @@ namespace Common
 
                     var services = TraceLogger.Services;
                     try { logger = services.GetService(loggerType) as ILogger; } catch (Exception _) { }
-                    
+
                     // var loggerFactory = TraceLogger.LoggerFactory;
                     // logger = loggerFactory.CreateLogger(loggerType);
 
@@ -144,7 +143,6 @@ namespace Common
             });
         }
         #endregion
-
 
         // ILogger
         public IDisposable BeginScope<TState>(TState state)
@@ -270,7 +268,6 @@ namespace Common
             //{
             //    traceLoggerMinimumLevelService = services?.GetService<ITraceLoggerMinimumLevel>();
             //}
-
 
             var sec = new CodeSectionScope(null, logger, typeof(T), null, payload, TraceLogger.TraceSource, sourceLevel, logLevel, category, properties, source, startTicks, memberName, sourceFilePath, sourceLineNumber);
             var stopTicks = TraceLogger.Stopwatch.ElapsedTicks;

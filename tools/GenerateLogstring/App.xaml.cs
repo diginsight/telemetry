@@ -75,8 +75,6 @@ namespace GenerateLogstring
 
                             loggingBuilder.ClearProviders();
 
-
-
                             //var consoleProvider = new TraceLoggerConsoleProvider();
                             //loggingBuilder.AddDiginsightFormatted(consoleProvider, configuration);
 

@@ -118,7 +118,7 @@ namespace Common
         {
             foreach (var activity in batch)
             {
-                
+
                 this.WriteLine($"activity {activity.DisplayName} (IsStopped:{activity.IsStopped},Duration:{activity.Duration}) export");
             }
 

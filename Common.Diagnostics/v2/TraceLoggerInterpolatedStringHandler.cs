@@ -1,5 +1,4 @@
-﻿
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -27,7 +26,7 @@ namespace Common
         public InterpolatedStringHandlerBase(LogLevel currentLevel, LogLevel logMinimumLevel, int literalLength, int formattedCount, out bool isEnabled)
         {
             this.IsEnabled = isEnabled = currentLevel >= logMinimumLevel;
-            if (isEnabled == false) { this.FinalString = default; return; } // this.FormatTemplate = default; this.FormatParameters = default; 
+            if (isEnabled == false) { this.FinalString = default; return; } // this.FormatTemplate = default; this.FormatParameters = default;
 
             this.FinalString = new StringBuilder(literalLength + 3 * formattedCount);
             //this.FormatTemplate = new StringBuilder(literalLength + 3 * formattedCount);
@@ -636,8 +635,6 @@ namespace Common
         public override readonly string ToString() => handler.GetFormattedText();// string.Format(this.FormatTemplate.ToString(), this.FormatParameters);
     }
 
-
-
     //[InterpolatedStringHandler]
     //public ref struct DebugLoggerInterpolatedStringHandler
     //{
@@ -722,7 +719,6 @@ namespace Common
     //    {
     //    }
 
-
     //    public void AppendLiteral(string s)
     //    {
     //        this.FormatTemplate.Append(s.Replace("{", "{{").Replace("}", "}}"));
@@ -775,7 +771,6 @@ namespace Common
     //        : this(literalLength, formattedCount, CodeSectionScope.Current.Value != null ? CodeSectionScope.Current.Value.GetInnerSection() : new CodeSectionScope(null, logger, typeof(InternalClass), null, null, null, SourceLevels.Verbose, LogLevel.Trace, null, null, null, TraceManager.Stopwatch.ElapsedTicks, memberName, sourceFilePath, sourceLineNumber, true), out isEnabled)
     //    {
     //    }
-
 
     //    public void AppendLiteral(string s)
     //    {
@@ -830,7 +825,6 @@ namespace Common
     //    {
     //    }
 
-
     //    public void AppendLiteral(string s)
     //    {
     //        this.FormatTemplate.Append(s.Replace("{", "{{").Replace("}", "}}"));
@@ -883,7 +877,6 @@ namespace Common
     //        : this(literalLength, formattedCount, CodeSectionScope.Current.Value != null ? CodeSectionScope.Current.Value.GetInnerSection() : new CodeSectionScope(null, logger, typeof(InternalClass), null, null, null, SourceLevels.Verbose, LogLevel.Trace, null, null, null, TraceManager.Stopwatch.ElapsedTicks, memberName, sourceFilePath, sourceLineNumber, true), out isEnabled)
     //    {
     //    }
-
 
     //    public void AppendLiteral(string s)
     //    {

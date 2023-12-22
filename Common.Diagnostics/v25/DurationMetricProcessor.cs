@@ -18,7 +18,7 @@ namespace Common
         public override void OnEnd(Activity activity)
         {
             double duration = activity.Duration.TotalMilliseconds;
-            
+
             TagList tags = new()
             {
                 new Tag("span_name", activity.OperationName),

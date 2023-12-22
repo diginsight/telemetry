@@ -20,7 +20,7 @@ namespace Nanoid
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="buffer"></param>
         /// <exception cref="ArgumentNullException"></exception>

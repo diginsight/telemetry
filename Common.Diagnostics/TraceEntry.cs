@@ -20,7 +20,7 @@ using System.Text;
 
 namespace Common
 {
-    public struct TraceEntry //ref 
+    public struct TraceEntry //ref
     {
         public string Message { get; set; }
         [JsonIgnore]
@@ -69,7 +69,7 @@ namespace Common
             //TraceLoggerFormatProvider.formattra
             var ret = base.ToString();
             if (!ret.EndsWith("\r\n")) { ret += "\r\n"; }
-            
+
             return ret;
         }
     }

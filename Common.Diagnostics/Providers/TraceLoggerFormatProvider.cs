@@ -27,7 +27,7 @@ namespace Common
         #region const
         public const string CONFIGSETTING_CRREPLACE = "CRReplace"; public const string CONFIGDEFAULT_CRREPLACE = "\\r";
         public const string CONFIGSETTING_LFREPLACE = "LFReplace"; public const string CONFIGDEFAULT_LFREPLACE = "\\n";
-        public const string CONFIGSETTING_TIMESTAMPFORMAT = "TimestampFormat"; public const string CONFIGDEFAULT_TIMESTAMPFORMAT = "HH:mm:ss.fff"; // dd/MM/yyyy 
+        public const string CONFIGSETTING_TIMESTAMPFORMAT = "TimestampFormat"; public const string CONFIGDEFAULT_TIMESTAMPFORMAT = "HH:mm:ss.fff"; // dd/MM/yyyy
         public const string CONFIGSETTING_FLUSHONWRITE = "FlushOnWrite"; public const bool CONFIGDEFAULT_FLUSHONWRITE = false;
         public const string CONFIGSETTING_SHOWNESTEDFLOW = "ShowNestedFlow"; public const bool CONFIGDEFAULT_SHOWNESTEDFLOW = false;
         public const string CONFIGSETTING_SHOWTRACECOST = "ShowTraceCost"; public const bool CONFIGDEFAULT_SHOWTRACECOST = false;
@@ -64,7 +64,7 @@ namespace Common
         public const string CONFIGSETTING_TRACEMESSAGEFORMATSUSPEND = "TraceMessageFormatSuspend"; public const string CONFIGDEFAULT_TRACEMESSAGEFORMATSUSPEND = null;
         public const string CONFIGSETTING_TRACEMESSAGEFORMATRESUME = "TraceMessageFormatResume"; public const string CONFIGDEFAULT_TRACEMESSAGEFORMATRESUME = null;
         public const string CONFIGSETTING_TRACEMESSAGEFORMATTRANSFER = "TraceMessageFormatTransfer"; public const string CONFIGDEFAULT_TRACEMESSAGEFORMATTRANSFER = null;
-        //"OverrideOperationIds" 
+        //"OverrideOperationIds"
         #endregion
         #region internal state
         private static Type T = typeof(TraceLoggerFormatProvider);
@@ -162,7 +162,7 @@ namespace Common
 
                 scope.LogInformation($"Starting {this.GetType().Name} for: ProcessName: '{TraceLogger.ProcessName}', ProcessId: '{TraceLogger.ProcessId}', FileName: '{fileName}', WorkingDirectory: '{workingDirectory}', EntryAssemblyFullName: '{TraceLogger.EntryAssembly?.FullName}', ImageRuntimeVersion: '{TraceLogger.EntryAssembly?.ImageRuntimeVersion}', Location: '{TraceLogger.EntryAssembly?.Location}', thicksPerMillisecond: '{thicksPerMillisecond}'{Environment.NewLine}", null, new Dictionary<string, object>() { { "MaxMessageLen", 0 } }); // "init"
 
-                scope.LogDebug($"_allowedEventTypes '{_allowedEventTypes}', _showNestedFlow '{_showNestedFlow}', _flushOnWrite '{_flushOnWrite}', _cRReplace '{_CRReplace}', _lFReplace '{_LFReplace}', _timestampFormat '{_timestampFormat}'{Environment.NewLine}", null, new Dictionary<string, object>() { { "MaxMessageLen", 0 } }); // "init" _filter '{_filter}', _categoryFilter '{_categoryFilter}', 
+                scope.LogDebug($"_allowedEventTypes '{_allowedEventTypes}', _showNestedFlow '{_showNestedFlow}', _flushOnWrite '{_flushOnWrite}', _cRReplace '{_CRReplace}', _lFReplace '{_LFReplace}', _timestampFormat '{_timestampFormat}'{Environment.NewLine}", null, new Dictionary<string, object>() { { "MaxMessageLen", 0 } }); // "init" _filter '{_filter}', _categoryFilter '{_categoryFilter}',
                 scope.LogDebug($"_processNamePadding '{_processNamePadding}', _sourcePadding '{_sourcePadding}', _categoryPadding '{_categoryPadding}', _sourceLevelPadding '{_sourceLevelPadding}, _logLevelPadding '{_logLevelPadding}'{Environment.NewLine}", null, new Dictionary<string, object>() { { "MaxMessageLen", 0 } }); // "init"
                 scope.LogDebug($"_traceMessageFormat '{_traceMessageFormat}', _traceMessageFormatVerbose '{_traceMessageFormatVerbose}', _traceMessageFormatWarning '{_traceMessageFormatWarning}', _traceMessageFormatError '{_traceMessageFormatError}', _traceMessageFormatCritical '{_traceMessageFormatCritical}', _traceMessageFormatStart '{_traceMessageFormatStart}', _traceMessageFormatStop '{_traceMessageFormatStop}, _traceMessageFormatInlineStop '{_traceMessageFormatInlineStop}'{Environment.NewLine}", null, new Dictionary<string, object>() { { "MaxMessageLen", 0 } }); // "init"
 
@@ -202,7 +202,6 @@ namespace Common
                     _traceMessageFormatResume = _traceMessageFormatResume.Replace($"{{{v.name}}}", $"{{{v.position}}}");
                     _traceMessageFormatTransfer = _traceMessageFormatTransfer.Replace($"{{{v.name}}}", $"{{{v.position}}}");
                 });
-
 
             }
         }
@@ -475,7 +474,7 @@ namespace Common
             var milliseconds = entry.ElapsedMilliseconds - lastWrite.ElapsedMilliseconds;
             if (milliseconds <= 0) { return ""; }
 
-            var seconds = (float)milliseconds / 1000; // .PadLeft(5) 
+            var seconds = (float)milliseconds / 1000; // .PadLeft(5)
             int minutes = 0, hours = 0, days = 0; // months = 0, years = 0;
             string lastLineDelta = null;
 

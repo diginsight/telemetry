@@ -93,7 +93,6 @@ namespace Common
                 ProcessId = -1;
             }
 
-
             EntryAssembly = Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly();
         }
         #endregion

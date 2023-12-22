@@ -81,12 +81,11 @@ namespace Common
 
             T finalValue = CoreGet();
 
-
             lock (((ICollection)cache).SyncRoot) { cache[key] = finalValue; }
 
             return finalValue;
         }
-        
+
         static IEnumerable<string> GetPrefixes()
         {
             Type type = typeof(TClass);

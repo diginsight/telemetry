@@ -24,7 +24,7 @@ namespace Common
         public const string FILTER_SPLIT_REGEX = @"([-!]?[\""].+?[\""])|([-!]?\w+)";
         public const string CONFIGSETTING_CRREPLACE = "CRReplace"; public const string CONFIGDEFAULT_CRREPLACE = "\\r";
         public const string CONFIGSETTING_LFREPLACE = "LFReplace"; public const string CONFIGDEFAULT_LFREPLACE = "\\n";
-        public const string CONFIGSETTING_TIMESTAMPFORMAT = "TimestampFormat"; public const string CONFIGDEFAULT_TIMESTAMPFORMAT = "HH:mm:ss.fff"; // dd/MM/yyyy 
+        public const string CONFIGSETTING_TIMESTAMPFORMAT = "TimestampFormat"; public const string CONFIGDEFAULT_TIMESTAMPFORMAT = "HH:mm:ss.fff"; // dd/MM/yyyy
         public const string CONFIGSETTING_FLUSHONWRITE = "FlushOnWrite"; public const bool CONFIGDEFAULT_FLUSHONWRITE = false;
         public const string CONFIGSETTING_SHOWNESTEDFLOW = "ShowNestedFlow"; public const bool CONFIGDEFAULT_SHOWNESTEDFLOW = false;
         public const string CONFIGSETTING_MAXMESSAGELEVEL = "MaxMessageLevel"; public const int CONFIGDEFAULT_MAXMESSAGELEVEL = 3;
@@ -103,11 +103,10 @@ namespace Common
         {
             if (classConfigurationGetter == null) { classConfigurationGetter = new ClassConfigurationGetter<TraceListenerTextbox>(TraceLogger.Configuration); }
 
-
             if (txtOut != null) { TextBox = txtOut; }
             if (_CRReplace != null) { _CRReplace = cRReplace; }
             //if (_CRReplace == null) { _CRReplace = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_CRREPLACE, CONFIGDEFAULT_CRREPLACE); }
-            if (_CRReplace == null) { _CRReplace = classConfigurationGetter.Get(CONFIGSETTING_CRREPLACE, CONFIGDEFAULT_CRREPLACE); }            
+            if (_CRReplace == null) { _CRReplace = classConfigurationGetter.Get(CONFIGSETTING_CRREPLACE, CONFIGDEFAULT_CRREPLACE); }
             if (_LFReplace != null) { _LFReplace = lFReplace; }
             //if (_LFReplace == null) { _LFReplace = ConfigurationHelper.GetClassSetting<TraceListenerTextbox, string>(CONFIGSETTING_LFREPLACE, CONFIGDEFAULT_LFREPLACE); }
             if (_LFReplace == null) { _LFReplace = classConfigurationGetter.Get(CONFIGSETTING_LFREPLACE, CONFIGDEFAULT_LFREPLACE); }
@@ -358,7 +357,6 @@ namespace Common
                 sbMessages.Append(message);
             });
 
-
             TextBox.Dispatcher.Invoke(new AppendTextDelegate((s) =>
             {
                 if (TextBox.LineCount > MAXLINES)
@@ -577,7 +575,7 @@ namespace Common
             var milliseconds = entry.ElapsedMilliseconds - lastWrite.ElapsedMilliseconds;
             if (milliseconds <= 0) { return ""; }
 
-            var seconds = (float)milliseconds / 1000; // .PadLeft(5) 
+            var seconds = (float)milliseconds / 1000; // .PadLeft(5)
             int minutes = 0, hours = 0, days = 0; // months = 0, years = 0;
             string lastLineDelta = null;
 

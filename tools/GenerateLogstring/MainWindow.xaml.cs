@@ -104,7 +104,6 @@ namespace GenerateLogstring
                 scope.LogError(() => "this is a error trace");
                 scope.LogError(() => "this is a error trace");
 
-
                 // log by means of standard ILogger Interface
                 _logger.LogTrace("this is a Trace trace");
                 _logger.LogDebug("this is a Debug trace");

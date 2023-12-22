@@ -34,7 +34,7 @@ namespace Common
         /// <returns>String contenente l'xml con l'oggetto serializzato</returns>
         public static string SerializeJson<T>(T obj)
         {
-            var jsonString = System.Text.Json.JsonSerializer.Serialize(obj, defaultOptions); 
+            var jsonString = System.Text.Json.JsonSerializer.Serialize(obj, defaultOptions);
             return jsonString;
         }
         #endregion

@@ -4,12 +4,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks; 
+using System.Threading.Tasks;
 #endregion
 
 namespace Common
 {
-    internal static class CollectionHelper 
+    internal static class CollectionHelper
     {
         #region TryGetItem
         public static T TryGetItem<T>(object[] values, int i)

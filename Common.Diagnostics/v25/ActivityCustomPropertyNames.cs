@@ -1,4 +1,3 @@
-
 namespace Common
 {
     internal static class ActivityCustomPropertyNames
