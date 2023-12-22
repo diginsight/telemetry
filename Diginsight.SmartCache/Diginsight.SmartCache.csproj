@@ -29,6 +29,12 @@
   </Choose>
 
   <ItemGroup>
+    <Compile Include="..\Diginsight.Core\Polyfills\IsExternalInit.cs" Link="Polyfills\IsExternalInit.cs" />
+    <Compile Include="..\Diginsight.Core\Polyfills\NotNullIfNotNullAttribute.cs" Link="Polyfills\NotNullIfNotNullAttribute.cs" />
+    <Compile Include="..\Diginsight.Core\Polyfills\NotNullWhenAttribute.cs" Link="Polyfills\NotNullWhenAttribute.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.*" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.*" />
     <PackageReference Include="StackExchange.Redis" Version="2.*" />

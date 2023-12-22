@@ -67,12 +67,7 @@ internal sealed class SmartCacheMiddleware : IMiddleware
             return;
         }
 
-#if NET6_0_OR_GREATER
-        RouteData routeData = new (request.RouteValues);
-#else
-        RouteData routeData = new ();
-#endif
-        ActionContext actionContext = new (httpContext, routeData, new ActionDescriptor());
+        ActionContext actionContext = new (httpContext, httpContext.GetRouteData(), new ActionDescriptor());
         await actionResult.ExecuteResultAsync(actionContext);
     }
 

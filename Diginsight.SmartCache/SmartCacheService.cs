@@ -1,7 +1,6 @@
 ﻿using Diginsight.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
@@ -9,23 +8,26 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Activity = System.Diagnostics.Activity;
 
 namespace Diginsight.SmartCache;
 
-public class SmartCacheService : ISmartCacheService
+public sealed class SmartCacheService : ISmartCacheService
 {
-    private readonly ILogger<SmartCacheService> logger;
-    private readonly IHttpContextAccessor httpContextAccessor;
-    private readonly IHttpClientFactory httpClientFactory;
+    private readonly ILogger logger;
     private readonly IClassConfigurationGetter classConfigurationGetter;
     private readonly IClassConfigurationGetterProvider classConfigurationGetterProvider;
     private readonly ICacheCompanionProvider companionProvider;
     private readonly ISmartCacheServiceOptions smartCacheServiceOptions;
     private readonly TimeProvider timeProvider;
+    private readonly IHttpContextAccessor? httpContextAccessor;
+
     private readonly IMemoryCache memoryCache;
+
+    private readonly IReadOnlyDictionary<string, PassiveCacheLocation> passiveLocations;
+    private readonly PassiveCacheLocation redisLocation;
 
     private readonly IDictionary<ICacheKey, ValueTuple> keys = new ConcurrentDictionary<ICacheKey, ValueTuple>();
     private readonly ExternalMissDictionary externalMissDictionary = new ();
@@ -35,117 +37,104 @@ public class SmartCacheService : ISmartCacheService
 
     public SmartCacheService(
         ILogger<SmartCacheService> logger,
-        IHttpContextAccessor httpContextAccessor,
-        IHttpClientFactory httpClientFactory,
         IClassConfigurationGetter classConfigurationGetter,
         IClassConfigurationGetterProvider classConfigurationGetterProvider,
         ICacheCompanionProvider companionProvider,
         IOptions<SmartCacheServiceOptions> smartCacheServiceOptions,
-        IOptions<MemoryCacheOptions> memoryCacheOptions,
+        IOptionsMonitor<MemoryCacheOptions> memoryCacheOptionsMonitor,
         ILoggerFactory loggerFactory,
-        TimeProvider? timeProvider = null
+        TimeProvider? timeProvider = null,
+        IHttpContextAccessor? httpContextAccessor = null
     )
     {
         this.logger = logger;
-        this.httpContextAccessor = httpContextAccessor;
-        this.httpClientFactory = httpClientFactory;
         this.classConfigurationGetter = classConfigurationGetter;
         this.classConfigurationGetterProvider = classConfigurationGetterProvider;
         this.companionProvider = companionProvider;
         this.smartCacheServiceOptions = smartCacheServiceOptions.Value;
         this.timeProvider = timeProvider ?? TimeProvider.System;
+        this.httpContextAccessor = httpContextAccessor;
 
-        MemoryCacheOptions initialMemoryCacheOptions = memoryCacheOptions.Value;
-        MemoryCacheOptions finalMemoryCacheOptions = new ()
-        {
-            Clock = initialMemoryCacheOptions.Clock ?? new TimeProviderClock(this.timeProvider),
-            CompactionPercentage = initialMemoryCacheOptions.CompactionPercentage,
-            ExpirationScanFrequency = initialMemoryCacheOptions.ExpirationScanFrequency,
-            SizeLimit = this.smartCacheServiceOptions.SizeLimit,
-            TrackLinkedCacheEntries = initialMemoryCacheOptions.TrackLinkedCacheEntries,
-            TrackStatistics = initialMemoryCacheOptions.TrackStatistics,
-        };
-        memoryCache = new MemoryCache(finalMemoryCacheOptions, loggerFactory);
+        memoryCache = new MemoryCache(memoryCacheOptionsMonitor.Get(nameof(SmartCacheService)), loggerFactory);
+
+        passiveLocations = companionProvider.PassiveLocations.ToDictionary(static x => x.Id);
+        redisLocation = companionProvider.PassiveLocations.OfType<RedisCacheLocation>().Single();
     }
 
-    private sealed class TimeProviderClock : ISystemClock
-    {
-        private readonly TimeProvider timeProvider;
-
-        public TimeProviderClock(TimeProvider timeProvider)
-        {
-            this.timeProvider = timeProvider;
-        }
-
-        public DateTimeOffset UtcNow => timeProvider.GetUtcNow();
-    }
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static DateTime Truncate(DateTime timestamp)
     {
         return new DateTime(timestamp.Year, timestamp.Month, timestamp.Day, timestamp.Hour, timestamp.Minute, timestamp.Second);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [return: NotNullIfNotNull(nameof(timestamp))]
     private static DateTime? Truncate(DateTime? timestamp)
     {
         return timestamp is { } ts ? Truncate(ts) : null;
     }
 
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    public async Task<T> GetAsync<T>(
-        ICacheKey key,
-        Func<Task<T>> fetchAsync,
-        ISmartCacheOperationOptions? operationOptions,
-        Type? callerType
-    )
+    public async Task<T> GetAsync<T>(ICacheKey key, Func<Task<T>> fetchAsync, SmartCacheOperationOptions? operationOptions, Type? callerType)
     {
         callerType ??= RuntimeUtils.GetCaller().DeclaringType;
+        operationOptions ??= new ();
 
-        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key, operationOptions });
-        // TODO activity?.SetTag("cache.key", key.ToLogString());
+        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key, operationOptions, callerType });
 
-        SmartCacheMetrics.Calls.Add(1);
+        CacheKeyHolder keyHolder = new CacheKeyHolder(key);
 
-        if (operationOptions?.Enabled != true)
+        SmartCacheMetrics.Instruments.Calls.Add(1);
+
+        if (operationOptions.Disabled)
         {
-            SmartCacheMetrics.Sources.Add(1, SmartCacheMetrics.Tags.SourceType.Disabled);
+            SmartCacheMetrics.Instruments.Sources.Add(1, SmartCacheMetrics.Tags.Type.Disabled);
 
-            using (SmartCacheMetrics.FetchDuration.StartLap(SmartCacheMetrics.Tags.SourceType.Disabled))
+            using (SmartCacheMetrics.Instruments.FetchDuration.StartLap(SmartCacheMetrics.Tags.Type.Disabled))
             {
                 activity?.SetTag("cache.disabled", 1);
                 return await fetchAsync();
             }
         }
 
-        return await GetAsync(key, fetchAsync, operationOptions.MaxAge, callerType, operationOptions.AbsoluteExpiration, operationOptions.SlidingExpiration);
+        TimeSpan? maxAge = operationOptions.MaxAge;
+        DateTime timestamp = Truncate(timeProvider.GetUtcNow().UtcDateTime);
+        DateTime minimumCreationDate = GetMinimumCreationDate(ref maxAge, callerType, timestamp);
+        bool forceFetch = maxAge.Value <= TimeSpan.Zero || minimumCreationDate >= timestamp;
+
+        return await GetAsync(
+            keyHolder,
+            fetchAsync,
+            timestamp,
+            forceFetch ? null : minimumCreationDate,
+            operationOptions.AbsoluteExpiration,
+            operationOptions.SlidingExpiration
+        );
     }
 
     private async Task<TValue> GetAsync<TValue>(
-        ICacheKey key,
+        CacheKeyHolder keyHolder,
         Func<Task<TValue>> fetchAsync,
-        TimeSpan? maxAge,
-        Type callerType,
+        DateTime timestamp,
+        DateTime? maybeMinimumCreationDate,
         TimeSpan? absExpiration = null,
         TimeSpan? sldExpiration = null
     )
     {
-        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key, maxAge, absExpiration, sldExpiration });
+        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(
+            logger, new { keyHolder.Key, timestamp, maybeMinimumCreationDate, absExpiration, sldExpiration }
+        );
 
-        DateTime utcNow = timeProvider.GetUtcNow().UtcDateTime;
-        DateTime minimumCreationDate = GetMinimumCreationDate(ref maxAge, callerType, utcNow);
-        bool forceFetch = maxAge.Value <= TimeSpan.Zero || minimumCreationDate >= utcNow;
-
-        using TimerLap memoryLap = SmartCacheMetrics.FetchDuration.CreateLap(SmartCacheMetrics.Tags.SourceType.Memory);
+        using TimerLap memoryLap = SmartCacheMetrics.Instruments.FetchDuration.CreateLap(SmartCacheMetrics.Tags.Type.Memory);
         memoryLap.DisableCommit = true;
 
-        ValueEntry<TValue>? valueEntry;
+        ValueEntry<TValue>? localEntry;
         ExternalMissDictionary.Entry? externalEntry;
 
         bool discardExternalMiss = classConfigurationGetter.Get("DiscardExternalMiss", false);
 
-        if (forceFetch)
+        if (maybeMinimumCreationDate is null)
         {
-            valueEntry = null;
+            localEntry = null;
             externalEntry = null;
         }
         else
@@ -153,343 +142,225 @@ public class SmartCacheService : ISmartCacheService
             using (memoryLap.Start())
             using (SmartCacheMetrics.ActivitySource.StartActivity(logger, $"{nameof(SmartCacheService)}.GetFromMemory"))
             {
-                valueEntry = memoryCache.Get<ValueEntry<TValue>?>(key);
-                externalEntry = discardExternalMiss ? null : externalMissDictionary.Get(key);
+                localEntry = memoryCache.Get<ValueEntry<TValue>?>(keyHolder.Key);
+                externalEntry = discardExternalMiss ? null : externalMissDictionary.Get(keyHolder.Key);
             }
 
-            if (valueEntry is not null)
+            if (localEntry is not null)
             {
                 logger.LogDebug("Cache entry found");
             }
         }
 
-        [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
-        async Task<TValue> FetchAndSetValueAsync()
+        async Task<TValue> FetchAndSetValueAsync([SuppressMessage("ReSharper", "VariableHidesOuterVariable")] Activity? activity)
         {
-            SmartCacheMetrics.Sources.Add(1, SmartCacheMetrics.Tags.SourceType.Miss);
-            Activity.Current?.SetTag("cache.hit", 0);
+            SmartCacheMetrics.Instruments.Sources.Add(1, SmartCacheMetrics.Tags.Type.Miss);
+            activity?.SetTag("cache.hit", 0);
 
             TValue value;
-            TimerLap fetchLap = SmartCacheMetrics.FetchDuration.CreateLap(SmartCacheMetrics.Tags.SourceType.Miss);
-            using (fetchLap.Start())
+            StrongBox<double> latencyMsecBox = new ();
+            using (SmartCacheMetrics.Instruments.FetchDuration.StartLap(latencyMsecBox, SmartCacheMetrics.Tags.Type.Miss))
             {
                 value = await fetchAsync();
             }
 
-            logger.LogDebug("Fetched in {LatencyMsec} ms", (long)fetchLap.ElapsedMilliseconds);
+            long latencyMsec = (long)latencyMsecBox.Value;
+
+            logger.LogDebug("Fetched in {LatencyMsec} ms", latencyMsec);
 
             using (SmartCacheMetrics.ActivitySource.StartActivity(logger, $"{nameof(SmartCacheService)}.SetValue"))
             {
-                SetValue(key, value, absExpiration, sldExpiration, skipPublish: discardExternalMiss);
+                SetValue(keyHolder, value, timestamp, absExpiration, sldExpiration, discardExternalMiss);
                 return value;
             }
         }
 
-        DateTime? localCreationDate = valueEntry?.CreationDate;
+        DateTime? localCreationDate = localEntry?.CreationDate;
 
-        if (externalEntry is var (othersCreationDate, locations) && !(othersCreationDate - smartCacheServiceOptions.LocalEntryTolerance <= localCreationDate))
+        if (externalEntry is var (othersCreationDate, locationIds) && !(othersCreationDate - smartCacheServiceOptions.LocalEntryTolerance <= localCreationDate))
         {
+            DateTime minimumCreationDate = maybeMinimumCreationDate!.Value;
             if (othersCreationDate >= minimumCreationDate)
             {
-                logger.LogDebug("Key is also available and up-to-date in other locations: {Locations}", locations);
+                logger.LogDebug("Key is also available and up-to-date in other locations: {LocationIds}", locationIds);
 
-                HttpClient httpClient = httpClientFactory.CreateClient(nameof(SmartCacheService));
+                ConcurrentBag<string> invalidLocations = [ ];
 
-                string rawKey;
-                using (Activity? serializeActivity = SmartCacheMetrics.ActivitySource.StartActivity(logger, $"{nameof(SmartCacheService)}.Serialize"))
-                {
-                    serializeActivity?.RecordDurationMetric(
-                        SmartCacheMetrics.SerializationDuration.Underlying, SmartCacheMetrics.Tags.Subject.Key, SmartCacheMetrics.Tags.Operation.Serialization
-                    );
+                IReadOnlyDictionary<string, CacheLocation> locations = (await companionProvider.GetCompanionsAsync())
+                    .Concat<CacheLocation>(passiveLocations.Values)
+                    .ToDictionary(static x => x.Id);
 
-                    rawKey = SmartCacheSerialization.SerializeToString(key);
-                }
-
-                HttpContent requestContent = new StringContent(rawKey, SmartCacheSerialization.Encoding, "application/json");
-                long keySerializedSize = requestContent.Headers.ContentLength!.Value;
-
-                ConcurrentBag<string> invalidLocations = [];
-
-                [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
-                async Task<StrongBox<(TValue, double, long)>?> GetFromCompanionAsync(string companionIp, CancellationToken ct)
-                {
-                    using TimerMark mark = CacheMetrics.FetchDuration.CreateMark(MetricTags.Distributed);
-                    try
-                    {
-                        Stopwatch sw = Stopwatch.StartNew();
-
-                        HttpResponseMessage responseMessage;
-                        using (mark.Start())
-                        {
-                            responseMessage = await httpClient.PostAsync($"http://{companionIp}/api/v1/clusterCache/get", requestContent, ct);
-                        }
-
-                        TValue item;
-                        long valueSerializedSize;
-                        using (responseMessage)
-                        {
-                            responseMessage.EnsureSuccessStatusCode();
-                            HttpContent responseContent = responseMessage.Content;
-
-                            valueSerializedSize = responseContent.Headers.ContentLength!.Value;
-
-                            await using (Stream contentStream = await responseContent.ReadAsStreamAsync(ct))
-                            {
-                                using (CacheMetrics.SerializationDuration.StartMark(MetricTags.CacheValue, MetricTags.Deserialization))
-                                using (ActivitySource.StartActivity("CacheService.Deserialize"))
-                                {
-                                    item = SmartCacheSerialization.Deserialize<TValue>(contentStream);
-                                }
-                            }
-                        }
-
-                        long latencyMsec = sw.ElapsedMilliseconds;
-
-                        scope.LogDebug($"Cache hit: Returning up-to-date value for {keyLogString} from companion {companionIp}. Latency: {latencyMsec}");
-
-                        long readLatencyThresholdMsec = cacheServiceOptions.ReadLatencyThreshold;
-                        if (latencyMsec > readLatencyThresholdMsec)
-                        {
-                            scope.LogWarning($"Companion retrieval latency {latencyMsec} (size:{valueSerializedSize:#,##0}) exceeded the configured threshold of {readLatencyThresholdMsec}");
-                        }
-
-                        CacheMetrics.RelativeFetchDuration.Record(mark.ElapsedMilliseconds / valueSerializedSize * 1000, MetricTags.Distributed, MetricTags.Found);
-
-                        mark.AddTags(MetricTags.Found);
-                        return new StrongBox<(TValue, double, long)>((item, (double)latencyMsec / valueSerializedSize, valueSerializedSize));
-                    }
-                    catch (Exception e) when (e is InvalidOperationException or HttpRequestException || e is TaskCanceledException tce && tce.CancellationToken != ct)
-                    {
-                        mark.AddTags(MetricTags.NotFound);
-                        invalidLocations.Add(companionIp);
-                        scope.LogDebug($"Partial cache miss: Failed to retrieve value for {keyLogString} from companion {companionIp}");
-                    }
-
-                    return null;
-                }
-
-                [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
-                async Task<StrongBox<(TValue, double, long)>?> GetFromRedisAsync()
-                {
-                    if (redisDatabaseAccessor.Database is not { } redisDatabase)
-                    {
-                        return null;
-                    }
-
-                    RedisKey redisKey = cacheServiceOptions.RedisKeyPrefix + rawKey;
-
-                    Stopwatch sw = Stopwatch.StartNew();
-
-                    RedisValue redisEntry;
-                    using TimerMark mark = CacheMetrics.FetchDuration.CreateMark(MetricTags.Redis);
-                    {
-                        using (mark.Start())
-                        {
-                            redisEntry = await redisDatabase.StringGetAsync(redisKey);
-                        }
-                    }
-
-                    if (redisEntry.IsNull)
-                    {
-                        mark.AddTags(MetricTags.NotFound);
-                        return null;
-                    }
-
-                    mark.AddTags(MetricTags.Found);
-
-                    ValueEntry<TValue> entry;
-                    using (CacheMetrics.SerializationDuration.StartMark(MetricTags.CacheValue, MetricTags.Deserialization))
-                    {
-                        using (ActivitySource.StartActivity("CacheService.Deserialize"))
-                        {
-                            entry = SmartCacheSerialization.Deserialize<ValueEntry<TValue>>((byte[])redisEntry!);
-                        }
-                    }
-
-                    long latencyMsec = sw.ElapsedMilliseconds;
-
-                    if (entry.CreationDate < minimumCreationDate)
-                    {
-                        scope.LogDebug($"Partial cache miss: Value for {keyLogString} found in Redis but CreationDate is invalid. Latency: {latencyMsec}");
-
-                        invalidLocations.Add(RedisLocation);
-                        _ = await redisDatabase.KeyDeleteAsync(redisKey);
-                        return null;
-                    }
-
-                    long valueSerializedSize = redisEntry.Length();
-                    scope.LogDebug($"Cache hit (Latency:{latencyMsec}, Size:{valueSerializedSize:#,##0}): Returning up-to-date value for {keyLogString} from Redis.");
-
-                    long readLatencyThresholdMsec = cacheServiceOptions.ReadLatencyThreshold;
-                    if (latencyMsec > readLatencyThresholdMsec)
-                    {
-                        scope.LogWarning($"Redis retrieval latency {latencyMsec} (size:{valueSerializedSize:#,##0}) exceeded the configured threshold of {readLatencyThresholdMsec}");
-                    }
-
-                    CacheMetrics.RelativeFetchDuration.Record(mark.ElapsedMilliseconds / valueSerializedSize * 1000, MetricTags.Redis, MetricTags.Found);
-
-                    return new Optional<(TValue, double, long)>((entry.Data, (double)latencyMsec / valueSerializedSize, valueSerializedSize));
-                }
-
-                Func<CancellationToken, Task<Optional<(TValue, string, long)>>> UpdatingLatency(
-                    string location,
-                    Func<CancellationToken, Task<Optional<(TValue, double, long)>>> getFromLocationAsync
-                )
-                {
-                    return async ct =>
-                    {
-                        Optional<(TValue Item, double RelativeLatency, long ValueSerializedSize)> outputOpt = await getFromLocationAsync(ct);
-                        if (!outputOpt.IsUndefined)
-                        {
-                            Latency latency = locationLatencies.GetOrAdd(location, static _ => new Latency());
-                            latency.Add(outputOpt.Value.RelativeLatency);
-                        }
-                        else if (location != RedisLocation && invalidLocations.Contains(location))
-                        {
-                            locationLatencies.TryRemove(location, out _);
-                        }
-
-                        return outputOpt.Convert(x => (x.Item, location, x.ValueSerializedSize));
-                    };
-                }
-
-                IEnumerable<Func<CancellationToken, Task<Optional<(TValue, string, long)>>>> taskFactories = locations
+                IEnumerable<Func<CancellationToken, Task<(TValue, long, KeyValuePair<string, object?>)?>>> taskFactories = locationIds
                     .GroupJoin(
                         locationLatencies,
                         static l => l,
                         static kv => kv.Key,
-                        static (l, kvs) => (Location: l, Latency: kvs.FirstOrDefault().Value ?? new Latency())
+                        static (l, kvs) => (LocationId: l, Latency: kvs.FirstOrDefault().Value ?? new Latency())
                     )
                     .OrderBy(static kv => kv.Latency)
+                    .Select(static kv => kv.LocationId)
                     .Select(
-                        kv =>
+                        Func<CancellationToken, Task<(TValue, long, KeyValuePair<string, object?>)?>> (locationId) =>
                         {
-                            string location = kv.Location;
-                            Func<CancellationToken, Task<Optional<(TValue, double, long)>>> getFromLocationAsync =
-                                location == RedisLocation
-                                    ? _ => GetFromRedisAsync()
-                                    : ct => GetFromCompanionAsync(location, ct);
+                            if (!locations.TryGetValue(locationId, out CacheLocation? location))
+                            {
+                                return static _ => Task.FromResult<(TValue, long, KeyValuePair<string, object?>)?>(null);
+                            }
 
-                            return UpdatingLatency(location, getFromLocationAsync);
+                            return async ct =>
+                            {
+                                (TValue Item, long ValueSerializedSize, double RelativeLatency)? maybeOutput =
+                                    await location.GetAsync<TValue>(keyHolder, minimumCreationDate, () => invalidLocations.Add(locationId), ct);
+
+                                if (maybeOutput is { } output)
+                                {
+                                    Latency latency = locationLatencies.GetOrAdd(locationId, static _ => new Latency());
+                                    latency.Add(output.RelativeLatency);
+
+                                    return (output.Item, output.ValueSerializedSize, location.MetricTag);
+                                }
+                                else
+                                {
+                                    if (invalidLocations.Contains(locationId) && location is CacheCompanion)
+                                    {
+                                        locationLatencies.TryRemove(locationId, out _);
+                                    }
+
+                                    return null;
+                                }
+                            };
                         }
                     )
                     .ToArray();
 
-                Optional<(TValue Item, string Location, long ValueSerializedSize)> outputOpt;
+                (TValue, long, KeyValuePair<string, object?>)? maybeOutput;
                 try
                 {
-                    outputOpt = await TaskExtensions.WhenAnyValid(
+                    maybeOutput = await TaskUtils.WhenAnyValid(
                         taskFactories.ToArray(),
-                        cacheServiceOptions.CompanionPrefetchCount,
-                        cacheServiceOptions.CompanionMaxParallelism,
+                        smartCacheServiceOptions.CompanionPrefetchCount,
+                        smartCacheServiceOptions.CompanionMaxParallelism,
                         // ReSharper disable once AsyncApostle.AsyncWait
-                        isValid: static t => new ValueTask<bool>(!t.IsCompletedSuccessfully || !t.Result.IsUndefined)
+                        isValid: static t => new ValueTask<bool>(t.Status != TaskStatus.RanToCompletion || t.Result is not null)
                     );
                 }
                 catch (InvalidOperationException)
                 {
-                    outputOpt = null;
+                    maybeOutput = default;
                 }
                 finally
                 {
                     if (invalidLocations.Any())
                     {
-                        externalMissDictionary.RemoveSub(key, invalidLocations);
+                        externalMissDictionary.RemoveSub(keyHolder.Key, invalidLocations);
                     }
                 }
 
-                if (!outputOpt.IsUndefined)
+                if (maybeOutput is var (item, valueSerializedSize, metricTag))
                 {
-                    (TValue item, string location, long valueSerializedSize) = outputOpt.Value;
+                    SmartCacheMetrics.Instruments.KeySerializedSize.Record(keyHolder.GetAsBytes().LongLength, metricTag);
+                    SmartCacheMetrics.Instruments.ValueSerializedSize.Record(valueSerializedSize, metricTag);
+                    SmartCacheMetrics.Instruments.Sources.Add(1, metricTag);
 
-                    KeyValuePair<string, object?> locationTags = location == RedisLocation ? MetricTags.Redis : MetricTags.Distributed;
-                    CacheMetrics.KeySerializedSize.Record(keySerializedSize, locationTags);
-                    CacheMetrics.ValueSerializedSize.Record(valueSerializedSize, locationTags);
-                    CacheMetrics.Sources.Add(1, locationTags);
-
-                    SetValue(key, item, absExpiration, sldExpiration, othersCreationDate, skipPublish: discardExternalMiss);
+                    SetValue(keyHolder, item, othersCreationDate, absExpiration, sldExpiration, discardExternalMiss);
                     return item!;
                 }
             }
             else
             {
-                scope.LogDebug($"Cache miss: CreationDate validation failed (minimumCreationDate: '{minimumCreationDate:O}', older entry CreationDate: '{localCreationDate ?? DateTime.MinValue:O}').");
+                logger.LogDebug(
+                    "Cache miss: creation date validation failed (minimum: {MinimumCreationDate:O}, older: {LocalCreationDate:O})",
+                    minimumCreationDate,
+                    localCreationDate ?? DateTime.MinValue
+                );
             }
 
-            return await FetchAndSetValueAsync();
+            return await FetchAndSetValueAsync(activity);
         }
 
         memoryLap.DisableCommit = false;
 
-        if (localCreationDate >= minimumCreationDate && valueEntry!.Data is { } data)
+        if (localCreationDate >= maybeMinimumCreationDate && localEntry!.Data is { } data)
         {
-            scope.LogDebug($"Cache hit: valid creation date (minimumCreationDate: '{minimumCreationDate:O}', newer entry CreationDate: '{localCreationDate.Value:O}')");
+            logger.LogDebug(
+                "Cache hit: valid creation date (minimum: {MaybeMinimumCreationDate:O}, newer: {LocalCreationDate:O})",
+                maybeMinimumCreationDate,
+                localCreationDate.Value
+            );
 
-            memoryLap.AddTags(MetricTags.Found);
-            CacheMetrics.Sources.Add(1, MetricTags.Memory);
-            Activity.Current?.SetTag("cache.hit", 1);
+            memoryLap.AddTags(SmartCacheMetrics.Tags.Found.True);
+            SmartCacheMetrics.Instruments.Sources.Add(1, SmartCacheMetrics.Tags.Type.Memory);
+            activity?.SetTag("cache.hit", 1);
 
             return data;
         }
         else
         {
-            scope.LogDebug($"Cache miss: CreationDate validation failed (minimumCreationDate: '{minimumCreationDate:O}', older entry CreationDate: '{localCreationDate ?? DateTime.MinValue:O}').");
+            logger.LogDebug(
+                "Cache miss: creation date validation failed (minimum: {MaybeMinimumCreationDate:O}, older: {LocalCreationDate})",
+                maybeMinimumCreationDate,
+                localCreationDate ?? DateTime.MinValue
+            );
 
-            memoryLap.AddTags(MetricTags.NotFound);
+            memoryLap.AddTags(SmartCacheMetrics.Tags.Found.False);
 
-            return await FetchAndSetValueAsync();
+            return await FetchAndSetValueAsync(activity);
         }
     }
 
     private void SetValue<TValue>(
-        ICacheKey key,
+        CacheKeyHolder keyHolder,
         TValue value,
-        int? absExpirationSec = null,
-        int? sldExpirationSec = null,
-        DateTime? creationDate = null,
+        DateTime creationDate,
+        TimeSpan? absExpiration = null,
+        TimeSpan? sldExpiration = null,
         bool skipPublish = false
     )
     {
-        SetValue(key, typeof(TValue), value, absExpirationSec, sldExpirationSec, creationDate, /*skipPersist,*/ skipPublish);
+        SetValue(keyHolder, typeof(TValue), value, creationDate, absExpiration, sldExpiration, skipPublish);
     }
 
     private void SetValue(
-        ICacheKey key,
+        CacheKeyHolder keyHolder,
         Type valueType,
         object? value,
-        int? absExpirationSec = null,
-        int? sldExpirationSec = null,
-        DateTime? creationDate = null,
+        DateTime creationDate,
+        TimeSpan? absExpiration = null,
+        TimeSpan? sldExpiration = null,
         bool skipPublish = false
     )
     {
-        using Activity? activity = logger.BeginMethodScope(() => new { key = key.ToLogString() });
+        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(
+            logger, new { key = keyHolder.Key, valueType, creationDate, absExpiration, sldExpiration, skipPublish }
+        );
+
+        ICacheKey key = keyHolder.Key;
 
         keys[key] = default;
-        RemoveExternalMiss(key);
+        RemoveExternalMiss(keyHolder);
 
-        IValueEntry entry = IValueEntry.Create(value, valueType, creationDate);
-        DateTime finalCreationDate = entry.CreationDate;
+        IValueEntry entry = ValueEntry.Create(value, valueType, creationDate);
 
-        int finalAbsExpirationSecs = absExpirationSec ?? cacheServiceOptions.AbsoluteExpiration;
-        TimeSpan finalAbsExpiration = TimeSpan.FromSeconds(finalAbsExpirationSecs);
+        TimeSpan finalAbsExpiration = absExpiration ?? smartCacheServiceOptions.AbsoluteExpiration;
 
         if (classConfigurationGetter.Get("RedisOnlyCache", false))
         {
-            WriteToRedis(scope, key, entry, finalAbsExpiration, skipPublish);
+            WriteToLocation(redisLocation, keyHolder, entry, finalAbsExpiration, skipPublish);
             return;
         }
 
-        int finalSldExpirationSecs = Math.Min(sldExpirationSec ?? cacheServiceOptions.SlidingExpiration, finalAbsExpirationSecs);
+        TimeSpan finalSldExpiration = new TimeSpan(
+            Math.Min((sldExpiration ?? smartCacheServiceOptions.SlidingExpiration).Ticks, finalAbsExpiration.Ticks)
+        );
 
         long keySize;
         try
         {
-            using (CacheMetrics.ComputeSizeDuration.StartMark(MetricTags.CacheKey))
+            using (SmartCacheMetrics.Instruments.SizeComputationDuration.StartLap(SmartCacheMetrics.Tags.Subject.Key))
             {
                 keySize = Size.Get(key);
             }
-            CacheMetrics.KeyObjectSize.Record(keySize);
+            SmartCacheMetrics.Instruments.KeyObjectSize.Record(keySize);
         }
         catch (Exception)
         {
@@ -497,23 +368,23 @@ public class SmartCacheService : ISmartCacheService
         }
 
         long valueSize;
-        using (CacheMetrics.ComputeSizeDuration.StartMark(MetricTags.CacheValue))
+        using (SmartCacheMetrics.Instruments.SizeComputationDuration.StartLap(SmartCacheMetrics.Tags.Subject.Value))
         {
             valueSize = Size.Get(value);
         }
-        CacheMetrics.ValueObjectSize.Record(valueSize);
+        SmartCacheMetrics.Instruments.ValueObjectSize.Record(valueSize);
 
         long size = keySize + valueSize;
 
         CacheItemPriority priority =
-            size >= cacheServiceOptions.LowPrioritySizeThreshold ? CacheItemPriority.Low
-            : size >= cacheServiceOptions.MidPrioritySizeThreshold ? CacheItemPriority.Normal
+            size >= smartCacheServiceOptions.LowPrioritySizeThreshold ? CacheItemPriority.Low
+            : size >= smartCacheServiceOptions.MidPrioritySizeThreshold ? CacheItemPriority.Normal
             : CacheItemPriority.High;
 
         MemoryCacheEntryOptions entryOptions = new ()
         {
             AbsoluteExpirationRelativeToNow = finalAbsExpiration,
-            SlidingExpiration = TimeSpan.FromSeconds(finalSldExpirationSecs),
+            SlidingExpiration = finalSldExpiration,
             Size = size,
             Priority = priority,
         };
@@ -522,35 +393,35 @@ public class SmartCacheService : ISmartCacheService
             (k, v, r, _) =>
             {
                 Interlocked.Add(ref memoryCacheSize, -size);
-                CacheMetrics.TotalSize.Add(-size);
+                SmartCacheMetrics.Instruments.TotalSize.Add(-size);
 
-                OnEvicted((ICacheKey)k, (IValueEntry)v, r, finalAbsExpiration);
+                OnEvicted(new CacheKeyHolder((ICacheKey)k), (IValueEntry)v!, r, finalAbsExpiration);
             }
         );
 
-        CacheExtensions.Set(memoryCache, key, entry, entryOptions);
+        memoryCache.Set(key, entry, entryOptions);
 
         Interlocked.Add(ref memoryCacheSize, size);
-        CacheMetrics.TotalSize.Add(size);
+        SmartCacheMetrics.Instruments.TotalSize.Add(size);
 
         if (!skipPublish)
         {
-            PublishMiss(key, finalCreationDate, (value, valueType), false);
+            PublishMiss(keyHolder, creationDate, (value, valueType), null);
         }
     }
 
-    private void OnEvicted(ICacheKey key, IValueEntry entry, EvictionReason reason, TimeSpan expiration)
+    private void OnEvicted(CacheKeyHolder keyHolder, IValueEntry entry, EvictionReason reason, TimeSpan expiration)
     {
-        CacheMetrics.Evictions.Add(
+        SmartCacheMetrics.Instruments.Evictions.Add(
             1,
             reason switch
             {
-                EvictionReason.Removed => MetricTags.EvictionRemoved,
-                EvictionReason.Replaced => MetricTags.EvictionReplaced,
-                EvictionReason.Expired or EvictionReason.TokenExpired => MetricTags.EvictionExpired,
-                EvictionReason.Capacity => MetricTags.EvictionCapacity,
+                EvictionReason.Removed => SmartCacheMetrics.Tags.Eviction.Removed,
+                EvictionReason.Replaced => SmartCacheMetrics.Tags.Eviction.Replaced,
+                EvictionReason.Expired or EvictionReason.TokenExpired => SmartCacheMetrics.Tags.Eviction.Expired,
+                EvictionReason.Capacity => SmartCacheMetrics.Tags.Eviction.Capacity,
                 EvictionReason.None => throw new InvalidOperationException($"unexpected {nameof(EvictionReason)}"),
-                _ => throw new UnreachableException($"unrecognized {nameof(EvictionReason)}"),
+                _ => throw new ArgumentOutOfRangeException($"unrecognized {nameof(EvictionReason)}"),
             }
         );
 
@@ -559,222 +430,159 @@ public class SmartCacheService : ISmartCacheService
             return;
         }
 
-        using Activity? activity = logger.BeginMethodScope(() => new { reason, expiration, key, entry });
+        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key, reason, expiration });
 
-        try
+        keys.Remove(keyHolder.Key);
+
+        if (reason != EvictionReason.Capacity)
         {
-            keys.Remove(key);
-
-            if (reason != EvictionReason.Capacity)
-            {
-                return;
-            }
-
-            WriteToRedis(scope, key, entry, expiration);
+            return;
         }
-        catch (Exception exception)
-        {
-            scope.LogException(exception);
-        }
+
+        WriteToLocation(redisLocation, keyHolder, entry, expiration);
     }
 
-    private void WriteToRedis(CodeSectionScope scope, ICacheKey key, IValueEntry entry, TimeSpan expiration, bool skipPublish = false)
+    private void WriteToLocation(PassiveCacheLocation location, CacheKeyHolder keyHolder, IValueEntry entry, TimeSpan expiration, bool skipPublish = false)
     {
-        _ = Task.Run(WriteToRedisAsync);
-
-        async Task WriteToRedisAsync()
-        {
-            if (redisDatabaseAccessor.Database is not { } redisDatabase)
-            {
-                return;
-            }
-
-            Stopwatch sw = Stopwatch.StartNew();
-
-            RedisKey redisKey;
-            using (CacheMetrics.SerializationDuration.StartMark(MetricTags.CacheKey, MetricTags.Serialization))
-            {
-                using (ActivitySource.StartActivity("CacheService.Serialize"))
-                {
-                    redisKey = SmartCacheSerialization.SerializeToBytes(key);
-                }
-            }
-
-            byte[] rawEntry;
-            using (CacheMetrics.SerializationDuration.StartMark(MetricTags.CacheValue, MetricTags.Serialization))
-            {
-                using (ActivitySource.StartActivity("CacheService.Serialize"))
-                {
-                    rawEntry = SmartCacheSerialization.SerializeToBytes(entry);
-                }
-            }
-
-            await redisDatabase.StringSetAsync(redisKey.Prepend(cacheServiceOptions.RedisKeyPrefix), rawEntry, expiration);
-
-            long elapsedMs = sw.ElapsedMilliseconds;
-            scope.LogDebug($"redisDatabase.StringSet completed ({elapsedMs} ms, {rawEntry.LongLength} bytes)");
-
-            if (!skipPublish)
-            {
-                await PublishMissAsync(key, entry.CreationDate, null, true);
-            }
-        }
-    }
-
-    private void PublishMiss(ICacheKey key, DateTime creationDate, (object?, Type)? valueHolder, bool onRedis)
-    {
-        _ = Task.Run(() => PublishMissAsync(key, creationDate, valueHolder, onRedis));
-    }
-
-    private async Task PublishMissAsync(ICacheKey key, DateTime creationDate, (object?, Type)? valueHolder, bool onRedis)
-    {
-        using Activity? activity = logger.BeginMethodScope(() => new { key = key.ToLogString(), creationDate });
-
-        if (onRedis)
-        {
-            using (ActivitySource.StartActivity("CacheService.SetMissValue"))
-            {
-                externalMissDictionary.Add(key, creationDate, RedisLocation);
-            }
-        }
-
-        await PostAndForgetAsync(
-            async () =>
-            {
-                (Type, object?)? valueTuple;
-                if (valueHolder is var (value, valueType) && cacheServiceOptions.MissValueSizeThreshold is > 0 and var size)
-                {
-                    byte[] valueBytes = new byte[size];
-                    await using MemoryStream valueStream = new (valueBytes);
-
-                    using (CacheMetrics.SerializationDuration.StartMark(MetricTags.CacheValue, MetricTags.Serialization))
-                    using (ActivitySource.StartActivity("CacheService.Serialize"))
-                    {
-                        try
-                        {
-                            SmartCacheSerialization.SerializeToStream(value, valueType, valueStream);
-                            valueTuple = (valueType, value);
-                        }
-                        catch (NotSupportedException) // In case the serialized value is longer than 'size'
-                        {
-                            valueTuple = null;
-                        }
-                    }
-                }
-                else
-                {
-                    valueTuple = null;
-                }
-
-                string selfIp = companionProvider.SelfIp;
-                return new CacheMissDescriptor(selfIp, key, creationDate, onRedis ? RedisLocation : selfIp, valueTuple);
-            },
-            "cacheMiss"
+        location.WriteAndForget(
+            keyHolder,
+            entry,
+            expiration,
+            skipPublish
+                ? () => PublishMissAsync(keyHolder, entry.CreationDate, null, location.Id)
+                : static () => Task.CompletedTask
         );
     }
 
-    private DateTime GetMinimumCreationDate([NotNull] ref TimeSpan? maxAge, Type callerType, DateTime utcNow)
+    private void PublishMiss(CacheKeyHolder keyHolder, DateTime creationDate, (object?, Type)? valueHolder, string? locationId)
     {
+        _ = Task.Run(() => PublishMissAsync(keyHolder, creationDate, valueHolder, locationId));
+    }
+
+    private async Task PublishMissAsync(CacheKeyHolder keyHolder, DateTime creationDate, (object?, Type)? valueHolder, string? locationId)
+    {
+        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(
+            logger, new { key = keyHolder.Key, creationDate, locationId }
+        );
+
+        if (locationId is not null)
+        {
+            using (SmartCacheMetrics.ActivitySource.StartActivity(logger, $"{nameof(SmartCacheService)}.SetMissValue"))
+            {
+                externalMissDictionary.Add(keyHolder.Key, creationDate, locationId);
+            }
+        }
+
+        IEnumerable<CacheCompanion> companions = await companionProvider.GetCompanionsAsync();
+        if (!companions.Any())
+        {
+            return;
+        }
+
+        (Type, object?)? valueTuple;
+        if (valueHolder is var (value, valueType) && smartCacheServiceOptions.MissValueSizeThreshold is > 0 and var size)
+        {
+            byte[] valueBytes = new byte[size];
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            await using MemoryStream valueStream = new (valueBytes);
+#else
+            using MemoryStream valueStream = new (valueBytes);
+#endif
+
+            using Activity? serializeActivity = SmartCacheMetrics.ActivitySource.StartActivity(logger, $"{nameof(SmartCacheService)}.Serialize");
+            serializeActivity?.WithDurationMetric(
+                SmartCacheMetrics.Instruments.SerializationDuration.Underlying,
+                SmartCacheMetrics.Tags.Subject.Value,
+                SmartCacheMetrics.Tags.Operation.Serialization
+            );
+
+            try
+            {
+                SmartCacheSerialization.SerializeToStream(value, valueType, valueStream);
+
+                valueTuple = (valueType, value);
+            }
+            catch (NotSupportedException) // In case the serialized value is longer than 'size'
+            {
+                valueTuple = null;
+            }
+        }
+        else
+        {
+            valueTuple = null;
+        }
+
+        string selfLocationId = companionProvider.SelfLocationId;
+        CacheMissDescriptor descriptor = new (selfLocationId, keyHolder.Key, creationDate, locationId ?? selfLocationId, valueTuple);
+        CachePayloadHolder<CacheMissDescriptor> descriptorHolder = new (descriptor, SmartCacheMetrics.Tags.Subject.Value);
+
+        foreach (CacheCompanion companion in companions)
+        {
+            companion.PublishCacheMissAndForget(descriptorHolder);
+        }
+    }
+
+    private DateTime GetMinimumCreationDate([NotNull] ref TimeSpan? maxAge, Type callerType, DateTime timestamp)
+    {
+        IClassConfigurationGetter callerClassConfigurationGetter = classConfigurationGetterProvider.GetFor(callerType);
+
+        static bool TryConvertMaxAgeSecs(string? str, out int maxAgeSecs)
+        {
+            if (int.TryParse(str, out maxAgeSecs))
+            {
+                return true;
+            }
+
+            maxAgeSecs = default;
+            return false;
+        }
+
         TimeSpan finalMaxAge = maxAge ?? smartCacheServiceOptions.DefaultMaxAge;
-
-        // TODO Use class configuration getter on callerType
-        throw new NotImplementedException();
-
-        //if (httpContextAccessor.HttpContext is { } httpContext)
-        //{
-        //    bool ExtractMaxAgeFromHeader(string headerName)
-        //    {
-        //        if (!httpContext.Request.Headers.TryGetValue(headerName, out StringValues headerMaxAges)
-        //            || !int.TryParse(headerMaxAges.LastOrDefault(), out int headerMaxAge))
-        //        {
-        //            return false;
-        //        }
-
-        //        scope.LogDebug($"From request header: {headerName}={headerMaxAge}");
-        //        if (headerMaxAge >= finalMaxAge)
-        //        {
-        //            return false;
-        //        }
-
-        //        finalMaxAge = headerMaxAge;
-        //        return true;
-        //    }
-
-        //    string? namespaceName = callerType?.Namespace;
-        //    string[] maxAgeHeaderNames = namespaceName != null
-        //        ? new[] { $"{namespaceName}.{callerType!.Name}.MaxAge", $"{namespaceName}.MaxAge", "MaxAge" }
-        //        : new[] { "MaxAge" };
-
-        //    foreach (string maxAgeHeaderName in maxAgeHeaderNames)
-        //    {
-        //        if (ExtractMaxAgeFromHeader(maxAgeHeaderName))
-        //            break;
-        //    }
-        //}
-
-        //DateTime requestStartedOn =
-        //    (httpContextAccessor.HttpContext?.Items.TryGetValue("RequestStartedOn", out var rawRequestStartedOn) == true
-        //        ? rawRequestStartedOn as DateTime? : null)
-        //    ?? utcNow;
-
-        //DateTime minimumCreationDate = requestStartedOn.Subtract(TimeSpan.FromSeconds(finalMaxAge));
-        //if (httpContextAccessor.HttpContext?.Request.Headers.TryGetValue("MinimumCreationDate", out StringValues headerMinimumCreationDates) == true
-        //    && DateTime.TryParse(
-        //        headerMinimumCreationDates.LastOrDefault(),
-        //        null,
-        //        DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal,
-        //        out DateTime headerMinimumCreationDate
-        //    ))
-        //{
-        //    scope.LogDebug($"From header: {nameof(minimumCreationDate)}={headerMinimumCreationDate}");
-
-        //    if (headerMinimumCreationDate > minimumCreationDate)
-        //    {
-        //        minimumCreationDate = headerMinimumCreationDate;
-        //    }
-        //}
-
-        //maxAge = finalMaxAge;
-        //return minimumCreationDate;
-    }
-
-    private void RemoveExternalMiss(ICacheKey key)
-    {
-        if (externalMissDictionary.Remove(key))
+        if (callerClassConfigurationGetter.TryGet("MaxAge", out int outerMaxAgeSecs, TryConvertMaxAgeSecs))
         {
-            DeleteFromRedis(key);
-        }
-    }
-
-    private void DeleteFromRedis(ICacheKey key)
-    {
-        _ = Task.Run(DeleteFromRedisAsync);
-
-        async Task DeleteFromRedisAsync()
-        {
-            if (redisDatabaseAccessor.Database is not { } redisDatabase)
+            TimeSpan outerMaxAge = TimeSpan.FromSeconds(outerMaxAgeSecs);
+            if (outerMaxAge < finalMaxAge)
             {
-                return;
+                finalMaxAge = outerMaxAge;
+            }
+        }
+
+        DateTime requestStartedOn =
+            Truncate(
+                httpContextAccessor?.HttpContext?.Items.TryGetValue("RequestStartedOn", out var rawRequestStartedOn) == true
+                    ? rawRequestStartedOn as DateTime? : null
+            )
+            ?? timestamp;
+
+        static bool TryConvertMinimumCreationDate(string? str, out DateTime minimumCreationDate)
+        {
+            if (DateTime.TryParse(str, null, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out minimumCreationDate))
+            {
+                return true;
             }
 
-            RedisKey redisKey;
-            using (CacheMetrics.SerializationDuration.StartMark(MetricTags.CacheKey, MetricTags.Serialization))
-            {
-                using (ActivitySource.StartActivity("CacheService.Serialize"))
-                {
-                    redisKey = (RedisKey)SmartCacheSerialization.SerializeToString(key);
-                }
-            }
-
-            _ = await redisDatabase.KeyDeleteAsync(redisKey.Prepend(cacheServiceOptions.RedisKeyPrefix));
+            minimumCreationDate = default;
+            return false;
         }
+
+        DateTime minimumCreationDate = requestStartedOn - finalMaxAge;
+        if (callerClassConfigurationGetter.TryGet("MinimumCreationDate", out DateTime outerMinimumCreationDate, TryConvertMinimumCreationDate))
+        {
+            if (outerMinimumCreationDate > minimumCreationDate)
+            {
+                minimumCreationDate = outerMinimumCreationDate;
+            }
+        }
+
+        maxAge = finalMaxAge;
+        return minimumCreationDate;
     }
 
     public bool TryGetDirectFromMemory(ICacheKey key, [NotNullWhen(true)] out Type? type, out object? value)
     {
-        using Activity? activity = logger.BeginMethodScope(() => new { key = key.ToLogString() });
+        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key });
 
-        if (CacheExtensions.Get<IValueEntry?>(memoryCache, key) is { } entry)
+        if (memoryCache.Get<IValueEntry?>(key) is { } entry)
         {
             type = entry.Type;
             value = entry.Data;
@@ -797,7 +605,7 @@ public class SmartCacheService : ISmartCacheService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Invalidate(InvalidationDescriptor descriptor)
     {
-        if (descriptor.Emitter != companionProvider.SelfIp)
+        if (descriptor.Emitter != companionProvider.SelfLocationId)
         {
             Invalidate(descriptor.Rule, false);
         }
@@ -805,7 +613,7 @@ public class SmartCacheService : ISmartCacheService
 
     private void Invalidate(IInvalidationRule invalidationRule, bool broadcast)
     {
-        using Activity? activity = logger.BeginMethodScope(() => new { invalidationRule = invalidationRule.ToLogString() });
+        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, () => new { invalidationRule, broadcast });
 
         ICollection<Func<Task>> invalidationCallbacks = new List<Func<Task>>();
 
@@ -813,13 +621,14 @@ public class SmartCacheService : ISmartCacheService
         {
             foreach (ICacheKey k in ks.ToArray())
             {
+                // ReSharper disable once SuspiciousTypeConversion.Global
                 if (k is not IInvalidatable invalidatable ||
                     !invalidatable.IsInvalidatedBy(invalidationRule, out var invalidationCallback))
                 {
                     continue;
                 }
 
-                scope.LogDebug($"invalidating cache key {k.ToLogString()}");
+                logger.LogDebug("Invalidating cache key");
 
                 remove(k);
                 if (invalidationCallback is not null)
@@ -829,10 +638,10 @@ public class SmartCacheService : ISmartCacheService
             }
         }
 
-        using (ActivitySource.StartActivity("CacheService.Invalidate"))
+        using (SmartCacheMetrics.ActivitySource.StartActivity(logger, $"{nameof(SmartCacheService)}.Invalidate"))
         {
             CoreInvalidate(keys.Keys, memoryCache.Remove);
-            CoreInvalidate(externalMissDictionary.Keys, RemoveExternalMiss);
+            CoreInvalidate(externalMissDictionary.Keys, k => RemoveExternalMiss(new CacheKeyHolder(k)));
         }
 
         if (broadcast)
@@ -857,46 +666,18 @@ public class SmartCacheService : ISmartCacheService
 
         async Task PublishInvalidationAsync()
         {
-            using var localScope = logger.BeginMethodScope(() => new { invalidationRule = invalidationRule.ToLogString() }, memberName: nameof(PublishInvalidationAsync));
+            IEnumerable<CacheCompanion> companions = await companionProvider.GetCompanionsAsync();
+            if (!companions.Any())
+            {
+                return;
+            }
 
-            await PostAndForgetAsync(async () => new InvalidationDescriptor(companionProvider.SelfIp, invalidationRule), "invalidate");
-        }
-    }
-
-    private async Task PostAndForgetAsync<T>(Func<Task<T?>> makeObjAsync, string uriSuffix)
-    {
-        IEnumerable<string> companionIps = await companionProvider.GetCompanionIpsAsync();
-        if (!companionIps.Any())
-        {
-            return;
-        }
-
-        HttpClient httpClient = httpClientFactory.CreateClient(nameof(SmartCacheService));
-
-        string stringContent;
-        using (Activity? serializeActivity = SmartCacheMetrics.ActivitySource.StartActivity(logger, $"{nameof(SmartCacheService)}.Serialize"))
-        {
-            serializeActivity?.RecordDurationMetric(
-                SmartCacheMetrics.SerializationDuration.Underlying, SmartCacheMetrics.Tags.Subject.Value, SmartCacheMetrics.Tags.Operation.Serialization
-            );
-
-            stringContent = SmartCacheSerialization.SerializeToString(await makeObjAsync());
-        }
-
-        HttpContent content = new StringContent(stringContent, SmartCacheSerialization.Encoding);
-
-        foreach (string companionIp in companionIps)
-        {
-            _ = Task.Run(
-                async () =>
-                {
-                    HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, $"http://{companionIp}/api/v1/clusterCache/{uriSuffix}")
-                    {
-                        Content = content,
-                    };
-                    using HttpResponseMessage responseMessage = await httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead);
-                }
-            );
+            InvalidationDescriptor descriptor = new (companionProvider.SelfLocationId, invalidationRule);
+            CachePayloadHolder<InvalidationDescriptor> descriptorHolder = new (descriptor, SmartCacheMetrics.Tags.Subject.Value);
+            foreach (CacheCompanion companion in companions)
+            {
+                companion.PublishInvalidationAndForget(descriptorHolder);
+            }
         }
     }
 
@@ -908,18 +689,29 @@ public class SmartCacheService : ISmartCacheService
             string location,
             Type? valueType) = descriptor;
 
-        if (emitter == companionProvider.SelfIp)
+        if (emitter == companionProvider.SelfLocationId)
         {
             return;
         }
 
         if (valueType is not null)
         {
-            SetValue(key, valueType, descriptor.Value, creationDate: timestamp, skipPublish: true);
+            SetValue(new CacheKeyHolder(key), valueType, descriptor.Value, timestamp, skipPublish: true);
         }
         else
         {
             externalMissDictionary.Add(key, timestamp, location);
+        }
+    }
+
+    private void RemoveExternalMiss(CacheKeyHolder keyHolder)
+    {
+        foreach (string locationId in externalMissDictionary.Remove(keyHolder.Key))
+        {
+            if (passiveLocations.TryGetValue(locationId, out PassiveCacheLocation? passiveLocation))
+            {
+                passiveLocation.DeleteAndForget(keyHolder);
+            }
         }
     }
 
@@ -933,13 +725,13 @@ public class SmartCacheService : ISmartCacheService
 
         public Entry? Get(ICacheKey key)
         {
-            return underlying.GetValueOrDefault(key);
+            // ReSharper disable once CanSimplifyDictionaryTryGetValueWithGetValueOrDefault
+            return underlying.TryGetValue(key, out Entry? entry) ? entry : null;
         }
 
-        public bool Remove(ICacheKey key)
+        public IEnumerable<string> Remove(ICacheKey key)
         {
-            return underlying.TryRemove(key, out Entry? entry)
-                && entry.Locations.Contains(RedisLocation);
+            return underlying.TryRemove(key, out Entry? entry) ? entry.Locations : Enumerable.Empty<string>();
         }
 
         public void RemoveSub(ICacheKey key, IEnumerable<string> locations)
@@ -1048,7 +840,14 @@ public class SmartCacheService : ISmartCacheService
                         }
                         else
                         {
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                             ManagedTypes.TryAdd(type, default);
+#else
+                            if (!ManagedTypes.ContainsKey(type))
+                            {
+                                ManagedTypes[type] = default;
+                            }
+#endif
                         }
                     }
 
@@ -1076,7 +875,7 @@ public class SmartCacheService : ISmartCacheService
                             JObject jo => (CoreGet(jo.Properties().ToArray()).Sz, false),
                             JProperty jp => (CoreGet(jp.Name).Sz + CoreGet(jp.Value).Sz, false),
                             JConstructor jc => (CoreGet(jc.Name).Sz + CoreGet(jc.Children().ToArray()).Sz, false),
-                            _ => throw new UnreachableException($"unsupported {nameof(JToken)} subclass"),
+                            _ => throw new ArgumentException($"unsupported {nameof(JToken)} subclass"),
                         };
                     }
 
