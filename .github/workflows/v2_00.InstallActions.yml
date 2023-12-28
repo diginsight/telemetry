@@ -1,0 +1,100 @@
+name: 00.InstallActions
+
+on:
+  workflow_call:
+    inputs:
+      config-path:
+        required: false
+        type: string
+    secrets:
+      NUGET_API_KEY_V3:
+        required: false
+
+jobs:
+  main:
+    runs-on: self-hosted
+
+    env:
+      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY_V3 }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 7.0.x
+      - uses: nuget/setup-nuget@v1
+        with:
+          nuget-api-key: ${{ secrets.NUGET_API_KEY_V3 }}
+          nuget-version: '5.x'
+
+      - name: Run pwsh Dump Variables
+        run: |
+          pwsh -File "scripts/v2/00. DumpVariables.ps1"
+      - name: Dump GITHUB_CONTEXT
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: |
+          echo "$GITHUB_CONTEXT"
+          echo "$env:GITHUB_CONTEXT" >> 01.GITHUB_CONTEXT.log
+      - name: Dump JOB_CONTEXT
+        env:
+          JOB_CONTEXT: ${{ toJson(job) }}
+        run: |
+          echo "$JOB_CONTEXT"
+          echo "$env:JOB_CONTEXT" >> 02.JOB_CONTEXT.log
+      - name: Dump STEPS_CONTEXT
+        env:
+          STEPS_CONTEXT: ${{ toJson(steps) }}
+        run: |
+          echo "$STEPS_CONTEXT"
+          echo "$env:STEPS_CONTEXT" >> 03.STEPS_CONTEXT.log
+      - name: Dump RUNNER_CONTEXT
+        env:
+          RUNNER_CONTEXT: ${{ toJson(runner) }}
+        run: |
+          echo "$RUNNER_CONTEXT"
+          echo "$env:RUNNER_CONTEXT" >> 04.RUNNER_CONTEXT.log
+      - name: Dump STRATEGY_CONTEXT
+        env:
+          STRATEGY_CONTEXT: ${{ toJson(strategy) }}
+        run: |
+          echo "$STRATEGY_CONTEXT"
+          echo "$env:STRATEGY_CONTEXT" >> 05.STRATEGY_CONTEXT.log
+      - name: Dump MATRIX_CONTEXT
+        env:
+          MATRIX_CONTEXT: ${{ toJson(matrix) }}
+        run: |
+          echo "$MATRIX_CONTEXT"
+          echo "$env:MATRIX_CONTEXT" >> 06.MATRIX_CONTEXT.log
+      - name: Dump ENV_CONTEXT
+        env:
+          ENV_CONTEXT: ${{ toJson(env) }}
+        run: |
+          echo "$ENV_CONTEXT"
+          echo "$env:ENV_CONTEXT" >> 07.ENV_CONTEXT.log
+      - name: Dump VARS_CONTEXT
+        env:
+          VARS_CONTEXT: ${{ toJson(vars) }}
+        run: |
+          echo "$VARS_CONTEXT"
+          echo "$env:VARS_CONTEXT" >> 08.VARS_CONTEXT.log
+      - name: Dump SECRETS_CONTEXT
+        env:
+          SECRETS_CONTEXT: ${{ toJson(secrets) }}
+        run: |
+          echo "$SECRETS_CONTEXT"
+          echo "$env:SECRETS_CONTEXT" >> 10.SECRETS_CONTEXT.log
+      - name: Dump NEEDS_CONTEXT
+        env:
+          NEEDS_CONTEXT: ${{ toJson(needs) }}
+        run: |
+          echo "$NEEDS_CONTEXT"
+          echo "$env:NEEDS_CONTEXT" >> 11.NEEDS_CONTEXT.log
+      - name: Dump INPUTS_CONTEXT
+        env:
+          INPUTS_CONTEXT: ${{ toJson(inputs) }}
+        run: |
+          echo "$INPUTS_CONTEXT"
+          echo "$env:INPUTS_CONTEXT" >> 12.INPUTS_CONTEXT.log
