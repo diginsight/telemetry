@@ -6,7 +6,7 @@ namespace Diginsight.Diagnostics.AspNetCore;
 
 internal static class HttpHeadersHelper
 {
-    private static readonly Regex SpecRegex = new (@"^([^+\-]+?)([+\-])$", RegexOptions.IgnoreCase);
+    private static readonly Regex SpecRegex = new (@"^([^+\-]+?)(-?)$", RegexOptions.IgnoreCase);
 
     public static bool? ShouldInclude(string activityName, string headerName, IHttpContextAccessor httpContextAccessor)
     {
@@ -20,7 +20,7 @@ internal static class HttpHeadersHelper
 
             if (ActivityExtensions.MatchesActivityNamePattern(activityName, match.Groups[1].Value))
             {
-                return match.Groups[2].Value == "+";
+                return match.Groups[2].Value != "-";
             }
         }
 
