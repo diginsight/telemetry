@@ -3,10 +3,17 @@ name: Build and Publish 'Diginsight' v3+ NuGet Packages
 on:  
   push:
     tags:
-      - v*
-      - '!v0.*'
+      - v1*
       - '!v1.*'
+      - v2*
       - '!v2.*'
+      - v3*
+      - v4*
+      - v5*
+      - v6*
+      - v7*
+      - v8*
+      - v9*
 
 defaults:
   run:
@@ -20,7 +27,7 @@ env:
 jobs:
   build-and-publish:
     name: Build and Publish
-    runs-on: self-hosted
+    runs-on: github-hosted
 
     steps:
       - name: Checkout
