@@ -252,12 +252,16 @@ public struct HashCode
         return (int)MixFinal(hash);
     }
 
-    [Obsolete(HashCodeMutable + " Use ToHashCode to retrieve the computed hash code.", true)]
+    [Obsolete(HashCodeMutable + ". Use ToHashCode to retrieve the computed hash code.", true)]
     [EditorBrowsable(EditorBrowsableState.Never)]
+#pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
     public override int GetHashCode() => throw new NotSupportedException(HashCodeMutable);
+#pragma warning restore CS0809
 
     [Obsolete(HashCodeMutable, true)]
     [EditorBrowsable(EditorBrowsableState.Never)]
+#pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
     public override bool Equals(object? obj) => throw new NotSupportedException(HashCodeMutable);
+#pragma warning restore CS0809
 }
 #endif
