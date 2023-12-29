@@ -19,7 +19,7 @@ public sealed class CustomDurationMetricProcessor : BaseProcessor<Activity>
     {
         double duration = activity.Duration.TotalMilliseconds;
 
-        bool ShouldRecord(Instrument instrument) => sampler?.ShouldRecord(activity, instrument) ?? true;
+        bool ShouldRecord(Instrument instrument) => sampler?.ShouldRecord(activity, activity.GetCallerType(), instrument) ?? true;
 
         switch (activity.GetCustomProperty(ActivityCustomPropertyNames.DurationMetric))
         {

@@ -30,7 +30,7 @@ public sealed class SpanDurationMetricProcessor : BaseProcessor<Activity>
 
     public override void OnEnd(Activity activity)
     {
-        if (!(sampler?.ShouldRecord(activity) ?? observabilityOptions.RecordSpanDurations))
+        if (!(sampler?.ShouldRecord(activity, activity.GetCallerType()) ?? observabilityOptions.RecordSpanDurations))
         {
             return;
         }

@@ -239,12 +239,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
             _ => throw new InvalidOperationException("Invalid logger in activity"),
         };
 
-        Type? callerType = activity.GetCustomProperty(ActivityCustomPropertyNames.CallerType) switch
-        {
-            Type t => t,
-            null => null,
-            _ => throw new InvalidOperationException("Invalid caller type in activity"),
-        };
+        Type? callerType = activity.GetCallerType();
 
         isStandalone = activity.GetCustomProperty(ActivityCustomPropertyNames.IsStandalone) switch
         {
@@ -256,7 +251,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
         bool? tempShouldRecord = activity.MatchesActivityNamePattern(observabilityOptions.NotRecordedActivityNames) ? false
             : activity.MatchesActivityNamePattern(observabilityOptions.RecordedActivityNames) ? true
             : null;
-        activityRecordingSampler?.ShouldRecord(activity, ref tempShouldRecord);
+        activityRecordingSampler?.ShouldRecord(activity, callerType, ref tempShouldRecord);
         shouldRecord = tempShouldRecord ?? observabilityOptions.RecordActivities;
 
         ILogger innerLogger = providedLogger ?? (callerType is not null ? loggerFactory.CreateLogger(callerType) : fallbackLogger);

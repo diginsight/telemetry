@@ -85,6 +85,16 @@ public static class ActivityExtensions
         };
     }
 
+    internal static Type? GetCallerType(this Activity activity)
+    {
+        return activity.GetCustomProperty(ActivityCustomPropertyNames.CallerType) switch
+        {
+            Type t => t,
+            null => null,
+            _ => throw new InvalidOperationException("Invalid caller type in activity"),
+        };
+    }
+
     internal static bool MatchesActivityNamePattern(string name, string namePattern)
     {
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
