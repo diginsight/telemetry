@@ -14,22 +14,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="$(MicrosoftExtensionsVersion)" />
-  </ItemGroup>
-
-  <Choose>
-    <When Condition="'$(TargetFramework)' == 'net6.0' or $(TargetFramework.StartsWith('netstandard'))">
-      <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="6.*" />
-      </ItemGroup>
-    </When>
-    <Otherwise>
-      <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="7.*" />
-      </ItemGroup>
-    </Otherwise>
-  </Choose>
-
-  <ItemGroup>
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.*" />
   </ItemGroup>
 

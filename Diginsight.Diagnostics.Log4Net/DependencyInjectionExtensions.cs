@@ -18,47 +18,62 @@ public static class DependencyInjectionExtensions
         loggingBuilder.AddObservability();
 
         IServiceCollection services = loggingBuilder.Services;
-        if (!services.Any(static x => x.ServiceType == typeof(AddObservabilityLog4NetCalled)))
-        {
-            services
-                .AddSingleton<AddObservabilityLog4NetCalled>()
-                .AddSingleton<ILoggerProvider>(
-                    sp =>
-                    {
-                        IOptionsMonitor<ObservabilityTextWriterOptions> writerOptionsMonitor =
-                            sp.GetRequiredService<IOptionsMonitor<ObservabilityTextWriterOptions>>();
-                        ILayout layout = new ObservabilityLayoutSkeleton(writerOptionsMonitor);
 
-                        BasicConfigurator.Configure(
-                            appenderFactories
-                                .Select(
-                                    appenderFactory =>
-                                    {
-                                        AppenderSkeleton appender = appenderFactory();
-                                        appender.Layout = layout;
-                                        return appender;
-                                    }
-                                )
-                                .ToArray<IAppender>()
-                        );
+        ServiceDescriptor descriptor = ServiceDescriptor.Singleton<ILoggerProvider>(
+            sp =>
+            {
+                IOptionsMonitor<ObservabilityTextWriterOptions> writerOptionsMonitor =
+                    sp.GetRequiredService<IOptionsMonitor<ObservabilityTextWriterOptions>>();
+                ILayout layout = new ObservabilityLayoutSkeleton(writerOptionsMonitor);
 
-                        Log4NetProviderOptions providerOptions = new ()
-                        {
-                            LoggingEventFactory = new ObservabilityLoggingEventFactory(),
-                            UseWebOrAppConfig = false,
-                            ExternalConfigurationSetup = true,
-                        };
-                        return new Log4NetProvider(providerOptions);
-                    }
+                BasicConfigurator.Configure(
+                    appenderFactories
+                        .Select(
+                            appenderFactory =>
+                            {
+                                AppenderSkeleton appender = appenderFactory();
+                                appender.Layout = layout;
+                                return appender;
+                            }
+                        )
+                        .ToArray<IAppender>()
                 );
+
+                Log4NetProviderOptions providerOptions = new ()
+                {
+                    LoggingEventFactory = ObservabilityLoggingEventFactory.Instance,
+                    UseWebOrAppConfig = false,
+                    ExternalConfigurationSetup = true,
+                };
+                return new Log4NetProvider(providerOptions);
+            }
+        );
+
+        AddObservabilityLog4NetMarker marker;
+        if (services.FirstOrDefault(static x => x.ServiceType == typeof(AddObservabilityLog4NetMarker)) is { } markerDescriptor)
+        {
+            marker = (AddObservabilityLog4NetMarker)markerDescriptor.ImplementationInstance!;
+            services.Remove(marker.Descriptor);
+            marker.Descriptor = descriptor;
         }
+        else
+        {
+            marker = new AddObservabilityLog4NetMarker(descriptor);
+            services.AddSingleton(marker);
+        }
+
+        services.Add(descriptor);
 
         return loggingBuilder;
     }
 
-    // ReSharper disable once ConvertToStaticClass
-    private sealed class AddObservabilityLog4NetCalled
+    private sealed class AddObservabilityLog4NetMarker
     {
-        private AddObservabilityLog4NetCalled() => throw new NotSupportedException();
+        public ServiceDescriptor Descriptor { get; set; }
+
+        public AddObservabilityLog4NetMarker(ServiceDescriptor descriptor)
+        {
+            Descriptor = descriptor;
+        }
     }
 }

@@ -7,7 +7,11 @@ namespace Diginsight.Diagnostics.Log4Net;
 
 internal sealed class ObservabilityLoggingEventFactory : ILog4NetLoggingEventFactory
 {
+    public static readonly ILog4NetLoggingEventFactory Instance = new ObservabilityLoggingEventFactory();
+
     private readonly ILog4NetLoggingEventFactory decoratee = new Log4NetLoggingEventFactory();
+
+    private ObservabilityLoggingEventFactory() { }
 
     public LoggingEvent? CreateLoggingEvent<TState>(
         in MessageCandidate<TState> messageCandidate,
