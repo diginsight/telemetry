@@ -1,9 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Diginsight.Diagnostics.TextWriting;
+using Microsoft.Extensions.Logging;
 using OpenTelemetry.Trace;
+using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Text;
 #if NET7_0_OR_GREATER
 using System.Diagnostics.CodeAnalysis;
 #endif
@@ -13,6 +16,7 @@ namespace Diginsight.Diagnostics;
 public static class ObservabilityTextWriter
 {
     private static readonly Histogram<double> WriteDuration = AutoObservabilityUtils.Meter.CreateHistogram<double>("diginsight.text_write_duration", "ms");
+    private static readonly IDictionary<(int, int, int, int), IMessageLineResizer> ResizerCache = new Dictionary<(int, int, int, int), IMessageLineResizer>();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Write(
@@ -69,175 +73,139 @@ public static class ObservabilityTextWriter
         try
         {
             Activity? activity = Activity.Current;
-            int depth = GetDepth(activity);
-
-            static int GetDepth(Activity? activity)
-            {
-                int depth = 0;
-                for (; activity is not null; activity = activity.Parent)
-                {
-                    depth++;
-                }
-
-                return depth;
-            }
-
             double? durationMsec = duration?.TotalMilliseconds;
 
-            static string FormatDuration(double? durationMsec)
+            static void Checkpoint(
+                Activity? activity,
+                DateTime timestamp,
+                bool isActivity,
+                double? durationMsec,
+                out DateTime? prevTimestamp,
+                out ActivityTraceId? traceId,
+                out bool lastWasStart
+            )
             {
-                return durationMsec switch
-                {
-                    null => "",
-                    < 1 => string.Format(CultureInfo.InvariantCulture, ".{0:000}m", durationMsec.Value * 1000),
-                    < 10000 => string.Format(CultureInfo.InvariantCulture, "{0:0}m", durationMsec.Value),
-                    < 100000 => string.Format(CultureInfo.InvariantCulture, "{0}s", Math.Round(durationMsec.Value / 1000, 1)),
-                    _ => string.Format(CultureInfo.InvariantCulture, "{0:0}s", durationMsec.Value / 1000),
-                };
-            }
+                const string lastLogTimestampCustomPropertyName = "lastLogTimestamp";
+                const string lastWasStartCustomPropertyName = "lastWasStart";
 
-            int indentationLength = maxIndentedDepth < 0 || depth <= maxIndentedDepth
-                ? depth * 2 - (isActivity ? 1 : 0)
-                : maxIndentedDepth * 2;
-            string indentation = new string(' ', indentationLength);
-
-            const char ellipsisGlyph = '…';
-
-            string finalCategory;
-            if (categoryLength >= 2)
-            {
-                if (category.Length < categoryLength)
+                if (activity is null)
                 {
-                    finalCategory = category.PadRight(categoryLength);
-                }
-                else if (category.Length > categoryLength)
-                {
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                    finalCategory = $"{ellipsisGlyph}{category[^(categoryLength - 1)..]}";
-#else
-                    finalCategory = $"{ellipsisGlyph}{category.Substring(category.Length - (categoryLength - 1))}";
-#endif
+                    prevTimestamp = null;
                 }
                 else
                 {
-                    finalCategory = category;
-                }
-            }
-            else
-            {
-                finalCategory = "";
-            }
-
-            string logLevelStr = logLevel switch
-            {
-                LogLevel.Trace => "TRCE",
-                LogLevel.Debug => "DBUG",
-                LogLevel.Information => "INFO",
-                LogLevel.Warning => "WARN",
-                LogLevel.Error => "EROR",
-                LogLevel.Critical => "CRIT",
-                LogLevel.None => throw new InvalidOperationException($"Unexpected {nameof(LogLevel)}"),
-                _ => throw new UnreachableException($"Unrecognized {nameof(LogLevel)}"),
-            };
-
-            const string lastLogTimestampCustomPropertyName = "lastLogTimestamp";
-            const string lastWasStartCustomPropertyName = "lastWasStart";
-
-            DateTime? prevTimestamp;
-            if (activity is null)
-            {
-                prevTimestamp = null;
-            }
-            else
-            {
-                prevTimestamp = activity.GetCustomProperty(lastLogTimestampCustomPropertyName) switch
-                {
-                    DateTime dt => dt,
-                    null => activity.Parent?.GetCustomProperty(lastLogTimestampCustomPropertyName) switch
+                    prevTimestamp = activity.GetCustomProperty(lastLogTimestampCustomPropertyName) switch
                     {
                         DateTime dt => dt,
-                        null => null,
+                        null => activity.Parent?.GetCustomProperty(lastLogTimestampCustomPropertyName) switch
+                        {
+                            DateTime dt => dt,
+                            null => null,
+                            _ => throw new InvalidOperationException("Invalid last log timestamp in activity"),
+                        },
                         _ => throw new InvalidOperationException("Invalid last log timestamp in activity"),
-                    },
-                    _ => throw new InvalidOperationException("Invalid last log timestamp in activity"),
-                };
-            }
-
-            ActivityTraceId? traceId;
-            bool lastWasStart;
-            if (activity is not null)
-            {
-                lastWasStart = activity.GetCustomProperty(lastWasStartCustomPropertyName) switch
-                {
-                    bool b => b,
-                    null => false,
-                    _ => throw new InvalidOperationException($"Invalid '{lastWasStartCustomPropertyName}' in activity"),
-                };
-                activity.SetCustomProperty(lastWasStartCustomPropertyName, isActivity && durationMsec is null);
-
-                activity.SetCustomProperty(lastLogTimestampCustomPropertyName, timestamp);
-                if (durationMsec is not null)
-                {
-                    activity.Parent?.SetCustomProperty(lastLogTimestampCustomPropertyName, timestamp);
+                    };
                 }
 
-                traceId = activity.TraceId;
-            }
-            else
-            {
-                traceId = null;
-                lastWasStart = false;
+                if (activity is not null)
+                {
+                    lastWasStart = activity.GetCustomProperty(lastWasStartCustomPropertyName) switch
+                    {
+                        bool b => b,
+                        null => false,
+                        _ => throw new InvalidOperationException($"Invalid '{lastWasStartCustomPropertyName}' in activity"),
+                    };
+                    activity.SetCustomProperty(lastWasStartCustomPropertyName, isActivity && durationMsec is null);
+
+                    activity.SetCustomProperty(lastLogTimestampCustomPropertyName, timestamp);
+                    if (durationMsec is not null)
+                    {
+                        activity.Parent?.SetCustomProperty(lastLogTimestampCustomPropertyName, timestamp);
+                    }
+
+                    traceId = activity.TraceId;
+                }
+                else
+                {
+                    traceId = null;
+                    lastWasStart = false;
+                }
             }
 
-            double? deltaMsec = lastWasStart ? null : (timestamp - prevTimestamp)?.TotalMilliseconds;
+            Checkpoint(activity, timestamp, isActivity, durationMsec, out DateTime? prevTimestamp, out ActivityTraceId? traceId, out bool lastWasStart);
 
-            string actualPrefix = string.Format(
-                CultureInfo.InvariantCulture,
-                "[{0}] {1} {2} {3,32} {4,5} {5,5} {6,2} {7}",
-                timestamp.ToString(timestampFormat ?? "yyyy-MM-dd'T'HH:mm:ss.fff", timestampCulture),
-                finalCategory,
-                logLevelStr,
-                traceId,
-                FormatDuration(deltaMsec),
-                FormatDuration(durationMsec),
-                depth,
-                indentation
-            );
+            StringBuilder prefixSb = new();
+            StrongBox<int>? depthBox = null;
+
+            new TimestampAppender(timestampFormat, timestampCulture).Append(prefixSb, timestamp);
+            prefixSb.Append(' ');
+            new CategoryAppender(categoryLength).Append(prefixSb, category);
+            prefixSb.Append(' ');
+            new LogLevelAppender(4).Append(prefixSb, logLevel);
+            prefixSb.Append(' ');
+            TraceIdAppender.Instance.Append(prefixSb, traceId);
+            prefixSb.Append(' ');
+            DeltaAppender.Instance.Append(prefixSb, lastWasStart, timestamp, prevTimestamp);
+            prefixSb.Append(' ');
+            DurationAppender.Instance.Append(prefixSb, durationMsec);
+            prefixSb.Append(' ');
+            DepthAppender.Instance.Append(prefixSb, ref depthBox, activity);
+            prefixSb.Append(' ');
+            new IndentationAppender(maxIndentedDepth).Append(prefixSb, ref depthBox, activity, isActivity, out int indentationLength);
+
+            string actualPrefix = prefixSb.ToString();
             int prefixLength = actualPrefix.Length;
             string blankPrefix = new string(' ', prefixLength);
 
             const char newLine = '\n';
 
-            string fullMessage = message;
+            StringBuilder fullMessageSb = new(message);
             if (exception is not null)
             {
                 activity?.RecordException(exception);
-                fullMessage += $"{newLine}{exception}";
+                fullMessageSb.Append(newLine).Append(exception);
             }
-            fullMessage = fullMessage.Replace("\r", "");
+            string fullMessage = fullMessageSb.Replace("\r", "").ToString();
 
-            int finalMaxMessageLength = CalculateFinalMaxMessageLength(maxMessageLength, maxLineLength, indentationLength, prefixLength, out bool chop);
-
-            static int CalculateFinalMaxMessageLength(int maxMessage, int maxLine, int indentation, int prefix, out bool chop)
+            static IMessageLineResizer GetResizer(int maxMessage, int maxLine, int indentation, int prefix)
             {
-                chop = maxMessage < 0 || maxLine < 0;
-
-                int absMaxLine = Math.Abs(maxLine);
-                int absMaxMessage = Math.Abs(maxMessage);
-
-                if (absMaxLine == 0)
+                IMessageLineResizer MakeResizer()
                 {
-                    return absMaxMessage - indentation;
+                    bool chop = maxMessage < 0 || maxLine < 0;
+
+                    int absMaxLine = Math.Abs(maxLine);
+                    int absMaxMessage = Math.Abs(maxMessage);
+
+                    int? final0 = (absMaxLine, absMaxMessage) switch
+                    {
+                        (0, 0) => null,
+                        (0, _) => absMaxMessage - indentation,
+                        (_, 0) => absMaxLine - prefix,
+                        _ => Math.Min(absMaxLine, prefix + absMaxMessage - indentation) - prefix,
+                    };
+
+                    return final0 is not { } final
+                        ? NoopMessageLineResizer.Instance
+                        : final < 10
+                            ? new ChoppingMessageLineResizer(10)
+                            : chop
+                                ? new ChoppingMessageLineResizer(final)
+                                : new BreakingMessageLineResizer(final);
                 }
-                if (absMaxMessage == 0)
+
+                lock (((ICollection)ResizerCache).SyncRoot)
                 {
-                    return absMaxLine - prefix;
+                    var resizerKey = (maxMessage, maxLine, indentation, prefix);
+                    return ResizerCache.TryGetValue(resizerKey, out IMessageLineResizer? resizer)
+                        ? resizer
+                        : ResizerCache[resizerKey] = MakeResizer();
                 }
-                return Math.Min(absMaxLine, prefix + absMaxMessage - indentation) - prefix;
             }
+
+            IMessageLineResizer resizer = GetResizer(maxMessageLength, maxLineLength, indentationLength, prefixLength);
 
             bool first = true;
-            foreach (string line in ResizeMessage(fullMessage.Split(newLine), finalMaxMessageLength, chop))
+            foreach (string line in resizer.Resize(fullMessage.Split(newLine)))
             {
                 if (first)
                 {
@@ -249,55 +217,6 @@ public static class ObservabilityTextWriter
                     textWriter.Write(blankPrefix);
                 }
                 textWriter.WriteLine(line);
-            }
-
-            static IEnumerable<string> ResizeMessage(IEnumerable<string> lines, int maxLength, bool chop)
-            {
-                if (maxLength == 0)
-                {
-                    return lines;
-                }
-
-                if (maxLength < 10)
-                {
-                    maxLength = 10;
-                    chop = true;
-                }
-
-                string[] inputLines = lines.Reverse().ToArray();
-                ICollection<string> outputLines = new List<string>();
-
-                for (int i = 0; i < inputLines.Length; i++)
-                {
-                    string line = inputLines[i];
-
-                    if (line.Length <= maxLength)
-                    {
-                        outputLines.Add(line);
-                    }
-                    else if (chop)
-                    {
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                        outputLines.Add($"{line[..(maxLength - 1)]}{ellipsisGlyph}");
-#else
-                        outputLines.Add($"{line.Substring(0, maxLength - 1)}{ellipsisGlyph}");
-#endif
-                    }
-                    else
-                    {
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                        outputLines.Add($"{line[..(maxLength - 1)]}↵");
-                        inputLines[i] = line[(maxLength - 1)..];
-#else
-                        outputLines.Add($"{line.Substring(0, maxLength - 1)}↵");
-                        inputLines[i] = line.Substring(maxLength - 1);
-#endif
-
-                        i--;
-                    }
-                }
-
-                return outputLines;
             }
         }
         finally
@@ -325,4 +244,141 @@ public static class ObservabilityTextWriter
     {
         Tags State { get; }
     }
+
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+    // TODO Promote to netstandard2.0
+    private static (IEnumerable<IPrefixTokenAppender> CustomAppenders, IndentationAppender IndentationAppender, int MaxMessageLength, int MaxLineLength) Parse(string pattern)
+    {
+        ICollection<IPrefixTokenAppender> customAppenders = new List<IPrefixTokenAppender>();
+        int? maxIndentedDepth = null;
+        int? maxMessageLength = null;
+        int? maxLineLength = null;
+
+        ReadOnlySpan<char> patternSpan = pattern;
+        while (!patternSpan.IsEmpty)
+        {
+            if (patternSpan[0] != '{')
+            {
+                throw new FormatException("Expected '{'");
+            }
+
+            patternSpan = patternSpan[1..];
+            int closingIndex = patternSpan.IndexOf('}');
+            if (closingIndex < 0)
+            {
+                throw new FormatException("No matching '}'");
+            }
+
+            ReadOnlySpan<char> tokenSpan = patternSpan[..closingIndex];
+            if (tokenSpan.StartsWith("category", StringComparison.OrdinalIgnoreCase))
+            {
+                tokenSpan = tokenSpan[8..];
+                if (!(tokenSpan[0] == ';' && int.TryParse(tokenSpan[1..], out int categoryLength)))
+                {
+                    if (!tokenSpan.IsEmpty)
+                    {
+                        throw new FormatException("Expected ';' and integer, or nothing");
+                    }
+
+                    categoryLength = 40;
+                }
+
+                if (categoryLength >= 2)
+                {
+                    customAppenders.Add(new CategoryAppender(categoryLength));
+                }
+            }
+            else if (tokenSpan.Equals("delta", StringComparison.OrdinalIgnoreCase))
+            {
+                customAppenders.Add(DeltaAppender.Instance);
+            }
+            else if (tokenSpan.StartsWith("depth", StringComparison.OrdinalIgnoreCase))
+            {
+                customAppenders.Add(DepthAppender.Instance);
+
+                tokenSpan = tokenSpan[5..];
+                if (tokenSpan[0] == ';')
+                {
+                    maxIndentedDepth = int.TryParse(tokenSpan[1..], out int mid) ? mid : throw new FormatException("Expected integer");
+                }
+                else if (!tokenSpan.IsEmpty)
+                {
+                    throw new FormatException("Expected ';' or nothing");
+                }
+            }
+            else if (tokenSpan.Equals("duration", StringComparison.OrdinalIgnoreCase))
+            {
+                customAppenders.Add(DurationAppender.Instance);
+            }
+            else if (tokenSpan.StartsWith("message", StringComparison.OrdinalIgnoreCase))
+            {
+                tokenSpan = tokenSpan[7..];
+
+                if (tokenSpan.IsEmpty)
+                {
+                    maxMessageLength = 0;
+                    maxLineLength = 0;
+                }
+                else
+                {
+                    if (tokenSpan[0] != ';')
+                    {
+                        throw new FormatException("Expected ';' or nothing");
+                    }
+
+                    tokenSpan = tokenSpan[1..];
+                    int semicolonIndex = tokenSpan.IndexOf(';');
+                    if (semicolonIndex < 0)
+                    {
+                        maxMessageLength = int.TryParse(tokenSpan, out int mml) ? mml : throw new FormatException("Expected integer");
+                        maxLineLength = 0;
+                    }
+                    else
+                    {
+                        ReadOnlySpan<char> innerSpan = tokenSpan[..semicolonIndex];
+                        maxMessageLength = innerSpan.IsEmpty ? 0 : int.TryParse(innerSpan, out int mml) ? mml : throw new FormatException("Expected integer");
+
+                        maxLineLength = int.TryParse(tokenSpan[(semicolonIndex + 1)..], out int mll) ? mll : throw new FormatException("Expected integer");
+                    }
+                }
+            }
+            else if (tokenSpan.StartsWith("timestamp", StringComparison.OrdinalIgnoreCase))
+            {
+                tokenSpan = tokenSpan[9..];
+                throw new NotImplementedException();
+            }
+            else if (tokenSpan.Equals("traceid", StringComparison.OrdinalIgnoreCase))
+            {
+                customAppenders.Add(TraceIdAppender.Instance);
+            }
+            else
+            {
+                throw new FormatException("Unknown token");
+            }
+
+            patternSpan = patternSpan[(closingIndex + 1)..];
+            if (patternSpan.IsEmpty)
+            {
+                continue;
+            }
+
+            if (maxLineLength is not null)
+            {
+                throw new FormatException("'Message' token must be followed by nothing");
+            }
+
+            if (patternSpan[0] != ' ')
+            {
+                throw new FormatException("Expected ' '");
+            }
+        }
+
+        if (customAppenders.Count != customAppenders.Select(static x => x.GetType()).Count())
+        {
+            throw new FormatException("Duplicate token");
+        }
+
+        return (customAppenders, new IndentationAppender(maxIndentedDepth), maxMessageLength ?? 0, maxLineLength ?? 0);
+    }
+#endif
 }
