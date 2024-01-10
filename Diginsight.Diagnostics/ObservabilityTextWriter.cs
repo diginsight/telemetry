@@ -134,7 +134,7 @@ public static class ObservabilityTextWriter
 
             Checkpoint(activity, timestamp, isActivity, durationMsec, out DateTime? prevTimestamp, out ActivityTraceId? traceId, out bool lastWasStart);
 
-            StringBuilder prefixSb = new();
+            StringBuilder prefixSb = new ();
             StrongBox<int>? depthBox = null;
 
             new TimestampAppender(timestampFormat, timestampCulture).Append(prefixSb, timestamp);
@@ -159,7 +159,7 @@ public static class ObservabilityTextWriter
 
             const char newLine = '\n';
 
-            StringBuilder fullMessageSb = new(message);
+            StringBuilder fullMessageSb = new (message);
             if (exception is not null)
             {
                 activity?.RecordException(exception);
@@ -247,7 +247,7 @@ public static class ObservabilityTextWriter
 
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
     // TODO Promote to netstandard2.0
-    private static (IEnumerable<IPrefixTokenAppender> CustomAppenders, IndentationAppender IndentationAppender, int MaxMessageLength, int MaxLineLength) Parse(string pattern)
+    internal static (IEnumerable<IPrefixTokenAppender> CustomAppenders, IndentationAppender IndentationAppender, int MaxMessageLength, int MaxLineLength) Parse(string pattern)
     {
         ICollection<IPrefixTokenAppender> customAppenders = new List<IPrefixTokenAppender>();
         int? maxIndentedDepth = null;
@@ -273,20 +273,22 @@ public static class ObservabilityTextWriter
             if (tokenSpan.StartsWith("category", StringComparison.OrdinalIgnoreCase))
             {
                 tokenSpan = tokenSpan[8..];
-                if (!(tokenSpan[0] == ';' && int.TryParse(tokenSpan[1..], out int categoryLength)))
-                {
-                    if (!tokenSpan.IsEmpty)
-                    {
-                        throw new FormatException("Expected ';' and integer, or nothing");
-                    }
 
-                    categoryLength = 40;
+                int? categoryLength;
+                if (tokenSpan.IsEmpty)
+                {
+                    categoryLength = null;
+                }
+                else if (tokenSpan[0] == ';')
+                {
+                    categoryLength = int.TryParse(tokenSpan[1..], out int cl) ? cl : throw new FormatException("Expected integer");
+                }
+                else
+                {
+                    throw new FormatException("Expected ';' or nothing");
                 }
 
-                if (categoryLength >= 2)
-                {
-                    customAppenders.Add(new CategoryAppender(categoryLength));
-                }
+                customAppenders.Add(new CategoryAppender(categoryLength));
             }
             else if (tokenSpan.Equals("delta", StringComparison.OrdinalIgnoreCase))
             {
@@ -297,13 +299,16 @@ public static class ObservabilityTextWriter
                 customAppenders.Add(DepthAppender.Instance);
 
                 tokenSpan = tokenSpan[5..];
-                if (tokenSpan[0] == ';')
+                if (!tokenSpan.IsEmpty)
                 {
-                    maxIndentedDepth = int.TryParse(tokenSpan[1..], out int mid) ? mid : throw new FormatException("Expected integer");
-                }
-                else if (!tokenSpan.IsEmpty)
-                {
-                    throw new FormatException("Expected ';' or nothing");
+                    if (tokenSpan[0] == ';')
+                    {
+                        maxIndentedDepth = int.TryParse(tokenSpan[1..], out int mid) ? mid : throw new FormatException("Expected integer");
+                    }
+                    else
+                    {
+                        throw new FormatException("Expected ';' or nothing");
+                    }
                 }
             }
             else if (tokenSpan.Equals("duration", StringComparison.OrdinalIgnoreCase))
@@ -345,7 +350,58 @@ public static class ObservabilityTextWriter
             else if (tokenSpan.StartsWith("timestamp", StringComparison.OrdinalIgnoreCase))
             {
                 tokenSpan = tokenSpan[9..];
-                throw new NotImplementedException();
+
+                string? tsFormat;
+                CultureInfo tsCulture;
+
+                if (tokenSpan.IsEmpty)
+                {
+                    tsFormat = null;
+                    tsCulture = CultureInfo.InvariantCulture;
+                }
+                else
+                {
+                    if (tokenSpan[0] != ';')
+                    {
+                        throw new FormatException("Expected ';' or nothing");
+                    }
+
+                    tokenSpan = tokenSpan[1..];
+                    int semicolonIndex = tokenSpan.LastIndexOf(';');
+                    if (semicolonIndex < 0)
+                    {
+                        tsFormat = tokenSpan.ToString();
+                        tsCulture = CultureInfo.InvariantCulture;
+                    }
+                    else
+                    {
+                        ReadOnlySpan<char> innerSpan = tokenSpan[..semicolonIndex];
+                        tsFormat = innerSpan.IsEmpty ? null : innerSpan.ToString();
+
+                        try
+                        {
+                            tsCulture = CultureInfo.GetCultureInfo(tokenSpan[(semicolonIndex + 1)..].ToString());
+                        }
+                        catch (CultureNotFoundException exception)
+                        {
+                            throw new FormatException("Culture not found", exception);
+                        }
+                    }
+                }
+
+                if (tsFormat is not null)
+                {
+                    try
+                    {
+                        _ = DateTime.UtcNow.ToString(tsFormat);
+                    }
+                    catch (FormatException)
+                    {
+                        throw new FormatException("Invalid timestamp format");
+                    }
+                }
+
+                customAppenders.Add(new TimestampAppender(tsFormat, tsCulture));
             }
             else if (tokenSpan.Equals("traceid", StringComparison.OrdinalIgnoreCase))
             {
@@ -367,10 +423,12 @@ public static class ObservabilityTextWriter
                 throw new FormatException("'Message' token must be followed by nothing");
             }
 
-            if (patternSpan[0] != ' ')
+            if (!patternSpan.StartsWith(" {", StringComparison.Ordinal))
             {
-                throw new FormatException("Expected ' '");
+                throw new FormatException("Expected ' {'");
             }
+
+            patternSpan = patternSpan[1..];
         }
 
         if (customAppenders.Count != customAppenders.Select(static x => x.GetType()).Count())

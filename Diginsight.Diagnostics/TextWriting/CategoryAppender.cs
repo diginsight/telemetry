@@ -6,9 +6,9 @@ internal sealed class CategoryAppender : IPrefixTokenAppender
 {
     private readonly int categoryLength;
 
-    public CategoryAppender(int categoryLength)
+    public CategoryAppender(int? categoryLength)
     {
-        this.categoryLength = categoryLength;
+        this.categoryLength = categoryLength ?? 40;
     }
 
     public void Append(StringBuilder sb, string category)

@@ -7,11 +7,11 @@ namespace Diginsight.Diagnostics.TextWriting;
 
 internal sealed class IndentationAppender
 {
-    private readonly int maxIndentedDepth;
+    private readonly int maxDepth;
 
-    public IndentationAppender(int? maxIndentedDepth)
+    public IndentationAppender(int? maxDepth)
     {
-        this.maxIndentedDepth = maxIndentedDepth ?? 10;
+        this.maxDepth = maxDepth ?? 10;
     }
 
     public void Append(StringBuilder sb, [NotNull] ref StrongBox<int>? depthBox, Activity? activity, bool isActivity, out int indentationLength)
@@ -19,9 +19,9 @@ internal sealed class IndentationAppender
         DepthAppender.GetDepth(ref depthBox, activity);
         int depth = depthBox.Value;
 
-        indentationLength = maxIndentedDepth < 0 || depth <= maxIndentedDepth
+        indentationLength = maxDepth < 0 || depth <= maxDepth
             ? depth * 2 - (isActivity ? 1 : 0)
-            : maxIndentedDepth * 2;
+            : maxDepth * 2;
         sb.Append(new string(' ', indentationLength));
     }
 }
