@@ -2,7 +2,7 @@
 
 namespace Diginsight.Diagnostics.TextWriting;
 
-internal sealed class IndentationAppender
+public sealed class IndentationAppender
 {
     private readonly int maxDepth;
 

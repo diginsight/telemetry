@@ -29,12 +29,6 @@ public static class StringExtensions
     [return: NotNullIfNotNull(nameof(str))]
     public static string? Truncate(this string? str, int length)
     {
-        return str?.Length > length
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            ? str[..length]
-#else
-            ? str.Substring(0, length)
-#endif
-            : str;
+        return str?.Length > length ? str[..length] : str;
     }
 }

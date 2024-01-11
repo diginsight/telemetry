@@ -23,13 +23,8 @@ internal sealed class BreakingMessageLineResizer : IMessageLineResizer
             }
             else
             {
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                 yield return $"{line[..(maxLength - 1)]}↓";
                 inputLines[i] = line[(maxLength - 1)..];
-#else
-                yield return $"{line.Substring(0, maxLength - 1)}↓";
-                inputLines[i] = line.Substring(maxLength - 1);
-#endif
 
                 i--;
             }

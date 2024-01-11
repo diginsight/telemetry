@@ -192,17 +192,11 @@ public static class ObservabilityTextWriter
         Tags State { get; }
     }
 
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-    // TODO Promote to netstandard2.0
     internal static (IEnumerable<IPrefixTokenAppender> CustomAppenders, IndentationAppender IndentationAppender, int MaxMessageLength, int MaxLineLength) Parse(string pattern)
     {
-        ICollection<IPrefixTokenAppender> customAppenders = new List<IPrefixTokenAppender>();
-        int? maxIndentedDepth = null;
-        int? maxMessageLength = null;
-        int? maxLineLength = null;
-
-        ReadOnlySpan<char> patternSpan = pattern;
-        while (!patternSpan.IsEmpty)
+        ICollection<ILineToken> lineTokens = new List<ILineToken>();
+        ReadOnlySpan<char> patternSpan = pattern.AsSpan();
+        while (true)
         {
             if (patternSpan[0] != '{')
             {
@@ -217,195 +211,88 @@ public static class ObservabilityTextWriter
             }
 
             ReadOnlySpan<char> tokenSpan = patternSpan[..closingIndex];
-            if (tokenSpan.StartsWith("category", StringComparison.OrdinalIgnoreCase))
+
+            ILineToken lineToken;
+            if (tokenSpan.StartsWith("category".AsSpan(), StringComparison.OrdinalIgnoreCase))
             {
                 tokenSpan = tokenSpan[8..];
-
-                int? categoryLength;
-                if (tokenSpan.IsEmpty)
-                {
-                    categoryLength = null;
-                }
-                else if (tokenSpan[0] == ';')
-                {
-                    categoryLength = int.TryParse(tokenSpan[1..], out int tmp) ? tmp : throw new FormatException("Expected integer");
-                }
-                else
-                {
-                    throw new FormatException("Expected ';' or nothing");
-                }
-
-                customAppenders.Add(new CategoryAppender(categoryLength));
+                lineToken = CategoryToken.Parse(tokenSpan);
             }
-            else if (tokenSpan.Equals("delta", StringComparison.OrdinalIgnoreCase))
+            else if (tokenSpan.Equals("delta".AsSpan(), StringComparison.OrdinalIgnoreCase))
             {
-                customAppenders.Add(DeltaAppender.Instance);
+                lineToken = DeltaToken.Instance;
             }
-            else if (tokenSpan.StartsWith("depth", StringComparison.OrdinalIgnoreCase))
+            else if (tokenSpan.StartsWith("depth".AsSpan(), StringComparison.OrdinalIgnoreCase))
             {
-                customAppenders.Add(DepthAppender.Instance);
-
                 tokenSpan = tokenSpan[5..];
-                if (!tokenSpan.IsEmpty)
-                {
-                    if (tokenSpan[0] == ';')
-                    {
-                        maxIndentedDepth = int.TryParse(tokenSpan[1..], out int tmp) ? tmp : throw new FormatException("Expected integer");
-                    }
-                    else
-                    {
-                        throw new FormatException("Expected ';' or nothing");
-                    }
-                }
+                lineToken = DepthToken.Parse(tokenSpan);
             }
-            else if (tokenSpan.Equals("duration", StringComparison.OrdinalIgnoreCase))
+            else if (tokenSpan.Equals("duration".AsSpan(), StringComparison.OrdinalIgnoreCase))
             {
-                customAppenders.Add(DurationAppender.Instance);
+                lineToken = DurationToken.Instance;
             }
-            else if (tokenSpan.StartsWith("loglevel", StringComparison.OrdinalIgnoreCase))
+            else if (tokenSpan.StartsWith("loglevel".AsSpan(), StringComparison.OrdinalIgnoreCase))
             {
                 tokenSpan = tokenSpan[8..];
-
-                int? logLevelLength;
-                if (tokenSpan.IsEmpty)
-                {
-                    logLevelLength = null;
-                }
-                else if (tokenSpan[0] == ';')
-                {
-                    logLevelLength = int.TryParse(tokenSpan[1..], out int tmp) && tmp is >= 1 and <= 5
-                        ? tmp
-                        : throw new FormatException("Expected integer in the range 1-5");
-                }
-                else
-                {
-                    throw new FormatException("Expected ';' or nothing");
-                }
-
-                customAppenders.Add(LogLevelAppender.UnsafeFor(logLevelLength));
+                lineToken = LogLevelToken.Parse(tokenSpan);
             }
-            else if (tokenSpan.StartsWith("message", StringComparison.OrdinalIgnoreCase))
+            else if (tokenSpan.StartsWith("message".AsSpan(), StringComparison.OrdinalIgnoreCase))
             {
                 tokenSpan = tokenSpan[7..];
-
-                if (tokenSpan.IsEmpty)
-                {
-                    maxMessageLength = 0;
-                    maxLineLength = 0;
-                }
-                else
-                {
-                    if (tokenSpan[0] != ';')
-                    {
-                        throw new FormatException("Expected ';' or nothing");
-                    }
-
-                    tokenSpan = tokenSpan[1..];
-                    int semicolonIndex = tokenSpan.IndexOf(';');
-                    if (semicolonIndex < 0)
-                    {
-                        maxMessageLength = int.TryParse(tokenSpan, out int tmp) ? tmp : throw new FormatException("Expected integer");
-                        maxLineLength = 0;
-                    }
-                    else
-                    {
-                        ReadOnlySpan<char> innerSpan = tokenSpan[..semicolonIndex];
-                        maxMessageLength = innerSpan.IsEmpty ? 0 : int.TryParse(innerSpan, out int tmp1) ? tmp1 : throw new FormatException("Expected integer");
-
-                        maxLineLength = int.TryParse(tokenSpan[(semicolonIndex + 1)..], out int tmp2) ? tmp2 : throw new FormatException("Expected integer");
-                    }
-                }
+                lineToken = MessageToken.Parse(tokenSpan);
             }
-            else if (tokenSpan.StartsWith("timestamp", StringComparison.OrdinalIgnoreCase))
+            else if (tokenSpan.StartsWith("timestamp".AsSpan(), StringComparison.OrdinalIgnoreCase))
             {
                 tokenSpan = tokenSpan[9..];
-
-                string? tsFormat;
-                CultureInfo tsCulture;
-
-                if (tokenSpan.IsEmpty)
-                {
-                    tsFormat = null;
-                    tsCulture = CultureInfo.InvariantCulture;
-                }
-                else
-                {
-                    if (tokenSpan[0] != ';')
-                    {
-                        throw new FormatException("Expected ';' or nothing");
-                    }
-
-                    tokenSpan = tokenSpan[1..];
-                    int semicolonIndex = tokenSpan.LastIndexOf(';');
-                    if (semicolonIndex < 0)
-                    {
-                        tsFormat = tokenSpan.ToString();
-                        tsCulture = CultureInfo.InvariantCulture;
-                    }
-                    else
-                    {
-                        ReadOnlySpan<char> innerSpan = tokenSpan[..semicolonIndex];
-                        tsFormat = innerSpan.IsEmpty ? null : innerSpan.ToString();
-
-                        try
-                        {
-                            tsCulture = CultureInfo.GetCultureInfo(tokenSpan[(semicolonIndex + 1)..].ToString());
-                        }
-                        catch (CultureNotFoundException exception)
-                        {
-                            throw new FormatException("Culture not found", exception);
-                        }
-                    }
-                }
-
-                if (tsFormat is not null)
-                {
-                    try
-                    {
-                        _ = DateTime.UtcNow.ToString(tsFormat);
-                    }
-                    catch (FormatException)
-                    {
-                        throw new FormatException("Invalid timestamp format");
-                    }
-                }
-
-                customAppenders.Add(new TimestampAppender(tsFormat, tsCulture));
+                lineToken = TimestampToken.Parse(tokenSpan);
             }
-            else if (tokenSpan.Equals("traceid", StringComparison.OrdinalIgnoreCase))
+            else if (tokenSpan.Equals("traceid".AsSpan(), StringComparison.OrdinalIgnoreCase))
             {
-                customAppenders.Add(TraceIdAppender.Instance);
+                lineToken = TraceIdToken.Instance;
             }
             else
             {
                 throw new FormatException("Unknown token");
             }
 
+            Type lineTokenType = lineToken.GetType();
+            if (lineTokens.Any(x => x.GetType() == lineTokenType))
+            {
+                throw new FormatException("Duplicate token");
+            }
+
+            lineTokens.Add(lineToken);
+
             patternSpan = patternSpan[(closingIndex + 1)..];
             if (patternSpan.IsEmpty)
             {
-                continue;
+                break;
             }
 
-            if (maxLineLength is not null)
+            if (lineToken is MessageToken)
             {
                 throw new FormatException("'Message' token must be followed by nothing");
             }
 
-            if (!patternSpan.StartsWith(" {", StringComparison.Ordinal))
+            if (patternSpan[0] != ' ')
             {
-                throw new FormatException("Expected ' {'");
+                throw new FormatException("Expected ' '");
             }
 
             patternSpan = patternSpan[1..];
         }
 
-        if (customAppenders.Count != customAppenders.Select(static x => x.GetType()).Count())
+        LineDescriptor lineDescriptor = new ();
+        foreach (ILineToken lineToken in lineTokens)
         {
-            throw new FormatException("Duplicate token");
+            lineToken.Apply(ref lineDescriptor);
         }
 
-        return (customAppenders, new IndentationAppender(maxIndentedDepth), maxMessageLength ?? 0, maxLineLength ?? 0);
+        return (
+            lineDescriptor.CustomAppenders,
+            new IndentationAppender(lineDescriptor.MaxIndentedDepth),
+            lineDescriptor.MaxMessageLength ?? 0,
+            lineDescriptor.MaxLineLength ?? 0
+        );
     }
-#endif
 }

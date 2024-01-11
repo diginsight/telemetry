@@ -4,9 +4,12 @@ public sealed class CategoryToken : ILineToken
 {
     public int? Length { get; set; }
 
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-    // TODO Promote to netstandard2.0
-    internal static CategoryToken Parse(ReadOnlySpan<char> tokenSpan)
+    public void Apply(ref LineDescriptor lineDescriptor)
+    {
+        lineDescriptor.CustomAppenders.Add(new CategoryAppender(Length));
+    }
+
+    internal static ILineToken Parse(ReadOnlySpan<char> tokenSpan)
     {
         int? length;
         if (tokenSpan.IsEmpty)
@@ -15,7 +18,12 @@ public sealed class CategoryToken : ILineToken
         }
         else if (tokenSpan[0] == ';')
         {
-            length = int.TryParse(tokenSpan[1..], out int cl) ? cl : throw new FormatException("Expected integer");
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            ReadOnlySpan<char> src = tokenSpan[1..];
+#else
+            string src = tokenSpan[1..].ToString();
+#endif
+            length = int.TryParse(src, out int tmp) ? tmp : throw new FormatException("Expected integer");
         }
         else
         {
@@ -23,11 +31,5 @@ public sealed class CategoryToken : ILineToken
         }
 
         return new CategoryToken() { Length = length };
-    }
-#endif
-
-    public void Apply(ref LineDescriptor lineDescriptor)
-    {
-        lineDescriptor.CustomAppenders.Add(new CategoryAppender(Length));
     }
 }

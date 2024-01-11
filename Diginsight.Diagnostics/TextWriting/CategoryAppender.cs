@@ -27,11 +27,7 @@ internal sealed class CategoryAppender : IPrefixTokenAppender
         }
         else if (category.Length > length)
         {
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             finalCategory = $"…{category[^(length - 1)..]}";
-#else
-            finalCategory = $"…{category.Substring(category.Length - (length - 1))}";
-#endif
         }
         else
         {

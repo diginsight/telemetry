@@ -154,11 +154,7 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
         {
             AppendNamespace(type.Namespace);
             appendingContext
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                 .AppendDirect(type.Name[..type.Name.IndexOf('`')])
-#else
-                .AppendDirect(type.Name.Substring(0, type.Name.IndexOf('`')))
-#endif
                 .AppendDelimited(
                     '<',
                     '>',
