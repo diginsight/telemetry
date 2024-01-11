@@ -8,5 +8,5 @@ internal sealed class DurationAppender : MsecAppender
 
     private DurationAppender() { }
 
-    public new void Append(StringBuilder sb, double? duration) => MsecAppender.Append(sb, duration);
+    public override void Append(StringBuilder sb, LinePrefixData linePrefixData) => Append(sb, linePrefixData.Duration);
 }

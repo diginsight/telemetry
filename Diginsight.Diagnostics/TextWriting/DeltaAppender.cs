@@ -8,8 +8,8 @@ internal sealed class DeltaAppender : MsecAppender
 
     private DeltaAppender() { }
 
-    public void Append(StringBuilder sb, bool lastWasStart, DateTime timestamp, DateTime? prevTimestamp)
+    public override void Append(StringBuilder sb, LinePrefixData linePrefixData)
     {
-        Append(sb, lastWasStart ? null : (timestamp - prevTimestamp)?.TotalMilliseconds);
+        Append(sb, linePrefixData.LastWasStart ? null : (linePrefixData.Timestamp - linePrefixData.PrevTimestamp)?.TotalMilliseconds);
     }
 }

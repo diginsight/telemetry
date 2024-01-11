@@ -1,4 +1,5 @@
-﻿using log4net.Core;
+﻿using Diginsight.Diagnostics.TextWriting;
+using log4net.Core;
 using log4net.Layout;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

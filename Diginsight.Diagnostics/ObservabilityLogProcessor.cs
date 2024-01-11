@@ -1,4 +1,5 @@
-﻿using Diginsight.Strings;
+﻿using Diginsight.Diagnostics.TextWriting;
+using Diginsight.Strings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging.Console;
 using System.Globalization;
 
-namespace Diginsight.Diagnostics;
+namespace Diginsight.Diagnostics.TextWriting;
 
 public sealed class ObservabilityTextWriterOptions : ConsoleFormatterOptions, IObservabilityTextWriterOptions
 {

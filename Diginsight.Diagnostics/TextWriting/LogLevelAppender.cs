@@ -8,12 +8,14 @@ internal sealed class LogLevelAppender : IPrefixTokenAppender
 {
     private readonly int length;
 
-    public LogLevelAppender(int length)
+    public LogLevelAppender(int? length)
     {
-        this.length = length;
+        this.length = length ?? 4;
     }
 
-    public void Append(StringBuilder sb, LogLevel logLevel)
+    public void Append(StringBuilder sb, LinePrefixData linePrefixData) => Append(sb, linePrefixData.LogLevel);
+
+    private void Append(StringBuilder sb, LogLevel logLevel)
     {
         string logLevelStr = logLevel switch
         {

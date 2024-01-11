@@ -27,8 +27,8 @@ internal sealed class TimestampAppender : IPrefixTokenAppender
         this.culture = culture;
     }
 
-    public void Append(StringBuilder sb, DateTime timestamp)
+    public void Append(StringBuilder sb, LinePrefixData linePrefixData)
     {
-        sb.AppendFormat(culture, format, timestamp);
+        sb.AppendFormat(culture, format, linePrefixData.Timestamp);
     }
 }

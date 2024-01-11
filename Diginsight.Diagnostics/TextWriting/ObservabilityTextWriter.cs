@@ -1,17 +1,14 @@
-﻿using Diginsight.Diagnostics.TextWriting;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using OpenTelemetry.Trace;
 using System.Collections;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Metrics;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
-#if NET7_0_OR_GREATER
-using System.Diagnostics.CodeAnalysis;
-#endif
 
-namespace Diginsight.Diagnostics;
+namespace Diginsight.Diagnostics.TextWriting;
 
 public static class ObservabilityTextWriter
 {
@@ -73,85 +70,35 @@ public static class ObservabilityTextWriter
         try
         {
             Activity? activity = Activity.Current;
-            double? durationMsec = duration?.TotalMilliseconds;
+            LinePrefixData linePrefixData = new (timestamp, logLevel, category, isActivity, duration, activity);
 
-            static void Checkpoint(
-                Activity? activity,
-                DateTime timestamp,
-                bool isActivity,
-                double? durationMsec,
-                out DateTime? prevTimestamp,
-                out ActivityTraceId? traceId,
-                out bool lastWasStart
-            )
-            {
-                const string lastLogTimestampCustomPropertyName = "lastLogTimestamp";
-                const string lastWasStartCustomPropertyName = "lastWasStart";
-
-                if (activity is null)
-                {
-                    prevTimestamp = null;
-                }
-                else
-                {
-                    prevTimestamp = activity.GetCustomProperty(lastLogTimestampCustomPropertyName) switch
-                    {
-                        DateTime dt => dt,
-                        null => activity.Parent?.GetCustomProperty(lastLogTimestampCustomPropertyName) switch
-                        {
-                            DateTime dt => dt,
-                            null => null,
-                            _ => throw new InvalidOperationException("Invalid last log timestamp in activity"),
-                        },
-                        _ => throw new InvalidOperationException("Invalid last log timestamp in activity"),
-                    };
-                }
-
-                if (activity is not null)
-                {
-                    lastWasStart = activity.GetCustomProperty(lastWasStartCustomPropertyName) switch
-                    {
-                        bool b => b,
-                        null => false,
-                        _ => throw new InvalidOperationException($"Invalid '{lastWasStartCustomPropertyName}' in activity"),
-                    };
-                    activity.SetCustomProperty(lastWasStartCustomPropertyName, isActivity && durationMsec is null);
-
-                    activity.SetCustomProperty(lastLogTimestampCustomPropertyName, timestamp);
-                    if (durationMsec is not null)
-                    {
-                        activity.Parent?.SetCustomProperty(lastLogTimestampCustomPropertyName, timestamp);
-                    }
-
-                    traceId = activity.TraceId;
-                }
-                else
-                {
-                    traceId = null;
-                    lastWasStart = false;
-                }
-            }
-
-            Checkpoint(activity, timestamp, isActivity, durationMsec, out DateTime? prevTimestamp, out ActivityTraceId? traceId, out bool lastWasStart);
+            IEnumerable<IPrefixTokenAppender> appenders =
+            [
+                new TimestampAppender(timestampFormat, timestampCulture),
+                new CategoryAppender(categoryLength),
+                new LogLevelAppender(4),
+                TraceIdAppender.Instance,
+                DeltaAppender.Instance,
+                DurationAppender.Instance,
+                DepthAppender.Instance,
+            ];
 
             StringBuilder prefixSb = new ();
-            StrongBox<int>? depthBox = null;
+            foreach (IPrefixTokenAppender appender in appenders)
+            {
+                appender.Append(prefixSb, linePrefixData);
+                prefixSb.Append(' ');
+            }
 
-            new TimestampAppender(timestampFormat, timestampCulture).Append(prefixSb, timestamp);
-            prefixSb.Append(' ');
-            new CategoryAppender(categoryLength).Append(prefixSb, category);
-            prefixSb.Append(' ');
-            new LogLevelAppender(4).Append(prefixSb, logLevel);
-            prefixSb.Append(' ');
-            TraceIdAppender.Instance.Append(prefixSb, traceId);
-            prefixSb.Append(' ');
-            DeltaAppender.Instance.Append(prefixSb, lastWasStart, timestamp, prevTimestamp);
-            prefixSb.Append(' ');
-            DurationAppender.Instance.Append(prefixSb, durationMsec);
-            prefixSb.Append(' ');
-            DepthAppender.Instance.Append(prefixSb, ref depthBox, activity);
-            prefixSb.Append(' ');
-            new IndentationAppender(maxIndentedDepth).Append(prefixSb, ref depthBox, activity, isActivity, out int indentationLength);
+            int indentationLength;
+            {
+                int depth = linePrefixData.Depth;
+                indentationLength = maxIndentedDepth < 0 || depth <= maxIndentedDepth
+                    ? depth * 2 - (linePrefixData.IsActivity ? 1 : 0)
+                    : maxIndentedDepth * 2;
+            }
+
+            prefixSb.Append(new string(' ', indentationLength));
 
             string actualPrefix = prefixSb.ToString();
             int prefixLength = actualPrefix.Length;
@@ -314,6 +261,28 @@ public static class ObservabilityTextWriter
             else if (tokenSpan.Equals("duration", StringComparison.OrdinalIgnoreCase))
             {
                 customAppenders.Add(DurationAppender.Instance);
+            }
+            else if (tokenSpan.StartsWith("loglevel", StringComparison.OrdinalIgnoreCase))
+            {
+                tokenSpan = tokenSpan[8..];
+
+                int? logLevelLength;
+                if (tokenSpan.IsEmpty)
+                {
+                    logLevelLength = null;
+                }
+                else if (tokenSpan[0] == ';')
+                {
+                    logLevelLength = int.TryParse(tokenSpan[1..], out int cl) && cl is >= 1 and <= 5
+                        ? cl
+                        : throw new FormatException("Expected integer in the range 1-5");
+                }
+                else
+                {
+                    throw new FormatException("Expected ';' or nothing");
+                }
+
+                customAppenders.Add(new LogLevelAppender(logLevelLength));
             }
             else if (tokenSpan.StartsWith("message", StringComparison.OrdinalIgnoreCase))
             {

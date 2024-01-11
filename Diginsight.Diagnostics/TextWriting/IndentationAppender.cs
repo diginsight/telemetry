@@ -1,7 +1,4 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-using System.Text;
+﻿using System.Text;
 
 namespace Diginsight.Diagnostics.TextWriting;
 
@@ -14,13 +11,11 @@ internal sealed class IndentationAppender
         this.maxDepth = maxDepth ?? 10;
     }
 
-    public void Append(StringBuilder sb, [NotNull] ref StrongBox<int>? depthBox, Activity? activity, bool isActivity, out int indentationLength)
+    public void Append(StringBuilder sb, LinePrefixData linePrefixData, out int indentationLength)
     {
-        DepthAppender.GetDepth(ref depthBox, activity);
-        int depth = depthBox.Value;
-
+        int depth = linePrefixData.Depth;
         indentationLength = maxDepth < 0 || depth <= maxDepth
-            ? depth * 2 - (isActivity ? 1 : 0)
+            ? depth * 2 - (linePrefixData.IsActivity ? 1 : 0)
             : maxDepth * 2;
         sb.Append(new string(' ', indentationLength));
     }

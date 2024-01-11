@@ -5,6 +5,8 @@ namespace Diginsight.Diagnostics.TextWriting;
 
 internal abstract class MsecAppender : IPrefixTokenAppender
 {
+    public abstract void Append(StringBuilder sb, LinePrefixData linePrefixData);
+
     protected static void Append(StringBuilder sb, double? msec)
     {
         string str = msec switch

@@ -1,3 +1,8 @@
-﻿namespace Diginsight.Diagnostics.TextWriting;
+﻿using System.Text;
 
-public interface IPrefixTokenAppender;
+namespace Diginsight.Diagnostics.TextWriting;
+
+internal interface IPrefixTokenAppender
+{
+    void Append(StringBuilder sb, LinePrefixData linePrefixData);
+}

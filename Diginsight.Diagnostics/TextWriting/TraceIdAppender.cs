@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Text;
+﻿using System.Text;
 
 namespace Diginsight.Diagnostics.TextWriting;
 
@@ -9,8 +8,8 @@ internal sealed class TraceIdAppender : IPrefixTokenAppender
 
     private TraceIdAppender() { }
 
-    public void Append(StringBuilder sb, ActivityTraceId? traceId)
+    public void Append(StringBuilder sb, LinePrefixData linePrefixData)
     {
-        sb.Append((traceId?.ToString() ?? "").PadLeft(32));
+        sb.Append((linePrefixData.TraceId?.ToString() ?? "").PadLeft(32));
     }
 }

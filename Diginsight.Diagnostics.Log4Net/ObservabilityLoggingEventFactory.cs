@@ -1,4 +1,5 @@
-﻿using log4net.Core;
+﻿using Diginsight.Diagnostics.TextWriting;
+using log4net.Core;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Log4Net.AspNetCore.Entities;
 using ILogger = log4net.Core.ILogger;

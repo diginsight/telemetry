@@ -4,32 +4,33 @@ namespace Diginsight.Diagnostics.TextWriting;
 
 internal sealed class CategoryAppender : IPrefixTokenAppender
 {
-    private readonly int categoryLength;
+    private readonly int length;
 
-    public CategoryAppender(int? categoryLength)
+    public CategoryAppender(int? length)
     {
-        this.categoryLength = categoryLength ?? 40;
+        this.length = length ?? 40;
     }
 
-    public void Append(StringBuilder sb, string category)
+    public void Append(StringBuilder sb, LinePrefixData linePrefixData) => Append(sb, linePrefixData.Category);
+
+    private void Append(StringBuilder sb, string category)
     {
-        // TODO Move this logic outside
-        if (categoryLength < 2)
+        if (length < 2)
         {
-            return;
+            throw new InvalidOperationException("Length must be greater than or equal to 2");
         }
 
         string finalCategory;
-        if (category.Length < categoryLength)
+        if (category.Length < length)
         {
-            finalCategory = category.PadRight(categoryLength);
+            finalCategory = category.PadRight(length);
         }
-        else if (category.Length > categoryLength)
+        else if (category.Length > length)
         {
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            finalCategory = $"…{category[^(categoryLength - 1)..]}";
+            finalCategory = $"…{category[^(length - 1)..]}";
 #else
-            finalCategory = $"…{category.Substring(category.Length - (categoryLength - 1))}";
+            finalCategory = $"…{category.Substring(category.Length - (length - 1))}";
 #endif
         }
         else
