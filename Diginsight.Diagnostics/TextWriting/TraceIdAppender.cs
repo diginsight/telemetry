@@ -8,7 +8,7 @@ internal sealed class TraceIdAppender : IPrefixTokenAppender
 
     private TraceIdAppender() { }
 
-    public void Append(StringBuilder sb, LinePrefixData linePrefixData)
+    public void Append(StringBuilder sb, in LinePrefixData linePrefixData)
     {
         sb.Append((linePrefixData.TraceId?.ToString() ?? "").PadLeft(32));
     }

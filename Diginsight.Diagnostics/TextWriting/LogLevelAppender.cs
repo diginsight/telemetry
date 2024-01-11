@@ -6,14 +6,27 @@ namespace Diginsight.Diagnostics.TextWriting;
 
 internal sealed class LogLevelAppender : IPrefixTokenAppender
 {
+    private static readonly LogLevelAppender?[] Instances = new LogLevelAppender?[5];
+
     private readonly int length;
 
-    public LogLevelAppender(int? length)
+    private LogLevelAppender(int length)
     {
-        this.length = length ?? 4;
+        this.length = length;
     }
 
-    public void Append(StringBuilder sb, LinePrefixData linePrefixData) => Append(sb, linePrefixData.LogLevel);
+    public static LogLevelAppender For(int? length)
+    {
+        return UnsafeFor(length is < 1 or > 5 ? throw new ArgumentOutOfRangeException(nameof(length), "Length must be in the range 1-5") : length);
+    }
+
+    internal static LogLevelAppender UnsafeFor(int? length)
+    {
+        int finalLength = length ?? 4;
+        return Instances[finalLength - 1] ??= new LogLevelAppender(finalLength);
+    }
+
+    public void Append(StringBuilder sb, in LinePrefixData linePrefixData) => Append(sb, linePrefixData.LogLevel);
 
     private void Append(StringBuilder sb, LogLevel logLevel)
     {

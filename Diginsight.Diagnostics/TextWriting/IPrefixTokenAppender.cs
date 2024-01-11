@@ -2,7 +2,7 @@
 
 namespace Diginsight.Diagnostics.TextWriting;
 
-internal interface IPrefixTokenAppender
+public interface IPrefixTokenAppender
 {
-    void Append(StringBuilder sb, LinePrefixData linePrefixData);
+    void Append(StringBuilder sb, in LinePrefixData linePrefixData);
 }

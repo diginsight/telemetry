@@ -11,7 +11,7 @@ internal sealed class CategoryAppender : IPrefixTokenAppender
         this.length = length ?? 40;
     }
 
-    public void Append(StringBuilder sb, LinePrefixData linePrefixData) => Append(sb, linePrefixData.Category);
+    public void Append(StringBuilder sb, in LinePrefixData linePrefixData) => Append(sb, linePrefixData.Category);
 
     private void Append(StringBuilder sb, string category)
     {

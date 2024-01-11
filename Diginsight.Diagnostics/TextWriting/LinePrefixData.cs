@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace Diginsight.Diagnostics.TextWriting;
 
-internal sealed class LinePrefixData
+public readonly ref struct LinePrefixData
 {
     private readonly Lazy<int> depthLazy;
 

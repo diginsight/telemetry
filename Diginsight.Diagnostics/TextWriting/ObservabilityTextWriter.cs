@@ -76,7 +76,7 @@ public static class ObservabilityTextWriter
             [
                 new TimestampAppender(timestampFormat, timestampCulture),
                 new CategoryAppender(categoryLength),
-                new LogLevelAppender(4),
+                LogLevelAppender.UnsafeFor(null),
                 TraceIdAppender.Instance,
                 DeltaAppender.Instance,
                 DurationAppender.Instance,
@@ -228,7 +228,7 @@ public static class ObservabilityTextWriter
                 }
                 else if (tokenSpan[0] == ';')
                 {
-                    categoryLength = int.TryParse(tokenSpan[1..], out int cl) ? cl : throw new FormatException("Expected integer");
+                    categoryLength = int.TryParse(tokenSpan[1..], out int tmp) ? tmp : throw new FormatException("Expected integer");
                 }
                 else
                 {
@@ -250,7 +250,7 @@ public static class ObservabilityTextWriter
                 {
                     if (tokenSpan[0] == ';')
                     {
-                        maxIndentedDepth = int.TryParse(tokenSpan[1..], out int mid) ? mid : throw new FormatException("Expected integer");
+                        maxIndentedDepth = int.TryParse(tokenSpan[1..], out int tmp) ? tmp : throw new FormatException("Expected integer");
                     }
                     else
                     {
@@ -273,8 +273,8 @@ public static class ObservabilityTextWriter
                 }
                 else if (tokenSpan[0] == ';')
                 {
-                    logLevelLength = int.TryParse(tokenSpan[1..], out int cl) && cl is >= 1 and <= 5
-                        ? cl
+                    logLevelLength = int.TryParse(tokenSpan[1..], out int tmp) && tmp is >= 1 and <= 5
+                        ? tmp
                         : throw new FormatException("Expected integer in the range 1-5");
                 }
                 else
@@ -282,7 +282,7 @@ public static class ObservabilityTextWriter
                     throw new FormatException("Expected ';' or nothing");
                 }
 
-                customAppenders.Add(new LogLevelAppender(logLevelLength));
+                customAppenders.Add(LogLevelAppender.UnsafeFor(logLevelLength));
             }
             else if (tokenSpan.StartsWith("message", StringComparison.OrdinalIgnoreCase))
             {
@@ -304,15 +304,15 @@ public static class ObservabilityTextWriter
                     int semicolonIndex = tokenSpan.IndexOf(';');
                     if (semicolonIndex < 0)
                     {
-                        maxMessageLength = int.TryParse(tokenSpan, out int mml) ? mml : throw new FormatException("Expected integer");
+                        maxMessageLength = int.TryParse(tokenSpan, out int tmp) ? tmp : throw new FormatException("Expected integer");
                         maxLineLength = 0;
                     }
                     else
                     {
                         ReadOnlySpan<char> innerSpan = tokenSpan[..semicolonIndex];
-                        maxMessageLength = innerSpan.IsEmpty ? 0 : int.TryParse(innerSpan, out int mml) ? mml : throw new FormatException("Expected integer");
+                        maxMessageLength = innerSpan.IsEmpty ? 0 : int.TryParse(innerSpan, out int tmp1) ? tmp1 : throw new FormatException("Expected integer");
 
-                        maxLineLength = int.TryParse(tokenSpan[(semicolonIndex + 1)..], out int mll) ? mll : throw new FormatException("Expected integer");
+                        maxLineLength = int.TryParse(tokenSpan[(semicolonIndex + 1)..], out int tmp2) ? tmp2 : throw new FormatException("Expected integer");
                     }
                 }
             }

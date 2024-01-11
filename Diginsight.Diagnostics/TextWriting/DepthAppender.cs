@@ -8,7 +8,7 @@ internal sealed class DepthAppender : IPrefixTokenAppender
 
     private DepthAppender() { }
 
-    public void Append(StringBuilder sb, LinePrefixData linePrefixData)
+    public void Append(StringBuilder sb, in LinePrefixData linePrefixData)
     {
 #if NET6_0_OR_GREATER
         sb.Append($"{linePrefixData.Depth,2}");

@@ -12,7 +12,7 @@ internal sealed class TimestampAppender : IPrefixTokenAppender
 #endif
     private readonly CultureInfo culture;
 
-    public TimestampAppender(string? format, CultureInfo culture)
+    public TimestampAppender(string? format, CultureInfo? culture)
     {
 #if NET8_0_OR_GREATER
         string tmpFormat =
@@ -24,10 +24,10 @@ internal sealed class TimestampAppender : IPrefixTokenAppender
         this.format = CompositeFormat.Parse(tmpFormat);
 #endif
 
-        this.culture = culture;
+        this.culture = culture ?? CultureInfo.InvariantCulture;
     }
 
-    public void Append(StringBuilder sb, LinePrefixData linePrefixData)
+    public void Append(StringBuilder sb, in LinePrefixData linePrefixData)
     {
         sb.AppendFormat(culture, format, linePrefixData.Timestamp);
     }
