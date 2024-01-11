@@ -6,8 +6,8 @@ public sealed class TraceIdToken : ILineToken
 
     private TraceIdToken() { }
 
-    public void Apply(ref LineDescriptor lineDescriptor)
+    public void Apply(ref MutableLineDescriptor lineDescriptor)
     {
-        lineDescriptor.CustomAppenders.Add(TraceIdAppender.Instance);
+        lineDescriptor.Appenders.Add(TraceIdAppender.Instance);
     }
 }

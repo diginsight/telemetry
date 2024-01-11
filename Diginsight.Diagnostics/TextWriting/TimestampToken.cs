@@ -29,9 +29,9 @@ public sealed class TimestampToken : ILineToken
 
     public CultureInfo? Culture { get; set; }
 
-    public void Apply(ref LineDescriptor lineDescriptor)
+    public void Apply(ref MutableLineDescriptor lineDescriptor)
     {
-        lineDescriptor.CustomAppenders.Add(new TimestampAppender(Format, Culture));
+        lineDescriptor.Appenders.Add(new TimestampAppender(Format, Culture));
     }
 
     internal static ILineToken Parse(ReadOnlySpan<char> tokenSpan)

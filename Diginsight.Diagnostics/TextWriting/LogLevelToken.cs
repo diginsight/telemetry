@@ -10,9 +10,9 @@ public sealed class LogLevelToken : ILineToken
         set => length = value is < 1 or > 5 ? throw new ArgumentOutOfRangeException(nameof(Length), "Must be null or in the range 1-5") : value;
     }
 
-    public void Apply(ref LineDescriptor lineDescriptor)
+    public void Apply(ref MutableLineDescriptor lineDescriptor)
     {
-        lineDescriptor.CustomAppenders.Add(LogLevelAppender.UnsafeFor(length));
+        lineDescriptor.Appenders.Add(LogLevelAppender.UnsafeFor(length));
     }
 
     internal static ILineToken Parse(ReadOnlySpan<char> tokenSpan)

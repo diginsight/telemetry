@@ -8,32 +8,32 @@ namespace Diginsight.Diagnostics.Log4Net;
 
 internal sealed class ObservabilityLayoutSkeleton : LayoutSkeleton
 {
-    private readonly IOptionsMonitor<ObservabilityTextWriterOptions> writerOptionsMonitor;
+    private readonly IOptionsMonitor<ObservabilityLayoutSkeletonOptions> layoutSkeletonOptionsMonitor;
 
     public ObservabilityLayoutSkeleton(
-        IOptionsMonitor<ObservabilityTextWriterOptions> writerOptionsMonitor
+        IOptionsMonitor<ObservabilityLayoutSkeletonOptions> layoutSkeletonOptionsMonitor
     )
     {
-        this.writerOptionsMonitor = writerOptionsMonitor;
+        this.layoutSkeletonOptionsMonitor = layoutSkeletonOptionsMonitor;
     }
 
     public override void ActivateOptions() { }
 
     public override void Format(TextWriter writer, LoggingEvent loggingEvent)
     {
-        IObservabilityTextWriterOptions writerOptions = writerOptionsMonitor.CurrentValue;
+        IObservabilityTextWritingOptions textWritingOptions = layoutSkeletonOptionsMonitor.CurrentValue;
         ObservabilityLoggingEvent myLoggingEvent = (ObservabilityLoggingEvent)loggingEvent;
 
         ObservabilityTextWriter.Write(
             writer,
-            writerOptions.UseUtcTimestamp ? loggingEvent.TimeStampUtc : loggingEvent.TimeStamp,
+            textWritingOptions.UseUtcTimestamp ? loggingEvent.TimeStampUtc : loggingEvent.TimeStamp,
             TranslateLogLevel(loggingEvent.Level),
             myLoggingEvent.LoggerName,
             myLoggingEvent.RenderedMessage,
             loggingEvent.ExceptionObject,
             myLoggingEvent.IsActivity,
             myLoggingEvent.Duration,
-            writerOptions
+            textWritingOptions.GetLineDescriptor(null)
         );
     }
 

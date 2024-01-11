@@ -4,9 +4,9 @@ public sealed class CategoryToken : ILineToken
 {
     public int? Length { get; set; }
 
-    public void Apply(ref LineDescriptor lineDescriptor)
+    public void Apply(ref MutableLineDescriptor lineDescriptor)
     {
-        lineDescriptor.CustomAppenders.Add(new CategoryAppender(Length));
+        lineDescriptor.Appenders.Add(new CategoryAppender(Length));
     }
 
     internal static ILineToken Parse(ReadOnlySpan<char> tokenSpan)

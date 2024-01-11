@@ -4,9 +4,9 @@ public sealed class DepthToken : ILineToken
 {
     public int? MaxIndented { get; set; }
 
-    public void Apply(ref LineDescriptor lineDescriptor)
+    public void Apply(ref MutableLineDescriptor lineDescriptor)
     {
-        lineDescriptor.CustomAppenders.Add(DepthAppender.Instance);
+        lineDescriptor.Appenders.Add(DepthAppender.Instance);
         lineDescriptor.MaxIndentedDepth = MaxIndented;
     }
 

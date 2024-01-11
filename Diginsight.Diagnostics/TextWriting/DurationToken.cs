@@ -6,8 +6,8 @@ public sealed class DurationToken : ILineToken
 
     private DurationToken() { }
 
-    public void Apply(ref LineDescriptor lineDescriptor)
+    public void Apply(ref MutableLineDescriptor lineDescriptor)
     {
-        lineDescriptor.CustomAppenders.Add(DurationAppender.Instance);
+        lineDescriptor.Appenders.Add(DurationAppender.Instance);
     }
 }

@@ -1,5 +1,4 @@
-﻿using Diginsight.Diagnostics.TextWriting;
-using log4net.Appender;
+﻿using log4net.Appender;
 using log4net.Config;
 using log4net.Layout;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,19 +12,26 @@ public static class DependencyInjectionExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ILoggingBuilder AddObservabilityLog4Net(
-        this ILoggingBuilder loggingBuilder, IEnumerable<Func<AppenderSkeleton>> appenderFactories
+        this ILoggingBuilder loggingBuilder,
+        IEnumerable<Func<AppenderSkeleton>> appenderFactories,
+        Action<ObservabilityLayoutSkeletonOptions>? configureLayoutSkeletonOptions = null
     )
     {
         loggingBuilder.AddObservability();
 
         IServiceCollection services = loggingBuilder.Services;
 
+        if (configureLayoutSkeletonOptions is not null)
+        {
+            services.Configure(configureLayoutSkeletonOptions);
+        }
+
         ServiceDescriptor descriptor = ServiceDescriptor.Singleton<ILoggerProvider>(
             sp =>
             {
-                IOptionsMonitor<ObservabilityTextWriterOptions> writerOptionsMonitor =
-                    sp.GetRequiredService<IOptionsMonitor<ObservabilityTextWriterOptions>>();
-                ILayout layout = new ObservabilityLayoutSkeleton(writerOptionsMonitor);
+                IOptionsMonitor<ObservabilityLayoutSkeletonOptions> layoutSkeletonOptionsMonitor =
+                    sp.GetRequiredService<IOptionsMonitor<ObservabilityLayoutSkeletonOptions>>();
+                ILayout layout = new ObservabilityLayoutSkeleton(layoutSkeletonOptionsMonitor);
 
                 BasicConfigurator.Configure(
                     appenderFactories

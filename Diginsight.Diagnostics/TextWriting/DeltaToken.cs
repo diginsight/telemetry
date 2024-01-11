@@ -6,8 +6,8 @@ public sealed class DeltaToken : ILineToken
 
     private DeltaToken() { }
 
-    public void Apply(ref LineDescriptor lineDescriptor)
+    public void Apply(ref MutableLineDescriptor lineDescriptor)
     {
-        lineDescriptor.CustomAppenders.Add(DeltaAppender.Instance);
+        lineDescriptor.Appenders.Add(DeltaAppender.Instance);
     }
 }

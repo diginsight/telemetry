@@ -2,5 +2,5 @@
 
 public interface ILineToken
 {
-    void Apply(ref LineDescriptor lineDescriptor);
+    void Apply(ref MutableLineDescriptor lineDescriptor);
 }
