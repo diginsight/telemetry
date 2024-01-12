@@ -1,6 +1,7 @@
 ﻿using log4net.Appender;
 using log4net.Config;
 using log4net.Layout;
+using log4net.Repository;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -13,7 +14,18 @@ public static class DependencyInjectionExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ILoggingBuilder AddObservabilityLog4Net(
         this ILoggingBuilder loggingBuilder,
+        Func<AppenderSkeleton> appenderFactory,
+        ILoggerRepository? loggerRepository = null,
+        Action<ObservabilityLayoutSkeletonOptions>? configureLayoutSkeletonOptions = null
+    )
+    {
+        return loggingBuilder.AddObservabilityLog4Net([ appenderFactory ], loggerRepository, configureLayoutSkeletonOptions);
+    }
+
+    public static ILoggingBuilder AddObservabilityLog4Net(
+        this ILoggingBuilder loggingBuilder,
         IEnumerable<Func<AppenderSkeleton>> appenderFactories,
+        ILoggerRepository? loggerRepository = null,
         Action<ObservabilityLayoutSkeletonOptions>? configureLayoutSkeletonOptions = null
     )
     {
@@ -33,18 +45,25 @@ public static class DependencyInjectionExtensions
                     sp.GetRequiredService<IOptionsMonitor<ObservabilityLayoutSkeletonOptions>>();
                 ILayout layout = new ObservabilityLayoutSkeleton(layoutSkeletonOptionsMonitor);
 
-                BasicConfigurator.Configure(
-                    appenderFactories
-                        .Select(
-                            appenderFactory =>
-                            {
-                                AppenderSkeleton appender = appenderFactory();
-                                appender.Layout = layout;
-                                return appender;
-                            }
-                        )
-                        .ToArray<IAppender>()
-                );
+                IAppender[] appenders = appenderFactories
+                    .Select(
+                        appenderFactory =>
+                        {
+                            AppenderSkeleton appender = appenderFactory();
+                            appender.Layout = layout;
+                            return appender;
+                        }
+                    )
+                    .ToArray<IAppender>();
+
+                if (loggerRepository is not null)
+                {
+                    BasicConfigurator.Configure(loggerRepository, appenders);
+                }
+                else
+                {
+                    BasicConfigurator.Configure(appenders);
+                }
 
                 Log4NetProviderOptions providerOptions = new ()
                 {
