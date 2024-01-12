@@ -60,7 +60,9 @@ public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptio
                         lineTokensCache = (Pattern, Patterns.Count) switch
                         {
                             (not null, > 0) => throw new InvalidOperationException($"Cannot specify both {nameof(Pattern)} and {nameof(Patterns)}"),
-                            (null, > 0) => Patterns.Keys
+                            (null, > 0) => Patterns
+                                .Where(static x => x.Value is not null)
+                                .Select(static x => x.Key)
                                 .Select(static x => int.TryParse(x, out int n) && n > 0 ? n : throw new InvalidOperationException("Pattern keys must be positive integers"))
                                 .ToDictionary(static n => n, static _ => (IEnumerable<ILineToken>?)null),
                             _ => new Dictionary<int, IEnumerable<ILineToken>?>() { [1] = null },
@@ -77,7 +79,7 @@ public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptio
 
                     if (lineTokensCache[targetWidth] is not { } lineTokens)
                     {
-                        string? selectedPattern = Patterns.Any() ? Patterns[targetWidth.ToStringInvariant()] : Pattern;
+                        string? selectedPattern = Patterns.Any() ? Patterns[targetWidth.ToStringInvariant()].HardTrim() : Pattern;
                         lineTokensCache[targetWidth] = lineTokens = LineDescriptor.Parse(selectedPattern);
                     }
 
@@ -131,7 +133,7 @@ public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptio
             {
                 lock (owner.lockObj)
                 {
-                    underlying[key] = value.HardTrim();
+                    underlying[key] = value;
                     owner.ResetCaches();
                 }
             }
@@ -150,7 +152,7 @@ public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptio
         {
             lock (owner.lockObj)
             {
-                underlying.Add(new KeyValuePair<string, string?>(item.Key, item.Value.HardTrim()));
+                underlying.Add(item);
                 owner.ResetCaches();
             }
         }
@@ -182,7 +184,7 @@ public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptio
         {
             lock (owner.lockObj)
             {
-                underlying.Add(key, value.HardTrim());
+                underlying.Add(key, value);
                 owner.ResetCaches();
             }
         }
