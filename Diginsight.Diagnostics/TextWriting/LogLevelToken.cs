@@ -22,7 +22,7 @@ public sealed class LogLevelToken : ILineToken
         {
             length = null;
         }
-        else if (tokenSpan[0] == ';')
+        else if (tokenSpan[0] == '|')
         {
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             ReadOnlySpan<char> src = tokenSpan[1..];
@@ -35,7 +35,7 @@ public sealed class LogLevelToken : ILineToken
         }
         else
         {
-            throw new FormatException("Expected ';' or nothing");
+            throw new FormatException("Expected '|' or nothing");
         }
 
         return new LogLevelToken() { length = length };

@@ -23,14 +23,14 @@ public sealed class MessageToken : ILineToken
         }
         else
         {
-            if (tokenSpan[0] != ';')
+            if (tokenSpan[0] != '|')
             {
-                throw new FormatException("Expected ';' or nothing");
+                throw new FormatException("Expected '|' or nothing");
             }
 
             tokenSpan = tokenSpan[1..];
-            int semicolonIndex = tokenSpan.IndexOf(';');
-            if (semicolonIndex < 0)
+            int separatorIndex = tokenSpan.IndexOf('|');
+            if (separatorIndex < 0)
             {
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                 ReadOnlySpan<char> src = tokenSpan;
@@ -43,16 +43,16 @@ public sealed class MessageToken : ILineToken
             else
             {
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                ReadOnlySpan<char> src1 = tokenSpan[..semicolonIndex];
+                ReadOnlySpan<char> src1 = tokenSpan[..separatorIndex];
 #else
-                string src1 = tokenSpan[..semicolonIndex].ToString();
+                string src1 = tokenSpan[..separatorIndex].ToString();
 #endif
                 maxMessageLength = src1.Length == 0 ? 0 : int.TryParse(src1, out int tmp1) ? tmp1 : throw new FormatException("Expected integer");
 
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                ReadOnlySpan<char> src2 = tokenSpan[(semicolonIndex + 1)..];
+                ReadOnlySpan<char> src2 = tokenSpan[(separatorIndex + 1)..];
 #else
-                string src2 = tokenSpan[(semicolonIndex + 1)..].ToString();
+                string src2 = tokenSpan[(separatorIndex + 1)..].ToString();
 #endif
                 maxLineLength = int.TryParse(src2, out int tmp2) ? tmp2 : throw new FormatException("Expected integer");
             }

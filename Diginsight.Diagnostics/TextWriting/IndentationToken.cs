@@ -1,20 +1,20 @@
 ﻿namespace Diginsight.Diagnostics.TextWriting;
 
-public sealed class CategoryToken : ILineToken
+public sealed class IndentationToken : ILineToken
 {
-    public int? Length { get; set; }
+    public int? MaxDepth { get; set; }
 
     public void Apply(ref MutableLineDescriptor lineDescriptor)
     {
-        lineDescriptor.Appenders.Add(new CategoryAppender(Length));
+        lineDescriptor.MaxIndentedDepth = MaxDepth ?? 10;
     }
 
     internal static ILineToken Parse(ReadOnlySpan<char> tokenSpan)
     {
-        int? length;
+        int? maxDepth;
         if (tokenSpan.IsEmpty)
         {
-            length = null;
+            maxDepth = null;
         }
         else if (tokenSpan[0] == '|')
         {
@@ -23,13 +23,13 @@ public sealed class CategoryToken : ILineToken
 #else
             string src = tokenSpan[1..].ToString();
 #endif
-            length = int.TryParse(src, out int tmp) ? tmp : throw new FormatException("Expected integer");
+            maxDepth = int.TryParse(src, out int tmp) ? tmp : throw new FormatException("Expected integer");
         }
         else
         {
             throw new FormatException("Expected '|' or nothing");
         }
 
-        return new CategoryToken() { Length = length };
+        return new IndentationToken() { MaxDepth = maxDepth };
     }
 }

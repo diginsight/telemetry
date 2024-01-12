@@ -46,26 +46,26 @@ public sealed class TimestampToken : ILineToken
         }
         else
         {
-            if (tokenSpan[0] != ';')
+            if (tokenSpan[0] != '|')
             {
-                throw new FormatException("Expected ';' or nothing");
+                throw new FormatException("Expected '|' or nothing");
             }
 
             tokenSpan = tokenSpan[1..];
-            int semicolonIndex = tokenSpan.LastIndexOf(';');
-            if (semicolonIndex < 0)
+            int separatorIndex = tokenSpan.LastIndexOf('|');
+            if (separatorIndex < 0)
             {
                 format = tokenSpan.ToString();
                 culture = null;
             }
             else
             {
-                ReadOnlySpan<char> innerSpan = tokenSpan[..semicolonIndex];
+                ReadOnlySpan<char> innerSpan = tokenSpan[..separatorIndex];
                 format = innerSpan.IsEmpty ? null : innerSpan.ToString();
 
                 try
                 {
-                    culture = CultureInfo.GetCultureInfo(tokenSpan[(semicolonIndex + 1)..].ToString());
+                    culture = CultureInfo.GetCultureInfo(tokenSpan[(separatorIndex + 1)..].ToString());
                 }
                 catch (CultureNotFoundException exception)
                 {

@@ -19,7 +19,7 @@ internal sealed class TimestampAppender : IPrefixTokenAppender
 #else
         this.format =
 #endif
-            $"{{0:{format ?? "'['yyyy-MM-dd'T'HH:mm:ss.fff']'"}}}";
+            $"{{0:{format ?? "yyyy-MM-dd'T'HH:mm:ss.fff"}}}";
 #if NET8_0_OR_GREATER
         this.format = CompositeFormat.Parse(tmpFormat);
 #endif
