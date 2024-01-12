@@ -192,7 +192,7 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
 
         if (rawCollectionLength is int collectionLength)
         {
-            appendingContext.AppendDirect('(').AppendDirect(collectionLength.ToString(CultureInfo.InvariantCulture)).AppendDirect(')');
+            appendingContext.AppendDirect('(').AppendDirect(collectionLength.ToStringInvariant()).AppendDirect(')');
         }
     }
 

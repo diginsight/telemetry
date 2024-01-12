@@ -4,12 +4,32 @@ namespace Diginsight.Diagnostics.Log4Net;
 
 public sealed class ObservabilityLayoutSkeletonOptions : IObservabilityTextWritingOptions
 {
+    private string? pattern;
+    private LineDescriptor? lineDescriptor;
+
     public bool UseUtcTimestamp { get; set; } = true;
 
-    public string? Pattern { get; set; }
+    public string? Pattern
+    {
+        get => pattern;
+        set
+        {
+            if (pattern != value)
+            {
+                lineDescriptor = null;
+            }
+
+            pattern = value;
+        }
+    }
 
     public LineDescriptor GetLineDescriptor(int? width)
     {
-        return Pattern is not null ? LineDescriptor.ParseFull(Pattern) : default;
+        if (width <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(width), "Must be positive");
+        }
+
+        return lineDescriptor ??= Pattern is not null ? LineDescriptor.ParseFull(Pattern) : default;
     }
 }

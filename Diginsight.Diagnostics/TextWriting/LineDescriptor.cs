@@ -12,7 +12,7 @@ public readonly struct LineDescriptor
 
     private static readonly Histogram<double> ParseDuration = AutoObservabilityUtils.Meter.CreateHistogram<double>("diginsight.parse_line_pattern_duration", "ms");
 
-    public static readonly ILineToken[] DefaultLineTokens =
+    public static readonly IEnumerable<ILineToken> DefaultLineTokens =
     [
         new TimestampToken(),
         new CategoryToken(),
@@ -59,8 +59,13 @@ public readonly struct LineDescriptor
         return descriptor;
     }
 
-    public static IEnumerable<ILineToken> Parse(string pattern)
+    public static IEnumerable<ILineToken> Parse(string? pattern)
     {
+        if (pattern is null)
+        {
+            return DefaultLineTokens;
+        }
+
         Stopwatch stopwatch = Stopwatch.StartNew();
         bool success = true;
 
@@ -130,7 +135,7 @@ public readonly struct LineDescriptor
                 Type lineTokenType = lineToken.GetType();
                 if (lineTokens.Any(x => x.GetType() == lineTokenType))
                 {
-                    throw new FormatException("Duplicate token");
+                    throw new FormatException("Duplicated token");
                 }
 
                 lineTokens.Add(lineToken);
@@ -168,5 +173,8 @@ public readonly struct LineDescriptor
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static LineDescriptor ParseFull(string pattern) => new LineDescriptor(Parse(pattern));
+    public static LineDescriptor ParseFull(string? pattern)
+    {
+        return pattern is not null ? new LineDescriptor(Parse(pattern)) : default;
+    }
 }

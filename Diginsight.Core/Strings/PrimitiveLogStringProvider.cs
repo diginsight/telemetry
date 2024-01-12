@@ -39,7 +39,7 @@ internal sealed class PrimitiveLogStringProvider : ILogStringProvider
 
         public void AppendTo(AppendingContext appendingContext)
         {
-            appendingContext.AppendDirect(convertible.ToString(CultureInfo.InvariantCulture));
+            appendingContext.AppendDirect(convertible.ToStringInvariant());
         }
     }
 
