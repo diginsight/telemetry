@@ -34,6 +34,8 @@ public sealed class TimestampToken : ILineToken
         lineDescriptor.Appenders.Add(new TimestampAppender(Format, Culture));
     }
 
+    public ILineToken Clone() => new TimestampToken() { format = format, Culture = Culture };
+
     internal static ILineToken Parse(ReadOnlySpan<char> tokenSpan)
     {
         string? format;

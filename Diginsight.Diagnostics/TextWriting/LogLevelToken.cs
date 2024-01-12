@@ -15,6 +15,8 @@ public sealed class LogLevelToken : ILineToken
         lineDescriptor.Appenders.Add(LogLevelAppender.UnsafeFor(length));
     }
 
+    public ILineToken Clone() => new LogLevelToken() { length = length };
+
     internal static ILineToken Parse(ReadOnlySpan<char> tokenSpan)
     {
         int? length;

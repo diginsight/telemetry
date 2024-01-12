@@ -9,6 +9,8 @@ public sealed class IndentationToken : ILineToken
         lineDescriptor.MaxIndentedDepth = MaxDepth ?? 10;
     }
 
+    public ILineToken Clone() => new IndentationToken() { MaxDepth = MaxDepth };
+
     internal static ILineToken Parse(ReadOnlySpan<char> tokenSpan)
     {
         int? maxDepth;

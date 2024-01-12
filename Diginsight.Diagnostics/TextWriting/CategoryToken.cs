@@ -9,6 +9,8 @@ public sealed class CategoryToken : ILineToken
         lineDescriptor.Appenders.Add(new CategoryAppender(Length));
     }
 
+    public ILineToken Clone() => new CategoryToken() { Length = Length };
+
     internal static ILineToken Parse(ReadOnlySpan<char> tokenSpan)
     {
         int? length;

@@ -10,4 +10,6 @@ public sealed class DurationToken : ILineToken
     {
         lineDescriptor.Appenders.Add(DurationAppender.Instance);
     }
+
+    public ILineToken Clone() => this;
 }

@@ -10,4 +10,6 @@ public sealed class DeltaToken : ILineToken
     {
         lineDescriptor.Appenders.Add(DeltaAppender.Instance);
     }
+
+    public ILineToken Clone() => this;
 }

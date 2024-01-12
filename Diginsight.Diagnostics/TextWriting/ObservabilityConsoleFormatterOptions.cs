@@ -1,14 +1,16 @@
 ﻿using Microsoft.Extensions.Logging.Console;
 using System.Collections;
+using MaybeInt = System.ValueTuple<int?>;
 
 namespace Diginsight.Diagnostics.TextWriting;
 
 public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptions, IObservabilityTextWritingOptions
 {
     private readonly object lockObj = new ();
+    private readonly IDictionary<MaybeInt, LineDescriptor> descriptorCache = new Dictionary<MaybeInt, LineDescriptor>();
 
     private string? pattern;
-    private IDictionary<int, LineDescriptor?>? descriptorCache;
+    private IDictionary<int, IEnumerable<ILineToken>?>? lineTokensCache;
 
     public string? Pattern
     {
@@ -24,7 +26,7 @@ public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptio
             lock (lockObj)
             {
                 pattern = value;
-                descriptorCache = null;
+                ResetCaches();
             }
         }
     }
@@ -46,41 +48,70 @@ public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptio
 
         lock (lockObj)
         {
-            if (descriptorCache is null)
+            MaybeInt descriptorKey = new (width);
+            if (!descriptorCache.TryGetValue(descriptorKey, out LineDescriptor descriptor))
             {
-                descriptorCache = (Pattern, Patterns.Count) switch
-                {
-                    (not null, > 0) => throw new InvalidOperationException($"Cannot specify both {nameof(Pattern)} and {nameof(Patterns)}"),
-                    (null, > 0) => Patterns.Keys
-                        .Select(static x => int.TryParse(x, out int n) && n > 0 ? n : throw new InvalidOperationException("Pattern keys must be positive integers"))
-                        .ToDictionary(static n => n, static _ => (LineDescriptor?)null),
-                    _ => new Dictionary<int, LineDescriptor?>() { [1] = null },
-                };
+                descriptorCache[descriptorKey] = descriptor = MakeLineDescriptor();
 
-                if (!descriptorCache.ContainsKey(1))
+                LineDescriptor MakeLineDescriptor()
                 {
-                    throw new InvalidOperationException("Pattern keys must include '1'");
+                    if (lineTokensCache is null)
+                    {
+                        lineTokensCache = (Pattern, Patterns.Count) switch
+                        {
+                            (not null, > 0) => throw new InvalidOperationException($"Cannot specify both {nameof(Pattern)} and {nameof(Patterns)}"),
+                            (null, > 0) => Patterns.Keys
+                                .Select(static x => int.TryParse(x, out int n) && n > 0 ? n : throw new InvalidOperationException("Pattern keys must be positive integers"))
+                                .ToDictionary(static n => n, static _ => (IEnumerable<ILineToken>?)null),
+                            _ => new Dictionary<int, IEnumerable<ILineToken>?>() { [1] = null },
+                        };
+
+                        if (!lineTokensCache.ContainsKey(1))
+                        {
+                            throw new InvalidOperationException("Pattern keys must include '1'");
+                        }
+                    }
+
+                    int finalWidth = width ?? int.MaxValue;
+                    int targetWidth = lineTokensCache.Keys.Where(x => x <= finalWidth).Max();
+
+                    if (lineTokensCache[targetWidth] is not { } lineTokens)
+                    {
+                        string? selectedPattern = Patterns.Any() ? Patterns[targetWidth.ToStringInvariant()] : Pattern;
+                        lineTokensCache[targetWidth] = lineTokens = LineDescriptor.Parse(selectedPattern);
+                    }
+
+                    IList<ILineToken> finalLineTokens = new List<ILineToken>(lineTokens.Select(static x => x.Clone()));
+
+                    if (TimestampFormat is { } timestampFormat && lineTokens.OfType<TimestampToken>().FirstOrDefault() is { Format: null } timestampToken)
+                    {
+                        timestampToken.Format = timestampFormat;
+                    }
+
+                    if (width is { } maxLineLength)
+                    {
+                        if (finalLineTokens[^1] is MessageToken messageToken)
+                        {
+                            messageToken.MaxLineLength = maxLineLength;
+                        }
+                        else
+                        {
+                            finalLineTokens.Add(new MessageToken() { MaxLineLength = maxLineLength });
+                        }
+                    }
+
+                    return new LineDescriptor(finalLineTokens);
                 }
-            }
-
-            int finalWidth = width ?? int.MaxValue;
-            int targetWidth = descriptorCache.Keys.Where(x => x <= finalWidth).Max();
-
-            if (descriptorCache[targetWidth] is not { } descriptor)
-            {
-                string? selectedPattern = Patterns.Any() ? Patterns[targetWidth.ToStringInvariant()] : Pattern;
-                IEnumerable<ILineToken> lineTokens = LineDescriptor.Parse(selectedPattern).ToArray();
-
-                if (TimestampFormat is { } timestampFormat && lineTokens.OfType<TimestampToken>().FirstOrDefault() is { Format: null } timestampToken)
-                {
-                    timestampToken.Format = timestampFormat;
-                }
-
-                descriptorCache[targetWidth] = descriptor = new LineDescriptor(lineTokens);
             }
 
             return descriptor;
         }
+    }
+
+    private void ResetCaches()
+    {
+        lineTokensCache = null;
+        descriptorCache.Clear();
     }
 
     private sealed class PatternDictionary : IDictionary<string, string?>
@@ -101,7 +132,7 @@ public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptio
                 lock (owner.lockObj)
                 {
                     underlying[key] = value.HardTrim();
-                    owner.descriptorCache = null;
+                    owner.ResetCaches();
                 }
             }
         }
@@ -120,7 +151,7 @@ public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptio
             lock (owner.lockObj)
             {
                 underlying.Add(new KeyValuePair<string, string?>(item.Key, item.Value.HardTrim()));
-                owner.descriptorCache = null;
+                owner.ResetCaches();
             }
         }
 
@@ -129,7 +160,7 @@ public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptio
             lock (owner.lockObj)
             {
                 underlying.Clear();
-                owner.descriptorCache = null;
+                owner.ResetCaches();
             }
         }
 
@@ -142,7 +173,7 @@ public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptio
             lock (owner.lockObj)
             {
                 bool result = underlying.Remove(item);
-                owner.descriptorCache = null;
+                owner.ResetCaches();
                 return result;
             }
         }
@@ -152,7 +183,7 @@ public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptio
             lock (owner.lockObj)
             {
                 underlying.Add(key, value.HardTrim());
-                owner.descriptorCache = null;
+                owner.ResetCaches();
             }
         }
 
@@ -163,7 +194,7 @@ public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptio
             lock (owner.lockObj)
             {
                 bool result = underlying.Remove(key);
-                owner.descriptorCache = null;
+                owner.ResetCaches();
                 return result;
             }
         }

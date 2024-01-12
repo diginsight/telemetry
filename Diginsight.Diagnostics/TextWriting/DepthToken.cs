@@ -10,4 +10,6 @@ public sealed class DepthToken : ILineToken
     {
         lineDescriptor.Appenders.Add(DepthAppender.Instance);
     }
+
+    public ILineToken Clone() => this;
 }

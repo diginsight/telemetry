@@ -10,4 +10,6 @@ public sealed class TraceIdToken : ILineToken
     {
         lineDescriptor.Appenders.Add(TraceIdAppender.Instance);
     }
+
+    public ILineToken Clone() => this;
 }

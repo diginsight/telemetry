@@ -11,6 +11,8 @@ public sealed class MessageToken : ILineToken
         lineDescriptor.MaxLineLength = MaxLineLength;
     }
 
+    public ILineToken Clone() => new MessageToken() { MaxMessageLength = MaxMessageLength, MaxLineLength = MaxLineLength };
+
     internal static ILineToken Parse(ReadOnlySpan<char> tokenSpan)
     {
         int? maxMessageLength;
@@ -18,8 +20,8 @@ public sealed class MessageToken : ILineToken
 
         if (tokenSpan.IsEmpty)
         {
-            maxMessageLength = 0;
-            maxLineLength = 0;
+            maxMessageLength = null;
+            maxLineLength = null;
         }
         else
         {
@@ -38,7 +40,7 @@ public sealed class MessageToken : ILineToken
                 string src = tokenSpan.ToString();
 #endif
                 maxMessageLength = int.TryParse(src, out int tmp) ? tmp : throw new FormatException("Expected integer");
-                maxLineLength = 0;
+                maxLineLength = null;
             }
             else
             {
@@ -47,7 +49,7 @@ public sealed class MessageToken : ILineToken
 #else
                 string src1 = tokenSpan[..separatorIndex].ToString();
 #endif
-                maxMessageLength = src1.Length == 0 ? 0 : int.TryParse(src1, out int tmp1) ? tmp1 : throw new FormatException("Expected integer");
+                maxMessageLength = src1.Length == 0 ? null : int.TryParse(src1, out int tmp1) ? tmp1 : throw new FormatException("Expected integer");
 
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                 ReadOnlySpan<char> src2 = tokenSpan[(separatorIndex + 1)..];

@@ -6,6 +6,10 @@ namespace Diginsight.Diagnostics.TextWriting;
 
 public readonly struct LineDescriptor
 {
+    private const string MessageThenNothingErrMsg = "'Message' token must be followed by nothing";
+    private const string DuplicatedTokenErrMsg = "Duplicated token";
+    private const string IndentationBeforeMessageErrMsg = "'Indentation' token can be followed only by 'Message' token";
+
     private static readonly Histogram<double> ParseDuration = AutoObservabilityUtils.Meter.CreateHistogram<double>("diginsight.parse_line_pattern_duration", "ms");
 
     public static readonly IEnumerable<ILineToken> DefaultLineTokens =
@@ -34,7 +38,46 @@ public readonly struct LineDescriptor
     public int MaxLineLength { get; }
 
     public LineDescriptor(IEnumerable<ILineToken> lineTokens)
+        : this(lineTokens.ToArray(), true) { }
+
+    private LineDescriptor(IEnumerable<ILineToken> lineTokens, bool validate)
     {
+        if (validate)
+        {
+            ILineToken[] lineTokenArray = lineTokens.ToArray();
+            int count = lineTokenArray.Length;
+            if (count != lineTokens.Select(static x => x.GetType()).Count())
+            {
+                throw new ArgumentException(DuplicatedTokenErrMsg);
+            }
+
+            int indentationIndex = -1;
+            int messageIndex = count;
+            for (var i = 0; i < count; i++)
+            {
+                switch (lineTokenArray[i])
+                {
+                    case IndentationToken:
+                        indentationIndex = i;
+                        break;
+
+                    case MessageToken:
+                        messageIndex = i;
+                        break;
+                }
+            }
+
+            if (messageIndex < count - 1)
+            {
+                throw new ArgumentException(MessageThenNothingErrMsg);
+            }
+
+            if (indentationIndex >= 0 && indentationIndex != messageIndex - 1)
+            {
+                throw new ArgumentException(IndentationBeforeMessageErrMsg);
+            }
+        }
+
         MutableLineDescriptor descriptor = Apply(lineTokens);
 
         appenders = descriptor.Appenders;
@@ -55,17 +98,23 @@ public readonly struct LineDescriptor
 
     public static IEnumerable<ILineToken> Parse(string? pattern)
     {
-        if (pattern is null)
-        {
-            return DefaultLineTokens;
-        }
+        return pattern is not null ? ParseCore(pattern) : DefaultLineTokens;
+    }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static LineDescriptor ParseFull(string? pattern)
+    {
+        return pattern is not null ? new LineDescriptor(ParseCore(pattern), false) : default;
+    }
+
+    private static IEnumerable<ILineToken> ParseCore(string pattern)
+    {
         Stopwatch stopwatch = Stopwatch.StartNew();
         bool success = true;
 
         try
         {
-            ICollection<ILineToken> lineTokens = new List<ILineToken>();
+            IList<ILineToken> lineTokens = new List<ILineToken>();
             bool lastWasIndentation = false;
 
             ReadOnlySpan<char> patternSpan = pattern.AsSpan();
@@ -89,7 +138,7 @@ public readonly struct LineDescriptor
                 {
                     if (lastWasIndentation)
                     {
-                        throw new FormatException("'Indentation' token can be followed only by 'Message' token");
+                        throw new FormatException(IndentationBeforeMessageErrMsg);
                     }
                 }
 
@@ -152,7 +201,7 @@ public readonly struct LineDescriptor
                 Type lineTokenType = lineToken.GetType();
                 if (lineTokens.Any(x => x.GetType() == lineTokenType))
                 {
-                    throw new FormatException("Duplicated token");
+                    throw new FormatException(DuplicatedTokenErrMsg);
                 }
 
                 lineTokens.Add(lineToken);
@@ -165,7 +214,7 @@ public readonly struct LineDescriptor
 
                 if (lineToken is MessageToken)
                 {
-                    throw new FormatException("'Message' token must be followed by nothing");
+                    throw new FormatException(MessageThenNothingErrMsg);
                 }
 
                 if (patternSpan[0] != ' ')
@@ -187,11 +236,5 @@ public readonly struct LineDescriptor
         {
             ParseDuration.Record(stopwatch.Elapsed.TotalMilliseconds, new Tag("status", success));
         }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static LineDescriptor ParseFull(string? pattern)
-    {
-        return pattern is not null ? new LineDescriptor(Parse(pattern)) : default;
     }
 }
