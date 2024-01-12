@@ -83,14 +83,14 @@ public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptio
 
                     IList<ILineToken> finalLineTokens = new List<ILineToken>(lineTokens.Select(static x => x.Clone()));
 
-                    if (TimestampFormat is { } timestampFormat && lineTokens.OfType<TimestampToken>().FirstOrDefault() is { Format: null } timestampToken)
+                    if (TimestampFormat is { } timestampFormat && finalLineTokens.OfType<TimestampToken>().FirstOrDefault() is { Format: null } timestampToken)
                     {
                         timestampToken.Format = timestampFormat;
                     }
 
                     if (width is { } maxLineLength)
                     {
-                        if (finalLineTokens[^1] is MessageToken messageToken)
+                        if (finalLineTokens is [ .., MessageToken messageToken ])
                         {
                             messageToken.MaxLineLength = maxLineLength;
                         }

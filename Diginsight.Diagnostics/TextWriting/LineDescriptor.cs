@@ -12,7 +12,7 @@ public readonly struct LineDescriptor
 
     private static readonly Histogram<double> ParseDuration = AutoObservabilityUtils.Meter.CreateHistogram<double>("diginsight.parse_line_pattern_duration", "ms");
 
-    public static readonly IEnumerable<ILineToken> DefaultLineTokens =
+    private static readonly IEnumerable<ILineToken> DefaultLineTokensCore =
     [
         new TimestampToken(),
         new CategoryToken(),
@@ -25,7 +25,9 @@ public readonly struct LineDescriptor
         new MessageToken(),
     ];
 
-    private static readonly IEnumerable<IPrefixTokenAppender> DefaultAppenders = Apply(DefaultLineTokens).Appenders;
+    private static readonly IEnumerable<IPrefixTokenAppender> DefaultAppenders = Apply(DefaultLineTokensCore).Appenders;
+
+    public static IEnumerable<ILineToken> DefaultLineTokens => DefaultLineTokensCore.Select(static x => x.Clone());
 
     private readonly IEnumerable<IPrefixTokenAppender>? appenders;
 
@@ -46,7 +48,13 @@ public readonly struct LineDescriptor
         {
             ILineToken[] lineTokenArray = lineTokens.ToArray();
             int count = lineTokenArray.Length;
-            if (count != lineTokens.Select(static x => x.GetType()).Count())
+
+            if (count == 0)
+            {
+                throw new ArgumentException("No tokens");
+            }
+
+            if (count != lineTokens.Select(static x => x.GetType()).Distinct().Count())
             {
                 throw new ArgumentException(DuplicatedTokenErrMsg);
             }
@@ -120,7 +128,7 @@ public readonly struct LineDescriptor
             ReadOnlySpan<char> patternSpan = pattern.AsSpan();
             while (true)
             {
-                if (patternSpan[0] != '{')
+                if (patternSpan.IsEmpty || patternSpan[0] != '{')
                 {
                     throw new FormatException("Expected '{'");
                 }
