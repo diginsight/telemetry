@@ -6,7 +6,28 @@ namespace Diginsight.Diagnostics.TextWriting;
 public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptions, IObservabilityTextWritingOptions
 {
     private readonly object lockObj = new ();
+
+    private string? pattern;
     private IDictionary<int, LineDescriptor?>? descriptorCache;
+
+    public string? Pattern
+    {
+        get => pattern;
+        set
+        {
+            value = value.HardTrim();
+            if (pattern == value)
+            {
+                return;
+            }
+
+            lock (lockObj)
+            {
+                pattern = value;
+                descriptorCache = null;
+            }
+        }
+    }
 
     public IDictionary<string, string?> Patterns { get; }
 
@@ -25,16 +46,31 @@ public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptio
 
         lock (lockObj)
         {
-            descriptorCache ??= Patterns.Keys
-                .Select(static x => int.TryParse(x, out int n) && n > 0 ? n : throw new InvalidOperationException("Pattern keys must be positive integers"))
-                .ToDictionary(static n => n, static _ => (LineDescriptor?)null);
+            if (descriptorCache is null)
+            {
+                descriptorCache = (Pattern, Patterns.Count) switch
+                {
+                    (not null, > 0) => throw new InvalidOperationException($"Cannot specify both {nameof(Pattern)} and {nameof(Patterns)}"),
+                    (null, > 0) => Patterns.Keys
+                        .Select(static x => int.TryParse(x, out int n) && n > 0 ? n : throw new InvalidOperationException("Pattern keys must be positive integers"))
+                        .ToDictionary(static n => n, static _ => (LineDescriptor?)null),
+                    _ => new Dictionary<int, LineDescriptor?>() { [1] = null },
+                };
+
+                if (!descriptorCache.ContainsKey(1))
+                {
+                    throw new InvalidOperationException("Pattern keys must include '1'");
+                }
+            }
 
             int finalWidth = width ?? int.MaxValue;
             int targetWidth = descriptorCache.Keys.Where(x => x <= finalWidth).Max();
 
             if (descriptorCache[targetWidth] is not { } descriptor)
             {
-                IEnumerable<ILineToken> lineTokens = LineDescriptor.Parse(Patterns[targetWidth.ToStringInvariant()]).ToArray();
+                string? selectedPattern = Patterns.Any() ? Patterns[targetWidth.ToStringInvariant()] : Pattern;
+                IEnumerable<ILineToken> lineTokens = LineDescriptor.Parse(selectedPattern).ToArray();
+
                 if (TimestampFormat is { } timestampFormat && lineTokens.OfType<TimestampToken>().FirstOrDefault() is { Format: null } timestampToken)
                 {
                     timestampToken.Format = timestampFormat;
@@ -62,8 +98,11 @@ public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptio
             get => underlying[key];
             set
             {
-                underlying[key] = value;
-                owner.descriptorCache = null;
+                lock (owner.lockObj)
+                {
+                    underlying[key] = value.HardTrim();
+                    owner.descriptorCache = null;
+                }
             }
         }
 
@@ -78,14 +117,20 @@ public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptio
 
         public void Add(KeyValuePair<string, string?> item)
         {
-            underlying.Add(item);
-            owner.descriptorCache = null;
+            lock (owner.lockObj)
+            {
+                underlying.Add(new KeyValuePair<string, string?>(item.Key, item.Value.HardTrim()));
+                owner.descriptorCache = null;
+            }
         }
 
         public void Clear()
         {
-            underlying.Clear();
-            owner.descriptorCache = null;
+            lock (owner.lockObj)
+            {
+                underlying.Clear();
+                owner.descriptorCache = null;
+            }
         }
 
         public bool Contains(KeyValuePair<string, string?> item) => underlying.Contains(item);
@@ -94,24 +139,33 @@ public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptio
 
         public bool Remove(KeyValuePair<string, string?> item)
         {
-            bool result = underlying.Remove(item);
-            owner.descriptorCache = null;
-            return result;
+            lock (owner.lockObj)
+            {
+                bool result = underlying.Remove(item);
+                owner.descriptorCache = null;
+                return result;
+            }
         }
 
         public void Add(string key, string? value)
         {
-            underlying.Add(key, value);
-            owner.descriptorCache = null;
+            lock (owner.lockObj)
+            {
+                underlying.Add(key, value.HardTrim());
+                owner.descriptorCache = null;
+            }
         }
 
         public bool ContainsKey(string key) => underlying.ContainsKey(key);
 
         public bool Remove(string key)
         {
-            bool result = underlying.Remove(key);
-            owner.descriptorCache = null;
-            return result;
+            lock (owner.lockObj)
+            {
+                bool result = underlying.Remove(key);
+                owner.descriptorCache = null;
+                return result;
+            }
         }
 
         public bool TryGetValue(string key, out string? value) => underlying.TryGetValue(key, out value);

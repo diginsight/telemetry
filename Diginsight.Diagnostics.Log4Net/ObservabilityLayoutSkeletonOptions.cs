@@ -14,12 +14,14 @@ public sealed class ObservabilityLayoutSkeletonOptions : IObservabilityTextWriti
         get => pattern;
         set
         {
-            if (pattern != value)
+            value = value.HardTrim();
+            if (pattern == value)
             {
-                lineDescriptor = null;
+                return;
             }
 
             pattern = value;
+            lineDescriptor = null;
         }
     }
 

@@ -11,7 +11,25 @@ public static class ObservabilityTextWriter
 {
     private static readonly Histogram<double> WriteDuration = AutoObservabilityUtils.Meter.CreateHistogram<double>("diginsight.write_text_duration", "ms");
 
-    private static readonly IDictionary<(int, int, int, int), IMessageLineResizer> ResizerCache = new Dictionary<(int, int, int, int), IMessageLineResizer>();
+    private static readonly IDictionary<(int, int, int, int), IMessageLineResizer> ResizerCache =
+        new Dictionary<(int, int, int, int), IMessageLineResizer>(ResizerKeyEqualityComparer.Instance);
+
+    private sealed class ResizerKeyEqualityComparer : IEqualityComparer<(int, int, int, int)>
+    {
+        public static readonly IEqualityComparer<(int, int, int, int)> Instance = new ResizerKeyEqualityComparer();
+
+        private ResizerKeyEqualityComparer() { }
+
+        public bool Equals((int, int, int, int) x, (int, int, int, int) y)
+        {
+            return x is (0, 0, _, _) && y is (0, 0, _, _) || x.Equals(y);
+        }
+
+        public int GetHashCode((int, int, int, int) obj)
+        {
+            return (obj is (0, 0, _, _) ? (0, 0, 0, 0) : obj).GetHashCode();
+        }
+    }
 
     public static void Write(
         TextWriter textWriter,
@@ -74,7 +92,7 @@ public static class ObservabilityTextWriter
                         (0, 0) => null,
                         (0, _) => absMaxMessage - indentation,
                         (_, 0) => absMaxLine - prefix,
-                        _ => Math.Min(absMaxLine, prefix + absMaxMessage - indentation) - prefix,
+                        _ => Math.Min(absMaxMessage - indentation, absMaxLine - prefix),
                     };
 
                     return final0 is not { } final
