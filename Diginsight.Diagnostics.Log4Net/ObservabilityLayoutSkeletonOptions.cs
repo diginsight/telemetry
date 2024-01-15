@@ -32,6 +32,6 @@ public sealed class ObservabilityLayoutSkeletonOptions : IObservabilityTextWriti
             throw new ArgumentOutOfRangeException(nameof(width), "Must be positive");
         }
 
-        return lineDescriptor ??= Pattern is not null ? LineDescriptor.ParseFull(Pattern) : default;
+        return lineDescriptor ??= LineDescriptor.ParseFull(Pattern);
     }
 }
