@@ -54,9 +54,11 @@ internal class Program : BackgroundService
                     services
                         .AddLogging(
                             loggingBuilder =>
+                            {
                                 loggingBuilder
                                     .AddConfiguration(configuration.GetSection("Logging"))
-                                    .AddObservabilityConsole(configuration.GetSection("ObservabilityConsole").Bind)
+                                    .AddObservabilityConsole(configuration.GetSection("ObservabilityConsole").Bind);
+                            }
                         );
 
                     services.AddHostedService<Program>();

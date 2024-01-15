@@ -2,7 +2,7 @@
 
 public interface IObservabilityConsoleFormatterOptions
 {
-    string TimestampFormat { get; }
+    string? TimestampFormat { get; }
     bool UseUtcTimestamp { get; }
     string? Pattern { get; }
     IReadOnlyDictionary<string, string?> Patterns { get; }
