@@ -10,14 +10,17 @@ internal sealed class ObservabilityConsoleFormatter : ConsoleFormatter
 {
     public const string FormatterName = "observability";
 
-    private readonly IOptionsMonitor<ObservabilityConsoleFormatterOptions> formatterOptionsMonitor;
+    private readonly IConsoleLineDescriptorProvider lineDescriptorProvider;
+    private readonly IObservabilityConsoleFormatterOptions formatterOptions;
 
     public ObservabilityConsoleFormatter(
+        IConsoleLineDescriptorProvider lineDescriptorProvider,
         IOptionsMonitor<ObservabilityConsoleFormatterOptions> formatterOptionsMonitor
     )
         : base(FormatterName)
     {
-        this.formatterOptionsMonitor = formatterOptionsMonitor;
+        this.lineDescriptorProvider = lineDescriptorProvider;
+        formatterOptions = formatterOptionsMonitor.CurrentValue;
     }
 
     public override void Write<TState>(
@@ -45,8 +48,6 @@ internal sealed class ObservabilityConsoleFormatter : ConsoleFormatter
             duration = null;
         }
 
-        IObservabilityTextWritingOptions textWritingOptions = formatterOptionsMonitor.CurrentValue;
-
         int width;
         try
         {
@@ -59,14 +60,14 @@ internal sealed class ObservabilityConsoleFormatter : ConsoleFormatter
 
         ObservabilityTextWriter.Write(
             textWriter,
-            textWritingOptions.UseUtcTimestamp ? DateTime.UtcNow : DateTime.Now,
+            formatterOptions.UseUtcTimestamp ? DateTime.UtcNow : DateTime.Now,
             logEntry.LogLevel,
             logEntry.Category,
             logEntry.Formatter(state, logEntry.Exception),
             logEntry.Exception,
             isActivity,
             duration,
-            textWritingOptions.GetLineDescriptor(width)
+            lineDescriptorProvider.GetLineDescriptor(width)
         );
     }
 }

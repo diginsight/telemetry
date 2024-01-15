@@ -56,5 +56,7 @@ public readonly struct Log<#= logLevel #>InterpolatedStringHandler
     }
 }
 
-<# } #>
+<#
+    }
+#>
 #endif

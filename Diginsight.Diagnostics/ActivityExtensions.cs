@@ -103,8 +103,8 @@ public static class ActivityExtensions
         return namePattern.Split(StarSeparators, 3) switch
 #endif
         {
-            [_] => string.Equals(name, namePattern, StringComparison.OrdinalIgnoreCase),
-            [var startToken, var endToken] => (startToken, endToken) switch
+            [ _ ] => string.Equals(name, namePattern, StringComparison.OrdinalIgnoreCase),
+            [ var startToken, var endToken ] => (startToken, endToken) switch
             {
                 ("", "") => true,
                 ("", _) => name.EndsWith(endToken, StringComparison.OrdinalIgnoreCase),

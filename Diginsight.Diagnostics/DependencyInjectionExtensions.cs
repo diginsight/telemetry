@@ -83,6 +83,8 @@ public static class DependencyInjectionExtensions
 
         loggingBuilder.AddConsole(static consoleLoggerOptions => { consoleLoggerOptions.FormatterName = ObservabilityConsoleFormatter.FormatterName; });
 
+        loggingBuilder.Services.TryAddSingleton<IConsoleLineDescriptorProvider, ConsoleLineDescriptorProvider>();
+
         return loggingBuilder;
     }
 

@@ -3,8 +3,8 @@ using log4net.Config;
 using log4net.Layout;
 using log4net.Repository;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics.Log4Net;
@@ -33,6 +33,8 @@ public static class DependencyInjectionExtensions
 
         IServiceCollection services = loggingBuilder.Services;
 
+        services.TryAddSingleton<ILog4NetLineDescriptorProvider, Log4NetLineDescriptorProvider>();
+
         if (configureLayoutSkeletonOptions is not null)
         {
             services.Configure(configureLayoutSkeletonOptions);
@@ -41,9 +43,7 @@ public static class DependencyInjectionExtensions
         ServiceDescriptor descriptor = ServiceDescriptor.Singleton<ILoggerProvider>(
             sp =>
             {
-                IOptionsMonitor<ObservabilityLayoutSkeletonOptions> layoutSkeletonOptionsMonitor =
-                    sp.GetRequiredService<IOptionsMonitor<ObservabilityLayoutSkeletonOptions>>();
-                ILayout layout = new ObservabilityLayoutSkeleton(layoutSkeletonOptionsMonitor);
+                ILayout layout = ActivatorUtilities.CreateInstance<ObservabilityLayoutSkeleton>(sp);
 
                 IAppender[] appenders = appenderFactories
                     .Select(
