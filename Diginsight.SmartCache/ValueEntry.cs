@@ -7,8 +7,8 @@ public static class ValueEntry
     public static IValueEntry Create(object? data, Type type, DateTime creationDate)
     {
         return (IValueEntry)typeof(ValueEntry<>).MakeGenericType(type)
-            .GetConstructor([type, typeof(DateTime)])!
-            .Invoke([data, creationDate]);
+            .GetConstructor([ type, typeof(DateTime) ])!
+            .Invoke([ data, creationDate ]);
     }
 }
 

@@ -22,7 +22,8 @@ public static class SmartCacheSerialization
             },
             DateTimeZoneHandling = DateTimeZoneHandling.Local,
             DateParseHandling = DateParseHandling.DateTimeOffset,
-        });
+        }
+    );
 
     public static readonly Encoding Encoding = new UTF8Encoding(false);
 
@@ -134,7 +135,8 @@ public static class SmartCacheSerialization
             )+
             $
             """,
-            RegexOptions.IgnorePatternWhitespace);
+            RegexOptions.IgnorePatternWhitespace
+        );
 
         private static readonly Regex FullTypeRegex = new (
             """
@@ -155,7 +157,8 @@ public static class SmartCacheSerialization
             )?
             $
             """,
-            RegexOptions.IgnorePatternWhitespace);
+            RegexOptions.IgnorePatternWhitespace
+        );
 
         static MySerializationBinder()
         {
@@ -179,7 +182,8 @@ public static class SmartCacheSerialization
                         {
                             return (ValueTuple<string, Assembly>?)null;
                         }
-                    })
+                    }
+                )
                 .OfType<ValueTuple<string, Assembly>>();
 
             try
@@ -205,7 +209,8 @@ public static class SmartCacheSerialization
                         {
                             return Enumerable.Empty<Type>();
                         }
-                    })
+                    }
+                )
                 .Where(static t => t.IsDefined(typeof(CacheInterchangeNameAttribute)))
                 .Select(static t => (t.GetCustomAttribute<CacheInterchangeNameAttribute>()!.Name, t));
 

@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Reflection;
 
 namespace Diginsight.Strings;

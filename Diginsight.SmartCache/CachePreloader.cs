@@ -41,7 +41,7 @@ public sealed class CachePreloader : ICachePreloader
         DateTime timestamp = SmartCacheService.Truncate(DateTime.UtcNow);
 
         T value;
-        StrongBox<double> latencyMsecBox = new();
+        StrongBox<double> latencyMsecBox = new ();
         using (SmartCacheMetrics.Instruments.FetchDuration.StartLap(latencyMsecBox, SmartCacheMetrics.Tags.Type.Preload))
         {
             value = await fetchAsync();

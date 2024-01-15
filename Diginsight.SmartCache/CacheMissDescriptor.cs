@@ -27,10 +27,9 @@ public sealed class CacheMissDescriptor
         ICacheKey key,
         DateTime timestamp,
         string location,
-        (Type Type, object? Value)? valueTuple)
-        : this(emitter, key, timestamp, location, valueTuple?.Type, valueTuple?.Value)
-    {
-    }
+        (Type Type, object? Value)? valueTuple
+    )
+        : this(emitter, key, timestamp, location, valueTuple?.Type, valueTuple?.Value) { }
 
     [JsonConstructor]
     private CacheMissDescriptor(
@@ -39,7 +38,8 @@ public sealed class CacheMissDescriptor
         DateTime timestamp,
         string location,
         Type? valueType,
-        object? value)
+        object? value
+    )
     {
         Emitter = emitter;
         Key = key;

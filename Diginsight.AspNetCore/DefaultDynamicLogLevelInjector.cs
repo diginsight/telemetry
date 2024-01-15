@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using System.Text.RegularExpressions;
-#if NET6_0_OR_GREATER
+﻿#if NET6_0_OR_GREATER
 using Microsoft.Extensions.Hosting;
 #else
 using Microsoft.AspNetCore.Hosting;
 #endif
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System.Text.RegularExpressions;
 
 namespace Diginsight.AspNetCore;
 

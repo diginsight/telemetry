@@ -6,9 +6,7 @@ namespace Diginsight.SmartCache;
 public sealed record MethodCallCacheKey : ICacheKey
 {
     public MethodCallCacheKey(ICacheKeyService cacheKeyService, Type type, string methodName, params object?[]? arguments)
-        : this(type, methodName, cacheKeyService.Wrap(arguments ?? Array.Empty<object?>()))
-    {
-    }
+        : this(type, methodName, cacheKeyService.Wrap(arguments ?? Array.Empty<object?>())) { }
 
     [JsonConstructor]
     public MethodCallCacheKey(Type type, string methodName, ICacheKey arguments)
