@@ -1,4 +1,6 @@
-﻿namespace Diginsight.Diagnostics.TextWriting;
+﻿using Diginsight.Diagnostics.TextWriting;
+
+namespace Diginsight.Diagnostics;
 
 public interface IConsoleLineDescriptorProvider
 {
