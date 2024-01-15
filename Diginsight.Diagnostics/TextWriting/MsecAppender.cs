@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Diginsight.Diagnostics.TextWriting;
 
-internal abstract class MsecAppender : IPrefixTokenAppender
+public abstract class MsecAppender : IPrefixTokenAppender
 {
     public abstract void Append(StringBuilder sb, in LinePrefixData linePrefixData);
 

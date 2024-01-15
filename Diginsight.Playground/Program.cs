@@ -1,4 +1,5 @@
 ﻿using Diginsight.Diagnostics;
+using Diginsight.Diagnostics.TextWriting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using OpenTelemetry.Trace;
 using System.Diagnostics;
 using System.Net;
+using System.Text;
 
 namespace Diginsight.Playground;
 
@@ -29,15 +31,15 @@ internal class Program : BackgroundService
     {
         IHost host = new HostBuilder()
             .ConfigureAppConfiguration(
-                static (_, configurationBuilder) =>
-                {
-                    configurationBuilder.AddJsonFile("appsettings.json");
-                }
+                static (_, configurationBuilder) => { configurationBuilder.AddJsonFile("appsettings.json"); }
             )
             .ConfigureServices(
                 static (hostBuilderContext, services) =>
                 {
                     IConfiguration configuration = hostBuilderContext.Configuration;
+
+                    services
+                        .AddSingleton<ILineTokenParser>(new SimpleTokenParser("processid", ProcessIdToken.Instance));
 
                     services
                         .AddObservability()
@@ -98,5 +100,31 @@ internal class Program : BackgroundService
         applicationLifetime.StopApplication();
 
         return Task.CompletedTask;
+    }
+
+    private sealed class ProcessIdToken : ILineToken
+    {
+        public static readonly ILineToken Instance = new ProcessIdToken();
+
+        private ProcessIdToken() { }
+
+        public void Apply(ref MutableLineDescriptor lineDescriptor)
+        {
+            lineDescriptor.Appenders.Add(Appender.Instance);
+        }
+
+        public ILineToken Clone() => this;
+
+        private sealed class Appender : IPrefixTokenAppender
+        {
+            public static readonly IPrefixTokenAppender Instance = new Appender();
+
+            private Appender() { }
+
+            public void Append(StringBuilder sb, in LinePrefixData linePrefixData)
+            {
+                sb.Append($"{Process.GetCurrentProcess().Id,5}");
+            }
+        }
     }
 }
