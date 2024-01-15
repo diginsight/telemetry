@@ -25,13 +25,13 @@ public sealed class ObservabilityLayoutSkeletonOptions : IObservabilityTextWriti
         }
     }
 
-    public LineDescriptor GetLineDescriptor(int? width)
+    public LineDescriptor GetLineDescriptor(int? width, IEnumerable<ILineTokenParser>? customLineTokenParsers)
     {
         if (width <= 0)
         {
             throw new ArgumentOutOfRangeException(nameof(width), "Must be positive");
         }
 
-        return lineDescriptor ??= LineDescriptor.ParseFull(Pattern);
+        return lineDescriptor ??= new LineDescriptorParser(customLineTokenParsers ?? Enumerable.Empty<ILineTokenParser>()).ParseFull(Pattern);
     }
 }

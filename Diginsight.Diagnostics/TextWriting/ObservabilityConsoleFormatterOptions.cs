@@ -39,7 +39,7 @@ public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptio
         Patterns = new PatternDictionary(this);
     }
 
-    public LineDescriptor GetLineDescriptor(int? width)
+    public LineDescriptor GetLineDescriptor(int? width, IEnumerable<ILineTokenParser>? customLineTokenParsers)
     {
         if (width <= 0)
         {
@@ -80,7 +80,8 @@ public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptio
                     if (lineTokensCache[targetWidth] is not { } lineTokens)
                     {
                         string? selectedPattern = Patterns.Any() ? Patterns[targetWidth.ToStringInvariant()].HardTrim() : Pattern;
-                        lineTokensCache[targetWidth] = lineTokens = LineDescriptor.Parse(selectedPattern);
+                        lineTokensCache[targetWidth] = lineTokens =
+                            new LineDescriptorParser(customLineTokenParsers ?? Enumerable.Empty<ILineTokenParser>()).Parse(selectedPattern);
                     }
 
                     IList<ILineToken> finalLineTokens = new List<ILineToken>(lineTokens.Select(static x => x.Clone()));

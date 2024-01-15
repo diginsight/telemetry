@@ -4,5 +4,5 @@ public interface IObservabilityTextWritingOptions
 {
     bool UseUtcTimestamp { get; }
 
-    LineDescriptor GetLineDescriptor(int? width);
+    LineDescriptor GetLineDescriptor(int? width, IEnumerable<ILineTokenParser>? customLineTokenParsers = null);
 }
