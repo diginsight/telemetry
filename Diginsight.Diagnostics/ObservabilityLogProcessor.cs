@@ -286,7 +286,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
                 decoratee.Log(
                     logLevel,
                     eventId,
-                    new ActivityMark<TState>(state, duration),
+                    ActivityMark<TState>.For(state, duration),
                     exception,
                     (s, e) => formatter(s.State, e)
                 );
@@ -300,12 +300,14 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
             => throw new NotSupportedException();
     }
 
-    private sealed class ActivityMark<TState> : ObservabilityTextWriter.IActivityMark<TState>, Tags
+    private class ActivityMark<TState> : ObservabilityTextWriter.IActivityMark<TState>
     {
         public TState State { get; }
         public TimeSpan? Duration { get; }
 
+#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
         object? ObservabilityTextWriter.IActivityMark.State => State;
+#endif
 
         public ActivityMark(TState state, TimeSpan? duration)
         {
@@ -313,7 +315,21 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
             Duration = duration;
         }
 
-        public IEnumerator<Tag> GetEnumerator() => (State as Tags ?? Enumerable.Empty<Tag>()).GetEnumerator();
+        public static ObservabilityTextWriter.IActivityMark<TState> For(TState state, TimeSpan? duration)
+        {
+            return state is Tags
+                ? new ActivityMark<TState>(state, duration)
+                : (ActivityMark<TState>)typeof(TagsActivityMark<>).MakeGenericType(typeof(TState)).GetConstructors()[0].Invoke([ state, duration ]);
+        }
+    }
+
+    private sealed class TagsActivityMark<TState> : ActivityMark<TState>, Tags
+        where TState : Tags
+    {
+        public TagsActivityMark(TState state, TimeSpan? duration)
+            : base(state, duration) { }
+
+        public IEnumerator<Tag> GetEnumerator() => State.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }

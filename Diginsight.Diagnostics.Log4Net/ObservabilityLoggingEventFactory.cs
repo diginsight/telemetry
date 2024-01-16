@@ -8,11 +8,13 @@ namespace Diginsight.Diagnostics.Log4Net;
 
 internal sealed class ObservabilityLoggingEventFactory : ILog4NetLoggingEventFactory
 {
-    public static readonly ILog4NetLoggingEventFactory Instance = new ObservabilityLoggingEventFactory();
-
+    private readonly TimeProvider timeProvider;
     private readonly ILog4NetLoggingEventFactory decoratee = new Log4NetLoggingEventFactory();
 
-    private ObservabilityLoggingEventFactory() { }
+    public ObservabilityLoggingEventFactory(TimeProvider? timeProvider = null)
+    {
+        this.timeProvider = timeProvider ?? TimeProvider.System;
+    }
 
     public LoggingEvent? CreateLoggingEvent<TState>(
         in MessageCandidate<TState> messageCandidate,
@@ -33,19 +35,27 @@ internal sealed class ObservabilityLoggingEventFactory : ILog4NetLoggingEventFac
             return null;
         }
 
+        object? innerState;
         bool isActivity;
         TimeSpan? duration;
         if (state is ObservabilityTextWriter.IActivityMark activityMark)
         {
+            innerState = activityMark.State;
             isActivity = true;
             duration = activityMark.Duration;
         }
         else
         {
+            innerState = state;
             isActivity = false;
             duration = null;
         }
 
-        return new ObservabilityLoggingEvent(loggingEvent, isActivity, duration);
+        return new ObservabilityLoggingEvent(
+            loggingEvent,
+            isActivity,
+            duration,
+            innerState is DeferredLoggerFactory.ITimestamped timestamped ? timestamped.Timestamp : timeProvider.GetUtcNow()
+        );
     }
 }

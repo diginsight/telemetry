@@ -140,7 +140,7 @@ public sealed class SmartCacheService : ISmartCacheService
         else
         {
             using (memoryLap.Start())
-            using (SmartCacheMetrics.ActivitySource.StartActivity(logger, $"{nameof(SmartCacheService)}.GetFromMemory"))
+            using (SmartCacheMetrics.ActivitySource.StartRichActivity(logger, $"{nameof(SmartCacheService)}.GetFromMemory"))
             {
                 localEntry = memoryCache.Get<ValueEntry<TValue>?>(keyHolder.Key);
                 externalEntry = discardExternalMiss ? null : externalMissDictionary.Get(keyHolder.Key);
@@ -168,7 +168,7 @@ public sealed class SmartCacheService : ISmartCacheService
 
             logger.LogDebug("Fetched in {LatencyMsec} ms", latencyMsec);
 
-            using (SmartCacheMetrics.ActivitySource.StartActivity(logger, $"{nameof(SmartCacheService)}.SetValue"))
+            using (SmartCacheMetrics.ActivitySource.StartRichActivity(logger, $"{nameof(SmartCacheService)}.SetValue"))
             {
                 SetValue(keyHolder, value, timestamp, absExpiration, sldExpiration, discardExternalMiss);
                 return value;
@@ -467,7 +467,7 @@ public sealed class SmartCacheService : ISmartCacheService
 
         if (locationId is not null)
         {
-            using (SmartCacheMetrics.ActivitySource.StartActivity(logger, $"{nameof(SmartCacheService)}.SetMissValue"))
+            using (SmartCacheMetrics.ActivitySource.StartRichActivity(logger, $"{nameof(SmartCacheService)}.SetMissValue"))
             {
                 externalMissDictionary.Add(keyHolder.Key, creationDate, locationId);
             }
@@ -489,7 +489,7 @@ public sealed class SmartCacheService : ISmartCacheService
             using MemoryStream valueStream = new (valueBytes);
 #endif
 
-            using Activity? serializeActivity = SmartCacheMetrics.ActivitySource.StartActivity(logger, $"{nameof(SmartCacheService)}.Serialize");
+            using Activity? serializeActivity = SmartCacheMetrics.ActivitySource.StartRichActivity(logger, $"{nameof(SmartCacheService)}.Serialize");
             serializeActivity?.WithDurationMetric(
                 SmartCacheMetrics.Instruments.SerializationDuration.Underlying,
                 SmartCacheMetrics.Tags.Subject.Value,
@@ -638,7 +638,7 @@ public sealed class SmartCacheService : ISmartCacheService
             }
         }
 
-        using (SmartCacheMetrics.ActivitySource.StartActivity(logger, $"{nameof(SmartCacheService)}.Invalidate"))
+        using (SmartCacheMetrics.ActivitySource.StartRichActivity(logger, $"{nameof(SmartCacheService)}.Invalidate"))
         {
             CoreInvalidate(keys.Keys, memoryCache.Remove);
             CoreInvalidate(externalMissDictionary.Keys, k => RemoveExternalMiss(new CacheKeyHolder(k)));

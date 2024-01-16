@@ -122,7 +122,7 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
         RedisKey redisKey = keyHolder.GetAsBytes();
 
         byte[] rawEntry;
-        using (Activity? serializeActivity = SmartCacheMetrics.ActivitySource.StartActivity(logger, $"{nameof(SmartCacheService)}.Serialize"))
+        using (Activity? serializeActivity = SmartCacheMetrics.ActivitySource.StartRichActivity(logger, $"{nameof(SmartCacheService)}.Serialize"))
         {
             serializeActivity?.WithDurationMetric(
                 SmartCacheMetrics.Instruments.SerializationDuration.Underlying,

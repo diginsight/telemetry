@@ -67,7 +67,7 @@ public static class DependencyInjectionExtensions
 
                 Log4NetProviderOptions providerOptions = new ()
                 {
-                    LoggingEventFactory = ObservabilityLoggingEventFactory.Instance,
+                    LoggingEventFactory = ActivatorUtilities.CreateInstance<ObservabilityLoggingEventFactory>(sp),
                     UseWebOrAppConfig = false,
                     ExternalConfigurationSetup = true,
                 };

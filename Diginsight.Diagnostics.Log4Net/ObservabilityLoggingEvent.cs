@@ -8,17 +8,17 @@ internal sealed class ObservabilityLoggingEvent : LoggingEvent
 
     public TimeSpan? Duration { get; }
 
-    public ObservabilityLoggingEvent(LoggingEvent wrapped, bool isActivity, TimeSpan? duration)
-        : base(
-            typeof(Microsoft.Extensions.Logging.LoggerExtensions),
-            wrapped.Repository,
-            wrapped.LoggerName,
-            wrapped.Level,
-            wrapped.MessageObject,
-            wrapped.ExceptionObject
-        )
+    public ObservabilityLoggingEvent(LoggingEvent wrapped, bool isActivity, TimeSpan? duration, DateTimeOffset timestamp)
+        : base(TransformLoggingEventData(wrapped, timestamp))
     {
         IsActivity = isActivity;
         Duration = duration;
+    }
+
+    private static LoggingEventData TransformLoggingEventData(LoggingEvent loggingEvent, DateTimeOffset timestamp)
+    {
+        LoggingEventData data = loggingEvent.GetLoggingEventData(FixFlags.All);
+        data.TimeStampUtc = timestamp.UtcDateTime;
+        return data;
     }
 }

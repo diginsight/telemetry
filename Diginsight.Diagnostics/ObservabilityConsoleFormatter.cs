@@ -38,15 +38,18 @@ internal sealed class ObservabilityConsoleFormatter : ConsoleFormatter
             return;
         }
 
+        object? innerState;
         bool isActivity;
         TimeSpan? duration;
         if (state is ObservabilityTextWriter.IActivityMark activityMark)
         {
+            innerState = activityMark.State;
             isActivity = true;
             duration = activityMark.Duration;
         }
         else
         {
+            innerState = state;
             isActivity = false;
             duration = null;
         }
@@ -61,10 +64,14 @@ internal sealed class ObservabilityConsoleFormatter : ConsoleFormatter
             width = int.MaxValue;
         }
 
-        DateTimeOffset timestampDto = timeProvider.GetUtcNow();
+        DateTimeOffset timestampDto = innerState is DeferredLoggerFactory.ITimestamped timestamped
+            ? timestamped.Timestamp
+            : timeProvider.GetUtcNow();
+        DateTime timestampDt = formatterOptions.UseUtcTimestamp ? timestampDto.UtcDateTime : timestampDto.LocalDateTime;
+
         ObservabilityTextWriter.Write(
             textWriter,
-            formatterOptions.UseUtcTimestamp ? timestampDto.UtcDateTime : timestampDto.LocalDateTime,
+            timestampDt,
             logEntry.LogLevel,
             logEntry.Category,
             logEntry.Formatter(state, logEntry.Exception),

@@ -32,57 +32,58 @@ internal class Program : BackgroundService
         IDeferredLoggerFactory loggerFactory = new DeferredLoggerFactory();
         ILogger logger = loggerFactory.CreateLogger<Program>();
 
-        logger.LogDebug("Building host");
-        using IHost host = new HostBuilder()
-            .ConfigureAppConfiguration(
-                (_, configurationBuilder) =>
-                {
-                    logger.LogDebug("Configuring app configuration");
+        IHost host;
+        using (Activity mainActivity = ActivityUtils.StartStandaloneMethodActivity(logger))
+        {
+            logger.LogDebug("Building host");
 
-                    configurationBuilder.AddJsonFile("appsettings.json");
-                }
-            )
-            .ConfigureServices(
-                (hostBuilderContext, services) =>
-                {
-                    logger.LogDebug("Configuring services");
+            host = new HostBuilder()
+                .ConfigureAppConfiguration(
+                    (_, configurationBuilder) =>
+                    {
+                        logger.LogDebug("Configuring app configuration");
 
-                    IConfiguration configuration = hostBuilderContext.Configuration;
+                        configurationBuilder.AddJsonFile("appsettings.json");
+                    }
+                )
+                .ConfigureServices(
+                    (hostBuilderContext, services) =>
+                    {
+                        logger.LogDebug("Configuring services");
 
-                    services
-                        .AddSingleton<ILineTokenParser>(new SimpleTokenParser("processid", ProcessIdToken.Instance));
+                        IConfiguration configuration = hostBuilderContext.Configuration;
 
-                    services
-                        .AddObservability()
-                        .WithTracing(
-                            static tracerProviderBuilder => tracerProviderBuilder
-                                .AddObservability()
-                                .AddSource(ActivitySource.Name)
-                                .SetSampler(new AlwaysOnSampler())
-                                .AddConsoleExporter()
-                        );
+                        services
+                            .AddSingleton<ILineTokenParser>(new SimpleTokenParser("processid", ProcessIdToken.Instance));
 
-                    services
-                        .AddLogging(
-                            loggingBuilder =>
-                            {
-                                loggingBuilder
-                                    .AddConfiguration(configuration.GetSection("Logging"))
-                                    .AddObservabilityConsole(configuration.GetSection("ObservabilityConsole").Bind);
-                            }
-                        );
+                        services
+                            .AddObservability(configuration.GetSection("Observability").Bind)
+                            .WithTracing(
+                                static tracerProviderBuilder => tracerProviderBuilder
+                                    .AddObservability()
+                                    .AddSource(ActivitySource.Name)
+                            );
 
-                    services.AddHostedService<Program>();
-                }
-            )
-            .UseObservabilityServiceProvider((_, serviceProviderOptions) => { serviceProviderOptions.DeferredLoggerFactory = loggerFactory; })
-            .Build();
+                        services
+                            .AddLogging(
+                                loggingBuilder =>
+                                {
+                                    loggingBuilder
+                                        .AddConfiguration(configuration.GetSection("Logging"))
+                                        .AddObservabilityConsole(configuration.GetSection("Observability:Console").Bind);
+                                }
+                            );
 
-        logger.LogDebug("Starting host");
+                        services.AddHostedService<Program>();
+                    }
+                )
+                .UseObservabilityServiceProvider((_, serviceProviderOptions) => { serviceProviderOptions.DeferredLoggerFactory = loggerFactory; })
+                .Build();
 
-        host.Start();
+            logger.LogDebug("Starting host");
+        }
 
-        logger.LogDebug("Host stopped");
+        host.Run();
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)

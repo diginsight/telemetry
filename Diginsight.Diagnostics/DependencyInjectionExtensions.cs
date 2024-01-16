@@ -5,7 +5,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 #if !NET7_0_OR_GREATER
 using System.Reflection;
@@ -41,7 +44,14 @@ public static class DependencyInjectionExtensions
 
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<ObservabilityOptions>, ValidateObservabilityOptions>());
 
-        return services.AddOpenTelemetry();
+        return services
+            .AddOpenTelemetry()
+            .ConfigureResource(
+                static resourceBuilder =>
+                {
+                    resourceBuilder.AddService(Assembly.GetEntryAssembly()!.FullName, serviceInstanceId: Environment.MachineName);
+                }
+            );
     }
 
     private sealed class ValidateObservabilityOptions : IValidateOptions<ObservabilityOptions>

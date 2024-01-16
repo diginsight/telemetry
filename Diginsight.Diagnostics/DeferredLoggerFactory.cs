@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 
@@ -111,13 +112,13 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
                 else
                 {
                     StrongBox<IDisposable?> scopeBox = new ();
-                    owner.operations.Enqueue(new DeferredBeginScopeOperation<TState>(category, GetTimestamp(), state, scopeBox));
+                    owner.operations.Enqueue(new DeferredBeginScopeOperation<TState>(category, state, scopeBox));
                     return new CallbackDisposable(() => { owner.operations.Enqueue(new DeferredEndScopeOperation(scopeBox)); });
                 }
             }
         }
 
-        private DateTime GetTimestamp() => owner.timeProvider.GetUtcNow().UtcDateTime;
+        private DateTimeOffset GetTimestamp() => owner.timeProvider.GetUtcNow();
     }
 
     private abstract class DeferredOperation
@@ -128,7 +129,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
     private sealed class DeferredLogOperation<TState> : DeferredOperation
     {
         private readonly string category;
-        private readonly DateTime timestamp;
+        private readonly DateTimeOffset timestamp;
         private readonly LogLevel logLevel;
         private readonly EventId eventId;
         private readonly TState state;
@@ -137,7 +138,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
 
         public DeferredLogOperation(
             string category,
-            DateTime timestamp,
+            DateTimeOffset timestamp,
             LogLevel logLevel,
             EventId eventId,
             TState state,
@@ -156,27 +157,81 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
 
         public override void FlushTo(ILoggerFactory target)
         {
-            target.CreateLogger(category).Log(logLevel, eventId, state, exception, formatter);
+            target
+                .CreateLogger(category)
+                .Log(
+                    logLevel,
+                    eventId,
+                    Timestamped<TState>.For(state, timestamp),
+                    exception,
+                    (s, e) => formatter(s.State, e)
+                );
         }
+    }
+
+    public interface ITimestamped
+    {
+        object? State { get; }
+        DateTimeOffset Timestamp { get; }
+    }
+
+    public interface ITimestamped<out TState> : ITimestamped
+    {
+        new TState State { get; }
+
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        object? ITimestamped.State => State;
+#endif
+    }
+
+    private class Timestamped<TState> : ITimestamped<TState>
+    {
+        public TState State { get; }
+        public DateTimeOffset Timestamp { get; }
+
+#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+        object? ITimestamped.State => State;
+#endif
+
+        public Timestamped(TState state, DateTimeOffset timestamp)
+        {
+            State = state;
+            Timestamp = timestamp;
+        }
+
+        public static ITimestamped<TState> For(TState state, DateTimeOffset timestamp)
+        {
+            return state is Tags
+                ? new Timestamped<TState>(state, timestamp)
+                : (Timestamped<TState>)typeof(TagsTimestamped<>).MakeGenericType(typeof(TState)).GetConstructors()[0].Invoke([ state, timestamp ]);
+        }
+    }
+
+    private sealed class TagsTimestamped<TState> : Timestamped<TState>, Tags
+        where TState : Tags
+    {
+        public TagsTimestamped(TState state, DateTimeOffset timestamp)
+            : base(state, timestamp) { }
+
+        public IEnumerator<Tag> GetEnumerator() => State.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
     private sealed class DeferredBeginScopeOperation<TState> : DeferredOperation
         where TState : notnull
     {
         private readonly string category;
-        private readonly DateTime timestamp;
         private readonly TState state;
         private readonly StrongBox<IDisposable?> scopeBox;
 
         public DeferredBeginScopeOperation(
             string category,
-            DateTime timestamp,
             TState state,
             StrongBox<IDisposable?> scopeBox
         )
         {
             this.category = category;
-            this.timestamp = timestamp;
             this.state = state;
             this.scopeBox = scopeBox;
         }
