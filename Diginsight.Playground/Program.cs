@@ -30,7 +30,7 @@ internal class Program : BackgroundService
     private static void Main()
     {
         IDeferredLoggerFactory loggerFactory = new DeferredLoggerFactory();
-        ILogger logger = loggerFactory.CreateLogger<Program>();
+        ILogger logger = loggerFactory.CreateLogger<Program>(); 
 
         logger.LogDebug("Building host");
         using IHost host = new HostBuilder()
