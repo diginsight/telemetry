@@ -9,6 +9,9 @@
   <Choose>
     <When Condition="$(TargetFramework.StartsWith('netstandard'))">
       <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.*">
+          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+        </PackageReference>
         <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.*">
           <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
         </PackageReference>

@@ -1,6 +1,6 @@
-﻿using Diginsight.Diagnostics.TextWriting;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OpenTelemetry;
@@ -15,6 +15,22 @@ namespace Diginsight.Diagnostics;
 
 public static class DependencyInjectionExtensions
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IHostBuilder UseObservabilityServiceProvider(
+        this IHostBuilder hostBuilder,
+        Action<HostBuilderContext, ObservabilityServiceProviderOptions>? configureOptions = null
+    )
+    {
+        return hostBuilder.UseServiceProviderFactory(
+            context =>
+            {
+                ObservabilityServiceProviderOptions options = new ();
+                configureOptions?.Invoke(context, options);
+                return new ObservabilityServiceProviderFactory(options);
+            }
+        );
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static OpenTelemetryBuilder AddObservability(this IServiceCollection services, Action<ObservabilityOptions>? configureObservability = null)
     {
@@ -146,5 +162,6 @@ public static class DependencyInjectionExtensions
     public static void EnsureObservability(this IServiceProvider serviceProvider)
     {
         _ = serviceProvider.GetService<TracerProvider>();
+        _ = serviceProvider.GetService<MeterProvider>();
     }
 }

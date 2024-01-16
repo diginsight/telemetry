@@ -29,13 +29,24 @@ internal class Program : BackgroundService
 
     private static void Main()
     {
-        IHost host = new HostBuilder()
+        IDeferredLoggerFactory loggerFactory = new DeferredLoggerFactory();
+        ILogger logger = loggerFactory.CreateLogger<Program>();
+
+        logger.LogDebug("Building host");
+        using IHost host = new HostBuilder()
             .ConfigureAppConfiguration(
-                static (_, configurationBuilder) => { configurationBuilder.AddJsonFile("appsettings.json"); }
+                (_, configurationBuilder) =>
+                {
+                    logger.LogDebug("Configuring app configuration");
+
+                    configurationBuilder.AddJsonFile("appsettings.json");
+                }
             )
             .ConfigureServices(
-                static (hostBuilderContext, services) =>
+                (hostBuilderContext, services) =>
                 {
+                    logger.LogDebug("Configuring services");
+
                     IConfiguration configuration = hostBuilderContext.Configuration;
 
                     services
@@ -64,11 +75,14 @@ internal class Program : BackgroundService
                     services.AddHostedService<Program>();
                 }
             )
+            .UseObservabilityServiceProvider((_, serviceProviderOptions) => { serviceProviderOptions.DeferredLoggerFactory = loggerFactory; })
             .Build();
 
-        host.Services.EnsureObservability();
+        logger.LogDebug("Starting host");
 
-        host.Run();
+        host.Start();
+
+        logger.LogDebug("Host stopped");
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)

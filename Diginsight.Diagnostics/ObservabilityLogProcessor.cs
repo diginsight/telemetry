@@ -56,7 +56,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
 
         if (isStandalone)
         {
-            textLogger.Log(logLevel, new EventId(100, "StartActivity"), "{ActivityName} START", activity.OperationName);
+            textLogger.Log(logLevel, new EventId(100, "StartActivity"), "START {ActivityName}", activity.OperationName);
             return;
         }
 
@@ -69,7 +69,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
 
         if (inputs is null)
         {
-            textLogger.Log(logLevel, new EventId(110, "StartMethodActivity"), "{ActivityName}() START", activity.OperationName);
+            textLogger.Log(logLevel, new EventId(110, "StartMethodActivity"), "START {ActivityName}()", activity.OperationName);
             return;
         }
 
@@ -79,7 +79,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
         }
 
         otlpLogger.Log(logLevel, new EventId(111, "MethodInputs"), inputsAsDict, null, (_, _) => $"Method inputs: {inputsAsString}");
-        textLogger.Log(logLevel, new EventId(110, "StartMethodActivity"), "{ActivityName}({Inputs}) START", activity.OperationName, inputsAsString);
+        textLogger.Log(logLevel, new EventId(110, "StartMethodActivity"), "START {ActivityName}({Inputs})", activity.OperationName, inputsAsString);
     }
 
     public override void OnEnd(Activity activity)
@@ -96,7 +96,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
 
         if (isStandalone)
         {
-            textLogger.Log(logLevel, new EventId(200, "EndActivity"), "{ActivityName} END", activity.OperationName);
+            textLogger.Log(logLevel, new EventId(200, "EndActivity"), "END {ActivityName}", activity.OperationName);
             return;
         }
 
@@ -146,19 +146,19 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
         switch (outputAsString, namedOutputsAsString)
         {
             case (null, null):
-                textLogger.Log(logLevel, new EventId(210, "EndMethodActivity"), "{ActivityName}() END", activity.OperationName);
+                textLogger.Log(logLevel, new EventId(210, "EndMethodActivity"), "END {ActivityName}()", activity.OperationName);
                 break;
 
             case (not null, null):
-                textLogger.Log(logLevel, new EventId(210, "EndMethodActivity"), "{ActivityName}() END => {Output}", activity.OperationName, outputAsString);
+                textLogger.Log(logLevel, new EventId(210, "EndMethodActivity"), "END {ActivityName}() => {Output}", activity.OperationName, outputAsString);
                 break;
 
             case (null, not null):
-                textLogger.Log(logLevel, new EventId(210, "EndMethodActivity"), "{ActivityName}() END [=> {NamedOutputs}]", activity.OperationName, namedOutputsAsString);
+                textLogger.Log(logLevel, new EventId(210, "EndMethodActivity"), "END {ActivityName}() [=> {NamedOutputs}]", activity.OperationName, namedOutputsAsString);
                 break;
 
             case (not null, not null):
-                textLogger.Log(logLevel, new EventId(210, "EndMethodActivity"), "{ActivityName}() END => {Output} [=> {NamedOutputs}]", activity.OperationName, outputAsString, namedOutputsAsString);
+                textLogger.Log(logLevel, new EventId(210, "EndMethodActivity"), "END {ActivityName}() => {Output} [=> {NamedOutputs}]", activity.OperationName, outputAsString, namedOutputsAsString);
                 break;
         }
     }

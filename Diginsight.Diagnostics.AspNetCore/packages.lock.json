@@ -2,6 +2,17 @@
   "version": 1,
   "dependencies": {
     ".NETStandard,Version=v2.0": {
+      "Microsoft.AspNetCore.Hosting.Abstractions": {
+        "type": "Direct",
+        "requested": "[2.2.*, )",
+        "resolved": "2.2.0",
+        "contentHash": "ubycklv+ZY7Kutdwuy1W4upWcZ6VFR8WUXU7l7B2+mvbDBBPAcfpi+E+Y5GFe+Q157YfA3C49D2GCjAZc7Mobw==",
+        "dependencies": {
+          "Microsoft.AspNetCore.Hosting.Server.Abstractions": "2.2.0",
+          "Microsoft.AspNetCore.Http.Abstractions": "2.2.0",
+          "Microsoft.Extensions.Hosting.Abstractions": "2.2.0"
+        }
+      },
       "Microsoft.AspNetCore.Http": {
         "type": "Direct",
         "requested": "[2.2.*, )",
@@ -32,16 +43,6 @@
         "contentHash": "st47PosZSHrjECdjeIzZQbzivYBJFv6P2nv4cj2ypdI204DO+vZ7l5raGMiX4eXMJ53RfOIg+/s4DHVZ54Nu2A==",
         "dependencies": {
           "Microsoft.NETCore.Platforms": "1.1.0"
-        }
-      },
-      "Microsoft.AspNetCore.Hosting.Abstractions": {
-        "type": "Transitive",
-        "resolved": "2.2.0",
-        "contentHash": "ubycklv+ZY7Kutdwuy1W4upWcZ6VFR8WUXU7l7B2+mvbDBBPAcfpi+E+Y5GFe+Q157YfA3C49D2GCjAZc7Mobw==",
-        "dependencies": {
-          "Microsoft.AspNetCore.Hosting.Server.Abstractions": "2.2.0",
-          "Microsoft.AspNetCore.Http.Abstractions": "2.2.0",
-          "Microsoft.Extensions.Hosting.Abstractions": "2.2.0"
         }
       },
       "Microsoft.AspNetCore.Hosting.Server.Abstractions": {
@@ -461,6 +462,17 @@
       }
     },
     ".NETStandard,Version=v2.1": {
+      "Microsoft.AspNetCore.Hosting.Abstractions": {
+        "type": "Direct",
+        "requested": "[2.2.*, )",
+        "resolved": "2.2.0",
+        "contentHash": "ubycklv+ZY7Kutdwuy1W4upWcZ6VFR8WUXU7l7B2+mvbDBBPAcfpi+E+Y5GFe+Q157YfA3C49D2GCjAZc7Mobw==",
+        "dependencies": {
+          "Microsoft.AspNetCore.Hosting.Server.Abstractions": "2.2.0",
+          "Microsoft.AspNetCore.Http.Abstractions": "2.2.0",
+          "Microsoft.Extensions.Hosting.Abstractions": "2.2.0"
+        }
+      },
       "Microsoft.AspNetCore.Http": {
         "type": "Direct",
         "requested": "[2.2.*, )",
@@ -482,16 +494,6 @@
         "dependencies": {
           "Microsoft.Build.Tasks.Git": "8.0.0",
           "Microsoft.SourceLink.Common": "8.0.0"
-        }
-      },
-      "Microsoft.AspNetCore.Hosting.Abstractions": {
-        "type": "Transitive",
-        "resolved": "2.2.0",
-        "contentHash": "ubycklv+ZY7Kutdwuy1W4upWcZ6VFR8WUXU7l7B2+mvbDBBPAcfpi+E+Y5GFe+Q157YfA3C49D2GCjAZc7Mobw==",
-        "dependencies": {
-          "Microsoft.AspNetCore.Hosting.Server.Abstractions": "2.2.0",
-          "Microsoft.AspNetCore.Http.Abstractions": "2.2.0",
-          "Microsoft.Extensions.Hosting.Abstractions": "2.2.0"
         }
       },
       "Microsoft.AspNetCore.Hosting.Server.Abstractions": {

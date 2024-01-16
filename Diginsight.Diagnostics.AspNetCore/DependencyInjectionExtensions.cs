@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using OpenTelemetry.Trace;
@@ -28,5 +29,21 @@ public static class DependencyInjectionExtensions
         return tracerProviderBuilder
             .ConfigureServices(static s => s.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>())
             .SetSampler(sp => ActivatorUtilities.CreateInstance<HttpHeadersSampler>(sp, makeSampler(sp)));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IWebHostBuilder UseObservabilityServiceProvider(
+        this IWebHostBuilder hostBuilder,
+        Action<WebHostBuilderContext, ObservabilityServiceProviderOptions>? configureOptions = null
+    )
+    {
+        return hostBuilder.ConfigureServices(
+            (context, services) =>
+            {
+                ObservabilityServiceProviderOptions options = new ();
+                configureOptions?.Invoke(context, options);
+                services.Replace(ServiceDescriptor.Singleton<IServiceProviderFactory<IServiceCollection>>(new ObservabilityServiceProviderFactory(options)));
+            }
+        );
     }
 }

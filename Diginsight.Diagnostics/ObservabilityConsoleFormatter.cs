@@ -12,15 +12,18 @@ internal sealed class ObservabilityConsoleFormatter : ConsoleFormatter
 
     private readonly IConsoleLineDescriptorProvider lineDescriptorProvider;
     private readonly IObservabilityConsoleFormatterOptions formatterOptions;
+    private readonly TimeProvider timeProvider;
 
     public ObservabilityConsoleFormatter(
         IConsoleLineDescriptorProvider lineDescriptorProvider,
-        IOptionsMonitor<ObservabilityConsoleFormatterOptions> formatterOptionsMonitor
+        IOptionsMonitor<ObservabilityConsoleFormatterOptions> formatterOptionsMonitor,
+        TimeProvider? timeProvider = null
     )
         : base(FormatterName)
     {
         this.lineDescriptorProvider = lineDescriptorProvider;
         formatterOptions = formatterOptionsMonitor.CurrentValue;
+        this.timeProvider = timeProvider ?? TimeProvider.System;
     }
 
     public override void Write<TState>(
@@ -58,9 +61,10 @@ internal sealed class ObservabilityConsoleFormatter : ConsoleFormatter
             width = int.MaxValue;
         }
 
+        DateTimeOffset timestampDto = timeProvider.GetUtcNow();
         ObservabilityTextWriter.Write(
             textWriter,
-            formatterOptions.UseUtcTimestamp ? DateTime.UtcNow : DateTime.Now,
+            formatterOptions.UseUtcTimestamp ? timestampDto.UtcDateTime : timestampDto.LocalDateTime,
             logEntry.LogLevel,
             logEntry.Category,
             logEntry.Formatter(state, logEntry.Exception),
