@@ -19,7 +19,7 @@ using System.Text.Json.Serialization;
 namespace Common
 {
     public class CodeSection : CodeSectionBase, IDisposable, ICloneable, ICodeSectionLogger
-    {
+    { 
         #region .ctor
         static CodeSection() { }
         public CodeSection(CodeSection pCopy)

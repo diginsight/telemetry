@@ -292,3 +292,4 @@ Resources/ABB.EkipConnect.Resources/**
 Resources/ABB.EkipConnect.Bin/**
 Resources/EkipConnectService.Full.Bin/**
 variables
+*.json
