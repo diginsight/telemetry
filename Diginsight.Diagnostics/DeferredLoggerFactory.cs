@@ -1,6 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Diginsight.Strings;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using OpenTelemetry;
 using System.Collections;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
@@ -15,11 +19,31 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
 
     private ILoggerFactory? target;
 
+    public ActivitySource ActivitySource { get; }
+
     public DeferredLoggerFactory(
+        IAppendingContextFactory? appendingContextFactory = null,
         TimeProvider? timeProvider = null
     )
     {
         this.timeProvider = timeProvider ?? TimeProvider.System;
+
+        ActivitySource = new ($"Standalone_{Guid.NewGuid():N}");
+        BaseProcessor<Activity> processor = new ObservabilityLogProcessor(
+            this,
+            appendingContextFactory ?? AppendingContextFactoryBuilder.DefaultFactory,
+            Options.Create(new ObservabilityOptions() { RecordActivities = false, RecordSpanDurations = false })
+        );
+
+        ActivityListener listener = new ActivityListener()
+        {
+            ActivityStarted = processor.OnStart,
+            ActivityStopped = processor.OnEnd,
+            Sample = static (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
+            ShouldListenTo = s => s == ActivitySource,
+        };
+
+        ActivitySource.AddActivityListener(listener);
     }
 
     public ILogger CreateLogger(string categoryName)
@@ -201,19 +225,21 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
 
         public static ITimestamped<TState> For(TState state, DateTimeOffset timestamp)
         {
-            return state is Tags
-                ? new Timestamped<TState>(state, timestamp)
-                : (Timestamped<TState>)typeof(TagsTimestamped<>).MakeGenericType(typeof(TState)).GetConstructors()[0].Invoke([ state, timestamp ]);
+            return state is Tags kvps ? new TagsTimestamped<TState>(state, kvps, timestamp) : new Timestamped<TState>(state, timestamp);
         }
     }
 
     private sealed class TagsTimestamped<TState> : Timestamped<TState>, Tags
-        where TState : Tags
     {
-        public TagsTimestamped(TState state, DateTimeOffset timestamp)
-            : base(state, timestamp) { }
+        private readonly Tags kvps;
 
-        public IEnumerator<Tag> GetEnumerator() => State.GetEnumerator();
+        public TagsTimestamped(TState state, Tags kvps, DateTimeOffset timestamp)
+            : base(state, timestamp)
+        {
+            this.kvps = kvps;
+        }
+
+        public IEnumerator<Tag> GetEnumerator() => kvps.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }

@@ -19,20 +19,20 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
 
     private readonly ILoggerFactory loggerFactory;
     private readonly IAppendingContextFactory appendingContextFactory;
-    private readonly IOptionsMonitor<ObservabilityOptions> observabilityOptionsMonitor;
+    private readonly IObservabilityOptions observabilityOptions;
     private readonly IActivityRecordingSampler? activityRecordingSampler;
     private readonly ILogger fallbackLogger;
 
     public ObservabilityLogProcessor(
         ILoggerFactory loggerFactory,
         IAppendingContextFactory appendingContextFactory,
-        IOptionsMonitor<ObservabilityOptions> observabilityOptionsMonitor,
+        IOptions<ObservabilityOptions> observabilityOptions,
         IActivityRecordingSampler? activityRecordingSampler = null
     )
     {
         this.loggerFactory = loggerFactory;
         this.appendingContextFactory = appendingContextFactory;
-        this.observabilityOptionsMonitor = observabilityOptionsMonitor;
+        this.observabilityOptions = observabilityOptions.Value;
         this.activityRecordingSampler = activityRecordingSampler;
         fallbackLogger = loggerFactory.CreateLogger($"{typeof(ObservabilityLogProcessor).Namespace!}.$Activity");
     }
@@ -41,7 +41,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
     {
         ExtractLoggingInfo(
             activity,
-            observabilityOptionsMonitor.CurrentValue,
+            observabilityOptions,
             out bool isStandalone,
             out bool shouldRecord,
             out ILogger textLogger,
@@ -86,7 +86,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
     {
         ExtractLoggingInfo(
             activity,
-            observabilityOptionsMonitor.CurrentValue,
+            observabilityOptions,
             out bool isStandalone,
             out bool _,
             out ILogger textLogger,
@@ -317,19 +317,21 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
 
         public static ObservabilityTextWriter.IActivityMark<TState> For(TState state, TimeSpan? duration)
         {
-            return state is Tags
-                ? new ActivityMark<TState>(state, duration)
-                : (ActivityMark<TState>)typeof(TagsActivityMark<>).MakeGenericType(typeof(TState)).GetConstructors()[0].Invoke([ state, duration ]);
+            return state is Tags kvps ? new TagsActivityMark<TState>(state, kvps, duration) : new ActivityMark<TState>(state, duration);
         }
     }
 
     private sealed class TagsActivityMark<TState> : ActivityMark<TState>, Tags
-        where TState : Tags
     {
-        public TagsActivityMark(TState state, TimeSpan? duration)
-            : base(state, duration) { }
+        private readonly Tags kvps;
 
-        public IEnumerator<Tag> GetEnumerator() => State.GetEnumerator();
+        public TagsActivityMark(TState state, Tags kvps, TimeSpan? duration)
+            : base(state, duration)
+        {
+            this.kvps = kvps;
+        }
+
+        public IEnumerator<Tag> GetEnumerator() => kvps.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }

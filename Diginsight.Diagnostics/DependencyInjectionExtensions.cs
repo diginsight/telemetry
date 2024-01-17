@@ -10,9 +10,6 @@ using OpenTelemetry.Trace;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-#if !NET7_0_OR_GREATER
-using System.Reflection;
-#endif
 
 namespace Diginsight.Diagnostics;
 
@@ -49,7 +46,10 @@ public static class DependencyInjectionExtensions
             .ConfigureResource(
                 static resourceBuilder =>
                 {
-                    resourceBuilder.AddService(Assembly.GetEntryAssembly()!.FullName, serviceInstanceId: Environment.MachineName);
+                    resourceBuilder.AddService(
+                        Assembly.GetEntryAssembly()!.FullName ?? throw new UnreachableException("Entry assembly is not present or unnamed"),
+                        serviceInstanceId: Environment.MachineName
+                    );
                 }
             );
     }

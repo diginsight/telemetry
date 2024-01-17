@@ -6,17 +6,19 @@ namespace Diginsight.Diagnostics;
 internal sealed class ObservabilityServiceProviderFactory : IServiceProviderFactory<IServiceCollection>
 {
     private readonly ObservabilityServiceProviderOptions options;
+    private readonly IServiceProviderFactory<IServiceCollection> decoratee;
 
     public ObservabilityServiceProviderFactory(ObservabilityServiceProviderOptions options)
     {
         this.options = options;
+        decoratee = new DefaultServiceProviderFactory(options);
     }
 
-    public IServiceCollection CreateBuilder(IServiceCollection services) => services;
+    public IServiceCollection CreateBuilder(IServiceCollection services) => decoratee.CreateBuilder(services);
 
     public IServiceProvider CreateServiceProvider(IServiceCollection services)
     {
-        IServiceProvider serviceProvider = services.BuildServiceProvider(options);
+        IServiceProvider serviceProvider = decoratee.CreateServiceProvider(services);
 
         serviceProvider.EnsureObservability();
 

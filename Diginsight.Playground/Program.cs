@@ -4,7 +4,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using OpenTelemetry.Trace;
 using System.Diagnostics;
 using System.Net;
 using System.Text;
@@ -31,17 +30,16 @@ internal class Program : BackgroundService
     {
         IDeferredLoggerFactory loggerFactory = new DeferredLoggerFactory();
         ILogger logger = loggerFactory.CreateLogger<Program>();
+        ActivitySource mainActivitySource = loggerFactory.ActivitySource;
 
         IHost host;
-        using (Activity mainActivity = ActivityUtils.StartStandaloneMethodActivity(logger))
+        using (Activity? activity = mainActivitySource.StartMethodActivity(logger))
         {
-            logger.LogDebug("Building host");
-
             host = new HostBuilder()
                 .ConfigureAppConfiguration(
                     (_, configurationBuilder) =>
                     {
-                        logger.LogDebug("Configuring app configuration");
+                        using Activity? a0 = mainActivitySource.StartRichActivity(logger, "ConfigureAppConfiguration");
 
                         configurationBuilder.AddJsonFile("appsettings.json");
                     }
@@ -49,7 +47,7 @@ internal class Program : BackgroundService
                 .ConfigureServices(
                     (hostBuilderContext, services) =>
                     {
-                        logger.LogDebug("Configuring services");
+                        using Activity? a0 = mainActivitySource.StartRichActivity(logger, "ConfigureServices");
 
                         IConfiguration configuration = hostBuilderContext.Configuration;
 
@@ -79,8 +77,6 @@ internal class Program : BackgroundService
                 )
                 .UseObservabilityServiceProvider((_, serviceProviderOptions) => { serviceProviderOptions.DeferredLoggerFactory = loggerFactory; })
                 .Build();
-
-            logger.LogDebug("Starting host");
         }
 
         host.Run();
@@ -88,34 +84,38 @@ internal class Program : BackgroundService
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        using (ActivitySource.StartMethodActivity(logger, new { SomeInput = "ciao" }, logLevel: LogLevel.Information))
+        void Execute()
         {
-            logger.LogWarning($"foo {42:x} {{pippo}}");
+            using (ActivitySource.StartMethodActivity(logger, new { SomeInput = "ciao" }, logLevel: LogLevel.Information))
+            {
+                logger.LogWarning($"foo {42:x} {{pippo}}");
+            }
+
+            using (ActivitySource.StartMethodActivity(logger, new Dictionary<string, object> { ["SomeInput"] = "hola" }, logLevel: LogLevel.Information))
+            {
+                logger.LogWarning($"bar {404:x} {{paperino}}");
+                logger.StoreOutput(Math.E);
+            }
+
+            _ = Console.ReadLine();
+
+            using (ActivitySource.StartMethodActivity(logger, new Dictionary<string, string> { ["SomeInput"] = "hello" }, logLevel: LogLevel.Information))
+            {
+                logger.LogWarning($"baz {409:x} {{pluto}}");
+                logger.StoreOutput(Math.PI);
+                logger.StoreNamedOutputs(new { statusCode = HttpStatusCode.Conflict, character = "pluto" });
+            }
+
+            using (ActivitySource.StartMethodActivity(logger, logLevel: LogLevel.Information))
+            {
+                logger.LogWarning($"quux {2023:x} {{topolino}}");
+                logger.StoreNamedOutputs(new Dictionary<string, int>() { ["day"] = 10, ["month"] = 11, ["year"] = 2023 });
+            }
+
+            applicationLifetime.StopApplication();
         }
 
-        using (ActivitySource.StartMethodActivity(logger, new Dictionary<string, object> { ["SomeInput"] = "hola" }, logLevel: LogLevel.Information))
-        {
-            logger.LogWarning($"bar {404:x} {{paperino}}");
-            logger.StoreOutput(Math.E);
-        }
-
-        _ = Console.ReadLine();
-
-        using (ActivitySource.StartMethodActivity(logger, new Dictionary<string, string> { ["SomeInput"] = "hello" }, logLevel: LogLevel.Information))
-        {
-            logger.LogWarning($"baz {409:x} {{pluto}}");
-            logger.StoreOutput(Math.PI);
-            logger.StoreNamedOutputs(new { statusCode = HttpStatusCode.Conflict, character = "pluto" });
-        }
-
-        using (ActivitySource.StartMethodActivity(logger, logLevel: LogLevel.Information))
-        {
-            logger.LogWarning($"quux {2023:x} {{topolino}}");
-            logger.StoreNamedOutputs(new Dictionary<string, int>() { ["day"] = 10, ["month"] = 11, ["year"] = 2023 });
-        }
-
-        applicationLifetime.StopApplication();
-
+        _ = Task.Run(Execute, stoppingToken);
         return Task.CompletedTask;
     }
 
