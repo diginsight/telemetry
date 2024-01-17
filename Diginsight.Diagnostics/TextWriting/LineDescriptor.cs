@@ -221,7 +221,10 @@ public readonly struct LineDescriptor
         }
         finally
         {
-            ParseDuration.Record(stopwatch.Elapsed.TotalMilliseconds, new Tag("status", success));
+            ParseDuration.Record(
+                stopwatch.Elapsed.TotalMilliseconds,
+                new Tag("status", (success ? ActivityStatusCode.Ok : ActivityStatusCode.Error).ToString())
+            );
         }
     }
 }

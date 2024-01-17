@@ -23,10 +23,33 @@ internal sealed class ObservabilityLoggingEventFactory : ILog4NetLoggingEventFac
         IExternalScopeProvider scopeProvider
     )
     {
-        TState state = messageCandidate.State;
-        if (state is ObservabilityTextWriter.IOtlpOnly)
+        object? innerState = messageCandidate.State;
+        bool isActivity = false;
+        TimeSpan? duration = null;
+        DateTimeOffset? maybeTimestamp = null;
+
+        while (true)
         {
-            return null;
+            if (innerState is ObservabilityTextWriter.IOtlpOnly)
+            {
+                return null;
+            }
+
+            if (innerState is ObservabilityTextWriter.IActivityMark activityMark)
+            {
+                innerState = activityMark.State;
+                isActivity = true;
+                duration = activityMark.Duration;
+            }
+            else if (innerState is DeferredLoggerFactory.ITimestamped timestamped)
+            {
+                innerState = timestamped.State;
+                maybeTimestamp = timestamped.Timestamp;
+            }
+            else
+            {
+                break;
+            }
         }
 
         LoggingEvent? loggingEvent = decoratee.CreateLoggingEvent(messageCandidate, logger, options, scopeProvider);
@@ -35,27 +58,11 @@ internal sealed class ObservabilityLoggingEventFactory : ILog4NetLoggingEventFac
             return null;
         }
 
-        object? innerState;
-        bool isActivity;
-        TimeSpan? duration;
-        if (state is ObservabilityTextWriter.IActivityMark activityMark)
-        {
-            innerState = activityMark.State;
-            isActivity = true;
-            duration = activityMark.Duration;
-        }
-        else
-        {
-            innerState = state;
-            isActivity = false;
-            duration = null;
-        }
-
         return new ObservabilityLoggingEvent(
             loggingEvent,
             isActivity,
             duration,
-            innerState is DeferredLoggerFactory.ITimestamped timestamped ? timestamped.Timestamp : timeProvider.GetUtcNow()
+            maybeTimestamp ?? timeProvider.GetUtcNow()
         );
     }
 }

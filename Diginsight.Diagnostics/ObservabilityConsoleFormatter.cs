@@ -32,27 +32,36 @@ internal sealed class ObservabilityConsoleFormatter : ConsoleFormatter
         TextWriter textWriter
     )
     {
-        TState state = logEntry.State;
-        if (state is ObservabilityTextWriter.IOtlpOnly)
+        object? innerState = logEntry.State;
+        bool isActivity = false;
+        TimeSpan? duration = null;
+        DateTimeOffset? maybeTimestamp = null;
+
+        while (true)
         {
-            return;
+            if (innerState is ObservabilityTextWriter.IOtlpOnly)
+            {
+                return;
+            }
+
+            if (innerState is ObservabilityTextWriter.IActivityMark activityMark)
+            {
+                innerState = activityMark.State;
+                isActivity = true;
+                duration = activityMark.Duration;
+            }
+            else if (innerState is DeferredLoggerFactory.ITimestamped timestamped)
+            {
+                innerState = timestamped.State;
+                maybeTimestamp = timestamped.Timestamp;
+            }
+            else
+            {
+                break;
+            }
         }
 
-        object? innerState;
-        bool isActivity;
-        TimeSpan? duration;
-        if (state is ObservabilityTextWriter.IActivityMark activityMark)
-        {
-            innerState = activityMark.State;
-            isActivity = true;
-            duration = activityMark.Duration;
-        }
-        else
-        {
-            innerState = state;
-            isActivity = false;
-            duration = null;
-        }
+        DateTimeOffset finalTimestamp = maybeTimestamp ?? timeProvider.GetUtcNow();
 
         int width;
         try
@@ -64,17 +73,12 @@ internal sealed class ObservabilityConsoleFormatter : ConsoleFormatter
             width = int.MaxValue;
         }
 
-        DateTimeOffset timestampDto = innerState is DeferredLoggerFactory.ITimestamped timestamped
-            ? timestamped.Timestamp
-            : timeProvider.GetUtcNow();
-        DateTime timestampDt = formatterOptions.UseUtcTimestamp ? timestampDto.UtcDateTime : timestampDto.LocalDateTime;
-
         ObservabilityTextWriter.Write(
             textWriter,
-            timestampDt,
+            formatterOptions.UseUtcTimestamp ? finalTimestamp.UtcDateTime : finalTimestamp.LocalDateTime,
             logEntry.LogLevel,
             logEntry.Category,
-            logEntry.Formatter(state, logEntry.Exception),
+            logEntry.Formatter(logEntry.State, logEntry.Exception),
             logEntry.Exception,
             isActivity,
             duration,

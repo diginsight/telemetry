@@ -39,21 +39,25 @@ internal class Program : BackgroundService
                 .ConfigureAppConfiguration(
                     (_, configurationBuilder) =>
                     {
-                        using Activity? a0 = mainActivitySource.StartRichActivity(logger, "ConfigureAppConfiguration");
+                        using Activity? innerActivity = mainActivitySource.StartRichActivity(logger, "ConfigureAppConfiguration");
 
+                        logger.LogDebug("Json file");
                         configurationBuilder.AddJsonFile("appsettings.json");
                     }
                 )
                 .ConfigureServices(
                     (hostBuilderContext, services) =>
                     {
-                        using Activity? a0 = mainActivitySource.StartRichActivity(logger, "ConfigureServices");
+                        using Activity? innerActivity = mainActivitySource.StartRichActivity(logger, "ConfigureServices");
 
                         IConfiguration configuration = hostBuilderContext.Configuration;
 
+                        logger.LogDebug("Misc");
                         services
-                            .AddSingleton<ILineTokenParser>(new SimpleTokenParser("processid", ProcessIdToken.Instance));
+                            .AddSingleton<ILineTokenParser>(new SimpleTokenParser("processid", ProcessIdToken.Instance))
+                            .AddHostedService<Program>();
 
+                        logger.LogDebug("Observability");
                         services
                             .AddObservability(configuration.GetSection("Observability").Bind)
                             .WithTracing(
@@ -62,6 +66,7 @@ internal class Program : BackgroundService
                                     .AddSource(ActivitySource.Name)
                             );
 
+                        logger.LogDebug("Logging");
                         services
                             .AddLogging(
                                 loggingBuilder =>
@@ -71,12 +76,12 @@ internal class Program : BackgroundService
                                         .AddObservabilityConsole(configuration.GetSection("Observability:Console").Bind);
                                 }
                             );
-
-                        services.AddHostedService<Program>();
                     }
                 )
                 .UseObservabilityServiceProvider((_, serviceProviderOptions) => { serviceProviderOptions.DeferredLoggerFactory = loggerFactory; })
                 .Build();
+
+            logger.LogDebug("Host built");
         }
 
         host.Run();
@@ -101,7 +106,11 @@ internal class Program : BackgroundService
 
             using (ActivitySource.StartMethodActivity(logger, new Dictionary<string, string> { ["SomeInput"] = "hello" }, logLevel: LogLevel.Information))
             {
-                logger.LogWarning($"baz {409:x} {{pluto}}");
+                using (ActivitySource.StartRichActivity(logger, "Deep"))
+                {
+                    logger.LogWarning($"baz {409:x} {{pluto}}");
+                }
+
                 logger.StoreOutput(Math.PI);
                 logger.StoreNamedOutputs(new { statusCode = HttpStatusCode.Conflict, character = "pluto" });
             }
