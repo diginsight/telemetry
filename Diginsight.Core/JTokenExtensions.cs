@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Diginsight;
 
@@ -19,16 +20,19 @@ public static class JTokenExtensions
         };
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TResult Apply<TResult>(this IJTokenVisitor<TResult, ValueTuple> visitor, JToken jtoken)
     {
         return jtoken.Accept(visitor, default);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static JToken Apply(this JTokenTransformer<ValueTuple> transformer, JToken jtoken)
     {
         return transformer.Apply(jtoken, out _);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static JToken Apply(this JTokenTransformer<ValueTuple> transformer, JToken jtoken, out bool changed)
     {
         (JToken result, changed) = jtoken.Accept(transformer, default);

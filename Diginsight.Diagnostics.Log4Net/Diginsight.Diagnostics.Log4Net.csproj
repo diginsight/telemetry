@@ -6,6 +6,16 @@
     <PackageTags>$(PackageTags);diagnostics;log4net</PackageTags>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <ExtensionsLog4NetVersion Condition="'$(TargetFramework)' == 'net6.0' or $(TargetFramework.StartsWith('netstandard'))">6.*</ExtensionsLog4NetVersion>
+    <ExtensionsLog4NetVersion Condition="'$(TargetFramework)' == 'net7.0'">7.*</ExtensionsLog4NetVersion>
+    <ExtensionsLog4NetVersion Condition="'$(ExtensionsLog4NetVersion)' == ''">8.*</ExtensionsLog4NetVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="$(ExtensionsLog4NetVersion)" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Diginsight.Diagnostics\Diginsight.Diagnostics.csproj" />
   </ItemGroup>

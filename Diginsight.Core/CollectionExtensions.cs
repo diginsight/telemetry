@@ -102,7 +102,6 @@ public static class CollectionExtensions
         return list.Count == 0;
     }
 
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
     public static int SequenceGetHashCode<T>(this IEnumerable<T> source, IEqualityComparer<T>? comparer = null)
     {
         if (source is null)
@@ -115,7 +114,6 @@ public static class CollectionExtensions
         }
         return hashCode.ToHashCode();
     }
-#endif
 
     public static void AddRange<T>(this ICollection<T> target, IEnumerable<T> collection)
     {

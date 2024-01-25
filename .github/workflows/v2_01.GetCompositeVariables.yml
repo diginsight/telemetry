@@ -1,23 +1,11 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-
-name: 01.GetCompositeVariables_v3
+name: 01.GetCompositeVariables
 
 on:
   workflow_call:
-    #inputs:
-    #  config-path:
-    #    required: false
-    #    type: string
     outputs:
       assemblyVersion:
         description: 'assembly Version for the current build'
         value: ${{ jobs.main.outputs.assemblyVersion }}
-    #secrets:
-    #  NUGET_API_KEY_V3:
-    #    required: false
-    #  #token:
-    #  #  required: true
 
 jobs:
   main:
@@ -31,13 +19,10 @@ jobs:
       projectsFilter: '*.csproj'
       projectBaseName: Diginsight
       buildPlatform: 'Any CPU'
-      buildConfiguration: 'Release' # 'Debug'
-      NUGET_API_KEY_V3: ${{ secrets.NUGET_API_KEY_v3 }}
+      buildConfiguration: 'Release'
+      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY_V3 }}
 
     steps:
-      ##########################
-      # build number and version
-      ##########################
       - name: Process Composite Variables
         id: composite_variables
         run: |
@@ -59,10 +44,6 @@ jobs:
             $env:BUILD_NUMBER="${{ github.run_number }}"
             Write-Host "VERSION_PREFIX=$env:VERSION_PREFIX"
             Write-Host "BUILD_NUMBER=$env:BUILD_NUMBER"
-            if (-not [string]::IsNullOrEmpty("${{ vars.BUILD_NUMBER_OFFSET_V3 }}")) {
-                $env:BUILD_NUMBER=$(( [int]$env:BUILD_NUMBER + [int]${{ vars.BUILD_NUMBER_OFFSET_V3 }}))
-                # echo "vars.BUILD_NUMBER=$env:BUILD_NUMBER" >> $GITHUB_ENV
-            }
             Write-Host "BUILD_NUMBER=$env:BUILD_NUMBER"
             echo "BUILD_NUMBER=$env:BUILD_NUMBER" >> $GITHUB_ENV
             echo "::set-output name=BUILD_NUMBER::$env:BUILD_NUMBER"

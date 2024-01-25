@@ -1,4 +1,5 @@
-﻿using Diginsight.Strings;
+﻿using Diginsight.Diagnostics.TextWriting;
+using Diginsight.Strings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -18,20 +19,20 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
 
     private readonly ILoggerFactory loggerFactory;
     private readonly IAppendingContextFactory appendingContextFactory;
-    private readonly IOptionsMonitor<ObservabilityOptions> observabilityOptionsMonitor;
+    private readonly IObservabilityOptions observabilityOptions;
     private readonly IActivityRecordingSampler? activityRecordingSampler;
     private readonly ILogger fallbackLogger;
 
     public ObservabilityLogProcessor(
         ILoggerFactory loggerFactory,
         IAppendingContextFactory appendingContextFactory,
-        IOptionsMonitor<ObservabilityOptions> observabilityOptionsMonitor,
+        IOptions<ObservabilityOptions> observabilityOptions,
         IActivityRecordingSampler? activityRecordingSampler = null
     )
     {
         this.loggerFactory = loggerFactory;
         this.appendingContextFactory = appendingContextFactory;
-        this.observabilityOptionsMonitor = observabilityOptionsMonitor;
+        this.observabilityOptions = observabilityOptions.Value;
         this.activityRecordingSampler = activityRecordingSampler;
         fallbackLogger = loggerFactory.CreateLogger($"{typeof(ObservabilityLogProcessor).Namespace!}.$Activity");
     }
@@ -40,7 +41,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
     {
         ExtractLoggingInfo(
             activity,
-            observabilityOptionsMonitor.CurrentValue,
+            observabilityOptions,
             out bool isStandalone,
             out bool shouldRecord,
             out ILogger textLogger,
@@ -55,7 +56,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
 
         if (isStandalone)
         {
-            textLogger.Log(logLevel, new EventId(100, "StartActivity"), "{ActivityName} START", activity.OperationName);
+            textLogger.Log(logLevel, new EventId(100, "StartActivity"), "START {ActivityName}", activity.OperationName);
             return;
         }
 
@@ -68,7 +69,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
 
         if (inputs is null)
         {
-            textLogger.Log(logLevel, new EventId(110, "StartMethodActivity"), "{ActivityName}() START", activity.OperationName);
+            textLogger.Log(logLevel, new EventId(110, "StartMethodActivity"), "START {ActivityName}()", activity.OperationName);
             return;
         }
 
@@ -78,14 +79,14 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
         }
 
         otlpLogger.Log(logLevel, new EventId(111, "MethodInputs"), inputsAsDict, null, (_, _) => $"Method inputs: {inputsAsString}");
-        textLogger.Log(logLevel, new EventId(110, "StartMethodActivity"), "{ActivityName}({Inputs}) START", activity.OperationName, inputsAsString);
+        textLogger.Log(logLevel, new EventId(110, "StartMethodActivity"), "START {ActivityName}({Inputs})", activity.OperationName, inputsAsString);
     }
 
     public override void OnEnd(Activity activity)
     {
         ExtractLoggingInfo(
             activity,
-            observabilityOptionsMonitor.CurrentValue,
+            observabilityOptions,
             out bool isStandalone,
             out bool _,
             out ILogger textLogger,
@@ -95,7 +96,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
 
         if (isStandalone)
         {
-            textLogger.Log(logLevel, new EventId(200, "EndActivity"), "{ActivityName} END", activity.OperationName);
+            textLogger.Log(logLevel, new EventId(200, "EndActivity"), "END {ActivityName}", activity.OperationName);
             return;
         }
 
@@ -145,19 +146,19 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
         switch (outputAsString, namedOutputsAsString)
         {
             case (null, null):
-                textLogger.Log(logLevel, new EventId(210, "EndMethodActivity"), "{ActivityName}() END", activity.OperationName);
+                textLogger.Log(logLevel, new EventId(210, "EndMethodActivity"), "END {ActivityName}()", activity.OperationName);
                 break;
 
             case (not null, null):
-                textLogger.Log(logLevel, new EventId(210, "EndMethodActivity"), "{ActivityName}() END => {Output}", activity.OperationName, outputAsString);
+                textLogger.Log(logLevel, new EventId(210, "EndMethodActivity"), "END {ActivityName}() => {Output}", activity.OperationName, outputAsString);
                 break;
 
             case (null, not null):
-                textLogger.Log(logLevel, new EventId(210, "EndMethodActivity"), "{ActivityName}() END [=> {NamedOutputs}]", activity.OperationName, namedOutputsAsString);
+                textLogger.Log(logLevel, new EventId(210, "EndMethodActivity"), "END {ActivityName}() [=> {NamedOutputs}]", activity.OperationName, namedOutputsAsString);
                 break;
 
             case (not null, not null):
-                textLogger.Log(logLevel, new EventId(210, "EndMethodActivity"), "{ActivityName}() END => {Output} [=> {NamedOutputs}]", activity.OperationName, outputAsString, namedOutputsAsString);
+                textLogger.Log(logLevel, new EventId(210, "EndMethodActivity"), "END {ActivityName}() => {Output} [=> {NamedOutputs}]", activity.OperationName, outputAsString, namedOutputsAsString);
                 break;
         }
     }
@@ -239,12 +240,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
             _ => throw new InvalidOperationException("Invalid logger in activity"),
         };
 
-        Type? callerType = activity.GetCustomProperty(ActivityCustomPropertyNames.CallerType) switch
-        {
-            Type t => t,
-            null => null,
-            _ => throw new InvalidOperationException("Invalid caller type in activity"),
-        };
+        Type? callerType = activity.GetCallerType();
 
         isStandalone = activity.GetCustomProperty(ActivityCustomPropertyNames.IsStandalone) switch
         {
@@ -256,7 +252,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
         bool? tempShouldRecord = activity.MatchesActivityNamePattern(observabilityOptions.NotRecordedActivityNames) ? false
             : activity.MatchesActivityNamePattern(observabilityOptions.RecordedActivityNames) ? true
             : null;
-        activityRecordingSampler?.ShouldRecord(activity, ref tempShouldRecord);
+        activityRecordingSampler?.ShouldRecord(activity, callerType, ref tempShouldRecord);
         shouldRecord = tempShouldRecord ?? observabilityOptions.RecordActivities;
 
         ILogger innerLogger = providedLogger ?? (callerType is not null ? loggerFactory.CreateLogger(callerType) : fallbackLogger);
@@ -290,7 +286,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
                 decoratee.Log(
                     logLevel,
                     eventId,
-                    new ActivityMark<TState>(state, duration),
+                    ActivityMark<TState>.For(state, duration),
                     exception,
                     (s, e) => formatter(s.State, e)
                 );
@@ -300,18 +296,18 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
         public bool IsEnabled(LogLevel logLevel) => decoratee.IsEnabled(logLevel);
 
         public IDisposable BeginScope<TState>(TState state)
-#if NET7_0_OR_GREATER
             where TState : notnull
-#endif
             => throw new NotSupportedException();
     }
 
-    private sealed class ActivityMark<TState> : ObservabilityTextWriter.IActivityMark<TState>, Tags
+    private class ActivityMark<TState> : ObservabilityTextWriter.IActivityMark<TState>
     {
         public TState State { get; }
         public TimeSpan? Duration { get; }
 
+#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
         object? ObservabilityTextWriter.IActivityMark.State => State;
+#endif
 
         public ActivityMark(TState state, TimeSpan? duration)
         {
@@ -319,7 +315,23 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
             Duration = duration;
         }
 
-        public IEnumerator<Tag> GetEnumerator() => (State as Tags ?? Enumerable.Empty<Tag>()).GetEnumerator();
+        public static ObservabilityTextWriter.IActivityMark<TState> For(TState state, TimeSpan? duration)
+        {
+            return state is Tags kvps ? new TagsActivityMark<TState>(state, kvps, duration) : new ActivityMark<TState>(state, duration);
+        }
+    }
+
+    private sealed class TagsActivityMark<TState> : ActivityMark<TState>, Tags
+    {
+        private readonly Tags kvps;
+
+        public TagsActivityMark(TState state, Tags kvps, TimeSpan? duration)
+            : base(state, duration)
+        {
+            this.kvps = kvps;
+        }
+
+        public IEnumerator<Tag> GetEnumerator() => kvps.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }

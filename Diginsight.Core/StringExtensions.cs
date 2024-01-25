@@ -1,10 +1,12 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 
 namespace Diginsight;
 
 public static class StringExtensions
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [return: NotNullIfNotNull(nameof(obj))]
     public static string? ToStringInvariant(this object? obj)
     {
@@ -16,6 +18,7 @@ public static class StringExtensions
         };
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string? HardTrim(this string? str)
     {
         str = (str ?? "").Trim();
@@ -26,15 +29,10 @@ public static class StringExtensions
         };
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [return: NotNullIfNotNull(nameof(str))]
     public static string? Truncate(this string? str, int length)
     {
-        return str?.Length > length
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            ? str[..length]
-#else
-            ? str.Substring(0, length)
-#endif
-            : str;
+        return str?.Length > length ? str[..length] : str;
     }
 }

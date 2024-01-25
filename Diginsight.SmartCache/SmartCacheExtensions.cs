@@ -124,7 +124,7 @@ public static class SmartCacheExtensions
 
         return (T)UnwrapAsArrayMethod
             .MakeGenericMethod(elementType)
-            .Invoke(null, [key])!;
+            .Invoke(null, [ key ])!;
     }
 
     private static T UnwrapAsPlain<T>(this ICacheKey key)

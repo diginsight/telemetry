@@ -49,6 +49,8 @@ public static partial class LoggerExtensions
         Log<#= logLevel #>(logger, null, in message);
     }
 
-<# } #>
+<#
+    }
+#>
 #endif
 }

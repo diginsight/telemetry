@@ -12,7 +12,7 @@ public sealed class HttpHeadersActivityRecordingSampler : IActivityRecordingSamp
         this.httpContextAccessor = httpContextAccessor;
     }
 
-    public void ShouldRecord(Activity activity, ref bool? result)
+    public void ShouldRecord(Activity activity, Type? callerType, ref bool? result)
     {
         result = HttpHeadersHelper.ShouldInclude(activity.OperationName, "Activity-Recording", httpContextAccessor);
     }

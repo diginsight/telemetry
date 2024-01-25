@@ -1,52 +1,39 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-
-name: Diginsight build and deploy_v3
+name: Common.Diagnostics build and deploy
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'Diginsight.**'
+      - 'Common.**'
   pull_request:
     branches:
       - main
     paths:
-      - 'Diginsight.**'
-
+      - 'Common.**'
 jobs:
   installActions:
-    uses: ./.github/workflows/00.InstallActions.yml
-    #with:
-    #  config-path: .github/labeler.yml
+    uses: ./.github/workflows/v2_00.InstallActions.yml
     secrets: inherit
 
-  getCompositeVariables_v3:
+  getCompositeVariables:
     needs: installActions
-    uses: ./.github/workflows/01.GetCompositeVariables_v3.yml
-    #with:
-    #  config-path: .github/labeler.yml
+    uses: ./.github/workflows/v2_01.GetCompositeVariables.yml
     secrets: inherit
 
-  getKeyVaultSecrets_v3:
+  getKeyVaultSecrets:
     needs: installActions
-    uses: ./.github/workflows/02.GetKeyVaultSecrets_v3.yml
-    #with:
-    #  config-path: .github/labeler.yml
+    uses: ./.github/workflows/v2_02.GetKeyVaultSecrets.yml
     secrets: inherit
 
   build:
-    needs: [getCompositeVariables_v3, getKeyVaultSecrets_v3]
-    #strategy:
-    #  matrix:
-    #    configuration:
-    #      - Debug
-    #      - Release
+    needs:
+      - getCompositeVariables
+      - getKeyVaultSecrets
     runs-on: self-hosted
 
-    env: # Define environment variables here
-      NUGET_API_KEY_V3: ${{ secrets.NUGET_API_KEY_v3 }}
+    env:
+      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
 
     steps:
       - name: Run pwsh Dump Variables
@@ -92,7 +79,7 @@ jobs:
 
       - name: Set Assemblies Version
         run: |
-          $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables_v3.outputs.assemblyVersion }}"
+          $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables.outputs.assemblyVersion }}"
           Write-Host "Setting assembly version to: $env:ASSEMBLY_VERSION"
           # (Get-Content Common.Diagnostics/Common.Diagnostics.csproj) -replace '<Version>.*<\/Version>', "<Version>$env:ASSEMBLY_VERSION</Version>" | Set-Content Common.Diagnostics/Common.Diagnostics.csproj
           # Define the replacement pattern
@@ -103,21 +90,13 @@ jobs:
           $csprojFiles | %{ (Get-Content $_.FullName) -replace $pattern, $replacement | Set-Content $_.FullName }
 
       - name: Restore dependencies
-        run: dotnet restore Diginsight.sln 
-      
+        run: dotnet restore Common.Diagnostics.Build.sln
+
       - name: Build DLL Debug
-        run: |
-          $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables_v3.outputs.assemblyVersion }}"
-          Write-Host "Setting assembly version to: $env:ASSEMBLY_VERSION"
-          dotnet build Diginsight.sln --configuration Debug --no-restore 
-          # --verbosity detailed "/p:Version=$env:ASSEMBLY_VERSION" "/p:AssemblyVersion=$(($env:ASSEMBLY_VERSION -split '-')[0])" 3.0.0-alpha.1234
+        run: dotnet build Common.Diagnostics.Build.sln --configuration Debug --no-restore
 
       - name: Build DLL Release
-        run: |
-          $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables_v3.outputs.assemblyVersion }}"
-          Write-Host "Setting assembly version to: $env:ASSEMBLY_VERSION"
-          dotnet build Diginsight.sln --configuration Release --no-restore
-        # --verbosity detailed
+        run: dotnet build Common.Diagnostics.Build.sln --configuration Release --no-restore
 
       - name: Copy bin folder to artifactFolder Release
         run: |
@@ -150,60 +129,62 @@ jobs:
           if-no-files-found: warn
           retention-days: 1
 
-    #- name: Test
-    #  run: dotnet test --no-build --verbosity normal
-
   publishNugetPackage:
-    needs: [getCompositeVariables_v3, getKeyVaultSecrets_v3, build]
+    needs:
+      - getCompositeVariables
+      - getKeyVaultSecrets
+      - build
     strategy:
       matrix:
-        configuration: [Release]
+        configuration:
+          - Release
     runs-on: self-hosted
 
     env:
-      NUGET_API_KEY_V3: ${{ secrets.NUGET_API_KEY_v3 }}
+      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
 
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
-          name: artifact # Name of the uploaded artifact
+          name: artifact
           path: artifactFolder
 
       - name: Publish NuGet package
         run: |
-          $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables_v3.outputs.assemblyVersion }}"
+          $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables.outputs.assemblyVersion }}"
           Write-Host "Setting assembly version to: $env:ASSEMBLY_VERSION"
-          $nupkgFiles = Get-ChildItem -Path artifactFolder/Release -Filter "*.nupkg" -File 
-          Write-Host "nupkgFiles: $nupkgFiles"
-          $nupkgFiles | %{ dotnet nuget push $_.FullName --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY_v3 }} }
-          #dotnet nuget push artifactFolder/Release/Diginsight.Core.$env:ASSEMBLY_VERSION.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY_v3 }}
+          dotnet nuget push artifactFolder/Release/Common.Diagnostics.$env:ASSEMBLY_VERSION.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
 
   upload2AzureFolder:
-    needs: [getCompositeVariables_v3, getKeyVaultSecrets_v3, build]
+    needs:
+      - getCompositeVariables
+      - getKeyVaultSecrets
+      - build
     strategy:
       matrix:
-        configuration: [Release]
+        configuration:
+          - Release
     runs-on: self-hosted
 
     env:
       azureShare: azureshare
       packagesFolder: artifactFolder
       rootDir: '\_releases\97. Diginsight'
-      NUGET_API_KEY_V3: ${{ secrets.NUGET_API_KEY_v3 }}
+      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
 
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
-          name: artifact # Name of the uploaded artifact
+          name: artifact
           path: artifactFolder
 
       - name: Upload artifacts to azure folder
         run: |
-          $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables_v3.outputs.assemblyVersion }}"
+          $env:ASSEMBLY_VERSION="${{ needs.getCompositeVariables.outputs.assemblyVersion }}"
           Write-Host "ASSEMBLY_VERSION: $env:ASSEMBLY_VERSION"
-          $env:CONNECTIONSTRINGDEVDGWSAMPLESSTORAGE="${{ needs.getKeyVaultSecrets_v3.outputs.ConnectionStringDevdgwsamplesstorage }}"
+          $env:CONNECTIONSTRINGDEVDGWSAMPLESSTORAGE="${{ needs.getKeyVaultSecrets.outputs.ConnectionStringDevdgwsamplesstorage }}"
           $env:default_branch="${{ github.event.repository.default_branch }}"
           $env:repository="${{ github.repository }}"
           Write-Host "CONNECTIONSTRINGDEVDGWSAMPLESSTORAGE: $env:CONNECTIONSTRINGDEVDGWSAMPLESSTORAGE"

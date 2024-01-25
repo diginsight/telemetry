@@ -22,7 +22,8 @@ public static class SmartCacheSerialization
             },
             DateTimeZoneHandling = DateTimeZoneHandling.Local,
             DateParseHandling = DateParseHandling.DateTimeOffset,
-        });
+        }
+    );
 
     public static readonly Encoding Encoding = new UTF8Encoding(false);
 
@@ -134,7 +135,8 @@ public static class SmartCacheSerialization
             )+
             $
             """,
-            RegexOptions.IgnorePatternWhitespace);
+            RegexOptions.IgnorePatternWhitespace
+        );
 
         private static readonly Regex FullTypeRegex = new (
             """
@@ -155,7 +157,8 @@ public static class SmartCacheSerialization
             )?
             $
             """,
-            RegexOptions.IgnorePatternWhitespace);
+            RegexOptions.IgnorePatternWhitespace
+        );
 
         static MySerializationBinder()
         {
@@ -179,7 +182,8 @@ public static class SmartCacheSerialization
                         {
                             return (ValueTuple<string, Assembly>?)null;
                         }
-                    })
+                    }
+                )
                 .OfType<ValueTuple<string, Assembly>>();
 
             try
@@ -205,7 +209,8 @@ public static class SmartCacheSerialization
                         {
                             return Enumerable.Empty<Type>();
                         }
-                    })
+                    }
+                )
                 .Where(static t => t.IsDefined(typeof(CacheInterchangeNameAttribute)))
                 .Select(static t => (t.GetCustomAttribute<CacheInterchangeNameAttribute>()!.Name, t));
 
@@ -230,24 +235,12 @@ public static class SmartCacheSerialization
 
         public Type BindToType(string? assemblyName, ReadOnlySpan<char> typeName)
         {
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            if (typeName.EndsWith("[]"))
-#else
             if (typeName.EndsWith("[]".AsSpan()))
-#endif
             {
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                 return BindToType(assemblyName, typeName[..^2]).MakeArrayType();
-#else
-                return BindToType(assemblyName, typeName.Slice(0, typeName.Length - 2)).MakeArrayType();
-#endif
             }
 
-#if NET6_0_OR_GREATER
-            if (!typeName.Contains('#'))
-#else
-            if (!typeName.Contains("#".AsSpan(), StringComparison.Ordinal))
-#endif
+            if (typeName.IndexOf('#') < 0)
             {
                 if (assemblyName is null)
                 {
@@ -255,11 +248,7 @@ public static class SmartCacheSerialization
                 }
 
                 Assembly assembly = assemblyName[0] == '#'
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                     ? NameToAssemblyMap[assemblyName[1..]]
-#else
-                    ? NameToAssemblyMap[assemblyName.Substring(1)]
-#endif
                     : Assembly.Load(assemblyName);
 
                 return assembly.GetType(typeName.ToString())!;
@@ -270,25 +259,13 @@ public static class SmartCacheSerialization
             {
                 // By design, if typeName is not a constructed generic type and contains '#',
                 // then it can only be in the form "#Name'; so we are done.
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                 return NameToTypeMap[typeName[1..].ToString()];
-#else
-                return NameToTypeMap[typeName.Slice(1).ToString()];
-#endif
             }
 
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             ReadOnlySpan<char> rootTypeName = typeName[..genericIndex];
-#else
-            ReadOnlySpan<char> rootTypeName = typeName.Slice(0, genericIndex);
-#endif
             Type rootType = BindToType(assemblyName, rootTypeName);
 
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             ReadOnlySpan<char> typeArgNames = typeName[(genericIndex + 1)..^1];
-#else
-            ReadOnlySpan<char> typeArgNames = typeName.Slice(genericIndex + 1, typeName.Length - genericIndex - 2);
-#endif
             Type[] typeArgs = TypeArgsRegex.Match(typeArgNames.ToString())
                 .Groups[1]
                 .Captures
@@ -304,11 +281,7 @@ public static class SmartCacheSerialization
         private Type NestedBindToType(string fullTypeName)
         {
             return fullTypeName[0] == '['
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                 ? BindToType(this, fullTypeName[1..^1])
-#else
-                ? BindToType(this, fullTypeName.Substring(1, fullTypeName.Length - 2))
-#endif
                 : BindToType((string?)null, fullTypeName);
         }
 

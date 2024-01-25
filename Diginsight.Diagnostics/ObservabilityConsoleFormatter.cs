@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Diginsight.Diagnostics.TextWriting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Console;
 using Microsoft.Extensions.Options;
@@ -9,14 +10,20 @@ internal sealed class ObservabilityConsoleFormatter : ConsoleFormatter
 {
     public const string FormatterName = "observability";
 
-    private readonly IOptionsMonitor<ObservabilityTextWriterOptions> writerOptionsMonitor;
+    private readonly IConsoleLineDescriptorProvider lineDescriptorProvider;
+    private readonly IObservabilityConsoleFormatterOptions formatterOptions;
+    private readonly TimeProvider timeProvider;
 
     public ObservabilityConsoleFormatter(
-        IOptionsMonitor<ObservabilityTextWriterOptions> writerOptionsMonitor
+        IConsoleLineDescriptorProvider lineDescriptorProvider,
+        IOptionsMonitor<ObservabilityConsoleFormatterOptions> formatterOptionsMonitor,
+        TimeProvider? timeProvider = null
     )
         : base(FormatterName)
     {
-        this.writerOptionsMonitor = writerOptionsMonitor;
+        this.lineDescriptorProvider = lineDescriptorProvider;
+        formatterOptions = formatterOptionsMonitor.CurrentValue;
+        this.timeProvider = timeProvider ?? TimeProvider.System;
     }
 
     public override void Write<TState>(
@@ -25,37 +32,57 @@ internal sealed class ObservabilityConsoleFormatter : ConsoleFormatter
         TextWriter textWriter
     )
     {
-        TState state = logEntry.State;
-        if (state is ObservabilityTextWriter.IOtlpOnly)
+        object? innerState = logEntry.State;
+        bool isActivity = false;
+        TimeSpan? duration = null;
+        DateTimeOffset? maybeTimestamp = null;
+
+        while (true)
         {
-            return;
+            if (innerState is ObservabilityTextWriter.IOtlpOnly)
+            {
+                return;
+            }
+
+            if (innerState is ObservabilityTextWriter.IActivityMark activityMark)
+            {
+                innerState = activityMark.State;
+                isActivity = true;
+                duration = activityMark.Duration;
+            }
+            else if (innerState is DeferredLoggerFactory.ITimestamped timestamped)
+            {
+                innerState = timestamped.State;
+                maybeTimestamp = timestamped.Timestamp;
+            }
+            else
+            {
+                break;
+            }
         }
 
-        bool isActivity;
-        TimeSpan? duration;
-        if (state is ObservabilityTextWriter.IActivityMark activityMark)
-        {
-            isActivity = true;
-            duration = activityMark.Duration;
-        }
-        else
-        {
-            isActivity = false;
-            duration = null;
-        }
+        DateTimeOffset finalTimestamp = maybeTimestamp ?? timeProvider.GetUtcNow();
 
-        IObservabilityTextWriterOptions writerOptions = writerOptionsMonitor.CurrentValue;
+        int width;
+        try
+        {
+            width = Console.WindowWidth;
+        }
+        catch (Exception)
+        {
+            width = int.MaxValue;
+        }
 
         ObservabilityTextWriter.Write(
             textWriter,
-            writerOptions.UseUtcTimestamp ? DateTime.UtcNow : DateTime.Now,
+            formatterOptions.UseUtcTimestamp ? finalTimestamp.UtcDateTime : finalTimestamp.LocalDateTime,
             logEntry.LogLevel,
             logEntry.Category,
-            logEntry.Formatter(state, logEntry.Exception),
+            logEntry.Formatter(logEntry.State, logEntry.Exception),
             logEntry.Exception,
             isActivity,
             duration,
-            writerOptions
+            lineDescriptorProvider.GetLineDescriptor(width)
         );
     }
 }

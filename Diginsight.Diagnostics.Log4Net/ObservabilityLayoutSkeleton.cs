@@ -1,4 +1,5 @@
-﻿using log4net.Core;
+﻿using Diginsight.Diagnostics.TextWriting;
+using log4net.Core;
 using log4net.Layout;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -7,32 +8,34 @@ namespace Diginsight.Diagnostics.Log4Net;
 
 internal sealed class ObservabilityLayoutSkeleton : LayoutSkeleton
 {
-    private readonly IOptionsMonitor<ObservabilityTextWriterOptions> writerOptionsMonitor;
+    private readonly ILog4NetLineDescriptorProvider lineDescriptorProvider;
+    private readonly IObservabilityLayoutSkeletonOptions layoutSkeletonOptions;
 
     public ObservabilityLayoutSkeleton(
-        IOptionsMonitor<ObservabilityTextWriterOptions> writerOptionsMonitor
+        ILog4NetLineDescriptorProvider lineDescriptorProvider,
+        IOptions<ObservabilityLayoutSkeletonOptions> layoutSkeletonOptions
     )
     {
-        this.writerOptionsMonitor = writerOptionsMonitor;
+        this.lineDescriptorProvider = lineDescriptorProvider;
+        this.layoutSkeletonOptions = layoutSkeletonOptions.Value;
     }
 
     public override void ActivateOptions() { }
 
     public override void Format(TextWriter writer, LoggingEvent loggingEvent)
     {
-        IObservabilityTextWriterOptions writerOptions = writerOptionsMonitor.CurrentValue;
         ObservabilityLoggingEvent myLoggingEvent = (ObservabilityLoggingEvent)loggingEvent;
 
         ObservabilityTextWriter.Write(
             writer,
-            writerOptions.UseUtcTimestamp ? loggingEvent.TimeStampUtc : loggingEvent.TimeStamp,
+            layoutSkeletonOptions.UseUtcTimestamp ? loggingEvent.TimeStampUtc : loggingEvent.TimeStamp,
             TranslateLogLevel(loggingEvent.Level),
             myLoggingEvent.LoggerName,
             myLoggingEvent.RenderedMessage,
             loggingEvent.ExceptionObject,
             myLoggingEvent.IsActivity,
             myLoggingEvent.Duration,
-            writerOptions
+            lineDescriptorProvider.GetLineDescriptor()
         );
     }
 

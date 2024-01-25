@@ -85,25 +85,26 @@ public static class ActivityExtensions
         };
     }
 
+    internal static Type? GetCallerType(this Activity activity)
+    {
+        return activity.GetCustomProperty(ActivityCustomPropertyNames.CallerType) switch
+        {
+            Type t => t,
+            null => null,
+            _ => throw new InvalidOperationException("Invalid caller type in activity"),
+        };
+    }
+
     internal static bool MatchesActivityNamePattern(string name, string namePattern)
     {
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
         return namePattern.Split('*', 3) switch
 #else
-        string[] tokens = namePattern.Split(StarSeparators, 3);
-        string startToken;
-        string endToken;
-
-        return tokens.Length switch
+        return namePattern.Split(StarSeparators, 3) switch
 #endif
         {
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            [_] => string.Equals(name, namePattern, StringComparison.OrdinalIgnoreCase),
-            [var startToken, var endToken] => (startToken, endToken) switch
-#else
-            1 => string.Equals(name, namePattern, StringComparison.OrdinalIgnoreCase),
-            2 => (startToken = tokens[0], endToken = tokens[1]) switch
-#endif
+            [ _ ] => string.Equals(name, namePattern, StringComparison.OrdinalIgnoreCase),
+            [ var startToken, var endToken ] => (startToken, endToken) switch
             {
                 ("", "") => true,
                 ("", _) => name.EndsWith(endToken, StringComparison.OrdinalIgnoreCase),

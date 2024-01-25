@@ -17,7 +17,7 @@ internal class ClassConfigurationGetter : IClassConfigurationGetter
 
     public static IClassConfigurationGetter<TClass> EmptyFor<TClass>() => default(EmptyClassConfigurationGetter<TClass>);
 
-    protected virtual IEnumerable<string> Prefixes => [""];
+    protected virtual IEnumerable<string> Prefixes => [ "" ];
 
     public ClassConfigurationGetter(
         IConfiguration configuration,
