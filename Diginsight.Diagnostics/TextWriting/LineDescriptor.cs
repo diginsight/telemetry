@@ -52,6 +52,7 @@ public readonly struct LineDescriptor
 
     public int MaxLineLength { get; }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public LineDescriptor(IEnumerable<ILineToken> lineTokens)
         : this(lineTokens.ToArray(), true) { }
 

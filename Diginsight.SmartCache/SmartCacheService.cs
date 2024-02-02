@@ -74,6 +74,7 @@ public sealed class SmartCacheService : ISmartCacheService
         return timestamp is { } ts ? Truncate(ts) : null;
     }
 
+    [MethodImpl(MethodImplOptions.NoInlining)]
     public async Task<T> GetAsync<T>(ICacheKey key, Func<Task<T>> fetchAsync, SmartCacheOperationOptions? operationOptions, Type? callerType)
     {
         callerType ??= RuntimeUtils.GetCaller().DeclaringType;
@@ -190,7 +191,7 @@ public sealed class SmartCacheService : ISmartCacheService
                     .Concat<CacheLocation>(passiveLocations.Values)
                     .ToDictionary(static x => x.Id);
 
-                IEnumerable<Func<CancellationToken, Task<(TValue, long, KeyValuePair<string, object?>)?>>> taskFactories = locationIds
+                IEnumerable<Func<CancellationToken, Task<(CacheLocationOutput<TValue>, KeyValuePair<string, object?>)?>>> taskFactories = locationIds
                     .GroupJoin(
                         locationLatencies,
                         static l => l,
@@ -200,26 +201,19 @@ public sealed class SmartCacheService : ISmartCacheService
                     .OrderBy(static kv => kv.Latency)
                     .Select(static kv => kv.LocationId)
                     .Select(
-                        Func<CancellationToken, Task<(TValue, long, KeyValuePair<string, object?>)?>> (locationId) =>
+                        Func<CancellationToken, Task<(CacheLocationOutput<TValue>, KeyValuePair<string, object?>)?>> (locationId) =>
                         {
                             if (!locations.TryGetValue(locationId, out CacheLocation? location))
                             {
-                                return static _ => Task.FromResult<(TValue, long, KeyValuePair<string, object?>)?>(null);
+                                return static _ => Task.FromResult<(CacheLocationOutput<TValue>, KeyValuePair<string, object?>)?>(null);
                             }
 
                             return async ct =>
                             {
-                                (TValue Item, long ValueSerializedSize, double RelativeLatency)? maybeOutput =
+                                CacheLocationOutput<TValue>? maybeOutput =
                                     await location.GetAsync<TValue>(keyHolder, minimumCreationDate, () => invalidLocations.Add(locationId), ct);
 
-                                if (maybeOutput is { } output)
-                                {
-                                    Latency latency = locationLatencies.GetOrAdd(locationId, static _ => new Latency());
-                                    latency.Add(output.RelativeLatency);
-
-                                    return (output.Item, output.ValueSerializedSize, location.MetricTag);
-                                }
-                                else
+                                if (maybeOutput is not { } output)
                                 {
                                     if (invalidLocations.Contains(locationId) && location is CacheCompanion)
                                     {
@@ -228,15 +222,20 @@ public sealed class SmartCacheService : ISmartCacheService
 
                                     return null;
                                 }
+
+                                Latency latency = locationLatencies.GetOrAdd(locationId, static _ => new Latency());
+                                latency.Add(output.LatencyMsec / output.ValueSerializedSize);
+
+                                return (output, location.MetricTag);
                             };
                         }
                     )
                     .ToArray();
 
-                (TValue, long, KeyValuePair<string, object?>)? maybeOutput;
+                (CacheLocationOutput<TValue> Output, KeyValuePair<string, object?> MetricTag)? maybeOutputTagged;
                 try
                 {
-                    maybeOutput = await TaskUtils.WhenAnyValid(
+                    maybeOutputTagged = await TaskUtils.WhenAnyValid(
                         taskFactories.ToArray(),
                         smartCacheServiceOptions.CompanionPrefetchCount,
                         smartCacheServiceOptions.CompanionMaxParallelism,
@@ -246,7 +245,7 @@ public sealed class SmartCacheService : ISmartCacheService
                 }
                 catch (InvalidOperationException)
                 {
-                    maybeOutput = default;
+                    maybeOutputTagged = default;
                 }
                 finally
                 {
@@ -256,11 +255,13 @@ public sealed class SmartCacheService : ISmartCacheService
                     }
                 }
 
-                if (maybeOutput is var (item, valueSerializedSize, metricTag))
+                if (maybeOutputTagged is var ((item, valueSerializedSize, latencyMsec), metricTag))
                 {
                     SmartCacheMetrics.Instruments.KeySerializedSize.Record(keyHolder.GetAsBytes().LongLength, metricTag);
                     SmartCacheMetrics.Instruments.ValueSerializedSize.Record(valueSerializedSize, metricTag);
                     SmartCacheMetrics.Instruments.Sources.Add(1, metricTag);
+                    SmartCacheMetrics.Instruments.CompanionFetchDuration.Underlying.Record(latencyMsec, metricTag);
+                    SmartCacheMetrics.Instruments.CompanionFetchRelativeDuration.Record(latencyMsec / valueSerializedSize * 1000, metricTag);
 
                     SetValue(keyHolder, item, othersCreationDate, absExpiration, sldExpiration, discardExternalMiss);
                     return item!;

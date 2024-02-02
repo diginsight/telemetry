@@ -11,7 +11,7 @@ public abstract class CacheLocation
         Id = id;
     }
 
-    public abstract Task<(TValue Value, long SerializedSize, double RelativeLatency)?> GetAsync<TValue>(
+    public abstract Task<CacheLocationOutput<TValue>?> GetAsync<TValue>(
         CacheKeyHolder keyHolder, DateTime minimumCreationDate, Action markInvalid, CancellationToken cancellationToken
     );
 }

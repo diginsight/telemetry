@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace Diginsight.SmartCache;
 
@@ -22,6 +23,7 @@ public sealed class CacheMissDescriptor
     [JsonIgnore]
     private bool HasValue => ValueType is not null;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public CacheMissDescriptor(
         string emitter,
         ICacheKey key,
