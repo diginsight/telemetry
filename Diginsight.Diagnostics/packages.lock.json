@@ -4,7 +4,7 @@
     ".NETStandard,Version=v2.0": {
       "Microsoft.Extensions.Logging.Console": {
         "type": "Direct",
-        "requested": "[8.0.0, )",
+        "requested": "[8.*, )",
         "resolved": "8.0.0",
         "contentHash": "e+48o7DztoYog+PY430lPxrM4mm3PbA6qucvQtUDDwVo4MO+ejMw7YGc/o2rnxbxj4isPxdfKFzTxvXMwAz83A==",
         "dependencies": {
@@ -360,11 +360,11 @@
       "diginsight.core": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.Extensions.Caching.Memory": "[8.0.0, )",
-          "Microsoft.Extensions.Configuration.Binder": "[8.0.1, )",
-          "Microsoft.Extensions.DependencyInjection": "[8.0.0, )",
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.0.0, )",
-          "Microsoft.Extensions.Logging": "[8.0.0, )",
+          "Microsoft.Extensions.Caching.Memory": "[8.*, )",
+          "Microsoft.Extensions.Configuration.Binder": "[8.*, )",
+          "Microsoft.Extensions.DependencyInjection": "[8.*, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.*, )",
+          "Microsoft.Extensions.Logging": "[8.*, )",
           "Newtonsoft.Json": "[13.*, )",
           "Scrutor": "[4.*, )"
         }
@@ -373,7 +373,7 @@
     ".NETStandard,Version=v2.1": {
       "Microsoft.Extensions.Logging.Console": {
         "type": "Direct",
-        "requested": "[8.0.0, )",
+        "requested": "[8.*, )",
         "resolved": "8.0.0",
         "contentHash": "e+48o7DztoYog+PY430lPxrM4mm3PbA6qucvQtUDDwVo4MO+ejMw7YGc/o2rnxbxj4isPxdfKFzTxvXMwAz83A==",
         "dependencies": {
@@ -703,11 +703,11 @@
       "diginsight.core": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.Extensions.Caching.Memory": "[8.0.0, )",
-          "Microsoft.Extensions.Configuration.Binder": "[8.0.1, )",
-          "Microsoft.Extensions.DependencyInjection": "[8.0.0, )",
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.0.0, )",
-          "Microsoft.Extensions.Logging": "[8.0.0, )",
+          "Microsoft.Extensions.Caching.Memory": "[8.*, )",
+          "Microsoft.Extensions.Configuration.Binder": "[8.*, )",
+          "Microsoft.Extensions.DependencyInjection": "[8.*, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.*, )",
+          "Microsoft.Extensions.Logging": "[8.*, )",
           "Newtonsoft.Json": "[13.*, )",
           "Scrutor": "[4.*, )"
         }
@@ -716,7 +716,7 @@
     "net6.0": {
       "Microsoft.Extensions.Logging.Console": {
         "type": "Direct",
-        "requested": "[8.0.0, )",
+        "requested": "[8.*, )",
         "resolved": "8.0.0",
         "contentHash": "e+48o7DztoYog+PY430lPxrM4mm3PbA6qucvQtUDDwVo4MO+ejMw7YGc/o2rnxbxj4isPxdfKFzTxvXMwAz83A==",
         "dependencies": {
@@ -1006,11 +1006,11 @@
       "diginsight.core": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.Extensions.Caching.Memory": "[8.0.0, )",
-          "Microsoft.Extensions.Configuration.Binder": "[8.0.1, )",
-          "Microsoft.Extensions.DependencyInjection": "[8.0.0, )",
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.0.0, )",
-          "Microsoft.Extensions.Logging": "[8.0.0, )",
+          "Microsoft.Extensions.Caching.Memory": "[8.*, )",
+          "Microsoft.Extensions.Configuration.Binder": "[8.*, )",
+          "Microsoft.Extensions.DependencyInjection": "[8.*, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.*, )",
+          "Microsoft.Extensions.Logging": "[8.*, )",
           "Newtonsoft.Json": "[13.*, )",
           "Scrutor": "[4.*, )"
         }
@@ -1019,7 +1019,7 @@
     "net7.0": {
       "Microsoft.Extensions.Logging.Console": {
         "type": "Direct",
-        "requested": "[8.0.0, )",
+        "requested": "[8.*, )",
         "resolved": "8.0.0",
         "contentHash": "e+48o7DztoYog+PY430lPxrM4mm3PbA6qucvQtUDDwVo4MO+ejMw7YGc/o2rnxbxj4isPxdfKFzTxvXMwAz83A==",
         "dependencies": {
@@ -1298,11 +1298,11 @@
       "diginsight.core": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.Extensions.Caching.Memory": "[8.0.0, )",
-          "Microsoft.Extensions.Configuration.Binder": "[8.0.1, )",
-          "Microsoft.Extensions.DependencyInjection": "[8.0.0, )",
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.0.0, )",
-          "Microsoft.Extensions.Logging": "[8.0.0, )",
+          "Microsoft.Extensions.Caching.Memory": "[8.*, )",
+          "Microsoft.Extensions.Configuration.Binder": "[8.*, )",
+          "Microsoft.Extensions.DependencyInjection": "[8.*, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.*, )",
+          "Microsoft.Extensions.Logging": "[8.*, )",
           "Newtonsoft.Json": "[13.*, )",
           "Scrutor": "[4.*, )"
         }
@@ -1311,7 +1311,7 @@
     "net8.0": {
       "Microsoft.Extensions.Logging.Console": {
         "type": "Direct",
-        "requested": "[8.0.0, )",
+        "requested": "[8.*, )",
         "resolved": "8.0.0",
         "contentHash": "e+48o7DztoYog+PY430lPxrM4mm3PbA6qucvQtUDDwVo4MO+ejMw7YGc/o2rnxbxj4isPxdfKFzTxvXMwAz83A==",
         "dependencies": {
@@ -1590,11 +1590,11 @@
       "diginsight.core": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.Extensions.Caching.Memory": "[8.0.0, )",
-          "Microsoft.Extensions.Configuration.Binder": "[8.0.1, )",
-          "Microsoft.Extensions.DependencyInjection": "[8.0.0, )",
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.0.0, )",
-          "Microsoft.Extensions.Logging": "[8.0.0, )",
+          "Microsoft.Extensions.Caching.Memory": "[8.*, )",
+          "Microsoft.Extensions.Configuration.Binder": "[8.*, )",
+          "Microsoft.Extensions.DependencyInjection": "[8.*, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.*, )",
+          "Microsoft.Extensions.Logging": "[8.*, )",
           "Newtonsoft.Json": "[13.*, )",
           "Scrutor": "[4.*, )"
         }

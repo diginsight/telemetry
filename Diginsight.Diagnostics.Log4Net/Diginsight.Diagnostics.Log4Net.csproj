@@ -6,14 +6,8 @@
     <PackageTags>$(PackageTags);diagnostics;log4net</PackageTags>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <ExtensionsLog4NetVersion Condition="'$(TargetFramework)' == 'net6.0' or $(TargetFramework.StartsWith('netstandard'))">6.*</ExtensionsLog4NetVersion>
-    <ExtensionsLog4NetVersion Condition="'$(TargetFramework)' == 'net7.0'">7.*</ExtensionsLog4NetVersion>
-    <ExtensionsLog4NetVersion Condition="'$(ExtensionsLog4NetVersion)' == ''">8.*</ExtensionsLog4NetVersion>
-  </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="8.*" />
   </ItemGroup>
 
   <ItemGroup>

@@ -6,12 +6,6 @@
     <PackageTags>$(PackageTags);aspnetcore</PackageTags>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <MicrosoftExtensionsVersion Condition="'$(TargetFramework)' == 'net6.0' or $(TargetFramework.StartsWith('netstandard'))">6.*</MicrosoftExtensionsVersion>
-    <MicrosoftExtensionsVersion Condition="'$(TargetFramework)' == 'net7.0'">7.*</MicrosoftExtensionsVersion>
-    <MicrosoftExtensionsVersion Condition="'$(MicrosoftExtensionsVersion)' == ''">8.*</MicrosoftExtensionsVersion>
-  </PropertyGroup>
-
   <Choose>
     <When Condition="$(TargetFramework.StartsWith('netstandard'))">
       <ItemGroup>
@@ -31,8 +25,8 @@
   </Choose>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.*" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.*" />
     <PackageReference Include="Scrutor" Version="4.*">
       <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
     </PackageReference>
