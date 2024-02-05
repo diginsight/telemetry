@@ -2,7 +2,7 @@
 
 namespace Diginsight.Diagnostics;
 
-public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptions, IObservabilityConsoleFormatterOptions
+public sealed class DiginsightConsoleFormatterOptions : ConsoleFormatterOptions, IDiginsightConsoleFormatterOptions
 {
     private string? pattern;
     private readonly Dictionary<string, string?> patterns = new ();
@@ -15,9 +15,9 @@ public sealed class ObservabilityConsoleFormatterOptions : ConsoleFormatterOptio
 
     public IDictionary<string, string?> Patterns => patterns;
 
-    IReadOnlyDictionary<string, string?> IObservabilityConsoleFormatterOptions.Patterns => patterns;
+    IReadOnlyDictionary<string, string?> IDiginsightConsoleFormatterOptions.Patterns => patterns;
 
-    public ObservabilityConsoleFormatterOptions()
+    public DiginsightConsoleFormatterOptions()
     {
         UseUtcTimestamp = true;
     }

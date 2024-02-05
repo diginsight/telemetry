@@ -1,6 +1,6 @@
 ﻿namespace Diginsight.Diagnostics;
 
-public interface IObservabilityConsoleFormatterOptions
+public interface IDiginsightConsoleFormatterOptions
 {
     string? TimestampFormat { get; }
     bool UseUtcTimestamp { get; }

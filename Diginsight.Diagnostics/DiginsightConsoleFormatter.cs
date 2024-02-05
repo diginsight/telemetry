@@ -6,17 +6,17 @@ using Microsoft.Extensions.Options;
 
 namespace Diginsight.Diagnostics;
 
-internal sealed class ObservabilityConsoleFormatter : ConsoleFormatter
+internal sealed class DiginsightConsoleFormatter : ConsoleFormatter
 {
-    public const string FormatterName = "observability";
+    public const string FormatterName = "diginsight";
 
     private readonly IConsoleLineDescriptorProvider lineDescriptorProvider;
-    private readonly IObservabilityConsoleFormatterOptions formatterOptions;
+    private readonly IDiginsightConsoleFormatterOptions formatterOptions;
     private readonly TimeProvider timeProvider;
 
-    public ObservabilityConsoleFormatter(
+    public DiginsightConsoleFormatter(
         IConsoleLineDescriptorProvider lineDescriptorProvider,
-        IOptionsMonitor<ObservabilityConsoleFormatterOptions> formatterOptionsMonitor,
+        IOptionsMonitor<DiginsightConsoleFormatterOptions> formatterOptionsMonitor,
         TimeProvider? timeProvider = null
     )
         : base(FormatterName)
@@ -39,12 +39,12 @@ internal sealed class ObservabilityConsoleFormatter : ConsoleFormatter
 
         while (true)
         {
-            if (innerState is ObservabilityTextWriter.IOtlpOnly)
+            if (innerState is DiginsightTextWriter.IOtlpOnly)
             {
                 return;
             }
 
-            if (innerState is ObservabilityTextWriter.IActivityMark activityMark)
+            if (innerState is DiginsightTextWriter.IActivityMark activityMark)
             {
                 innerState = activityMark.State;
                 isActivity = true;
@@ -73,7 +73,7 @@ internal sealed class ObservabilityConsoleFormatter : ConsoleFormatter
             width = int.MaxValue;
         }
 
-        ObservabilityTextWriter.Write(
+        DiginsightTextWriter.Write(
             textWriter,
             formatterOptions.UseUtcTimestamp ? finalTimestamp.UtcDateTime : finalTimestamp.LocalDateTime,
             logEntry.LogLevel,

@@ -57,12 +57,14 @@ internal class Program : BackgroundService
                             .AddSingleton<ILineTokenParser>(new SimpleTokenParser("processid", ProcessIdToken.Instance))
                             .AddHostedService<Program>();
 
-                        logger.LogDebug("Observability");
+                        const string diginsightSectionName = "Diginsight";
+
+                        logger.LogDebug("Diginsight");
                         services
-                            .AddObservability(configuration.GetSection("Observability").Bind)
+                            .AddDiginsight(configuration.GetSection(diginsightSectionName).Bind)
                             .WithTracing(
                                 static tracerProviderBuilder => tracerProviderBuilder
-                                    .AddObservability()
+                                    .AddDiginsight()
                                     .AddSource(ActivitySource.Name)
                             );
 
@@ -73,12 +75,12 @@ internal class Program : BackgroundService
                                 {
                                     loggingBuilder
                                         .AddConfiguration(configuration.GetSection("Logging"))
-                                        .AddObservabilityConsole(configuration.GetSection("Observability:Console").Bind);
+                                        .AddDiginsightConsole(configuration.GetSection($"{diginsightSectionName}:Console").Bind);
                                 }
                             );
                     }
                 )
-                .UseObservabilityServiceProvider((_, serviceProviderOptions) => { serviceProviderOptions.DeferredLoggerFactory = loggerFactory; })
+                .UseDiginsightServiceProvider((_, serviceProviderOptions) => { serviceProviderOptions.DeferredLoggerFactory = loggerFactory; })
                 .Build();
 
             logger.LogDebug("Host built");

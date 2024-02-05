@@ -11,7 +11,7 @@ namespace Diginsight;
 
 public static class LogStringExtensions
 {
-    private static readonly Histogram<double> LogStringDuration = AutoObservabilityUtils.Meter.CreateHistogram<double>("diginsight.log_string_duration", "ms");
+    private static readonly Histogram<double> LogStringDuration = SelfObservabilityUtils.Meter.CreateHistogram<double>("diginsight.log_string_duration", "ms");
 
     private static readonly IEnumerable<Type> FixedForbiddenTypes = new[]
     {

@@ -2,7 +2,7 @@
 
 namespace Diginsight.Diagnostics;
 
-public interface IObservabilityOptions
+public interface IDiginsightOptions
 {
     LogLevel DefaultActivityLogLevel { get; }
 

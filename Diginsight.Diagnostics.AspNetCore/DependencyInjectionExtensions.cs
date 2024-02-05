@@ -8,17 +8,17 @@ namespace Diginsight.Diagnostics.AspNetCore;
 public static class DependencyInjectionExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IWebHostBuilder UseObservabilityServiceProvider(
+    public static IWebHostBuilder UseDiginsightServiceProvider(
         this IWebHostBuilder hostBuilder,
-        Action<WebHostBuilderContext, ObservabilityServiceProviderOptions>? configureOptions = null
+        Action<WebHostBuilderContext, DiginsightServiceProviderOptions>? configureOptions = null
     )
     {
         return hostBuilder.ConfigureServices(
             (context, services) =>
             {
-                ObservabilityServiceProviderOptions options = new ();
+                DiginsightServiceProviderOptions options = new ();
                 configureOptions?.Invoke(context, options);
-                services.Replace(ServiceDescriptor.Singleton<IServiceProviderFactory<IServiceCollection>>(new ObservabilityServiceProviderFactory(options)));
+                services.Replace(ServiceDescriptor.Singleton<IServiceProviderFactory<IServiceCollection>>(new DiginsightServiceProviderFactory(options)));
             }
         );
     }

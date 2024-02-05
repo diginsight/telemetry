@@ -2,13 +2,13 @@
 
 namespace Diginsight.Diagnostics.Log4Net;
 
-internal sealed class ObservabilityLoggingEvent : LoggingEvent
+internal sealed class DiginsightLoggingEvent : LoggingEvent
 {
     public bool IsActivity { get; }
 
     public TimeSpan? Duration { get; }
 
-    public ObservabilityLoggingEvent(LoggingEvent wrapped, bool isActivity, TimeSpan? duration, DateTimeOffset timestamp)
+    public DiginsightLoggingEvent(LoggingEvent wrapped, bool isActivity, TimeSpan? duration, DateTimeOffset timestamp)
         : base(TransformLoggingEventData(wrapped, timestamp))
     {
         IsActivity = isActivity;

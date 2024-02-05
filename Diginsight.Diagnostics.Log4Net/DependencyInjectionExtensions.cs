@@ -12,24 +12,24 @@ namespace Diginsight.Diagnostics.Log4Net;
 public static class DependencyInjectionExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ILoggingBuilder AddObservabilityLog4Net(
+    public static ILoggingBuilder AddDiginsightLog4Net(
         this ILoggingBuilder loggingBuilder,
         Func<AppenderSkeleton> appenderFactory,
         ILoggerRepository? loggerRepository = null,
-        Action<ObservabilityLayoutSkeletonOptions>? configureLayoutSkeletonOptions = null
+        Action<DiginsightLayoutSkeletonOptions>? configureLayoutSkeletonOptions = null
     )
     {
-        return loggingBuilder.AddObservabilityLog4Net([ appenderFactory ], loggerRepository, configureLayoutSkeletonOptions);
+        return loggingBuilder.AddDiginsightLog4Net([ appenderFactory ], loggerRepository, configureLayoutSkeletonOptions);
     }
 
-    public static ILoggingBuilder AddObservabilityLog4Net(
+    public static ILoggingBuilder AddDiginsightLog4Net(
         this ILoggingBuilder loggingBuilder,
         IEnumerable<Func<AppenderSkeleton>> appenderFactories,
         ILoggerRepository? loggerRepository = null,
-        Action<ObservabilityLayoutSkeletonOptions>? configureLayoutSkeletonOptions = null
+        Action<DiginsightLayoutSkeletonOptions>? configureLayoutSkeletonOptions = null
     )
     {
-        loggingBuilder.AddObservability();
+        loggingBuilder.AddDiginsight();
 
         IServiceCollection services = loggingBuilder.Services;
 
@@ -43,7 +43,7 @@ public static class DependencyInjectionExtensions
         ServiceDescriptor descriptor = ServiceDescriptor.Singleton<ILoggerProvider>(
             sp =>
             {
-                ILayout layout = ActivatorUtilities.CreateInstance<ObservabilityLayoutSkeleton>(sp);
+                ILayout layout = ActivatorUtilities.CreateInstance<DiginsightLayoutSkeleton>(sp);
 
                 IAppender[] appenders = appenderFactories
                     .Select(
@@ -67,7 +67,7 @@ public static class DependencyInjectionExtensions
 
                 Log4NetProviderOptions providerOptions = new ()
                 {
-                    LoggingEventFactory = ActivatorUtilities.CreateInstance<ObservabilityLoggingEventFactory>(sp),
+                    LoggingEventFactory = ActivatorUtilities.CreateInstance<DiginsightLoggingEventFactory>(sp),
                     UseWebOrAppConfig = false,
                     ExternalConfigurationSetup = true,
                 };
@@ -75,16 +75,16 @@ public static class DependencyInjectionExtensions
             }
         );
 
-        AddObservabilityLog4NetMarker marker;
-        if (services.FirstOrDefault(static x => x.ServiceType == typeof(AddObservabilityLog4NetMarker)) is { } markerDescriptor)
+        AddDiginsightLog4NetMarker marker;
+        if (services.FirstOrDefault(static x => x.ServiceType == typeof(AddDiginsightLog4NetMarker)) is { } markerDescriptor)
         {
-            marker = (AddObservabilityLog4NetMarker)markerDescriptor.ImplementationInstance!;
+            marker = (AddDiginsightLog4NetMarker)markerDescriptor.ImplementationInstance!;
             services.Remove(marker.Descriptor);
             marker.Descriptor = descriptor;
         }
         else
         {
-            marker = new AddObservabilityLog4NetMarker(descriptor);
+            marker = new AddDiginsightLog4NetMarker(descriptor);
             services.AddSingleton(marker);
         }
 
@@ -93,11 +93,11 @@ public static class DependencyInjectionExtensions
         return loggingBuilder;
     }
 
-    private sealed class AddObservabilityLog4NetMarker
+    private sealed class AddDiginsightLog4NetMarker
     {
         public ServiceDescriptor Descriptor { get; set; }
 
-        public AddObservabilityLog4NetMarker(ServiceDescriptor descriptor)
+        public AddDiginsightLog4NetMarker(ServiceDescriptor descriptor)
         {
             Descriptor = descriptor;
         }

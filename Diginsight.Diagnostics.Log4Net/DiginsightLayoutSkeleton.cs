@@ -6,14 +6,14 @@ using Microsoft.Extensions.Options;
 
 namespace Diginsight.Diagnostics.Log4Net;
 
-internal sealed class ObservabilityLayoutSkeleton : LayoutSkeleton
+internal sealed class DiginsightLayoutSkeleton : LayoutSkeleton
 {
     private readonly ILog4NetLineDescriptorProvider lineDescriptorProvider;
-    private readonly IObservabilityLayoutSkeletonOptions layoutSkeletonOptions;
+    private readonly IDiginsightLayoutSkeletonOptions layoutSkeletonOptions;
 
-    public ObservabilityLayoutSkeleton(
+    public DiginsightLayoutSkeleton(
         ILog4NetLineDescriptorProvider lineDescriptorProvider,
-        IOptions<ObservabilityLayoutSkeletonOptions> layoutSkeletonOptions
+        IOptions<DiginsightLayoutSkeletonOptions> layoutSkeletonOptions
     )
     {
         this.lineDescriptorProvider = lineDescriptorProvider;
@@ -24,9 +24,9 @@ internal sealed class ObservabilityLayoutSkeleton : LayoutSkeleton
 
     public override void Format(TextWriter writer, LoggingEvent loggingEvent)
     {
-        ObservabilityLoggingEvent myLoggingEvent = (ObservabilityLoggingEvent)loggingEvent;
+        DiginsightLoggingEvent myLoggingEvent = (DiginsightLoggingEvent)loggingEvent;
 
-        ObservabilityTextWriter.Write(
+        DiginsightTextWriter.Write(
             writer,
             layoutSkeletonOptions.UseUtcTimestamp ? loggingEvent.TimeStampUtc : loggingEvent.TimeStamp,
             TranslateLogLevel(loggingEvent.Level),

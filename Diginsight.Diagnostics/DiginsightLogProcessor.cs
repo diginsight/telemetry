@@ -12,36 +12,36 @@ using System.Text;
 
 namespace Diginsight.Diagnostics;
 
-internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
+internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
 {
     private static readonly MethodInfo ExtractLoggableFromKvps_Method =
-        typeof(ObservabilityLogProcessor).GetMethod(nameof(ExtractLoggablesFromKvps), BindingFlags.NonPublic | BindingFlags.Instance)!;
+        typeof(DiginsightLogProcessor).GetMethod(nameof(ExtractLoggablesFromKvps), BindingFlags.NonPublic | BindingFlags.Instance)!;
 
     private readonly ILoggerFactory loggerFactory;
     private readonly IAppendingContextFactory appendingContextFactory;
-    private readonly IObservabilityOptions observabilityOptions;
+    private readonly IDiginsightOptions diginsightOptions;
     private readonly IActivityRecordingSampler? activityRecordingSampler;
     private readonly ILogger fallbackLogger;
 
-    public ObservabilityLogProcessor(
+    public DiginsightLogProcessor(
         ILoggerFactory loggerFactory,
         IAppendingContextFactory appendingContextFactory,
-        IOptions<ObservabilityOptions> observabilityOptions,
+        IOptions<DiginsightOptions> diginsightOptions,
         IActivityRecordingSampler? activityRecordingSampler = null
     )
     {
         this.loggerFactory = loggerFactory;
         this.appendingContextFactory = appendingContextFactory;
-        this.observabilityOptions = observabilityOptions.Value;
+        this.diginsightOptions = diginsightOptions.Value;
         this.activityRecordingSampler = activityRecordingSampler;
-        fallbackLogger = loggerFactory.CreateLogger($"{typeof(ObservabilityLogProcessor).Namespace!}.$Activity");
+        fallbackLogger = loggerFactory.CreateLogger($"{typeof(DiginsightLogProcessor).Namespace!}.$Activity");
     }
 
     public override void OnStart(Activity activity)
     {
         ExtractLoggingInfo(
             activity,
-            observabilityOptions,
+            diginsightOptions,
             out bool isStandalone,
             out bool shouldRecord,
             out ILogger textLogger,
@@ -86,7 +86,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
     {
         ExtractLoggingInfo(
             activity,
-            observabilityOptions,
+            diginsightOptions,
             out bool isStandalone,
             out bool _,
             out ILogger textLogger,
@@ -225,7 +225,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
 
     private void ExtractLoggingInfo(
         Activity activity,
-        IObservabilityOptions observabilityOptions,
+        IDiginsightOptions diginsightOptions,
         out bool isStandalone,
         out bool shouldRecord,
         out ILogger textLogger,
@@ -249,11 +249,11 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
             _ => throw new InvalidOperationException($"Invalid '{ActivityCustomPropertyNames.IsStandalone}' in activity"),
         };
 
-        bool? tempShouldRecord = activity.MatchesActivityNamePattern(observabilityOptions.NotRecordedActivityNames) ? false
-            : activity.MatchesActivityNamePattern(observabilityOptions.RecordedActivityNames) ? true
+        bool? tempShouldRecord = activity.MatchesActivityNamePattern(diginsightOptions.NotRecordedActivityNames) ? false
+            : activity.MatchesActivityNamePattern(diginsightOptions.RecordedActivityNames) ? true
             : null;
         activityRecordingSampler?.ShouldRecord(activity, callerType, ref tempShouldRecord);
-        shouldRecord = tempShouldRecord ?? observabilityOptions.RecordActivities;
+        shouldRecord = tempShouldRecord ?? diginsightOptions.RecordActivities;
 
         ILogger innerLogger = providedLogger ?? (callerType is not null ? loggerFactory.CreateLogger(callerType) : fallbackLogger);
 
@@ -263,7 +263,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
         logLevel = activity.GetCustomProperty(ActivityCustomPropertyNames.LogLevel) switch
         {
             LogLevel ll => ll,
-            null => observabilityOptions.DefaultActivityLogLevel,
+            null => diginsightOptions.DefaultActivityLogLevel,
             _ => throw new InvalidOperationException("Invalid log level in activity"),
         };
     }
@@ -300,13 +300,13 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
             => throw new NotSupportedException();
     }
 
-    private class ActivityMark<TState> : ObservabilityTextWriter.IActivityMark<TState>
+    private class ActivityMark<TState> : DiginsightTextWriter.IActivityMark<TState>
     {
         public TState State { get; }
         public TimeSpan? Duration { get; }
 
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
-        object? ObservabilityTextWriter.IActivityMark.State => State;
+        object? DiginsightTextWriter.IActivityMark.State => State;
 #endif
 
         public ActivityMark(TState state, TimeSpan? duration)
@@ -315,7 +315,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
             Duration = duration;
         }
 
-        public static ObservabilityTextWriter.IActivityMark<TState> For(TState state, TimeSpan? duration)
+        public static DiginsightTextWriter.IActivityMark<TState> For(TState state, TimeSpan? duration)
         {
             return state is Tags kvps ? new TagsActivityMark<TState>(state, kvps, duration) : new ActivityMark<TState>(state, duration);
         }
@@ -363,7 +363,7 @@ internal sealed class ObservabilityLogProcessor : BaseProcessor<Activity>
             => throw new NotSupportedException();
     }
 
-    private sealed class OtlpOnly : ObservabilityTextWriter.IOtlpOnly, Tags
+    private sealed class OtlpOnly : DiginsightTextWriter.IOtlpOnly, Tags
     {
         public Tags State { get; }
 
