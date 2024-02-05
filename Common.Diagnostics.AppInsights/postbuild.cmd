@@ -2,7 +2,7 @@ echo on
 set env=DEV
 IF NOT DEFINED UpdateSetup set UpdateSetup=false
 
-rem set TargetBin=C:\temp\New folder
+rem set TargetBin=C:\temp\New folder 
 set TargetBin=E:\dev\01. ABB Port\Ekip Connect 3\EkipConnect\bin\Debug
 
 IF %OutDir% == bin\Debug\net472\ (
