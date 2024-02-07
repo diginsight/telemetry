@@ -10,5 +10,5 @@ public sealed class DefaultSpanDurationMetricProvider : ISpanDurationMetricProvi
 
     public string? MetricName { get; set; }
 
-    public Histogram<double> Metric => metric ??= (Meter ?? ObservabilityDefaults.Meter).CreateHistogram<double>(MetricName ?? "diginsight.span_duration", "ms");
+    public Histogram<double> Metric => metric ??= (Meter ?? DiginsightDefaults.Meter).CreateHistogram<double>(MetricName ?? "diginsight.span_duration", "ms");
 }

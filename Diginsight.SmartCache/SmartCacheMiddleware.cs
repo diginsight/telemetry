@@ -13,7 +13,7 @@ internal sealed class SmartCacheMiddleware : IMiddleware
 {
     private static class Metrics
     {
-        public static readonly TimerHistogram FetchDuration = AutoObservabilityUtils.Meter.CreateTimer("fetch_duration");
+        public static readonly TimerHistogram FetchDuration = SelfObservabilityUtils.Meter.CreateTimer("fetch_duration");
 
         public static class Tags
         {

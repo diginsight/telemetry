@@ -7,7 +7,7 @@ namespace Diginsight.Diagnostics;
 
 public sealed class SpanDurationMetricProcessor : BaseProcessor<Activity>
 {
-    private readonly IObservabilityOptions observabilityOptions;
+    private readonly IDiginsightOptions diginsightOptions;
     private readonly ISpanDurationMetricSampler? sampler;
     private readonly ISpanDurationMetricProvider metricProvider;
 
@@ -16,12 +16,12 @@ public sealed class SpanDurationMetricProcessor : BaseProcessor<Activity>
     private Histogram<double> Metric => metric ??= metricProvider.Metric;
 
     public SpanDurationMetricProcessor(
-        IOptions<ObservabilityOptions> observabilityOptions,
+        IOptions<DiginsightOptions> diginsightOptions,
         ISpanDurationMetricSampler? sampler = null,
         ISpanDurationMetricProvider? metricProvider = null
     )
     {
-        this.observabilityOptions = observabilityOptions.Value;
+        this.diginsightOptions = diginsightOptions.Value;
         this.sampler = sampler;
         this.metricProvider = metricProvider ?? new DefaultSpanDurationMetricProvider();
     }
@@ -30,7 +30,7 @@ public sealed class SpanDurationMetricProcessor : BaseProcessor<Activity>
 
     public override void OnEnd(Activity activity)
     {
-        if (!(sampler?.ShouldRecord(activity, activity.GetCallerType()) ?? observabilityOptions.RecordSpanDurations))
+        if (!(sampler?.ShouldRecord(activity, activity.GetCallerType()) ?? diginsightOptions.RecordSpanDurations))
         {
             return;
         }

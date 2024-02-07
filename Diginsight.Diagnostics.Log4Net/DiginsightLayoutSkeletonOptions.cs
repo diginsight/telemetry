@@ -1,6 +1,6 @@
 ﻿namespace Diginsight.Diagnostics.Log4Net;
 
-public sealed class ObservabilityLayoutSkeletonOptions : IObservabilityLayoutSkeletonOptions
+public sealed class DiginsightLayoutSkeletonOptions : IDiginsightLayoutSkeletonOptions
 {
     private string? pattern;
 

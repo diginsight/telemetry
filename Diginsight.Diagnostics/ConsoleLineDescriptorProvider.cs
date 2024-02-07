@@ -6,7 +6,7 @@ namespace Diginsight.Diagnostics;
 internal sealed class ConsoleLineDescriptorProvider : IConsoleLineDescriptorProvider
 {
     private readonly IEnumerable<ILineTokenParser> customLineTokenParsers;
-    private readonly IObservabilityConsoleFormatterOptions formatterOptions;
+    private readonly IDiginsightConsoleFormatterOptions formatterOptions;
 
     private readonly object lockObj = new ();
     private readonly IDictionary<ValueTuple<int?>, LineDescriptor> descriptorCache = new Dictionary<ValueTuple<int?>, LineDescriptor>();
@@ -14,7 +14,7 @@ internal sealed class ConsoleLineDescriptorProvider : IConsoleLineDescriptorProv
 
     public ConsoleLineDescriptorProvider(
         IEnumerable<ILineTokenParser> customLineTokenParsers,
-        IOptions<ObservabilityConsoleFormatterOptions> formatterOptions
+        IOptions<DiginsightConsoleFormatterOptions> formatterOptions
     )
     {
         this.customLineTokenParsers = customLineTokenParsers;

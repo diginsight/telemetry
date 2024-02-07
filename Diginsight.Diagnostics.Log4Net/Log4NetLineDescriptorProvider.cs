@@ -6,13 +6,13 @@ namespace Diginsight.Diagnostics.Log4Net;
 internal sealed class Log4NetLineDescriptorProvider : ILog4NetLineDescriptorProvider
 {
     private readonly IEnumerable<ILineTokenParser> customLineTokenParsers;
-    private readonly IObservabilityLayoutSkeletonOptions layoutSkeletonOptions;
+    private readonly IDiginsightLayoutSkeletonOptions layoutSkeletonOptions;
 
     private LineDescriptor? lineDescriptor;
 
     public Log4NetLineDescriptorProvider(
         IEnumerable<ILineTokenParser> customLineTokenParsers,
-        IOptions<ObservabilityLayoutSkeletonOptions> layoutSkeletonOptions
+        IOptions<DiginsightLayoutSkeletonOptions> layoutSkeletonOptions
     )
     {
         this.customLineTokenParsers = customLineTokenParsers;

@@ -1,10 +1,12 @@
 ﻿using Newtonsoft.Json;
+using System.Runtime.CompilerServices;
 
 namespace Diginsight.SmartCache;
 
 [CacheInterchangeName("MCCK")]
 public sealed record MethodCallCacheKey : ICacheKey
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MethodCallCacheKey(ICacheKeyService cacheKeyService, Type type, string methodName, params object?[]? arguments)
         : this(type, methodName, cacheKeyService.Wrap(arguments ?? Array.Empty<object?>())) { }
 

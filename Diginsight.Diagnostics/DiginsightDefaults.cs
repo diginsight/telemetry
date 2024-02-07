@@ -4,7 +4,7 @@ using System.Diagnostics.Metrics;
 
 namespace Diginsight.Diagnostics;
 
-public static class ObservabilityDefaults
+public static class DiginsightDefaults
 {
     private static readonly ActivitySource FallbackActivitySource = new ("Default");
     private static readonly Meter FallbackMeter = new ("Default");

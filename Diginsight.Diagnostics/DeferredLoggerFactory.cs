@@ -29,10 +29,10 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
         this.timeProvider = timeProvider ?? TimeProvider.System;
 
         ActivitySource = new ($"Standalone_{Guid.NewGuid():N}");
-        BaseProcessor<Activity> processor = new ObservabilityLogProcessor(
+        BaseProcessor<Activity> processor = new DiginsightLogProcessor(
             this,
             appendingContextFactory ?? AppendingContextFactoryBuilder.DefaultFactory,
-            Options.Create(new ObservabilityOptions() { RecordActivities = false, RecordSpanDurations = false })
+            Options.Create(new DiginsightOptions() { RecordActivities = false, RecordSpanDurations = false })
         );
 
         ActivityListener listener = new ActivityListener()

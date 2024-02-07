@@ -3,12 +3,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Diginsight.Diagnostics;
 
-internal sealed class ObservabilityServiceProviderFactory : IServiceProviderFactory<IServiceCollection>
+internal sealed class DiginsightServiceProviderFactory : IServiceProviderFactory<IServiceCollection>
 {
-    private readonly ObservabilityServiceProviderOptions options;
+    private readonly DiginsightServiceProviderOptions options;
     private readonly IServiceProviderFactory<IServiceCollection> decoratee;
 
-    public ObservabilityServiceProviderFactory(ObservabilityServiceProviderOptions options)
+    public DiginsightServiceProviderFactory(DiginsightServiceProviderOptions options)
     {
         this.options = options;
         decoratee = new DefaultServiceProviderFactory(options);
@@ -20,7 +20,7 @@ internal sealed class ObservabilityServiceProviderFactory : IServiceProviderFact
     {
         IServiceProvider serviceProvider = decoratee.CreateServiceProvider(services);
 
-        serviceProvider.EnsureObservability();
+        serviceProvider.EnsureDiginsight();
 
         if (options.DeferredLoggerFactory is { } deferredLoggerFactory && serviceProvider.GetService<ILoggerFactory>() is { } targetLoggerFactory)
         {

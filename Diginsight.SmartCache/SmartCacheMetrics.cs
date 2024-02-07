@@ -10,7 +10,7 @@ internal static class SmartCacheMetrics
     public static ActivitySource ActivitySource
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => AutoObservabilityUtils.ActivitySource;
+        get => SelfObservabilityUtils.ActivitySource;
     }
 
     public static class Instruments
@@ -32,7 +32,7 @@ internal static class SmartCacheMetrics
 
         static Instruments()
         {
-            Meter meter = AutoObservabilityUtils.Meter;
+            Meter meter = SelfObservabilityUtils.Meter;
 
             FetchDuration = meter.CreateTimer("cache.origin_fetch.duration");
             SizeComputationDuration = meter.CreateTimer("cache.size_computation.duration");

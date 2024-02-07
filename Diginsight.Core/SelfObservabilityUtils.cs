@@ -2,7 +2,7 @@
 
 namespace Diginsight;
 
-internal static class AutoObservabilityUtils
+internal static class SelfObservabilityUtils
 {
     public static readonly Meter Meter = new Meter("Diginsight");
 }

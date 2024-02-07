@@ -6,12 +6,12 @@ using ILogger = log4net.Core.ILogger;
 
 namespace Diginsight.Diagnostics.Log4Net;
 
-internal sealed class ObservabilityLoggingEventFactory : ILog4NetLoggingEventFactory
+internal sealed class DiginsightLoggingEventFactory : ILog4NetLoggingEventFactory
 {
     private readonly TimeProvider timeProvider;
     private readonly ILog4NetLoggingEventFactory decoratee = new Log4NetLoggingEventFactory();
 
-    public ObservabilityLoggingEventFactory(TimeProvider? timeProvider = null)
+    public DiginsightLoggingEventFactory(TimeProvider? timeProvider = null)
     {
         this.timeProvider = timeProvider ?? TimeProvider.System;
     }
@@ -30,12 +30,12 @@ internal sealed class ObservabilityLoggingEventFactory : ILog4NetLoggingEventFac
 
         while (true)
         {
-            if (innerState is ObservabilityTextWriter.IOtlpOnly)
+            if (innerState is DiginsightTextWriter.IOtlpOnly)
             {
                 return null;
             }
 
-            if (innerState is ObservabilityTextWriter.IActivityMark activityMark)
+            if (innerState is DiginsightTextWriter.IActivityMark activityMark)
             {
                 innerState = activityMark.State;
                 isActivity = true;
@@ -58,7 +58,7 @@ internal sealed class ObservabilityLoggingEventFactory : ILog4NetLoggingEventFac
             return null;
         }
 
-        return new ObservabilityLoggingEvent(
+        return new DiginsightLoggingEvent(
             loggingEvent,
             isActivity,
             duration,

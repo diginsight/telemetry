@@ -1,4 +1,6 @@
-﻿namespace Diginsight.Strings;
+﻿using System.Runtime.CompilerServices;
+
+namespace Diginsight.Strings;
 
 public readonly struct InheritableLogThreshold
 {
@@ -9,6 +11,7 @@ public readonly struct InheritableLogThreshold
 
     public bool IsInherited { get; }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public InheritableLogThreshold(int value)
         : this(value < 0 ? throw new ArgumentOutOfRangeException(nameof(value), "Expected non-negative value") : value, false) { }
 
@@ -31,5 +34,6 @@ public readonly struct InheritableLogThreshold
         return finalFallback.Value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator InheritableLogThreshold(int value) => new (value);
 }

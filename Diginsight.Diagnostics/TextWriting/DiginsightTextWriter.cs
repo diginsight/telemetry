@@ -7,9 +7,9 @@ using System.Text;
 
 namespace Diginsight.Diagnostics.TextWriting;
 
-public static class ObservabilityTextWriter
+public static class DiginsightTextWriter
 {
-    private static readonly Histogram<double> WriteDuration = AutoObservabilityUtils.Meter.CreateHistogram<double>("diginsight.write_text_duration", "ms");
+    private static readonly Histogram<double> WriteDuration = SelfObservabilityUtils.Meter.CreateHistogram<double>("diginsight.write_text_duration", "ms");
 
     private static readonly IDictionary<(int, int, int, int), IMessageLineResizer> ResizerCache =
         new Dictionary<(int, int, int, int), IMessageLineResizer>(ResizerKeyEqualityComparer.Instance);

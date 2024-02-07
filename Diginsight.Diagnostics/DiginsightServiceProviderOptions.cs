@@ -2,7 +2,7 @@
 
 namespace Diginsight.Diagnostics;
 
-public class ObservabilityServiceProviderOptions : ServiceProviderOptions
+public class DiginsightServiceProviderOptions : ServiceProviderOptions
 {
     public IDeferredLoggerFactory? DeferredLoggerFactory { get; set; }
 }

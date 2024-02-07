@@ -30,7 +30,7 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
         this.smartCacheRedisOptions = smartCacheRedisOptions.Value;
     }
 
-    public override async Task<(TValue, long, double)?> GetAsync<TValue>(
+    public override async Task<CacheLocationOutput<TValue>?> GetAsync<TValue>(
         CacheKeyHolder keyHolder, DateTime minimumCreationDate, Action markInvalid, CancellationToken cancellationToken
     )
     {
@@ -101,11 +101,7 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
             );
         }
 
-        SmartCacheMetrics.Instruments.CompanionFetchRelativeDuration.Record(
-            latencyMsecD / valueSerializedSize * 1000, SmartCacheMetrics.Tags.Type.Redis, SmartCacheMetrics.Tags.Found.True
-        );
-
-        return (entry.Data, valueSerializedSize, latencyMsecD / valueSerializedSize);
+        return new CacheLocationOutput<TValue>(entry.Data, valueSerializedSize, latencyMsecD);
     }
 
     protected override async Task WriteAsync(CacheKeyHolder keyHolder, IValueEntry entry, TimeSpan expiration, Func<Task> publishMissAsync)

@@ -10,7 +10,7 @@ public readonly struct LineDescriptor
     private const string DuplicatedTokenErrMsg = "Duplicated token";
     private const string IndentationBeforeMessageErrMsg = "'Indentation' token can be followed only by 'Message' token";
 
-    private static readonly Histogram<double> ParseDuration = AutoObservabilityUtils.Meter.CreateHistogram<double>("diginsight.parse_line_pattern_duration", "ms");
+    private static readonly Histogram<double> ParseDuration = SelfObservabilityUtils.Meter.CreateHistogram<double>("diginsight.parse_line_pattern_duration", "ms");
 
     private static readonly IEnumerable<ILineTokenParser> DefaultLineTokenParsers =
     [
@@ -52,6 +52,7 @@ public readonly struct LineDescriptor
 
     public int MaxLineLength { get; }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public LineDescriptor(IEnumerable<ILineToken> lineTokens)
         : this(lineTokens.ToArray(), true) { }
 

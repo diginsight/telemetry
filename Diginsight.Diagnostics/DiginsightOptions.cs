@@ -2,7 +2,7 @@
 
 namespace Diginsight.Diagnostics;
 
-public sealed class ObservabilityOptions : IObservabilityOptions
+public sealed class DiginsightOptions : IDiginsightOptions
 {
     public LogLevel DefaultActivityLogLevel { get; set; } = LogLevel.Debug;
 
@@ -14,7 +14,7 @@ public sealed class ObservabilityOptions : IObservabilityOptions
 
     public ICollection<string> NotRecordedActivityNames { get; } = new List<string>();
 
-    IEnumerable<string> IObservabilityOptions.RecordedActivityNames => RecordedActivityNames;
+    IEnumerable<string> IDiginsightOptions.RecordedActivityNames => RecordedActivityNames;
 
-    IEnumerable<string> IObservabilityOptions.NotRecordedActivityNames => NotRecordedActivityNames;
+    IEnumerable<string> IDiginsightOptions.NotRecordedActivityNames => NotRecordedActivityNames;
 }

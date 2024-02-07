@@ -16,30 +16,30 @@ namespace Diginsight.Diagnostics;
 public static class DependencyInjectionExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IHostBuilder UseObservabilityServiceProvider(
+    public static IHostBuilder UseDiginsightServiceProvider(
         this IHostBuilder hostBuilder,
-        Action<HostBuilderContext, ObservabilityServiceProviderOptions>? configureOptions = null
+        Action<HostBuilderContext, DiginsightServiceProviderOptions>? configureOptions = null
     )
     {
         return hostBuilder.UseServiceProviderFactory(
             context =>
             {
-                ObservabilityServiceProviderOptions options = new ();
+                DiginsightServiceProviderOptions options = new ();
                 configureOptions?.Invoke(context, options);
-                return new ObservabilityServiceProviderFactory(options);
+                return new DiginsightServiceProviderFactory(options);
             }
         );
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static OpenTelemetryBuilder AddObservability(this IServiceCollection services, Action<ObservabilityOptions>? configureObservability = null)
+    public static OpenTelemetryBuilder AddDiginsight(this IServiceCollection services, Action<DiginsightOptions>? configureDiginsight = null)
     {
-        if (configureObservability is not null)
+        if (configureDiginsight is not null)
         {
-            services.Configure(configureObservability);
+            services.Configure(configureDiginsight);
         }
 
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<ObservabilityOptions>, ValidateObservabilityOptions>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<DiginsightOptions>, ValidateDiginsightOptions>());
 
         return services
             .AddOpenTelemetry()
@@ -54,9 +54,9 @@ public static class DependencyInjectionExtensions
             );
     }
 
-    private sealed class ValidateObservabilityOptions : IValidateOptions<ObservabilityOptions>
+    private sealed class ValidateDiginsightOptions : IValidateOptions<DiginsightOptions>
     {
-        public ValidateOptionsResult Validate(string? name, ObservabilityOptions options)
+        public ValidateOptionsResult Validate(string? name, DiginsightOptions options)
         {
             if (name != Options.DefaultName)
             {
@@ -76,7 +76,7 @@ public static class DependencyInjectionExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ILoggingBuilder AddObservability(this ILoggingBuilder loggingBuilder)
+    public static ILoggingBuilder AddDiginsight(this ILoggingBuilder loggingBuilder)
     {
         return loggingBuilder
             .Configure(
@@ -92,22 +92,22 @@ public static class DependencyInjectionExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ILoggingBuilder AddObservabilityConsole(
-        this ILoggingBuilder loggingBuilder, Action<ObservabilityConsoleFormatterOptions>? configureFormatterOptions = null
+    public static ILoggingBuilder AddDiginsightConsole(
+        this ILoggingBuilder loggingBuilder, Action<DiginsightConsoleFormatterOptions>? configureFormatterOptions = null
     )
     {
-        loggingBuilder.AddObservability();
+        loggingBuilder.AddDiginsight();
 
         if (configureFormatterOptions is not null)
         {
-            loggingBuilder.AddConsoleFormatter<ObservabilityConsoleFormatter, ObservabilityConsoleFormatterOptions>(configureFormatterOptions);
+            loggingBuilder.AddConsoleFormatter<DiginsightConsoleFormatter, DiginsightConsoleFormatterOptions>(configureFormatterOptions);
         }
         else
         {
-            loggingBuilder.AddConsoleFormatter<ObservabilityConsoleFormatter, ObservabilityConsoleFormatterOptions>();
+            loggingBuilder.AddConsoleFormatter<DiginsightConsoleFormatter, DiginsightConsoleFormatterOptions>();
         }
 
-        loggingBuilder.AddConsole(static consoleLoggerOptions => { consoleLoggerOptions.FormatterName = ObservabilityConsoleFormatter.FormatterName; });
+        loggingBuilder.AddConsole(static consoleLoggerOptions => { consoleLoggerOptions.FormatterName = DiginsightConsoleFormatter.FormatterName; });
 
         loggingBuilder.Services.TryAddSingleton<IConsoleLineDescriptorProvider, ConsoleLineDescriptorProvider>();
 
@@ -115,16 +115,16 @@ public static class DependencyInjectionExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static MeterProviderBuilder AddObservability(this MeterProviderBuilder meterProviderBuilder)
+    public static MeterProviderBuilder AddDiginsight(this MeterProviderBuilder meterProviderBuilder)
     {
         return meterProviderBuilder;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static TracerProviderBuilder AddObservability(this TracerProviderBuilder tracerProviderBuilder, LogLevel? defaultActivityLogLevel = null)
+    public static TracerProviderBuilder AddDiginsight(this TracerProviderBuilder tracerProviderBuilder, LogLevel? defaultActivityLogLevel = null)
     {
         return tracerProviderBuilder
-            .AddProcessor<ObservabilityLogProcessor>()
+            .AddProcessor<DiginsightLogProcessor>()
             .ConfigureServices(
                 services =>
                 {
@@ -132,7 +132,7 @@ public static class DependencyInjectionExtensions
 
                     if (defaultActivityLogLevel is not null)
                     {
-                        services.Configure<ObservabilityOptions>(o => { o.DefaultActivityLogLevel = defaultActivityLogLevel.Value; });
+                        services.Configure<DiginsightOptions>(o => { o.DefaultActivityLogLevel = defaultActivityLogLevel.Value; });
                     }
                 }
             );
@@ -169,7 +169,7 @@ public static class DependencyInjectionExtensions
         return builder;
     }
 
-    public static void EnsureObservability(this IServiceProvider serviceProvider)
+    public static void EnsureDiginsight(this IServiceProvider serviceProvider)
     {
         _ = serviceProvider.GetService<TracerProvider>();
         _ = serviceProvider.GetService<MeterProvider>();
