@@ -98,29 +98,29 @@ internal class Program : BackgroundService
                 logger.LogWarning($"foo {42:x} {{pippo}}");
             }
 
-            using (ActivitySource.StartMethodActivity(logger, new Dictionary<string, object> { ["SomeInput"] = "hola" }, logLevel: LogLevel.Information))
+            using (Activity? activity = ActivitySource.StartMethodActivity(logger, new Dictionary<string, object> { ["SomeInput"] = "hola" }, logLevel: LogLevel.Information))
             {
                 logger.LogWarning($"bar {404:x} {{paperino}}");
-                logger.StoreOutput(Math.E);
+                activity.StoreOutput(Math.E);
             }
 
             _ = Console.ReadLine();
 
-            using (ActivitySource.StartMethodActivity(logger, new Dictionary<string, string> { ["SomeInput"] = "hello" }, logLevel: LogLevel.Information))
+            using (Activity? activity = ActivitySource.StartMethodActivity(logger, new Dictionary<string, string> { ["SomeInput"] = "hello" }, logLevel: LogLevel.Information))
             {
                 using (ActivitySource.StartRichActivity(logger, "Deep"))
                 {
                     logger.LogWarning($"baz {409:x} {{pluto}}");
                 }
 
-                logger.StoreOutput(Math.PI);
-                logger.StoreNamedOutputs(new { statusCode = HttpStatusCode.Conflict, character = "pluto" });
+                activity.StoreOutput(Math.PI);
+                activity.StoreNamedOutputs(new { statusCode = HttpStatusCode.Conflict, character = "pluto" });
             }
 
-            using (ActivitySource.StartMethodActivity(logger, logLevel: LogLevel.Information))
+            using (Activity? activity = ActivitySource.StartMethodActivity(logger, logLevel: LogLevel.Information))
             {
                 logger.LogWarning($"quux {2023:x} {{topolino}}");
-                logger.StoreNamedOutputs(new Dictionary<string, int>() { ["day"] = 10, ["month"] = 11, ["year"] = 2023 });
+                activity.StoreNamedOutputs(new Dictionary<string, int>() { ["day"] = 10, ["month"] = 11, ["year"] = 2023 });
             }
 
             applicationLifetime.StopApplication();

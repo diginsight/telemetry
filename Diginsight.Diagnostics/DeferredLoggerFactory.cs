@@ -19,7 +19,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
 
     private ILoggerFactory? target;
 
-    public ActivitySource ActivitySource { get; }
+    public ActivitySource ActivitySource { get; } = new ($"Standalone_{Guid.NewGuid():N}");
 
     public DeferredLoggerFactory(
         IAppendingContextFactory? appendingContextFactory = null,
@@ -28,7 +28,6 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
     {
         this.timeProvider = timeProvider ?? TimeProvider.System;
 
-        ActivitySource = new ($"Standalone_{Guid.NewGuid():N}");
         BaseProcessor<Activity> processor = new DiginsightLogProcessor(
             this,
             appendingContextFactory ?? AppendingContextFactoryBuilder.DefaultFactory,

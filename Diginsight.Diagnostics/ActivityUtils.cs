@@ -239,29 +239,27 @@ public static class ActivityUtils
         return activity;
     }
 
-    public static void StoreOutput(this ILogger logger, object? output)
+    public static void StoreOutput(this Activity? activity, object? output)
     {
-        if (Activity.Current is not { } activity)
+        if (activity is null)
         {
             return;
         }
+        if (activity.GetCustomProperty(ActivityCustomPropertyNames.Logger) is null)
+        {
+            throw new ArgumentException("Invalid logger in activity");
+        }
 
-        activity.SetCustomProperty(ActivityCustomPropertyNames.Logger, logger);
         activity.SetCustomProperty(ActivityCustomPropertyNames.Output, new StrongBox<object?>(output));
     }
 
-    public static void StoreNamedOutputs(this ILogger logger, object namedOutputs)
+    public static void StoreNamedOutputs(this Activity? activity, object namedOutputs)
     {
         if (namedOutputs is null)
         {
             throw new ArgumentNullException(nameof(namedOutputs));
         }
-        if (Activity.Current is not { } activity)
-        {
-            return;
-        }
 
-        activity.SetCustomProperty(ActivityCustomPropertyNames.Logger, logger);
-        activity.SetCustomProperty(ActivityCustomPropertyNames.NamedOutputs, namedOutputs);
+        activity?.SetCustomProperty(ActivityCustomPropertyNames.NamedOutputs, namedOutputs);
     }
 }
