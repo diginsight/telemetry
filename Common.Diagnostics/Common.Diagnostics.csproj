@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;net6.0;net7.0;net8.0</TargetFrameworks>
 		<!--<TargetFramework>netstandard2.0</TargetFramework>-->
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -69,7 +69,7 @@
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
-		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.*" />
+		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.7.0" />
 		<PackageReference Include="OpenTelemetry" Version="1.*" />
 		<PackageReference Include="System.Net.Http.Json" Version="8.0.0" />
 		<PackageReference Include="System.Text.Json" Version="8.0.1" />
@@ -100,5 +100,9 @@
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Exec Command="set OutDir=$(OutDir)&#xD;&#xA;set ConfigurationName=$(ConfigurationName)&#xD;&#xA;set ProjectName=$(ProjectName)&#xD;&#xA;set TargetName=$(TargetName)&#xD;&#xA;set TargetPath=$(TargetPath)&#xD;&#xA;set ProjectPath=$(ProjectPath)&#xD;&#xA;set ProjectFileName=$(ProjectFileName)&#xD;&#xA;set TargetExt=$(TargetExt)&#xD;&#xA;set TargetFileName=$(TargetFileName)&#xD;&#xA;set DevEnvDir=$(DevEnvDir)&#xD;&#xA;set TargetDir=$(TargetDir)&#xD;&#xA;set ProjectDir=$(ProjectDir)&#xD;&#xA;set SolutionFileName=$(SolutionFileName)&#xD;&#xA;set SolutionPath=$(SolutionPath)&#xD;&#xA;set SolutionDir=$(SolutionDir)&#xD;&#xA;set SolutionName=$(SolutionName)&#xD;&#xA;set PlatformName=$(PlatformName)&#xD;&#xA;set ProjectExt=$(ProjectExt)&#xD;&#xA;set SolutionExt=$(SolutionExt)&#xD;&#xA;.\postbuild.cmd" />
 	</Target>
+
+	<ItemGroup>
+	  <PackageReference Update="Microsoft.SourceLink.GitHub" Version="8.0.0" />
+	</ItemGroup>
 
 </Project>

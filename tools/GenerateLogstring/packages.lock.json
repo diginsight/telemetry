@@ -511,7 +511,7 @@
           "Microsoft.Extensions.Logging.Abstractions": "[8.0.0, )",
           "Microsoft.Extensions.Logging.Console": "[8.0.0, )",
           "OpenTelemetry": "[1.*, )",
-          "OpenTelemetry.Extensions.Hosting": "[1.*, )",
+          "OpenTelemetry.Extensions.Hosting": "[1.7.0, )",
           "System.Net.Http.Json": "[8.0.0, )",
           "System.Text.Json": "[8.0.1, )",
           "System.Threading.Tasks.Dataflow": "[8.0.0, )"
