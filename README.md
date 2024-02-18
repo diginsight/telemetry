@@ -28,6 +28,9 @@ Articles:
 - [HOWTO - Avoid performance impacts using diginsight telemetry.md](<articles/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.md>): explores how we can do this ensuring no impact on application performance.
 
 - [HOWTO - Integrate the application flow with OpenTelemetry, Azure Monitor and Grafana.md](<articles/03. Integrate the application flow with Azure Monitor and Grafana/HOWTO - Integrate the application flow with Azure Monitor and Grafana.md>): explores how we can connect diginsight telemetry to Azure Monitor and Azure Grafana by means of OpenTelemetry.
+
+- [HOWTO - Use Diginsight Samples.md](<articles/04. HowTo Use Diginsight Samples/HOWTO - Use Diginsight Samples.md>): explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.
+
 <br><br>
 
 # GETTING STARTED
