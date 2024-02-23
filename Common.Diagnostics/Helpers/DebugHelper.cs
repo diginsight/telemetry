@@ -28,7 +28,7 @@ namespace Common
 #if DEBUG
             IsDebugBuild = true;
 #endif
-        }
+        } 
         #endregion
 
         [Obsolete]
