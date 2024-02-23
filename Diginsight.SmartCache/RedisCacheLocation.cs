@@ -10,7 +10,6 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
 {
     private readonly ILogger<RedisCacheLocation> logger;
     private readonly IRedisDatabaseAccessor redisDatabaseAccessor;
-    private readonly ISmartCacheServiceOptions smartCacheServiceOptions;
     private readonly ISmartCacheRedisOptions smartCacheRedisOptions;
 
     public override KeyValuePair<string, object?> MetricTag => SmartCacheMetrics.Tags.Type.Redis;
@@ -18,7 +17,6 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
     public RedisCacheLocation(
         ILogger<RedisCacheLocation> logger,
         IRedisDatabaseAccessor redisDatabaseAccessor,
-        IOptions<SmartCacheServiceOptions> smartCacheServiceOptions,
         IOptions<SmartCacheRedisOptions> smartCacheRedisOptions,
         string? id = null
     )
@@ -26,7 +24,6 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
     {
         this.logger = logger;
         this.redisDatabaseAccessor = redisDatabaseAccessor;
-        this.smartCacheServiceOptions = smartCacheServiceOptions.Value;
         this.smartCacheRedisOptions = smartCacheRedisOptions.Value;
     }
 
@@ -90,21 +87,10 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
             valueSerializedSize
         );
 
-        long readLatencyThresholdMsec = smartCacheServiceOptions.ReadLatencyThreshold;
-        if (latencyMsecL > readLatencyThresholdMsec)
-        {
-            logger.LogWarning(
-                "Redis retrieval latency {LatencyMsec} (size: {ValueSerializedSize:#,##0}) exceeded the configured threshold of {ReadLatencyThresholdMsec}",
-                latencyMsecL,
-                valueSerializedSize,
-                readLatencyThresholdMsec
-            );
-        }
-
         return new CacheLocationOutput<TValue>(entry.Data, valueSerializedSize, latencyMsecD);
     }
 
-    protected override async Task WriteAsync(CacheKeyHolder keyHolder, IValueEntry entry, TimeSpan expiration, Func<Task> publishMissAsync)
+    protected override async Task WriteAsync(CacheKeyHolder keyHolder, IValueEntry entry, TimeSpan? expiration, Func<Task> publishMissAsync)
     {
         using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key, expiration });
 

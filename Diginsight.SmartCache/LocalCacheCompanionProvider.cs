@@ -6,9 +6,11 @@ internal class LocalCacheCompanionProvider : ICacheCompanionProvider
 
     public IEnumerable<PassiveCacheLocation> PassiveLocations { get; }
 
-    public LocalCacheCompanionProvider(RedisCacheLocation redisLocation)
+    public LocalCacheCompanionProvider(RedisCacheLocation? redisLocation = null)
     {
-        PassiveLocations = new[] { redisLocation };
+        PassiveLocations = redisLocation is null
+            ? Enumerable.Empty<PassiveCacheLocation>()
+            : new[] { redisLocation };
     }
 
     public Task<IEnumerable<CacheCompanion>> GetCompanionsAsync()

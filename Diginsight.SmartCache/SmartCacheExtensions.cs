@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -13,16 +14,25 @@ public static class SmartCacheExtensions
     private static readonly MethodInfo UnwrapAsArrayMethod = typeof(SmartCacheExtensions)
         .GetMethod(nameof(UnwrapAsArray), BindingFlags.NonPublic | BindingFlags.Static)!;
 
-    public static IServiceCollection AddSmartCache(this IServiceCollection services, bool addMiddleware = true)
+    public static IServiceCollection AddSmartCache(
+        this IServiceCollection services,
+        bool addRedis = true,
+        bool addMiddleware = true
+    )
     {
         services.AddMemoryCache();
+        services.Configure<MemoryCacheOptions>(nameof(SmartCacheService), static x => { x.SizeLimit = 10_000_000; });
 
         services.TryAddSingleton<ISmartCacheService, SmartCacheService>();
         services.TryAddSingleton<ICacheKeyService, CacheKeyService>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<SmartCacheServiceOptions>, ValidateSmartCacheServiceOptions>());
 
-        services.TryAddSingleton<IRedisDatabaseAccessor, RedisDatabaseAccessor>();
-        services.TryAddSingleton<RedisCacheLocation>();
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<SmartCacheRedisOptions>, ValidateSmartCacheRedisOptions>());
+        if (addRedis)
+        {
+            services.TryAddSingleton<IRedisDatabaseAccessor, RedisDatabaseAccessor>();
+            services.TryAddSingleton<RedisCacheLocation>();
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<SmartCacheRedisOptions>, ValidateSmartCacheRedisOptions>());
+        }
 
         if (addMiddleware && !services.Any(static x => x.ServiceType == typeof(SmartCacheMiddleware)))
         {
@@ -32,6 +42,43 @@ public static class SmartCacheExtensions
         }
 
         return services;
+    }
+
+    private sealed class ValidateSmartCacheServiceOptions : IValidateOptions<SmartCacheServiceOptions>
+    {
+        public ValidateOptionsResult Validate(string? name, SmartCacheServiceOptions options)
+        {
+            if (name != Options.DefaultName)
+            {
+                return ValidateOptionsResult.Skip;
+            }
+
+            ICollection<string> messages = new List<string>();
+            if (options.LowPrioritySizeThreshold > options.MidPrioritySizeThreshold)
+            {
+                messages.Add($"{nameof(SmartCacheServiceOptions.LowPrioritySizeThreshold)} must be less than or equal to {nameof(SmartCacheServiceOptions.MidPrioritySizeThreshold)}");
+            }
+
+            int companionPrefetchCount = options.CompanionPrefetchCount;
+            int companionMaxParallelism = options.CompanionMaxParallelism;
+
+            if (companionPrefetchCount <= 0)
+            {
+                messages.Add($"{nameof(SmartCacheServiceOptions.CompanionPrefetchCount)} must be positive");
+            }
+
+            if (companionMaxParallelism <= 0)
+            {
+                messages.Add($"{nameof(SmartCacheServiceOptions.CompanionMaxParallelism)} must be positive");
+            }
+
+            if (companionPrefetchCount > 0 && companionMaxParallelism > 0 && companionPrefetchCount < companionMaxParallelism)
+            {
+                messages.Add($"{nameof(SmartCacheServiceOptions.CompanionMaxParallelism)} must be less than or equal to {nameof(SmartCacheServiceOptions.CompanionPrefetchCount)}");
+            }
+
+            return messages.Any() ? ValidateOptionsResult.Fail(messages) : ValidateOptionsResult.Success;
+        }
     }
 
     private sealed class ValidateSmartCacheRedisOptions : IValidateOptions<SmartCacheRedisOptions>

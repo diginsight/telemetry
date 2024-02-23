@@ -3,22 +3,35 @@
 public sealed class SmartCacheServiceOptions : ISmartCacheServiceOptions
 {
     private TimeSpan localEntryTolerance = TimeSpan.FromSeconds(10);
+    private TimeSpan defaultMaxAge = TimeSpan.MaxValue;
+    private TimeSpan absoluteExpiration = TimeSpan.MaxValue;
+    private TimeSpan slidingExpiration = TimeSpan.MaxValue;
 
-    public TimeSpan DefaultMaxAge { get; set; }
+    public TimeSpan DefaultMaxAge
+    {
+        get => defaultMaxAge;
+        set => defaultMaxAge = value >= TimeSpan.Zero ? value : TimeSpan.Zero;
+    }
 
-    public TimeSpan AbsoluteExpiration { get; set; }
-    public TimeSpan SlidingExpiration { get; set; }
+    public TimeSpan AbsoluteExpiration
+    {
+        get => absoluteExpiration;
+        set => absoluteExpiration = value >= TimeSpan.Zero ? value : TimeSpan.Zero;
+    }
+
+    public TimeSpan SlidingExpiration
+    {
+        get => slidingExpiration;
+        set => slidingExpiration = value >= TimeSpan.Zero ? value : TimeSpan.Zero;
+    }
 
     public int CompanionPrefetchCount { get; set; } = 5;
     public int CompanionMaxParallelism { get; set; } = 2;
 
-    public long SizeLimit { get; set; } = 10_000_000;
     public int MissValueSizeThreshold { get; set; } = 5_000;
 
     public long LowPrioritySizeThreshold { get; set; } = 20_000;
     public long MidPrioritySizeThreshold { get; set; } = 10_000;
-
-    public long ReadLatencyThreshold { get; set; } = 150;
 
     public TimeSpan LocalEntryTolerance
     {

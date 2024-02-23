@@ -27,7 +27,7 @@ public sealed class SmartCacheService : ISmartCacheService
     private readonly IMemoryCache memoryCache;
 
     private readonly IReadOnlyDictionary<string, PassiveCacheLocation> passiveLocations;
-    private readonly PassiveCacheLocation redisLocation;
+    private readonly PassiveCacheLocation? redisLocation;
 
     private readonly IDictionary<ICacheKey, ValueTuple> keys = new ConcurrentDictionary<ICacheKey, ValueTuple>();
     private readonly ExternalMissDictionary externalMissDictionary = new ();
@@ -58,7 +58,7 @@ public sealed class SmartCacheService : ISmartCacheService
         memoryCache = new MemoryCache(memoryCacheOptionsMonitor.Get(nameof(SmartCacheService)), loggerFactory);
 
         passiveLocations = companionProvider.PassiveLocations.ToDictionary(static x => x.Id);
-        redisLocation = companionProvider.PassiveLocations.OfType<RedisCacheLocation>().Single();
+        redisLocation = companionProvider.PassiveLocations.OfType<RedisCacheLocation>().SingleOrDefault();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -342,16 +342,19 @@ public sealed class SmartCacheService : ISmartCacheService
 
         IValueEntry entry = ValueEntry.Create(value, valueType, creationDate);
 
-        TimeSpan finalAbsExpiration = absExpiration ?? smartCacheServiceOptions.AbsoluteExpiration;
+        static TimeSpan? ToInfinity(TimeSpan ts) => ts == TimeSpan.MaxValue ? null : ts;
 
-        if (classConfigurationGetter.Get("RedisOnlyCache", false))
+        TimeSpan finalAbsExpiration = absExpiration ?? smartCacheServiceOptions.AbsoluteExpiration;
+        TimeSpan? inftyFinalAbsExpiration = ToInfinity(finalAbsExpiration);
+
+        if (classConfigurationGetter.Get("RedisOnlyCache", false) && redisLocation is not null)
         {
-            WriteToLocation(redisLocation, keyHolder, entry, finalAbsExpiration, skipPublish);
+            WriteToLocation(redisLocation, keyHolder, entry, inftyFinalAbsExpiration, skipPublish);
             return;
         }
 
-        TimeSpan finalSldExpiration = new TimeSpan(
-            Math.Min((sldExpiration ?? smartCacheServiceOptions.SlidingExpiration).Ticks, finalAbsExpiration.Ticks)
+        TimeSpan? inftyFinalSldExpiration = ToInfinity(
+            new TimeSpan(Math.Min((sldExpiration ?? smartCacheServiceOptions.SlidingExpiration).Ticks, finalAbsExpiration.Ticks))
         );
 
         long keySize;
@@ -384,8 +387,8 @@ public sealed class SmartCacheService : ISmartCacheService
 
         MemoryCacheEntryOptions entryOptions = new ()
         {
-            AbsoluteExpirationRelativeToNow = finalAbsExpiration,
-            SlidingExpiration = finalSldExpiration,
+            AbsoluteExpirationRelativeToNow = inftyFinalAbsExpiration,
+            SlidingExpiration = inftyFinalSldExpiration,
             Size = size,
             Priority = priority,
         };
@@ -396,7 +399,7 @@ public sealed class SmartCacheService : ISmartCacheService
                 Interlocked.Add(ref memoryCacheSize, -size);
                 SmartCacheMetrics.Instruments.TotalSize.Add(-size);
 
-                OnEvicted(new CacheKeyHolder((ICacheKey)k), (IValueEntry)v!, r, finalAbsExpiration);
+                OnEvicted(new CacheKeyHolder((ICacheKey)k), (IValueEntry)v!, r, inftyFinalAbsExpiration);
             }
         );
 
@@ -411,7 +414,7 @@ public sealed class SmartCacheService : ISmartCacheService
         }
     }
 
-    private void OnEvicted(CacheKeyHolder keyHolder, IValueEntry entry, EvictionReason reason, TimeSpan expiration)
+    private void OnEvicted(CacheKeyHolder keyHolder, IValueEntry entry, EvictionReason reason, TimeSpan? expiration)
     {
         SmartCacheMetrics.Instruments.Evictions.Add(
             1,
@@ -440,10 +443,13 @@ public sealed class SmartCacheService : ISmartCacheService
             return;
         }
 
-        WriteToLocation(redisLocation, keyHolder, entry, expiration);
+        if (redisLocation is not null)
+        {
+            WriteToLocation(redisLocation, keyHolder, entry, expiration);
+        }
     }
 
-    private void WriteToLocation(PassiveCacheLocation location, CacheKeyHolder keyHolder, IValueEntry entry, TimeSpan expiration, bool skipPublish = false)
+    private void WriteToLocation(PassiveCacheLocation location, CacheKeyHolder keyHolder, IValueEntry entry, TimeSpan? expiration, bool skipPublish = false)
     {
         location.WriteAndForget(
             keyHolder,
@@ -566,7 +572,15 @@ public sealed class SmartCacheService : ISmartCacheService
             return false;
         }
 
-        DateTime minimumCreationDate = requestStartedOn - finalMaxAge;
+        DateTime minimumCreationDate;
+        try
+        {
+            minimumCreationDate = requestStartedOn - finalMaxAge;
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            minimumCreationDate = DateTime.MinValue;
+        }
         if (callerClassConfigurationGetter.TryGet("MinimumCreationDate", out DateTime outerMinimumCreationDate, TryConvertMinimumCreationDate))
         {
             if (outerMinimumCreationDate > minimumCreationDate)
