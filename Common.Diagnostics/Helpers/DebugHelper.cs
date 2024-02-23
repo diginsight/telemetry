@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -18,6 +19,7 @@ namespace Common
         #region properties
         public static bool IsDebugBuild { get => _isDebugBuild; set => _isDebugBuild = value; }
         public static bool IsReleaseBuild { get => !_isDebugBuild; set => _isDebugBuild = !value; }
+        public static ConcurrentDictionary<Type, bool> isDebugAssembly = new ConcurrentDictionary<Type, bool>();
         #endregion
 
         #region .ctor
@@ -26,12 +28,27 @@ namespace Common
 #if DEBUG
             IsDebugBuild = true;
 #endif
-        }
+        } 
         #endregion
 
+        [Obsolete]
         public static void IfDebug(Action action)
         {
             if (!_isDebugBuild) { return; }
+            action();
+        }
+
+        public static void IfDebug<T>(Action action)
+        {
+            var type = typeof(T);
+            var assemply = type.Assembly;
+            if (!isDebugAssembly.TryGetValue(type, out var isDebug))
+            {
+                isDebug = assemply.GetCustomAttributes(false).OfType<DebuggableAttribute>().Any(da => da.IsJITTrackingEnabled);
+                isDebugAssembly.TryAdd(type, isDebug);
+            }
+
+            if (!isDebug) { return; }
             action();
         }
 

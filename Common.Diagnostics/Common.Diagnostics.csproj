@@ -72,7 +72,7 @@
 		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.7.0" />
 		<PackageReference Include="OpenTelemetry" Version="1.*" />
 		<PackageReference Include="System.Net.Http.Json" Version="8.0.0" />
-		<PackageReference Include="System.Text.Json" Version="8.0.1" />
+		<PackageReference Include="System.Text.Json" Version="8.0.2" />
 		<PackageReference Include="System.Threading.Tasks.Dataflow" Version="8.0.0" />
 	</ItemGroup>
 
