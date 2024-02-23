@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections;
@@ -14,120 +11,11 @@ public static class SmartCacheExtensions
     private static readonly MethodInfo UnwrapAsArrayMethod = typeof(SmartCacheExtensions)
         .GetMethod(nameof(UnwrapAsArray), BindingFlags.NonPublic | BindingFlags.Static)!;
 
-    public static IServiceCollection AddSmartCache(
-        this IServiceCollection services,
-        bool addRedis = true,
-        bool addMiddleware = true
-    )
+    public static SmartCacheServiceBuilder AddSmartCache(this IServiceCollection services)
     {
-        services.AddMemoryCache();
-        services.Configure<MemoryCacheOptions>(nameof(SmartCacheService), static x => { x.SizeLimit = 10_000_000; });
-
-        services.TryAddSingleton<ISmartCacheService, SmartCacheService>();
-        services.TryAddSingleton<ICacheKeyService, CacheKeyService>();
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<SmartCacheServiceOptions>, ValidateSmartCacheServiceOptions>());
-
-        if (addRedis)
-        {
-            services.TryAddSingleton<IRedisDatabaseAccessor, RedisDatabaseAccessor>();
-            services.TryAddSingleton<RedisCacheLocation>();
-            services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<SmartCacheRedisOptions>, ValidateSmartCacheRedisOptions>());
-        }
-
-        if (addMiddleware && !services.Any(static x => x.ServiceType == typeof(SmartCacheMiddleware)))
-        {
-            services
-                .AddTransient<SmartCacheMiddleware>()
-                .AddSingleton<IValidateOptions<SmartCacheMiddlewareOptions>, ValidateSmartCacheMiddlewareOptions>();
-        }
-
-        return services;
-    }
-
-    private sealed class ValidateSmartCacheServiceOptions : IValidateOptions<SmartCacheServiceOptions>
-    {
-        public ValidateOptionsResult Validate(string? name, SmartCacheServiceOptions options)
-        {
-            if (name != Options.DefaultName)
-            {
-                return ValidateOptionsResult.Skip;
-            }
-
-            ICollection<string> messages = new List<string>();
-            if (options.LowPrioritySizeThreshold > options.MidPrioritySizeThreshold)
-            {
-                messages.Add($"{nameof(SmartCacheServiceOptions.LowPrioritySizeThreshold)} must be less than or equal to {nameof(SmartCacheServiceOptions.MidPrioritySizeThreshold)}");
-            }
-
-            int companionPrefetchCount = options.CompanionPrefetchCount;
-            int companionMaxParallelism = options.CompanionMaxParallelism;
-
-            if (companionPrefetchCount <= 0)
-            {
-                messages.Add($"{nameof(SmartCacheServiceOptions.CompanionPrefetchCount)} must be positive");
-            }
-
-            if (companionMaxParallelism <= 0)
-            {
-                messages.Add($"{nameof(SmartCacheServiceOptions.CompanionMaxParallelism)} must be positive");
-            }
-
-            if (companionPrefetchCount > 0 && companionMaxParallelism > 0 && companionPrefetchCount < companionMaxParallelism)
-            {
-                messages.Add($"{nameof(SmartCacheServiceOptions.CompanionMaxParallelism)} must be less than or equal to {nameof(SmartCacheServiceOptions.CompanionPrefetchCount)}");
-            }
-
-            return messages.Any() ? ValidateOptionsResult.Fail(messages) : ValidateOptionsResult.Success;
-        }
-    }
-
-    private sealed class ValidateSmartCacheRedisOptions : IValidateOptions<SmartCacheRedisOptions>
-    {
-        public ValidateOptionsResult Validate(string? name, SmartCacheRedisOptions options)
-        {
-            if (name != Options.DefaultName)
-            {
-                return ValidateOptionsResult.Skip;
-            }
-
-            if (options.Configuration is not null && string.IsNullOrEmpty(options.KeyPrefix))
-            {
-                return ValidateOptionsResult.Fail($"{nameof(SmartCacheRedisOptions.KeyPrefix)} must be non-empty");
-            }
-
-            return ValidateOptionsResult.Success;
-        }
-    }
-
-    private sealed class ValidateSmartCacheMiddlewareOptions : IValidateOptions<SmartCacheMiddlewareOptions>
-    {
-        public ValidateOptionsResult Validate(string? name, SmartCacheMiddlewareOptions options)
-        {
-            if (name != Options.DefaultName)
-            {
-                return ValidateOptionsResult.Skip;
-            }
-
-            ICollection<string> failureMessages = new List<string>();
-            if (options.RootPath?[0] != '/')
-            {
-                failureMessages.Add($"{nameof(SmartCacheMiddlewareOptions.RootPath)} must be not null and start with '/'");
-            }
-            if (options.GetPathSegment is { } getPathSegment && getPathSegment[0] != '/')
-            {
-                failureMessages.Add($"{nameof(SmartCacheMiddlewareOptions.GetPathSegment)} must start with '/'");
-            }
-            if (options.CacheMissPathSegment is { } cacheMissPathSegment && cacheMissPathSegment[0] != '/')
-            {
-                failureMessages.Add($"{nameof(SmartCacheMiddlewareOptions.CacheMissPathSegment)} must start with '/'");
-            }
-            if (options.InvalidatePathSegment is { } invalidatePathSegment && invalidatePathSegment[0] != '/')
-            {
-                failureMessages.Add($"{nameof(SmartCacheMiddlewareOptions.InvalidatePathSegment)} must start with '/'");
-            }
-
-            return failureMessages.Count > 0 ? ValidateOptionsResult.Fail(failureMessages) : ValidateOptionsResult.Success;
-        }
+        return new SmartCacheServiceBuilder(services)
+            .SetSizeLimit(10_000_000)
+            .SetCompanionProvider<LocalCacheCompanionProvider>();
     }
 
     public static ICacheKey ToKey(this ICacheKeyService cacheKeyService, object obj)
