@@ -4,8 +4,7 @@ public sealed class SmartCacheKubernetesOptions : ISmartCacheKubernetesOptions
 {
     public bool UseHttps { get; set; }
 
-    // TODO Validate
-    public TimeSpan CompanionRequestTimeout { get; set; }
+    public TimeSpan CompanionRequestTimeout { get; set; } = TimeSpan.FromSeconds(5);
 
     public string? CompanionsDnsName { get; set; }
 

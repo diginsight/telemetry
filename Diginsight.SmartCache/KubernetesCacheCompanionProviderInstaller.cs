@@ -6,13 +6,26 @@ namespace Diginsight.SmartCache;
 
 public sealed class KubernetesCacheCompanionProviderInstaller : ICacheCompanionProviderInstaller
 {
+    public static readonly ICacheCompanionProviderInstaller Instance = new KubernetesCacheCompanionProviderInstaller();
+
+    private KubernetesCacheCompanionProviderInstaller() { }
+
     public void Install(IServiceCollection services, out Action uninstall)
     {
+        services
+            .AddHttpClient(nameof(KubernetesCacheCompanion))
+            .ConfigureHttpClient(
+                static (sp, client) =>
+                {
+                    ISmartCacheKubernetesOptions options = sp.GetRequiredService<IOptions<SmartCacheKubernetesOptions>>().Value;
+                    client.Timeout = options.CompanionRequestTimeout;
+                }
+            );
+
         ServiceDescriptor sd0 = ServiceDescriptor.Singleton<ICacheCompanionProvider, KubernetesCacheCompanionProvider>();
         services.TryAdd(sd0);
 
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<SmartCacheKubernetesOptions>, ValidateSmartCacheKubernetesOptions>());
-        services.AddMiddlewareOptions();
 
         uninstall = Uninstall;
 
@@ -32,6 +45,10 @@ public sealed class KubernetesCacheCompanionProviderInstaller : ICacheCompanionP
             }
 
             ICollection<string> failureMessages = new List<string>();
+            if (options.CompanionRequestTimeout < TimeSpan.FromSeconds(1))
+            {
+                failureMessages.Add($"{nameof(SmartCacheKubernetesOptions.CompanionRequestTimeout)} must be at least 1 second");
+            }
             if (string.IsNullOrEmpty(options.CompanionsDnsName))
             {
                 failureMessages.Add($"{nameof(SmartCacheKubernetesOptions.CompanionsDnsName)} must be non-empty");

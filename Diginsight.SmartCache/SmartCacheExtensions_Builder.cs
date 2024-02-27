@@ -1,0 +1,143 @@
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
+
+namespace Diginsight.SmartCache;
+
+public static partial class SmartCacheExtensions
+{
+    public static SmartCacheServiceBuilder SetCompanionProvider(
+        this SmartCacheServiceBuilder builder, ICacheCompanionProviderInstaller installer
+    )
+    {
+        CacheCompanionProviderUninstaller uninstaller;
+        if (builder.Services.FirstOrDefault(static x => x.ServiceType == typeof(CacheCompanionProviderUninstaller)) is { } uninstallerServiceDescriptor)
+        {
+            uninstaller = (CacheCompanionProviderUninstaller)uninstallerServiceDescriptor.ImplementationInstance!;
+        }
+        else
+        {
+            uninstaller = new CacheCompanionProviderUninstaller();
+            builder.Services.AddSingleton(uninstaller);
+        }
+
+        uninstaller.Uninstall?.Invoke();
+        installer.Install(builder.Services, out Action uninstall);
+        uninstaller.Uninstall = uninstall;
+
+        return builder;
+    }
+
+    private sealed class CacheCompanionProviderUninstaller
+    {
+        public Action? Uninstall { get; set; }
+    }
+
+    public static SmartCacheServiceBuilder SetLocalCompanionProvider(this SmartCacheServiceBuilder builder) =>
+        builder.SetCompanionProvider(LocalCacheCompanionProviderInstaller.Instance);
+
+    public static SmartCacheServiceBuilder SetKubernetesCompanionProvider(
+        this SmartCacheServiceBuilder builder,
+        Action<SmartCacheKubernetesOptions>? configureKubernetesOptions = null,
+        Action<SmartCacheMiddlewareOptions>? configureMiddlewareOptions = null
+    )
+    {
+        builder
+            .AddMiddleware(configureMiddlewareOptions)
+            .SetCompanionProvider(KubernetesCacheCompanionProviderInstaller.Instance);
+
+        if (configureKubernetesOptions is not null)
+        {
+            builder.Services.Configure(configureKubernetesOptions);
+        }
+
+        return builder;
+    }
+
+    public static SmartCacheServiceBuilder SetSizeLimit(this SmartCacheServiceBuilder builder, long? sizeLimit)
+    {
+        builder.Services.Configure<MemoryCacheOptions>(nameof(SmartCacheService), x => { x.SizeLimit = sizeLimit; });
+        return builder;
+    }
+
+    public static SmartCacheServiceBuilder AddRedis(
+        this SmartCacheServiceBuilder builder, Action<SmartCacheRedisOptions>? configureOptions = null
+    )
+    {
+        builder.Services.TryAddSingleton<IRedisDatabaseAccessor, RedisDatabaseAccessor>();
+        builder.Services.TryAddSingleton<RedisCacheLocation>();
+        builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<SmartCacheRedisOptions>, ValidateSmartCacheRedisOptions>());
+
+        if (configureOptions is not null)
+        {
+            builder.Services.Configure(configureOptions);
+        }
+
+        return builder;
+    }
+
+    private sealed class ValidateSmartCacheRedisOptions : IValidateOptions<SmartCacheRedisOptions>
+    {
+        public ValidateOptionsResult Validate(string? name, SmartCacheRedisOptions options)
+        {
+            if (name != Options.DefaultName)
+            {
+                return ValidateOptionsResult.Skip;
+            }
+
+            if (options.Configuration is not null && string.IsNullOrEmpty(options.KeyPrefix))
+            {
+                return ValidateOptionsResult.Fail($"{nameof(SmartCacheRedisOptions.KeyPrefix)} must be non-empty");
+            }
+
+            return ValidateOptionsResult.Success;
+        }
+    }
+
+    public static SmartCacheServiceBuilder AddMiddleware(
+        this SmartCacheServiceBuilder builder, Action<SmartCacheMiddlewareOptions>? configureOptions = null
+    )
+    {
+        builder.Services.TryAddTransient<SmartCacheMiddleware>();
+        builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<SmartCacheMiddlewareOptions>, ValidateSmartCacheMiddlewareOptions>());
+
+        if (configureOptions is not null)
+        {
+            builder.Services.Configure(configureOptions);
+        }
+
+        return builder;
+    }
+
+    private sealed class ValidateSmartCacheMiddlewareOptions : IValidateOptions<SmartCacheMiddlewareOptions>
+    {
+        public ValidateOptionsResult Validate(string? name, SmartCacheMiddlewareOptions options)
+        {
+            if (name != Options.DefaultName)
+            {
+                return ValidateOptionsResult.Skip;
+            }
+
+            ICollection<string> failureMessages = new List<string>();
+            if (options.RootPath?[0] != '/')
+            {
+                failureMessages.Add($"{nameof(SmartCacheMiddlewareOptions.RootPath)} must be non-empty and start with '/'");
+            }
+            if (options.GetPathSegment is { } getPathSegment && getPathSegment[0] != '/')
+            {
+                failureMessages.Add($"{nameof(SmartCacheMiddlewareOptions.GetPathSegment)} must start with '/'");
+            }
+            if (options.CacheMissPathSegment is { } cacheMissPathSegment && cacheMissPathSegment[0] != '/')
+            {
+                failureMessages.Add($"{nameof(SmartCacheMiddlewareOptions.CacheMissPathSegment)} must start with '/'");
+            }
+            if (options.InvalidatePathSegment is { } invalidatePathSegment && invalidatePathSegment[0] != '/')
+            {
+                failureMessages.Add($"{nameof(SmartCacheMiddlewareOptions.InvalidatePathSegment)} must start with '/'");
+            }
+
+            return failureMessages.Count > 0 ? ValidateOptionsResult.Fail(failureMessages) : ValidateOptionsResult.Success;
+        }
+    }
+}
