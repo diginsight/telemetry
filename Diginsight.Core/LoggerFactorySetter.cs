@@ -91,12 +91,8 @@ internal sealed class LoggerFactorySetter : ILoggerFactorySetter
             }
         }
 
-#if NET7_0_OR_GREATER
         public IDisposable? BeginScope<TState>(TState state)
             where TState : notnull
-#else
-        public IDisposable BeginScope<TState>(TState state)
-#endif
         {
             return ActualLogger.BeginScope(state);
         }

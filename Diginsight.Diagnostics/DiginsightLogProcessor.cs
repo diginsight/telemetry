@@ -32,7 +32,7 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
     {
         this.loggerFactory = loggerFactory;
         this.appendingContextFactory = appendingContextFactory;
-        this.diginsightOptions = diginsightOptions.Value;
+        this.diginsightOptions = diginsightOptions.Value.Freeze();
         this.activityRecordingSampler = activityRecordingSampler;
         fallbackLogger = loggerFactory.CreateLogger($"{typeof(DiginsightLogProcessor).Namespace!}.$Activity");
     }
@@ -41,7 +41,6 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
     {
         ExtractLoggingInfo(
             activity,
-            diginsightOptions,
             out bool isStandalone,
             out bool shouldRecord,
             out ILogger textLogger,
@@ -86,7 +85,6 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
     {
         ExtractLoggingInfo(
             activity,
-            diginsightOptions,
             out bool isStandalone,
             out bool _,
             out ILogger textLogger,
@@ -225,7 +223,6 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
 
     private void ExtractLoggingInfo(
         Activity activity,
-        IDiginsightOptions diginsightOptions,
         out bool isStandalone,
         out bool shouldRecord,
         out ILogger textLogger,

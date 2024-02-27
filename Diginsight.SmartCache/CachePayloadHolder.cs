@@ -1,4 +1,5 @@
 ﻿using Diginsight.Diagnostics;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
 namespace Diginsight.SmartCache;
@@ -6,6 +7,7 @@ namespace Diginsight.SmartCache;
 public class CachePayloadHolder<T>
     where T : notnull
 {
+    private readonly ILogger logger;
     private readonly KeyValuePair<string, object?> metricTag;
     private readonly object lockObj = new ();
 
@@ -14,9 +16,10 @@ public class CachePayloadHolder<T>
 
     public T Payload { get; }
 
-    public CachePayloadHolder(T payload, KeyValuePair<string, object?> metricTag)
+    public CachePayloadHolder(T payload, ILogger logger, KeyValuePair<string, object?> metricTag)
     {
         Payload = payload;
+        this.logger = logger;
         this.metricTag = metricTag;
     }
 
@@ -37,14 +40,10 @@ public class CachePayloadHolder<T>
             }
             else
             {
-                using Activity? activity = SmartCacheMetrics.ActivitySource.StartActivity($"{nameof(SmartCacheService)}.Serialize");
-                activity?.WithDurationMetric(
-                    SmartCacheMetrics.Instruments.SerializationDuration.Underlying,
-                    SmartCacheMetrics.Tags.Operation.Serialization,
-                    metricTag
-                );
-
-                pas = SmartCacheSerialization.SerializeToString(Payload);
+                using (SmartCacheMetrics.StartSerializeActivity(logger, metricTag))
+                {
+                    pas = SmartCacheSerialization.SerializeToString(Payload);
+                }
             }
 
             return payloadAsString ??= pas;
@@ -68,14 +67,10 @@ public class CachePayloadHolder<T>
             }
             else
             {
-                using Activity? activity = SmartCacheMetrics.ActivitySource.StartActivity($"{nameof(SmartCacheService)}.Serialize");
-                activity?.WithDurationMetric(
-                    SmartCacheMetrics.Instruments.SerializationDuration.Underlying,
-                    SmartCacheMetrics.Tags.Operation.Serialization,
-                    metricTag
-                );
-
-                pab = SmartCacheSerialization.SerializeToBytes(Payload);
+                using (SmartCacheMetrics.StartSerializeActivity(logger, metricTag))
+                {
+                    pab = SmartCacheSerialization.SerializeToBytes(Payload);
+                }
             }
 
             return payloadAsBytes ??= pab;

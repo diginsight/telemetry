@@ -63,13 +63,7 @@ public static class DependencyInjectionExtensions
                 return ValidateOptionsResult.Skip;
             }
 
-            IEnumerable<string> recordedActivityNames = options.RecordedActivityNames.Distinct().ToArray();
-            options.RecordedActivityNames.Clear();
-            options.RecordedActivityNames.AddRange(recordedActivityNames);
-
-            IEnumerable<string> notRecordedActivityNames = options.NotRecordedActivityNames.Distinct().ToArray();
-            options.NotRecordedActivityNames.Clear();
-            options.NotRecordedActivityNames.AddRange(notRecordedActivityNames);
+            _ = options.Freeze();
 
             return ValidateOptionsResult.Success;
         }

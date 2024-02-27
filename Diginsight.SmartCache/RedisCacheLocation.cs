@@ -57,14 +57,8 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
         lap.AddTags(SmartCacheMetrics.Tags.Found.True);
 
         ValueEntry<TValue> entry;
-        using (Activity? deserializeActivity = SmartCacheMetrics.ActivitySource.StartActivity($"{nameof(SmartCacheService)}.Deserialize"))
+        using (SmartCacheMetrics.StartDeserializeActivity(logger, SmartCacheMetrics.Tags.Subject.Value))
         {
-            deserializeActivity?.WithDurationMetric(
-                SmartCacheMetrics.Instruments.SerializationDuration.Underlying,
-                SmartCacheMetrics.Tags.Operation.Deserialization,
-                SmartCacheMetrics.Tags.Subject.Value
-            );
-
             entry = SmartCacheSerialization.Deserialize<ValueEntry<TValue>>((byte[])redisEntry!);
         }
 
@@ -75,6 +69,7 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
         {
             logger.LogDebug("Partial cache miss (latency: {LatencyMsec}): value found in Redis but creation date is invalid", latencyMsecL);
 
+            lap.AddTags(SmartCacheMetrics.Tags.Found.False);
             markInvalid();
             _ = await redisDatabase.KeyDeleteAsync(redisKey);
             return null;
@@ -104,14 +99,8 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
         RedisKey redisKey = keyHolder.GetAsBytes();
 
         byte[] rawEntry;
-        using (Activity? serializeActivity = SmartCacheMetrics.ActivitySource.StartRichActivity(logger, $"{nameof(SmartCacheService)}.Serialize"))
+        using (SmartCacheMetrics.StartSerializeActivity(logger, SmartCacheMetrics.Tags.Subject.Value))
         {
-            serializeActivity?.WithDurationMetric(
-                SmartCacheMetrics.Instruments.SerializationDuration.Underlying,
-                SmartCacheMetrics.Tags.Operation.Serialization,
-                SmartCacheMetrics.Tags.Subject.Value
-            );
-
             rawEntry = SmartCacheSerialization.SerializeToBytes(entry);
         }
 

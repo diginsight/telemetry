@@ -49,15 +49,15 @@ internal sealed class SmartCacheMiddleware : IMiddleware
 
         string? remPath = remPath0.Value;
         IActionResult actionResult;
-        if (string.Equals(remPath, middlewareOptions.GetPathSegment ?? "/get", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(remPath, middlewareOptions.GetPathSegment, StringComparison.OrdinalIgnoreCase))
         {
             actionResult = await GetAsync(httpContext);
         }
-        else if (string.Equals(remPath, middlewareOptions.CacheMissPathSegment ?? "/cachemiss", StringComparison.OrdinalIgnoreCase))
+        else if (string.Equals(remPath, middlewareOptions.CacheMissPathSegment, StringComparison.OrdinalIgnoreCase))
         {
             actionResult = await CacheMissAsync(httpContext);
         }
-        else if (string.Equals(remPath, middlewareOptions.InvalidatePathSegment ?? "/invalidate", StringComparison.OrdinalIgnoreCase))
+        else if (string.Equals(remPath, middlewareOptions.InvalidatePathSegment, StringComparison.OrdinalIgnoreCase))
         {
             actionResult = await InvalidateAsync(httpContext);
         }
@@ -116,7 +116,11 @@ internal sealed class SmartCacheMiddleware : IMiddleware
 #if NET6_0_OR_GREATER
         await using FileBufferingReadStream stream = new (httpContext.Request.Body, 100 * 1024);
 #else
+#if NETSTANDARD2_1_OR_GREATER
+        await using FileBufferingReadStream stream = new (
+#else
         using FileBufferingReadStream stream = new (
+#endif
             httpContext.Request.Body,
             100 * 1024,
             null,

@@ -2,7 +2,7 @@
 
 namespace Diginsight.SmartCache;
 
-public sealed class CacheKeyService : ICacheKeyService
+internal sealed class CacheKeyService : ICacheKeyService
 {
     public static readonly ICacheKeyService Empty = new CacheKeyService(Enumerable.Empty<ICacheKeyProvider>());
 

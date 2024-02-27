@@ -4,17 +4,48 @@ namespace Diginsight.Diagnostics;
 
 public sealed class DiginsightOptions : IDiginsightOptions
 {
-    public LogLevel DefaultActivityLogLevel { get; set; } = LogLevel.Debug;
+    private LogLevel defaultActivityLogLevel = LogLevel.Debug;
+    private bool recordActivities;
+    private bool recordSpanDurations = true;
 
-    public bool RecordActivities { get; set; }
+    private bool frozen;
 
-    public bool RecordSpanDurations { get; set; } = true;
+    public LogLevel DefaultActivityLogLevel
+    {
+        get => defaultActivityLogLevel;
+        set => defaultActivityLogLevel = frozen ? throw new InvalidOperationException("Options are frozen") : value;
+    }
 
-    public ICollection<string> RecordedActivityNames { get; } = new List<string>();
+    public bool RecordActivities
+    {
+        get => recordActivities;
+        set => recordActivities = frozen ? throw new InvalidOperationException("Options are frozen") : value;
+    }
 
-    public ICollection<string> NotRecordedActivityNames { get; } = new List<string>();
+    public bool RecordSpanDurations
+    {
+        get => recordSpanDurations;
+        set => recordSpanDurations = frozen ? throw new InvalidOperationException("Options are frozen") : value;
+    }
+
+    public ICollection<string> RecordedActivityNames { get; private set; } = new List<string>();
 
     IEnumerable<string> IDiginsightOptions.RecordedActivityNames => RecordedActivityNames;
 
+    public ICollection<string> NotRecordedActivityNames { get; private set; } = new List<string>();
+
     IEnumerable<string> IDiginsightOptions.NotRecordedActivityNames => NotRecordedActivityNames;
+
+    public IDiginsightOptions Freeze()
+    {
+        if (frozen)
+            return this;
+
+        frozen = true;
+
+        RecordedActivityNames = RecordedActivityNames.Distinct().ToArray();
+        NotRecordedActivityNames = NotRecordedActivityNames.Distinct().ToArray();
+
+        return this;
+    }
 }

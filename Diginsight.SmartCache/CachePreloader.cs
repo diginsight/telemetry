@@ -33,7 +33,7 @@ public sealed class CachePreloader : ICachePreloader
     {
         using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key });
 
-        CacheKeyHolder keyHolder = new CacheKeyHolder(key);
+        CacheKeyHolder keyHolder = new CacheKeyHolder(key, logger);
         // TODO activity?.SetTag("cache.key", keyLogString);
 
         SmartCacheMetrics.Instruments.Preloads.Add(1);
@@ -64,7 +64,7 @@ public sealed class CachePreloader : ICachePreloader
 
         string selfLocationId = companionProvider.SelfLocationId;
         CacheMissDescriptor descriptor = new (selfLocationId, keyHolder.Key, creationDate, selfLocationId, (typeof(TValue), value));
-        CachePayloadHolder<CacheMissDescriptor> descriptorHolder = new (descriptor, SmartCacheMetrics.Tags.Subject.Value);
+        CachePayloadHolder<CacheMissDescriptor> descriptorHolder = new (descriptor, logger, SmartCacheMetrics.Tags.Subject.Value);
 
         CacheCompanion[] companionArray = companions.ToArray();
         companionArray[SharedRandom.Next(companionArray.Length)].PublishCacheMissAndForget(descriptorHolder);

@@ -5,7 +5,7 @@ using System.Net.Sockets;
 
 namespace Diginsight.SmartCache;
 
-public sealed class KubernetesCacheCompanionProvider : ICacheCompanionProvider
+internal sealed class KubernetesCacheCompanionProvider : ICacheCompanionProvider
 {
     private readonly IServiceProvider serviceProvider;
     private readonly ISmartCacheKubernetesOptions smartCacheKubernetesOptions;
@@ -23,7 +23,7 @@ public sealed class KubernetesCacheCompanionProvider : ICacheCompanionProvider
         this.serviceProvider = serviceProvider;
         smartCacheKubernetesOptions = smartCacheKubernetesOptionsOptions.Value;
 
-        SelfLocationId = Environment.GetEnvironmentVariable(smartCacheKubernetesOptions.PodIpEnvVariableName) ?? "";
+        SelfLocationId = Environment.GetEnvironmentVariable(smartCacheKubernetesOptions.PodIpEnvVariableName!) ?? "";
 
         PassiveLocations = redisLocation is null
             ? Enumerable.Empty<PassiveCacheLocation>()
@@ -32,15 +32,10 @@ public sealed class KubernetesCacheCompanionProvider : ICacheCompanionProvider
 
     public async Task<IEnumerable<CacheCompanion>> GetCompanionsAsync()
     {
-        if (smartCacheKubernetesOptions.CompanionsDnsName is not { } companionDnsName)
-        {
-            return Enumerable.Empty<CacheCompanion>();
-        }
-
 #if NET6_0_OR_GREATER
-        return (await Dns.GetHostAddressesAsync(companionDnsName, AddressFamily.InterNetwork))
+        return (await Dns.GetHostAddressesAsync(smartCacheKubernetesOptions.CompanionsDnsName!, AddressFamily.InterNetwork))
 #else
-        return (await Dns.GetHostAddressesAsync(companionDnsName))
+        return (await Dns.GetHostAddressesAsync(smartCacheKubernetesOptions.CompanionsDnsName!))
             .Where(static x => x.AddressFamily == AddressFamily.InterNetwork)
 #endif
             .Select(static x => x.ToString())

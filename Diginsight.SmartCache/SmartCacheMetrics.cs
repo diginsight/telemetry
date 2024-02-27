@@ -1,4 +1,5 @@
 ﻿using Diginsight.Diagnostics;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Runtime.CompilerServices;
@@ -7,6 +8,22 @@ namespace Diginsight.SmartCache;
 
 internal static class SmartCacheMetrics
 {
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static Activity? StartSerializeActivity(ILogger logger, params KeyValuePair<string, object?>[] tags)
+    {
+        Activity? activity = ActivitySource.StartRichActivity(logger, $"{nameof(SmartCacheService)}.Serialize", stackDepth: 1);
+        activity?.WithDurationMetric(Instruments.SerializationDuration, [ Tags.Operation.Serialization, ..tags ]);
+        return activity;
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static Activity? StartDeserializeActivity(ILogger logger, params KeyValuePair<string, object?>[] tags)
+    {
+        Activity? activity = ActivitySource.StartRichActivity(logger, $"{nameof(SmartCacheService)}.Deserialize", stackDepth: 1);
+        activity?.WithDurationMetric(Instruments.SerializationDuration, [ Tags.Operation.Deserialization, ..tags ]);
+        return activity;
+    }
+
     public static ActivitySource ActivitySource
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -16,7 +33,7 @@ internal static class SmartCacheMetrics
     public static class Instruments
     {
         public static readonly TimerHistogram FetchDuration;
-        public static readonly TimerHistogram SerializationDuration;
+        public static readonly Histogram<double> SerializationDuration;
         public static readonly TimerHistogram SizeComputationDuration;
         public static readonly TimerHistogram CompanionFetchDuration;
         public static readonly Histogram<double> CompanionFetchRelativeDuration;
@@ -35,6 +52,7 @@ internal static class SmartCacheMetrics
             Meter meter = SelfObservabilityUtils.Meter;
 
             FetchDuration = meter.CreateTimer("cache.origin_fetch.duration");
+            SerializationDuration = meter.CreateHistogram<double>("cache.serialization.duration");
             SizeComputationDuration = meter.CreateTimer("cache.size_computation.duration");
             CompanionFetchDuration = meter.CreateTimer("cache.companion_fetch.duration");
             CompanionFetchRelativeDuration = meter.CreateHistogram<double>("cache.companion_fetch.relative_duration", "ms_per_kbyte");
@@ -47,7 +65,6 @@ internal static class SmartCacheMetrics
             KeySerializedSize = meter.CreateHistogram<long>("cache.key.serialized_size", "bytes");
             ValueSerializedSize = meter.CreateHistogram<long>("cache.value.serialized_size", "bytes");
             TotalSize = meter.CreateUpDownCounter<long>("cache.total_size", "vbytes");
-            SerializationDuration = meter.CreateTimer("cache.serialization.duration");
         }
     }
 

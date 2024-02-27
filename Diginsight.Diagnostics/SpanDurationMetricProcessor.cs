@@ -21,7 +21,7 @@ public sealed class SpanDurationMetricProcessor : BaseProcessor<Activity>
         ISpanDurationMetricProvider? metricProvider = null
     )
     {
-        this.diginsightOptions = diginsightOptions.Value;
+        this.diginsightOptions = diginsightOptions.Value.Freeze();
         this.sampler = sampler;
         this.metricProvider = metricProvider ?? new DefaultSpanDurationMetricProvider();
     }

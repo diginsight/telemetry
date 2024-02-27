@@ -1,6 +1,6 @@
 ﻿namespace Diginsight.SmartCache;
 
-public sealed class LocalCacheCompanionProvider : ICacheCompanionProvider
+internal sealed class LocalCacheCompanionProvider : ICacheCompanionProvider
 {
     public string SelfLocationId => "<self>";
 

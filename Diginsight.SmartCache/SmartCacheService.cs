@@ -14,7 +14,7 @@ using System.Runtime.CompilerServices;
 
 namespace Diginsight.SmartCache;
 
-public sealed class SmartCacheService : ISmartCacheService
+internal sealed class SmartCacheService : ISmartCacheService
 {
     private readonly ILogger logger;
     private readonly IClassConfigurationGetter classConfigurationGetter;
@@ -82,7 +82,7 @@ public sealed class SmartCacheService : ISmartCacheService
 
         using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key, operationOptions, callerType });
 
-        CacheKeyHolder keyHolder = new CacheKeyHolder(key);
+        CacheKeyHolder keyHolder = new CacheKeyHolder(key, logger);
 
         SmartCacheMetrics.Instruments.Calls.Add(1);
 
@@ -399,7 +399,7 @@ public sealed class SmartCacheService : ISmartCacheService
                 Interlocked.Add(ref memoryCacheSize, -size);
                 SmartCacheMetrics.Instruments.TotalSize.Add(-size);
 
-                OnEvicted(new CacheKeyHolder((ICacheKey)k), (IValueEntry)v!, r, inftyFinalAbsExpiration);
+                OnEvicted(new CacheKeyHolder((ICacheKey)k, logger), (IValueEntry)v!, r, inftyFinalAbsExpiration);
             }
         );
 
@@ -496,22 +496,18 @@ public sealed class SmartCacheService : ISmartCacheService
             using MemoryStream valueStream = new (valueBytes);
 #endif
 
-            using Activity? serializeActivity = SmartCacheMetrics.ActivitySource.StartRichActivity(logger, $"{nameof(SmartCacheService)}.Serialize");
-            serializeActivity?.WithDurationMetric(
-                SmartCacheMetrics.Instruments.SerializationDuration.Underlying,
-                SmartCacheMetrics.Tags.Subject.Value,
-                SmartCacheMetrics.Tags.Operation.Serialization
-            );
-
-            try
+            using (SmartCacheMetrics.StartSerializeActivity(logger, SmartCacheMetrics.Tags.Subject.Value))
             {
-                SmartCacheSerialization.SerializeToStream(value, valueType, valueStream);
+                try
+                {
+                    SmartCacheSerialization.SerializeToStream(value, valueType, valueStream);
 
-                valueTuple = (valueType, value);
-            }
-            catch (NotSupportedException) // In case the serialized value is longer than 'size'
-            {
-                valueTuple = null;
+                    valueTuple = (valueType, value);
+                }
+                catch (NotSupportedException) // In case the serialized value is longer than 'size'
+                {
+                    valueTuple = null;
+                }
             }
         }
         else
@@ -521,7 +517,7 @@ public sealed class SmartCacheService : ISmartCacheService
 
         string selfLocationId = companionProvider.SelfLocationId;
         CacheMissDescriptor descriptor = new (selfLocationId, keyHolder.Key, creationDate, locationId ?? selfLocationId, valueTuple);
-        CachePayloadHolder<CacheMissDescriptor> descriptorHolder = new (descriptor, SmartCacheMetrics.Tags.Subject.Value);
+        CachePayloadHolder<CacheMissDescriptor> descriptorHolder = new (descriptor, logger, SmartCacheMetrics.Tags.Subject.Value);
 
         foreach (CacheCompanion companion in companions)
         {
@@ -656,7 +652,7 @@ public sealed class SmartCacheService : ISmartCacheService
         using (SmartCacheMetrics.ActivitySource.StartRichActivity(logger, $"{nameof(SmartCacheService)}.Invalidate"))
         {
             CoreInvalidate(keys.Keys, memoryCache.Remove);
-            CoreInvalidate(externalMissDictionary.Keys, k => RemoveExternalMiss(new CacheKeyHolder(k)));
+            CoreInvalidate(externalMissDictionary.Keys, k => RemoveExternalMiss(new CacheKeyHolder(k, logger)));
         }
 
         if (broadcast)
@@ -688,7 +684,7 @@ public sealed class SmartCacheService : ISmartCacheService
             }
 
             InvalidationDescriptor descriptor = new (companionProvider.SelfLocationId, invalidationRule);
-            CachePayloadHolder<InvalidationDescriptor> descriptorHolder = new (descriptor, SmartCacheMetrics.Tags.Subject.Value);
+            CachePayloadHolder<InvalidationDescriptor> descriptorHolder = new (descriptor, logger, SmartCacheMetrics.Tags.Subject.Value);
             foreach (CacheCompanion companion in companions)
             {
                 companion.PublishInvalidationAndForget(descriptorHolder);
@@ -711,7 +707,7 @@ public sealed class SmartCacheService : ISmartCacheService
 
         if (valueType is not null)
         {
-            SetValue(new CacheKeyHolder(key), valueType, descriptor.Value, timestamp, skipPublish: true);
+            SetValue(new CacheKeyHolder(key, logger), valueType, descriptor.Value, timestamp, skipPublish: true);
         }
         else
         {

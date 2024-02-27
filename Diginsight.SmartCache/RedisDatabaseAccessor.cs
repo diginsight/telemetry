@@ -3,7 +3,7 @@ using StackExchange.Redis;
 
 namespace Diginsight.SmartCache;
 
-public sealed class RedisDatabaseAccessor : IRedisDatabaseAccessor
+internal sealed class RedisDatabaseAccessor : IRedisDatabaseAccessor
 {
     private readonly string? redisConfiguration;
     private IConnectionMultiplexer? connectionMultiplexer;
