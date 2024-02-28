@@ -2,13 +2,14 @@
 
 namespace Diginsight.Strings;
 
-public sealed class LogStringMemberContract : ILogStringMemberContract
+public class LogStringMemberContract : ILogStringMemberContract
 {
     public static readonly ILogStringMemberContract Empty = new LogStringMemberContract();
 
     private readonly Type? memberType;
-    private Type? providerType;
-    private object[]? providerArgs;
+
+    protected Type? providerType;
+    protected object[]? providerArgs;
 
     public bool? Included { get; set; }
 
@@ -41,14 +42,36 @@ public sealed class LogStringMemberContract : ILogStringMemberContract
         memberType = null;
     }
 
-    internal LogStringMemberContract(Type memberType)
+    private protected LogStringMemberContract(Type memberType)
     {
         this.memberType = memberType;
     }
 
+    internal static LogStringMemberContract For(Type memberType)
+    {
+        return (LogStringMemberContract)Activator.CreateInstance(typeof(LogStringMemberContract<>).MakeGenericType(memberType))!;
+    }
+
     public LogStringMemberContract WithCustomTypeContract(Action<LogStringTypeContract> configureContract)
     {
-        LogStringTypeContract typeContract = new (memberType ?? throw new UnreachableException("Dummy member contract"));
+        LogStringTypeContract typeContract = LogStringTypeContract.For(memberType ?? throw new UnreachableException("Dummy member contract"));
+        configureContract(typeContract);
+
+        providerType = typeof(CustomMemberwiseLogStringProvider);
+        providerArgs = [ typeContract ];
+
+        return this;
+    }
+}
+
+public sealed class LogStringMemberContract<T> : LogStringMemberContract
+{
+    public LogStringMemberContract()
+        : base(typeof(T)) { }
+
+    public LogStringMemberContract<T> WithCustomTypeContract(Action<LogStringTypeContract<T>> configureContract)
+    {
+        LogStringTypeContract<T> typeContract = new LogStringTypeContract<T>();
         configureContract(typeContract);
 
         providerType = typeof(CustomMemberwiseLogStringProvider);

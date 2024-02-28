@@ -53,6 +53,6 @@ internal sealed class AppendingContextFactory : IAppendingContextFactory
 
     public AppendingContextFactoryBuilder PrepareClone()
     {
-        return new AppendingContextFactoryBuilder().Configure(overallConfiguration);
+        return new AppendingContextFactoryBuilder().ConfigureOverall(overallConfiguration);
     }
 }

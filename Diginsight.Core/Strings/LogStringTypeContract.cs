@@ -1,19 +1,25 @@
 ﻿using System.Diagnostics;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Diginsight.Strings;
 
-public sealed class LogStringTypeContract : ILogStringTypeContract
+public class LogStringTypeContract : ILogStringTypeContract
 {
     private readonly Type type;
     private readonly IDictionary<MemberInfo, LogStringMemberContract> memberContracts = new Dictionary<MemberInfo, LogStringMemberContract>();
 
-    public LogStringTypeContract(Type type)
+    public bool? Included { get; set; }
+
+    private protected LogStringTypeContract(Type type)
     {
         this.type = type;
     }
 
-    public bool? Included { get; set; }
+    public static LogStringTypeContract For(Type type)
+    {
+        return (LogStringTypeContract)Activator.CreateInstance(typeof(LogStringTypeContract<>).MakeGenericType(type))!;
+    }
 
     public LogStringMemberContract GetOrAdd(string memberName)
     {
@@ -32,26 +38,12 @@ public sealed class LogStringTypeContract : ILogStringTypeContract
         };
     }
 
-    public LogStringTypeContract GetOrAdd(string memberName, Action<LogStringMemberContract> configureContract)
-    {
-        LogStringMemberContract contract = GetOrAdd(memberName);
-        configureContract(contract);
-        return this;
-    }
-
     public LogStringMemberContract GetOrAdd(MemberInfo member)
     {
         return GetOrAddCore(member, true);
     }
 
-    public LogStringTypeContract GetOrAdd(MemberInfo member, Action<LogStringMemberContract> configureContract)
-    {
-        LogStringMemberContract contract = GetOrAdd(member);
-        configureContract(contract);
-        return this;
-    }
-
-    private LogStringMemberContract GetOrAddCore(MemberInfo member, bool validateMembership)
+    protected LogStringMemberContract GetOrAddCore(MemberInfo member, bool validateMembership)
     {
         if (memberContracts.TryGetValue(member, out LogStringMemberContract? memberContract))
         {
@@ -101,7 +93,7 @@ public sealed class LogStringTypeContract : ILogStringTypeContract
                 throw new ArgumentException($"Member '{memberName}' is not a field or a property");
         }
 
-        return memberContracts[member] = new LogStringMemberContract(memberType);
+        return memberContracts[member] = LogStringMemberContract.For(memberType);
     }
 
     public ILogStringMemberContract? TryGet(MemberInfo member)
@@ -113,5 +105,25 @@ public sealed class LogStringTypeContract : ILogStringTypeContract
     ILogStringTypeContract? ILogStringTypeContractAccessor.TryGet(Type type)
     {
         return type == this.type ? this : null;
+    }
+}
+
+public sealed class LogStringTypeContract<T> : LogStringTypeContract
+{
+    public LogStringTypeContract()
+        : base(typeof(T)) { }
+
+    public LogStringMemberContract<TMember> GetOrAdd<TMember>(Expression<Func<T, TMember>> expression)
+    {
+        if (expression.Body is not MemberExpression bodyExpr)
+        {
+            throw new ArgumentException("Expression must be a member access expression");
+        }
+        if (bodyExpr.Expression != expression.Parameters[0])
+        {
+            throw new ArgumentException("Expression must access a member of the parameter");
+        }
+
+        return (LogStringMemberContract<TMember>)GetOrAddCore(bodyExpr.Member, false);
     }
 }

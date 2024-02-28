@@ -6,23 +6,22 @@ public sealed class LogStringTypeContractAccessor : ILogStringTypeContractAccess
 
     public LogStringTypeContractAccessor()
     {
-        GetOrAdd(
-            typeof(Exception),
+        this.GetOrAdd<Exception>(
             static tc =>
             {
                 tc
-                    .GetOrAdd(nameof(Exception.TargetSite), static mc => { mc.Included = false; })
-                    .GetOrAdd(nameof(Exception.Data), static mc => { mc.Included = false; })
-                    .GetOrAdd(nameof(Exception.HelpLink), static mc => { mc.Included = false; });
+                    .GetOrAdd(static x => x.TargetSite, static mc => { mc.Included = false; })
+                    .GetOrAdd(static x => x.Data, static mc => { mc.Included = false; })
+                    .GetOrAdd(static x => x.HelpLink, static mc => { mc.Included = false; });
             }
         );
     }
 
     public LogStringTypeContract GetOrAdd(Type type)
     {
-        if (contracts.TryGetValue(type, out LogStringTypeContract? contract))
+        if (contracts.TryGetValue(type, out LogStringTypeContract? contract0))
         {
-            return contract;
+            return contract0;
         }
 
         if (type.IsForbidden())
@@ -30,14 +29,7 @@ public sealed class LogStringTypeContractAccessor : ILogStringTypeContractAccess
             throw new ArgumentException($"Type {type.Name} is forbidden");
         }
 
-        return contracts[type] = new LogStringTypeContract(type);
-    }
-
-    public LogStringTypeContractAccessor GetOrAdd(Type type, Action<LogStringTypeContract> configureContract)
-    {
-        LogStringTypeContract contract = GetOrAdd(type);
-        configureContract(contract);
-        return this;
+        return contracts[type] = LogStringTypeContract.For(type);
     }
 
     public ILogStringTypeContract? TryGet(Type type)

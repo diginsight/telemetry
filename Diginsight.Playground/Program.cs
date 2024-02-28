@@ -33,7 +33,7 @@ internal class Program : BackgroundService
         ActivitySource mainActivitySource = loggerFactory.ActivitySource;
 
         IHost host;
-        using (Activity? activity = mainActivitySource.StartMethodActivity(logger))
+        using (mainActivitySource.StartMethodActivity(logger))
         {
             host = new HostBuilder()
                 .ConfigureAppConfiguration(
