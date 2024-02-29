@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Diginsight.SmartCache.Externalization;
+namespace Diginsight.SmartCache.Externalization.Local;
 
 public sealed class LocalCacheCompanionProviderInstaller : ICacheCompanionProviderInstaller
 {

@@ -1,6 +1,6 @@
 ﻿using Diginsight.SmartCache.Externalization.Redis;
 
-namespace Diginsight.SmartCache.Externalization;
+namespace Diginsight.SmartCache.Externalization.Local;
 
 internal sealed class LocalCacheCompanionProvider : ICacheCompanionProvider
 {
@@ -13,6 +13,11 @@ internal sealed class LocalCacheCompanionProvider : ICacheCompanionProvider
         PassiveLocations = redisLocation is null
             ? Enumerable.Empty<PassiveCacheLocation>()
             : new[] { redisLocation };
+    }
+
+    public Task<IEnumerable<CacheLocation>> GetLocationsAsync()
+    {
+        return Task.FromResult(Enumerable.Empty<CacheLocation>());
     }
 
     public Task<IEnumerable<CacheCompanion>> GetCompanionsAsync()

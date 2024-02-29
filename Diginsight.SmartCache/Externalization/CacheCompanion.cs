@@ -9,15 +9,15 @@ public abstract class CacheCompanion : CacheLocation
 
     public void PublishCacheMissAndForget(CachePayloadHolder<CacheMissDescriptor> descriptorHolder)
     {
-        _ = Task.Run(() => PublishCacheMissAndForgetAsync(descriptorHolder));
+        _ = Task.Run(() => PublishCacheMissAsync(descriptorHolder));
     }
 
-    protected abstract Task PublishCacheMissAndForgetAsync(CachePayloadHolder<CacheMissDescriptor> descriptorHolder);
+    protected abstract Task PublishCacheMissAsync(CachePayloadHolder<CacheMissDescriptor> descriptorHolder);
 
     public void PublishInvalidationAndForget(CachePayloadHolder<InvalidationDescriptor> descriptorHolder)
     {
-        _ = Task.Run(() => PublishInvalidationAndForgetAsync(descriptorHolder));
+        _ = Task.Run(() => PublishInvalidationAsync(descriptorHolder));
     }
 
-    protected abstract Task PublishInvalidationAndForgetAsync(CachePayloadHolder<InvalidationDescriptor> descriptorHolder);
+    protected abstract Task PublishInvalidationAsync(CachePayloadHolder<InvalidationDescriptor> descriptorHolder);
 }

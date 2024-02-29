@@ -51,7 +51,7 @@ internal static class SmartCacheMetrics
         {
             Meter meter = SelfObservabilityUtils.Meter;
 
-            FetchDuration = meter.CreateTimer("cache.origin_fetch.duration");
+            FetchDuration = meter.CreateTimer("cache.fetch.duration");
             SerializationDuration = meter.CreateHistogram<double>("cache.serialization.duration");
             SizeComputationDuration = meter.CreateTimer("cache.size_computation.duration");
             CompanionFetchDuration = meter.CreateTimer("cache.companion_fetch.duration");
@@ -84,6 +84,7 @@ internal static class SmartCacheMetrics
             public static readonly KeyValuePair<string, object?> Miss = new ("source_type", "miss");
             public static readonly KeyValuePair<string, object?> Disabled = new ("source_type", "disabled");
             public static readonly KeyValuePair<string, object?> Preload = new ("source_type", "preload");
+            public static readonly KeyValuePair<string, object?> Direct = new ("source_type", "direct");
         }
 
         public static class Eviction

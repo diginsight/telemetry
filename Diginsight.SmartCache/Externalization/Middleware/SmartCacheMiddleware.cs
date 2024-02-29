@@ -11,17 +11,6 @@ namespace Diginsight.SmartCache.Externalization.Middleware;
 
 internal sealed class SmartCacheMiddleware : IMiddleware
 {
-    private static class Metrics
-    {
-        public static readonly TimerHistogram FetchDuration = SelfObservabilityUtils.Meter.CreateTimer("fetch_duration");
-
-        public static class Tags
-        {
-            public static readonly KeyValuePair<string, object?> Found = new ("found", true);
-            public static readonly KeyValuePair<string, object?> NotFound = new ("found", false);
-        }
-    }
-
 #if !NET6_0_OR_GREATER
     private static string? tempDirectory;
 #endif
@@ -74,16 +63,16 @@ internal sealed class SmartCacheMiddleware : IMiddleware
     private async Task<IActionResult> GetAsync(HttpContext httpContext)
     {
         byte[] rawValue;
-        using (var lap = Metrics.FetchDuration.StartLap())
+        using (TimerLap lap = SmartCacheMetrics.Instruments.FetchDuration.StartLap(SmartCacheMetrics.Tags.Type.Direct))
         {
             ICacheKey key = await DeserializeBodyAsync<ICacheKey>(httpContext);
             if (!cacheService.TryGetDirectFromMemory(key, out Type? type, out object? value))
             {
-                lap.AddTags(Metrics.Tags.NotFound);
+                lap.AddTags(SmartCacheMetrics.Tags.Found.False);
                 return new NotFoundResult();
             }
 
-            lap.AddTags(Metrics.Tags.Found);
+            lap.AddTags(SmartCacheMetrics.Tags.Found.True);
             rawValue = SmartCacheSerialization.SerializeToBytes(value, type);
         }
 

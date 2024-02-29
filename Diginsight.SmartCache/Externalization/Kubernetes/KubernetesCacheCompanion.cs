@@ -3,6 +3,7 @@ using Diginsight.SmartCache.Externalization.Middleware;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace Diginsight.SmartCache.Externalization.Kubernetes;
 
@@ -89,17 +90,18 @@ internal sealed class KubernetesCacheCompanion : CacheCompanion
         return null;
     }
 
-    protected override Task PublishCacheMissAndForgetAsync(CachePayloadHolder<CacheMissDescriptor> descriptorHolder)
+    protected override Task PublishCacheMissAsync(CachePayloadHolder<CacheMissDescriptor> descriptorHolder)
     {
-        return PublishAndForgetAsync(descriptorHolder, middlewareOptions.CacheMissPathSegment);
+        return PublishAsync(descriptorHolder, middlewareOptions.CacheMissPathSegment);
     }
 
-    protected override Task PublishInvalidationAndForgetAsync(CachePayloadHolder<InvalidationDescriptor> descriptorHolder)
+    protected override Task PublishInvalidationAsync(CachePayloadHolder<InvalidationDescriptor> descriptorHolder)
     {
-        return PublishAndForgetAsync(descriptorHolder, middlewareOptions.InvalidatePathSegment);
+        return PublishAsync(descriptorHolder, middlewareOptions.InvalidatePathSegment);
     }
 
-    private async Task PublishAndForgetAsync<T>(CachePayloadHolder<T> descriptorHolder, string pathSegment)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private async Task PublishAsync<T>(CachePayloadHolder<T> descriptorHolder, string pathSegment)
         where T : notnull
     {
         HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, MakeRequestUri(pathSegment))
@@ -109,7 +111,9 @@ internal sealed class KubernetesCacheCompanion : CacheCompanion
         using HttpResponseMessage responseMessage = await MakeHttpClient().SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private HttpClient MakeHttpClient() => httpClientFactory.CreateClient(nameof(KubernetesCacheCompanion));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private string MakeRequestUri(string pathSegment) => $"{(kubernetesOptions.UseHttps ? "https" : "http")}://{Id}{middlewareOptions.RootPath}{pathSegment}";
 }

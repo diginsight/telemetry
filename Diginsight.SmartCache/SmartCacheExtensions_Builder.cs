@@ -1,5 +1,6 @@
 ﻿using Diginsight.SmartCache.Externalization;
 using Diginsight.SmartCache.Externalization.Kubernetes;
+using Diginsight.SmartCache.Externalization.Local;
 using Diginsight.SmartCache.Externalization.Middleware;
 using Diginsight.SmartCache.Externalization.Redis;
 using Microsoft.Extensions.Caching.Memory;

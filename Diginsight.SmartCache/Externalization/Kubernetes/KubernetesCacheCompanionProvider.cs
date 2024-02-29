@@ -24,7 +24,7 @@ internal sealed class KubernetesCacheCompanionProvider : ICacheCompanionProvider
         this.serviceProvider = serviceProvider;
         smartCacheKubernetesOptions = smartCacheKubernetesOptionsOptions.Value;
 
-        SelfLocationId = Environment.GetEnvironmentVariable(smartCacheKubernetesOptions.PodIpEnvVariableName!) ?? "";
+        SelfLocationId = Environment.GetEnvironmentVariable(smartCacheKubernetesOptions.PodIpEnvVariableName) ?? "";
 
         PassiveLocations = redisLocation is null
             ? Enumerable.Empty<PassiveCacheLocation>()
