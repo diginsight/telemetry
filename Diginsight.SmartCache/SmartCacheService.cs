@@ -1,4 +1,6 @@
 ﻿using Diginsight.Diagnostics;
+using Diginsight.SmartCache.Externalization;
+using Diginsight.SmartCache.Externalization.Redis;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;

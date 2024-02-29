@@ -1,4 +1,8 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using Diginsight.SmartCache.Externalization;
+using Diginsight.SmartCache.Externalization.Kubernetes;
+using Diginsight.SmartCache.Externalization.Middleware;
+using Diginsight.SmartCache.Externalization.Redis;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
