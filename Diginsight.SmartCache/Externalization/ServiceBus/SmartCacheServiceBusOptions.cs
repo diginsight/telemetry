@@ -16,4 +16,6 @@ public sealed class SmartCacheServiceBusOptions : ISmartCacheServiceBusOptions
 
     string ISmartCacheServiceBusOptions.SubscriptionName =>
         SubscriptionName ?? throw new InvalidOperationException($"{nameof(SubscriptionName)} is null");
+
+    public TimeSpan CompanionRequestTimeout { get; set; } = TimeSpan.FromSeconds(5);
 }

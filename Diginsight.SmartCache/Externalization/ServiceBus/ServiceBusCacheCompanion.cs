@@ -2,9 +2,12 @@
 using Azure.Messaging.ServiceBus.Administration;
 using Diginsight.Diagnostics;
 using Diginsight.SmartCache.Externalization.Redis;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Diginsight.SmartCache.Externalization.ServiceBus;
@@ -18,11 +21,19 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
     private readonly ILogger<ServiceBusCacheCompanion> logger;
     private readonly ISmartCacheService cacheService;
+    private readonly IServiceProvider serviceProvider;
     private readonly ISmartCacheServiceBusOptions serviceBusOptions;
 
     private readonly IEnumerable<CacheEventNotifier> eventNotifiers;
     private readonly ClientHolder clientHolder;
     private readonly ManualResetEventSlim processMre = new ();
+    private readonly ReplyDictionary replyDictionary = new ();
+    private readonly ObjectFactory<ServiceBusCacheLocation> makeLocation =
+        ActivatorUtilities.CreateFactory<ServiceBusCacheLocation>([ typeof(string), typeof(ServiceBusCacheCompanion) ]);
+
+    public string SelfLocationId => serviceBusOptions.SubscriptionName;
+
+    public IEnumerable<PassiveCacheLocation> PassiveLocations { get; }
 
     private sealed class ClientHolder
     {
@@ -70,19 +81,85 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         }
     }
 
-    public string SelfLocationId => serviceBusOptions.SubscriptionName;
+    private sealed class ReplyDictionary : IDisposable
+    {
+        private readonly ConcurrentDictionary<string, Entry> underlying = new ();
+        private readonly Timer cleanupTimer;
 
-    public IEnumerable<PassiveCacheLocation> PassiveLocations { get; }
+        public ReplyDictionary()
+        {
+            TimeSpan cleanupPeriod = TimeSpan.FromMinutes(1);
+            cleanupTimer = new Timer(Cleanup, null, cleanupPeriod, cleanupPeriod);
+
+            void Cleanup(object? state)
+            {
+                DateTime now = DateTime.UtcNow;
+                foreach ((string messageId, Entry entry) in underlying)
+                {
+                    if (now - entry.Timestamp > cleanupPeriod)
+                    {
+                        _ = underlying.TryRemove(messageId, out _);
+                    }
+                }
+            }
+        }
+
+        public BinaryData Get(string messageId, CancellationToken cancellationToken)
+        {
+            return InnerGetOrAdd(messageId).Get(cancellationToken);
+        }
+
+        public void Set(string messageId, BinaryData body)
+        {
+            InnerGetOrAdd(messageId).Set(body);
+        }
+
+        private Entry InnerGetOrAdd(string messageId)
+        {
+            return underlying.GetOrAdd(messageId, static _ => new Entry());
+        }
+
+        public void Dispose()
+        {
+            cleanupTimer.Dispose();
+            underlying.Clear();
+        }
+
+        private sealed class Entry
+        {
+            private readonly ManualResetEventSlim mre = new ();
+            private BinaryData? body;
+
+            public DateTime Timestamp { get; } = DateTime.UtcNow;
+
+            public BinaryData Get(CancellationToken cancellationToken)
+            {
+                mre.Wait(cancellationToken);
+                return body!;
+            }
+
+            public void Set(BinaryData value)
+            {
+                if (body is not null)
+                    return;
+
+                body = value;
+                mre.Set();
+            }
+        }
+    }
 
     public ServiceBusCacheCompanion(
         ILogger<ServiceBusCacheCompanion> logger,
         ISmartCacheService cacheService,
+        IServiceProvider serviceProvider,
         IOptions<SmartCacheServiceBusOptions> serviceBusOptions,
         RedisCacheLocation? redisLocation = null
     )
     {
         this.logger = logger;
         this.cacheService = cacheService;
+        this.serviceProvider = serviceProvider;
         this.serviceBusOptions = serviceBusOptions.Value;
 
         eventNotifiers = new[] { new ServiceBusCacheEventNotifier(this) };
@@ -284,7 +361,8 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
         Task ProcessGetReplyAsync()
         {
-            throw new NotImplementedException();
+            replyDictionary.Set(receivedMessage.MessageId, receivedMessage.Body);
+            return Task.CompletedTask;
         }
 
         Task ProcessCacheMissAsync()
@@ -326,22 +404,39 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         return administrationClient.DeleteSubscriptionAsync(serviceBusOptions.TopicName, serviceBusOptions.SubscriptionName);
     }
 
+    public override void Dispose()
+    {
+        base.Dispose();
+        replyDictionary.Dispose();
+    }
+
     public Task<IEnumerable<ActiveCacheLocation>> GetActiveLocationsAsync(IEnumerable<string> locationIds)
     {
-        return Task.FromResult(locationIds.Select(x => new ServiceBusCacheLocation(x, this)).ToArray<ActiveCacheLocation>().AsEnumerable());
+        return Task.FromResult(
+            locationIds
+                .Select(x => makeLocation(serviceProvider, [ x, this ]))
+                .ToArray<ActiveCacheLocation>()
+                .AsEnumerable()
+        );
     }
 
     public Task<IEnumerable<CacheEventNotifier>> GetAllEventNotifiersAsync() => Task.FromResult(eventNotifiers);
 
     private sealed class ServiceBusCacheLocation : ActiveCacheLocation
     {
+        private readonly ILogger logger;
         private readonly ServiceBusCacheCompanion companion;
 
         public override KeyValuePair<string, object?> MetricTag => SmartCacheMetrics.Tags.Type.Distributed;
 
-        public ServiceBusCacheLocation(string subscriptionName, ServiceBusCacheCompanion companion)
+        public ServiceBusCacheLocation(
+            string subscriptionName,
+            ILogger<ServiceBusCacheLocation> logger,
+            ServiceBusCacheCompanion companion
+        )
             : base(subscriptionName)
         {
+            this.logger = logger;
             this.companion = companion;
         }
 
@@ -349,16 +444,60 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
             CacheKeyHolder keyHolder, DateTime minimumCreationDate, Action markInvalid, CancellationToken cancellationToken
         )
         {
+            using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key, minimumCreationDate });
+
+            using TimerLap lap = SmartCacheMetrics.Instruments.FetchDuration.CreateLap(SmartCacheMetrics.Tags.Type.Distributed);
+
+            string messageId = Guid.NewGuid().ToString("N");
             ServiceBusMessage message = new (keyHolder.GetAsBytes())
             {
                 ReplyTo = companion.SelfLocationId,
                 Subject = GetMessageSubject,
+                MessageId = messageId,
                 To = Id,
             };
 
-            await companion.clientHolder.Sender.SendMessageAsync(message, CancellationToken.None);
+            byte[] body;
+            using (lap.Start())
+            {
+                await companion.clientHolder.Sender.SendMessageAsync(message, CancellationToken.None);
 
-            throw new NotImplementedException();
+                try
+                {
+                    CancellationToken combinedCancellationToken = CancellationTokenSource
+                        .CreateLinkedTokenSource(cancellationToken, new CancellationTokenSource(companion.serviceBusOptions.CompanionRequestTimeout).Token)
+                        .Token;
+                    body = companion.replyDictionary.Get(messageId, combinedCancellationToken).ToArray();
+                }
+                catch (OperationCanceledException oce) when (oce.CancellationToken != cancellationToken)
+                {
+                    body = Array.Empty<byte>();
+                }
+            }
+
+            long valueSerializedSize = body.LongLength;
+            if (!(valueSerializedSize > 0))
+            {
+                markInvalid();
+                logger.LogDebug("Partial cache miss: Failed to retrieve value from peer '{PeerId}'", Id);
+
+                lap.AddTags(SmartCacheMetrics.Tags.Found.False);
+                return null;
+            }
+
+            TValue item;
+            using (SmartCacheMetrics.StartDeserializeActivity(logger, SmartCacheMetrics.Tags.Subject.Value))
+            {
+                item = SmartCacheSerialization.Deserialize<TValue>(body);
+            }
+
+            double latencyMsecD = lap.ElapsedMilliseconds;
+            long latencyMsecL = (long)latencyMsecD;
+
+            logger.LogDebug("Cache hit (latency: {LatencyMsec}): Returning up-to-date value from peer '{PeerId}'", latencyMsecL, Id);
+
+            lap.AddTags(SmartCacheMetrics.Tags.Found.True);
+            return new CacheLocationOutput<TValue>(item, valueSerializedSize, latencyMsecD);
         }
     }
 

@@ -49,10 +49,6 @@ public sealed class KubernetesCacheCompanionInstaller : ICacheCompanionInstaller
             }
 
             ICollection<string> failureMessages = new List<string>();
-            if (options.CompanionRequestTimeout < TimeSpan.FromSeconds(1))
-            {
-                failureMessages.Add($"{nameof(SmartCacheKubernetesOptions.CompanionRequestTimeout)} must be at least 1 second");
-            }
             if (string.IsNullOrEmpty(options.CompanionsDnsName))
             {
                 failureMessages.Add($"{nameof(SmartCacheKubernetesOptions.CompanionsDnsName)} must be non-empty");
@@ -60,6 +56,10 @@ public sealed class KubernetesCacheCompanionInstaller : ICacheCompanionInstaller
             if (string.IsNullOrEmpty(options.PodIpEnvVariableName))
             {
                 failureMessages.Add($"{nameof(SmartCacheKubernetesOptions.PodIpEnvVariableName)} must be non-empty");
+            }
+            if (options.CompanionRequestTimeout < TimeSpan.FromSeconds(1))
+            {
+                failureMessages.Add($"{nameof(SmartCacheKubernetesOptions.CompanionRequestTimeout)} must be at least 1 second");
             }
 
             return failureMessages.Count > 0 ? ValidateOptionsResult.Fail(failureMessages) : ValidateOptionsResult.Success;

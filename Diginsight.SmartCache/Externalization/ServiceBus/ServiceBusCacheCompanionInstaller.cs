@@ -32,6 +32,10 @@ public sealed class ServiceBusCacheCompanionInstaller : ICacheCompanionInstaller
             {
                 failureMessages.Add($"{nameof(SmartCacheServiceBusOptions.SubscriptionName)} must be non-empty");
             }
+            if (options.CompanionRequestTimeout < TimeSpan.FromSeconds(1))
+            {
+                failureMessages.Add($"{nameof(SmartCacheServiceBusOptions.CompanionRequestTimeout)} must be at least 1 second");
+            }
 
             return failureMessages.Count > 0 ? ValidateOptionsResult.Fail(failureMessages) : ValidateOptionsResult.Success;
         }

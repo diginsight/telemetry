@@ -32,18 +32,19 @@ internal sealed class KubernetesCacheLocation : ActiveCacheLocation
     )
     {
         using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key, minimumCreationDate });
-
         using TimerLap lap = SmartCacheMetrics.Instruments.FetchDuration.CreateLap(SmartCacheMetrics.Tags.Type.Distributed);
+
         try
         {
             HttpResponseMessage responseMessage;
             using (lap.Start())
             {
-                responseMessage = await helper.MakeHttpClient().PostAsync(
-                    helper.MakeRequestUri(Id, middlewareOptions.GetPathSegment),
-                    new StringContent(keyHolder.GetAsString(), SmartCacheSerialization.Encoding, "application/json"),
-                    cancellationToken
-                );
+                responseMessage = await helper.MakeHttpClient()
+                    .PostAsync(
+                        helper.MakeRequestUri(Id, middlewareOptions.GetPathSegment),
+                        new StringContent(keyHolder.GetAsString(), SmartCacheSerialization.Encoding, "application/json"),
+                        cancellationToken
+                    );
             }
 
             TValue item;
@@ -77,14 +78,13 @@ internal sealed class KubernetesCacheLocation : ActiveCacheLocation
             return new CacheLocationOutput<TValue>(item, valueSerializedSize, latencyMsecD);
         }
         catch (Exception e)
-            when (e is InvalidOperationException or HttpRequestException || e is TaskCanceledException tce && tce.CancellationToken != cancellationToken)
+            when (e is InvalidOperationException or HttpRequestException || e is OperationCanceledException oce && oce.CancellationToken != cancellationToken)
         {
-            lap.AddTags(SmartCacheMetrics.Tags.Found.False);
             markInvalid();
             logger.LogDebug("Partial cache miss: Failed to retrieve value from pod {PodIp}", Id);
-        }
 
-        lap.AddTags(SmartCacheMetrics.Tags.Found.False);
-        return null;
+            lap.AddTags(SmartCacheMetrics.Tags.Found.False);
+            return null;
+        }
     }
 }

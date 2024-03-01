@@ -11,6 +11,12 @@ internal sealed class KubernetesCacheCompanion : ICacheCompanion
     private readonly IServiceProvider serviceProvider;
     private readonly ISmartCacheKubernetesOptions smartCacheKubernetesOptions;
 
+    private readonly ObjectFactory<KubernetesCacheLocation> makeLocation =
+        ActivatorUtilities.CreateFactory<KubernetesCacheLocation>([typeof(string)]);
+
+    private readonly ObjectFactory<KubernetesCacheEventNotifier> makeEventNotifier =
+        ActivatorUtilities.CreateFactory<KubernetesCacheEventNotifier>([typeof(string)]);
+
     public string SelfLocationId { get; }
 
     public IEnumerable<PassiveCacheLocation> PassiveLocations { get; }
@@ -35,14 +41,14 @@ internal sealed class KubernetesCacheCompanion : ICacheCompanion
     {
         return (await GetAllPodIpsAsync())
             .Intersect(locationIds)
-            .Select(x => ActivatorUtilities.CreateInstance<KubernetesCacheLocation>(serviceProvider, x))
+            .Select(x => makeLocation(serviceProvider, [x]))
             .ToArray();
     }
 
     public async Task<IEnumerable<CacheEventNotifier>> GetAllEventNotifiersAsync()
     {
         return (await GetAllPodIpsAsync())
-            .Select(x => ActivatorUtilities.CreateInstance<KubernetesCacheEventNotifier>(serviceProvider, x))
+            .Select(x => makeEventNotifier(serviceProvider, [x]))
             .ToArray();
     }
 

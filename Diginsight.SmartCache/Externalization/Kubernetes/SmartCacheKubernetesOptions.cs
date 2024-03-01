@@ -4,8 +4,6 @@ public sealed class SmartCacheKubernetesOptions : ISmartCacheKubernetesOptions
 {
     public bool UseHttps { get; set; }
 
-    public TimeSpan CompanionRequestTimeout { get; set; } = TimeSpan.FromSeconds(5);
-
     public string? CompanionsDnsName { get; set; }
 
     string ISmartCacheKubernetesOptions.CompanionsDnsName =>
@@ -15,4 +13,6 @@ public sealed class SmartCacheKubernetesOptions : ISmartCacheKubernetesOptions
 
     string ISmartCacheKubernetesOptions.PodIpEnvVariableName =>
         PodIpEnvVariableName ?? throw new InvalidOperationException($"{nameof(PodIpEnvVariableName)} is not null");
+
+    public TimeSpan CompanionRequestTimeout { get; set; } = TimeSpan.FromSeconds(5);
 }
