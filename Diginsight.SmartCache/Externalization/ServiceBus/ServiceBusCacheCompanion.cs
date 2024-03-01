@@ -26,14 +26,37 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
     private readonly IEnumerable<CacheEventNotifier> eventNotifiers;
     private readonly ClientHolder clientHolder;
+    private readonly ReplyDictionary replyDictionary;
     private readonly ManualResetEventSlim processMre = new ();
-    private readonly ReplyDictionary replyDictionary = new ();
     private readonly ObjectFactory<ServiceBusCacheLocation> makeLocation =
-        ActivatorUtilities.CreateFactory<ServiceBusCacheLocation>([ typeof(string), typeof(ServiceBusCacheCompanion) ]);
+        ActivatorUtilities.CreateFactory<ServiceBusCacheLocation>([ typeof(string) ]);
 
     public string SelfLocationId => serviceBusOptions.SubscriptionName;
 
     public IEnumerable<PassiveCacheLocation> PassiveLocations { get; }
+
+    public ServiceBusCacheCompanion(
+        ILogger<ServiceBusCacheCompanion> logger,
+        ISmartCacheService cacheService,
+        IServiceProvider serviceProvider,
+        IOptions<SmartCacheServiceBusOptions> serviceBusOptions,
+        TimeProvider? timeProvider = null,
+        RedisCacheLocation? redisLocation = null
+    )
+    {
+        this.logger = logger;
+        this.cacheService = cacheService;
+        this.serviceProvider = serviceProvider;
+        this.serviceBusOptions = serviceBusOptions.Value;
+
+        eventNotifiers = new[] { new ServiceBusCacheEventNotifier(this) };
+        clientHolder = new ClientHolder(this.serviceBusOptions);
+        replyDictionary = new ReplyDictionary(timeProvider ?? TimeProvider.System);
+
+        PassiveLocations = redisLocation is null
+            ? Enumerable.Empty<PassiveCacheLocation>()
+            : new[] { redisLocation };
+    }
 
     private sealed class ClientHolder
     {
@@ -83,17 +106,19 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
     private sealed class ReplyDictionary : IDisposable
     {
+        private readonly TimeProvider timeProvider;
         private readonly ConcurrentDictionary<string, Entry> underlying = new ();
         private readonly Timer cleanupTimer;
 
-        public ReplyDictionary()
+        public ReplyDictionary(TimeProvider timeProvider)
         {
+            this.timeProvider = timeProvider;
             TimeSpan cleanupPeriod = TimeSpan.FromMinutes(1);
             cleanupTimer = new Timer(Cleanup, null, cleanupPeriod, cleanupPeriod);
 
             void Cleanup(object? state)
             {
-                DateTime now = DateTime.UtcNow;
+                DateTimeOffset now = timeProvider.GetUtcNow();
                 foreach ((string messageId, Entry entry) in underlying)
                 {
                     if (now - entry.Timestamp > cleanupPeriod)
@@ -116,7 +141,13 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
         private Entry InnerGetOrAdd(string messageId)
         {
-            return underlying.GetOrAdd(messageId, static _ => new Entry());
+            return underlying.GetOrAdd(
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+                messageId, static (_, a) => new Entry(a.GetUtcNow()), timeProvider
+#else
+                messageId, _ => new Entry(timeProvider.GetUtcNow())
+#endif
+            );
         }
 
         public void Dispose()
@@ -130,7 +161,12 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
             private readonly ManualResetEventSlim mre = new ();
             private BinaryData? body;
 
-            public DateTime Timestamp { get; } = DateTime.UtcNow;
+            public DateTimeOffset Timestamp { get; }
+
+            public Entry(DateTimeOffset timestamp)
+            {
+                Timestamp = timestamp;
+            }
 
             public BinaryData Get(CancellationToken cancellationToken)
             {
@@ -147,27 +183,6 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
                 mre.Set();
             }
         }
-    }
-
-    public ServiceBusCacheCompanion(
-        ILogger<ServiceBusCacheCompanion> logger,
-        ISmartCacheService cacheService,
-        IServiceProvider serviceProvider,
-        IOptions<SmartCacheServiceBusOptions> serviceBusOptions,
-        RedisCacheLocation? redisLocation = null
-    )
-    {
-        this.logger = logger;
-        this.cacheService = cacheService;
-        this.serviceProvider = serviceProvider;
-        this.serviceBusOptions = serviceBusOptions.Value;
-
-        eventNotifiers = new[] { new ServiceBusCacheEventNotifier(this) };
-        clientHolder = new ClientHolder(this.serviceBusOptions);
-
-        PassiveLocations = redisLocation is null
-            ? Enumerable.Empty<PassiveCacheLocation>()
-            : new[] { redisLocation };
     }
 
     public override async Task StartAsync(CancellationToken cancellationToken)
@@ -414,7 +429,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
     {
         return Task.FromResult(
             locationIds
-                .Select(x => makeLocation(serviceProvider, [ x, this ]))
+                .Select(x => makeLocation(serviceProvider, [ x ]))
                 .ToArray<ActiveCacheLocation>()
                 .AsEnumerable()
         );

@@ -3,6 +3,7 @@ using Diginsight.SmartCache.Externalization.Kubernetes;
 using Diginsight.SmartCache.Externalization.Local;
 using Diginsight.SmartCache.Externalization.Middleware;
 using Diginsight.SmartCache.Externalization.Redis;
+using Diginsight.SmartCache.Externalization.ServiceBus;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -55,6 +56,20 @@ public static partial class SmartCacheExtensions
         if (configureKubernetesOptions is not null)
         {
             builder.Services.Configure(configureKubernetesOptions);
+        }
+
+        return builder;
+    }
+
+    public static SmartCacheServiceBuilder SetServiceBusCompanion(
+        this SmartCacheServiceBuilder builder, Action<SmartCacheServiceBusOptions>? configureOptions = null
+    )
+    {
+        builder.SetCompanion(KubernetesCacheCompanionInstaller.Instance);
+
+        if (configureOptions is not null)
+        {
+            builder.Services.Configure(configureOptions);
         }
 
         return builder;

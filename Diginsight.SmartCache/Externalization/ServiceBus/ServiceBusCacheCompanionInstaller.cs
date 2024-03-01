@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace Diginsight.SmartCache.Externalization.ServiceBus;
@@ -7,7 +9,25 @@ public sealed class ServiceBusCacheCompanionInstaller : ICacheCompanionInstaller
 {
     public void Install(IServiceCollection services, out Action uninstall)
     {
-        throw new NotImplementedException();
+        ServiceDescriptor sd0 = ServiceDescriptor.Singleton<ServiceBusCacheCompanion, ServiceBusCacheCompanion>();
+        services.TryAdd(sd0);
+
+        ServiceDescriptor sd1 = ServiceDescriptor.Singleton<IHostedService>(static sp => sp.GetRequiredService<ServiceBusCacheCompanion>());
+        services.TryAddEnumerable(sd1);
+
+        ServiceDescriptor sd2 = ServiceDescriptor.Singleton<ICacheCompanion>(static sp => sp.GetRequiredService<ServiceBusCacheCompanion>());
+        services.TryAddEnumerable(sd2);
+
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<SmartCacheServiceBusOptions>, ValidateSmartCacheServiceBusOptions>());
+
+        uninstall = Uninstall;
+
+        void Uninstall()
+        {
+            services.Remove(sd0);
+            services.Remove(sd1);
+            services.Remove(sd2);
+        }
     }
 
     private sealed class ValidateSmartCacheServiceBusOptions : IValidateOptions<SmartCacheServiceBusOptions>

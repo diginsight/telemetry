@@ -51,6 +51,7 @@ public sealed class CacheMissDescriptor
         this.value = value;
     }
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public void Deconstruct(out string emitter, out ICacheKey key, out DateTime timestamp, out string location, out Type? valueType)
     {
         emitter = Emitter;
