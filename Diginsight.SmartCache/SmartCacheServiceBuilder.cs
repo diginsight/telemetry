@@ -12,6 +12,7 @@ public sealed class SmartCacheServiceBuilder
     {
         services.AddMemoryCache();
         services.TryAddSingleton<ISmartCacheService, SmartCacheService>();
+        services.TryAddSingleton(static sp => new Lazy<ISmartCacheService>(sp.GetRequiredService<ISmartCacheService>));
         services.TryAddSingleton<ICacheKeyService, CacheKeyService>();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<SmartCacheServiceOptions>, ValidateSmartCacheServiceOptions>());
 

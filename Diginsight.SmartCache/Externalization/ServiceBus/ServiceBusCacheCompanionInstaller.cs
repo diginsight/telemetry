@@ -7,16 +7,20 @@ namespace Diginsight.SmartCache.Externalization.ServiceBus;
 
 public sealed class ServiceBusCacheCompanionInstaller : ICacheCompanionInstaller
 {
+    public static readonly ICacheCompanionInstaller Instance = new ServiceBusCacheCompanionInstaller();
+
+    private ServiceBusCacheCompanionInstaller() { }
+
     public void Install(IServiceCollection services, out Action uninstall)
     {
         ServiceDescriptor sd0 = ServiceDescriptor.Singleton<ServiceBusCacheCompanion, ServiceBusCacheCompanion>();
         services.TryAdd(sd0);
 
-        ServiceDescriptor sd1 = ServiceDescriptor.Singleton<IHostedService>(static sp => sp.GetRequiredService<ServiceBusCacheCompanion>());
+        ServiceDescriptor sd1 = ServiceDescriptor.Singleton<IHostedService, ServiceBusCacheCompanion>(static sp => sp.GetRequiredService<ServiceBusCacheCompanion>());
         services.TryAddEnumerable(sd1);
 
         ServiceDescriptor sd2 = ServiceDescriptor.Singleton<ICacheCompanion>(static sp => sp.GetRequiredService<ServiceBusCacheCompanion>());
-        services.TryAddEnumerable(sd2);
+        services.TryAdd(sd2);
 
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<SmartCacheServiceBusOptions>, ValidateSmartCacheServiceBusOptions>());
 

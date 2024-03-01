@@ -20,7 +20,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
     private const string InvalidateMessageSubject = "invalidate";
 
     private readonly ILogger<ServiceBusCacheCompanion> logger;
-    private readonly ISmartCacheService cacheService;
+    private readonly Lazy<ISmartCacheService> cacheServiceLazy;
     private readonly IServiceProvider serviceProvider;
     private readonly ISmartCacheServiceBusOptions serviceBusOptions;
 
@@ -35,9 +35,11 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
     public IEnumerable<PassiveCacheLocation> PassiveLocations { get; }
 
+    private ISmartCacheService CacheService => cacheServiceLazy.Value;
+
     public ServiceBusCacheCompanion(
         ILogger<ServiceBusCacheCompanion> logger,
-        ISmartCacheService cacheService,
+        Lazy<ISmartCacheService> cacheServiceLazy,
         IServiceProvider serviceProvider,
         IOptions<SmartCacheServiceBusOptions> serviceBusOptions,
         TimeProvider? timeProvider = null,
@@ -45,7 +47,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
     )
     {
         this.logger = logger;
-        this.cacheService = cacheService;
+        this.cacheServiceLazy = cacheServiceLazy;
         this.serviceProvider = serviceProvider;
         this.serviceBusOptions = serviceBusOptions.Value;
 
@@ -193,13 +195,17 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
     private async Task InstallAsync(CancellationToken cancellationToken)
     {
+        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger);
+
         string topicName = serviceBusOptions.TopicName;
         string subscriptionName = serviceBusOptions.SubscriptionName;
         const string ruleName = "$Default";
 
+        ServiceBusAdministrationClient administrationClient = new (serviceBusOptions.ConnectionString);
+
         cancellationToken.ThrowIfCancellationRequested();
 
-        ServiceBusAdministrationClient administrationClient = new (serviceBusOptions.ConnectionString);
+        logger.LogDebug("Installing topic '{TopicName}'", topicName);
         if (await administrationClient.TopicExistsAsync(topicName, CancellationToken.None))
         {
             TopicProperties topicProperties = await administrationClient.GetTopicAsync(topicName, CancellationToken.None);
@@ -224,6 +230,8 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         }
 
         cancellationToken.ThrowIfCancellationRequested();
+
+        logger.LogDebug("Installing subscription '{SubscriptionName}'", subscriptionName);
 
         if (await administrationClient.SubscriptionExistsAsync(topicName, subscriptionName, CancellationToken.None))
         {
@@ -254,6 +262,8 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
                 CancellationToken.None
             );
         }
+
+        logger.LogDebug("Installing subscription rule");
 
         string filterExpression = $"sys.To = '{subscriptionName}' OR (sys.To IS NULL AND sys.ReplyTo != '{subscriptionName}')";
         bool createRule = true;
@@ -293,24 +303,26 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                await using (ServiceBusClient client = clientHolder.Client)
-                await using (ServiceBusReceiver receiver = client.CreateReceiver(topicName, subscriptionName))
+                logger.LogDebug("Starting messages listen loop");
+
+                try
                 {
+                    await using ServiceBusClient client = clientHolder.Client;
+                    await using ServiceBusReceiver receiver = client.CreateReceiver(topicName, subscriptionName);
+
                     while (!cancellationToken.IsCancellationRequested)
                     {
                         ServiceBusReceivedMessage? message;
                         try
                         {
-                            message = await receiver.ReceiveMessageAsync(cancellationToken: cancellationToken);
-                        }
-                        catch (OperationCanceledException exception) when (exception.CancellationToken == cancellationToken)
-                        {
-                            break;
+                            message = await receiver.ReceiveMessageAsync(maxWaitTime: TimeSpan.FromSeconds(10), cancellationToken);
                         }
                         catch (Exception exception)
                         {
-                            clientHolder.Invalidate();
-                            logger.LogWarning(exception, "Error receiving companion message");
+                            if (exception is not OperationCanceledException)
+                            {
+                                logger.LogWarning(exception, "Error receiving companion message");
+                            }
                             break;
                         }
 
@@ -319,6 +331,10 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
                         await ProcessAsync(message);
                     }
+                }
+                finally
+                {
+                    clientHolder.Invalidate();
                 }
 
                 if (cancellationToken.IsCancellationRequested)
@@ -333,19 +349,23 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         }
     }
 
-    private Task ProcessAsync(ServiceBusReceivedMessage receivedMessage)
+    private async Task ProcessAsync(ServiceBusReceivedMessage receivedMessage)
     {
-        BinaryData body = receivedMessage.Body;
         string emitter = receivedMessage.ReplyTo;
+        string subject = receivedMessage.Subject.ToLowerInvariant();
 
-        return receivedMessage.Subject.ToLowerInvariant() switch
+        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { emitter, subject });
+
+        BinaryData body = receivedMessage.Body;
+
+        await (subject switch
         {
             GetMessageSubject => ProcessGetAsync(),
             GetReplyMessageSubject => ProcessGetReplyAsync(),
             CacheMissMessageSubject => ProcessCacheMissAsync(),
             InvalidateMessageSubject => ProcessInvalidateAsync(),
             _ => Task.CompletedTask,
-        };
+        });
 
         async Task ProcessGetAsync()
         {
@@ -360,7 +380,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
             using (TimerLap lap = SmartCacheMetrics.Instruments.FetchDuration.StartLap(SmartCacheMetrics.Tags.Type.Direct))
             {
                 ICacheKey key = DeserializeBody<ICacheKey>();
-                if (cacheService.TryGetDirectFromMemory(key, out Type? type, out object? value))
+                if (CacheService.TryGetDirectFromMemory(key, out Type? type, out object? value))
                 {
                     lap.AddTags(SmartCacheMetrics.Tags.Found.True);
                     message.Body = BinaryData.FromBytes(SmartCacheSerialization.SerializeToBytes(value, type));
@@ -383,14 +403,14 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         Task ProcessCacheMissAsync()
         {
             CacheMissDescriptor descriptor = DeserializeBody<CacheMissDescriptor>();
-            cacheService.AddExternalMiss(descriptor);
+            CacheService.AddExternalMiss(descriptor);
             return Task.CompletedTask;
         }
 
         Task ProcessInvalidateAsync()
         {
             InvalidationDescriptor descriptor = DeserializeBody<InvalidationDescriptor>();
-            cacheService.Invalidate(descriptor);
+            CacheService.Invalidate(descriptor);
             return Task.CompletedTask;
         }
 
@@ -413,10 +433,15 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         }
     }
 
-    private Task UninstallAsync()
+    private async Task UninstallAsync()
     {
+        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger);
+
         ServiceBusAdministrationClient administrationClient = new (serviceBusOptions.ConnectionString);
-        return administrationClient.DeleteSubscriptionAsync(serviceBusOptions.TopicName, serviceBusOptions.SubscriptionName);
+
+        string subscriptionName = serviceBusOptions.SubscriptionName;
+        logger.LogDebug("Deleting subscription '{SubscriptionName}'", subscriptionName);
+        await administrationClient.DeleteSubscriptionAsync(serviceBusOptions.TopicName, subscriptionName);
     }
 
     public override void Dispose()

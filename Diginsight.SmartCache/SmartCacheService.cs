@@ -19,8 +19,8 @@ namespace Diginsight.SmartCache;
 internal sealed class SmartCacheService : ISmartCacheService
 {
     private readonly ILogger logger;
-    private readonly IClassConfigurationGetter classConfigurationGetter;
-    private readonly IClassConfigurationGetterProvider classConfigurationGetterProvider;
+    //private readonly IClassConfigurationGetter classConfigurationGetter;
+    //private readonly IClassConfigurationGetterProvider classConfigurationGetterProvider;
     private readonly ICacheCompanion companion;
     private readonly ISmartCacheServiceOptions smartCacheServiceOptions;
     private readonly TimeProvider timeProvider;
@@ -39,8 +39,8 @@ internal sealed class SmartCacheService : ISmartCacheService
 
     public SmartCacheService(
         ILogger<SmartCacheService> logger,
-        IClassConfigurationGetter classConfigurationGetter,
-        IClassConfigurationGetterProvider classConfigurationGetterProvider,
+        //IClassConfigurationGetter classConfigurationGetter,
+        //IClassConfigurationGetterProvider classConfigurationGetterProvider,
         ICacheCompanion companion,
         IOptions<SmartCacheServiceOptions> smartCacheServiceOptions,
         IOptionsMonitor<MemoryCacheOptions> memoryCacheOptionsMonitor,
@@ -50,8 +50,8 @@ internal sealed class SmartCacheService : ISmartCacheService
     )
     {
         this.logger = logger;
-        this.classConfigurationGetter = classConfigurationGetter;
-        this.classConfigurationGetterProvider = classConfigurationGetterProvider;
+        //this.classConfigurationGetter = classConfigurationGetter;
+        //this.classConfigurationGetterProvider = classConfigurationGetterProvider;
         this.companion = companion;
         this.smartCacheServiceOptions = smartCacheServiceOptions.Value;
         this.timeProvider = timeProvider ?? TimeProvider.System;
@@ -133,7 +133,7 @@ internal sealed class SmartCacheService : ISmartCacheService
         ValueEntry<TValue>? localEntry;
         ExternalMissDictionary.Entry? externalEntry;
 
-        bool discardExternalMiss = classConfigurationGetter.Get("DiscardExternalMiss", false);
+        bool discardExternalMiss = false; //classConfigurationGetter.Get("DiscardExternalMiss", false);
 
         if (maybeMinimumCreationDate is null)
         {
@@ -349,11 +349,11 @@ internal sealed class SmartCacheService : ISmartCacheService
         TimeSpan finalAbsExpiration = absExpiration ?? smartCacheServiceOptions.AbsoluteExpiration;
         TimeSpan? inftyFinalAbsExpiration = ToInfinity(finalAbsExpiration);
 
-        if (classConfigurationGetter.Get("RedisOnlyCache", false) && redisLocation is not null)
-        {
-            WriteToLocation(redisLocation, keyHolder, entry, inftyFinalAbsExpiration, skipNotify);
-            return;
-        }
+        //if (classConfigurationGetter.Get("RedisOnlyCache", false) && redisLocation is not null)
+        //{
+        //    WriteToLocation(redisLocation, keyHolder, entry, inftyFinalAbsExpiration, skipNotify);
+        //    return;
+        //}
 
         TimeSpan? inftyFinalSldExpiration = ToInfinity(
             new TimeSpan(Math.Min((sldExpiration ?? smartCacheServiceOptions.SlidingExpiration).Ticks, finalAbsExpiration.Ticks))
@@ -529,7 +529,7 @@ internal sealed class SmartCacheService : ISmartCacheService
 
     private DateTime GetMinimumCreationDate([NotNull] ref TimeSpan? maxAge, Type callerType, DateTime timestamp)
     {
-        IClassConfigurationGetter callerClassConfigurationGetter = classConfigurationGetterProvider.GetFor(callerType);
+        //IClassConfigurationGetter callerClassConfigurationGetter = classConfigurationGetterProvider.GetFor(callerType);
 
         static bool TryConvertMaxAgeSecs(string? str, out int maxAgeSecs)
         {
@@ -543,14 +543,14 @@ internal sealed class SmartCacheService : ISmartCacheService
         }
 
         TimeSpan finalMaxAge = maxAge ?? smartCacheServiceOptions.DefaultMaxAge;
-        if (callerClassConfigurationGetter.TryGet("MaxAge", out int outerMaxAgeSecs, TryConvertMaxAgeSecs))
-        {
-            TimeSpan outerMaxAge = TimeSpan.FromSeconds(outerMaxAgeSecs);
-            if (outerMaxAge < finalMaxAge)
-            {
-                finalMaxAge = outerMaxAge;
-            }
-        }
+        //if (callerClassConfigurationGetter.TryGet("MaxAge", out int outerMaxAgeSecs, TryConvertMaxAgeSecs))
+        //{
+        //    TimeSpan outerMaxAge = TimeSpan.FromSeconds(outerMaxAgeSecs);
+        //    if (outerMaxAge < finalMaxAge)
+        //    {
+        //        finalMaxAge = outerMaxAge;
+        //    }
+        //}
 
         DateTime requestStartedOn =
             Truncate(
@@ -579,13 +579,13 @@ internal sealed class SmartCacheService : ISmartCacheService
         {
             minimumCreationDate = DateTime.MinValue;
         }
-        if (callerClassConfigurationGetter.TryGet("MinimumCreationDate", out DateTime outerMinimumCreationDate, TryConvertMinimumCreationDate))
-        {
-            if (outerMinimumCreationDate > minimumCreationDate)
-            {
-                minimumCreationDate = outerMinimumCreationDate;
-            }
-        }
+        //if (callerClassConfigurationGetter.TryGet("MinimumCreationDate", out DateTime outerMinimumCreationDate, TryConvertMinimumCreationDate))
+        //{
+        //    if (outerMinimumCreationDate > minimumCreationDate)
+        //    {
+        //        minimumCreationDate = outerMinimumCreationDate;
+        //    }
+        //}
 
         maxAge = finalMaxAge;
         return minimumCreationDate;

@@ -12,8 +12,13 @@ public static partial class SmartCacheExtensions
     private static readonly MethodInfo UnwrapAsArrayMethod = typeof(SmartCacheExtensions)
         .GetMethod(nameof(UnwrapAsArray), BindingFlags.NonPublic | BindingFlags.Static)!;
 
-    public static SmartCacheServiceBuilder AddSmartCache(this IServiceCollection services)
+    public static SmartCacheServiceBuilder AddSmartCache(this IServiceCollection services, Action<SmartCacheServiceOptions>? configureOptions = null)
     {
+        if (configureOptions is not null)
+        {
+            services.Configure(configureOptions);
+        }
+
         return new SmartCacheServiceBuilder(services)
             .SetSizeLimit(10_000_000)
             .SetLocalCompanion();

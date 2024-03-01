@@ -65,7 +65,7 @@ public static partial class SmartCacheExtensions
         this SmartCacheServiceBuilder builder, Action<SmartCacheServiceBusOptions>? configureOptions = null
     )
     {
-        builder.SetCompanion(KubernetesCacheCompanionInstaller.Instance);
+        builder.SetCompanion(ServiceBusCacheCompanionInstaller.Instance);
 
         if (configureOptions is not null)
         {
