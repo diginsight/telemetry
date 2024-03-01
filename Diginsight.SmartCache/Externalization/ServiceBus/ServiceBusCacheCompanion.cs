@@ -20,8 +20,55 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
     private readonly ISmartCacheService cacheService;
     private readonly ISmartCacheServiceBusOptions serviceBusOptions;
 
-    private readonly ManualResetEventSlim mre = new ();
     private readonly IEnumerable<CacheEventNotifier> eventNotifiers;
+    private readonly ClientHolder clientHolder;
+    private readonly ManualResetEventSlim processMre = new ();
+
+    private sealed class ClientHolder
+    {
+        private readonly ISmartCacheServiceBusOptions serviceBusOptions;
+        private readonly ManualResetEventSlim validMre = new (true);
+
+        private ServiceBusClient? client;
+        private ServiceBusSender? sender;
+
+        public ServiceBusClient Client
+        {
+            get
+            {
+                validMre.Wait();
+                return client!;
+            }
+        }
+
+        public ServiceBusSender Sender
+        {
+            get
+            {
+                validMre.Wait();
+                return sender!;
+            }
+        }
+
+        public ClientHolder(ISmartCacheServiceBusOptions serviceBusOptions)
+        {
+            this.serviceBusOptions = serviceBusOptions;
+        }
+
+        public void Invalidate()
+        {
+            validMre.Reset();
+            client = null;
+            sender = null;
+        }
+
+        public void Initialize()
+        {
+            client = new ServiceBusClient(serviceBusOptions.ConnectionString);
+            sender = client.CreateSender(serviceBusOptions.TopicName);
+            validMre.Set();
+        }
+    }
 
     public string SelfLocationId => serviceBusOptions.SubscriptionName;
 
@@ -39,6 +86,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         this.serviceBusOptions = serviceBusOptions.Value;
 
         eventNotifiers = new[] { new ServiceBusCacheEventNotifier(this) };
+        clientHolder = new ClientHolder(this.serviceBusOptions);
 
         PassiveLocations = redisLocation is null
             ? Enumerable.Empty<PassiveCacheLocation>()
@@ -140,6 +188,8 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
                 CancellationToken.None
             );
         }
+
+        clientHolder.Initialize();
     }
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -151,37 +201,43 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                await using ServiceBusClient client = new (serviceBusOptions.ConnectionString);
-                await using ServiceBusReceiver receiver = client.CreateReceiver(topicName, subscriptionName);
-
-                while (!cancellationToken.IsCancellationRequested)
+                await using (ServiceBusClient client = clientHolder.Client)
+                await using (ServiceBusReceiver receiver = client.CreateReceiver(topicName, subscriptionName))
                 {
-                    ServiceBusReceivedMessage? message;
-                    try
+                    while (!cancellationToken.IsCancellationRequested)
                     {
-                        message = await receiver.ReceiveMessageAsync(cancellationToken: cancellationToken);
-                    }
-                    catch (OperationCanceledException exception) when (exception.CancellationToken == cancellationToken)
-                    {
-                        break;
-                    }
-                    catch (Exception exception)
-                    {
-                        logger.LogWarning(exception, "Error receiving companion message");
-                        await InstallAsync(cancellationToken);
-                        break;
-                    }
+                        ServiceBusReceivedMessage? message;
+                        try
+                        {
+                            message = await receiver.ReceiveMessageAsync(cancellationToken: cancellationToken);
+                        }
+                        catch (OperationCanceledException exception) when (exception.CancellationToken == cancellationToken)
+                        {
+                            break;
+                        }
+                        catch (Exception exception)
+                        {
+                            clientHolder.Invalidate();
+                            logger.LogWarning(exception, "Error receiving companion message");
+                            break;
+                        }
 
-                    if (message is null)
-                        continue;
+                        if (message is null)
+                            continue;
 
-                    await ProcessAsync(message);
+                        await ProcessAsync(message);
+                    }
                 }
+
+                if (cancellationToken.IsCancellationRequested)
+                    break;
+
+                await InstallAsync(cancellationToken);
             }
         }
         finally
         {
-            mre.Set();
+            processMre.Set();
         }
     }
 
@@ -223,7 +279,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
                 }
             }
 
-            await GetSender().SendMessageAsync(message);
+            await clientHolder.Sender.SendMessageAsync(message);
         }
 
         Task ProcessGetReplyAsync()
@@ -259,7 +315,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         }
         finally
         {
-            mre.Wait(CancellationToken.None);
+            processMre.Wait(CancellationToken.None);
             await UninstallAsync();
         }
     }
@@ -276,10 +332,6 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
     }
 
     public Task<IEnumerable<CacheEventNotifier>> GetAllEventNotifiersAsync() => Task.FromResult(eventNotifiers);
-
-    private ServiceBusClient GetClient() => throw new NotImplementedException();
-
-    private ServiceBusSender GetSender() => throw new NotImplementedException();
 
     private sealed class ServiceBusCacheLocation : ActiveCacheLocation
     {
@@ -304,7 +356,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
                 To = Id,
             };
 
-            await companion.GetSender().SendMessageAsync(message, CancellationToken.None);
+            await companion.clientHolder.Sender.SendMessageAsync(message, CancellationToken.None);
 
             throw new NotImplementedException();
         }
@@ -339,7 +391,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
                 Subject = subject,
             };
 
-            return companion.GetSender().SendMessageAsync(message);
+            return companion.clientHolder.Sender.SendMessageAsync(message);
         }
     }
 }
