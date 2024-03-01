@@ -5,30 +5,30 @@ using Diginsight.SmartCache.Externalization.Redis;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Diginsight.SmartCache.Externalization.ServiceBus;
 
-internal sealed class ServiceBusCacheCompanionHostedService : BackgroundService, ICacheCompanionProvider
+internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompanion
 {
     private const string GetMessageSubject = "get";
     private const string GetReplyMessageSubject = "get reply";
     private const string CacheMissMessageSubject = "cachemiss";
     private const string InvalidateMessageSubject = "invalidate";
 
-    private readonly ILogger<ServiceBusCacheCompanionHostedService> logger;
+    private readonly ILogger<ServiceBusCacheCompanion> logger;
     private readonly ISmartCacheService cacheService;
     private readonly ISmartCacheServiceBusOptions serviceBusOptions;
 
     private readonly ManualResetEventSlim mre = new ();
+    private readonly IEnumerable<CacheEventNotifier> eventNotifiers;
 
     public string SelfLocationId => serviceBusOptions.SubscriptionName;
 
     public IEnumerable<PassiveCacheLocation> PassiveLocations { get; }
 
-    public ServiceBusCacheCompanionHostedService(
-        ILogger<ServiceBusCacheCompanionHostedService> logger,
+    public ServiceBusCacheCompanion(
+        ILogger<ServiceBusCacheCompanion> logger,
         ISmartCacheService cacheService,
         IOptions<SmartCacheServiceBusOptions> serviceBusOptions,
         RedisCacheLocation? redisLocation = null
@@ -37,6 +37,8 @@ internal sealed class ServiceBusCacheCompanionHostedService : BackgroundService,
         this.logger = logger;
         this.cacheService = cacheService;
         this.serviceBusOptions = serviceBusOptions.Value;
+
+        eventNotifiers = new[] { new ServiceBusCacheEventNotifier(this) };
 
         PassiveLocations = redisLocation is null
             ? Enumerable.Empty<PassiveCacheLocation>()
@@ -201,10 +203,10 @@ internal sealed class ServiceBusCacheCompanionHostedService : BackgroundService,
         {
             ServiceBusMessage message = new ()
             {
-                CorrelationId = receivedMessage.MessageId,
                 ReplyTo = serviceBusOptions.SubscriptionName,
-                To = emitter,
                 Subject = GetReplyMessageSubject,
+                CorrelationId = receivedMessage.MessageId,
+                To = emitter,
             };
 
             using (TimerLap lap = SmartCacheMetrics.Instruments.FetchDuration.StartLap(SmartCacheMetrics.Tags.Type.Direct))
@@ -268,55 +270,76 @@ internal sealed class ServiceBusCacheCompanionHostedService : BackgroundService,
         return administrationClient.DeleteSubscriptionAsync(serviceBusOptions.TopicName, serviceBusOptions.SubscriptionName);
     }
 
+    public Task<IEnumerable<ActiveCacheLocation>> GetActiveLocationsAsync(IEnumerable<string> locationIds)
+    {
+        return Task.FromResult(locationIds.Select(x => new ServiceBusCacheLocation(x, this)).ToArray<ActiveCacheLocation>().AsEnumerable());
+    }
+
+    public Task<IEnumerable<CacheEventNotifier>> GetAllEventNotifiersAsync() => Task.FromResult(eventNotifiers);
+
     private ServiceBusClient GetClient() => throw new NotImplementedException();
 
     private ServiceBusSender GetSender() => throw new NotImplementedException();
 
-    public Task<IEnumerable<CacheCompanion>> GetCompanionsAsync()
+    private sealed class ServiceBusCacheLocation : ActiveCacheLocation
     {
-        throw new NotImplementedException();
-    }
+        private readonly ServiceBusCacheCompanion companion;
 
-    private sealed class CacheCompanionImpl : CacheCompanion
-    {
-        private readonly ServiceBusCacheCompanionHostedService hostedService;
+        public override KeyValuePair<string, object?> MetricTag => SmartCacheMetrics.Tags.Type.Distributed;
 
-        public CacheCompanionImpl(
-            ServiceBusCacheCompanionHostedService hostedService
-        )
-            : base("<others>")
+        public ServiceBusCacheLocation(string subscriptionName, ServiceBusCacheCompanion companion)
+            : base(subscriptionName)
         {
-            this.hostedService = hostedService;
+            this.companion = companion;
         }
 
-        public override Task<CacheLocationOutput<TValue>?> GetAsync<TValue>(
+        public override async Task<CacheLocationOutput<TValue>?> GetAsync<TValue>(
             CacheKeyHolder keyHolder, DateTime minimumCreationDate, Action markInvalid, CancellationToken cancellationToken
         )
         {
-            throw new UnreachableException();
+            ServiceBusMessage message = new (keyHolder.GetAsBytes())
+            {
+                ReplyTo = companion.SelfLocationId,
+                Subject = GetMessageSubject,
+                To = Id,
+            };
+
+            await companion.GetSender().SendMessageAsync(message, CancellationToken.None);
+
+            throw new NotImplementedException();
+        }
+    }
+
+    private sealed class ServiceBusCacheEventNotifier : CacheEventNotifier
+    {
+        private readonly ServiceBusCacheCompanion companion;
+
+        public ServiceBusCacheEventNotifier(ServiceBusCacheCompanion companion)
+        {
+            this.companion = companion;
         }
 
-        protected override Task PublishCacheMissAsync(CachePayloadHolder<CacheMissDescriptor> descriptorHolder)
+        protected override Task NotifyCacheMissAsync(CachePayloadHolder<CacheMissDescriptor> descriptorHolder)
         {
-            return PublishAsync(descriptorHolder, CacheMissMessageSubject);
+            return NotifyAsync(descriptorHolder, CacheMissMessageSubject);
         }
 
-        protected override Task PublishInvalidationAsync(CachePayloadHolder<InvalidationDescriptor> descriptorHolder)
+        protected override Task NotifyInvalidationAsync(CachePayloadHolder<InvalidationDescriptor> descriptorHolder)
         {
-            return PublishAsync(descriptorHolder, InvalidateMessageSubject);
+            return NotifyAsync(descriptorHolder, InvalidateMessageSubject);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private Task PublishAsync<T>(CachePayloadHolder<T> descriptorHolder, string subject)
+        private Task NotifyAsync<T>(CachePayloadHolder<T> descriptorHolder, string subject)
             where T : notnull
         {
             ServiceBusMessage message = new (descriptorHolder.GetAsBytes())
             {
-                ReplyTo = hostedService.SelfLocationId,
+                ReplyTo = companion.SelfLocationId,
                 Subject = subject,
             };
 
-            return hostedService.GetSender().SendMessageAsync(message);
+            return companion.GetSender().SendMessageAsync(message);
         }
     }
 }

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 
 namespace Diginsight.SmartCache.Externalization.ServiceBus;
 
-public sealed class ServiceBusCacheCompanionProviderInstaller : ICacheCompanionProviderInstaller
+public sealed class ServiceBusCacheCompanionInstaller : ICacheCompanionInstaller
 {
     public void Install(IServiceCollection services, out Action uninstall)
     {

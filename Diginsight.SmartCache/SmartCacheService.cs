@@ -21,7 +21,7 @@ internal sealed class SmartCacheService : ISmartCacheService
     private readonly ILogger logger;
     private readonly IClassConfigurationGetter classConfigurationGetter;
     private readonly IClassConfigurationGetterProvider classConfigurationGetterProvider;
-    private readonly ICacheCompanionProvider companionProvider;
+    private readonly ICacheCompanion companion;
     private readonly ISmartCacheServiceOptions smartCacheServiceOptions;
     private readonly TimeProvider timeProvider;
     private readonly IHttpContextAccessor? httpContextAccessor;
@@ -41,7 +41,7 @@ internal sealed class SmartCacheService : ISmartCacheService
         ILogger<SmartCacheService> logger,
         IClassConfigurationGetter classConfigurationGetter,
         IClassConfigurationGetterProvider classConfigurationGetterProvider,
-        ICacheCompanionProvider companionProvider,
+        ICacheCompanion companion,
         IOptions<SmartCacheServiceOptions> smartCacheServiceOptions,
         IOptionsMonitor<MemoryCacheOptions> memoryCacheOptionsMonitor,
         ILoggerFactory loggerFactory,
@@ -52,15 +52,15 @@ internal sealed class SmartCacheService : ISmartCacheService
         this.logger = logger;
         this.classConfigurationGetter = classConfigurationGetter;
         this.classConfigurationGetterProvider = classConfigurationGetterProvider;
-        this.companionProvider = companionProvider;
+        this.companion = companion;
         this.smartCacheServiceOptions = smartCacheServiceOptions.Value;
         this.timeProvider = timeProvider ?? TimeProvider.System;
         this.httpContextAccessor = httpContextAccessor;
 
         memoryCache = new MemoryCache(memoryCacheOptionsMonitor.Get(nameof(SmartCacheService)), loggerFactory);
 
-        passiveLocations = companionProvider.PassiveLocations.ToDictionary(static x => x.Id);
-        redisLocation = companionProvider.PassiveLocations.OfType<RedisCacheLocation>().SingleOrDefault();
+        passiveLocations = companion.PassiveLocations.ToDictionary(static x => x.Id);
+        redisLocation = passiveLocations.Values.OfType<RedisCacheLocation>().SingleOrDefault();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -189,7 +189,7 @@ internal sealed class SmartCacheService : ISmartCacheService
 
                 ConcurrentBag<string> invalidLocations = [ ];
 
-                IReadOnlyDictionary<string, CacheLocation> locations = (await companionProvider.GetCompanionsAsync())
+                IReadOnlyDictionary<string, CacheLocation> locations = (await companion.GetActiveLocationsAsync(locationIds))
                     .Concat<CacheLocation>(passiveLocations.Values)
                     .ToDictionary(static x => x.Id);
 
@@ -217,7 +217,7 @@ internal sealed class SmartCacheService : ISmartCacheService
 
                                 if (maybeOutput is not { } output)
                                 {
-                                    if (invalidLocations.Contains(locationId) && location is CacheCompanion)
+                                    if (invalidLocations.Contains(locationId) && location is ActiveCacheLocation)
                                     {
                                         locationLatencies.TryRemove(locationId, out _);
                                     }
@@ -317,10 +317,10 @@ internal sealed class SmartCacheService : ISmartCacheService
         DateTime creationDate,
         TimeSpan? absExpiration = null,
         TimeSpan? sldExpiration = null,
-        bool skipPublish = false
+        bool skipNotify = false
     )
     {
-        SetValue(keyHolder, typeof(TValue), value, creationDate, absExpiration, sldExpiration, skipPublish);
+        SetValue(keyHolder, typeof(TValue), value, creationDate, absExpiration, sldExpiration, skipNotify);
     }
 
     private void SetValue(
@@ -330,11 +330,11 @@ internal sealed class SmartCacheService : ISmartCacheService
         DateTime creationDate,
         TimeSpan? absExpiration = null,
         TimeSpan? sldExpiration = null,
-        bool skipPublish = false
+        bool skipNotify = false
     )
     {
         using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(
-            logger, new { key = keyHolder.Key, valueType, creationDate, absExpiration, sldExpiration, skipPublish }
+            logger, new { key = keyHolder.Key, valueType, creationDate, absExpiration, sldExpiration, skipNotify }
         );
 
         ICacheKey key = keyHolder.Key;
@@ -351,7 +351,7 @@ internal sealed class SmartCacheService : ISmartCacheService
 
         if (classConfigurationGetter.Get("RedisOnlyCache", false) && redisLocation is not null)
         {
-            WriteToLocation(redisLocation, keyHolder, entry, inftyFinalAbsExpiration, skipPublish);
+            WriteToLocation(redisLocation, keyHolder, entry, inftyFinalAbsExpiration, skipNotify);
             return;
         }
 
@@ -410,9 +410,9 @@ internal sealed class SmartCacheService : ISmartCacheService
         Interlocked.Add(ref memoryCacheSize, size);
         SmartCacheMetrics.Instruments.TotalSize.Add(size);
 
-        if (!skipPublish)
+        if (!skipNotify)
         {
-            PublishMiss(keyHolder, creationDate, (value, valueType), null);
+            NotifyMiss(keyHolder, creationDate, (value, valueType), null);
         }
     }
 
@@ -451,24 +451,24 @@ internal sealed class SmartCacheService : ISmartCacheService
         }
     }
 
-    private void WriteToLocation(PassiveCacheLocation location, CacheKeyHolder keyHolder, IValueEntry entry, TimeSpan? expiration, bool skipPublish = false)
+    private void WriteToLocation(PassiveCacheLocation location, CacheKeyHolder keyHolder, IValueEntry entry, TimeSpan? expiration, bool skipNotify = false)
     {
         location.WriteAndForget(
             keyHolder,
             entry,
             expiration,
-            skipPublish
-                ? () => PublishMissAsync(keyHolder, entry.CreationDate, null, location.Id)
+            skipNotify
+                ? () => NotifyMissAsync(keyHolder, entry.CreationDate, null, location.Id)
                 : static () => Task.CompletedTask
         );
     }
 
-    private void PublishMiss(CacheKeyHolder keyHolder, DateTime creationDate, (object?, Type)? valueHolder, string? locationId)
+    private void NotifyMiss(CacheKeyHolder keyHolder, DateTime creationDate, (object?, Type)? valueHolder, string? locationId)
     {
-        _ = Task.Run(() => PublishMissAsync(keyHolder, creationDate, valueHolder, locationId));
+        _ = Task.Run(() => NotifyMissAsync(keyHolder, creationDate, valueHolder, locationId));
     }
 
-    private async Task PublishMissAsync(CacheKeyHolder keyHolder, DateTime creationDate, (object?, Type)? valueHolder, string? locationId)
+    private async Task NotifyMissAsync(CacheKeyHolder keyHolder, DateTime creationDate, (object?, Type)? valueHolder, string? locationId)
     {
         using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(
             logger, new { key = keyHolder.Key, creationDate, locationId }
@@ -482,8 +482,8 @@ internal sealed class SmartCacheService : ISmartCacheService
             }
         }
 
-        IEnumerable<CacheCompanion> companions = await companionProvider.GetCompanionsAsync();
-        if (!companions.Any())
+        IEnumerable<CacheEventNotifier> eventNotifiers = await companion.GetAllEventNotifiersAsync();
+        if (!eventNotifiers.Any())
         {
             return;
         }
@@ -517,13 +517,13 @@ internal sealed class SmartCacheService : ISmartCacheService
             valueTuple = null;
         }
 
-        string selfLocationId = companionProvider.SelfLocationId;
+        string selfLocationId = companion.SelfLocationId;
         CacheMissDescriptor descriptor = new (selfLocationId, keyHolder.Key, creationDate, locationId ?? selfLocationId, valueTuple);
         CachePayloadHolder<CacheMissDescriptor> descriptorHolder = new (descriptor, logger, SmartCacheMetrics.Tags.Subject.Value);
 
-        foreach (CacheCompanion companion in companions)
+        foreach (CacheEventNotifier eventNotifier in eventNotifiers)
         {
-            companion.PublishCacheMissAndForget(descriptorHolder);
+            eventNotifier.NotifyCacheMissAndForget(descriptorHolder);
         }
     }
 
@@ -618,7 +618,7 @@ internal sealed class SmartCacheService : ISmartCacheService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Invalidate(InvalidationDescriptor descriptor)
     {
-        if (descriptor.Emitter != companionProvider.SelfLocationId)
+        if (descriptor.Emitter != companion.SelfLocationId)
         {
             Invalidate(descriptor.Rule, false);
         }
@@ -659,7 +659,7 @@ internal sealed class SmartCacheService : ISmartCacheService
 
         if (broadcast)
         {
-            PublishInvalidation(invalidationRule);
+            NotifyInvalidation(invalidationRule);
         }
 
         _ = Task.Run(
@@ -673,23 +673,23 @@ internal sealed class SmartCacheService : ISmartCacheService
         );
     }
 
-    private void PublishInvalidation(IInvalidationRule invalidationRule)
+    private void NotifyInvalidation(IInvalidationRule invalidationRule)
     {
-        _ = Task.Run(PublishInvalidationAsync);
+        _ = Task.Run(NotifyInvalidationAsync);
 
-        async Task PublishInvalidationAsync()
+        async Task NotifyInvalidationAsync()
         {
-            IEnumerable<CacheCompanion> companions = await companionProvider.GetCompanionsAsync();
-            if (!companions.Any())
+            IEnumerable<CacheEventNotifier> eventNotifiers = await companion.GetAllEventNotifiersAsync();
+            if (!eventNotifiers.Any())
             {
                 return;
             }
 
-            InvalidationDescriptor descriptor = new (companionProvider.SelfLocationId, invalidationRule);
+            InvalidationDescriptor descriptor = new (companion.SelfLocationId, invalidationRule);
             CachePayloadHolder<InvalidationDescriptor> descriptorHolder = new (descriptor, logger, SmartCacheMetrics.Tags.Subject.Value);
-            foreach (CacheCompanion companion in companions)
+            foreach (CacheEventNotifier eventNotifier in eventNotifiers)
             {
-                companion.PublishInvalidationAndForget(descriptorHolder);
+                eventNotifier.NotifyInvalidationAndForget(descriptorHolder);
             }
         }
     }
@@ -702,14 +702,14 @@ internal sealed class SmartCacheService : ISmartCacheService
             string location,
             Type? valueType) = descriptor;
 
-        if (emitter == companionProvider.SelfLocationId)
+        if (emitter == companion.SelfLocationId)
         {
             return;
         }
 
         if (valueType is not null)
         {
-            SetValue(new CacheKeyHolder(key, logger), valueType, descriptor.Value, timestamp, skipPublish: true);
+            SetValue(new CacheKeyHolder(key, logger), valueType, descriptor.Value, timestamp, skipNotify: true);
         }
         else
         {

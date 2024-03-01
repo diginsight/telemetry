@@ -85,7 +85,7 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
         return new CacheLocationOutput<TValue>(entry.Data, valueSerializedSize, latencyMsecD);
     }
 
-    protected override async Task WriteAsync(CacheKeyHolder keyHolder, IValueEntry entry, TimeSpan? expiration, Func<Task> publishMissAsync)
+    protected override async Task WriteAsync(CacheKeyHolder keyHolder, IValueEntry entry, TimeSpan? expiration, Func<Task> notifyMissAsync)
     {
         using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key, expiration });
 
@@ -110,7 +110,7 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
 
         logger.LogDebug("redisDatabase.StringSet completed ({ElapsedMsec} ms, {EntryLength} bytes)", sw.ElapsedMilliseconds, rawEntry.LongLength);
 
-        await publishMissAsync();
+        await notifyMissAsync();
     }
 
     protected override async Task DeleteAsync(CacheKeyHolder keyHolder)

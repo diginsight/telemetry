@@ -6,7 +6,7 @@ public abstract class CacheLocation
 
     public abstract KeyValuePair<string, object?> MetricTag { get; }
 
-    protected CacheLocation(string id)
+    private protected CacheLocation(string id)
     {
         Id = id;
     }

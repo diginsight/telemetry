@@ -16,7 +16,7 @@ public static partial class SmartCacheExtensions
     {
         return new SmartCacheServiceBuilder(services)
             .SetSizeLimit(10_000_000)
-            .SetLocalCompanionProvider();
+            .SetLocalCompanion();
     }
 
     public static ICacheKey ToKey(this ICacheKeyService cacheKeyService, object obj)

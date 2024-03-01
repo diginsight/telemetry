@@ -4,11 +4,11 @@ using Microsoft.Extensions.Options;
 
 namespace Diginsight.SmartCache.Externalization.Kubernetes;
 
-public sealed class KubernetesCacheCompanionProviderInstaller : ICacheCompanionProviderInstaller
+public sealed class KubernetesCacheCompanionInstaller : ICacheCompanionInstaller
 {
-    public static readonly ICacheCompanionProviderInstaller Instance = new KubernetesCacheCompanionProviderInstaller();
+    public static readonly ICacheCompanionInstaller Instance = new KubernetesCacheCompanionInstaller();
 
-    private KubernetesCacheCompanionProviderInstaller() { }
+    private KubernetesCacheCompanionInstaller() { }
 
     public void Install(IServiceCollection services, out Action uninstall)
     {
@@ -22,8 +22,11 @@ public sealed class KubernetesCacheCompanionProviderInstaller : ICacheCompanionP
                 }
             );
 
-        ServiceDescriptor sd0 = ServiceDescriptor.Singleton<ICacheCompanionProvider, KubernetesCacheCompanionProvider>();
+        ServiceDescriptor sd0 = ServiceDescriptor.Singleton<ICacheCompanion, KubernetesCacheCompanion>();
         services.TryAdd(sd0);
+
+        ServiceDescriptor sd1 = ServiceDescriptor.Singleton<KubernetesCacheCompanionHelper, KubernetesCacheCompanionHelper>();
+        services.TryAdd(sd1);
 
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<SmartCacheKubernetesOptions>, ValidateSmartCacheKubernetesOptions>());
 
@@ -32,6 +35,7 @@ public sealed class KubernetesCacheCompanionProviderInstaller : ICacheCompanionP
         void Uninstall()
         {
             services.Remove(sd0);
+            services.Remove(sd1);
         }
     }
 

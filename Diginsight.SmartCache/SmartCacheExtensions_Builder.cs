@@ -12,18 +12,18 @@ namespace Diginsight.SmartCache;
 
 public static partial class SmartCacheExtensions
 {
-    public static SmartCacheServiceBuilder SetCompanionProvider(
-        this SmartCacheServiceBuilder builder, ICacheCompanionProviderInstaller installer
+    public static SmartCacheServiceBuilder SetCompanion(
+        this SmartCacheServiceBuilder builder, ICacheCompanionInstaller installer
     )
     {
-        CacheCompanionProviderUninstaller uninstaller;
-        if (builder.Services.FirstOrDefault(static x => x.ServiceType == typeof(CacheCompanionProviderUninstaller)) is { } uninstallerServiceDescriptor)
+        CacheCompanionUninstaller uninstaller;
+        if (builder.Services.FirstOrDefault(static x => x.ServiceType == typeof(CacheCompanionUninstaller)) is { } uninstallerServiceDescriptor)
         {
-            uninstaller = (CacheCompanionProviderUninstaller)uninstallerServiceDescriptor.ImplementationInstance!;
+            uninstaller = (CacheCompanionUninstaller)uninstallerServiceDescriptor.ImplementationInstance!;
         }
         else
         {
-            uninstaller = new CacheCompanionProviderUninstaller();
+            uninstaller = new CacheCompanionUninstaller();
             builder.Services.AddSingleton(uninstaller);
         }
 
@@ -34,15 +34,15 @@ public static partial class SmartCacheExtensions
         return builder;
     }
 
-    private sealed class CacheCompanionProviderUninstaller
+    private sealed class CacheCompanionUninstaller
     {
         public Action? Uninstall { get; set; }
     }
 
-    public static SmartCacheServiceBuilder SetLocalCompanionProvider(this SmartCacheServiceBuilder builder) =>
-        builder.SetCompanionProvider(LocalCacheCompanionProviderInstaller.Instance);
+    public static SmartCacheServiceBuilder SetLocalCompanion(this SmartCacheServiceBuilder builder) =>
+        builder.SetCompanion(LocalCacheCompanionInstaller.Instance);
 
-    public static SmartCacheServiceBuilder SetKubernetesCompanionProvider(
+    public static SmartCacheServiceBuilder SetKubernetesCompanion(
         this SmartCacheServiceBuilder builder,
         Action<SmartCacheKubernetesOptions>? configureKubernetesOptions = null,
         Action<SmartCacheMiddlewareOptions>? configureMiddlewareOptions = null
@@ -50,7 +50,7 @@ public static partial class SmartCacheExtensions
     {
         builder
             .AddMiddleware(configureMiddlewareOptions)
-            .SetCompanionProvider(KubernetesCacheCompanionProviderInstaller.Instance);
+            .SetCompanion(KubernetesCacheCompanionInstaller.Instance);
 
         if (configureKubernetesOptions is not null)
         {

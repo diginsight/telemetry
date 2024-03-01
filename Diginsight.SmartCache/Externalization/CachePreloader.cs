@@ -18,15 +18,15 @@ public sealed class CachePreloader : ICachePreloader
 #endif
 
     private readonly ILogger<CachePreloader> logger;
-    private readonly ICacheCompanionProvider companionProvider;
+    private readonly ICacheCompanion companion;
 
     public CachePreloader(
         ILogger<CachePreloader> logger,
-        ICacheCompanionProvider companionProvider
+        ICacheCompanion companion
     )
     {
         this.logger = logger;
-        this.companionProvider = companionProvider;
+        this.companion = companion;
     }
 
     public async Task PreloadAsync<T>(ICacheKey key, Func<Task<T>> fetchAsync)
@@ -49,24 +49,24 @@ public sealed class CachePreloader : ICachePreloader
 
         logger.LogDebug("Fetched in {LatencyMsec} ms", (long)latencyMsecBox.Value);
 
-        _ = Task.Run(() => PublishAsync(keyHolder, timestamp, value));
+        _ = Task.Run(() => NotifyAsync(keyHolder, timestamp, value));
     }
 
-    private async Task PublishAsync<TValue>(CacheKeyHolder keyHolder, DateTime creationDate, TValue value)
+    private async Task NotifyAsync<TValue>(CacheKeyHolder keyHolder, DateTime creationDate, TValue value)
     {
         using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key, creationDate });
 
-        IEnumerable<CacheCompanion> companions = await companionProvider.GetCompanionsAsync();
-        if (!companions.Any())
+        IEnumerable<CacheEventNotifier> eventNotifiers = await companion.GetAllEventNotifiersAsync();
+        if (!eventNotifiers.Any())
         {
             return;
         }
 
-        string selfLocationId = companionProvider.SelfLocationId;
+        string selfLocationId = companion.SelfLocationId;
         CacheMissDescriptor descriptor = new (selfLocationId, keyHolder.Key, creationDate, selfLocationId, (typeof(TValue), value));
         CachePayloadHolder<CacheMissDescriptor> descriptorHolder = new (descriptor, logger, SmartCacheMetrics.Tags.Subject.Value);
 
-        CacheCompanion[] companionArray = companions.ToArray();
-        companionArray[SharedRandom.Next(companionArray.Length)].PublishCacheMissAndForget(descriptorHolder);
+        CacheEventNotifier[] eventNotifiersArray = eventNotifiers.ToArray();
+        eventNotifiersArray[SharedRandom.Next(eventNotifiersArray.Length)].NotifyCacheMissAndForget(descriptorHolder);
     }
 }

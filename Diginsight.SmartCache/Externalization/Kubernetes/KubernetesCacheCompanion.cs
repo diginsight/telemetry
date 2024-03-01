@@ -1,119 +1,60 @@
-﻿using Diginsight.Diagnostics;
-using Diginsight.SmartCache.Externalization.Middleware;
-using Microsoft.Extensions.Logging;
+﻿using Diginsight.SmartCache.Externalization.Redis;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
+using System.Net;
+using System.Net.Sockets;
 
 namespace Diginsight.SmartCache.Externalization.Kubernetes;
 
-internal sealed class KubernetesCacheCompanion : CacheCompanion
+internal sealed class KubernetesCacheCompanion : ICacheCompanion
 {
-    private readonly ILogger<KubernetesCacheCompanion> logger;
-    private readonly IHttpClientFactory httpClientFactory;
-    private readonly ISmartCacheKubernetesOptions kubernetesOptions;
-    private readonly ISmartCacheMiddlewareOptions middlewareOptions;
+    private readonly IServiceProvider serviceProvider;
+    private readonly ISmartCacheKubernetesOptions smartCacheKubernetesOptions;
+
+    public string SelfLocationId { get; }
+
+    public IEnumerable<PassiveCacheLocation> PassiveLocations { get; }
 
     public KubernetesCacheCompanion(
-        string podIp,
-        ILogger<KubernetesCacheCompanion> logger,
-        IHttpClientFactory httpClientFactory,
-        IOptions<SmartCacheKubernetesOptions> kubernetesOptions,
-        IOptions<SmartCacheMiddlewareOptions> middlewareOptions
+        IServiceProvider serviceProvider,
+        IOptions<SmartCacheKubernetesOptions> smartCacheKubernetesOptionsOptions,
+        RedisCacheLocation? redisLocation = null
     )
-        : base(podIp)
     {
-        this.logger = logger;
-        this.httpClientFactory = httpClientFactory;
-        this.kubernetesOptions = kubernetesOptions.Value;
-        this.middlewareOptions = middlewareOptions.Value;
+        this.serviceProvider = serviceProvider;
+        smartCacheKubernetesOptions = smartCacheKubernetesOptionsOptions.Value;
+
+        SelfLocationId = Environment.GetEnvironmentVariable(smartCacheKubernetesOptions.PodIpEnvVariableName) ?? "";
+
+        PassiveLocations = redisLocation is null
+            ? Enumerable.Empty<PassiveCacheLocation>()
+            : new[] { redisLocation };
     }
 
-    public override async Task<CacheLocationOutput<TValue>?> GetAsync<TValue>(
-        CacheKeyHolder keyHolder, DateTime minimumCreationDate, Action markInvalid, CancellationToken cancellationToken
-    )
+    public async Task<IEnumerable<ActiveCacheLocation>> GetActiveLocationsAsync(IEnumerable<string> locationIds)
     {
-        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key, minimumCreationDate });
+        return (await GetAllPodIpsAsync())
+            .Intersect(locationIds)
+            .Select(x => ActivatorUtilities.CreateInstance<KubernetesCacheLocation>(serviceProvider, x))
+            .ToArray();
+    }
 
-        using TimerLap lap = SmartCacheMetrics.Instruments.FetchDuration.CreateLap(SmartCacheMetrics.Tags.Type.Distributed);
-        try
-        {
-            HttpResponseMessage responseMessage;
-            using (lap.Start())
-            {
-                responseMessage = await MakeHttpClient().PostAsync(
-                    MakeRequestUri(middlewareOptions.GetPathSegment),
-                    new StringContent(keyHolder.GetAsString(), SmartCacheSerialization.Encoding, "application/json"),
-                    cancellationToken
-                );
-            }
+    public async Task<IEnumerable<CacheEventNotifier>> GetAllEventNotifiersAsync()
+    {
+        return (await GetAllPodIpsAsync())
+            .Select(x => ActivatorUtilities.CreateInstance<KubernetesCacheEventNotifier>(serviceProvider, x))
+            .ToArray();
+    }
 
-            TValue item;
-            long valueSerializedSize;
-            using (responseMessage)
-            {
-                responseMessage.EnsureSuccessStatusCode();
-                HttpContent responseContent = responseMessage.Content;
-
-                valueSerializedSize = responseContent.Headers.ContentLength!.Value;
-
+    private async Task<IEnumerable<string>> GetAllPodIpsAsync()
+    {
 #if NET6_0_OR_GREATER
-                await using (Stream contentStream = await responseContent.ReadAsStreamAsync(cancellationToken))
-#elif NETSTANDARD2_1_OR_GREATER
-                await using (Stream contentStream = await responseContent.ReadAsStreamAsync())
+        return (await Dns.GetHostAddressesAsync(smartCacheKubernetesOptions.CompanionsDnsName, AddressFamily.InterNetwork))
 #else
-                using (Stream contentStream = await responseContent.ReadAsStreamAsync())
+        return (await Dns.GetHostAddressesAsync(smartCacheKubernetesOptions.CompanionsDnsName))
+            .Where(static x => x.AddressFamily == AddressFamily.InterNetwork)
 #endif
-                using (SmartCacheMetrics.StartDeserializeActivity(logger, SmartCacheMetrics.Tags.Subject.Value))
-                {
-                    item = SmartCacheSerialization.Deserialize<TValue>(contentStream);
-                }
-            }
-
-            double latencyMsecD = lap.ElapsedMilliseconds;
-            long latencyMsecL = (long)latencyMsecD;
-
-            logger.LogDebug("Cache hit (latency: {LatencyMsec}): Returning up-to-date value from companion {CompanionId}", latencyMsecL, Id);
-
-            lap.AddTags(SmartCacheMetrics.Tags.Found.True);
-            return new CacheLocationOutput<TValue>(item, valueSerializedSize, latencyMsecD);
-        }
-        catch (Exception e)
-            when (e is InvalidOperationException or HttpRequestException || e is TaskCanceledException tce && tce.CancellationToken != cancellationToken)
-        {
-            lap.AddTags(SmartCacheMetrics.Tags.Found.False);
-            markInvalid();
-            logger.LogDebug("Partial cache miss: Failed to retrieve value from companion {CompanionId}", Id);
-        }
-
-        lap.AddTags(SmartCacheMetrics.Tags.Found.False);
-        return null;
+            .Select(static x => x.ToString())
+            .Where(ip => ip != SelfLocationId);
     }
-
-    protected override Task PublishCacheMissAsync(CachePayloadHolder<CacheMissDescriptor> descriptorHolder)
-    {
-        return PublishAsync(descriptorHolder, middlewareOptions.CacheMissPathSegment);
-    }
-
-    protected override Task PublishInvalidationAsync(CachePayloadHolder<InvalidationDescriptor> descriptorHolder)
-    {
-        return PublishAsync(descriptorHolder, middlewareOptions.InvalidatePathSegment);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private async Task PublishAsync<T>(CachePayloadHolder<T> descriptorHolder, string pathSegment)
-        where T : notnull
-    {
-        HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, MakeRequestUri(pathSegment))
-        {
-            Content = new StringContent(descriptorHolder.GetAsString(), SmartCacheSerialization.Encoding),
-        };
-        using HttpResponseMessage responseMessage = await MakeHttpClient().SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private HttpClient MakeHttpClient() => httpClientFactory.CreateClient(nameof(KubernetesCacheCompanion));
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private string MakeRequestUri(string pathSegment) => $"{(kubernetesOptions.UseHttps ? "https" : "http")}://{Id}{middlewareOptions.RootPath}{pathSegment}";
 }
