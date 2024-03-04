@@ -29,9 +29,9 @@ public sealed class SmartCacheServiceBuilder
             }
 
             ICollection<string> messages = new List<string>();
-            if (options.LowPrioritySizeThreshold > options.MidPrioritySizeThreshold)
+            if (options.LowPrioritySizeThreshold < options.MidPrioritySizeThreshold)
             {
-                messages.Add($"{nameof(SmartCacheServiceOptions.LowPrioritySizeThreshold)} must be less than or equal to {nameof(SmartCacheServiceOptions.MidPrioritySizeThreshold)}");
+                messages.Add($"{nameof(SmartCacheServiceOptions.LowPrioritySizeThreshold)} must be greater than or equal to {nameof(SmartCacheServiceOptions.MidPrioritySizeThreshold)}");
             }
 
             int companionPrefetchCount = options.CompanionPrefetchCount;

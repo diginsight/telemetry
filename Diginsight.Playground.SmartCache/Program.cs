@@ -7,11 +7,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Diginsight.Playground.SmartCache;
 
-internal static class Program
+internal class Program
 {
-    private static void Main()
+    private static async Task Main()
     {
-        new HostBuilder()
+        IHost host = new HostBuilder()
             .ConfigureAppConfiguration(
                 static builder =>
                 {
@@ -45,7 +45,31 @@ internal static class Program
                         .SetServiceBusCompanion();
                 }
             )
-            .Build()
-            .Run();
+            .Build();
+
+        await host.StartAsync();
+
+        IServiceProvider serviceProvider = host.Services;
+
+        ILogger logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+        ISmartCacheService cacheService = serviceProvider.GetRequiredService<ISmartCacheService>();
+        ICacheKeyService cacheKeyService = serviceProvider.GetRequiredService<ICacheKeyService>();
+
+        string? line;
+        while (!string.IsNullOrEmpty(line = Console.ReadLine()))
+        {
+            IEnumerable<Guid> guids = await cacheService.GetAsync(
+                new MethodCallCacheKey(cacheKeyService, typeof(Program), nameof(Main), line),
+                async static () =>
+                {
+                    await Task.Delay(1000);
+                    return Enumerable.Range(0, 10).Select(static _ => Guid.NewGuid()).ToArray();
+                }
+            );
+
+            logger.LogInformation("Got guids {Guids} for key {Key}", guids.ToLogString(), line);
+        }
+
+        await host.StopAsync();
     }
 }

@@ -24,12 +24,13 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
     private readonly IServiceProvider serviceProvider;
     private readonly ISmartCacheServiceBusOptions serviceBusOptions;
 
-    private readonly IEnumerable<CacheEventNotifier> eventNotifiers;
     private readonly ClientHolder clientHolder;
     private readonly ReplyDictionary replyDictionary;
     private readonly ManualResetEventSlim processMre = new ();
     private readonly ObjectFactory<ServiceBusCacheLocation> makeLocation =
         ActivatorUtilities.CreateFactory<ServiceBusCacheLocation>([ typeof(string) ]);
+
+    private IEnumerable<CacheEventNotifier>? eventNotifiers;
 
     public string SelfLocationId => serviceBusOptions.SubscriptionName;
 
@@ -51,7 +52,6 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         this.serviceProvider = serviceProvider;
         this.serviceBusOptions = serviceBusOptions.Value;
 
-        eventNotifiers = new[] { new ServiceBusCacheEventNotifier(this) };
         clientHolder = new ClientHolder(this.serviceBusOptions);
         replyDictionary = new ReplyDictionary(timeProvider ?? TimeProvider.System);
 
@@ -266,7 +266,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
         logger.LogDebug("Installing subscription rule");
 
-        string filterExpression = $"sys.To = '{subscriptionName}' OR (sys.To IS NULL AND sys.ReplyTo != '{subscriptionName}')";
+        string filterExpression = $"sys.To = '{subscriptionName}' OR ((sys.To IS NULL OR sys.To = '') AND sys.ReplyTo != '{subscriptionName}')";
         bool createRule = true;
         await foreach (RuleProperties ruleProperties in administrationClient.GetRulesAsync(topicName, subscriptionName, cancellationToken))
         {
@@ -468,9 +468,14 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
         ServiceBusAdministrationClient administrationClient = new (serviceBusOptions.ConnectionString);
 
+        string topicName = serviceBusOptions.TopicName;
         string subscriptionName = serviceBusOptions.SubscriptionName;
+
         logger.LogDebug("Deleting subscription '{SubscriptionName}'", subscriptionName);
-        await administrationClient.DeleteSubscriptionAsync(serviceBusOptions.TopicName, subscriptionName);
+        if (await administrationClient.SubscriptionExistsAsync(topicName, subscriptionName))
+        {
+            await administrationClient.DeleteSubscriptionAsync(topicName, subscriptionName);
+        }
     }
 
     public override void Dispose()
@@ -489,7 +494,10 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         );
     }
 
-    public Task<IEnumerable<CacheEventNotifier>> GetAllEventNotifiersAsync() => Task.FromResult(eventNotifiers);
+    public Task<IEnumerable<CacheEventNotifier>> GetAllEventNotifiersAsync()
+    {
+        return Task.FromResult(eventNotifiers ??= [ ActivatorUtilities.CreateInstance<ServiceBusCacheEventNotifier>(serviceProvider) ]);
+    }
 
     private sealed class ServiceBusCacheLocation : ActiveCacheLocation
     {
@@ -572,10 +580,15 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
     private sealed class ServiceBusCacheEventNotifier : CacheEventNotifier
     {
+        private readonly ILogger logger;
         private readonly ServiceBusCacheCompanion companion;
 
-        public ServiceBusCacheEventNotifier(ServiceBusCacheCompanion companion)
+        public ServiceBusCacheEventNotifier(
+            ILogger<ServiceBusCacheEventNotifier> logger,
+            ServiceBusCacheCompanion companion
+        )
         {
+            this.logger = logger;
             this.companion = companion;
         }
 
@@ -593,6 +606,8 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         private Task NotifyAsync<T>(CachePayloadHolder<T> descriptorHolder, string subject)
             where T : notnull
         {
+            logger.LogDebug("Sending message for '{Subject}' event notification", subject);
+
             ServiceBusMessage message = new (descriptorHolder.GetAsBytes())
             {
                 ReplyTo = companion.SelfLocationId,
