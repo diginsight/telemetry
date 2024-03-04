@@ -131,12 +131,12 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
             }
         }
 
-        public BinaryData Get(string messageId, CancellationToken cancellationToken)
+        public byte[] Get(string messageId, CancellationToken cancellationToken)
         {
             return InnerGetOrAdd(messageId).Get(cancellationToken);
         }
 
-        public void Set(string messageId, BinaryData body)
+        public void Set(string messageId, byte[] body)
         {
             InnerGetOrAdd(messageId).Set(body);
         }
@@ -161,7 +161,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         private sealed class Entry
         {
             private readonly ManualResetEventSlim mre = new ();
-            private BinaryData? body;
+            private byte[]? body;
 
             public DateTimeOffset Timestamp { get; }
 
@@ -170,18 +170,19 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
                 Timestamp = timestamp;
             }
 
-            public BinaryData Get(CancellationToken cancellationToken)
+            public byte[] Get(CancellationToken cancellationToken)
             {
                 mre.Wait(cancellationToken);
                 return body!;
             }
 
-            public void Set(BinaryData value)
+            // ReSharper disable once ParameterHidesMember
+            public void Set(byte[] body)
             {
-                if (body is not null)
+                if (this.body is not null)
                     return;
 
-                body = value;
+                this.body = body;
                 mre.Set();
             }
         }
@@ -312,10 +313,10 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
                     while (!cancellationToken.IsCancellationRequested)
                     {
-                        ServiceBusReceivedMessage? message;
+                        ServiceBusReceivedMessage? receivedMessage;
                         try
                         {
-                            message = await receiver.ReceiveMessageAsync(maxWaitTime: TimeSpan.FromSeconds(10), cancellationToken);
+                            receivedMessage = await receiver.ReceiveMessageAsync(maxWaitTime: TimeSpan.FromSeconds(10), cancellationToken);
                         }
                         catch (Exception exception)
                         {
@@ -326,10 +327,10 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
                             break;
                         }
 
-                        if (message is null)
+                        if (receivedMessage is null)
                             continue;
 
-                        await ProcessAsync(message);
+                        await ProcessAsync(receiver, receivedMessage);
                     }
                 }
                 finally
@@ -349,74 +350,102 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         }
     }
 
-    private async Task ProcessAsync(ServiceBusReceivedMessage receivedMessage)
+    private async Task ProcessAsync(ServiceBusReceiver receiver, ServiceBusReceivedMessage receivedMessage)
     {
         string emitter = receivedMessage.ReplyTo;
-        string subject = receivedMessage.Subject.ToLowerInvariant();
+        string subject = receivedMessage.Subject?.ToLowerInvariant() ?? "";
 
         using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { emitter, subject });
 
-        BinaryData body = receivedMessage.Body;
+        StrongBox<bool> completedBox = new (false);
 
-        await (subject switch
+        try
         {
-            GetMessageSubject => ProcessGetAsync(),
-            GetReplyMessageSubject => ProcessGetReplyAsync(),
-            CacheMissMessageSubject => ProcessCacheMissAsync(),
-            InvalidateMessageSubject => ProcessInvalidateAsync(),
-            _ => Task.CompletedTask,
-        });
-
-        async Task ProcessGetAsync()
-        {
-            ServiceBusMessage message = new ()
+            async Task CompleteMessageAsync()
             {
-                ReplyTo = serviceBusOptions.SubscriptionName,
-                Subject = GetReplyMessageSubject,
-                CorrelationId = receivedMessage.MessageId,
-                To = emitter,
-            };
-
-            using (TimerLap lap = SmartCacheMetrics.Instruments.FetchDuration.StartLap(SmartCacheMetrics.Tags.Type.Direct))
-            {
-                ICacheKey key = DeserializeBody<ICacheKey>();
-                if (CacheService.TryGetDirectFromMemory(key, out Type? type, out object? value))
-                {
-                    lap.AddTags(SmartCacheMetrics.Tags.Found.True);
-                    message.Body = BinaryData.FromBytes(SmartCacheSerialization.SerializeToBytes(value, type));
-                }
-                else
-                {
-                    lap.AddTags(SmartCacheMetrics.Tags.Found.False);
-                }
+                await receiver.CompleteMessageAsync(receivedMessage);
+                completedBox.Value = true;
             }
 
-            await clientHolder.Sender.SendMessageAsync(message);
-        }
+            T DeserializeBody<T>()
+            {
+                return SmartCacheSerialization.Deserialize<T>(receivedMessage.Body.ToArray());
+            }
 
-        Task ProcessGetReplyAsync()
-        {
-            replyDictionary.Set(receivedMessage.MessageId, receivedMessage.Body);
-            return Task.CompletedTask;
-        }
+            async Task ProcessGetAsync()
+            {
+                ServiceBusMessage message;
+                using (TimerLap lap = SmartCacheMetrics.Instruments.FetchDuration.StartLap(SmartCacheMetrics.Tags.Type.Direct))
+                {
+                    ICacheKey key = DeserializeBody<ICacheKey>();
+                    await CompleteMessageAsync();
 
-        Task ProcessCacheMissAsync()
-        {
-            CacheMissDescriptor descriptor = DeserializeBody<CacheMissDescriptor>();
-            CacheService.AddExternalMiss(descriptor);
-            return Task.CompletedTask;
-        }
+                    message = new ServiceBusMessage
+                    {
+                        ReplyTo = serviceBusOptions.SubscriptionName,
+                        Subject = GetReplyMessageSubject,
+                        CorrelationId = receivedMessage.MessageId,
+                        To = emitter,
+                    };
 
-        Task ProcessInvalidateAsync()
-        {
-            InvalidationDescriptor descriptor = DeserializeBody<InvalidationDescriptor>();
-            CacheService.Invalidate(descriptor);
-            return Task.CompletedTask;
-        }
+                    if (CacheService.TryGetDirectFromMemory(key, out Type? type, out object? value))
+                    {
+                        lap.AddTags(SmartCacheMetrics.Tags.Found.True);
+                        message.Body = BinaryData.FromBytes(SmartCacheSerialization.SerializeToBytes(value, type));
+                    }
+                    else
+                    {
+                        lap.AddTags(SmartCacheMetrics.Tags.Found.False);
+                    }
+                }
 
-        T DeserializeBody<T>()
+                await clientHolder.Sender.SendMessageAsync(message);
+            }
+
+            async Task ProcessGetReplyAsync()
+            {
+                replyDictionary.Set(receivedMessage.MessageId, receivedMessage.Body.ToArray());
+                await CompleteMessageAsync();
+            }
+
+            async Task ProcessCacheMissAsync()
+            {
+                CacheMissDescriptor descriptor = DeserializeBody<CacheMissDescriptor>();
+                await CompleteMessageAsync();
+                CacheService.AddExternalMiss(descriptor);
+            }
+
+            async Task ProcessInvalidateAsync()
+            {
+                InvalidationDescriptor descriptor = DeserializeBody<InvalidationDescriptor>();
+                await CompleteMessageAsync();
+                CacheService.Invalidate(descriptor);
+            }
+
+            await (subject switch
+            {
+                GetMessageSubject => ProcessGetAsync(),
+                GetReplyMessageSubject => ProcessGetReplyAsync(),
+                CacheMissMessageSubject => ProcessCacheMissAsync(),
+                InvalidateMessageSubject => ProcessInvalidateAsync(),
+                _ => Task.CompletedTask,
+            });
+        }
+        catch (Exception exception)
         {
-            return SmartCacheSerialization.Deserialize<T>(body.ToArray());
+            logger.LogWarning(exception, "Error processing '{Subject}' message", subject);
+            if (!completedBox.Value)
+            {
+                await receiver.DeadLetterMessageAsync(receivedMessage, "ExceptionProcessing", exception.Message);
+                completedBox.Value = true;
+            }
+        }
+        finally
+        {
+            if (!completedBox.Value)
+            {
+                await receiver.AbandonMessageAsync(receivedMessage);
+            }
         }
     }
 
@@ -507,7 +536,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
                     CancellationToken combinedCancellationToken = CancellationTokenSource
                         .CreateLinkedTokenSource(cancellationToken, new CancellationTokenSource(companion.serviceBusOptions.CompanionRequestTimeout).Token)
                         .Token;
-                    body = companion.replyDictionary.Get(messageId, combinedCancellationToken).ToArray();
+                    body = companion.replyDictionary.Get(messageId, combinedCancellationToken);
                 }
                 catch (OperationCanceledException oce) when (oce.CancellationToken != cancellationToken)
                 {
