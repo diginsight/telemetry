@@ -14,6 +14,9 @@ namespace Diginsight.SmartCache.Externalization.ServiceBus;
 
 internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompanion
 {
+    private const string SourcePropertyName = "source";
+    private const string DestinationPropertyName = "destination";
+
     private const string GetMessageSubject = "get";
     private const string GetReplyMessageSubject = "get reply";
     private const string CacheMissMessageSubject = "cachemiss";
@@ -266,7 +269,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
         logger.LogDebug("Installing subscription rule");
 
-        string filterExpression = $"sys.To = '{subscriptionName}' OR ((sys.To IS NULL OR sys.To = '') AND sys.ReplyTo != '{subscriptionName}')";
+        string filterExpression = $"[{DestinationPropertyName}] = '{subscriptionName}' OR ([{DestinationPropertyName}] IS NULL AND [{SourcePropertyName}] != '{subscriptionName}')";
         bool createRule = true;
         await foreach (RuleProperties ruleProperties in administrationClient.GetRulesAsync(topicName, subscriptionName, cancellationToken))
         {
@@ -352,7 +355,12 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
     private async Task ProcessAsync(ServiceBusReceiver receiver, ServiceBusReceivedMessage receivedMessage)
     {
-        string emitter = receivedMessage.ReplyTo;
+        if (receivedMessage.ApplicationProperties.GetValueOrDefault(SourcePropertyName) is not string emitter)
+        {
+            await receiver.AbandonMessageAsync(receivedMessage);
+            return;
+        }
+
         string subject = receivedMessage.Subject?.ToLowerInvariant() ?? "";
 
         using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { emitter, subject });
@@ -380,12 +388,15 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
                     ICacheKey key = DeserializeBody<ICacheKey>();
                     await CompleteMessageAsync();
 
-                    message = new ServiceBusMessage
+                    message = new ServiceBusMessage()
                     {
-                        ReplyTo = serviceBusOptions.SubscriptionName,
                         Subject = GetReplyMessageSubject,
                         CorrelationId = receivedMessage.MessageId,
-                        To = emitter,
+                        ApplicationProperties =
+                        {
+                            [SourcePropertyName] = serviceBusOptions.SubscriptionName,
+                            [DestinationPropertyName] = emitter,
+                        },
                     };
 
                     if (CacheService.TryGetDirectFromMemory(key, out Type? type, out object? value))
@@ -528,10 +539,13 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
             string messageId = Guid.NewGuid().ToString("N");
             ServiceBusMessage message = new (keyHolder.GetAsBytes())
             {
-                ReplyTo = companion.SelfLocationId,
                 Subject = GetMessageSubject,
                 MessageId = messageId,
-                To = Id,
+                ApplicationProperties =
+                {
+                    [SourcePropertyName] = companion.SelfLocationId,
+                    [DestinationPropertyName] = Id,
+                },
             };
 
             byte[] body;
@@ -610,8 +624,11 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
             ServiceBusMessage message = new (descriptorHolder.GetAsBytes())
             {
-                ReplyTo = companion.SelfLocationId,
                 Subject = subject,
+                ApplicationProperties =
+                {
+                    [SourcePropertyName] = companion.SelfLocationId,
+                },
             };
 
             return companion.clientHolder.Sender.SendMessageAsync(message);
