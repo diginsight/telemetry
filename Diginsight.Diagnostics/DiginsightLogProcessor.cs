@@ -53,12 +53,6 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
             activity.ActivityTraceFlags &= ~ActivityTraceFlags.Recorded;
         }
 
-        if (isStandalone)
-        {
-            textLogger.Log(logLevel, new EventId(100, "StartActivity"), "START {ActivityName}", activity.OperationName);
-            return;
-        }
-
         object? inputs = activity.GetCustomProperty(ActivityCustomPropertyNames.MakeInputs) switch
         {
             Func<object> makeObj => makeObj() ?? throw new InvalidOperationException("Invalid inputs in activity"),
@@ -66,9 +60,19 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
             _ => throw new InvalidOperationException("Invalid inputs in activity"),
         };
 
+        EventId startActivityEventId = new (100, "StartActivity");
+        EventId startMethodActivityEventId = new (110, "StartMethodActivity");
+
         if (inputs is null)
         {
-            textLogger.Log(logLevel, new EventId(110, "StartMethodActivity"), "START {ActivityName}()", activity.OperationName);
+            if (isStandalone)
+            {
+                textLogger.Log(logLevel, startActivityEventId, "START {ActivityName}", activity.OperationName);
+            }
+            else
+            {
+                textLogger.Log(logLevel, startMethodActivityEventId, "START {ActivityName}()", activity.OperationName);
+            }
             return;
         }
 
@@ -77,8 +81,16 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
             throw new InvalidOperationException("Invalid inputs in activity");
         }
 
-        otlpLogger.Log(logLevel, new EventId(111, "MethodInputs"), inputsAsDict, null, (_, _) => $"Method inputs: {inputsAsString}");
-        textLogger.Log(logLevel, new EventId(110, "StartMethodActivity"), "START {ActivityName}({Inputs})", activity.OperationName, inputsAsString);
+        if (isStandalone)
+        {
+            otlpLogger.Log(logLevel, new EventId(101, "ActivityInputs"), inputsAsDict, null, (_, _) => $"Activity inputs: {inputsAsString}");
+            textLogger.Log(logLevel, startActivityEventId, "START {ActivityName}({Inputs})", activity.OperationName, inputsAsString);
+        }
+        else
+        {
+            otlpLogger.Log(logLevel, new EventId(111, "MethodInputs"), inputsAsDict, null, (_, _) => $"Method inputs: {inputsAsString}");
+            textLogger.Log(logLevel, startMethodActivityEventId, "START {ActivityName}({Inputs})", activity.OperationName, inputsAsString);
+        }
     }
 
     public override void OnEnd(Activity activity)
@@ -117,11 +129,11 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
                     throw new InvalidOperationException("Invalid output in activity");
             }
 
-            outputAsString = appendingContextFactory.MakeLogString(output);
+            string outputAsString0 = appendingContextFactory.MakeLogString(output);
 
-            otlpLogger.Log(logLevel, new EventId(211, "MethodOutput"), new Dictionary<string, object?>() { ["Output"] = output }, null, (_, _) => $"Method output: {outputAsString}");
+            otlpLogger.Log(logLevel, new EventId(211, "MethodOutput"), new Dictionary<string, object?>() { ["Output"] = output }, null, (_, _) => $"Method output: {outputAsString0}");
 
-            return outputAsString;
+            return outputAsString0;
         }
 
         string? LogNamedOutputs()
@@ -141,22 +153,23 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
             return namedOutputsAsString0;
         }
 
+        EventId endMethodActivityEventId = new (210, "EndMethodActivity");
         switch (outputAsString, namedOutputsAsString)
         {
             case (null, null):
-                textLogger.Log(logLevel, new EventId(210, "EndMethodActivity"), "END {ActivityName}()", activity.OperationName);
+                textLogger.Log(logLevel, endMethodActivityEventId, "END {ActivityName}()", activity.OperationName);
                 break;
 
             case (not null, null):
-                textLogger.Log(logLevel, new EventId(210, "EndMethodActivity"), "END {ActivityName}() => {Output}", activity.OperationName, outputAsString);
+                textLogger.Log(logLevel, endMethodActivityEventId, "END {ActivityName}() => {Output}", activity.OperationName, outputAsString);
                 break;
 
             case (null, not null):
-                textLogger.Log(logLevel, new EventId(210, "EndMethodActivity"), "END {ActivityName}() [=> {NamedOutputs}]", activity.OperationName, namedOutputsAsString);
+                textLogger.Log(logLevel, endMethodActivityEventId, "END {ActivityName}() [=> {NamedOutputs}]", activity.OperationName, namedOutputsAsString);
                 break;
 
             case (not null, not null):
-                textLogger.Log(logLevel, new EventId(210, "EndMethodActivity"), "END {ActivityName}() => {Output} [=> {NamedOutputs}]", activity.OperationName, outputAsString, namedOutputsAsString);
+                textLogger.Log(logLevel, endMethodActivityEventId, "END {ActivityName}() => {Output} [=> {NamedOutputs}]", activity.OperationName, outputAsString, namedOutputsAsString);
                 break;
         }
     }

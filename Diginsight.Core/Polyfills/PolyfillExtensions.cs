@@ -14,6 +14,18 @@ public static class PolyfillExtensions
         key = kvp.Key;
         value = kvp.Value;
     }
+
+    public static TValue? GetValueOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key)
+        where TKey : notnull
+    {
+        return dictionary.GetValueOrDefault(key, default);
+    }
+
+    public static TValue? GetValueOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key, TValue? defaultValue)
+        where TKey : notnull
+    {
+        return dictionary.TryGetValue(key, out TValue obj) ? obj : defaultValue;
+    }
 #endif
 
 #if !NET6_0_OR_GREATER

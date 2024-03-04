@@ -33,6 +33,30 @@ public static class ActivityExtensions
         activity.SetCustomProperty(ActivityCustomPropertyNames.DurationMetricTags, tags);
     }
 
+    public static void StoreOutput(this Activity? activity, object? output)
+    {
+        if (activity is null)
+        {
+            return;
+        }
+        if (activity.GetCustomProperty(ActivityCustomPropertyNames.Logger) is null)
+        {
+            throw new ArgumentException("Invalid logger in activity");
+        }
+
+        activity.SetCustomProperty(ActivityCustomPropertyNames.Output, new StrongBox<object?>(output));
+    }
+
+    public static void StoreNamedOutputs(this Activity? activity, object namedOutputs)
+    {
+        if (namedOutputs is null)
+        {
+            throw new ArgumentNullException(nameof(namedOutputs));
+        }
+
+        activity?.SetCustomProperty(ActivityCustomPropertyNames.NamedOutputs, namedOutputs);
+    }
+
     public static void AddTagsToDurationMetric(this Activity activity, params Tag[] tags)
     {
         if (activity is null)

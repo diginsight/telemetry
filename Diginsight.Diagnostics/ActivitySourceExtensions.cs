@@ -4,19 +4,39 @@ using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
 
-public static class ActivityUtils
+public static class ActivitySourceExtensions
 {
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static Activity? CreateRichActivity(
         this ActivitySource activitySource,
         string activityName,
+        object inputs,
         ActivityKind activityKind = ActivityKind.Internal,
         LogLevel logLevel = LogLevel.Debug,
         [CallerMemberName] string callerMemberName = "",
         int stackDepth = 0
     )
     {
-        return CoreCreateRichActivity(activitySource, null, null, activityName, activityKind, logLevel, callerMemberName, stackDepth + 1, false);
+        if (inputs is null)
+        {
+            throw new ArgumentNullException(nameof(inputs));
+        }
+
+        return CreateRichActivity(activitySource, activityName, () => inputs, activityKind, logLevel, callerMemberName, stackDepth + 1);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static Activity? CreateRichActivity(
+        this ActivitySource activitySource,
+        string activityName,
+        Func<object>? makeInputs = null,
+        ActivityKind activityKind = ActivityKind.Internal,
+        LogLevel logLevel = LogLevel.Debug,
+        [CallerMemberName] string callerMemberName = "",
+        int stackDepth = 0
+    )
+    {
+        return CoreCreateRichActivity(activitySource, null, makeInputs, activityName, activityKind, logLevel, callerMemberName, stackDepth + 1, false);
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
@@ -24,26 +44,67 @@ public static class ActivityUtils
         this ActivitySource activitySource,
         ILogger logger,
         string activityName,
+        object inputs,
         ActivityKind activityKind = ActivityKind.Internal,
         LogLevel logLevel = LogLevel.Debug,
         [CallerMemberName] string callerMemberName = "",
         int stackDepth = 0
     )
     {
-        return CoreCreateRichActivity(activitySource, logger, null, activityName, activityKind, logLevel, callerMemberName, stackDepth + 1, false);
+        if (inputs is null)
+        {
+            throw new ArgumentNullException(nameof(inputs));
+        }
+
+        return CreateRichActivity(activitySource, logger, activityName, () => inputs, activityKind, logLevel, callerMemberName, stackDepth + 1);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static Activity? CreateRichActivity(
+        this ActivitySource activitySource,
+        ILogger logger,
+        string activityName,
+        Func<object>? makeInputs = null,
+        ActivityKind activityKind = ActivityKind.Internal,
+        LogLevel logLevel = LogLevel.Debug,
+        [CallerMemberName] string callerMemberName = "",
+        int stackDepth = 0
+    )
+    {
+        return CoreCreateRichActivity(activitySource, logger, makeInputs, activityName, activityKind, logLevel, callerMemberName, stackDepth + 1, false);
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static Activity? StartRichActivity(
         this ActivitySource activitySource,
         string activityName,
+        object inputs,
         ActivityKind activityKind = ActivityKind.Internal,
         LogLevel logLevel = LogLevel.Debug,
         [CallerMemberName] string callerMemberName = "",
         int stackDepth = 0
     )
     {
-        return CoreCreateRichActivity(activitySource, null, null, activityName, activityKind, logLevel, callerMemberName, stackDepth + 1, true);
+        if (inputs is null)
+        {
+            throw new ArgumentNullException(nameof(inputs));
+        }
+
+        return StartRichActivity(activitySource, activityName, () => inputs, activityKind, logLevel, callerMemberName, stackDepth + 1);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static Activity? StartRichActivity(
+        this ActivitySource activitySource,
+        string activityName,
+        Func<object>? makeInputs = null,
+        ActivityKind activityKind = ActivityKind.Internal,
+        LogLevel logLevel = LogLevel.Debug,
+        [CallerMemberName] string callerMemberName = "",
+        int stackDepth = 0
+    )
+    {
+        return CoreCreateRichActivity(activitySource, null, makeInputs, activityName, activityKind, logLevel, callerMemberName, stackDepth + 1, true);
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
@@ -51,13 +112,34 @@ public static class ActivityUtils
         this ActivitySource activitySource,
         ILogger logger,
         string activityName,
+        object inputs,
         ActivityKind activityKind = ActivityKind.Internal,
         LogLevel logLevel = LogLevel.Debug,
         [CallerMemberName] string callerMemberName = "",
         int stackDepth = 0
     )
     {
-        return CoreCreateRichActivity(activitySource, logger, null, activityName, activityKind, logLevel, callerMemberName, stackDepth + 1, true);
+        if (inputs is null)
+        {
+            throw new ArgumentNullException(nameof(inputs));
+        }
+
+        return StartRichActivity(activitySource, logger, activityName, () => inputs, activityKind, logLevel, callerMemberName, stackDepth + 1);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static Activity? StartRichActivity(
+        this ActivitySource activitySource,
+        ILogger logger,
+        string activityName,
+        Func<object>? makeInputs = null,
+        ActivityKind activityKind = ActivityKind.Internal,
+        LogLevel logLevel = LogLevel.Debug,
+        [CallerMemberName] string callerMemberName = "",
+        int stackDepth = 0
+    )
+    {
+        return CoreCreateRichActivity(activitySource, logger, makeInputs, activityName, activityKind, logLevel, callerMemberName, stackDepth + 1, true);
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
@@ -237,29 +319,5 @@ public static class ActivityUtils
         }
 
         return activity;
-    }
-
-    public static void StoreOutput(this Activity? activity, object? output)
-    {
-        if (activity is null)
-        {
-            return;
-        }
-        if (activity.GetCustomProperty(ActivityCustomPropertyNames.Logger) is null)
-        {
-            throw new ArgumentException("Invalid logger in activity");
-        }
-
-        activity.SetCustomProperty(ActivityCustomPropertyNames.Output, new StrongBox<object?>(output));
-    }
-
-    public static void StoreNamedOutputs(this Activity? activity, object namedOutputs)
-    {
-        if (namedOutputs is null)
-        {
-            throw new ArgumentNullException(nameof(namedOutputs));
-        }
-
-        activity?.SetCustomProperty(ActivityCustomPropertyNames.NamedOutputs, namedOutputs);
     }
 }
