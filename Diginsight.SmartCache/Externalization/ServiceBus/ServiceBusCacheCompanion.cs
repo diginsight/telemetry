@@ -269,7 +269,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
         logger.LogDebug("Installing subscription rule");
 
-        string filterExpression = $"[{DestinationPropertyName}] = '{subscriptionName}' OR ([{DestinationPropertyName}] IS NULL AND [{SourcePropertyName}] != '{subscriptionName}')";
+        string filterExpression = $"[{SourcePropertyName}] != '{subscriptionName}' AND ((NOT EXISTS ([{DestinationPropertyName}])) OR [{DestinationPropertyName}] = '{subscriptionName}')";
         bool createRule = true;
         await foreach (RuleProperties ruleProperties in administrationClient.GetRulesAsync(topicName, subscriptionName, cancellationToken))
         {
@@ -355,15 +355,17 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
     private async Task ProcessAsync(ServiceBusReceiver receiver, ServiceBusReceivedMessage receivedMessage)
     {
+        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger);
+
         if (receivedMessage.ApplicationProperties.GetValueOrDefault(SourcePropertyName) is not string emitter)
         {
+            logger.LogDebug("Received message without emitter; will be discarded");
             await receiver.AbandonMessageAsync(receivedMessage);
             return;
         }
 
         string subject = receivedMessage.Subject?.ToLowerInvariant() ?? "";
-
-        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { emitter, subject });
+        logger.LogDebug("Received message from '{Emitter}' with subject '{Subject}'", emitter, subject);
 
         StrongBox<bool> completedBox = new (false);
 

@@ -1,15 +1,15 @@
 {
   "profiles": {
-    "Diginsight.Playground.SmartCache 1": {
+    "Instance 1": {
       "commandName": "Project",
       "environmentVariables": {
-        "SmartCache__ServiceBus__SubscriptionName": "peer1"
+        "SmartCache__ServiceBus__SubscriptionName": "instance1"
       }
     },
-    "Diginsight.Playground.SmartCache 2": {
+    "Instance 2": {
       "commandName": "Project",
       "environmentVariables": {
-        "SmartCache__ServiceBus__SubscriptionName": "peer2"
+        "SmartCache__ServiceBus__SubscriptionName": "instance2"
       }
     }
   }
