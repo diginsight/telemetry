@@ -1,9 +1,11 @@
 ﻿using Diginsight.SmartCache;
+using Diginsight.SmartCache.Externalization;
 using Diginsight.SmartCache.Externalization.ServiceBus;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System;
 
 namespace Diginsight.Playground.SmartCache;
 
@@ -53,23 +55,49 @@ internal class Program
 
         ILogger logger = serviceProvider.GetRequiredService<ILogger<Program>>();
         ISmartCacheService cacheService = serviceProvider.GetRequiredService<ISmartCacheService>();
-        ICacheKeyService cacheKeyService = serviceProvider.GetRequiredService<ICacheKeyService>();
 
         string? line;
         while (!string.IsNullOrEmpty(line = Console.ReadLine()))
         {
-            IEnumerable<Guid> guids = await cacheService.GetAsync(
-                new MethodCallCacheKey(cacheKeyService, typeof(Program), nameof(Main), line),
-                async static () =>
-                {
-                    await Task.Delay(1000);
-                    return Enumerable.Range(0, 10).Select(static _ => Guid.NewGuid()).ToArray();
-                }
-            );
+            if (line.StartsWith('!'))
+            {
+                string prefix = line[1..];
 
-            logger.LogInformation("Got guids {Guids} for key {Key}", guids.ToLogString(), line);
+                cacheService.Invalidate(new MyInvalidationRule(prefix));
+
+                logger.LogInformation("Invalidating keys starting with '{Prefix}'", prefix);
+            }
+            else
+            {
+                IEnumerable<Guid> guids = await cacheService.GetAsync(
+                    new MyCacheKey(line),
+                    async static () =>
+                    {
+                        await Task.Delay(1000);
+                        return Enumerable.Range(0, 10).Select(static _ => Guid.NewGuid()).ToArray();
+                    }
+                );
+
+                logger.LogInformation("Got guids {Guids} for key '{Key}'", guids.ToLogString(), line);
+            }
         }
 
         await host.StopAsync();
+    }
+
+    [CacheInterchangeName(nameof(MyCacheKey))]
+    private sealed record MyCacheKey(string Line) : ICacheKey, IInvalidatable
+    {
+        public bool IsInvalidatedBy(IInvalidationRule invalidationRule, out Func<Task>? invalidationCallback)
+        {
+            invalidationCallback = null;
+            return invalidationRule is MyInvalidationRule myInvalidationRule && Line.StartsWith(myInvalidationRule.Prefix, StringComparison.Ordinal);
+        }
+    }
+
+    [CacheInterchangeName(nameof(MyInvalidationRule))]
+    private sealed record MyInvalidationRule(string Prefix) : IInvalidationRule
+    {
+        public InvalidationReason Reason => InvalidationReason.Created;
     }
 }

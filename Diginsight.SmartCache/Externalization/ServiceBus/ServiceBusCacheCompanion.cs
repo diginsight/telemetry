@@ -12,13 +12,14 @@ using System.Runtime.CompilerServices;
 
 namespace Diginsight.SmartCache.Externalization.ServiceBus;
 
+// TODO Dispose ManualResetEventSlim
 internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompanion
 {
     private const string SourcePropertyName = "source";
     private const string DestinationPropertyName = "destination";
 
-    private const string GetMessageSubject = "get";
-    private const string GetReplyMessageSubject = "get reply";
+    private const string GetRequestSubject = "get_request";
+    private const string GetResponseMessageSubject = "get_response";
     private const string CacheMissMessageSubject = "cachemiss";
     private const string InvalidateMessageSubject = "invalidate";
 
@@ -66,7 +67,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
     private sealed class ClientHolder
     {
         private readonly ISmartCacheServiceBusOptions serviceBusOptions;
-        private readonly ManualResetEventSlim validMre = new (true);
+        private readonly ManualResetEventSlim validMre = new ();
 
         private ServiceBusClient? client;
         private ServiceBusSender? sender;
@@ -134,9 +135,9 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
             }
         }
 
-        public byte[] Get(string messageId, CancellationToken cancellationToken)
+        public Task<byte[]> GetAsync(string messageId, CancellationToken cancellationToken)
         {
-            return InnerGetOrAdd(messageId).Get(cancellationToken);
+            return InnerGetOrAdd(messageId).GetAsync(cancellationToken);
         }
 
         public void Set(string messageId, byte[] body)
@@ -173,10 +174,38 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
                 Timestamp = timestamp;
             }
 
-            public byte[] Get(CancellationToken cancellationToken)
+            public Task<byte[]> GetAsync(CancellationToken cancellationToken)
             {
-                mre.Wait(cancellationToken);
-                return body!;
+                TaskCompletionSource<byte[]> tcs = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
+                _ = Task.Run(GetCore, CancellationToken.None);
+                return tcs.Task;
+
+                void GetCore()
+                {
+                    try
+                    {
+                        mre.Wait(cancellationToken);
+                    }
+                    catch (OperationCanceledException exception) when (exception.CancellationToken == cancellationToken)
+                    {
+#if NET6_0_OR_GREATER
+                        tcs.SetCanceled(cancellationToken);
+#else
+                        if (!tcs.TrySetCanceled(cancellationToken))
+                        {
+                            throw new InvalidOperationException("Task already in final state");
+                        }
+#endif
+                        return;
+                    }
+                    catch (Exception exception)
+                    {
+                        tcs.SetException(exception);
+                        return;
+                    }
+
+                    tcs.SetResult(body!);
+                }
             }
 
             // ReSharper disable once ParameterHidesMember
@@ -384,6 +413,8 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
             async Task ProcessGetAsync()
             {
+                logger.LogDebug("Sending message for get reply to '{Destination}'", emitter);
+
                 ServiceBusMessage message;
                 using (TimerLap lap = SmartCacheMetrics.Instruments.FetchDuration.StartLap(SmartCacheMetrics.Tags.Type.Direct))
                 {
@@ -392,7 +423,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
                     message = new ServiceBusMessage()
                     {
-                        Subject = GetReplyMessageSubject,
+                        Subject = GetResponseMessageSubject,
                         CorrelationId = receivedMessage.MessageId,
                         ApplicationProperties =
                         {
@@ -437,8 +468,8 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
             await (subject switch
             {
-                GetMessageSubject => ProcessGetAsync(),
-                GetReplyMessageSubject => ProcessGetReplyAsync(),
+                GetRequestSubject => ProcessGetAsync(),
+                GetResponseMessageSubject => ProcessGetReplyAsync(),
                 CacheMissMessageSubject => ProcessCacheMissAsync(),
                 InvalidateMessageSubject => ProcessInvalidateAsync(),
                 _ => Task.CompletedTask,
@@ -535,13 +566,14 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         )
         {
             using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key, minimumCreationDate });
+            logger.LogDebug("Sending message for get request to '{Destination}'", Id);
 
             using TimerLap lap = SmartCacheMetrics.Instruments.FetchDuration.CreateLap(SmartCacheMetrics.Tags.Type.Distributed);
 
             string messageId = Guid.NewGuid().ToString("N");
             ServiceBusMessage message = new (keyHolder.GetAsBytes())
             {
-                Subject = GetMessageSubject,
+                Subject = GetRequestSubject,
                 MessageId = messageId,
                 ApplicationProperties =
                 {
@@ -560,7 +592,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
                     CancellationToken combinedCancellationToken = CancellationTokenSource
                         .CreateLinkedTokenSource(cancellationToken, new CancellationTokenSource(companion.serviceBusOptions.CompanionRequestTimeout).Token)
                         .Token;
-                    body = companion.replyDictionary.Get(messageId, combinedCancellationToken);
+                    body = await companion.replyDictionary.GetAsync(messageId, combinedCancellationToken);
                 }
                 catch (OperationCanceledException oce) when (oce.CancellationToken != cancellationToken)
                 {
