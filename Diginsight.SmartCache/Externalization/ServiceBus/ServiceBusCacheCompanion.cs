@@ -32,7 +32,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
     private readonly ISmartCacheServiceBusOptions serviceBusOptions;
 
     private readonly ClientHolder clientHolder;
-    private readonly ReplyDictionary replyDictionary;
+    private readonly GetResponseDictionary getResponseDictionary;
 
     private readonly ManualResetEventSlim executionMre = new ();
     private readonly ManualResetEventSlim uninstallationMre = new ();
@@ -63,7 +63,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         this.serviceBusOptions = serviceBusOptions.Value;
 
         clientHolder = new ClientHolder(this.serviceBusOptions);
-        replyDictionary = new ReplyDictionary(timeProvider ?? TimeProvider.System);
+        getResponseDictionary = new GetResponseDictionary(timeProvider ?? TimeProvider.System);
 
         PassiveLocations = redisLocation is null
             ? Enumerable.Empty<PassiveCacheLocation>()
@@ -122,15 +122,15 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         }
     }
 
-    private sealed class ReplyDictionary : IDisposable
+    private sealed class GetResponseDictionary : IDisposable
     {
         private readonly TimeProvider timeProvider;
-        private readonly ConcurrentDictionary<string, Entry> underlying = new ();
+        private readonly ConcurrentDictionary<string, ChunkedBody> underlying = new ();
         private readonly Timer cleanupTimer;
 
         private volatile bool disposed = false;
 
-        public ReplyDictionary(TimeProvider timeProvider)
+        public GetResponseDictionary(TimeProvider timeProvider)
         {
             this.timeProvider = timeProvider;
             TimeSpan cleanupPeriod = TimeSpan.FromMinutes(1);
@@ -141,13 +141,13 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         {
             DateTime now = timeProvider.GetUtcNow().UtcDateTime;
 
-            foreach ((string messageId, Entry entry) in underlying)
+            foreach ((string messageId, ChunkedBody chunkedBody) in underlying)
             {
-                if (maybeAge is not { } age || now - entry.Timestamp <= age)
+                if (maybeAge is not { } age || now - chunkedBody.Timestamp <= age)
                     continue;
 
                 underlying.TryRemove(messageId, out _);
-                entry.Dispose();
+                chunkedBody.Dispose();
             }
         }
 
@@ -156,21 +156,21 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
             return disposed ? InnerGetOrAdd(messageId).Get(cancellationToken) : Array.Empty<byte>();
         }
 
-        public void Set(string messageId, byte[] body)
+        public void Set(string messageId, byte[] body, int chunkIndex, int chunkCount)
         {
             if (disposed)
                 return;
 
-            InnerGetOrAdd(messageId).Set(body);
+            InnerGetOrAdd(messageId).Set(body, chunkIndex, chunkCount);
         }
 
-        private Entry InnerGetOrAdd(string messageId)
+        private ChunkedBody InnerGetOrAdd(string messageId)
         {
             return underlying.GetOrAdd(
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                messageId, static (_, a) => new Entry(a.GetUtcNow().UtcDateTime), timeProvider
+                messageId, static (_, a) => new ChunkedBody(a.GetUtcNow().UtcDateTime), timeProvider
 #else
-                messageId, _ => new Entry(timeProvider.GetUtcNow().UtcDateTime)
+                messageId, _ => new ChunkedBody(timeProvider.GetUtcNow().UtcDateTime)
 #endif
             );
         }
@@ -185,40 +185,6 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
             cleanupTimer.Dispose();
             Cleanup(null);
             underlying.Clear();
-        }
-
-        private sealed class Entry : IDisposable
-        {
-            private readonly ManualResetEventSlim mre = new ();
-            private byte[]? body;
-
-            public DateTime Timestamp { get; }
-
-            public Entry(DateTime timestamp)
-            {
-                Timestamp = timestamp;
-            }
-
-            public byte[] Get(CancellationToken cancellationToken)
-            {
-                mre.Wait(cancellationToken);
-                return body!;
-            }
-
-            // ReSharper disable once ParameterHidesMember
-            public void Set(byte[] body)
-            {
-                if (this.body is not null)
-                    return;
-
-                this.body = body;
-                mre.Set();
-            }
-
-            public void Dispose()
-            {
-                mre.Dispose();
-            }
         }
     }
 
@@ -480,7 +446,17 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
             async Task ProcessGetReplyAsync()
             {
-                replyDictionary.Set(receivedMessage.CorrelationId, receivedMessage.Body.ToArray());
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                int GetChunkPropertyValue(string name, int defaultValue) =>
+                    receivedMessage.ApplicationProperties.TryGetValue(name, out object? rawValue) && rawValue is int value ? value : defaultValue;
+
+                getResponseDictionary
+                    .Set(
+                        receivedMessage.CorrelationId,
+                        receivedMessage.Body.ToArray(),
+                        GetChunkPropertyValue(ChunkIndexPropertyName, 0),
+                        GetChunkPropertyValue(ChunkCountPropertyName, 1)
+                    );
                 await CompleteMessageAsync();
             }
 
@@ -568,7 +544,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
     {
         base.Dispose();
 
-        replyDictionary.Dispose();
+        getResponseDictionary.Dispose();
         clientHolder.Dispose();
 
         uninstallationMre.Wait();
@@ -639,7 +615,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
                     CancellationToken combinedCancellationToken = CancellationTokenSource
                         .CreateLinkedTokenSource(cancellationToken, new CancellationTokenSource(companion.serviceBusOptions.CompanionRequestTimeout).Token)
                         .Token;
-                    body = companion.replyDictionary.Get(messageId, combinedCancellationToken);
+                    body = companion.getResponseDictionary.Get(messageId, combinedCancellationToken);
                 }
                 catch (OperationCanceledException oce) when (oce.CancellationToken != cancellationToken)
                 {
