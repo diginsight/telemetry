@@ -6,6 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Polly;
+using Polly.Retry;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -124,7 +126,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
             void Cleanup(object? state)
             {
-                DateTimeOffset now = timeProvider.GetUtcNow();
+                DateTime now = timeProvider.GetUtcNow().UtcDateTime;
                 foreach ((string messageId, Entry entry) in underlying)
                 {
                     if (now - entry.Timestamp > cleanupPeriod)
@@ -149,9 +151,9 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         {
             return underlying.GetOrAdd(
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                messageId, static (_, a) => new Entry(a.GetUtcNow()), timeProvider
+                messageId, static (_, a) => new Entry(a.GetUtcNow().UtcDateTime), timeProvider
 #else
-                messageId, _ => new Entry(timeProvider.GetUtcNow())
+                messageId, _ => new Entry(timeProvider.GetUtcNow().UtcDateTime)
 #endif
             );
         }
@@ -167,9 +169,9 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
             private readonly ManualResetEventSlim mre = new ();
             private byte[]? body;
 
-            public DateTimeOffset Timestamp { get; }
+            public DateTime Timestamp { get; }
 
-            public Entry(DateTimeOffset timestamp)
+            public Entry(DateTime timestamp)
             {
                 Timestamp = timestamp;
             }
@@ -236,95 +238,124 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
         ServiceBusAdministrationClient administrationClient = new (serviceBusOptions.ConnectionString);
 
-        cancellationToken.ThrowIfCancellationRequested();
-
-        logger.LogDebug("Installing topic '{TopicName}'", topicName);
-        if (await administrationClient.TopicExistsAsync(topicName, CancellationToken.None))
+        RetryStrategyOptions retryStrategyOptions = new ()
         {
-            TopicProperties topicProperties = await administrationClient.GetTopicAsync(topicName, CancellationToken.None);
-            topicProperties.AutoDeleteOnIdle = TimeSpan.FromDays(7);
-            topicProperties.DefaultMessageTimeToLive = TimeSpan.FromHours(1);
-            topicProperties.EnableBatchedOperations = true;
-
-            await administrationClient.UpdateTopicAsync(topicProperties, CancellationToken.None);
-        }
-        else
-        {
-            await administrationClient.CreateTopicAsync(
-                new CreateTopicOptions(topicName)
-                {
-                    AutoDeleteOnIdle = TimeSpan.FromDays(7),
-                    DefaultMessageTimeToLive = TimeSpan.FromHours(1),
-                    EnableBatchedOperations = true,
-                    EnablePartitioning = true,
-                },
-                CancellationToken.None
-            );
-        }
-
-        cancellationToken.ThrowIfCancellationRequested();
-
-        logger.LogDebug("Installing subscription '{SubscriptionName}'", subscriptionName);
-
-        if (await administrationClient.SubscriptionExistsAsync(topicName, subscriptionName, CancellationToken.None))
-        {
-            SubscriptionProperties subscriptionProperties = await administrationClient.GetSubscriptionAsync(topicName, subscriptionName, CancellationToken.None);
-            subscriptionProperties.AutoDeleteOnIdle = TimeSpan.FromDays(1);
-            subscriptionProperties.DefaultMessageTimeToLive = TimeSpan.FromHours(1);
-            subscriptionProperties.LockDuration = TimeSpan.FromSeconds(30);
-            subscriptionProperties.DeadLetteringOnMessageExpiration = false;
-            subscriptionProperties.EnableBatchedOperations = true;
-            subscriptionProperties.EnableDeadLetteringOnFilterEvaluationExceptions = true;
-            subscriptionProperties.MaxDeliveryCount = 2;
-
-            await administrationClient.UpdateSubscriptionAsync(subscriptionProperties, CancellationToken.None);
-        }
-        else
-        {
-            await administrationClient.CreateSubscriptionAsync(
-                new CreateSubscriptionOptions(topicName, subscriptionName)
-                {
-                    AutoDeleteOnIdle = TimeSpan.FromDays(1),
-                    DefaultMessageTimeToLive = TimeSpan.FromHours(1),
-                    LockDuration = TimeSpan.FromSeconds(30),
-                    DeadLetteringOnMessageExpiration = false,
-                    EnableBatchedOperations = true,
-                    EnableDeadLetteringOnFilterEvaluationExceptions = true,
-                    MaxDeliveryCount = 2,
-                },
-                CancellationToken.None
-            );
-        }
-
-        logger.LogDebug("Installing subscription rule");
-
-        string filterExpression = $"[{SourcePropertyName}] != '{subscriptionName}' AND ((NOT EXISTS ([{DestinationPropertyName}])) OR [{DestinationPropertyName}] = '{subscriptionName}')";
-        bool createRule = true;
-        await foreach (RuleProperties ruleProperties in administrationClient.GetRulesAsync(topicName, subscriptionName, cancellationToken))
-        {
-            if (ruleProperties.Name == ruleName && ruleProperties.Filter is SqlRuleFilter filter && filter.SqlExpression == filterExpression)
+            ShouldHandle = static args =>
             {
-                createRule = false;
+                Exception exception = args.Outcome.Exception!;
+                bool shouldHandle = exception is ServiceBusException sbException &&
+                    (sbException.IsTransient ||
+                        sbException.Reason is ServiceBusFailureReason.MessagingEntityAlreadyExists or ServiceBusFailureReason.MessagingEntityNotFound);
+                return new ValueTask<bool>(shouldHandle);
+            },
+        };
+
+        ResiliencePipeline resiliencePipeline = new ResiliencePipelineBuilder()
+            .AddRetry(retryStrategyOptions)
+            .Build();
+
+        await resiliencePipeline.ExecuteAsync(InstallTopicAsync, cancellationToken);
+        await resiliencePipeline.ExecuteAsync(InstallSubscriptionAsync, cancellationToken);
+        await resiliencePipeline.ExecuteAsync(InstallRuleAsync, cancellationToken);
+
+        clientHolder.Initialize();
+
+        async ValueTask InstallTopicAsync(CancellationToken ct)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            logger.LogDebug("Installing topic '{TopicName}'", topicName);
+            if (await administrationClient.TopicExistsAsync(topicName, CancellationToken.None))
+            {
+                TopicProperties topicProperties = await administrationClient.GetTopicAsync(topicName, CancellationToken.None);
+                topicProperties.AutoDeleteOnIdle = TimeSpan.FromDays(7);
+                topicProperties.DefaultMessageTimeToLive = TimeSpan.FromHours(1);
+                topicProperties.EnableBatchedOperations = true;
+
+                await administrationClient.UpdateTopicAsync(topicProperties, CancellationToken.None);
             }
             else
             {
-                await administrationClient.DeleteRuleAsync(topicName, subscriptionName, ruleProperties.Name, CancellationToken.None);
+                await administrationClient.CreateTopicAsync(
+                    new CreateTopicOptions(topicName)
+                    {
+                        AutoDeleteOnIdle = TimeSpan.FromDays(7),
+                        DefaultMessageTimeToLive = TimeSpan.FromHours(1),
+                        EnableBatchedOperations = true,
+                        EnablePartitioning = true,
+                    },
+                    CancellationToken.None
+                );
             }
         }
 
-        cancellationToken.ThrowIfCancellationRequested();
-
-        if (createRule)
+        async ValueTask InstallSubscriptionAsync(CancellationToken ct)
         {
-            await administrationClient.CreateRuleAsync(
-                topicName,
-                subscriptionName,
-                new CreateRuleOptions(ruleName, new SqlRuleFilter(filterExpression)),
-                CancellationToken.None
-            );
+            ct.ThrowIfCancellationRequested();
+
+            logger.LogDebug("Installing subscription '{SubscriptionName}'", subscriptionName);
+
+            if (await administrationClient.SubscriptionExistsAsync(topicName, subscriptionName, CancellationToken.None))
+            {
+                SubscriptionProperties subscriptionProperties = await administrationClient.GetSubscriptionAsync(topicName, subscriptionName, CancellationToken.None);
+                subscriptionProperties.AutoDeleteOnIdle = TimeSpan.FromDays(1);
+                subscriptionProperties.DefaultMessageTimeToLive = TimeSpan.FromHours(1);
+                subscriptionProperties.LockDuration = TimeSpan.FromSeconds(30);
+                subscriptionProperties.DeadLetteringOnMessageExpiration = false;
+                subscriptionProperties.EnableBatchedOperations = true;
+                subscriptionProperties.EnableDeadLetteringOnFilterEvaluationExceptions = true;
+                subscriptionProperties.MaxDeliveryCount = 2;
+
+                await administrationClient.UpdateSubscriptionAsync(subscriptionProperties, CancellationToken.None);
+            }
+            else
+            {
+                await administrationClient.CreateSubscriptionAsync(
+                    new CreateSubscriptionOptions(topicName, subscriptionName)
+                    {
+                        AutoDeleteOnIdle = TimeSpan.FromDays(1),
+                        DefaultMessageTimeToLive = TimeSpan.FromHours(1),
+                        LockDuration = TimeSpan.FromSeconds(30),
+                        DeadLetteringOnMessageExpiration = false,
+                        EnableBatchedOperations = true,
+                        EnableDeadLetteringOnFilterEvaluationExceptions = true,
+                        MaxDeliveryCount = 2,
+                    },
+                    CancellationToken.None
+                );
+            }
         }
 
-        clientHolder.Initialize();
+        async ValueTask InstallRuleAsync(CancellationToken ct)
+        {
+            logger.LogDebug("Installing subscription rule");
+
+            string filterExpression = $"[{SourcePropertyName}] != '{subscriptionName}' AND ((NOT EXISTS ([{DestinationPropertyName}])) OR [{DestinationPropertyName}] = '{subscriptionName}')";
+            bool createRule = true;
+            await foreach (RuleProperties ruleProperties in administrationClient.GetRulesAsync(topicName, subscriptionName, ct))
+            {
+                if (ruleProperties.Name == ruleName && ruleProperties.Filter is SqlRuleFilter filter && filter.SqlExpression == filterExpression)
+                {
+                    createRule = false;
+                }
+                else
+                {
+                    await administrationClient.DeleteRuleAsync(topicName, subscriptionName, ruleProperties.Name, CancellationToken.None);
+                }
+            }
+
+            ct.ThrowIfCancellationRequested();
+
+            if (createRule)
+            {
+                await administrationClient.CreateRuleAsync(
+                    topicName,
+                    subscriptionName,
+                    new CreateRuleOptions(ruleName, new SqlRuleFilter(filterExpression)),
+                    CancellationToken.None
+                );
+            }
+        }
     }
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -448,7 +479,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
             async Task ProcessGetReplyAsync()
             {
-                replyDictionary.Set(receivedMessage.MessageId, receivedMessage.Body.ToArray());
+                replyDictionary.Set(receivedMessage.CorrelationId, receivedMessage.Body.ToArray());
                 await CompleteMessageAsync();
             }
 

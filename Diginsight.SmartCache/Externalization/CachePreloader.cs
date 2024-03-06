@@ -19,14 +19,17 @@ public sealed class CachePreloader : ICachePreloader
 
     private readonly ILogger<CachePreloader> logger;
     private readonly ICacheCompanion companion;
+    private readonly TimeProvider timeProvider;
 
     public CachePreloader(
         ILogger<CachePreloader> logger,
-        ICacheCompanion companion
+        ICacheCompanion companion,
+        TimeProvider? timeProvider = null
     )
     {
         this.logger = logger;
         this.companion = companion;
+        this.timeProvider = timeProvider ?? TimeProvider.System;
     }
 
     public async Task PreloadAsync<T>(ICacheKey key, Func<Task<T>> fetchAsync)
@@ -38,7 +41,7 @@ public sealed class CachePreloader : ICachePreloader
 
         SmartCacheMetrics.Instruments.Preloads.Add(1);
 
-        DateTime timestamp = SmartCacheService.Truncate(DateTime.UtcNow);
+        DateTime timestamp = SmartCacheService.Truncate(timeProvider.GetUtcNow().UtcDateTime);
 
         T value;
         StrongBox<double> latencyMsecBox = new ();

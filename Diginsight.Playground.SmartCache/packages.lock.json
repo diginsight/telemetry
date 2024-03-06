@@ -479,6 +479,11 @@
           "System.IO.Pipelines": "5.0.1"
         }
       },
+      "Polly.Core": {
+        "type": "Transitive",
+        "resolved": "8.3.1",
+        "contentHash": "b9mMAjqXuCXFCtf/RtRPwFUkAm/sz37s7G+taDvS5EqfkJsLiWfO2xO2cSISjIgIY+88oIZTGguP6UrRGRlqzg=="
+      },
       "runtime.native.System": {
         "type": "Transitive",
         "resolved": "4.0.0",
@@ -1054,6 +1059,7 @@
           "Diginsight.Diagnostics": "[1.0.0, )",
           "Microsoft.Extensions.Caching.Memory": "[8.*, )",
           "Microsoft.Extensions.Http": "[8.*, )",
+          "Polly.Core": "[8.*, )",
           "StackExchange.Redis": "[2.*, )"
         }
       }

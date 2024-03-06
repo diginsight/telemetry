@@ -7,7 +7,12 @@
   </PropertyGroup>
 
   <Choose>
-    <When Condition="$(TargetFramework.StartsWith('netstandard'))">
+    <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">
+      <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
       <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.*">
           <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
@@ -15,11 +20,6 @@
         <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.*">
           <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
         </PackageReference>
-      </ItemGroup>
-    </When>
-    <Otherwise>
-      <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App" />
       </ItemGroup>
     </Otherwise>
   </Choose>

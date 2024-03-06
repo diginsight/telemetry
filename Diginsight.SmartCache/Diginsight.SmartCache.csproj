@@ -8,7 +8,12 @@
   </PropertyGroup>
 
   <Choose>
-    <When Condition="$(TargetFramework.StartsWith('netstandard'))">
+    <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">
+      <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
       <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.*">
           <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
@@ -17,11 +22,6 @@
           <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
         </PackageReference>
       </ItemGroup>
-    </When>
-    <Otherwise>
-      <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App" />
-      </ItemGroup>
     </Otherwise>
   </Choose>
 
@@ -29,6 +29,7 @@
     <PackageReference Include="Azure.Messaging.ServiceBus" Version="1.*" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.*" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.*" />
+    <PackageReference Include="Polly.Core" Version="8.*" />
     <PackageReference Include="StackExchange.Redis" Version="2.*" />
   </ItemGroup>
 

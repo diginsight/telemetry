@@ -20,8 +20,9 @@ public static class SmartCacheSerialization
                 new MyTypeConverter(),
                 new MyEnumeratorConverter(),
             },
-            DateTimeZoneHandling = DateTimeZoneHandling.Local,
-            DateParseHandling = DateParseHandling.DateTimeOffset,
+            DateTimeZoneHandling = DateTimeZoneHandling.Utc,
+            DateParseHandling = DateParseHandling.None,
+            DateFormatString = "O",
         }
     );
 
