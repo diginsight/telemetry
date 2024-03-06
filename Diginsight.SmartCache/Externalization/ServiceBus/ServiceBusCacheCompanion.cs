@@ -14,14 +14,15 @@ using System.Runtime.CompilerServices;
 
 namespace Diginsight.SmartCache.Externalization.ServiceBus;
 
-// TODO Dispose ManualResetEventSlim
 internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompanion
 {
     private const string SourcePropertyName = "source";
     private const string DestinationPropertyName = "destination";
+    private const string ChunkIndexPropertyName = "chunkIndex";
+    private const string ChunkCountPropertyName = "chunkCount";
 
-    private const string GetRequestSubject = "get_request";
-    private const string GetResponseMessageSubject = "get_response";
+    private const string GetRequestSubject = "get?";
+    private const string GetResponseMessageSubject = "get!";
     private const string CacheMissMessageSubject = "cachemiss";
     private const string InvalidateMessageSubject = "invalidate";
 
@@ -32,7 +33,10 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
     private readonly ClientHolder clientHolder;
     private readonly ReplyDictionary replyDictionary;
-    private readonly ManualResetEventSlim processMre = new ();
+
+    private readonly ManualResetEventSlim executionMre = new ();
+    private readonly ManualResetEventSlim uninstallationMre = new ();
+
     private readonly ObjectFactory<ServiceBusCacheLocation> makeLocation =
         ActivatorUtilities.CreateFactory<ServiceBusCacheLocation>([ typeof(string) ]);
 
@@ -66,10 +70,10 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
             : new[] { redisLocation };
     }
 
-    private sealed class ClientHolder
+    private sealed class ClientHolder : IDisposable
     {
         private readonly ISmartCacheServiceBusOptions serviceBusOptions;
-        private readonly ManualResetEventSlim validMre = new ();
+        private readonly ManualResetEventSlim mre = new ();
 
         private ServiceBusClient? client;
         private ServiceBusSender? sender;
@@ -78,7 +82,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         {
             get
             {
-                validMre.Wait();
+                mre.Wait();
                 return client!;
             }
         }
@@ -87,7 +91,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         {
             get
             {
-                validMre.Wait();
+                mre.Wait();
                 return sender!;
             }
         }
@@ -99,7 +103,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
         public void Invalidate()
         {
-            validMre.Reset();
+            mre.Reset();
             client = null;
             sender = null;
         }
@@ -108,7 +112,13 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         {
             client = new ServiceBusClient(serviceBusOptions.ConnectionString);
             sender = client.CreateSender(serviceBusOptions.TopicName);
-            validMre.Set();
+            mre.Set();
+        }
+
+        public void Dispose()
+        {
+            Invalidate();
+            mre.Dispose();
         }
     }
 
@@ -118,32 +128,39 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         private readonly ConcurrentDictionary<string, Entry> underlying = new ();
         private readonly Timer cleanupTimer;
 
+        private volatile bool disposed = false;
+
         public ReplyDictionary(TimeProvider timeProvider)
         {
             this.timeProvider = timeProvider;
             TimeSpan cleanupPeriod = TimeSpan.FromMinutes(1);
-            cleanupTimer = new Timer(Cleanup, null, cleanupPeriod, cleanupPeriod);
+            cleanupTimer = new Timer(x => Cleanup((TimeSpan)x!), cleanupPeriod, cleanupPeriod, cleanupPeriod);
+        }
 
-            void Cleanup(object? state)
+        private void Cleanup(TimeSpan? maybeAge)
+        {
+            DateTime now = timeProvider.GetUtcNow().UtcDateTime;
+
+            foreach ((string messageId, Entry entry) in underlying)
             {
-                DateTime now = timeProvider.GetUtcNow().UtcDateTime;
-                foreach ((string messageId, Entry entry) in underlying)
-                {
-                    if (now - entry.Timestamp > cleanupPeriod)
-                    {
-                        _ = underlying.TryRemove(messageId, out _);
-                    }
-                }
+                if (maybeAge is not { } age || now - entry.Timestamp <= age)
+                    continue;
+
+                underlying.TryRemove(messageId, out _);
+                entry.Dispose();
             }
         }
 
-        public Task<byte[]> GetAsync(string messageId, CancellationToken cancellationToken)
+        public byte[] Get(string messageId, CancellationToken cancellationToken)
         {
-            return InnerGetOrAdd(messageId).GetAsync(cancellationToken);
+            return disposed ? InnerGetOrAdd(messageId).Get(cancellationToken) : Array.Empty<byte>();
         }
 
         public void Set(string messageId, byte[] body)
         {
+            if (disposed)
+                return;
+
             InnerGetOrAdd(messageId).Set(body);
         }
 
@@ -160,11 +177,17 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
         public void Dispose()
         {
+            if (disposed)
+                return;
+
+            disposed = true;
+
             cleanupTimer.Dispose();
+            Cleanup(null);
             underlying.Clear();
         }
 
-        private sealed class Entry
+        private sealed class Entry : IDisposable
         {
             private readonly ManualResetEventSlim mre = new ();
             private byte[]? body;
@@ -176,38 +199,10 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
                 Timestamp = timestamp;
             }
 
-            public Task<byte[]> GetAsync(CancellationToken cancellationToken)
+            public byte[] Get(CancellationToken cancellationToken)
             {
-                TaskCompletionSource<byte[]> tcs = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
-                _ = Task.Run(GetCore, CancellationToken.None);
-                return tcs.Task;
-
-                void GetCore()
-                {
-                    try
-                    {
-                        mre.Wait(cancellationToken);
-                    }
-                    catch (OperationCanceledException exception) when (exception.CancellationToken == cancellationToken)
-                    {
-#if NET6_0_OR_GREATER
-                        tcs.SetCanceled(cancellationToken);
-#else
-                        if (!tcs.TrySetCanceled(cancellationToken))
-                        {
-                            throw new InvalidOperationException("Task already in final state");
-                        }
-#endif
-                        return;
-                    }
-                    catch (Exception exception)
-                    {
-                        tcs.SetException(exception);
-                        return;
-                    }
-
-                    tcs.SetResult(body!);
-                }
+                mre.Wait(cancellationToken);
+                return body!;
             }
 
             // ReSharper disable once ParameterHidesMember
@@ -218,6 +213,11 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
                 this.body = body;
                 mre.Set();
+            }
+
+            public void Dispose()
+            {
+                mre.Dispose();
             }
         }
     }
@@ -362,6 +362,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
     {
         string topicName = serviceBusOptions.TopicName;
         string subscriptionName = serviceBusOptions.SubscriptionName;
+        TimeSpan receiveWaitTime = TimeSpan.FromSeconds(10);
 
         try
         {
@@ -379,7 +380,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
                         ServiceBusReceivedMessage? receivedMessage;
                         try
                         {
-                            receivedMessage = await receiver.ReceiveMessageAsync(maxWaitTime: TimeSpan.FromSeconds(10), cancellationToken);
+                            receivedMessage = await receiver.ReceiveMessageAsync(maxWaitTime: receiveWaitTime, cancellationToken);
                         }
                         catch (Exception exception)
                         {
@@ -409,7 +410,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         }
         finally
         {
-            processMre.Set();
+            executionMre.Set();
         }
     }
 
@@ -532,31 +533,46 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         }
         finally
         {
-            processMre.Wait(CancellationToken.None);
             await UninstallAsync();
         }
     }
 
     private async Task UninstallAsync()
     {
-        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger);
-
-        ServiceBusAdministrationClient administrationClient = new (serviceBusOptions.ConnectionString);
-
-        string topicName = serviceBusOptions.TopicName;
-        string subscriptionName = serviceBusOptions.SubscriptionName;
-
-        logger.LogDebug("Deleting subscription '{SubscriptionName}'", subscriptionName);
-        if (await administrationClient.SubscriptionExistsAsync(topicName, subscriptionName))
+        try
         {
-            await administrationClient.DeleteSubscriptionAsync(topicName, subscriptionName);
+            using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger);
+
+            executionMre.Wait();
+
+            clientHolder.Invalidate();
+
+            ServiceBusAdministrationClient administrationClient = new (serviceBusOptions.ConnectionString);
+
+            string topicName = serviceBusOptions.TopicName;
+            string subscriptionName = serviceBusOptions.SubscriptionName;
+
+            logger.LogDebug("Deleting subscription '{SubscriptionName}'", subscriptionName);
+            if (await administrationClient.SubscriptionExistsAsync(topicName, subscriptionName))
+            {
+                await administrationClient.DeleteSubscriptionAsync(topicName, subscriptionName);
+            }
+        }
+        finally
+        {
+            uninstallationMre.Set();
         }
     }
 
     public override void Dispose()
     {
         base.Dispose();
+
         replyDictionary.Dispose();
+        clientHolder.Dispose();
+
+        uninstallationMre.Wait();
+        uninstallationMre.Dispose();
     }
 
     public Task<IEnumerable<ActiveCacheLocation>> GetActiveLocationsAsync(IEnumerable<string> locationIds)
@@ -623,7 +639,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
                     CancellationToken combinedCancellationToken = CancellationTokenSource
                         .CreateLinkedTokenSource(cancellationToken, new CancellationTokenSource(companion.serviceBusOptions.CompanionRequestTimeout).Token)
                         .Token;
-                    body = await companion.replyDictionary.GetAsync(messageId, combinedCancellationToken);
+                    body = companion.replyDictionary.Get(messageId, combinedCancellationToken);
                 }
                 catch (OperationCanceledException oce) when (oce.CancellationToken != cancellationToken)
                 {
