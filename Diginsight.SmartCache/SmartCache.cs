@@ -16,13 +16,13 @@ using System.Runtime.CompilerServices;
 
 namespace Diginsight.SmartCache;
 
-internal sealed class SmartCacheService : ISmartCacheService
+internal sealed class SmartCache : ISmartCache
 {
     private readonly ILogger logger;
     //private readonly IClassConfigurationGetter classConfigurationGetter;
     //private readonly IClassConfigurationGetterProvider classConfigurationGetterProvider;
     private readonly ICacheCompanion companion;
-    private readonly ISmartCacheServiceOptions smartCacheServiceOptions;
+    private readonly ISmartCacheCoreOptions coreOptions;
     private readonly TimeProvider timeProvider;
     private readonly IHttpContextAccessor? httpContextAccessor;
 
@@ -37,12 +37,12 @@ internal sealed class SmartCacheService : ISmartCacheService
 
     private long memoryCacheSize = 0;
 
-    public SmartCacheService(
-        ILogger<SmartCacheService> logger,
+    public SmartCache(
+        ILogger<SmartCache> logger,
         //IClassConfigurationGetter classConfigurationGetter,
         //IClassConfigurationGetterProvider classConfigurationGetterProvider,
         ICacheCompanion companion,
-        IOptions<SmartCacheServiceOptions> smartCacheServiceOptions,
+        IOptions<SmartCacheCoreOptions> coreOptions,
         IOptionsMonitor<MemoryCacheOptions> memoryCacheOptionsMonitor,
         ILoggerFactory loggerFactory,
         TimeProvider? timeProvider = null,
@@ -53,11 +53,11 @@ internal sealed class SmartCacheService : ISmartCacheService
         //this.classConfigurationGetter = classConfigurationGetter;
         //this.classConfigurationGetterProvider = classConfigurationGetterProvider;
         this.companion = companion;
-        this.smartCacheServiceOptions = smartCacheServiceOptions.Value;
+        this.coreOptions = coreOptions.Value;
         this.timeProvider = timeProvider ?? TimeProvider.System;
         this.httpContextAccessor = httpContextAccessor;
 
-        memoryCache = new MemoryCache(memoryCacheOptionsMonitor.Get(nameof(SmartCacheService)), loggerFactory);
+        memoryCache = new MemoryCache(memoryCacheOptionsMonitor.Get(nameof(SmartCache)), loggerFactory);
 
         passiveLocations = companion.PassiveLocations.ToDictionary(static x => x.Id);
         redisLocation = passiveLocations.Values.OfType<RedisCacheLocation>().SingleOrDefault();
@@ -143,7 +143,7 @@ internal sealed class SmartCacheService : ISmartCacheService
         else
         {
             using (memoryLap.Start())
-            using (SmartCacheMetrics.ActivitySource.StartRichActivity(logger, $"{nameof(SmartCacheService)}.GetFromMemory"))
+            using (SmartCacheMetrics.ActivitySource.StartRichActivity(logger, $"{nameof(SmartCache)}.GetFromMemory"))
             {
                 localEntry = memoryCache.Get<ValueEntry<TValue>?>(keyHolder.Key);
                 externalEntry = discardExternalMiss ? null : externalMissDictionary.Get(keyHolder.Key);
@@ -171,7 +171,7 @@ internal sealed class SmartCacheService : ISmartCacheService
 
             logger.LogDebug("Fetched in {LatencyMsec} ms", latencyMsec);
 
-            using (SmartCacheMetrics.ActivitySource.StartRichActivity(logger, $"{nameof(SmartCacheService)}.SetValue"))
+            using (SmartCacheMetrics.ActivitySource.StartRichActivity(logger, $"{nameof(SmartCache)}.SetValue"))
             {
                 SetValue(keyHolder, value, timestamp, absExpiration, sldExpiration, discardExternalMiss);
                 return value;
@@ -180,7 +180,7 @@ internal sealed class SmartCacheService : ISmartCacheService
 
         DateTime? localCreationDate = localEntry?.CreationDate;
 
-        if (externalEntry is var (othersCreationDate, locationIds) && !(othersCreationDate - smartCacheServiceOptions.LocalEntryTolerance <= localCreationDate))
+        if (externalEntry is var (othersCreationDate, locationIds) && !(othersCreationDate - coreOptions.LocalEntryTolerance <= localCreationDate))
         {
             DateTime minimumCreationDate = maybeMinimumCreationDate!.Value;
             if (othersCreationDate >= minimumCreationDate)
@@ -239,8 +239,8 @@ internal sealed class SmartCacheService : ISmartCacheService
                 {
                     maybeOutputTagged = await TaskUtils.WhenAnyValid(
                         taskFactories.ToArray(),
-                        smartCacheServiceOptions.CompanionPrefetchCount,
-                        smartCacheServiceOptions.CompanionMaxParallelism,
+                        coreOptions.CompanionPrefetchCount,
+                        coreOptions.CompanionMaxParallelism,
                         // ReSharper disable once AsyncApostle.AsyncWait
                         isValid: static t => new ValueTask<bool>(t.Status != TaskStatus.RanToCompletion || t.Result is not null)
                     );
@@ -346,7 +346,7 @@ internal sealed class SmartCacheService : ISmartCacheService
 
         static TimeSpan? ToInfinity(TimeSpan ts) => ts == TimeSpan.MaxValue ? null : ts;
 
-        TimeSpan finalAbsExpiration = absExpiration ?? smartCacheServiceOptions.AbsoluteExpiration;
+        TimeSpan finalAbsExpiration = absExpiration ?? coreOptions.AbsoluteExpiration;
         TimeSpan? inftyFinalAbsExpiration = ToInfinity(finalAbsExpiration);
 
         //if (classConfigurationGetter.Get("RedisOnlyCache", false) && redisLocation is not null)
@@ -356,7 +356,7 @@ internal sealed class SmartCacheService : ISmartCacheService
         //}
 
         TimeSpan? inftyFinalSldExpiration = ToInfinity(
-            new TimeSpan(Math.Min((sldExpiration ?? smartCacheServiceOptions.SlidingExpiration).Ticks, finalAbsExpiration.Ticks))
+            new TimeSpan(Math.Min((sldExpiration ?? coreOptions.SlidingExpiration).Ticks, finalAbsExpiration.Ticks))
         );
 
         long keySize;
@@ -383,8 +383,8 @@ internal sealed class SmartCacheService : ISmartCacheService
         long size = keySize + valueSize;
 
         CacheItemPriority priority =
-            size >= smartCacheServiceOptions.LowPrioritySizeThreshold ? CacheItemPriority.Low
-            : size >= smartCacheServiceOptions.MidPrioritySizeThreshold ? CacheItemPriority.Normal
+            size >= coreOptions.LowPrioritySizeThreshold ? CacheItemPriority.Low
+            : size >= coreOptions.MidPrioritySizeThreshold ? CacheItemPriority.Normal
             : CacheItemPriority.High;
 
         MemoryCacheEntryOptions entryOptions = new ()
@@ -476,7 +476,7 @@ internal sealed class SmartCacheService : ISmartCacheService
 
         if (locationId is not null)
         {
-            using (SmartCacheMetrics.ActivitySource.StartRichActivity(logger, $"{nameof(SmartCacheService)}.SetMissValue"))
+            using (SmartCacheMetrics.ActivitySource.StartRichActivity(logger, $"{nameof(SmartCache)}.SetMissValue"))
             {
                 externalMissDictionary.Add(keyHolder.Key, creationDate, locationId);
             }
@@ -489,7 +489,7 @@ internal sealed class SmartCacheService : ISmartCacheService
         }
 
         (Type, object?)? valueTuple;
-        if (valueHolder is var (value, valueType) && smartCacheServiceOptions.MissValueSizeThreshold is > 0 and var size)
+        if (valueHolder is var (value, valueType) && coreOptions.MissValueSizeThreshold is > 0 and var size)
         {
             byte[] valueBytes = new byte[size];
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
@@ -542,7 +542,7 @@ internal sealed class SmartCacheService : ISmartCacheService
             return false;
         }
 
-        TimeSpan finalMaxAge = maxAge ?? smartCacheServiceOptions.DefaultMaxAge;
+        TimeSpan finalMaxAge = maxAge ?? coreOptions.DefaultMaxAge;
         //if (callerClassConfigurationGetter.TryGet("MaxAge", out int outerMaxAgeSecs, TryConvertMaxAgeSecs))
         //{
         //    TimeSpan outerMaxAge = TimeSpan.FromSeconds(outerMaxAgeSecs);
@@ -651,7 +651,7 @@ internal sealed class SmartCacheService : ISmartCacheService
             }
         }
 
-        using (SmartCacheMetrics.ActivitySource.StartRichActivity(logger, $"{nameof(SmartCacheService)}.Invalidate"))
+        using (SmartCacheMetrics.ActivitySource.StartRichActivity(logger, $"{nameof(SmartCache)}.Invalidate"))
         {
             CoreInvalidate(keys.Keys, memoryCache.Remove);
             CoreInvalidate(externalMissDictionary.Keys, k => RemoveExternalMiss(new CacheKeyHolder(k, logger)));

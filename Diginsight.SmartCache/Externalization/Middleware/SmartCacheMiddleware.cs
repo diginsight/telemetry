@@ -15,15 +15,15 @@ internal sealed class SmartCacheMiddleware : IMiddleware
     private static string? tempDirectory;
 #endif
 
-    private readonly ISmartCacheService cacheService;
+    private readonly ISmartCache smartCache;
     private readonly ISmartCacheMiddlewareOptions middlewareOptions;
 
     public SmartCacheMiddleware(
-        ISmartCacheService cacheService,
+        ISmartCache smartCache,
         IOptions<SmartCacheMiddlewareOptions> middlewareOptions
     )
     {
-        this.cacheService = cacheService;
+        this.smartCache = smartCache;
         this.middlewareOptions = middlewareOptions.Value;
     }
 
@@ -66,7 +66,7 @@ internal sealed class SmartCacheMiddleware : IMiddleware
         using (TimerLap lap = SmartCacheMetrics.Instruments.FetchDuration.StartLap(SmartCacheMetrics.Tags.Type.Direct))
         {
             ICacheKey key = await DeserializeBodyAsync<ICacheKey>(httpContext);
-            if (!cacheService.TryGetDirectFromMemory(key, out Type? type, out object? value))
+            if (!smartCache.TryGetDirectFromMemory(key, out Type? type, out object? value))
             {
                 lap.AddTags(SmartCacheMetrics.Tags.Found.False);
                 return new NotFoundResult();
@@ -85,7 +85,7 @@ internal sealed class SmartCacheMiddleware : IMiddleware
     {
         CacheMissDescriptor descriptor = await DeserializeBodyAsync<CacheMissDescriptor>(httpContext);
 
-        cacheService.AddExternalMiss(descriptor);
+        smartCache.AddExternalMiss(descriptor);
 
         return new OkResult();
     }
@@ -94,7 +94,7 @@ internal sealed class SmartCacheMiddleware : IMiddleware
     {
         InvalidationDescriptor descriptor = await DeserializeBodyAsync<InvalidationDescriptor>(httpContext);
 
-        cacheService.Invalidate(descriptor);
+        smartCache.Invalidate(descriptor);
 
         return new OkResult();
     }

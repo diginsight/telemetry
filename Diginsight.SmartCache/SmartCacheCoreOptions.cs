@@ -1,6 +1,6 @@
 ﻿namespace Diginsight.SmartCache;
 
-public sealed class SmartCacheServiceOptions : ISmartCacheServiceOptions
+public sealed class SmartCacheCoreOptions : ISmartCacheCoreOptions
 {
     private TimeSpan localEntryTolerance = TimeSpan.FromSeconds(10);
     private TimeSpan defaultMaxAge = TimeSpan.MaxValue;

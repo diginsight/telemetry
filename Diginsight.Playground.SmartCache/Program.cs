@@ -41,7 +41,7 @@ internal class Program
                                     }
                                 )
                         )
-                        .Configure<SmartCacheServiceOptions>(configuration.GetSection("SmartCache:Core"))
+                        .Configure<SmartCacheCoreOptions>(configuration.GetSection("SmartCache:Core"))
                         .Configure<SmartCacheServiceBusOptions>(configuration.GetSection("SmartCache:ServiceBus"))
                         .AddSmartCache()
                         .SetServiceBusCompanion();
@@ -54,7 +54,7 @@ internal class Program
         IServiceProvider serviceProvider = host.Services;
 
         ILogger logger = serviceProvider.GetRequiredService<ILogger<Program>>();
-        ISmartCacheService cacheService = serviceProvider.GetRequiredService<ISmartCacheService>();
+        ISmartCache smartCache = serviceProvider.GetRequiredService<ISmartCache>();
 
         string? line;
         while (!string.IsNullOrEmpty(line = Console.ReadLine()))
@@ -63,13 +63,13 @@ internal class Program
             {
                 string prefix = line[1..];
 
-                cacheService.Invalidate(new MyInvalidationRule(prefix));
+                smartCache.Invalidate(new MyInvalidationRule(prefix));
 
                 logger.LogInformation("Invalidating keys starting with '{Prefix}'", prefix);
             }
             else
             {
-                IEnumerable<Guid> guids = await cacheService.GetAsync(
+                IEnumerable<Guid> guids = await smartCache.GetAsync(
                     new MyCacheKey(line),
                     async static () =>
                     {

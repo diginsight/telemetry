@@ -1,6 +1,6 @@
 ﻿namespace Diginsight.SmartCache;
 
-public interface ISmartCacheServiceOptions
+public interface ISmartCacheCoreOptions
 {
     TimeSpan DefaultMaxAge { get; }
 

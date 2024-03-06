@@ -41,7 +41,7 @@ public sealed class CachePreloader : ICachePreloader
 
         SmartCacheMetrics.Instruments.Preloads.Add(1);
 
-        DateTime timestamp = SmartCacheService.Truncate(timeProvider.GetUtcNow().UtcDateTime);
+        DateTime timestamp = SmartCache.Truncate(timeProvider.GetUtcNow().UtcDateTime);
 
         T value;
         StrongBox<double> latencyMsecBox = new ();

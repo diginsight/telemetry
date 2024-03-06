@@ -13,8 +13,8 @@ namespace Diginsight.SmartCache;
 
 public static partial class SmartCacheExtensions
 {
-    public static SmartCacheServiceBuilder SetCompanion(
-        this SmartCacheServiceBuilder builder, ICacheCompanionInstaller installer
+    public static SmartCacheBuilder SetCompanion(
+        this SmartCacheBuilder builder, ICacheCompanionInstaller installer
     )
     {
         CacheCompanionUninstaller uninstaller;
@@ -40,11 +40,11 @@ public static partial class SmartCacheExtensions
         public Action? Uninstall { get; set; }
     }
 
-    public static SmartCacheServiceBuilder SetLocalCompanion(this SmartCacheServiceBuilder builder) =>
+    public static SmartCacheBuilder SetLocalCompanion(this SmartCacheBuilder builder) =>
         builder.SetCompanion(LocalCacheCompanionInstaller.Instance);
 
-    public static SmartCacheServiceBuilder SetKubernetesCompanion(
-        this SmartCacheServiceBuilder builder,
+    public static SmartCacheBuilder SetKubernetesCompanion(
+        this SmartCacheBuilder builder,
         Action<SmartCacheKubernetesOptions>? configureKubernetesOptions = null,
         Action<SmartCacheMiddlewareOptions>? configureMiddlewareOptions = null
     )
@@ -61,8 +61,8 @@ public static partial class SmartCacheExtensions
         return builder;
     }
 
-    public static SmartCacheServiceBuilder SetServiceBusCompanion(
-        this SmartCacheServiceBuilder builder, Action<SmartCacheServiceBusOptions>? configureOptions = null
+    public static SmartCacheBuilder SetServiceBusCompanion(
+        this SmartCacheBuilder builder, Action<SmartCacheServiceBusOptions>? configureOptions = null
     )
     {
         builder.SetCompanion(ServiceBusCacheCompanionInstaller.Instance);
@@ -75,14 +75,14 @@ public static partial class SmartCacheExtensions
         return builder;
     }
 
-    public static SmartCacheServiceBuilder SetSizeLimit(this SmartCacheServiceBuilder builder, long? sizeLimit)
+    public static SmartCacheBuilder SetSizeLimit(this SmartCacheBuilder builder, long? sizeLimit)
     {
-        builder.Services.Configure<MemoryCacheOptions>(nameof(SmartCacheService), x => { x.SizeLimit = sizeLimit; });
+        builder.Services.Configure<MemoryCacheOptions>(nameof(SmartCache), x => { x.SizeLimit = sizeLimit; });
         return builder;
     }
 
-    public static SmartCacheServiceBuilder AddRedis(
-        this SmartCacheServiceBuilder builder, Action<SmartCacheRedisOptions>? configureOptions = null
+    public static SmartCacheBuilder AddRedis(
+        this SmartCacheBuilder builder, Action<SmartCacheRedisOptions>? configureOptions = null
     )
     {
         builder.Services.TryAddSingleton<IRedisDatabaseAccessor, RedisDatabaseAccessor>();
@@ -115,8 +115,8 @@ public static partial class SmartCacheExtensions
         }
     }
 
-    public static SmartCacheServiceBuilder AddMiddleware(
-        this SmartCacheServiceBuilder builder, Action<SmartCacheMiddlewareOptions>? configureOptions = null
+    public static SmartCacheBuilder AddMiddleware(
+        this SmartCacheBuilder builder, Action<SmartCacheMiddlewareOptions>? configureOptions = null
     )
     {
         builder.Services.TryAddTransient<SmartCacheMiddleware>();

@@ -4,24 +4,24 @@ using Microsoft.Extensions.Options;
 
 namespace Diginsight.SmartCache;
 
-public sealed class SmartCacheServiceBuilder
+public sealed class SmartCacheBuilder
 {
     public IServiceCollection Services { get; }
 
-    internal SmartCacheServiceBuilder(IServiceCollection services)
+    internal SmartCacheBuilder(IServiceCollection services)
     {
         services.AddMemoryCache();
-        services.TryAddSingleton<ISmartCacheService, SmartCacheService>();
-        services.TryAddSingleton(static sp => new Lazy<ISmartCacheService>(sp.GetRequiredService<ISmartCacheService>));
+        services.TryAddSingleton<ISmartCache, SmartCache>();
+        services.TryAddSingleton(static sp => new Lazy<ISmartCache>(sp.GetRequiredService<ISmartCache>));
         services.TryAddSingleton<ICacheKeyService, CacheKeyService>();
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<SmartCacheServiceOptions>, ValidateSmartCacheServiceOptions>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<SmartCacheCoreOptions>, ValidateSmartCacheCoreOptions>());
 
         Services = services;
     }
 
-    private sealed class ValidateSmartCacheServiceOptions : IValidateOptions<SmartCacheServiceOptions>
+    private sealed class ValidateSmartCacheCoreOptions : IValidateOptions<SmartCacheCoreOptions>
     {
-        public ValidateOptionsResult Validate(string? name, SmartCacheServiceOptions options)
+        public ValidateOptionsResult Validate(string? name, SmartCacheCoreOptions options)
         {
             if (name != Options.DefaultName)
             {
@@ -31,7 +31,7 @@ public sealed class SmartCacheServiceBuilder
             ICollection<string> messages = new List<string>();
             if (options.LowPrioritySizeThreshold < options.MidPrioritySizeThreshold)
             {
-                messages.Add($"{nameof(SmartCacheServiceOptions.LowPrioritySizeThreshold)} must be greater than or equal to {nameof(SmartCacheServiceOptions.MidPrioritySizeThreshold)}");
+                messages.Add($"{nameof(SmartCacheCoreOptions.LowPrioritySizeThreshold)} must be greater than or equal to {nameof(SmartCacheCoreOptions.MidPrioritySizeThreshold)}");
             }
 
             int companionPrefetchCount = options.CompanionPrefetchCount;
@@ -39,17 +39,17 @@ public sealed class SmartCacheServiceBuilder
 
             if (companionPrefetchCount <= 0)
             {
-                messages.Add($"{nameof(SmartCacheServiceOptions.CompanionPrefetchCount)} must be positive");
+                messages.Add($"{nameof(SmartCacheCoreOptions.CompanionPrefetchCount)} must be positive");
             }
 
             if (companionMaxParallelism <= 0)
             {
-                messages.Add($"{nameof(SmartCacheServiceOptions.CompanionMaxParallelism)} must be positive");
+                messages.Add($"{nameof(SmartCacheCoreOptions.CompanionMaxParallelism)} must be positive");
             }
 
             if (companionPrefetchCount > 0 && companionMaxParallelism > 0 && companionPrefetchCount < companionMaxParallelism)
             {
-                messages.Add($"{nameof(SmartCacheServiceOptions.CompanionMaxParallelism)} must be less than or equal to {nameof(SmartCacheServiceOptions.CompanionPrefetchCount)}");
+                messages.Add($"{nameof(SmartCacheCoreOptions.CompanionMaxParallelism)} must be less than or equal to {nameof(SmartCacheCoreOptions.CompanionPrefetchCount)}");
             }
 
             return messages.Any() ? ValidateOptionsResult.Fail(messages) : ValidateOptionsResult.Success;

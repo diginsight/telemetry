@@ -26,7 +26,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
     private const string InvalidateMessageSubject = "invalidate";
 
     private readonly ILogger<ServiceBusCacheCompanion> logger;
-    private readonly Lazy<ISmartCacheService> cacheServiceLazy;
+    private readonly Lazy<ISmartCache> smartCacheLazy;
     private readonly IServiceProvider serviceProvider;
     private readonly ISmartCacheServiceBusOptions serviceBusOptions;
 
@@ -42,11 +42,11 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
     public IEnumerable<PassiveCacheLocation> PassiveLocations { get; }
 
-    private ISmartCacheService CacheService => cacheServiceLazy.Value;
+    private ISmartCache SmartCache => smartCacheLazy.Value;
 
     public ServiceBusCacheCompanion(
         ILogger<ServiceBusCacheCompanion> logger,
-        Lazy<ISmartCacheService> cacheServiceLazy,
+        Lazy<ISmartCache> smartCacheLazy,
         IServiceProvider serviceProvider,
         IOptions<SmartCacheServiceBusOptions> serviceBusOptions,
         TimeProvider? timeProvider = null,
@@ -54,7 +54,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
     )
     {
         this.logger = logger;
-        this.cacheServiceLazy = cacheServiceLazy;
+        this.smartCacheLazy = smartCacheLazy;
         this.serviceProvider = serviceProvider;
         this.serviceBusOptions = serviceBusOptions.Value;
 
@@ -463,7 +463,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
                         },
                     };
 
-                    if (CacheService.TryGetDirectFromMemory(key, out Type? type, out object? value))
+                    if (SmartCache.TryGetDirectFromMemory(key, out Type? type, out object? value))
                     {
                         lap.AddTags(SmartCacheMetrics.Tags.Found.True);
                         message.Body = BinaryData.FromBytes(SmartCacheSerialization.SerializeToBytes(value, type));
@@ -487,14 +487,14 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
             {
                 CacheMissDescriptor descriptor = DeserializeBody<CacheMissDescriptor>();
                 await CompleteMessageAsync();
-                CacheService.AddExternalMiss(descriptor);
+                SmartCache.AddExternalMiss(descriptor);
             }
 
             async Task ProcessInvalidateAsync()
             {
                 InvalidationDescriptor descriptor = DeserializeBody<InvalidationDescriptor>();
                 await CompleteMessageAsync();
-                CacheService.Invalidate(descriptor);
+                SmartCache.Invalidate(descriptor);
             }
 
             await (subject switch

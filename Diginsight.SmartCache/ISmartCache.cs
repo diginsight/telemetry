@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Diginsight.SmartCache;
 
-public interface ISmartCacheService
+public interface ISmartCache
 {
     Task<T> GetAsync<T>(
         ICacheKey key,
