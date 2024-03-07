@@ -20,20 +20,20 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
     private readonly ILoggerFactory loggerFactory;
     private readonly IAppendingContextFactory appendingContextFactory;
     private readonly IDiginsightOptions diginsightOptions;
-    private readonly IActivityRecordingSampler? activityRecordingSampler;
+    private readonly IActivityProcessingSampler? activityProcessingSampler;
     private readonly ILogger fallbackLogger;
 
     public DiginsightLogProcessor(
         ILoggerFactory loggerFactory,
         IAppendingContextFactory appendingContextFactory,
         IOptions<DiginsightOptions> diginsightOptions,
-        IActivityRecordingSampler? activityRecordingSampler = null
+        IActivityProcessingSampler? activityProcessingSampler = null
     )
     {
         this.loggerFactory = loggerFactory;
         this.appendingContextFactory = appendingContextFactory;
         this.diginsightOptions = diginsightOptions.Value.Freeze();
-        this.activityRecordingSampler = activityRecordingSampler;
+        this.activityProcessingSampler = activityProcessingSampler;
         fallbackLogger = loggerFactory.CreateLogger($"{typeof(DiginsightLogProcessor).Namespace!}.$Activity");
     }
 
@@ -42,6 +42,7 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
         ExtractLoggingInfo(
             activity,
             out bool isStandalone,
+            out bool shouldLog,
             out bool shouldRecord,
             out ILogger textLogger,
             out ILogger otlpLogger,
@@ -51,6 +52,11 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
         if (!shouldRecord)
         {
             activity.ActivityTraceFlags &= ~ActivityTraceFlags.Recorded;
+
+            if (!shouldLog)
+            {
+                return;
+            }
         }
 
         object? inputs = activity.GetCustomProperty(ActivityCustomPropertyNames.MakeInputs) switch
@@ -98,11 +104,17 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
         ExtractLoggingInfo(
             activity,
             out bool isStandalone,
-            out bool _,
+            out bool shouldLog,
+            out bool shouldRecord,
             out ILogger textLogger,
             out ILogger otlpLogger,
             out LogLevel logLevel
         );
+
+        if (!(shouldLog || shouldRecord))
+        {
+            return;
+        }
 
         if (isStandalone)
         {
@@ -237,6 +249,7 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
     private void ExtractLoggingInfo(
         Activity activity,
         out bool isStandalone,
+        out bool shouldLog,
         out bool shouldRecord,
         out ILogger textLogger,
         out ILogger otlpLogger,
@@ -259,16 +272,27 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
             _ => throw new InvalidOperationException($"Invalid '{ActivityCustomPropertyNames.IsStandalone}' in activity"),
         };
 
-        bool? tempShouldRecord = activity.MatchesActivityNamePattern(diginsightOptions.NotRecordedActivityNames) ? false
+        ILogger MakeInnerLogger() => providedLogger ?? (callerType is not null ? loggerFactory.CreateLogger(callerType) : fallbackLogger);
+
+        ILogger? innerLogger = null;
+
+        bool? tempShouldLog = activity.MatchesActivityNamePattern(diginsightOptions.NonLoggedActivityNames) ? false
+            : activity.MatchesActivityNamePattern(diginsightOptions.LoggedActivityNames) ? true
+            : null;
+        activityProcessingSampler?.ShouldLog(activity, callerType, ref tempShouldLog);
+        shouldLog = tempShouldLog ?? diginsightOptions.LogActivities;
+        textLogger = shouldLog
+            ? new ActivityLogger(innerLogger ??= MakeInnerLogger(), activity.IsStopped ? activity.Duration : null)
+            : NullLogger.Instance;
+
+        bool? tempShouldRecord = activity.MatchesActivityNamePattern(diginsightOptions.NonRecordedActivityNames) ? false
             : activity.MatchesActivityNamePattern(diginsightOptions.RecordedActivityNames) ? true
             : null;
-        activityRecordingSampler?.ShouldRecord(activity, callerType, ref tempShouldRecord);
+        activityProcessingSampler?.ShouldRecord(activity, callerType, ref tempShouldRecord);
         shouldRecord = tempShouldRecord ?? diginsightOptions.RecordActivities;
-
-        ILogger innerLogger = providedLogger ?? (callerType is not null ? loggerFactory.CreateLogger(callerType) : fallbackLogger);
-
-        textLogger = new ActivityLogger(innerLogger, activity.IsStopped ? activity.Duration : null);
-        otlpLogger = shouldRecord ? new OtlpLogger(innerLogger) : NullLogger.Instance;
+        otlpLogger = shouldRecord
+            ? new OtlpLogger(innerLogger ??= MakeInnerLogger())
+            : NullLogger.Instance;
 
         logLevel = activity.GetCustomProperty(ActivityCustomPropertyNames.LogLevel) switch
         {
