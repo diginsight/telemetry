@@ -74,7 +74,7 @@ internal class Program
                     async static () =>
                     {
                         await Task.Delay(1000);
-                        return Enumerable.Range(0, 10).Select(static _ => Guid.NewGuid()).ToArray();
+                        return Enumerable.Range(0, 50).Select(static _ => Guid.NewGuid()).ToArray();
                     }
                 );
 

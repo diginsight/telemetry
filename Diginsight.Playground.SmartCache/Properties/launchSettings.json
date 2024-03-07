@@ -11,6 +11,12 @@
       "environmentVariables": {
         "SmartCache__ServiceBus__SubscriptionName": "instance2"
       }
+    },
+    "Instance 3": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "SmartCache__ServiceBus__SubscriptionName": "instance3"
+      }
     }
   }
 }

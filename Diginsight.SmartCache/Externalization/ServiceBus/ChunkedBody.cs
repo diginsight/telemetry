@@ -26,14 +26,14 @@ internal sealed class ChunkedBody : IDisposable
             bodies[i] = body;
         }
 
-        long lengthSoFar = 0;
+        long partialLength = 0;
         byte[] fullBody = new byte[fullLength];
         for (int i = 0; i < chunkCount; i++)
         {
             byte[] body = bodies[i];
             long length = body.Length;
-            Array.Copy(body, 0, fullBody, lengthSoFar, length);
-            lengthSoFar += length;
+            Array.Copy(body, 0, fullBody, partialLength, length);
+            partialLength += length;
         }
 
         return fullBody;
