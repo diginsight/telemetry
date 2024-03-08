@@ -12,6 +12,7 @@ using System.Text;
 
 namespace Diginsight.Diagnostics;
 
+// TODO Inputs and outputs as OTLP custom properties instead of separate
 internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
 {
     private static readonly MethodInfo ExtractLoggableFromKvps_Method =

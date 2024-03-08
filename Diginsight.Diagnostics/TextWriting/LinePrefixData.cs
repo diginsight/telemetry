@@ -5,8 +5,6 @@ namespace Diginsight.Diagnostics.TextWriting;
 
 public readonly ref struct LinePrefixData
 {
-    private readonly Lazy<int> depthLazy;
-
     public DateTime Timestamp { get; }
     public LogLevel LogLevel { get; }
     public string Category { get; }
@@ -15,8 +13,7 @@ public readonly ref struct LinePrefixData
     public DateTime? PrevTimestamp { get; }
     public ActivityTraceId? TraceId { get; }
     public bool LastWasStart { get; }
-
-    public int Depth => depthLazy.Value;
+    public ActivityDepth Depth { get; }
 
     public LinePrefixData(DateTime timestamp, LogLevel logLevel, string category, bool isActivity, TimeSpan? duration, Activity? activity)
     {
@@ -73,19 +70,6 @@ public readonly ref struct LinePrefixData
             }
         }
 
-        depthLazy = new (
-            () =>
-            {
-                int depth = 0;
-                for (Activity? a = activity; a is not null; a = a.Parent)
-                {
-                    depth++;
-                }
-
-                return depth;
-            }
-        );
-
         Timestamp = timestamp;
         LogLevel = logLevel;
         Category = category;
@@ -94,5 +78,6 @@ public readonly ref struct LinePrefixData
         PrevTimestamp = prevTimestamp;
         TraceId = traceId;
         LastWasStart = lastWasStart;
+        Depth = activity.GetDepth();
     }
 }

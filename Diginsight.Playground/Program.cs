@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using System.Net;
 using System.Text;
@@ -28,7 +29,14 @@ internal class Program : BackgroundService
 
     private static void Main()
     {
-        IDeferredLoggerFactory loggerFactory = new DeferredLoggerFactory();
+        DiginsightTextWriter.DisplayTiming = true;
+
+        DiginsightOptions diginsightOptions = new DiginsightOptions()
+        {
+            LogActivities = true,
+            RecordSpanDurations = false,
+        };
+        IDeferredLoggerFactory loggerFactory = new DeferredLoggerFactory(diginsightOptions: Options.Create(diginsightOptions));
         ILogger logger = loggerFactory.CreateLogger<Program>();
         ActivitySource deferredActivitySource = loggerFactory.ActivitySource;
 

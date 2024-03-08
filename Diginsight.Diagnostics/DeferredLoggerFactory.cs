@@ -19,11 +19,13 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
 
     private ILoggerFactory? target;
 
-    public ActivitySource ActivitySource { get; } = new ($"Standalone_{Guid.NewGuid():N}");
+    public ActivitySource ActivitySource { get; } = new ($"{typeof(DeferredLoggerFactory).FullName!}_{Guid.NewGuid():N}");
 
     public DeferredLoggerFactory(
+        TimeProvider? timeProvider = null,
         IAppendingContextFactory? appendingContextFactory = null,
-        TimeProvider? timeProvider = null
+        IOptions<DiginsightOptions>? diginsightOptions = null,
+        IActivityProcessingSampler? activityProcessingSampler = null
     )
     {
         this.timeProvider = timeProvider ?? TimeProvider.System;
@@ -31,7 +33,8 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
         BaseProcessor<Activity> processor = new DiginsightLogProcessor(
             this,
             appendingContextFactory ?? AppendingContextFactoryBuilder.DefaultFactory,
-            Options.Create(new DiginsightOptions() { RecordActivities = false, RecordSpanDurations = false })
+            diginsightOptions ?? Options.Create(new DiginsightOptions()),
+            activityProcessingSampler
         );
 
         ActivityListener listener = new ActivityListener()

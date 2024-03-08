@@ -99,6 +99,22 @@ public static class ActivityExtensions
     }
 #endif
 
+    public static ActivityDepth GetDepth(this Activity? activity)
+    {
+        if (activity is null)
+        {
+            return default;
+        }
+
+        if (activity.GetCustomProperty(ActivityCustomPropertyNames.Depth) is not ActivityDepth depth)
+        {
+            depth = GetDepth(activity.Parent).GetChild(activity.HasRemoteParent);
+            activity.SetCustomProperty(ActivityCustomPropertyNames.Depth, depth);
+        }
+
+        return depth;
+    }
+
     internal static Tag[] GetDurationMetricTags(this Activity activity)
     {
         return activity.GetCustomProperty(ActivityCustomPropertyNames.DurationMetricTags) switch

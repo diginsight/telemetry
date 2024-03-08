@@ -24,9 +24,9 @@ public sealed class DepthToken : ILineToken
         public void Append(StringBuilder sb, in LinePrefixData linePrefixData)
         {
 #if NET6_0_OR_GREATER
-            sb.Append($"{linePrefixData.Depth,2}");
+            sb.Append($"{linePrefixData.Depth.Local,2}");
 #else
-        sb.AppendFormat("{0,2}", linePrefixData.Depth);
+            sb.AppendFormat("{0,2}", linePrefixData.Depth.Local);
 #endif
         }
     }

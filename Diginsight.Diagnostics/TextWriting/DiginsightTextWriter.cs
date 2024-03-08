@@ -3,16 +3,19 @@ using OpenTelemetry.Trace;
 using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
+using System.Globalization;
 using System.Text;
 
 namespace Diginsight.Diagnostics.TextWriting;
 
 public static class DiginsightTextWriter
 {
-    private static readonly Histogram<double> WriteDuration = SelfObservabilityUtils.Meter.CreateHistogram<double>("diginsight.write_text_duration", "ms");
+    private static readonly Histogram<double> WriteDuration = SelfObservabilityUtils.Meter.CreateHistogram<double>("diginsight.write_text_duration", "us");
 
     private static readonly IDictionary<(int, int, int, int), IMessageLineResizer> ResizerCache =
         new Dictionary<(int, int, int, int), IMessageLineResizer>(ResizerKeyEqualityComparer.Instance);
+
+    public static bool DisplayTiming { get; set; }
 
     private sealed class ResizerKeyEqualityComparer : IEqualityComparer<(int, int, int, int)>
     {
@@ -43,7 +46,36 @@ public static class DiginsightTextWriter
         in LineDescriptor lineDescriptor
     )
     {
+        if (DisplayTiming)
+        {
+            using StringWriter stringWriter = new ();
+            Write(stringWriter, timestamp, logLevel, category, message, exception, isActivity, duration, in lineDescriptor, out double timing);
+
+            textWriter.Write(((long)timing).ToString(CultureInfo.InvariantCulture));
+            textWriter.Write("µ ");
+            textWriter.Write(stringWriter.ToString());
+        }
+        else
+        {
+            Write(textWriter, timestamp, logLevel, category, message, exception, isActivity, duration, in lineDescriptor, out _);
+        }
+    }
+
+    public static void Write(
+        TextWriter textWriter,
+        DateTime timestamp,
+        LogLevel logLevel,
+        string category,
+        string message,
+        Exception? exception,
+        bool isActivity,
+        TimeSpan? duration,
+        in LineDescriptor lineDescriptor,
+        out double timing
+    )
+    {
         Stopwatch stopwatch = Stopwatch.StartNew();
+
         try
         {
             Activity? activity = Activity.Current;
@@ -56,7 +88,7 @@ public static class DiginsightTextWriter
                 prefixSb.Append(' ');
             }
 
-            int depth = linePrefixData.Depth;
+            int depth = linePrefixData.Depth.Local;
             int maxIndentedDepth = lineDescriptor.MaxIndentedDepth;
             int indentationLength = maxIndentedDepth < 0 || depth <= maxIndentedDepth
                 ? depth * 2 - (linePrefixData.IsActivity ? 1 : 0)
@@ -132,7 +164,11 @@ public static class DiginsightTextWriter
         }
         finally
         {
-            WriteDuration.Record(stopwatch.Elapsed.TotalMilliseconds);
+#if NET7_0_OR_GREATER
+            WriteDuration.Record(timing = stopwatch.Elapsed.TotalMicroseconds);
+#else
+            WriteDuration.Record(timing = stopwatch.Elapsed.TotalMilliseconds / 1000);
+#endif
         }
     }
 

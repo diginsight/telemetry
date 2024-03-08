@@ -13,8 +13,8 @@ public static class LogStringExtensions
 {
     private static readonly Histogram<double> LogStringDuration = SelfObservabilityUtils.Meter.CreateHistogram<double>("diginsight.log_string_duration", "ms");
 
-    private static readonly IEnumerable<Type> FixedForbiddenTypes = new[]
-    {
+    private static readonly IEnumerable<Type> FixedForbiddenTypes =
+    [
         typeof(Thread),
         typeof(CancellationToken),
         typeof(CancellationTokenSource),
@@ -26,7 +26,7 @@ public static class LogStringExtensions
         typeof(TaskCompletionSource<>),
         typeof(IEnumerator<>),
         typeof(IAsyncEnumerator<>),
-    };
+    ];
 
     private static readonly IMemoryCache ForbiddenTypesCache = new MemoryCache(
         Options.Create(new MemoryCacheOptions() { SizeLimit = 2000 })
