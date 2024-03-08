@@ -12,7 +12,7 @@ namespace Diginsight.Playground;
 
 internal class Program : BackgroundService
 {
-    private static readonly ActivitySource ActivitySource = new ("Default");
+    private static readonly ActivitySource ActivitySource = new (typeof(Program).Namespace!);
 
     private readonly ILogger logger;
     private readonly IHostApplicationLifetime applicationLifetime;
@@ -30,16 +30,16 @@ internal class Program : BackgroundService
     {
         IDeferredLoggerFactory loggerFactory = new DeferredLoggerFactory();
         ILogger logger = loggerFactory.CreateLogger<Program>();
-        ActivitySource mainActivitySource = loggerFactory.ActivitySource;
+        ActivitySource deferredActivitySource = loggerFactory.ActivitySource;
 
         IHost host;
-        using (mainActivitySource.StartMethodActivity(logger))
+        using (deferredActivitySource.StartMethodActivity(logger))
         {
             host = new HostBuilder()
                 .ConfigureAppConfiguration(
                     (_, configurationBuilder) =>
                     {
-                        using Activity? innerActivity = mainActivitySource.StartRichActivity(logger, "ConfigureAppConfiguration");
+                        using Activity? innerActivity = deferredActivitySource.StartRichActivity(logger, "ConfigureAppConfiguration");
 
                         logger.LogDebug("Json file");
                         configurationBuilder.AddJsonFile("appsettings.json");
@@ -48,7 +48,7 @@ internal class Program : BackgroundService
                 .ConfigureServices(
                     (hostBuilderContext, services) =>
                     {
-                        using Activity? innerActivity = mainActivitySource.StartRichActivity(logger, "ConfigureServices");
+                        using Activity? innerActivity = deferredActivitySource.StartRichActivity(logger, "ConfigureServices");
 
                         IConfiguration configuration = hostBuilderContext.Configuration;
 
@@ -63,9 +63,10 @@ internal class Program : BackgroundService
                         services
                             .AddDiginsight(configuration.GetSection(diginsightSectionName).Bind)
                             .WithTracing(
-                                static tracerProviderBuilder => tracerProviderBuilder
+                                tracerProviderBuilder => tracerProviderBuilder
                                     .AddDiginsight()
                                     .AddSource(ActivitySource.Name)
+                                    .AddSource(deferredActivitySource.Name)
                             );
 
                         logger.LogDebug("Logging");
