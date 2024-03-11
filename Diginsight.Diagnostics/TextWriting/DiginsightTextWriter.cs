@@ -51,9 +51,7 @@ public static class DiginsightTextWriter
             using StringWriter stringWriter = new ();
             Write(stringWriter, timestamp, logLevel, category, message, exception, isActivity, duration, in lineDescriptor, out double timing);
 
-            textWriter.Write(((long)timing).ToString(CultureInfo.InvariantCulture));
-            textWriter.Write("µ ");
-            textWriter.Write(stringWriter.ToString());
+            textWriter.Write("{0,5}µ {1}", ((long)timing).ToString(CultureInfo.InvariantCulture), stringWriter);
         }
         else
         {

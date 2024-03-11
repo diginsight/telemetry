@@ -20,7 +20,7 @@ public readonly struct LineDescriptor
         new SimpleTokenParser("traceId", TraceIdToken.Instance),
         new SimpleTokenParser("delta", DeltaToken.Instance),
         new SimpleTokenParser("duration", DurationToken.Instance),
-        new SimpleTokenParser("depth", DepthToken.Instance),
+        new DepthTokenParser(),
         new IndentationTokenParser(),
         new MessageTokenParser(),
     ];
@@ -33,7 +33,7 @@ public readonly struct LineDescriptor
         TraceIdToken.Instance,
         DeltaToken.Instance,
         DurationToken.Instance,
-        DepthToken.Instance,
+        new DepthToken(),
         new IndentationToken(),
         new MessageToken(),
     ];
