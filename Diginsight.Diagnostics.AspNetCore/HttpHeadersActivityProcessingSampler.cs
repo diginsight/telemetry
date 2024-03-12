@@ -13,20 +13,14 @@ public sealed class HttpHeadersActivityProcessingSampler : IActivityProcessingSa
         this.httpContextAccessor = httpContextAccessor;
     }
 
-    public void ShouldLog(Activity activity, Type? callerType, ref bool? result)
-    {
-        ShouldProcess(activity.OperationName, "Activity-Logging", out result);
-    }
+    public bool? ShouldLog(Activity activity, Type? callerType) => ShouldProcess(activity.OperationName, "Activity-Logging");
 
-    public void ShouldRecord(Activity activity, Type? callerType, ref bool? result)
-    {
-        ShouldProcess(activity.OperationName, "Activity-Recording", out result);
-    }
+    public bool? ShouldRecord(Activity activity, Type? callerType) => ShouldProcess(activity.OperationName, "Activity-Recording");
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ShouldProcess(string activityName, string headerName, out bool? result)
+    private bool? ShouldProcess(string activityName, string headerName)
     {
-        result = HttpHeadersHelper.ShouldInclude(activityName, headerName, httpContextAccessor)
+        return HttpHeadersHelper.ShouldInclude(activityName, headerName, httpContextAccessor)
             ?? HttpHeadersHelper.ShouldInclude(activityName, "Activity-Processing", httpContextAccessor);
     }
 }

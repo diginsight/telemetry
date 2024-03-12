@@ -4,7 +4,7 @@ namespace Diginsight.Diagnostics;
 
 public interface IActivityProcessingSampler
 {
-    void ShouldLog(Activity activity, Type? callerType, ref bool? result);
+    bool? ShouldLog(Activity activity, Type? callerType);
 
-    void ShouldRecord(Activity activity, Type? callerType, ref bool? result);
+    bool? ShouldRecord(Activity activity, Type? callerType);
 }

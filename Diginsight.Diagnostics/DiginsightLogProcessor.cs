@@ -12,7 +12,7 @@ using System.Text;
 
 namespace Diginsight.Diagnostics;
 
-// TODO Inputs and outputs as OTLP custom properties instead of separate
+// TODO Inputs and outputs as OTLP custom properties instead of separate log entries
 internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
 {
     private static readonly MethodInfo ExtractLoggableFromKvps_Method =
@@ -33,7 +33,7 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
     {
         this.loggerFactory = loggerFactory;
         this.appendingContextFactory = appendingContextFactory;
-        this.diginsightOptions = diginsightOptions.Value.Freeze();
+        this.diginsightOptions = diginsightOptions.Value;
         this.activityProcessingSampler = activityProcessingSampler;
         fallbackLogger = loggerFactory.CreateLogger($"{typeof(DiginsightLogProcessor).Namespace!}.$Activity");
     }
@@ -277,20 +277,12 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
 
         ILogger? innerLogger = null;
 
-        bool? tempShouldLog = activity.MatchesActivityNamePattern(diginsightOptions.NonLoggedActivityNames) ? false
-            : activity.MatchesActivityNamePattern(diginsightOptions.LoggedActivityNames) ? true
-            : null;
-        activityProcessingSampler?.ShouldLog(activity, callerType, ref tempShouldLog);
-        shouldLog = tempShouldLog ?? diginsightOptions.LogActivities;
+        shouldLog = activityProcessingSampler?.ShouldLog(activity, callerType) ?? diginsightOptions.LogActivities;
         textLogger = shouldLog
             ? new ActivityLogger(innerLogger ??= MakeInnerLogger(), activity.IsStopped ? activity.Duration : null)
             : NullLogger.Instance;
 
-        bool? tempShouldRecord = activity.MatchesActivityNamePattern(diginsightOptions.NonRecordedActivityNames) ? false
-            : activity.MatchesActivityNamePattern(diginsightOptions.RecordedActivityNames) ? true
-            : null;
-        activityProcessingSampler?.ShouldRecord(activity, callerType, ref tempShouldRecord);
-        shouldRecord = tempShouldRecord ?? diginsightOptions.RecordActivities;
+        shouldRecord = activityProcessingSampler?.ShouldRecord(activity, callerType) ?? diginsightOptions.RecordActivities;
         otlpLogger = shouldRecord
             ? new OtlpLogger(innerLogger ??= MakeInnerLogger())
             : NullLogger.Instance;

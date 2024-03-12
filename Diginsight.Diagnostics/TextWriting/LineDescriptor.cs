@@ -56,58 +56,63 @@ public readonly struct LineDescriptor
     public LineDescriptor(IEnumerable<ILineToken> lineTokens)
         : this(lineTokens.ToArray(), true) { }
 
-    private LineDescriptor(IEnumerable<ILineToken> lineTokens, bool validate)
+    public LineDescriptor(MutableLineDescriptor descriptor)
     {
-        if (validate)
-        {
-            ILineToken[] lineTokenArray = lineTokens.ToArray();
-            int count = lineTokenArray.Length;
-
-            if (count == 0)
-            {
-                throw new ArgumentException("No tokens");
-            }
-
-            if (count != lineTokens.Select(static x => x.GetType()).Distinct().Count())
-            {
-                throw new ArgumentException(DuplicatedTokenErrMsg);
-            }
-
-            int indentationIndex = -1;
-            int messageIndex = count;
-            for (var i = 0; i < count; i++)
-            {
-                switch (lineTokenArray[i])
-                {
-                    case IndentationToken:
-                        indentationIndex = i;
-                        break;
-
-                    case MessageToken:
-                        messageIndex = i;
-                        break;
-                }
-            }
-
-            if (messageIndex < count - 1)
-            {
-                throw new ArgumentException(MessageThenNothingErrMsg);
-            }
-
-            if (indentationIndex >= 0 && indentationIndex != messageIndex - 1)
-            {
-                throw new ArgumentException(IndentationBeforeMessageErrMsg);
-            }
-        }
-
-        MutableLineDescriptor descriptor = Apply(lineTokens);
-
         appenders = descriptor.Appenders;
         MaxIndentedDepth = descriptor.MaxIndentedDepth ?? 0;
         MaxMessageLength = descriptor.MaxMessageLength ?? 0;
         MaxLineLength = descriptor.MaxLineLength ?? 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private LineDescriptor(IEnumerable<ILineToken> lineTokens, bool validate)
+        : this(validate ? ValidateAndApply(lineTokens) : Apply(lineTokens)) { }
+
+    private static MutableLineDescriptor ValidateAndApply(IEnumerable<ILineToken> lineTokens)
+    {
+        ILineToken[] lineTokenArray = lineTokens.ToArray();
+        int count = lineTokenArray.Length;
+
+        if (count == 0)
+        {
+            throw new ArgumentException("No tokens");
+        }
+
+        if (count != lineTokens.Select(static x => x.GetType()).Distinct().Count())
+        {
+            throw new ArgumentException(DuplicatedTokenErrMsg);
+        }
+
+        int indentationIndex = -1;
+        int messageIndex = count;
+        for (var i = 0; i < count; i++)
+        {
+            switch (lineTokenArray[i])
+            {
+                case IndentationToken:
+                    indentationIndex = i;
+                    break;
+
+                case MessageToken:
+                    messageIndex = i;
+                    break;
+            }
+        }
+
+        if (messageIndex < count - 1)
+        {
+            throw new ArgumentException(MessageThenNothingErrMsg);
+        }
+
+        if (indentationIndex >= 0 && indentationIndex != messageIndex - 1)
+        {
+            throw new ArgumentException(IndentationBeforeMessageErrMsg);
+        }
+
+        return Apply(lineTokens);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static MutableLineDescriptor Apply(IEnumerable<ILineToken> lineTokens)
     {
         MutableLineDescriptor descriptor = new ();

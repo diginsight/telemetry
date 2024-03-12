@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -39,8 +38,6 @@ public static class DependencyInjectionExtensions
             services.Configure(configureDiginsight);
         }
 
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<DiginsightOptions>, ValidateDiginsightOptions>());
-
         return services
             .AddOpenTelemetry()
             .ConfigureResource(
@@ -52,21 +49,6 @@ public static class DependencyInjectionExtensions
                     );
                 }
             );
-    }
-
-    private sealed class ValidateDiginsightOptions : IValidateOptions<DiginsightOptions>
-    {
-        public ValidateOptionsResult Validate(string? name, DiginsightOptions options)
-        {
-            if (name != Options.DefaultName)
-            {
-                return ValidateOptionsResult.Skip;
-            }
-
-            _ = options.Freeze();
-
-            return ValidateOptionsResult.Success;
-        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

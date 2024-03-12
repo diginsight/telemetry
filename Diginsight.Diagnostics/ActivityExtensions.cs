@@ -135,7 +135,7 @@ public static class ActivityExtensions
         };
     }
 
-    internal static bool MatchesActivityNamePattern(string name, string namePattern)
+    public static bool NameMatchesPattern(string name, string namePattern)
     {
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
         return namePattern.Split('*', 3) switch
@@ -157,9 +157,9 @@ public static class ActivityExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static bool MatchesActivityNamePattern(this Activity activity, IEnumerable<string> namePatterns)
+    public static bool NameMatchesPattern(this Activity activity, IEnumerable<string> namePatterns)
     {
         string name = activity.OperationName;
-        return namePatterns.Any(x => MatchesActivityNamePattern(name, x));
+        return namePatterns.Any(x => NameMatchesPattern(name, x));
     }
 }
