@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿#if EXPERIMENT_DECOMPOSING
+using Newtonsoft.Json;
 
 namespace Diginsight.Decomposing;
 
@@ -32,3 +33,4 @@ public sealed class NewtonsoftJObjectComposer : JComposerBase, IJObjectComposer
         writer.WriteEndObject();
     }
 }
+#endif

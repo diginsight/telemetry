@@ -35,6 +35,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Diginsight.Core\Diginsight.Core.csproj" />
+    <!-- TODO Is PrivateAssets needed? -->
     <ProjectReference Include="..\Diginsight.Diagnostics\Diginsight.Diagnostics.csproj">
       <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
     </ProjectReference>

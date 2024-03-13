@@ -1,4 +1,5 @@
-﻿namespace Diginsight.Decomposing;
+﻿#if EXPERIMENT_DECOMPOSING
+namespace Diginsight.Decomposing;
 
 public interface IJTokenComposer : IJComposer
 {
@@ -8,3 +9,4 @@ public interface IJTokenComposer : IJComposer
 
     void Value(object value);
 }
+#endif

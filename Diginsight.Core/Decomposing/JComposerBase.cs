@@ -1,4 +1,5 @@
-﻿namespace Diginsight.Decomposing;
+﻿#if EXPERIMENT_DECOMPOSING
+namespace Diginsight.Decomposing;
 
 public abstract class JComposerBase : IJComposer
 {
@@ -13,3 +14,4 @@ public abstract class JComposerBase : IJComposer
         IsUsed = true;
     }
 }
+#endif

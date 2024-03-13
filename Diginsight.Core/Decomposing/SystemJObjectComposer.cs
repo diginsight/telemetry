@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿#if EXPERIMENT_DECOMPOSING
+using System.Text.Json;
 
 namespace Diginsight.Decomposing;
 
@@ -32,3 +33,4 @@ public sealed class SystemJObjectComposer : JComposerBase, IJObjectComposer
         writer.WriteEndObject();
     }
 }
+#endif

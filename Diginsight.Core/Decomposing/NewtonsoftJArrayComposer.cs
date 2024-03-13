@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿#if EXPERIMENT_DECOMPOSING
+using Newtonsoft.Json;
 
 namespace Diginsight.Decomposing;
 
@@ -30,3 +31,4 @@ public sealed class NewtonsoftJArrayComposer : JComposerBase, IJArrayComposer
         writer.WriteEndArray();
     }
 }
+#endif
