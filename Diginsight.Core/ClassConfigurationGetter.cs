@@ -16,7 +16,7 @@ internal class ClassConfigurationGetter : IClassConfigurationGetter
 
     public static IClassConfigurationGetter<TClass> EmptyFor<TClass>() => default(EmptyClassConfigurationGetter<TClass>);
 
-    protected virtual IEnumerable<string> Prefixes => [ "" ];
+    protected virtual IReadOnlyList<string> Prefixes => [ "" ];
 
     public ClassConfigurationGetter(
         IConfiguration configuration,
@@ -159,7 +159,7 @@ internal class ClassConfigurationGetter : IClassConfigurationGetter
 
 internal sealed class ClassConfigurationGetter<TClass> : ClassConfigurationGetter, IClassConfigurationGetter<TClass>
 {
-    protected override IEnumerable<string> Prefixes => ClassConfigurationPrefixes<TClass>.Prefixes;
+    protected override IReadOnlyList<string> Prefixes => ClassConfigurationPrefixes<TClass>.Prefixes;
 
     public ClassConfigurationGetter(
         IConfiguration configuration,

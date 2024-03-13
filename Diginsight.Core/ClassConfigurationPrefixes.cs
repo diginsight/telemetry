@@ -4,9 +4,9 @@ namespace Diginsight;
 
 public static class ClassConfigurationPrefixes
 {
-    public static IEnumerable<string> For(Type @class)
+    public static IReadOnlyList<string> For(Type @class)
     {
-        return (IEnumerable<string>)typeof(ClassConfigurationPrefixes<>)
+        return (IReadOnlyList<string>)typeof(ClassConfigurationPrefixes<>)
             .MakeGenericType(@class)
             .GetProperty(nameof(ClassConfigurationPrefixes<object>.Prefixes), BindingFlags.Public | BindingFlags.Static)!
             .GetValue(null)!;
@@ -18,7 +18,7 @@ public static class ClassConfigurationPrefixes<TClass>
     // ReSharper disable once StaticMemberInGenericType
     private static readonly string[] PrefixesCore;
 
-    public static IEnumerable<string> Prefixes => PrefixesCore;
+    public static IReadOnlyList<string> Prefixes => PrefixesCore;
 
     static ClassConfigurationPrefixes()
     {
@@ -32,7 +32,7 @@ public static class ClassConfigurationPrefixes<TClass>
                 throw new ArgumentException("Array, byref, generic and pointer types not supported");
             }
 
-            string[] namespacePieces = (type.Namespace ?? "").Split('.');
+            string[] namespacePieces = type.Namespace?.Split('.') ?? Array.Empty<string>();
             IEnumerable<string> namespaceSegments = Enumerable.Range(1, namespacePieces.Length).Select(i => string.Join(".", namespacePieces.Take(i))).Reverse().ToArray();
 
             var availableShorthands = type.Assembly.GetCustomAttributes<ClassConfigurationNamespaceShorthandAttribute>().ToDictionary(static x => x.Namespace, static x => x.Shorthand);
@@ -42,7 +42,7 @@ public static class ClassConfigurationPrefixes<TClass>
                 .OfType<string>()
                 .ToArray();
 
-            if (type.FullName != null)
+            if (type is { Namespace: not null, FullName: not null })
             {
                 yield return $"{type.FullName}.";
             }

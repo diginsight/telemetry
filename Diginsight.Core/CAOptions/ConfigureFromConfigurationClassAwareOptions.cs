@@ -1,5 +1,4 @@
-﻿#if EXPERIMENT_FILTERED_CONFIGURATION
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 
 namespace Diginsight.CAOptions;
 
@@ -7,17 +6,20 @@ public class ConfigureFromConfigurationClassAwareOptions<TOptions> : ConfigureCl
     where TOptions : class
 {
     public ConfigureFromConfigurationClassAwareOptions(string? name, IConfiguration configuration, Action<BinderOptions>? configureBinder = null)
-        : base(name, (@class, options) => ConfigureCore(@class, options, configuration, configureBinder)) { }
-
-    private static void ConfigureCore(Type @class, TOptions options, IConfiguration configuration, Action<BinderOptions>? configureBinder)
-    {
-        configuration = Filter(configuration, @class);
-        configuration.Bind(options, configureBinder);
-    }
+        : base(name, (@class, options) => Filter(configuration, @class).Bind(options, configureBinder)) { }
 
     private static IConfiguration Filter(IConfiguration configuration, Type @class)
     {
-        throw new NotImplementedException();
+        return configuration switch
+        {
+            IFilteredConfiguration filtered =>
+                filtered.Class == @class ? filtered : throw new ArgumentException("Configuration already filtered on another class"),
+            IConfigurationRoot root =>
+                (IConfiguration)Activator.CreateInstance(typeof(FilteredConfigurationRoot<>).MakeGenericType(@class), root)!,
+            IConfigurationSection section =>
+                (IConfiguration)Activator.CreateInstance(typeof(FilteredConfigurationSection<>).MakeGenericType(@class), section)!,
+            _ =>
+                (IConfiguration)Activator.CreateInstance(typeof(FilteredConfiguration<>).MakeGenericType(@class), configuration)!,
+        };
     }
 }
-#endif
