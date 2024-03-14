@@ -43,9 +43,9 @@ public sealed class ClassAwareOptionsFactory<TOptions> : IClassAwareOptionsFacto
 
         foreach (IConfigureOptions<TOptions> configurator in configurators)
         {
-            if (configurator is IConfigureNamedOptions<TOptions> namedConfigurer)
+            if (configurator is IConfigureNamedOptions<TOptions> namedConfigurator)
             {
-                namedConfigurer.Configure(name, options);
+                namedConfigurator.Configure(name, options);
             }
             else
             {

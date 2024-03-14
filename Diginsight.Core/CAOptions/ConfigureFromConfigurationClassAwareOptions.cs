@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using System.Reflection;
 
 namespace Diginsight.CAOptions;
 
@@ -6,20 +7,27 @@ public class ConfigureFromConfigurationClassAwareOptions<TOptions> : ConfigureCl
     where TOptions : class
 {
     public ConfigureFromConfigurationClassAwareOptions(string? name, IConfiguration configuration, Action<BinderOptions>? configureBinder = null)
-        : base(name, (@class, options) => Filter(configuration, @class).Bind(options, configureBinder)) { }
+        : base(name, (@class, options) => Statics.Filter(configuration, @class).Bind(options, configureBinder)) { }
+}
 
-    private static IConfiguration Filter(IConfiguration configuration, Type @class)
+file static class Statics
+{
+    private static readonly MethodInfo FilterCore_Method = typeof(Statics).GetMethod(nameof(FilterCore), BindingFlags.NonPublic | BindingFlags.Static)!;
+
+    public static IConfiguration Filter(IConfiguration configuration, Type @class)
+    {
+        return (IConfiguration)FilterCore_Method.MakeGenericMethod(@class).Invoke(null, [ configuration ])!;
+    }
+
+    private static IConfiguration FilterCore<TClass>(IConfiguration configuration)
     {
         return configuration switch
         {
             IFilteredConfiguration filtered =>
-                filtered.Class == @class ? filtered : throw new ArgumentException("Configuration already filtered on another class"),
-            IConfigurationRoot root =>
-                (IConfiguration)Activator.CreateInstance(typeof(FilteredConfigurationRoot<>).MakeGenericType(@class), root)!,
-            IConfigurationSection section =>
-                (IConfiguration)Activator.CreateInstance(typeof(FilteredConfigurationSection<>).MakeGenericType(@class), section)!,
-            _ =>
-                (IConfiguration)Activator.CreateInstance(typeof(FilteredConfiguration<>).MakeGenericType(@class), configuration)!,
+                filtered.Class == typeof(TClass) ? filtered : throw new ArgumentException("Configuration already filtered on another class"),
+            IConfigurationRoot root => new FilteredConfigurationRoot<TClass>(root),
+            IConfigurationSection section => new FilteredConfigurationSection<TClass>(section),
+            _ => new FilteredConfiguration<TClass>(configuration),
         };
     }
 }
