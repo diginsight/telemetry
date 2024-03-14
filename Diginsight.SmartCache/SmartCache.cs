@@ -1,7 +1,6 @@
 ﻿using Diginsight.Diagnostics;
 using Diginsight.SmartCache.Externalization;
 using Diginsight.SmartCache.Externalization.Redis;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -24,7 +23,6 @@ internal sealed class SmartCache : ISmartCache
     private readonly ICacheCompanion companion;
     private readonly ISmartCacheCoreOptions coreOptions;
     private readonly TimeProvider timeProvider;
-    private readonly IHttpContextAccessor? httpContextAccessor;
 
     private readonly IMemoryCache memoryCache;
 
@@ -45,8 +43,7 @@ internal sealed class SmartCache : ISmartCache
         IOptions<SmartCacheCoreOptions> coreOptions,
         IOptionsMonitor<MemoryCacheOptions> memoryCacheOptionsMonitor,
         ILoggerFactory loggerFactory,
-        TimeProvider? timeProvider = null,
-        IHttpContextAccessor? httpContextAccessor = null
+        TimeProvider? timeProvider = null
     )
     {
         this.logger = logger;
@@ -55,7 +52,6 @@ internal sealed class SmartCache : ISmartCache
         this.companion = companion;
         this.coreOptions = coreOptions.Value;
         this.timeProvider = timeProvider ?? TimeProvider.System;
-        this.httpContextAccessor = httpContextAccessor;
 
         memoryCache = new MemoryCache(memoryCacheOptionsMonitor.Get(nameof(SmartCache)), loggerFactory);
 
@@ -552,13 +548,6 @@ internal sealed class SmartCache : ISmartCache
         //    }
         //}
 
-        DateTime requestStartedOn =
-            Truncate(
-                httpContextAccessor?.HttpContext?.Items.TryGetValue("RequestStartedOn", out var rawRequestStartedOn) == true
-                    ? rawRequestStartedOn as DateTime? : null
-            )
-            ?? timestamp;
-
         static bool TryConvertMinimumCreationDate(string? str, out DateTime minimumCreationDate)
         {
             if (DateTime.TryParse(str, null, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out minimumCreationDate))
@@ -573,7 +562,7 @@ internal sealed class SmartCache : ISmartCache
         DateTime minimumCreationDate;
         try
         {
-            minimumCreationDate = requestStartedOn - finalMaxAge;
+            minimumCreationDate = timestamp - finalMaxAge;
         }
         catch (ArgumentOutOfRangeException)
         {

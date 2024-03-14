@@ -6,6 +6,8 @@ namespace Diginsight.CAOptions;
 
 public static class FilteredConfiguration
 {
+    public const char ClassDelimiter = '!';
+
     public static IConfiguration For(IConfiguration configuration, Type @class)
     {
         return (IConfiguration)typeof(FilteredConfiguration<>)
@@ -17,8 +19,6 @@ public static class FilteredConfiguration
 
 public class FilteredConfiguration<TClass> : IFilteredConfiguration
 {
-    private static readonly string[] Prefixes = ClassConfigurationPrefixes<TClass>.Prefixes.ToArray();
-
     private readonly IConfiguration underlying;
     private readonly string partialVirtualPath;
 
@@ -74,7 +74,7 @@ public class FilteredConfiguration<TClass> : IFilteredConfiguration
     {
         static (string? Prefix, string VirtualKey) Split(string actualKey)
         {
-            return actualKey.IndexOf('@') is > 0 and var idx ? (actualKey[..idx], actualKey[(idx + 1)..]) : (null, actualKey);
+            return actualKey.IndexOf(FilteredConfiguration.ClassDelimiter) is > 0 and var idx ? (actualKey[..idx], actualKey[(idx + 1)..]) : (null, actualKey);
         }
 
         static (string Prefix, string VirtualKey, IConfigurationSection Section) Decompose(IConfigurationSection section)
@@ -84,14 +84,16 @@ public class FilteredConfiguration<TClass> : IFilteredConfiguration
             return (prefix is null ? "" : $"{prefix}.", virtualKey, section);
         }
 
-        static IConfigurationSection? ChooseBest(IEnumerable<(string Prefix, IConfigurationSection Section)> candidates)
+        IEnumerable<string> prefixes = ClassConfigurationPrefixes<TClass>.Prefixes;
+
+        IConfigurationSection? ChooseBest(IEnumerable<(string Prefix, IConfigurationSection Section)> candidates)
         {
             int bestRank = int.MaxValue;
             IConfigurationSection? bestSection = null;
 
             foreach ((string prefix, IConfigurationSection section) in candidates)
             {
-                int rank = Array.IndexOf(Prefixes, prefix);
+                int rank = prefixes.FirstIndexWhere(x => x.Equals(prefix, StringComparison.OrdinalIgnoreCase));
                 if (rank < 0 || rank >= bestRank)
                     continue;
 

@@ -1,4 +1,5 @@
-﻿namespace Diginsight;
+﻿#if EXPERIMENT_CLASS_CONFIGURATION_GETTER
+namespace Diginsight;
 
 public interface IClassConfigurationGetter
 {
@@ -11,3 +12,4 @@ public interface IClassConfigurationGetter
 
 // ReSharper disable once UnusedTypeParameter
 public interface IClassConfigurationGetter<TClass> : IClassConfigurationGetter;
+#endif

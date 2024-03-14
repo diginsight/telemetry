@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿#if EXPERIMENT_CLASS_CONFIGURATION_GETTER
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using System.ComponentModel;
 using System.Globalization;
@@ -87,3 +88,4 @@ public sealed class HttpRequestHeadersClassConfigurationSource : IClassConfigura
         return false;
     }
 }
+#endif

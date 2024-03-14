@@ -2,6 +2,12 @@
 
 namespace Diginsight.CAOptions;
 
-// ReSharper disable once UnusedTypeParameter
-public interface IClassAwareOptions<out TOptions, TClass> : IOptions<TOptions>
-    where TOptions : class;
+public interface IClassAwareOptions<out TOptions> : IOptions<TOptions>
+    where TOptions : class
+{
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+    TOptions IOptions<TOptions>.Value => Get(ClassAwareOptions.NoType);
+#endif
+
+    TOptions Get(Type @class);
+}

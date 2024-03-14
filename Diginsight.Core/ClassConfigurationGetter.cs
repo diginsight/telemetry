@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿#if EXPERIMENT_CLASS_CONFIGURATION_GETTER
+using Microsoft.Extensions.Configuration;
 using System.Collections;
 using System.Runtime.CompilerServices;
 
@@ -168,3 +169,4 @@ internal sealed class ClassConfigurationGetter<TClass> : ClassConfigurationGette
     )
         : base(configuration, classConfigurationSources, configurationWrapper) { }
 }
+#endif

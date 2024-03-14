@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿#if EXPERIMENT_CLASS_CONFIGURATION_GETTER
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Diginsight;
 
@@ -16,3 +17,4 @@ internal sealed class ClassConfigurationGetterProvider : IClassConfigurationGett
         return (IClassConfigurationGetter)serviceProvider.GetRequiredService(typeof(IClassConfigurationGetter<>).MakeGenericType(@class));
     }
 }
+#endif

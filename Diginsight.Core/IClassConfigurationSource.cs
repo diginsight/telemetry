@@ -1,4 +1,5 @@
-﻿namespace Diginsight;
+﻿#if EXPERIMENT_CLASS_CONFIGURATION_GETTER
+namespace Diginsight;
 
 public interface IClassConfigurationSource
 {
@@ -6,3 +7,4 @@ public interface IClassConfigurationSource
 
     bool TryGet<T>(IEnumerable<string> prefixes, string key, out T value, IClassConfigurationGetter.SafeConverter<T>? tryConvert);
 }
+#endif

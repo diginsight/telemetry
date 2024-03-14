@@ -26,6 +26,7 @@ internal sealed class MessageTokenParser : ILineTokenParser
             if (separatorIndex < 0)
             {
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+                // ReSharper disable once InlineTemporaryVariable
                 ReadOnlySpan<char> src = tokenDetailSpan;
 #else
                 string src = tokenDetailSpan.ToString();
