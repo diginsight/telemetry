@@ -27,6 +27,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="CAOptions\PostConfigureClassAwareOptions.tt">
+      <LastGenOutput>PostConfigureClassAwareOptions.g.cs</LastGenOutput>
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </None>
+    <None Update="CAOptions\ConfigureClassAwareOptions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ConfigureClassAwareOptions.g.cs</LastGenOutput>
+    </None>
     <None Update="TupleEqualityComparer.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>TupleEqualityComparer.g.cs</LastGenOutput>
@@ -34,6 +42,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="CAOptions\ConfigureClassAwareOptions.g.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ConfigureClassAwareOptions.tt</DependentUpon>
+    </Compile>
+    <Compile Update="CAOptions\PostConfigureClassAwareOptions.g.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PostConfigureClassAwareOptions.tt</DependentUpon>
+    </Compile>
     <Compile Update="TupleEqualityComparer.g.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

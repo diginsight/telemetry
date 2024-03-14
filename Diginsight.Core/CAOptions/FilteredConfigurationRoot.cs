@@ -8,7 +8,7 @@ public sealed class FilteredConfigurationRoot<TClass> : FilteredConfiguration<TC
 
     public IEnumerable<IConfigurationProvider> Providers => underlying.Providers;
 
-    public FilteredConfigurationRoot(IConfigurationRoot underlying)
+    internal FilteredConfigurationRoot(IConfigurationRoot underlying)
         : base(underlying)
     {
         this.underlying = underlying;

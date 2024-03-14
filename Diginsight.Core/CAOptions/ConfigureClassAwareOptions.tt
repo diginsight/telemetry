@@ -1,0 +1,78 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ output extension=".g.cs" #>
+<#@ import namespace="System.Globalization" #>
+<#@ import namespace="System.Linq" #>
+#nullable enable
+namespace Diginsight.CAOptions;
+
+<#
+    for (int componentCount = 0; componentCount <= 5; componentCount++)
+    {
+        string[] range = Enumerable.Range(1, componentCount).Select(static x => x.ToString(CultureInfo.InvariantCulture)).ToArray();
+        string tdeps = string.Join("", range.Select(static x => $", TDep{x}"));
+#>
+public class ConfigureClassAwareOptions<TOptions<#= tdeps #>> : IConfigureClassAwareOptions<TOptions>
+    where TOptions : class
+<#
+        foreach (string x in range)
+        {
+#>
+    where TDep<#= x #> : class
+<#
+        }
+#>
+{
+    public string? Name { get; }
+
+<#
+        foreach (string x in range)
+        {
+#>
+    public TDep<#= x #> Dependency<#= x #> { get; }
+
+<#
+        }
+#>
+    public Action<Type, TOptions<#= tdeps #>>? Action { get; }
+
+    public ConfigureClassAwareOptions(
+        string? name,
+<#
+        foreach (string x in range)
+        {
+#>
+        TDep<#= x #> dependency<#= x #>,
+<#
+        }
+#>
+        Action<Type, TOptions<#= tdeps #>>? action
+    )
+    {
+        Name = name;
+<#
+        foreach (string x in range)
+        {
+#>
+        Dependency<#= x #> = dependency<#= x #>;
+<#
+        }
+#>
+        Action = action;
+    }
+
+    public virtual void Configure(string name, Type @class, TOptions options)
+    {
+        if (options is null)
+            throw new ArgumentNullException(nameof(options));
+
+        if (Name is not null && name != Name)
+            return;
+
+        Action?.Invoke(@class, options<#= string.Join("", range.Select(static x => $", Dependency{x}")) #>);
+    }
+}
+
+<#
+    }
+#>

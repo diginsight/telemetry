@@ -16,7 +16,7 @@ public sealed class FilteredConfigurationSection<TClass> : FilteredConfiguration
         set => underlying.Value = value;
     }
 
-    public FilteredConfigurationSection(IConfigurationSection underlying, string? virtualPath = null)
+    internal FilteredConfigurationSection(IConfigurationSection underlying, string? virtualPath = null)
         : base(underlying, ConfigurationPath.GetParentPath(virtualPath) + ConfigurationPath.KeyDelimiter)
     {
         this.underlying = underlying;

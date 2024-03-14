@@ -3,6 +3,7 @@
 <#@ output extension=".g.cs" #>
 <#@ import namespace="System.Globalization" #>
 <#@ import namespace="System.Linq" #>
+#nullable enable
 namespace Diginsight;
 
 <#
@@ -32,7 +33,7 @@ public class TupleEqualityComparer<<#= ts #>>
 #>
 
     public TupleEqualityComparer(
-        <#= string.Join(", ", range.Select(static x => $"IEqualityComparer<T{x}> c{x} = null")) #>
+        <#= string.Join(", ", range.Select(static x => $"IEqualityComparer<T{x}>? c{x} = null")) #>
     )
     {
 <#
@@ -82,9 +83,10 @@ public class TupleEqualityComparer<<#= ts #>>
         if (componentCount < 8)
         {
 #>
-    public bool Equals(<#= tupleType #> x, <#= tupleType #> y)
+    public bool Equals(<#= tupleType #>? x, <#= tupleType #>? y)
     {
-        return <#= string.Join(" && ", range.Select(static x => $"c{x}.Equals(x.Item{x}, y.Item{x})")) #>;
+        return (x is null && y is null) ||
+            (x is not null && y is not null && <#= string.Join(" && ", range.Select(static x => $"c{x}.Equals(x.Item{x}, y.Item{x})")) #>);
     }
 
     public int GetHashCode(<#= tupleType #> obj)

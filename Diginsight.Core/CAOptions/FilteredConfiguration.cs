@@ -1,7 +1,19 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
+using System.Reflection;
 
 namespace Diginsight.CAOptions;
+
+public static class FilteredConfiguration
+{
+    public static IConfiguration For(IConfiguration configuration, Type @class)
+    {
+        return (IConfiguration)typeof(FilteredConfiguration<>)
+            .MakeGenericType(@class)
+            .GetMethod(nameof(FilteredConfiguration<object>.For), BindingFlags.Public | BindingFlags.Static)!
+            .Invoke(null, [ configuration ])!;
+    }
+}
 
 public class FilteredConfiguration<TClass> : IFilteredConfiguration
 {
@@ -18,10 +30,22 @@ public class FilteredConfiguration<TClass> : IFilteredConfiguration
 
     Type IFilteredConfiguration.Class => typeof(TClass);
 
-    public FilteredConfiguration(IConfiguration underlying, string partialVirtualPath = "")
+    internal FilteredConfiguration(IConfiguration underlying, string partialVirtualPath = "")
     {
         this.underlying = underlying;
         this.partialVirtualPath = partialVirtualPath;
+    }
+
+    public static IConfiguration For(IConfiguration configuration)
+    {
+        return configuration switch
+        {
+            IFilteredConfiguration filtered =>
+                filtered.Class == typeof(TClass) ? filtered : throw new ArgumentException("Configuration already filtered on another class"),
+            IConfigurationRoot root => new FilteredConfigurationRoot<TClass>(root),
+            IConfigurationSection section => new FilteredConfigurationSection<TClass>(section),
+            _ => new FilteredConfiguration<TClass>(configuration),
+        };
     }
 
     public IConfigurationSection GetSection(string key)

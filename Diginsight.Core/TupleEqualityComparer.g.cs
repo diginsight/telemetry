@@ -1,4 +1,5 @@
-﻿namespace Diginsight;
+﻿#nullable enable
+namespace Diginsight;
 
 public class TupleEqualityComparer<T1>
     : IEqualityComparer<ValueTuple<T1>>, IEqualityComparer<Tuple<T1>>
@@ -6,7 +7,7 @@ public class TupleEqualityComparer<T1>
     private readonly IEqualityComparer<T1> c1;
 
     public TupleEqualityComparer(
-        IEqualityComparer<T1> c1 = null
+        IEqualityComparer<T1>? c1 = null
     )
     {
         this.c1 = c1 ?? EqualityComparer<T1>.Default;
@@ -25,9 +26,10 @@ public class TupleEqualityComparer<T1>
         return hashCode.ToHashCode();
     }
 
-    public bool Equals(Tuple<T1> x, Tuple<T1> y)
+    public bool Equals(Tuple<T1>? x, Tuple<T1>? y)
     {
-        return c1.Equals(x.Item1, y.Item1);
+        return (x is null && y is null) ||
+            (x is not null && y is not null && c1.Equals(x.Item1, y.Item1));
     }
 
     public int GetHashCode(Tuple<T1> obj)
@@ -46,7 +48,7 @@ public class TupleEqualityComparer<T1, T2>
     private readonly IEqualityComparer<T2> c2;
 
     public TupleEqualityComparer(
-        IEqualityComparer<T1> c1 = null, IEqualityComparer<T2> c2 = null
+        IEqualityComparer<T1>? c1 = null, IEqualityComparer<T2>? c2 = null
     )
     {
         this.c1 = c1 ?? EqualityComparer<T1>.Default;
@@ -67,9 +69,10 @@ public class TupleEqualityComparer<T1, T2>
         return hashCode.ToHashCode();
     }
 
-    public bool Equals(Tuple<T1, T2> x, Tuple<T1, T2> y)
+    public bool Equals(Tuple<T1, T2>? x, Tuple<T1, T2>? y)
     {
-        return c1.Equals(x.Item1, y.Item1) && c2.Equals(x.Item2, y.Item2);
+        return (x is null && y is null) ||
+            (x is not null && y is not null && c1.Equals(x.Item1, y.Item1) && c2.Equals(x.Item2, y.Item2));
     }
 
     public int GetHashCode(Tuple<T1, T2> obj)
@@ -90,7 +93,7 @@ public class TupleEqualityComparer<T1, T2, T3>
     private readonly IEqualityComparer<T3> c3;
 
     public TupleEqualityComparer(
-        IEqualityComparer<T1> c1 = null, IEqualityComparer<T2> c2 = null, IEqualityComparer<T3> c3 = null
+        IEqualityComparer<T1>? c1 = null, IEqualityComparer<T2>? c2 = null, IEqualityComparer<T3>? c3 = null
     )
     {
         this.c1 = c1 ?? EqualityComparer<T1>.Default;
@@ -113,9 +116,10 @@ public class TupleEqualityComparer<T1, T2, T3>
         return hashCode.ToHashCode();
     }
 
-    public bool Equals(Tuple<T1, T2, T3> x, Tuple<T1, T2, T3> y)
+    public bool Equals(Tuple<T1, T2, T3>? x, Tuple<T1, T2, T3>? y)
     {
-        return c1.Equals(x.Item1, y.Item1) && c2.Equals(x.Item2, y.Item2) && c3.Equals(x.Item3, y.Item3);
+        return (x is null && y is null) ||
+            (x is not null && y is not null && c1.Equals(x.Item1, y.Item1) && c2.Equals(x.Item2, y.Item2) && c3.Equals(x.Item3, y.Item3));
     }
 
     public int GetHashCode(Tuple<T1, T2, T3> obj)
@@ -138,7 +142,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4>
     private readonly IEqualityComparer<T4> c4;
 
     public TupleEqualityComparer(
-        IEqualityComparer<T1> c1 = null, IEqualityComparer<T2> c2 = null, IEqualityComparer<T3> c3 = null, IEqualityComparer<T4> c4 = null
+        IEqualityComparer<T1>? c1 = null, IEqualityComparer<T2>? c2 = null, IEqualityComparer<T3>? c3 = null, IEqualityComparer<T4>? c4 = null
     )
     {
         this.c1 = c1 ?? EqualityComparer<T1>.Default;
@@ -163,9 +167,10 @@ public class TupleEqualityComparer<T1, T2, T3, T4>
         return hashCode.ToHashCode();
     }
 
-    public bool Equals(Tuple<T1, T2, T3, T4> x, Tuple<T1, T2, T3, T4> y)
+    public bool Equals(Tuple<T1, T2, T3, T4>? x, Tuple<T1, T2, T3, T4>? y)
     {
-        return c1.Equals(x.Item1, y.Item1) && c2.Equals(x.Item2, y.Item2) && c3.Equals(x.Item3, y.Item3) && c4.Equals(x.Item4, y.Item4);
+        return (x is null && y is null) ||
+            (x is not null && y is not null && c1.Equals(x.Item1, y.Item1) && c2.Equals(x.Item2, y.Item2) && c3.Equals(x.Item3, y.Item3) && c4.Equals(x.Item4, y.Item4));
     }
 
     public int GetHashCode(Tuple<T1, T2, T3, T4> obj)
@@ -190,7 +195,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5>
     private readonly IEqualityComparer<T5> c5;
 
     public TupleEqualityComparer(
-        IEqualityComparer<T1> c1 = null, IEqualityComparer<T2> c2 = null, IEqualityComparer<T3> c3 = null, IEqualityComparer<T4> c4 = null, IEqualityComparer<T5> c5 = null
+        IEqualityComparer<T1>? c1 = null, IEqualityComparer<T2>? c2 = null, IEqualityComparer<T3>? c3 = null, IEqualityComparer<T4>? c4 = null, IEqualityComparer<T5>? c5 = null
     )
     {
         this.c1 = c1 ?? EqualityComparer<T1>.Default;
@@ -217,9 +222,10 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5>
         return hashCode.ToHashCode();
     }
 
-    public bool Equals(Tuple<T1, T2, T3, T4, T5> x, Tuple<T1, T2, T3, T4, T5> y)
+    public bool Equals(Tuple<T1, T2, T3, T4, T5>? x, Tuple<T1, T2, T3, T4, T5>? y)
     {
-        return c1.Equals(x.Item1, y.Item1) && c2.Equals(x.Item2, y.Item2) && c3.Equals(x.Item3, y.Item3) && c4.Equals(x.Item4, y.Item4) && c5.Equals(x.Item5, y.Item5);
+        return (x is null && y is null) ||
+            (x is not null && y is not null && c1.Equals(x.Item1, y.Item1) && c2.Equals(x.Item2, y.Item2) && c3.Equals(x.Item3, y.Item3) && c4.Equals(x.Item4, y.Item4) && c5.Equals(x.Item5, y.Item5));
     }
 
     public int GetHashCode(Tuple<T1, T2, T3, T4, T5> obj)
@@ -246,7 +252,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6>
     private readonly IEqualityComparer<T6> c6;
 
     public TupleEqualityComparer(
-        IEqualityComparer<T1> c1 = null, IEqualityComparer<T2> c2 = null, IEqualityComparer<T3> c3 = null, IEqualityComparer<T4> c4 = null, IEqualityComparer<T5> c5 = null, IEqualityComparer<T6> c6 = null
+        IEqualityComparer<T1>? c1 = null, IEqualityComparer<T2>? c2 = null, IEqualityComparer<T3>? c3 = null, IEqualityComparer<T4>? c4 = null, IEqualityComparer<T5>? c5 = null, IEqualityComparer<T6>? c6 = null
     )
     {
         this.c1 = c1 ?? EqualityComparer<T1>.Default;
@@ -275,9 +281,10 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6>
         return hashCode.ToHashCode();
     }
 
-    public bool Equals(Tuple<T1, T2, T3, T4, T5, T6> x, Tuple<T1, T2, T3, T4, T5, T6> y)
+    public bool Equals(Tuple<T1, T2, T3, T4, T5, T6>? x, Tuple<T1, T2, T3, T4, T5, T6>? y)
     {
-        return c1.Equals(x.Item1, y.Item1) && c2.Equals(x.Item2, y.Item2) && c3.Equals(x.Item3, y.Item3) && c4.Equals(x.Item4, y.Item4) && c5.Equals(x.Item5, y.Item5) && c6.Equals(x.Item6, y.Item6);
+        return (x is null && y is null) ||
+            (x is not null && y is not null && c1.Equals(x.Item1, y.Item1) && c2.Equals(x.Item2, y.Item2) && c3.Equals(x.Item3, y.Item3) && c4.Equals(x.Item4, y.Item4) && c5.Equals(x.Item5, y.Item5) && c6.Equals(x.Item6, y.Item6));
     }
 
     public int GetHashCode(Tuple<T1, T2, T3, T4, T5, T6> obj)
@@ -306,7 +313,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7>
     private readonly IEqualityComparer<T7> c7;
 
     public TupleEqualityComparer(
-        IEqualityComparer<T1> c1 = null, IEqualityComparer<T2> c2 = null, IEqualityComparer<T3> c3 = null, IEqualityComparer<T4> c4 = null, IEqualityComparer<T5> c5 = null, IEqualityComparer<T6> c6 = null, IEqualityComparer<T7> c7 = null
+        IEqualityComparer<T1>? c1 = null, IEqualityComparer<T2>? c2 = null, IEqualityComparer<T3>? c3 = null, IEqualityComparer<T4>? c4 = null, IEqualityComparer<T5>? c5 = null, IEqualityComparer<T6>? c6 = null, IEqualityComparer<T7>? c7 = null
     )
     {
         this.c1 = c1 ?? EqualityComparer<T1>.Default;
@@ -337,9 +344,10 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7>
         return hashCode.ToHashCode();
     }
 
-    public bool Equals(Tuple<T1, T2, T3, T4, T5, T6, T7> x, Tuple<T1, T2, T3, T4, T5, T6, T7> y)
+    public bool Equals(Tuple<T1, T2, T3, T4, T5, T6, T7>? x, Tuple<T1, T2, T3, T4, T5, T6, T7>? y)
     {
-        return c1.Equals(x.Item1, y.Item1) && c2.Equals(x.Item2, y.Item2) && c3.Equals(x.Item3, y.Item3) && c4.Equals(x.Item4, y.Item4) && c5.Equals(x.Item5, y.Item5) && c6.Equals(x.Item6, y.Item6) && c7.Equals(x.Item7, y.Item7);
+        return (x is null && y is null) ||
+            (x is not null && y is not null && c1.Equals(x.Item1, y.Item1) && c2.Equals(x.Item2, y.Item2) && c3.Equals(x.Item3, y.Item3) && c4.Equals(x.Item4, y.Item4) && c5.Equals(x.Item5, y.Item5) && c6.Equals(x.Item6, y.Item6) && c7.Equals(x.Item7, y.Item7));
     }
 
     public int GetHashCode(Tuple<T1, T2, T3, T4, T5, T6, T7> obj)
@@ -370,7 +378,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8>
     private readonly IEqualityComparer<T8> c8;
 
     public TupleEqualityComparer(
-        IEqualityComparer<T1> c1 = null, IEqualityComparer<T2> c2 = null, IEqualityComparer<T3> c3 = null, IEqualityComparer<T4> c4 = null, IEqualityComparer<T5> c5 = null, IEqualityComparer<T6> c6 = null, IEqualityComparer<T7> c7 = null, IEqualityComparer<T8> c8 = null
+        IEqualityComparer<T1>? c1 = null, IEqualityComparer<T2>? c2 = null, IEqualityComparer<T3>? c3 = null, IEqualityComparer<T4>? c4 = null, IEqualityComparer<T5>? c5 = null, IEqualityComparer<T6>? c6 = null, IEqualityComparer<T7>? c7 = null, IEqualityComparer<T8>? c8 = null
     )
     {
         this.c1 = c1 ?? EqualityComparer<T1>.Default;
@@ -419,7 +427,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9>
     private readonly IEqualityComparer<T9> c9;
 
     public TupleEqualityComparer(
-        IEqualityComparer<T1> c1 = null, IEqualityComparer<T2> c2 = null, IEqualityComparer<T3> c3 = null, IEqualityComparer<T4> c4 = null, IEqualityComparer<T5> c5 = null, IEqualityComparer<T6> c6 = null, IEqualityComparer<T7> c7 = null, IEqualityComparer<T8> c8 = null, IEqualityComparer<T9> c9 = null
+        IEqualityComparer<T1>? c1 = null, IEqualityComparer<T2>? c2 = null, IEqualityComparer<T3>? c3 = null, IEqualityComparer<T4>? c4 = null, IEqualityComparer<T5>? c5 = null, IEqualityComparer<T6>? c6 = null, IEqualityComparer<T7>? c7 = null, IEqualityComparer<T8>? c8 = null, IEqualityComparer<T9>? c9 = null
     )
     {
         this.c1 = c1 ?? EqualityComparer<T1>.Default;
@@ -471,7 +479,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
     private readonly IEqualityComparer<T10> c10;
 
     public TupleEqualityComparer(
-        IEqualityComparer<T1> c1 = null, IEqualityComparer<T2> c2 = null, IEqualityComparer<T3> c3 = null, IEqualityComparer<T4> c4 = null, IEqualityComparer<T5> c5 = null, IEqualityComparer<T6> c6 = null, IEqualityComparer<T7> c7 = null, IEqualityComparer<T8> c8 = null, IEqualityComparer<T9> c9 = null, IEqualityComparer<T10> c10 = null
+        IEqualityComparer<T1>? c1 = null, IEqualityComparer<T2>? c2 = null, IEqualityComparer<T3>? c3 = null, IEqualityComparer<T4>? c4 = null, IEqualityComparer<T5>? c5 = null, IEqualityComparer<T6>? c6 = null, IEqualityComparer<T7>? c7 = null, IEqualityComparer<T8>? c8 = null, IEqualityComparer<T9>? c9 = null, IEqualityComparer<T10>? c10 = null
     )
     {
         this.c1 = c1 ?? EqualityComparer<T1>.Default;
@@ -526,7 +534,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>
     private readonly IEqualityComparer<T11> c11;
 
     public TupleEqualityComparer(
-        IEqualityComparer<T1> c1 = null, IEqualityComparer<T2> c2 = null, IEqualityComparer<T3> c3 = null, IEqualityComparer<T4> c4 = null, IEqualityComparer<T5> c5 = null, IEqualityComparer<T6> c6 = null, IEqualityComparer<T7> c7 = null, IEqualityComparer<T8> c8 = null, IEqualityComparer<T9> c9 = null, IEqualityComparer<T10> c10 = null, IEqualityComparer<T11> c11 = null
+        IEqualityComparer<T1>? c1 = null, IEqualityComparer<T2>? c2 = null, IEqualityComparer<T3>? c3 = null, IEqualityComparer<T4>? c4 = null, IEqualityComparer<T5>? c5 = null, IEqualityComparer<T6>? c6 = null, IEqualityComparer<T7>? c7 = null, IEqualityComparer<T8>? c8 = null, IEqualityComparer<T9>? c9 = null, IEqualityComparer<T10>? c10 = null, IEqualityComparer<T11>? c11 = null
     )
     {
         this.c1 = c1 ?? EqualityComparer<T1>.Default;
@@ -584,7 +592,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
     private readonly IEqualityComparer<T12> c12;
 
     public TupleEqualityComparer(
-        IEqualityComparer<T1> c1 = null, IEqualityComparer<T2> c2 = null, IEqualityComparer<T3> c3 = null, IEqualityComparer<T4> c4 = null, IEqualityComparer<T5> c5 = null, IEqualityComparer<T6> c6 = null, IEqualityComparer<T7> c7 = null, IEqualityComparer<T8> c8 = null, IEqualityComparer<T9> c9 = null, IEqualityComparer<T10> c10 = null, IEqualityComparer<T11> c11 = null, IEqualityComparer<T12> c12 = null
+        IEqualityComparer<T1>? c1 = null, IEqualityComparer<T2>? c2 = null, IEqualityComparer<T3>? c3 = null, IEqualityComparer<T4>? c4 = null, IEqualityComparer<T5>? c5 = null, IEqualityComparer<T6>? c6 = null, IEqualityComparer<T7>? c7 = null, IEqualityComparer<T8>? c8 = null, IEqualityComparer<T9>? c9 = null, IEqualityComparer<T10>? c10 = null, IEqualityComparer<T11>? c11 = null, IEqualityComparer<T12>? c12 = null
     )
     {
         this.c1 = c1 ?? EqualityComparer<T1>.Default;
@@ -645,7 +653,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
     private readonly IEqualityComparer<T13> c13;
 
     public TupleEqualityComparer(
-        IEqualityComparer<T1> c1 = null, IEqualityComparer<T2> c2 = null, IEqualityComparer<T3> c3 = null, IEqualityComparer<T4> c4 = null, IEqualityComparer<T5> c5 = null, IEqualityComparer<T6> c6 = null, IEqualityComparer<T7> c7 = null, IEqualityComparer<T8> c8 = null, IEqualityComparer<T9> c9 = null, IEqualityComparer<T10> c10 = null, IEqualityComparer<T11> c11 = null, IEqualityComparer<T12> c12 = null, IEqualityComparer<T13> c13 = null
+        IEqualityComparer<T1>? c1 = null, IEqualityComparer<T2>? c2 = null, IEqualityComparer<T3>? c3 = null, IEqualityComparer<T4>? c4 = null, IEqualityComparer<T5>? c5 = null, IEqualityComparer<T6>? c6 = null, IEqualityComparer<T7>? c7 = null, IEqualityComparer<T8>? c8 = null, IEqualityComparer<T9>? c9 = null, IEqualityComparer<T10>? c10 = null, IEqualityComparer<T11>? c11 = null, IEqualityComparer<T12>? c12 = null, IEqualityComparer<T13>? c13 = null
     )
     {
         this.c1 = c1 ?? EqualityComparer<T1>.Default;
@@ -709,7 +717,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
     private readonly IEqualityComparer<T14> c14;
 
     public TupleEqualityComparer(
-        IEqualityComparer<T1> c1 = null, IEqualityComparer<T2> c2 = null, IEqualityComparer<T3> c3 = null, IEqualityComparer<T4> c4 = null, IEqualityComparer<T5> c5 = null, IEqualityComparer<T6> c6 = null, IEqualityComparer<T7> c7 = null, IEqualityComparer<T8> c8 = null, IEqualityComparer<T9> c9 = null, IEqualityComparer<T10> c10 = null, IEqualityComparer<T11> c11 = null, IEqualityComparer<T12> c12 = null, IEqualityComparer<T13> c13 = null, IEqualityComparer<T14> c14 = null
+        IEqualityComparer<T1>? c1 = null, IEqualityComparer<T2>? c2 = null, IEqualityComparer<T3>? c3 = null, IEqualityComparer<T4>? c4 = null, IEqualityComparer<T5>? c5 = null, IEqualityComparer<T6>? c6 = null, IEqualityComparer<T7>? c7 = null, IEqualityComparer<T8>? c8 = null, IEqualityComparer<T9>? c9 = null, IEqualityComparer<T10>? c10 = null, IEqualityComparer<T11>? c11 = null, IEqualityComparer<T12>? c12 = null, IEqualityComparer<T13>? c13 = null, IEqualityComparer<T14>? c14 = null
     )
     {
         this.c1 = c1 ?? EqualityComparer<T1>.Default;
@@ -776,7 +784,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
     private readonly IEqualityComparer<T15> c15;
 
     public TupleEqualityComparer(
-        IEqualityComparer<T1> c1 = null, IEqualityComparer<T2> c2 = null, IEqualityComparer<T3> c3 = null, IEqualityComparer<T4> c4 = null, IEqualityComparer<T5> c5 = null, IEqualityComparer<T6> c6 = null, IEqualityComparer<T7> c7 = null, IEqualityComparer<T8> c8 = null, IEqualityComparer<T9> c9 = null, IEqualityComparer<T10> c10 = null, IEqualityComparer<T11> c11 = null, IEqualityComparer<T12> c12 = null, IEqualityComparer<T13> c13 = null, IEqualityComparer<T14> c14 = null, IEqualityComparer<T15> c15 = null
+        IEqualityComparer<T1>? c1 = null, IEqualityComparer<T2>? c2 = null, IEqualityComparer<T3>? c3 = null, IEqualityComparer<T4>? c4 = null, IEqualityComparer<T5>? c5 = null, IEqualityComparer<T6>? c6 = null, IEqualityComparer<T7>? c7 = null, IEqualityComparer<T8>? c8 = null, IEqualityComparer<T9>? c9 = null, IEqualityComparer<T10>? c10 = null, IEqualityComparer<T11>? c11 = null, IEqualityComparer<T12>? c12 = null, IEqualityComparer<T13>? c13 = null, IEqualityComparer<T14>? c14 = null, IEqualityComparer<T15>? c15 = null
     )
     {
         this.c1 = c1 ?? EqualityComparer<T1>.Default;
@@ -846,7 +854,7 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
     private readonly IEqualityComparer<T16> c16;
 
     public TupleEqualityComparer(
-        IEqualityComparer<T1> c1 = null, IEqualityComparer<T2> c2 = null, IEqualityComparer<T3> c3 = null, IEqualityComparer<T4> c4 = null, IEqualityComparer<T5> c5 = null, IEqualityComparer<T6> c6 = null, IEqualityComparer<T7> c7 = null, IEqualityComparer<T8> c8 = null, IEqualityComparer<T9> c9 = null, IEqualityComparer<T10> c10 = null, IEqualityComparer<T11> c11 = null, IEqualityComparer<T12> c12 = null, IEqualityComparer<T13> c13 = null, IEqualityComparer<T14> c14 = null, IEqualityComparer<T15> c15 = null, IEqualityComparer<T16> c16 = null
+        IEqualityComparer<T1>? c1 = null, IEqualityComparer<T2>? c2 = null, IEqualityComparer<T3>? c3 = null, IEqualityComparer<T4>? c4 = null, IEqualityComparer<T5>? c5 = null, IEqualityComparer<T6>? c6 = null, IEqualityComparer<T7>? c7 = null, IEqualityComparer<T8>? c8 = null, IEqualityComparer<T9>? c9 = null, IEqualityComparer<T10>? c10 = null, IEqualityComparer<T11>? c11 = null, IEqualityComparer<T12>? c12 = null, IEqualityComparer<T13>? c13 = null, IEqualityComparer<T14>? c14 = null, IEqualityComparer<T15>? c15 = null, IEqualityComparer<T16>? c16 = null
     )
     {
         this.c1 = c1 ?? EqualityComparer<T1>.Default;
