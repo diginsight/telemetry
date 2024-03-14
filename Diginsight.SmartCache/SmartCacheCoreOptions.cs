@@ -3,14 +3,14 @@
 public sealed class SmartCacheCoreOptions : ISmartCacheCoreOptions
 {
     private TimeSpan localEntryTolerance = TimeSpan.FromSeconds(10);
-    private TimeSpan defaultMaxAge = TimeSpan.MaxValue;
+    private TimeSpan maxAge = TimeSpan.MaxValue;
     private TimeSpan absoluteExpiration = TimeSpan.MaxValue;
     private TimeSpan slidingExpiration = TimeSpan.MaxValue;
 
-    public TimeSpan DefaultMaxAge
+    public TimeSpan MaxAge
     {
-        get => defaultMaxAge;
-        set => defaultMaxAge = value >= TimeSpan.Zero ? value : TimeSpan.Zero;
+        get => maxAge;
+        set => maxAge = value >= TimeSpan.Zero ? value : TimeSpan.Zero;
     }
 
     public TimeSpan AbsoluteExpiration

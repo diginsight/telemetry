@@ -19,12 +19,12 @@ public sealed class ClassAwareOptionsMonitor<TOptions> : IClassAwareOptionsMonit
     public ClassAwareOptionsMonitor(
         IClassAwareOptionsFactory<TOptions> factory,
         IClassAwareOptionsCache<TOptions> cache,
-        IEnumerable<IOptionsChangeTokenSource<TOptions>> sources
+        IEnumerable<IClassAwareOptionsChangeTokenSource<TOptions>> sources
     )
     {
         this.factory = factory;
         this.cache = cache;
-        foreach (IOptionsChangeTokenSource<TOptions> source in sources)
+        foreach (IClassAwareOptionsChangeTokenSource<TOptions> source in sources)
         {
             IDisposable changeRegistration = ChangeToken.OnChange(source.GetChangeToken, InvokeChanged, source.Name);
             changeRegistrations.Add(changeRegistration);

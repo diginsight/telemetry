@@ -5,7 +5,6 @@ namespace Diginsight.CAOptions;
 public sealed class ClassAwareOptionsFactory<TOptions> : IClassAwareOptionsFactory<TOptions>
     where TOptions : class
 {
-    private readonly IOptionsFactory<TOptions> decoratee;
     private readonly IConfigureOptions<TOptions>[] configurators;
     private readonly IPostConfigureOptions<TOptions>[] postConfigurators;
     private readonly IValidateOptions<TOptions>[] validators;
@@ -14,7 +13,6 @@ public sealed class ClassAwareOptionsFactory<TOptions> : IClassAwareOptionsFacto
     private readonly IValidateClassAwareOptions<TOptions>[] classAwareValidators;
 
     public ClassAwareOptionsFactory(
-        IOptionsFactory<TOptions> decoratee,
         IEnumerable<IConfigureOptions<TOptions>> configurators,
         IEnumerable<IPostConfigureOptions<TOptions>> postConfigurators,
         IEnumerable<IValidateOptions<TOptions>> validators,
@@ -23,7 +21,6 @@ public sealed class ClassAwareOptionsFactory<TOptions> : IClassAwareOptionsFacto
         IEnumerable<IValidateClassAwareOptions<TOptions>> classAwareValidators
     )
     {
-        this.decoratee = decoratee;
         this.configurators = configurators.ToArray();
         this.postConfigurators = postConfigurators.ToArray();
         this.validators = validators.ToArray();
@@ -32,13 +29,8 @@ public sealed class ClassAwareOptionsFactory<TOptions> : IClassAwareOptionsFacto
         this.classAwareValidators = classAwareValidators.ToArray();
     }
 
-    public TOptions Create(string name, Type? @class)
+    public TOptions Create(string name, Type @class)
     {
-        if (@class is null)
-        {
-            return decoratee.Create(name);
-        }
-
         TOptions options = Activator.CreateInstance<TOptions>();
 
         foreach (IConfigureOptions<TOptions> configurator in configurators)
@@ -97,6 +89,6 @@ public sealed class ClassAwareOptionsFactory<TOptions> : IClassAwareOptionsFacto
     }
 
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
-    TOptions IOptionsFactory<TOptions>.Create(string name) => Create(name, null);
+    TOptions IOptionsFactory<TOptions>.Create(string name) => Create(name, ClassAwareOptions.NoType);
 #endif
 }

@@ -2,7 +2,7 @@
 
 public interface ISmartCacheCoreOptions
 {
-    TimeSpan DefaultMaxAge { get; }
+    TimeSpan MaxAge { get; }
 
     TimeSpan AbsoluteExpiration { get; }
     TimeSpan SlidingExpiration { get; }

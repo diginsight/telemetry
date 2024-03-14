@@ -1,13 +1,12 @@
-﻿using Diginsight.CAOptions;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 
 namespace Diginsight.AspNetCore;
 
-internal sealed class PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>
-    : IPostConfigureClassAwareOptions<TOptions>, IClassAwareOptionsChangeTokenSource<TOptions>
+internal sealed class PostConfigureOptionsFromHttpRequestHeaders<TOptions>
+    : IPostConfigureOptions<TOptions>, IOptionsChangeTokenSource<TOptions>
     where TOptions : class
 {
     private readonly IHttpContextAccessor httpContextAccessor;
@@ -15,7 +14,7 @@ internal sealed class PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOpti
 
     public string Name { get; }
 
-    public PostConfigureClassAwareOptionsFromHttpRequestHeaders(
+    public PostConfigureOptionsFromHttpRequestHeaders(
         IHttpContextAccessor httpContextAccessor,
         string? name = null
     )
@@ -24,8 +23,10 @@ internal sealed class PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOpti
         Name = name ?? Options.DefaultName;
     }
 
-    public void PostConfigure(string name, Type @class, TOptions options)
+    public void PostConfigure(string? name, TOptions options)
     {
+        name ??= Options.DefaultName;
+
         if (!string.Equals(Name, name, StringComparison.OrdinalIgnoreCase) ||
             httpContextAccessor.HttpContext is not { } httpContext)
             return;
@@ -42,7 +43,7 @@ internal sealed class PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOpti
         if (!(headers.Count > 0))
             return;
 
-        FilteredConfiguration.For(new ConfigurationBuilder().AddInMemoryCollection(headers).Build(), @class).Bind(options);
+        new ConfigurationBuilder().AddInMemoryCollection(headers).Build().Bind(options);
     }
 
     private Task FireChangeTokenAsync()
