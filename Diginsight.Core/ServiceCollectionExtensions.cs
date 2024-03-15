@@ -10,21 +10,6 @@ namespace Diginsight;
 
 public static class ServiceCollectionExtensions
 {
-#if EXPERIMENT_CLASS_CONFIGURATION_GETTER
-    public static IServiceCollection AddClassConfigurationGetter(this IServiceCollection services, IConfiguration? rootConfiguration = null)
-    {
-        services.TryAddSingleton(typeof(IClassConfigurationGetter), typeof(ClassConfigurationGetter));
-        services.TryAddSingleton(typeof(IClassConfigurationGetter<>), typeof(ClassConfigurationGetter<>));
-        services.TryAddSingleton<IClassConfigurationGetterProvider, ClassConfigurationGetterProvider>();
-        if (rootConfiguration is not null)
-        {
-            services.TryAddSingleton(new ClassConfigurationGetter.ConfigurationWrapper(rootConfiguration));
-        }
-
-        return services;
-    }
-#endif
-
     public static IServiceCollection AddClassAwareOptions(this IServiceCollection services)
     {
         services.TryAddSingleton(typeof(IClassAwareOptions<>), typeof(UnnamedClassAwareOptionsManager<>));

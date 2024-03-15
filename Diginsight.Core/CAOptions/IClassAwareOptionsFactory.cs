@@ -2,6 +2,7 @@
 
 namespace Diginsight.CAOptions;
 
+// TODO Replace in DI
 public interface IClassAwareOptionsFactory<TOptions> : IOptionsFactory<TOptions>
     where TOptions : class
 {

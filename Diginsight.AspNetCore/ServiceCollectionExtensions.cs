@@ -56,6 +56,8 @@ public static class ServiceCollectionExtensions
     )
         where TOptions: class
     {
+        services.PostConfigureFromHttpRequestHeaders(name, makeFiller);
+
         services.AddClassAwareOptions();
 
         services.AddHttpContextAccessor();
