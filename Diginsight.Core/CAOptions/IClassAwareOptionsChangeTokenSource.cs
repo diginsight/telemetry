@@ -7,5 +7,5 @@ public interface IClassAwareOptionsChangeTokenSource<out TOptions>
 {
     IChangeToken GetChangeToken();
 
-    string Name { get; }
+    string? Name { get; }
 }

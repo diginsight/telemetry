@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
+﻿using Microsoft.Extensions.Primitives;
+#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+using Microsoft.Extensions.Options;
+#endif
 
 namespace Diginsight.CAOptions;
 
@@ -10,7 +12,7 @@ public sealed class ClassAwareOptionsMonitor<TOptions> : IClassAwareOptionsMonit
     private readonly IClassAwareOptionsCache<TOptions> cache;
     private readonly ICollection<IDisposable> changeRegistrations = new List<IDisposable>();
 
-    private event Action<IReadOnlyDictionary<Type, TOptions>, string>? Change;
+    private event Action<TOptions, string, Type>? Change;
 
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
     TOptions IOptionsMonitor<TOptions>.CurrentValue => Get(Options.DefaultName, ClassAwareOptions.NoType);
@@ -24,6 +26,7 @@ public sealed class ClassAwareOptionsMonitor<TOptions> : IClassAwareOptionsMonit
     {
         this.factory = factory;
         this.cache = cache;
+
         foreach (IClassAwareOptionsChangeTokenSource<TOptions> source in sources)
         {
             IDisposable changeRegistration = ChangeToken.OnChange(source.GetChangeToken, InvokeChanged, source.Name);
@@ -33,9 +36,24 @@ public sealed class ClassAwareOptionsMonitor<TOptions> : IClassAwareOptionsMonit
 
     private void InvokeChanged(string? name)
     {
-        name ??= Options.DefaultName;
-        IEnumerable<Type> classes = cache.TryRemove(name);
-        Change?.Invoke(classes.ToDictionary(static c => c, c => Get(name, c)), name);
+        IEnumerable<(string Name, IEnumerable<Type> Classes)> namesWithClasses;
+        if (name is null)
+        {
+            namesWithClasses = cache.Clear();
+        }
+        else
+        {
+            IEnumerable<Type> classes = cache.TryRemove(name);
+            namesWithClasses = [ (name, classes) ];
+        }
+
+        foreach ((string removedName, IEnumerable<Type> removedClasses) in namesWithClasses)
+        {
+            foreach (Type @class in removedClasses)
+            {
+                Change?.Invoke(Get(removedName, @class), removedName, @class);
+            }
+        }
     }
 
     public TOptions Get(string name, Type @class)
@@ -47,7 +65,7 @@ public sealed class ClassAwareOptionsMonitor<TOptions> : IClassAwareOptionsMonit
     TOptions IOptionsMonitor<TOptions>.Get(string? name) => Get(name ?? Options.DefaultName, ClassAwareOptions.NoType);
 #endif
 
-    public IDisposable OnChange(Action<IReadOnlyDictionary<Type, TOptions>, string> listener)
+    public IDisposable OnChange(Action<TOptions, string, Type> listener)
     {
         ChangeTrackerDisposable changeTrackerDisposable = new(this, listener);
         Change += changeTrackerDisposable.OnChange;
@@ -74,17 +92,17 @@ public sealed class ClassAwareOptionsMonitor<TOptions> : IClassAwareOptionsMonit
     private sealed class ChangeTrackerDisposable : IDisposable
     {
         private readonly ClassAwareOptionsMonitor<TOptions> owner;
-        private readonly Action<IReadOnlyDictionary<Type, TOptions>, string> listener;
+        private readonly Action<TOptions, string, Type> listener;
 
-        public ChangeTrackerDisposable(ClassAwareOptionsMonitor<TOptions> owner, Action<IReadOnlyDictionary<Type, TOptions>, string> listener)
+        public ChangeTrackerDisposable(ClassAwareOptionsMonitor<TOptions> owner, Action<TOptions, string, Type> listener)
         {
             this.owner = owner;
             this.listener = listener;
         }
 
-        public void OnChange(IReadOnlyDictionary<Type, TOptions> options, string name)
+        public void OnChange(TOptions options, string name, Type @class)
         {
-            listener(options, name);
+            listener(options, name, @class);
         }
 
         public void Dispose()

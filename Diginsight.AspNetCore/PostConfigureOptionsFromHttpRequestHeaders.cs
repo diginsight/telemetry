@@ -5,30 +5,36 @@ using Microsoft.Extensions.Primitives;
 
 namespace Diginsight.AspNetCore;
 
-internal sealed class PostConfigureOptionsFromHttpRequestHeaders<TOptions>
+public sealed class PostConfigureOptionsFromHttpRequestHeaders<TOptions>
     : IPostConfigureOptions<TOptions>, IOptionsChangeTokenSource<TOptions>
     where TOptions : class
 {
     private readonly IHttpContextAccessor httpContextAccessor;
+    private readonly Func<TOptions, object>? makeFiller;
+
     private ConfigurationReloadToken changeToken = new ();
 
-    public string Name { get; }
+    public string? Name { get; }
 
     public PostConfigureOptionsFromHttpRequestHeaders(
+        string? name,
         IHttpContextAccessor httpContextAccessor,
-        string? name = null
+        Func<TOptions, object>? makeFiller = null
     )
     {
         this.httpContextAccessor = httpContextAccessor;
-        Name = name ?? Options.DefaultName;
+        this.makeFiller = makeFiller;
+        Name = name;
     }
 
     public void PostConfigure(string? name, TOptions options)
     {
         name ??= Options.DefaultName;
 
-        if (!string.Equals(Name, name, StringComparison.OrdinalIgnoreCase) ||
-            httpContextAccessor.HttpContext is not { } httpContext)
+        if (Name is not null && !string.Equals(Name, name, StringComparison.OrdinalIgnoreCase))
+            return;
+
+        if (httpContextAccessor.HttpContext is not { } httpContext)
             return;
 
         if (!httpContext.Items.ContainsKey(default(ChangeTokenFiringItemKey)))
@@ -43,7 +49,9 @@ internal sealed class PostConfigureOptionsFromHttpRequestHeaders<TOptions>
         if (!(headers.Count > 0))
             return;
 
-        new ConfigurationBuilder().AddInMemoryCollection(headers).Build().Bind(options);
+        object filler = makeFiller?.Invoke(options) ?? options;
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(headers).Build();
+        configuration.Bind(filler);
     }
 
     private Task FireChangeTokenAsync()

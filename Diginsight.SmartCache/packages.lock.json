@@ -198,8 +198,8 @@
       },
       "Microsoft.AspNetCore.Http": {
         "type": "Transitive",
-        "resolved": "2.2.0",
-        "contentHash": "YogBSMotWPAS/X5967pZ+yyWPQkThxhmzAwyCHCSSldzYBkW5W5d6oPfBaPqQOnSHYTpSOSOkpZoAce0vwb6+A==",
+        "resolved": "2.2.2",
+        "contentHash": "BAibpoItxI5puk7YJbIGj95arZueM8B8M5xT1fXBn3hb3L2G3ucrZcYXv1gXdaroLbntUs8qeV8iuBrpjQsrKw==",
         "dependencies": {
           "Microsoft.AspNetCore.Http.Abstractions": "2.2.0",
           "Microsoft.AspNetCore.WebUtilities": "2.2.0",
@@ -1148,6 +1148,16 @@
           "System.Runtime.CompilerServices.Unsafe": "4.5.3"
         }
       },
+      "diginsight.aspnetcore": {
+        "type": "Project",
+        "dependencies": {
+          "Diginsight.Core": "[1.0.0, )",
+          "Microsoft.AspNetCore.Hosting.Abstractions": "[2.2.*, )",
+          "Microsoft.AspNetCore.Http": "[2.2.*, )",
+          "Microsoft.Extensions.Logging": "[8.*, )",
+          "Scrutor": "[4.*, )"
+        }
+      },
       "diginsight.core": {
         "type": "Project",
         "dependencies": {
@@ -1359,8 +1369,8 @@
       },
       "Microsoft.AspNetCore.Http": {
         "type": "Transitive",
-        "resolved": "2.2.0",
-        "contentHash": "YogBSMotWPAS/X5967pZ+yyWPQkThxhmzAwyCHCSSldzYBkW5W5d6oPfBaPqQOnSHYTpSOSOkpZoAce0vwb6+A==",
+        "resolved": "2.2.2",
+        "contentHash": "BAibpoItxI5puk7YJbIGj95arZueM8B8M5xT1fXBn3hb3L2G3ucrZcYXv1gXdaroLbntUs8qeV8iuBrpjQsrKw==",
         "dependencies": {
           "Microsoft.AspNetCore.Http.Abstractions": "2.2.0",
           "Microsoft.AspNetCore.WebUtilities": "2.2.0",
@@ -2289,6 +2299,16 @@
           "System.Runtime.CompilerServices.Unsafe": "4.5.3"
         }
       },
+      "diginsight.aspnetcore": {
+        "type": "Project",
+        "dependencies": {
+          "Diginsight.Core": "[1.0.0, )",
+          "Microsoft.AspNetCore.Hosting.Abstractions": "[2.2.*, )",
+          "Microsoft.AspNetCore.Http": "[2.2.*, )",
+          "Microsoft.Extensions.Logging": "[8.*, )",
+          "Scrutor": "[4.*, )"
+        }
+      },
       "diginsight.core": {
         "type": "Project",
         "dependencies": {
@@ -3208,6 +3228,14 @@
         "resolved": "4.5.2",
         "contentHash": "BG/TNxDFv0svAzx8OiMXDlsHfGw623BZ8tCXw4YLhDFDvDhNUEV58jKYMGRnkbJNm7c3JNNJDiN7JBMzxRBR2w=="
       },
+      "diginsight.aspnetcore": {
+        "type": "Project",
+        "dependencies": {
+          "Diginsight.Core": "[1.0.0, )",
+          "Microsoft.Extensions.Logging": "[8.*, )",
+          "Scrutor": "[4.*, )"
+        }
+      },
       "diginsight.core": {
         "type": "Project",
         "dependencies": {
@@ -4116,6 +4144,14 @@
         "resolved": "4.5.2",
         "contentHash": "BG/TNxDFv0svAzx8OiMXDlsHfGw623BZ8tCXw4YLhDFDvDhNUEV58jKYMGRnkbJNm7c3JNNJDiN7JBMzxRBR2w=="
       },
+      "diginsight.aspnetcore": {
+        "type": "Project",
+        "dependencies": {
+          "Diginsight.Core": "[1.0.0, )",
+          "Microsoft.Extensions.Logging": "[8.*, )",
+          "Scrutor": "[4.*, )"
+        }
+      },
       "diginsight.core": {
         "type": "Project",
         "dependencies": {
@@ -5023,6 +5059,14 @@
         "type": "Transitive",
         "resolved": "4.5.2",
         "contentHash": "BG/TNxDFv0svAzx8OiMXDlsHfGw623BZ8tCXw4YLhDFDvDhNUEV58jKYMGRnkbJNm7c3JNNJDiN7JBMzxRBR2w=="
+      },
+      "diginsight.aspnetcore": {
+        "type": "Project",
+        "dependencies": {
+          "Diginsight.Core": "[1.0.0, )",
+          "Microsoft.Extensions.Logging": "[8.*, )",
+          "Scrutor": "[4.*, )"
+        }
       },
       "diginsight.core": {
         "type": "Project",

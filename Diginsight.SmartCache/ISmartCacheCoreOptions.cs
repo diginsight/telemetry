@@ -2,6 +2,9 @@
 
 public interface ISmartCacheCoreOptions
 {
+    bool DiscardExternalMiss { get; }
+    bool RedisOnlyCache { get; }
+
     TimeSpan MaxAge { get; }
 
     TimeSpan AbsoluteExpiration { get; }

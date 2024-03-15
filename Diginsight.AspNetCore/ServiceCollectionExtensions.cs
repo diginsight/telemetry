@@ -9,13 +9,17 @@ namespace Diginsight.AspNetCore;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection PostConfigureFromHttpRequestHeaders<TOptions>(this IServiceCollection services)
+    public static IServiceCollection PostConfigureFromHttpRequestHeaders<TOptions>(
+        this IServiceCollection services, Func<TOptions, object>? makeFiller = null
+    )
         where TOptions: class
     {
-        return services.PostConfigureFromHttpRequestHeaders<TOptions>(Options.DefaultName);
+        return services.PostConfigureFromHttpRequestHeaders(Options.DefaultName, makeFiller);
     }
 
-    public static IServiceCollection PostConfigureFromHttpRequestHeaders<TOptions>(this IServiceCollection services, string name)
+    public static IServiceCollection PostConfigureFromHttpRequestHeaders<TOptions>(
+        this IServiceCollection services, string name, Func<TOptions, object>? makeFiller = null
+    )
         where TOptions: class
     {
         services.AddOptions();
@@ -23,7 +27,11 @@ public static class ServiceCollectionExtensions
         services.AddHttpContextAccessor();
 
         services.TryAddSingleton(
-            sp => ActivatorUtilities.CreateInstance<PostConfigureOptionsFromHttpRequestHeaders<TOptions>>(sp, name)
+            sp => new PostConfigureOptionsFromHttpRequestHeaders<TOptions>(
+                name,
+                sp.GetRequiredService<IHttpContextAccessor>(),
+                makeFiller
+            )
         );
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<TOptions>, PostConfigureOptionsFromHttpRequestHeaders<TOptions>>(
             static sp => sp.GetRequiredService<PostConfigureOptionsFromHttpRequestHeaders<TOptions>>())
@@ -35,13 +43,17 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection PostConfigureClassAwareFromHttpRequestHeaders<TOptions>(this IServiceCollection services)
+    public static IServiceCollection PostConfigureClassAwareFromHttpRequestHeaders<TOptions>(
+        this IServiceCollection services, Func<TOptions, object>? makeFiller = null
+    )
         where TOptions: class
     {
-        return services.PostConfigureClassAwareFromHttpRequestHeaders<TOptions>(Options.DefaultName);
+        return services.PostConfigureClassAwareFromHttpRequestHeaders(Options.DefaultName, makeFiller);
     }
 
-    public static IServiceCollection PostConfigureClassAwareFromHttpRequestHeaders<TOptions>(this IServiceCollection services, string name)
+    public static IServiceCollection PostConfigureClassAwareFromHttpRequestHeaders<TOptions>(
+        this IServiceCollection services, string name, Func<TOptions, object>? makeFiller = null
+    )
         where TOptions: class
     {
         services.AddClassAwareOptions();
@@ -49,7 +61,11 @@ public static class ServiceCollectionExtensions
         services.AddHttpContextAccessor();
 
         services.TryAddSingleton(
-            sp => ActivatorUtilities.CreateInstance<PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>>(sp, name)
+            sp => new PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>(
+                name,
+                sp.GetRequiredService<IHttpContextAccessor>(),
+                makeFiller
+            )
         );
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureClassAwareOptions<TOptions>, PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>>(
             static sp => sp.GetRequiredService<PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>>())

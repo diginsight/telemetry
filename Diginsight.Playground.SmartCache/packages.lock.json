@@ -1031,6 +1031,14 @@
         "resolved": "4.5.2",
         "contentHash": "BG/TNxDFv0svAzx8OiMXDlsHfGw623BZ8tCXw4YLhDFDvDhNUEV58jKYMGRnkbJNm7c3JNNJDiN7JBMzxRBR2w=="
       },
+      "diginsight.aspnetcore": {
+        "type": "Project",
+        "dependencies": {
+          "Diginsight.Core": "[1.0.0, )",
+          "Microsoft.Extensions.Logging": "[8.*, )",
+          "Scrutor": "[4.*, )"
+        }
+      },
       "diginsight.core": {
         "type": "Project",
         "dependencies": {
@@ -1055,6 +1063,7 @@
         "type": "Project",
         "dependencies": {
           "Azure.Messaging.ServiceBus": "[1.*, )",
+          "Diginsight.AspNetCore": "[1.0.0, )",
           "Diginsight.Core": "[1.0.0, )",
           "Diginsight.Diagnostics": "[1.0.0, )",
           "Microsoft.Extensions.Caching.Memory": "[8.*, )",

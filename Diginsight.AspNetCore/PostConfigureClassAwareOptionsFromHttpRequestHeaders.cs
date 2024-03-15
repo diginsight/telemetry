@@ -1,33 +1,38 @@
 ﻿using Diginsight.CAOptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 
 namespace Diginsight.AspNetCore;
 
-internal sealed class PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>
+public sealed class PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>
     : IPostConfigureClassAwareOptions<TOptions>, IClassAwareOptionsChangeTokenSource<TOptions>
     where TOptions : class
 {
     private readonly IHttpContextAccessor httpContextAccessor;
+    private readonly Func<TOptions, object>? makeFiller;
+
     private ConfigurationReloadToken changeToken = new ();
 
-    public string Name { get; }
+    public string? Name { get; }
 
     public PostConfigureClassAwareOptionsFromHttpRequestHeaders(
+        string name,
         IHttpContextAccessor httpContextAccessor,
-        string? name = null
+        Func<TOptions, object>? makeFiller = null
     )
     {
         this.httpContextAccessor = httpContextAccessor;
-        Name = name ?? Options.DefaultName;
+        this.makeFiller = makeFiller;
+        Name = name;
     }
 
     public void PostConfigure(string name, Type @class, TOptions options)
     {
-        if (!string.Equals(Name, name, StringComparison.OrdinalIgnoreCase) ||
-            httpContextAccessor.HttpContext is not { } httpContext)
+        if (Name is not null && !string.Equals(Name, name, StringComparison.OrdinalIgnoreCase))
+            return;
+
+        if (httpContextAccessor.HttpContext is not { } httpContext)
             return;
 
         if (!httpContext.Items.ContainsKey(default(ChangeTokenFiringItemKey)))
@@ -42,7 +47,9 @@ internal sealed class PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOpti
         if (!(headers.Count > 0))
             return;
 
-        FilteredConfiguration.For(new ConfigurationBuilder().AddInMemoryCollection(headers).Build(), @class).Bind(options);
+        object filler = makeFiller?.Invoke(options) ?? options;
+        IConfiguration configuration = FilteredConfiguration.For(new ConfigurationBuilder().AddInMemoryCollection(headers).Build(), @class);
+        configuration.Bind(filler);
     }
 
     private Task FireChangeTokenAsync()

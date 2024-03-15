@@ -34,6 +34,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Diginsight.AspNetCore\Diginsight.AspNetCore.csproj">
+      <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+    </ProjectReference>
     <ProjectReference Include="..\Diginsight.Core\Diginsight.Core.csproj" />
     <ProjectReference Include="..\Diginsight.Diagnostics\Diginsight.Diagnostics.csproj">
       <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>

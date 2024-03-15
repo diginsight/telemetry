@@ -77,8 +77,8 @@ public sealed class ClassAwareOptionsCache<TOptions> : IClassAwareOptionsCache<T
         }
     }
 
-    public void Clear()
+    public IEnumerable<(string Name, IEnumerable<Type> Classes)> Clear()
     {
-        dict.Clear();
+        return dict.Keys.Select(static x => x.Name).Distinct().Select(x => (x, TryRemove(x))).ToArray();
     }
 }

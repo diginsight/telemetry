@@ -1,4 +1,6 @@
-﻿namespace Diginsight.SmartCache;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Diginsight.SmartCache;
 
 public sealed class SmartCacheCoreOptions : ISmartCacheCoreOptions
 {
@@ -6,6 +8,9 @@ public sealed class SmartCacheCoreOptions : ISmartCacheCoreOptions
     private TimeSpan maxAge = TimeSpan.MaxValue;
     private TimeSpan absoluteExpiration = TimeSpan.MaxValue;
     private TimeSpan slidingExpiration = TimeSpan.MaxValue;
+
+    public bool DiscardExternalMiss { get; set; }
+    public bool RedisOnlyCache { get; set; }
 
     public TimeSpan MaxAge
     {
@@ -37,5 +42,48 @@ public sealed class SmartCacheCoreOptions : ISmartCacheCoreOptions
     {
         get => localEntryTolerance;
         set => localEntryTolerance = value >= TimeSpan.Zero ? value : TimeSpan.Zero;
+    }
+
+    public object MakeFiller() => new Filler(this);
+
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
+    private sealed class Filler
+    {
+        private readonly SmartCacheCoreOptions owner;
+
+        public Filler(SmartCacheCoreOptions owner)
+        {
+            this.owner = owner;
+        }
+
+        public bool DiscardExternalMiss
+        {
+            get => owner.DiscardExternalMiss;
+            set => owner.DiscardExternalMiss = value;
+        }
+
+        public bool RedisOnlyCache
+        {
+            get => owner.RedisOnlyCache;
+            set => owner.RedisOnlyCache = value;
+        }
+
+        public TimeSpan MaxAge
+        {
+            get => owner.MaxAge;
+            set => owner.MaxAge = value;
+        }
+
+        public TimeSpan AbsoluteExpiration
+        {
+            get => owner.AbsoluteExpiration;
+            set => owner.AbsoluteExpiration = value;
+        }
+
+        public TimeSpan SlidingExpiration
+        {
+            get => owner.SlidingExpiration;
+            set => owner.SlidingExpiration = value;
+        }
     }
 }

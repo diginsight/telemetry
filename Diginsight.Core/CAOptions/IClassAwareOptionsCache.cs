@@ -17,5 +17,5 @@ public interface IClassAwareOptionsCache<TOptions>
 
     IEnumerable<Type> TryRemove(string name);
 
-    void Clear();
+    IEnumerable<(string Name, IEnumerable<Type> Classes)> Clear();
 }

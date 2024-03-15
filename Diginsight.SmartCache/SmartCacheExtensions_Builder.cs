@@ -1,4 +1,5 @@
-﻿using Diginsight.SmartCache.Externalization;
+﻿using Diginsight.AspNetCore;
+using Diginsight.SmartCache.Externalization;
 using Diginsight.SmartCache.Externalization.Kubernetes;
 using Diginsight.SmartCache.Externalization.Local;
 using Diginsight.SmartCache.Externalization.Middleware;
@@ -159,5 +160,13 @@ public static partial class SmartCacheExtensions
 
             return failureMessages.Count > 0 ? ValidateOptionsResult.Fail(failureMessages) : ValidateOptionsResult.Success;
         }
+    }
+
+    public static SmartCacheBuilder AddHttpHeaderSupport(this SmartCacheBuilder builder)
+    {
+        builder.Services.PostConfigureClassAwareFromHttpRequestHeaders<SmartCacheCoreOptions>(static o => o.MakeFiller());
+        builder.Services.PostConfigureClassAwareFromHttpRequestHeaders<OnTheFlySmartCacheCoreOptions>();
+
+        return builder;
     }
 }

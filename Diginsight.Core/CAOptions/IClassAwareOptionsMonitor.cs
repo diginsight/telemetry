@@ -2,7 +2,7 @@
 
 namespace Diginsight.CAOptions;
 
-public interface IClassAwareOptionsMonitor<TOptions> : IOptionsMonitor<TOptions>
+public interface IClassAwareOptionsMonitor<out TOptions> : IOptionsMonitor<TOptions>
     where TOptions : class
 {
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
@@ -15,7 +15,7 @@ public interface IClassAwareOptionsMonitor<TOptions> : IOptionsMonitor<TOptions>
     TOptions IOptionsMonitor<TOptions>.Get(string? name) => Get(name ?? Options.DefaultName, ClassAwareOptions.NoType);
 #endif
 
-    IDisposable? OnChange(Action<IReadOnlyDictionary<Type, TOptions>, string?> listener);
+    IDisposable? OnChange(Action<TOptions, string, Type> listener);
 
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
     IDisposable? IOptionsMonitor<TOptions>.OnChange(Action<TOptions, string?> listener)

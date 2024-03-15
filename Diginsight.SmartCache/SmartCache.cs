@@ -1,4 +1,5 @@
-﻿using Diginsight.Diagnostics;
+﻿using Diginsight.CAOptions;
+using Diginsight.Diagnostics;
 using Diginsight.SmartCache.Externalization;
 using Diginsight.SmartCache.Externalization.Redis;
 using Microsoft.Extensions.Caching.Memory;
@@ -9,7 +10,6 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -18,10 +18,9 @@ namespace Diginsight.SmartCache;
 internal sealed class SmartCache : ISmartCache
 {
     private readonly ILogger logger;
-    //private readonly IClassConfigurationGetter classConfigurationGetter;
-    //private readonly IClassConfigurationGetterProvider classConfigurationGetterProvider;
     private readonly ICacheCompanion companion;
-    private readonly ISmartCacheCoreOptions coreOptions;
+    private readonly IClassAwareOptionsMonitor<SmartCacheCoreOptions> coreOptionsMonitor;
+    private readonly IClassAwareOptionsMonitor<OnTheFlySmartCacheCoreOptions> otfCoreOptionsMonitor;
     private readonly TimeProvider timeProvider;
 
     private readonly IMemoryCache memoryCache;
@@ -37,20 +36,18 @@ internal sealed class SmartCache : ISmartCache
 
     public SmartCache(
         ILogger<SmartCache> logger,
-        //IClassConfigurationGetter classConfigurationGetter,
-        //IClassConfigurationGetterProvider classConfigurationGetterProvider,
         ICacheCompanion companion,
-        IOptions<SmartCacheCoreOptions> coreOptions,
+        IClassAwareOptionsMonitor<SmartCacheCoreOptions> coreOptionsMonitor,
+        IClassAwareOptionsMonitor<OnTheFlySmartCacheCoreOptions> otfCoreOptionsMonitor,
         IOptionsMonitor<MemoryCacheOptions> memoryCacheOptionsMonitor,
         ILoggerFactory loggerFactory,
         TimeProvider? timeProvider = null
     )
     {
         this.logger = logger;
-        //this.classConfigurationGetter = classConfigurationGetter;
-        //this.classConfigurationGetterProvider = classConfigurationGetterProvider;
         this.companion = companion;
-        this.coreOptions = coreOptions.Value;
+        this.coreOptionsMonitor = coreOptionsMonitor;
+        this.otfCoreOptionsMonitor = otfCoreOptionsMonitor;
         this.timeProvider = timeProvider ?? TimeProvider.System;
 
         memoryCache = new MemoryCache(memoryCacheOptionsMonitor.Get(nameof(SmartCache)), loggerFactory);
@@ -126,10 +123,12 @@ internal sealed class SmartCache : ISmartCache
         using TimerLap memoryLap = SmartCacheMetrics.Instruments.FetchDuration.CreateLap(SmartCacheMetrics.Tags.Type.Memory);
         memoryLap.DisableCommit = true;
 
+        ISmartCacheCoreOptions coreOptions = coreOptionsMonitor.CurrentValue;
+
         ValueEntry<TValue>? localEntry;
         ExternalMissDictionary.Entry? externalEntry;
 
-        bool discardExternalMiss = false; //classConfigurationGetter.Get("DiscardExternalMiss", false);
+        bool discardExternalMiss = coreOptions.DiscardExternalMiss;
 
         if (maybeMinimumCreationDate is null)
         {
@@ -296,7 +295,7 @@ internal sealed class SmartCache : ISmartCache
         else
         {
             logger.LogDebug(
-                "Cache miss: creation date validation failed (minimum: {MaybeMinimumCreationDate:O}, older: {LocalCreationDate})",
+                "Cache miss: creation date validation failed (minimum: {MaybeMinimumCreationDate:O}, older: {LocalCreationDate:O})",
                 maybeMinimumCreationDate,
                 localCreationDate ?? DateTime.MinValue
             );
@@ -333,6 +332,8 @@ internal sealed class SmartCache : ISmartCache
             logger, new { key = keyHolder.Key, valueType, creationDate, absExpiration, sldExpiration, skipNotify }
         );
 
+        ISmartCacheCoreOptions coreOptions = coreOptionsMonitor.CurrentValue;
+
         ICacheKey key = keyHolder.Key;
 
         keys[key] = default;
@@ -345,11 +346,11 @@ internal sealed class SmartCache : ISmartCache
         TimeSpan finalAbsExpiration = absExpiration ?? coreOptions.AbsoluteExpiration;
         TimeSpan? inftyFinalAbsExpiration = ToInfinity(finalAbsExpiration);
 
-        //if (classConfigurationGetter.Get("RedisOnlyCache", false) && redisLocation is not null)
-        //{
-        //    WriteToLocation(redisLocation, keyHolder, entry, inftyFinalAbsExpiration, skipNotify);
-        //    return;
-        //}
+        if (coreOptions.RedisOnlyCache && redisLocation is not null)
+        {
+            WriteToLocation(redisLocation, keyHolder, entry, inftyFinalAbsExpiration, skipNotify);
+            return;
+        }
 
         TimeSpan? inftyFinalSldExpiration = ToInfinity(
             new TimeSpan(Math.Min((sldExpiration ?? coreOptions.SlidingExpiration).Ticks, finalAbsExpiration.Ticks))
@@ -484,6 +485,8 @@ internal sealed class SmartCache : ISmartCache
             return;
         }
 
+        ISmartCacheCoreOptions coreOptions = coreOptionsMonitor.CurrentValue;
+
         (Type, object?)? valueTuple;
         if (valueHolder is var (value, valueType) && coreOptions.MissValueSizeThreshold is > 0 and var size)
         {
@@ -525,39 +528,10 @@ internal sealed class SmartCache : ISmartCache
 
     private DateTime GetMinimumCreationDate([NotNull] ref TimeSpan? maxAge, Type callerType, DateTime timestamp)
     {
-        //IClassConfigurationGetter callerClassConfigurationGetter = classConfigurationGetterProvider.GetFor(callerType);
+        ISmartCacheCoreOptions coreOptions = coreOptionsMonitor.Get(Options.DefaultName, callerType);
+        IOnTheFlySmartCacheCoreOptions otfCoreOptions = otfCoreOptionsMonitor.Get(Options.DefaultName, callerType);
 
-        static bool TryConvertMaxAgeSecs(string? str, out int maxAgeSecs)
-        {
-            if (int.TryParse(str, out maxAgeSecs))
-            {
-                return true;
-            }
-
-            maxAgeSecs = default;
-            return false;
-        }
-
-        TimeSpan finalMaxAge = maxAge ?? coreOptions.DefaultMaxAge;
-        //if (callerClassConfigurationGetter.TryGet("MaxAge", out int outerMaxAgeSecs, TryConvertMaxAgeSecs))
-        //{
-        //    TimeSpan outerMaxAge = TimeSpan.FromSeconds(outerMaxAgeSecs);
-        //    if (outerMaxAge < finalMaxAge)
-        //    {
-        //        finalMaxAge = outerMaxAge;
-        //    }
-        //}
-
-        static bool TryConvertMinimumCreationDate(string? str, out DateTime minimumCreationDate)
-        {
-            if (DateTime.TryParse(str, null, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out minimumCreationDate))
-            {
-                return true;
-            }
-
-            minimumCreationDate = default;
-            return false;
-        }
+        TimeSpan finalMaxAge = maxAge ?? coreOptions.MaxAge;
 
         DateTime minimumCreationDate;
         try
@@ -568,13 +542,11 @@ internal sealed class SmartCache : ISmartCache
         {
             minimumCreationDate = DateTime.MinValue;
         }
-        //if (callerClassConfigurationGetter.TryGet("MinimumCreationDate", out DateTime outerMinimumCreationDate, TryConvertMinimumCreationDate))
-        //{
-        //    if (outerMinimumCreationDate > minimumCreationDate)
-        //    {
-        //        minimumCreationDate = outerMinimumCreationDate;
-        //    }
-        //}
+
+        if (otfCoreOptions.MinimumCreationDate is { } otfMinimumCreationDate && otfMinimumCreationDate > minimumCreationDate)
+        {
+            minimumCreationDate = otfMinimumCreationDate;
+        }
 
         maxAge = finalMaxAge;
         return minimumCreationDate;
