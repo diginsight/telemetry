@@ -278,7 +278,7 @@ internal sealed class SmartCache : ISmartCache
 
         memoryLap.DisableCommit = false;
 
-        if (localCreationDate >= maybeMinimumCreationDate && localEntry!.Data is { } data)
+        if (localCreationDate >= maybeMinimumCreationDate)
         {
             logger.LogDebug(
                 "Cache hit: valid creation date (minimum: {MaybeMinimumCreationDate:O}, newer: {LocalCreationDate:O})",
@@ -290,7 +290,7 @@ internal sealed class SmartCache : ISmartCache
             SmartCacheMetrics.Instruments.Sources.Add(1, SmartCacheMetrics.Tags.Type.Memory);
             activity?.SetTag("cache.hit", 1);
 
-            return data;
+            return localEntry!.Data;
         }
         else
         {
