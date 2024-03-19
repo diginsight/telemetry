@@ -1,6 +1,6 @@
 ﻿namespace Diginsight.Diagnostics;
 
-internal static class ActivityCustomPropertyNames
+public static class ActivityCustomPropertyNames
 {
     public const string CallerType = nameof(CallerType);
     public const string Depth = nameof(Depth);

@@ -72,10 +72,10 @@ internal sealed class SmartCache : ISmartCache
     [MethodImpl(MethodImplOptions.NoInlining)]
     public async Task<T> GetAsync<T>(ICacheKey key, Func<Task<T>> fetchAsync, SmartCacheOperationOptions? operationOptions, Type? callerType)
     {
+        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key, operationOptions, callerType });
+
         callerType ??= RuntimeUtils.GetCaller().DeclaringType;
         operationOptions ??= new ();
-
-        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key, operationOptions, callerType });
 
         CacheKeyHolder keyHolder = new CacheKeyHolder(key, logger);
 
@@ -116,9 +116,7 @@ internal sealed class SmartCache : ISmartCache
         TimeSpan? sldExpiration = null
     )
     {
-        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(
-            logger, new { keyHolder.Key, timestamp, maybeMinimumCreationDate, absExpiration, sldExpiration }
-        );
+        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { keyHolder.Key, timestamp, maybeMinimumCreationDate, absExpiration, sldExpiration });
 
         using TimerLap memoryLap = SmartCacheMetrics.Instruments.FetchDuration.CreateLap(SmartCacheMetrics.Tags.Type.Memory);
         memoryLap.DisableCommit = true;
@@ -528,6 +526,8 @@ internal sealed class SmartCache : ISmartCache
 
     private DateTime GetMinimumCreationDate([NotNull] ref TimeSpan? maxAge, Type callerType, DateTime timestamp)
     {
+        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { maxAge, callerType, timestamp });
+
         ISmartCacheCoreOptions coreOptions = coreOptionsMonitor.Get(Options.DefaultName, callerType);
         IOnTheFlySmartCacheCoreOptions otfCoreOptions = otfCoreOptionsMonitor.Get(Options.DefaultName, callerType);
 
@@ -549,6 +549,8 @@ internal sealed class SmartCache : ISmartCache
         }
 
         maxAge = finalMaxAge;
+
+        activity?.SetCustomProperty(ActivityCustomPropertyNames.Output, minimumCreationDate);
         return minimumCreationDate;
     }
 
