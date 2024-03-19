@@ -31,13 +31,8 @@ public static class DependencyInjectionExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static OpenTelemetryBuilder AddDiginsight(this IServiceCollection services, Action<DiginsightOptions>? configureDiginsight = null)
+    public static OpenTelemetryBuilder AddDiginsight(this IServiceCollection services)
     {
-        if (configureDiginsight is not null)
-        {
-            services.Configure(configureDiginsight);
-        }
-
         return services
             .AddOpenTelemetry()
             .ConfigureResource(
@@ -108,7 +103,7 @@ public static class DependencyInjectionExtensions
 
                     if (defaultActivityLogLevel is not null)
                     {
-                        services.Configure<DiginsightOptions>(o => { o.DefaultActivityLogLevel = defaultActivityLogLevel.Value; });
+                        services.Configure<DiginsightActivitiesOptions>(o => { o.DefaultActivityLogLevel = defaultActivityLogLevel.Value; });
                     }
                 }
             );

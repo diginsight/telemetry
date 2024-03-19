@@ -37,7 +37,6 @@ public sealed class CachePreloader : ICachePreloader
         using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key });
 
         CacheKeyHolder keyHolder = new CacheKeyHolder(key, logger);
-        // TODO activity?.SetTag("cache.key", keyLogString);
 
         SmartCacheMetrics.Instruments.Preloads.Add(1);
 

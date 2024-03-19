@@ -20,20 +20,20 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
 
     private readonly ILoggerFactory loggerFactory;
     private readonly IAppendingContextFactory appendingContextFactory;
-    private readonly IDiginsightOptions diginsightOptions;
+    private readonly IDiginsightActivitiesOptions activitiesOptions;
     private readonly IActivityProcessingSampler? activityProcessingSampler;
     private readonly ILogger fallbackLogger;
 
     public DiginsightLogProcessor(
         ILoggerFactory loggerFactory,
         IAppendingContextFactory appendingContextFactory,
-        IOptions<DiginsightOptions> diginsightOptions,
+        IOptions<DiginsightActivitiesOptions> activitiesOptions,
         IActivityProcessingSampler? activityProcessingSampler = null
     )
     {
         this.loggerFactory = loggerFactory;
         this.appendingContextFactory = appendingContextFactory;
-        this.diginsightOptions = diginsightOptions.Value;
+        this.activitiesOptions = activitiesOptions.Value;
         this.activityProcessingSampler = activityProcessingSampler;
         fallbackLogger = loggerFactory.CreateLogger($"{typeof(DiginsightLogProcessor).Namespace!}.$Activity");
     }
@@ -277,12 +277,12 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
 
         ILogger? innerLogger = null;
 
-        shouldLog = activityProcessingSampler?.ShouldLog(activity, callerType) ?? diginsightOptions.LogActivities;
+        shouldLog = activityProcessingSampler?.ShouldLog(activity, callerType) ?? activitiesOptions.LogActivities;
         textLogger = shouldLog
             ? new ActivityLogger(innerLogger ??= MakeInnerLogger(), activity.IsStopped ? activity.Duration : null)
             : NullLogger.Instance;
 
-        shouldRecord = activityProcessingSampler?.ShouldRecord(activity, callerType) ?? diginsightOptions.RecordActivities;
+        shouldRecord = activityProcessingSampler?.ShouldRecord(activity, callerType) ?? activitiesOptions.RecordActivities;
         otlpLogger = shouldRecord
             ? new OtlpLogger(innerLogger ??= MakeInnerLogger())
             : NullLogger.Instance;
@@ -290,7 +290,7 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
         logLevel = activity.GetCustomProperty(ActivityCustomPropertyNames.LogLevel) switch
         {
             LogLevel ll => ll,
-            null => diginsightOptions.DefaultActivityLogLevel,
+            null => activitiesOptions.DefaultActivityLogLevel,
             _ => throw new InvalidOperationException("Invalid log level in activity"),
         };
     }

@@ -1,64 +1,29 @@
 ﻿using Diginsight.CAOptions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Primitives;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Diginsight.AspNetCore;
 
-public sealed class PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>
-    : IPostConfigureClassAwareOptions<TOptions>, IClassAwareOptionsChangeTokenSource<TOptions>
+public class PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>
+    : PostConfigureOptionsFromHttpRequestHeaders<TOptions>,
+        IPostConfigureClassAwareOptions<TOptions>,
+        IClassAwareOptionsChangeTokenSource<TOptions>
     where TOptions : class
 {
-    private readonly IHttpContextAccessor httpContextAccessor;
-    private readonly Func<TOptions, object>? makeFiller;
-
-    private ConfigurationReloadToken changeToken = new ();
-
-    public string? Name { get; }
-
     public PostConfigureClassAwareOptionsFromHttpRequestHeaders(
         string name,
         IHttpContextAccessor httpContextAccessor,
         Func<TOptions, object>? makeFiller = null
     )
-    {
-        this.httpContextAccessor = httpContextAccessor;
-        this.makeFiller = makeFiller;
-        Name = name;
-    }
+        : base(name, httpContextAccessor, makeFiller) { }
 
     public void PostConfigure(string name, Type @class, TOptions options)
     {
-        if (Name is not null && !string.Equals(Name, name, StringComparison.OrdinalIgnoreCase))
-            return;
-
-        if (httpContextAccessor.HttpContext is not { } httpContext)
-            return;
-
-        if (!httpContext.Items.ContainsKey(default(ChangeTokenFiringItemKey)))
-        {
-            httpContext.Items[default(ChangeTokenFiringItemKey)] = null;
-            httpContext.Response.OnCompleted(FireChangeTokenAsync);
-        }
-
-        IReadOnlyDictionary<string, string?> headers = httpContext.Request.Headers
-            .Where(static x => x.Key.StartsWith("c-", StringComparison.OrdinalIgnoreCase))
-            .ToDictionary(static x => x.Key[2..].Replace("__", ConfigurationPath.KeyDelimiter), static x => x.Value.LastOrDefault());
-        if (!(headers.Count > 0))
-            return;
-
-        object filler = makeFiller?.Invoke(options) ?? options;
-        IConfiguration configuration = FilteredConfiguration.For(new ConfigurationBuilder().AddInMemoryCollection(headers).Build(), @class);
-        configuration.Bind(filler);
+        PostConfigureCore(name, options, configuration => FilteredConfiguration.For(configuration, @class));
     }
 
-    private Task FireChangeTokenAsync()
-    {
-        Interlocked.Exchange(ref changeToken, new ConfigurationReloadToken()).OnReload();
-        return Task.CompletedTask;
-    }
+    protected override object GetChangeTokenFiringItemKey(string name) => new ChangeTokenFiringItemKey(name);
 
-    public IChangeToken GetChangeToken() => changeToken;
-
-    private readonly struct ChangeTokenFiringItemKey;
+    [SuppressMessage("ReSharper", "NotAccessedPositionalProperty.Local")]
+    private readonly record struct ChangeTokenFiringItemKey(string Name);
 }

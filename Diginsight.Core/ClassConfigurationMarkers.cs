@@ -2,29 +2,29 @@
 
 namespace Diginsight;
 
-public static class ClassConfigurationPrefixes
+public static class ClassConfigurationMarkers
 {
     public static IReadOnlyList<string> For(Type @class)
     {
-        return (IReadOnlyList<string>)typeof(ClassConfigurationPrefixes<>)
+        return (IReadOnlyList<string>)typeof(ClassConfigurationMarkers<>)
             .MakeGenericType(@class)
-            .GetProperty(nameof(ClassConfigurationPrefixes<object>.Prefixes), BindingFlags.Public | BindingFlags.Static)!
+            .GetProperty(nameof(ClassConfigurationMarkers<object>.Markers), BindingFlags.Public | BindingFlags.Static)!
             .GetValue(null)!;
     }
 }
 
-public static class ClassConfigurationPrefixes<TClass>
+public static class ClassConfigurationMarkers<TClass>
 {
     // ReSharper disable once StaticMemberInGenericType
-    private static readonly string[] PrefixesCore;
+    private static readonly string[] MarkersCore;
 
-    public static IReadOnlyList<string> Prefixes => PrefixesCore;
+    public static IReadOnlyList<string> Markers => MarkersCore;
 
-    static ClassConfigurationPrefixes()
+    static ClassConfigurationMarkers()
     {
-        PrefixesCore = GetPrefixes().ToArray();
+        MarkersCore = GetMarkers().ToArray();
 
-        static IEnumerable<string> GetPrefixes()
+        static IEnumerable<string> GetMarkers()
         {
             Type type = typeof(TClass);
             if (type.IsArray || type.IsByRef || type.IsGenericParameter || type.IsGenericType || type.IsPointer)
@@ -44,24 +44,24 @@ public static class ClassConfigurationPrefixes<TClass>
 
             if (type is { Namespace: not null, FullName: not null })
             {
-                yield return $"{type.FullName}.";
+                yield return type.FullName;
             }
 
             foreach (string shorthand in namespaceShorthands)
             {
-                yield return $"#{shorthand}.{type.Name}.";
+                yield return $"#{shorthand}.{type.Name}";
             }
 
-            yield return $"{type.Name}.";
+            yield return type.Name;
 
             foreach (string segment in namespaceSegments)
             {
-                yield return $"{segment}.*.";
+                yield return $"{segment}.*";
             }
 
             foreach (string shorthand in namespaceShorthands)
             {
-                yield return $"#{shorthand}.*.";
+                yield return $"#{shorthand}.*";
             }
 
             yield return "";

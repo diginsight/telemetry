@@ -643,6 +643,15 @@
           "System.Threading.Tasks": "4.0.11"
         }
       },
+      "System.Collections.Immutable": {
+        "type": "Transitive",
+        "resolved": "8.0.0",
+        "contentHash": "AurL6Y5BA1WotzlEvVaIDpqzpIPvYnnldxru8oXJU2yFxFUy3+pNXjXd1ymO+RA0rq0+590Q8gaz2l3Sr7fmqg==",
+        "dependencies": {
+          "System.Memory": "4.5.5",
+          "System.Runtime.CompilerServices.Unsafe": "6.0.0"
+        }
+      },
       "System.ComponentModel.Annotations": {
         "type": "Transitive",
         "resolved": "5.0.0",
@@ -1169,7 +1178,8 @@
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.*, )",
           "Microsoft.Extensions.Logging": "[8.*, )",
           "Newtonsoft.Json": "[13.*, )",
-          "Scrutor": "[4.*, )"
+          "Scrutor": "[4.*, )",
+          "System.Collections.Immutable": "[8.*, )"
         }
       },
       "diginsight.diagnostics": {
@@ -1797,6 +1807,15 @@
           "System.Threading.Tasks": "4.0.11"
         }
       },
+      "System.Collections.Immutable": {
+        "type": "Transitive",
+        "resolved": "8.0.0",
+        "contentHash": "AurL6Y5BA1WotzlEvVaIDpqzpIPvYnnldxru8oXJU2yFxFUy3+pNXjXd1ymO+RA0rq0+590Q8gaz2l3Sr7fmqg==",
+        "dependencies": {
+          "System.Memory": "4.5.5",
+          "System.Runtime.CompilerServices.Unsafe": "6.0.0"
+        }
+      },
       "System.ComponentModel.Annotations": {
         "type": "Transitive",
         "resolved": "5.0.0",
@@ -2319,7 +2338,8 @@
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.*, )",
           "Microsoft.Extensions.Logging": "[8.*, )",
           "Newtonsoft.Json": "[13.*, )",
-          "Scrutor": "[4.*, )"
+          "Scrutor": "[4.*, )",
+          "System.Collections.Immutable": "[8.*, )"
         }
       },
       "diginsight.diagnostics": {

@@ -2,10 +2,12 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 
 namespace Diginsight.AspNetCore;
 
-public sealed class PostConfigureOptionsFromHttpRequestHeaders<TOptions>
+public class PostConfigureOptionsFromHttpRequestHeaders<TOptions>
     : IPostConfigureOptions<TOptions>, IOptionsChangeTokenSource<TOptions>
     where TOptions : class
 {
@@ -29,30 +31,46 @@ public sealed class PostConfigureOptionsFromHttpRequestHeaders<TOptions>
 
     public void PostConfigure(string? name, TOptions options)
     {
-        name ??= Options.DefaultName;
+        PostConfigureCore(name ?? Options.DefaultName, options);
+    }
 
+    protected void PostConfigureCore(string name, TOptions options, Func<IConfiguration, IConfiguration>? enrichConfiguration = null)
+    {
         if (Name is not null && !string.Equals(Name, name, StringComparison.OrdinalIgnoreCase))
             return;
 
         if (httpContextAccessor.HttpContext is not { } httpContext)
             return;
 
-        if (!httpContext.Items.ContainsKey(default(ChangeTokenFiringItemKey)))
+        object chanegTokenFiringItemKey = GetChangeTokenFiringItemKey(name);
+        if (!httpContext.Items.ContainsKey(chanegTokenFiringItemKey))
         {
-            httpContext.Items[default(ChangeTokenFiringItemKey)] = null;
+            httpContext.Items[chanegTokenFiringItemKey] = null;
             httpContext.Response.OnCompleted(FireChangeTokenAsync);
         }
 
-        IReadOnlyDictionary<string, string?> headers = httpContext.Request.Headers
-            .Where(static x => x.Key.StartsWith("c-", StringComparison.OrdinalIgnoreCase))
-            .ToDictionary(static x => x.Key[2..].Replace("__", ConfigurationPath.KeyDelimiter), static x => x.Value.LastOrDefault());
-        if (!(headers.Count > 0))
+        IDictionary<string, string?> dict = new Dictionary<string, string?>();
+        foreach (string? rawSpec in httpContext.Request.Headers["Dynamic-Configuration"])
+        {
+            if (Statics.SpecRegex.Match(rawSpec!) is not { Success: true } match)
+                continue;
+
+            dict[match.Groups[1].Value] = match.Groups[2].Value;
+        }
+
+        if (!(dict.Count > 0))
             return;
 
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(dict).Build();
+        if (enrichConfiguration is not null)
+        {
+            configuration = enrichConfiguration(configuration);
+        }
         object filler = makeFiller?.Invoke(options) ?? options;
-        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(headers).Build();
         configuration.Bind(filler);
     }
+
+    protected virtual object GetChangeTokenFiringItemKey(string name) => new ChangeTokenFiringItemKey(name);
 
     private Task FireChangeTokenAsync()
     {
@@ -62,5 +80,11 @@ public sealed class PostConfigureOptionsFromHttpRequestHeaders<TOptions>
 
     public IChangeToken GetChangeToken() => changeToken;
 
-    private readonly struct ChangeTokenFiringItemKey;
+    [SuppressMessage("ReSharper", "NotAccessedPositionalProperty.Local")]
+    private readonly record struct ChangeTokenFiringItemKey(string Name);
+}
+
+file static class Statics
+{
+    internal static readonly Regex SpecRegex = new ("^([^=]+?)=(.*)$");
 }

@@ -528,8 +528,8 @@ internal sealed class SmartCache : ISmartCache
 
     private DateTime GetMinimumCreationDate([NotNull] ref TimeSpan? maxAge, Type callerType, DateTime timestamp)
     {
-        ISmartCacheCoreOptions coreOptions = coreOptionsMonitor.Get(Options.DefaultName, callerType);
-        IOnTheFlySmartCacheCoreOptions otfCoreOptions = otfCoreOptionsMonitor.Get(Options.DefaultName, callerType);
+        ISmartCacheCoreOptions coreOptions = coreOptionsMonitor.Get(callerType);
+        IOnTheFlySmartCacheCoreOptions otfCoreOptions = otfCoreOptionsMonitor.Get(callerType);
 
         TimeSpan finalMaxAge = maxAge ?? coreOptions.MaxAge;
 
