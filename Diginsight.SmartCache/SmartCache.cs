@@ -116,7 +116,9 @@ internal sealed class SmartCache : ISmartCache
         TimeSpan? sldExpiration = null
     )
     {
-        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { keyHolder.Key, timestamp, maybeMinimumCreationDate, absExpiration, sldExpiration });
+        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(
+            logger, new { keyHolder.Key, timestamp, maybeMinimumCreationDate, absExpiration, sldExpiration }
+        );
 
         using TimerLap memoryLap = SmartCacheMetrics.Instruments.FetchDuration.CreateLap(SmartCacheMetrics.Tags.Type.Memory);
         memoryLap.DisableCommit = true;
@@ -528,8 +530,8 @@ internal sealed class SmartCache : ISmartCache
     {
         using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { maxAge, callerType, timestamp });
 
-        ISmartCacheCoreOptions coreOptions = coreOptionsMonitor.Get(Options.DefaultName, callerType);
-        IOnTheFlySmartCacheCoreOptions otfCoreOptions = otfCoreOptionsMonitor.Get(Options.DefaultName, callerType);
+        ISmartCacheCoreOptions coreOptions = coreOptionsMonitor.Get(callerType);
+        IOnTheFlySmartCacheCoreOptions otfCoreOptions = otfCoreOptionsMonitor.Get(callerType);
 
         TimeSpan finalMaxAge = maxAge ?? coreOptions.MaxAge;
 
@@ -550,7 +552,8 @@ internal sealed class SmartCache : ISmartCache
 
         maxAge = finalMaxAge;
 
-        activity?.SetCustomProperty(ActivityCustomPropertyNames.Output, minimumCreationDate);
+        activity.StoreOutput(minimumCreationDate);
+
         return minimumCreationDate;
     }
 

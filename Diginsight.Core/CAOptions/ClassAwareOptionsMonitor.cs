@@ -73,10 +73,9 @@ public sealed class ClassAwareOptionsMonitor<TOptions> : IClassAwareOptionsMonit
     }
 
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
-    [Obsolete("Use the other overload instead", true)]
     public IDisposable? OnChange(Action<TOptions, string?> listener)
     {
-        throw new NotSupportedException("Use the other overload instead");
+        return OnChange((options, name, _) => listener(options, name));
     }
 #endif
 

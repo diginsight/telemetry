@@ -6,6 +6,8 @@ public static class ClassAwareOptions
 {
     public static readonly Type NoType = typeof(ClassAwareOptions);
 
+    public static bool OverrideClassAgnosticOptions { get; set; } = true;
+
     public static TOptions Create<TOptions>(this IClassAwareOptionsFactory<TOptions> optionsFactory, Type @class)
         where TOptions : class
     {

@@ -1,6 +1,4 @@
-﻿#if NET6_0_OR_GREATER
-using System.Collections.Immutable;
-#endif
+﻿using System.Collections.Immutable;
 
 namespace Diginsight.CAOptions;
 
@@ -13,12 +11,7 @@ public sealed class ClassAwareOptionsWrapper<TOptions> : IClassAwareOptions<TOpt
 
     public ClassAwareOptionsWrapper(TOptions defaultValue, IReadOnlyDictionary<Type, TOptions>? valuesByType = null)
     {
-        this.valuesByType = valuesByType ??
-#if NET6_0_OR_GREATER
-            ImmutableDictionary<Type, TOptions>.Empty;
-#else
-            new Dictionary<Type, TOptions>();
-#endif
+        this.valuesByType = valuesByType ?? ImmutableDictionary<Type, TOptions>.Empty;
         Value = defaultValue;
     }
 

@@ -2,9 +2,7 @@
 
 namespace Diginsight.CAOptions;
 
-// TODO Replace in DI
 public interface IClassAwareOptionsMonitor<out TOptions> : IOptionsMonitor<TOptions>
-    where TOptions : class
 {
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
     TOptions IOptionsMonitor<TOptions>.CurrentValue => Get(Options.DefaultName, ClassAwareOptions.NoType);
@@ -21,7 +19,7 @@ public interface IClassAwareOptionsMonitor<out TOptions> : IOptionsMonitor<TOpti
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
     IDisposable? IOptionsMonitor<TOptions>.OnChange(Action<TOptions, string?> listener)
     {
-        throw new NotSupportedException("Use the other overload instead");
+        return OnChange((options, name, _) => listener(options, name));
     }
 #endif
 }

@@ -24,7 +24,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
     public DeferredLoggerFactory(
         TimeProvider? timeProvider = null,
         IAppendingContextFactory? appendingContextFactory = null,
-        IOptions<DiginsightOptions>? diginsightOptions = null,
+        IOptions<DiginsightActivitiesOptions>? diginsightOptions = null,
         IActivityProcessingSampler? activityProcessingSampler = null
     )
     {
@@ -33,7 +33,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
         BaseProcessor<Activity> processor = new DiginsightLogProcessor(
             this,
             appendingContextFactory ?? AppendingContextFactoryBuilder.DefaultFactory,
-            diginsightOptions ?? Options.Create(new DiginsightOptions()),
+            diginsightOptions ?? Options.Create(new DiginsightActivitiesOptions()),
             activityProcessingSampler
         );
 

@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 namespace Diginsight;
 
 public static class JTokenExtensions
-{ 
+{
     public static TResult Accept<TResult, TArg>(this JToken jtoken, IJTokenVisitor<TResult, TArg> visitor, TArg arg)
     {
         return jtoken switch

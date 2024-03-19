@@ -6,26 +6,27 @@ public sealed class ClassAwareOptionsFactory<TOptions> : IClassAwareOptionsFacto
     where TOptions : class
 {
     private readonly IConfigureOptions<TOptions>[] configurators;
-    private readonly IPostConfigureOptions<TOptions>[] postConfigurators;
-    private readonly IValidateOptions<TOptions>[] validators;
     private readonly IConfigureClassAwareOptions<TOptions>[] classAwareConfigurators;
+    private readonly IPostConfigureOptions<TOptions>[] postConfigurators;
     private readonly IPostConfigureClassAwareOptions<TOptions>[] classAwarePostConfigurators;
+    private readonly IValidateOptions<TOptions>[] validators;
     private readonly IValidateClassAwareOptions<TOptions>[] classAwareValidators;
 
     public ClassAwareOptionsFactory(
         IEnumerable<IConfigureOptions<TOptions>> configurators,
-        IEnumerable<IPostConfigureOptions<TOptions>> postConfigurators,
-        IEnumerable<IValidateOptions<TOptions>> validators,
         IEnumerable<IConfigureClassAwareOptions<TOptions>> classAwareConfigurators,
+        IEnumerable<IPostConfigureOptions<TOptions>> postConfigurators,
         IEnumerable<IPostConfigureClassAwareOptions<TOptions>> classAwarePostConfigurators,
+        IEnumerable<IValidateOptions<TOptions>> validators,
         IEnumerable<IValidateClassAwareOptions<TOptions>> classAwareValidators
     )
     {
+        // TODO Optimize .ToArray() here and everywhere
         this.configurators = configurators.ToArray();
-        this.postConfigurators = postConfigurators.ToArray();
-        this.validators = validators.ToArray();
         this.classAwareConfigurators = classAwareConfigurators.ToArray();
+        this.postConfigurators = postConfigurators.ToArray();
         this.classAwarePostConfigurators = classAwarePostConfigurators.ToArray();
+        this.validators = validators.ToArray();
         this.classAwareValidators = classAwareValidators.ToArray();
     }
 

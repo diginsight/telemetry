@@ -324,6 +324,15 @@
         "resolved": "4.5.1",
         "contentHash": "Rw7ijyl1qqRS0YQD/WycNst8hUUMgrMH4FCn1nNm27M4VxchZ1js3fVjQaANHO5f3sN4isvP4a+Met9Y4YomAg=="
       },
+      "System.Collections.Immutable": {
+        "type": "Transitive",
+        "resolved": "8.0.0",
+        "contentHash": "AurL6Y5BA1WotzlEvVaIDpqzpIPvYnnldxru8oXJU2yFxFUy3+pNXjXd1ymO+RA0rq0+590Q8gaz2l3Sr7fmqg==",
+        "dependencies": {
+          "System.Memory": "4.5.5",
+          "System.Runtime.CompilerServices.Unsafe": "6.0.0"
+        }
+      },
       "System.ComponentModel.Annotations": {
         "type": "Transitive",
         "resolved": "5.0.0",
@@ -438,7 +447,8 @@
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.*, )",
           "Microsoft.Extensions.Logging": "[8.*, )",
           "Newtonsoft.Json": "[13.*, )",
-          "Scrutor": "[4.*, )"
+          "Scrutor": "[4.*, )",
+          "System.Collections.Immutable": "[8.*, )"
         }
       },
       "diginsight.diagnostics": {
@@ -742,6 +752,15 @@
         "resolved": "4.5.1",
         "contentHash": "Rw7ijyl1qqRS0YQD/WycNst8hUUMgrMH4FCn1nNm27M4VxchZ1js3fVjQaANHO5f3sN4isvP4a+Met9Y4YomAg=="
       },
+      "System.Collections.Immutable": {
+        "type": "Transitive",
+        "resolved": "8.0.0",
+        "contentHash": "AurL6Y5BA1WotzlEvVaIDpqzpIPvYnnldxru8oXJU2yFxFUy3+pNXjXd1ymO+RA0rq0+590Q8gaz2l3Sr7fmqg==",
+        "dependencies": {
+          "System.Memory": "4.5.5",
+          "System.Runtime.CompilerServices.Unsafe": "6.0.0"
+        }
+      },
       "System.ComponentModel.Annotations": {
         "type": "Transitive",
         "resolved": "5.0.0",
@@ -855,7 +874,8 @@
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.*, )",
           "Microsoft.Extensions.Logging": "[8.*, )",
           "Newtonsoft.Json": "[13.*, )",
-          "Scrutor": "[4.*, )"
+          "Scrutor": "[4.*, )",
+          "System.Collections.Immutable": "[8.*, )"
         }
       },
       "diginsight.diagnostics": {

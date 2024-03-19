@@ -31,12 +31,12 @@ internal class Program : BackgroundService
     {
         DiginsightTextWriter.DisplayTiming = true;
 
-        DiginsightOptions diginsightOptions = new DiginsightOptions()
+        DiginsightActivitiesOptions diginsightActivitiesOptions = new ()
         {
             LogActivities = true,
             RecordSpanDurations = false,
         };
-        IDeferredLoggerFactory loggerFactory = new DeferredLoggerFactory(diginsightOptions: Options.Create(diginsightOptions));
+        IDeferredLoggerFactory loggerFactory = new DeferredLoggerFactory(diginsightOptions: Options.Create(diginsightActivitiesOptions));
         ILogger logger = loggerFactory.CreateLogger<Program>();
         ActivitySource deferredActivitySource = loggerFactory.ActivitySource;
 
@@ -69,7 +69,8 @@ internal class Program : BackgroundService
 
                         logger.LogDebug("Diginsight");
                         services
-                            .AddDiginsight(configuration.GetSection(diginsightSectionName).Bind)
+                            .ConfigureClassAware<DiginsightActivitiesOptions>(configuration, diginsightSectionName)
+                            .AddDiginsight()
                             .WithTracing(
                                 tracerProviderBuilder => tracerProviderBuilder
                                     .AddDiginsight()

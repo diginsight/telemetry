@@ -6,7 +6,7 @@ namespace Diginsight.CAOptions;
 
 public static class FilteredConfiguration
 {
-    public const char ClassDelimiter = '!';
+    public const char ClassDelimiter = '@';
 
     public static IConfiguration For(IConfiguration configuration, Type @class)
     {
@@ -72,28 +72,28 @@ public class FilteredConfiguration<TClass> : IFilteredConfiguration
 
     private IEnumerable<FilteredConfigurationSection<TClass>> CoreGetChildren(string? virtualKey = null)
     {
-        static (string? Prefix, string VirtualKey) Split(string actualKey)
+        static (string? Marker, string VirtualKey) Split(string actualKey)
         {
-            return actualKey.IndexOf(FilteredConfiguration.ClassDelimiter) is > 0 and var idx ? (actualKey[..idx], actualKey[(idx + 1)..]) : (null, actualKey);
+            return actualKey.IndexOf(FilteredConfiguration.ClassDelimiter) is > 0 and var idx ? (actualKey[(idx + 1)..], actualKey[..idx]) : (null, actualKey);
         }
 
-        static (string Prefix, string VirtualKey, IConfigurationSection Section) Decompose(IConfigurationSection section)
+        static (string Marker, string VirtualKey, IConfigurationSection Section) Decompose(IConfigurationSection section)
         {
             string fullKey = section.Key;
-            (string? prefix, string virtualKey) = Split(fullKey);
-            return (prefix is null ? "" : $"{prefix}.", virtualKey, section);
+            (string? marker, string virtualKey) = Split(fullKey);
+            return (marker ?? "", virtualKey, section);
         }
 
-        IEnumerable<string> prefixes = ClassConfigurationPrefixes<TClass>.Prefixes;
+        IEnumerable<string> markers = ClassConfigurationMarkers<TClass>.Markers;
 
-        IConfigurationSection? ChooseBest(IEnumerable<(string Prefix, IConfigurationSection Section)> candidates)
+        IConfigurationSection? ChooseBest(IEnumerable<(string Marker, IConfigurationSection Section)> candidates)
         {
             int bestRank = int.MaxValue;
             IConfigurationSection? bestSection = null;
 
-            foreach ((string prefix, IConfigurationSection section) in candidates)
+            foreach ((string marker, IConfigurationSection section) in candidates)
             {
-                int rank = prefixes.FirstIndexWhere(x => x.Equals(prefix, StringComparison.OrdinalIgnoreCase));
+                int rank = markers.FirstIndexWhere(x => x.Equals(marker, StringComparison.OrdinalIgnoreCase));
                 if (rank < 0 || rank >= bestRank)
                     continue;
 
@@ -107,7 +107,7 @@ public class FilteredConfiguration<TClass> : IFilteredConfiguration
         var groupings = underlying
             .GetChildren()
             .Select(Decompose)
-            .GroupBy(static x => x.VirtualKey, static x => (x.Prefix, x.Section));
+            .GroupBy(static x => x.VirtualKey, static x => (x.Marker, x.Section));
 
         return (virtualKey is null ? groupings : groupings.Where(g => string.Equals(g.Key, virtualKey, StringComparison.OrdinalIgnoreCase)))
             .Select(

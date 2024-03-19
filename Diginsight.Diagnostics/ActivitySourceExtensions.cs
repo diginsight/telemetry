@@ -248,7 +248,10 @@ public static class ActivitySourceExtensions
         int stackDepth = 0
     )
     {
-        if (inputs is null) { throw new ArgumentNullException(nameof(inputs)); }
+        if (inputs is null)
+        {
+            throw new ArgumentNullException(nameof(inputs));
+        }
 
         return StartMethodActivity(activitySource, logger, () => inputs, activityKind, logLevel, callerMemberName, stackDepth + 1);
     }
