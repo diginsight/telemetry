@@ -36,7 +36,7 @@ internal class Program : BackgroundService
             LogActivities = true,
             RecordSpanDurations = false,
         };
-        IDeferredLoggerFactory loggerFactory = new DeferredLoggerFactory(diginsightOptions: Options.Create(diginsightActivitiesOptions));
+        IDeferredLoggerFactory loggerFactory = new DeferredLoggerFactory(activitiesOptions: diginsightActivitiesOptions);
         ILogger logger = loggerFactory.CreateLogger<Program>();
         ActivitySource deferredActivitySource = loggerFactory.ActivitySource;
 

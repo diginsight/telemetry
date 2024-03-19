@@ -1,8 +1,8 @@
-﻿using Diginsight.Diagnostics.TextWriting;
+﻿using Diginsight.CAOptions;
+using Diginsight.Diagnostics.TextWriting;
 using Diginsight.Strings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 using OpenTelemetry;
 using System.Collections;
 using System.Diagnostics;
@@ -20,20 +20,20 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
 
     private readonly ILoggerFactory loggerFactory;
     private readonly IAppendingContextFactory appendingContextFactory;
-    private readonly IDiginsightActivitiesOptions activitiesOptions;
+    private readonly IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor;
     private readonly IActivityProcessingSampler? activityProcessingSampler;
     private readonly ILogger fallbackLogger;
 
     public DiginsightLogProcessor(
         ILoggerFactory loggerFactory,
         IAppendingContextFactory appendingContextFactory,
-        IOptions<DiginsightActivitiesOptions> activitiesOptions,
+        IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor,
         IActivityProcessingSampler? activityProcessingSampler = null
     )
     {
         this.loggerFactory = loggerFactory;
         this.appendingContextFactory = appendingContextFactory;
-        this.activitiesOptions = activitiesOptions.Value;
+        this.activitiesOptionsMonitor = activitiesOptionsMonitor;
         this.activityProcessingSampler = activityProcessingSampler;
         fallbackLogger = loggerFactory.CreateLogger($"{typeof(DiginsightLogProcessor).Namespace!}.$Activity");
     }
@@ -277,6 +277,7 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
 
         ILogger? innerLogger = null;
 
+        IDiginsightActivitiesOptions activitiesOptions = activitiesOptionsMonitor.Get(callerType ?? ClassAwareOptions.NoType);
         shouldLog = activityProcessingSampler?.ShouldLog(activity, callerType) ?? activitiesOptions.LogActivities;
         textLogger = shouldLog
             ? new ActivityLogger(innerLogger ??= MakeInnerLogger(), activity.IsStopped ? activity.Duration : null)

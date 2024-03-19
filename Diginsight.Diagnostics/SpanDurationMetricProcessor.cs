@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Diginsight.CAOptions;
 using OpenTelemetry;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
@@ -7,7 +7,7 @@ namespace Diginsight.Diagnostics;
 
 public sealed class SpanDurationMetricProcessor : BaseProcessor<Activity>
 {
-    private readonly IDiginsightActivitiesOptions activitiesOptions;
+    private readonly IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor;
     private readonly ISpanDurationMetricSampler? sampler;
     private readonly ISpanDurationMetricProvider metricProvider;
 
@@ -16,12 +16,12 @@ public sealed class SpanDurationMetricProcessor : BaseProcessor<Activity>
     private Histogram<double> Metric => metric ??= metricProvider.Metric;
 
     public SpanDurationMetricProcessor(
-        IOptions<DiginsightActivitiesOptions> activitiesOptions,
+        IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor,
         ISpanDurationMetricSampler? sampler = null,
         ISpanDurationMetricProvider? metricProvider = null
     )
     {
-        this.activitiesOptions = activitiesOptions.Value;
+        this.activitiesOptionsMonitor = activitiesOptionsMonitor;
         this.sampler = sampler;
         this.metricProvider = metricProvider ?? new DefaultSpanDurationMetricProvider();
     }
@@ -30,7 +30,9 @@ public sealed class SpanDurationMetricProcessor : BaseProcessor<Activity>
 
     public override void OnEnd(Activity activity)
     {
-        if (!(sampler?.ShouldRecord(activity, activity.GetCallerType()) ?? activitiesOptions.RecordSpanDurations))
+        Type? callerType = activity.GetCallerType();
+        IDiginsightActivitiesOptions activitiesOptions = activitiesOptionsMonitor.Get(callerType ?? ClassAwareOptions.NoType);
+        if (!(sampler?.ShouldRecord(activity, callerType) ?? activitiesOptions.RecordSpanDurations))
         {
             return;
         }

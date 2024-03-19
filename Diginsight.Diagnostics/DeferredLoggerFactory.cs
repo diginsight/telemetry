@@ -1,4 +1,5 @@
-﻿using Diginsight.Strings;
+﻿using Diginsight.CAOptions;
+using Diginsight.Strings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OpenTelemetry;
@@ -24,7 +25,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
     public DeferredLoggerFactory(
         TimeProvider? timeProvider = null,
         IAppendingContextFactory? appendingContextFactory = null,
-        IOptions<DiginsightActivitiesOptions>? diginsightOptions = null,
+        DiginsightActivitiesOptions? activitiesOptions = null,
         IActivityProcessingSampler? activityProcessingSampler = null
     )
     {
@@ -33,7 +34,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
         BaseProcessor<Activity> processor = new DiginsightLogProcessor(
             this,
             appendingContextFactory ?? AppendingContextFactoryBuilder.DefaultFactory,
-            diginsightOptions ?? Options.Create(new DiginsightActivitiesOptions()),
+            new FixedClassAwareOptionsMonitor(activitiesOptions ?? new DiginsightActivitiesOptions()),
             activityProcessingSampler
         );
 
@@ -46,6 +47,26 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
         };
 
         ActivitySource.AddActivityListener(listener);
+    }
+
+    private sealed class FixedClassAwareOptionsMonitor : IClassAwareOptionsMonitor<DiginsightActivitiesOptions>
+    {
+        private readonly DiginsightActivitiesOptions underlying;
+
+        DiginsightActivitiesOptions IOptionsMonitor<DiginsightActivitiesOptions>.CurrentValue => underlying;
+
+        public FixedClassAwareOptionsMonitor(DiginsightActivitiesOptions underlying)
+        {
+            this.underlying = underlying;
+        }
+
+        public DiginsightActivitiesOptions Get(string name, Type @class) => underlying;
+
+        DiginsightActivitiesOptions IOptionsMonitor<DiginsightActivitiesOptions>.Get(string? name) => underlying;
+
+        public IDisposable? OnChange(Action<DiginsightActivitiesOptions, string, Type> listener) => null;
+
+        IDisposable? IOptionsMonitor<DiginsightActivitiesOptions>.OnChange(Action<DiginsightActivitiesOptions, string?> listener) => null;
     }
 
     public ILogger CreateLogger(string categoryName)

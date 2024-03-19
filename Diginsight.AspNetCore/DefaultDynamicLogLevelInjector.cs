@@ -10,6 +10,27 @@ using System.Text.RegularExpressions;
 
 namespace Diginsight.AspNetCore;
 
+/// <summary>
+///     Customizes log levels by reading the <c>Log-Level</c> request header.
+/// </summary>
+/// <remarks>
+///     <para>This class is designed for dependency injection and should not be instantiated manually.</para>
+///     <para>
+///         The <c>Log-Level</c> request header can be specified zero or more times.<br />
+///         Each header entry must match one of the following formats:
+///         <list type="bullet">
+///             <item>
+///                 <term><i>category</i>=<i>level</i></term>
+///             </item>
+///             <item>
+///                 <term><i>category</i>=<i>level</i>;p=<i>provider</i></term>
+///             </item>
+///         </list>
+///         where <i>category</i>, <i>level</i> and <i>provider</i> have the usual format and meaning.<br />
+///         Invalid entries are ignored.<br />
+///         If there are no valid entries, <see cref="TryCreateLoggerFactory" /> returns <see langword="null" />.
+///     </para>
+/// </remarks>
 public sealed class DefaultDynamicLogLevelInjector : IDynamicLogLevelInjector
 {
     private static readonly Regex SpecRegex = new ("^([^=]+?)=([a-z]+?)(?:;p=(.+?))?$", RegexOptions.IgnoreCase);
@@ -22,6 +43,12 @@ public sealed class DefaultDynamicLogLevelInjector : IDynamicLogLevelInjector
     private readonly IOptionsMonitor<LoggerFilterOptions> loggerFilterOptionsMonitor;
     private readonly IOptions<LoggerFactoryOptions> loggerFactoryOptions;
 
+    /// <summary>
+    ///     DI constructor.
+    /// </summary>
+    /// <param name="hostEnvironment"></param>
+    /// <param name="loggerFilterOptionsMonitor"></param>
+    /// <param name="loggerFactoryOptions"></param>
     public DefaultDynamicLogLevelInjector(
 #if NET6_0_OR_GREATER
         IHostEnvironment hostEnvironment,
@@ -37,6 +64,7 @@ public sealed class DefaultDynamicLogLevelInjector : IDynamicLogLevelInjector
         this.loggerFactoryOptions = loggerFactoryOptions;
     }
 
+    /// <inheritdoc />
     public ILoggerFactory? TryCreateLoggerFactory(HttpContext context, IEnumerable<ILoggerProvider> loggerProviders)
     {
         LoggerFilterOptions oldLoggerFilterOptions = loggerFilterOptionsMonitor.CurrentValue;
