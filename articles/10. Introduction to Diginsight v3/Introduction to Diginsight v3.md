@@ -56,7 +56,8 @@ the above code will produce the following output:
 text based stream log
 ```
 
-that provides a readable flow consistent with the originating code.
+Data shown on text based readable flow __is consistent__ with the originating code.
+
 
 # Stronger integration with __Opentelemetry__ (Traces. Metrics. logs) and __Azure Monitor__ (Dashboards, Application Map, Transaction details)
 
@@ -75,6 +76,7 @@ The following image shows the application map associated to an application execu
 ```c#
 application map diagram
 ```
+Data shown on remote tools __is consistent__ with data on __text based readable log__ and the __originating code__.
 
 
 # Supports Distributed tracing by means of W3C headers __traceparent__, __trace-id__ and __span-id__
