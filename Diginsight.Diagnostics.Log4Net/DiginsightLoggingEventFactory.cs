@@ -23,46 +23,53 @@ internal sealed class DiginsightLoggingEventFactory : ILog4NetLoggingEventFactor
         IExternalScopeProvider scopeProvider
     )
     {
-        object? innerState = messageCandidate.State;
-        bool isActivity = false;
-        TimeSpan? duration = null;
-        DateTimeOffset? maybeTimestamp = null;
-
-        while (true)
+        try
         {
-            if (innerState is DiginsightTextWriter.IOtlpOnly)
+            object? innerState = messageCandidate.State;
+            bool isActivity = false;
+            TimeSpan? duration = null;
+            DateTimeOffset? maybeTimestamp = null;
+
+            while (true)
+            {
+                if (innerState is DiginsightTextWriter.IOtlpOnly)
+                {
+                    return null;
+                }
+
+                if (innerState is DiginsightTextWriter.IActivityMark activityMark)
+                {
+                    innerState = activityMark.State;
+                    isActivity = true;
+                    duration = activityMark.Duration;
+                }
+                else if (innerState is DeferredLoggerFactory.ITimestamped timestamped)
+                {
+                    innerState = timestamped.State;
+                    maybeTimestamp = timestamped.Timestamp;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            LoggingEvent? loggingEvent = decoratee.CreateLoggingEvent(messageCandidate, logger, options, scopeProvider);
+            if (loggingEvent is null)
             {
                 return null;
             }
 
-            if (innerState is DiginsightTextWriter.IActivityMark activityMark)
-            {
-                innerState = activityMark.State;
-                isActivity = true;
-                duration = activityMark.Duration;
-            }
-            else if (innerState is DeferredLoggerFactory.ITimestamped timestamped)
-            {
-                innerState = timestamped.State;
-                maybeTimestamp = timestamped.Timestamp;
-            }
-            else
-            {
-                break;
-            }
+            return new DiginsightLoggingEvent(
+                loggingEvent,
+                isActivity,
+                duration,
+                maybeTimestamp ?? timeProvider.GetUtcNow()
+            );
         }
-
-        LoggingEvent? loggingEvent = decoratee.CreateLoggingEvent(messageCandidate, logger, options, scopeProvider);
-        if (loggingEvent is null)
+        catch (Exception)
         {
             return null;
         }
-
-        return new DiginsightLoggingEvent(
-            loggingEvent,
-            isActivity,
-            duration,
-            maybeTimestamp ?? timeProvider.GetUtcNow()
-        );
     }
 }

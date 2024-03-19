@@ -24,21 +24,27 @@ internal sealed class DiginsightLayoutSkeleton : LayoutSkeleton
 
     public override void Format(TextWriter writer, LoggingEvent loggingEvent)
     {
-        DiginsightLoggingEvent myLoggingEvent = (DiginsightLoggingEvent)loggingEvent;
+        try
+        {
+            DiginsightLoggingEvent myLoggingEvent = (DiginsightLoggingEvent)loggingEvent;
 
-        DiginsightTextWriter.Write(
-            writer,
-            layoutSkeletonOptions.UseUtcTimestamp ? loggingEvent.TimeStampUtc : loggingEvent.TimeStamp,
-            TranslateLogLevel(loggingEvent.Level),
-            myLoggingEvent.LoggerName,
-            myLoggingEvent.RenderedMessage,
-            loggingEvent.ExceptionObject,
-            myLoggingEvent.IsActivity,
-            myLoggingEvent.Duration,
-            lineDescriptorProvider.GetLineDescriptor()
-        );
+            DiginsightTextWriter.Write(
+                writer,
+                layoutSkeletonOptions.UseUtcTimestamp ? loggingEvent.TimeStampUtc : loggingEvent.TimeStamp,
+                TranslateLogLevel(loggingEvent.Level),
+                myLoggingEvent.LoggerName,
+                myLoggingEvent.RenderedMessage,
+                loggingEvent.ExceptionObject,
+                myLoggingEvent.IsActivity,
+                myLoggingEvent.Duration,
+                lineDescriptorProvider.GetLineDescriptor()
+            );
+        }
+        catch (Exception exception)
+        {
+            writer.WriteLine($"### {exception.GetType().Name} {exception.Message} ###");
+        }
     }
-
     private static LogLevel TranslateLogLevel(Level level)
     {
         return level >= Level.Critical ? LogLevel.Critical

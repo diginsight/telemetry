@@ -2,7 +2,7 @@
 
 namespace Diginsight.CAOptions;
 
-internal interface IFilteredConfiguration : IConfiguration
+public interface IFilteredConfiguration : IConfiguration
 {
     Type Class { get; }
 }

@@ -1,24 +1,13 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
-using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Diginsight.CAOptions;
 
-public static class FilteredConfiguration
+public class FilteredConfiguration : IFilteredConfiguration
 {
     public const char ClassDelimiter = '@';
 
-    public static IConfiguration For(IConfiguration configuration, Type @class)
-    {
-        return (IConfiguration)typeof(FilteredConfiguration<>)
-            .MakeGenericType(@class)
-            .GetMethod(nameof(FilteredConfiguration<object>.For), BindingFlags.Public | BindingFlags.Static)!
-            .Invoke(null, [ configuration ])!;
-    }
-}
-
-public class FilteredConfiguration<TClass> : IFilteredConfiguration
-{
     private readonly IConfiguration underlying;
     private readonly string partialVirtualPath;
 
@@ -28,25 +17,29 @@ public class FilteredConfiguration<TClass> : IFilteredConfiguration
         set => GetSection(key).Value = value;
     }
 
-    Type IFilteredConfiguration.Class => typeof(TClass);
+    public Type Class { get; }
 
-    internal FilteredConfiguration(IConfiguration underlying, string partialVirtualPath = "")
+    internal FilteredConfiguration(IConfiguration underlying, Type @class, string partialVirtualPath = "")
     {
         this.underlying = underlying;
+        Class = @class;
         this.partialVirtualPath = partialVirtualPath;
     }
 
-    public static IConfiguration For(IConfiguration configuration)
+    public static IConfiguration For(IConfiguration configuration, Type @class)
     {
         return configuration switch
         {
             IFilteredConfiguration filtered =>
-                filtered.Class == typeof(TClass) ? filtered : throw new ArgumentException("Configuration already filtered on another class"),
-            IConfigurationRoot root => new FilteredConfigurationRoot<TClass>(root),
-            IConfigurationSection section => new FilteredConfigurationSection<TClass>(section),
-            _ => new FilteredConfiguration<TClass>(configuration),
+                filtered.Class == @class ? filtered : throw new ArgumentException("Configuration already filtered on another class"),
+            IConfigurationRoot root => new FilteredConfigurationRoot(root, @class),
+            IConfigurationSection section => new FilteredConfigurationSection(section, @class),
+            _ => new FilteredConfiguration(configuration, @class),
         };
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IConfiguration ForNoType(IConfiguration configuration) => For(configuration, ClassAwareOptions.NoType);
 
     public IConfigurationSection GetSection(string key)
     {
@@ -59,10 +52,10 @@ public class FilteredConfiguration<TClass> : IFilteredConfiguration
         return segments.Skip(1).Aggregate(CoreGetChild(segments[0]), static (s, k) => s.CoreGetChild(k));
     }
 
-    private FilteredConfigurationSection<TClass> CoreGetChild(string key)
+    private FilteredConfigurationSection CoreGetChild(string key)
     {
         return CoreGetChildren(key).FirstOrDefault()
-            ?? new FilteredConfigurationSection<TClass>(underlying.GetSection(key), partialVirtualPath + key);
+            ?? new FilteredConfigurationSection(underlying.GetSection(key), Class, partialVirtualPath + key);
     }
 
     public IEnumerable<IConfigurationSection> GetChildren()
@@ -70,11 +63,11 @@ public class FilteredConfiguration<TClass> : IFilteredConfiguration
         return CoreGetChildren().ToArray();
     }
 
-    private IEnumerable<FilteredConfigurationSection<TClass>> CoreGetChildren(string? virtualKey = null)
+    private IEnumerable<FilteredConfigurationSection> CoreGetChildren(string? virtualKey = null)
     {
         static (string? Marker, string VirtualKey) Split(string actualKey)
         {
-            return actualKey.IndexOf(FilteredConfiguration.ClassDelimiter) is > 0 and var idx ? (actualKey[(idx + 1)..], actualKey[..idx]) : (null, actualKey);
+            return actualKey.IndexOf(ClassDelimiter) is > 0 and var idx ? (actualKey[(idx + 1)..], actualKey[..idx]) : (null, actualKey);
         }
 
         static (string Marker, string VirtualKey, IConfigurationSection Section) Decompose(IConfigurationSection section)
@@ -84,7 +77,7 @@ public class FilteredConfiguration<TClass> : IFilteredConfiguration
             return (marker ?? "", virtualKey, section);
         }
 
-        IEnumerable<string> markers = ClassConfigurationMarkers<TClass>.Markers;
+        IEnumerable<string> markers = ClassConfigurationMarkers.For(Class);
 
         IConfigurationSection? ChooseBest(IEnumerable<(string Marker, IConfigurationSection Section)> candidates)
         {
@@ -112,10 +105,10 @@ public class FilteredConfiguration<TClass> : IFilteredConfiguration
         return (virtualKey is null ? groupings : groupings.Where(g => string.Equals(g.Key, virtualKey, StringComparison.OrdinalIgnoreCase)))
             .Select(
                 g => ChooseBest(g.AsEnumerable()) is { } best
-                    ? new FilteredConfigurationSection<TClass>(best, partialVirtualPath + g.Key)
+                    ? new FilteredConfigurationSection(best, Class, partialVirtualPath + g.Key)
                     : null
             )
-            .OfType<FilteredConfigurationSection<TClass>>();
+            .OfType<FilteredConfigurationSection>();
     }
 
     public IChangeToken GetReloadToken() => underlying.GetReloadToken();

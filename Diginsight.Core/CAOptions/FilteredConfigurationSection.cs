@@ -2,7 +2,7 @@
 
 namespace Diginsight.CAOptions;
 
-public sealed class FilteredConfigurationSection<TClass> : FilteredConfiguration<TClass>, IConfigurationSection
+public sealed class FilteredConfigurationSection : FilteredConfiguration, IConfigurationSection
 {
     private readonly IConfigurationSection underlying;
 
@@ -16,8 +16,8 @@ public sealed class FilteredConfigurationSection<TClass> : FilteredConfiguration
         set => underlying.Value = value;
     }
 
-    internal FilteredConfigurationSection(IConfigurationSection underlying, string? virtualPath = null)
-        : base(underlying, ConfigurationPath.GetParentPath(virtualPath) + ConfigurationPath.KeyDelimiter)
+    internal FilteredConfigurationSection(IConfigurationSection underlying, Type @class, string? virtualPath = null)
+        : base(underlying, @class, ConfigurationPath.GetParentPath(virtualPath) + ConfigurationPath.KeyDelimiter)
     {
         this.underlying = underlying;
 

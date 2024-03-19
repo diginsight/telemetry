@@ -32,57 +32,64 @@ internal sealed class DiginsightConsoleFormatter : ConsoleFormatter
         TextWriter textWriter
     )
     {
-        object? innerState = logEntry.State;
-        bool isActivity = false;
-        TimeSpan? duration = null;
-        DateTimeOffset? maybeTimestamp = null;
-
-        while (true)
-        {
-            if (innerState is DiginsightTextWriter.IOtlpOnly)
-            {
-                return;
-            }
-
-            if (innerState is DiginsightTextWriter.IActivityMark activityMark)
-            {
-                innerState = activityMark.State;
-                isActivity = true;
-                duration = activityMark.Duration;
-            }
-            else if (innerState is DeferredLoggerFactory.ITimestamped timestamped)
-            {
-                innerState = timestamped.State;
-                maybeTimestamp = timestamped.Timestamp;
-            }
-            else
-            {
-                break;
-            }
-        }
-
-        DateTimeOffset finalTimestamp = maybeTimestamp ?? timeProvider.GetUtcNow();
-
-        int width;
         try
         {
-            width = Console.WindowWidth;
-        }
-        catch (Exception)
-        {
-            width = int.MaxValue;
-        }
+            object? innerState = logEntry.State;
+            bool isActivity = false;
+            TimeSpan? duration = null;
+            DateTimeOffset? maybeTimestamp = null;
 
-        DiginsightTextWriter.Write(
-            textWriter,
-            formatterOptions.UseUtcTimestamp ? finalTimestamp.UtcDateTime : finalTimestamp.LocalDateTime,
-            logEntry.LogLevel,
-            logEntry.Category,
-            logEntry.Formatter(logEntry.State, logEntry.Exception),
-            logEntry.Exception,
-            isActivity,
-            duration,
-            lineDescriptorProvider.GetLineDescriptor(width)
-        );
+            while (true)
+            {
+                if (innerState is DiginsightTextWriter.IOtlpOnly)
+                {
+                    return;
+                }
+
+                if (innerState is DiginsightTextWriter.IActivityMark activityMark)
+                {
+                    innerState = activityMark.State;
+                    isActivity = true;
+                    duration = activityMark.Duration;
+                }
+                else if (innerState is DeferredLoggerFactory.ITimestamped timestamped)
+                {
+                    innerState = timestamped.State;
+                    maybeTimestamp = timestamped.Timestamp;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            DateTimeOffset finalTimestamp = maybeTimestamp ?? timeProvider.GetUtcNow();
+
+            int width;
+            try
+            {
+                width = Console.WindowWidth;
+            }
+            catch (Exception)
+            {
+                width = int.MaxValue;
+            }
+
+            DiginsightTextWriter.Write(
+                textWriter,
+                formatterOptions.UseUtcTimestamp ? finalTimestamp.UtcDateTime : finalTimestamp.LocalDateTime,
+                logEntry.LogLevel,
+                logEntry.Category,
+                logEntry.Formatter(logEntry.State, logEntry.Exception),
+                logEntry.Exception,
+                isActivity,
+                duration,
+                lineDescriptorProvider.GetLineDescriptor(width)
+            );
+        }
+        catch (Exception exception)
+        {
+            textWriter.WriteLine($"### {exception.GetType().Name} {exception.Message} ###");
+        }
     }
 }
