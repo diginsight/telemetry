@@ -2,7 +2,7 @@
 namespace Diginsight;
 
 public sealed class CallbackAsyncDisposable : IAsyncDisposable
-{
+{ 
     private readonly Func<ValueTask> actionAsync;
 
     public CallbackAsyncDisposable(Func<ValueTask> actionAsync)
