@@ -1,6 +1,6 @@
 ﻿namespace Diginsight;
 
-public sealed class CallbackDisposable : IDisposable 
+public sealed class CallbackDisposable : IDisposable
 {
     private readonly Action action;
 
