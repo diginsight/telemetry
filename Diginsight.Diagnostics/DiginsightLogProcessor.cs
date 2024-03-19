@@ -40,150 +40,168 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
 
     public override void OnStart(Activity activity)
     {
-        ExtractLoggingInfo(
-            activity,
-            out bool isStandalone,
-            out bool shouldLog,
-            out bool shouldRecord,
-            out ILogger textLogger,
-            out ILogger otlpLogger,
-            out LogLevel logLevel
-        );
+        string activityName = activity.OperationName;
 
-        if (!shouldRecord)
+        try
         {
-            activity.ActivityTraceFlags &= ~ActivityTraceFlags.Recorded;
+            ExtractLoggingInfo(
+                activity,
+                out bool isStandalone,
+                out bool shouldLog,
+                out bool shouldRecord,
+                out ILogger textLogger,
+                out ILogger otlpLogger,
+                out LogLevel logLevel
+            );
 
-            if (!shouldLog)
+            if (!shouldRecord)
             {
+                activity.ActivityTraceFlags &= ~ActivityTraceFlags.Recorded;
+
+                if (!shouldLog)
+                {
+                    return;
+                }
+            }
+
+            object? inputs = activity.GetCustomProperty(ActivityCustomPropertyNames.MakeInputs) switch
+            {
+                Func<object> makeObj => makeObj() ?? throw new InvalidOperationException("Invalid inputs in activity"),
+                null => null,
+                _ => throw new InvalidOperationException("Invalid inputs in activity"),
+            };
+
+            EventId startActivityEventId = new (100, "StartActivity");
+            EventId startMethodActivityEventId = new (110, "StartMethodActivity");
+
+            if (inputs is null)
+            {
+                if (isStandalone)
+                {
+                    textLogger.Log(logLevel, startActivityEventId, "START {ActivityName}", activityName);
+                }
+                else
+                {
+                    textLogger.Log(logLevel, startMethodActivityEventId, "START {ActivityName}()", activityName);
+                }
                 return;
             }
-        }
 
-        object? inputs = activity.GetCustomProperty(ActivityCustomPropertyNames.MakeInputs) switch
-        {
-            Func<object> makeObj => makeObj() ?? throw new InvalidOperationException("Invalid inputs in activity"),
-            null => null,
-            _ => throw new InvalidOperationException("Invalid inputs in activity"),
-        };
+            if (ExtractLoggable("Inputs", inputs) is not var (inputsAsDict, inputsAsString))
+            {
+                throw new InvalidOperationException("Invalid inputs in activity");
+            }
 
-        EventId startActivityEventId = new (100, "StartActivity");
-        EventId startMethodActivityEventId = new (110, "StartMethodActivity");
-
-        if (inputs is null)
-        {
             if (isStandalone)
             {
-                textLogger.Log(logLevel, startActivityEventId, "START {ActivityName}", activity.OperationName);
+                otlpLogger.Log(logLevel, new EventId(101, "ActivityInputs"), inputsAsDict, null, (_, _) => $"Activity inputs: {inputsAsString}");
+                textLogger.Log(logLevel, startActivityEventId, "START {ActivityName}({Inputs})", activityName, inputsAsString);
             }
             else
             {
-                textLogger.Log(logLevel, startMethodActivityEventId, "START {ActivityName}()", activity.OperationName);
+                otlpLogger.Log(logLevel, new EventId(111, "MethodInputs"), inputsAsDict, null, (_, _) => $"Method inputs: {inputsAsString}");
+                textLogger.Log(logLevel, startMethodActivityEventId, "START {ActivityName}({Inputs})", activityName, inputsAsString);
             }
-            return;
         }
-
-        if (ExtractLoggable("Inputs", inputs) is not var (inputsAsDict, inputsAsString))
+        catch (Exception exception)
         {
-            throw new InvalidOperationException("Invalid inputs in activity");
-        }
-
-        if (isStandalone)
-        {
-            otlpLogger.Log(logLevel, new EventId(101, "ActivityInputs"), inputsAsDict, null, (_, _) => $"Activity inputs: {inputsAsString}");
-            textLogger.Log(logLevel, startActivityEventId, "START {ActivityName}({Inputs})", activity.OperationName, inputsAsString);
-        }
-        else
-        {
-            otlpLogger.Log(logLevel, new EventId(111, "MethodInputs"), inputsAsDict, null, (_, _) => $"Method inputs: {inputsAsString}");
-            textLogger.Log(logLevel, startMethodActivityEventId, "START {ActivityName}({Inputs})", activity.OperationName, inputsAsString);
+            fallbackLogger.LogWarning(exception, "Unhandled exception while logging start of activity {ActivityName}", activityName);
         }
     }
 
     public override void OnEnd(Activity activity)
     {
-        ExtractLoggingInfo(
-            activity,
-            out bool isStandalone,
-            out bool shouldLog,
-            out bool shouldRecord,
-            out ILogger textLogger,
-            out ILogger otlpLogger,
-            out LogLevel logLevel
-        );
+        string activityName = activity.OperationName;
 
-        if (!(shouldLog || shouldRecord))
+        try
         {
-            return;
-        }
+            ExtractLoggingInfo(
+                activity,
+                out bool isStandalone,
+                out bool shouldLog,
+                out bool shouldRecord,
+                out ILogger textLogger,
+                out ILogger otlpLogger,
+                out LogLevel logLevel
+            );
 
-        if (isStandalone)
-        {
-            textLogger.Log(logLevel, new EventId(200, "EndActivity"), "END {ActivityName}", activity.OperationName);
-            return;
-        }
-
-        string? outputAsString = LogOutput();
-        string? namedOutputsAsString = LogNamedOutputs();
-
-        string? LogOutput()
-        {
-            object? output;
-            switch (activity.GetCustomProperty(ActivityCustomPropertyNames.Output))
+            if (!(shouldLog || shouldRecord))
             {
-                case StrongBox<object?> outputBox:
-                    output = outputBox.Value;
+                return;
+            }
+
+            if (isStandalone)
+            {
+                textLogger.Log(logLevel, new EventId(200, "EndActivity"), "END {ActivityName}", activityName);
+                return;
+            }
+
+            string? outputAsString = LogOutput();
+            string? namedOutputsAsString = LogNamedOutputs();
+
+            string? LogOutput()
+            {
+                object? output;
+                switch (activity.GetCustomProperty(ActivityCustomPropertyNames.Output))
+                {
+                    case StrongBox<object?> outputBox:
+                        output = outputBox.Value;
+                        break;
+
+                    case null:
+                        return null;
+
+                    default:
+                        throw new InvalidOperationException("Invalid output in activity");
+                }
+
+                string outputAsString0 = appendingContextFactory.MakeLogString(output);
+
+                otlpLogger.Log(logLevel, new EventId(211, "MethodOutput"), new Dictionary<string, object?>() { ["Output"] = output }, null, (_, _) => $"Method output: {outputAsString0}");
+
+                return outputAsString0;
+            }
+
+            string? LogNamedOutputs()
+            {
+                if (activity.GetCustomProperty(ActivityCustomPropertyNames.NamedOutputs) is not { } namedOutputs)
+                {
+                    return null;
+                }
+
+                if (ExtractLoggable("NamedOutputs", namedOutputs) is not var (namedOutputAsDict, namedOutputsAsString0))
+                {
+                    throw new InvalidOperationException("Invalid named outputs in activity");
+                }
+
+                otlpLogger.Log(logLevel, new EventId(212, "MethodNamedOutputs"), namedOutputAsDict, null, (_, _) => $"Method named outputs: {namedOutputsAsString0}");
+
+                return namedOutputsAsString0;
+            }
+
+            EventId endMethodActivityEventId = new (210, "EndMethodActivity");
+            switch (outputAsString, namedOutputsAsString)
+            {
+                case (null, null):
+                    textLogger.Log(logLevel, endMethodActivityEventId, "END {ActivityName}()", activityName);
                     break;
 
-                case null:
-                    return null;
+                case (not null, null):
+                    textLogger.Log(logLevel, endMethodActivityEventId, "END {ActivityName}() => {Output}", activityName, outputAsString);
+                    break;
 
-                default:
-                    throw new InvalidOperationException("Invalid output in activity");
+                case (null, not null):
+                    textLogger.Log(logLevel, endMethodActivityEventId, "END {ActivityName}() [=> {NamedOutputs}]", activityName, namedOutputsAsString);
+                    break;
+
+                case (not null, not null):
+                    textLogger.Log(logLevel, endMethodActivityEventId, "END {ActivityName}() => {Output} [=> {NamedOutputs}]", activityName, outputAsString, namedOutputsAsString);
+                    break;
             }
-
-            string outputAsString0 = appendingContextFactory.MakeLogString(output);
-
-            otlpLogger.Log(logLevel, new EventId(211, "MethodOutput"), new Dictionary<string, object?>() { ["Output"] = output }, null, (_, _) => $"Method output: {outputAsString0}");
-
-            return outputAsString0;
         }
-
-        string? LogNamedOutputs()
+        catch (Exception exception)
         {
-            if (activity.GetCustomProperty(ActivityCustomPropertyNames.NamedOutputs) is not { } namedOutputs)
-            {
-                return null;
-            }
-
-            if (ExtractLoggable("NamedOutputs", namedOutputs) is not var (namedOutputAsDict, namedOutputsAsString0))
-            {
-                throw new InvalidOperationException("Invalid named outputs in activity");
-            }
-
-            otlpLogger.Log(logLevel, new EventId(212, "MethodNamedOutputs"), namedOutputAsDict, null, (_, _) => $"Method named outputs: {namedOutputsAsString0}");
-
-            return namedOutputsAsString0;
-        }
-
-        EventId endMethodActivityEventId = new (210, "EndMethodActivity");
-        switch (outputAsString, namedOutputsAsString)
-        {
-            case (null, null):
-                textLogger.Log(logLevel, endMethodActivityEventId, "END {ActivityName}()", activity.OperationName);
-                break;
-
-            case (not null, null):
-                textLogger.Log(logLevel, endMethodActivityEventId, "END {ActivityName}() => {Output}", activity.OperationName, outputAsString);
-                break;
-
-            case (null, not null):
-                textLogger.Log(logLevel, endMethodActivityEventId, "END {ActivityName}() [=> {NamedOutputs}]", activity.OperationName, namedOutputsAsString);
-                break;
-
-            case (not null, not null):
-                textLogger.Log(logLevel, endMethodActivityEventId, "END {ActivityName}() => {Output} [=> {NamedOutputs}]", activity.OperationName, outputAsString, namedOutputsAsString);
-                break;
+            fallbackLogger.LogWarning(exception, "Unhandled exception while logging end of activity {ActivityName}", activityName);
         }
     }
 
