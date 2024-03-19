@@ -19,7 +19,7 @@ public static class CollectionExtensions
             index++;
         }
         return -1;
-    }
+    } 
 
     public static int LastIndexWhere<T>(this IEnumerable<T> source, Func<T, bool> predicate)
     {
