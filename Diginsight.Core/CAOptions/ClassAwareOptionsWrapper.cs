@@ -15,8 +15,9 @@ public sealed class ClassAwareOptionsWrapper<TOptions> : IClassAwareOptions<TOpt
         Value = defaultValue;
     }
 
-    public TOptions Get(Type @class)
+    public TOptions Get(Type? @class)
     {
-        return @class != ClassAwareOptions.NoType && valuesByType.TryGetValue(@class, out TOptions? value) ? value : Value;
+        @class ??= ClassAwareOptions.NoClass;
+        return @class != ClassAwareOptions.NoClass && valuesByType.TryGetValue(@class, out TOptions? value) ? value : Value;
     }
 }

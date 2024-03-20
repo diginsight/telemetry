@@ -13,9 +13,9 @@ public sealed class HttpHeadersActivityProcessingSampler : IActivityProcessingSa
         this.httpContextAccessor = httpContextAccessor;
     }
 
-    public bool? ShouldLog(Activity activity, Type? callerType) => ShouldProcess(activity.OperationName, "Activity-Logging");
+    public bool? ShouldLog(Activity activity) => ShouldProcess(activity.OperationName, "Activity-Logging");
 
-    public bool? ShouldRecord(Activity activity, Type? callerType) => ShouldProcess(activity.OperationName, "Activity-Recording");
+    public bool? ShouldRecord(Activity activity) => ShouldProcess(activity.OperationName, "Activity-Recording");
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool? ShouldProcess(string activityName, string headerName)

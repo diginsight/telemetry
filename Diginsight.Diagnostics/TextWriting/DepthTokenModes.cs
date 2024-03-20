@@ -1,7 +1,7 @@
 ﻿namespace Diginsight.Diagnostics.TextWriting;
 
 [Flags]
-public enum DepthTokenModes : byte
+public enum DepthTokenModes
 {
     Layer = 1 << 0,
     Local = 1 << 1,

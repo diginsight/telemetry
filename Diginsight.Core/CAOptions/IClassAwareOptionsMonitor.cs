@@ -5,13 +5,13 @@ namespace Diginsight.CAOptions;
 public interface IClassAwareOptionsMonitor<out TOptions> : IOptionsMonitor<TOptions>
 {
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-    TOptions IOptionsMonitor<TOptions>.CurrentValue => Get(Options.DefaultName, ClassAwareOptions.NoType);
+    TOptions IOptionsMonitor<TOptions>.CurrentValue => Get(null, null);
 #endif
 
-    TOptions Get(string name, Type @class);
+    TOptions Get(string? name, Type? @class);
 
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-    TOptions IOptionsMonitor<TOptions>.Get(string? name) => Get(name ?? Options.DefaultName, ClassAwareOptions.NoType);
+    TOptions IOptionsMonitor<TOptions>.Get(string? name) => Get(name, null);
 #endif
 
     IDisposable? OnChange(Action<TOptions, string, Type> listener);

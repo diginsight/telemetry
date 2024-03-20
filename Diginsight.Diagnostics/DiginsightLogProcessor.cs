@@ -295,13 +295,13 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
 
         ILogger? innerLogger = null;
 
-        IDiginsightActivitiesOptions activitiesOptions = activitiesOptionsMonitor.Get(callerType ?? ClassAwareOptions.NoType);
-        shouldLog = activityProcessingSampler?.ShouldLog(activity, callerType) ?? activitiesOptions.LogActivities;
+        IDiginsightActivitiesOptions activitiesOptions = activitiesOptionsMonitor.Get(callerType);
+        shouldLog = activityProcessingSampler?.ShouldLog(activity) ?? activitiesOptions.LogActivities;
         textLogger = shouldLog
             ? new ActivityLogger(innerLogger ??= MakeInnerLogger(), activity.IsStopped ? activity.Duration : null)
             : NullLogger.Instance;
 
-        shouldRecord = activityProcessingSampler?.ShouldRecord(activity, callerType) ?? activitiesOptions.RecordActivities;
+        shouldRecord = activityProcessingSampler?.ShouldRecord(activity) ?? activitiesOptions.RecordActivities;
         otlpLogger = shouldRecord
             ? new OtlpLogger(innerLogger ??= MakeInnerLogger())
             : NullLogger.Instance;

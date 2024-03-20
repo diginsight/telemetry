@@ -1,6 +1,6 @@
 ﻿namespace Diginsight.SmartCache;
 
-public enum InvalidationReason : byte
+public enum InvalidationReason
 {
     Created,
     Updated,

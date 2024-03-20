@@ -111,7 +111,7 @@ internal class Program : BackgroundService
             using (Activity? activity = ActivitySource.StartMethodActivity(logger, new Dictionary<string, object> { ["SomeInput"] = "hola" }, logLevel: LogLevel.Information))
             {
                 logger.LogWarning($"bar {404:x} {{paperino}}");
-                activity.StoreOutput(Math.E);
+                activity.SetOutput(Math.E);
             }
 
             _ = Console.ReadLine();
@@ -123,14 +123,14 @@ internal class Program : BackgroundService
                     logger.LogWarning($"baz {409:x} {{pluto}}");
                 }
 
-                activity.StoreOutput(Math.PI);
-                activity.StoreNamedOutputs(new { statusCode = HttpStatusCode.Conflict, character = "pluto" });
+                activity.SetOutput(Math.PI);
+                activity.SetNamedOutputs(new { statusCode = HttpStatusCode.Conflict, character = "pluto" });
             }
 
             using (Activity? activity = ActivitySource.StartMethodActivity(logger, logLevel: LogLevel.Information))
             {
                 logger.LogWarning($"quux {2023:x} {{topolino}}");
-                activity.StoreNamedOutputs(new Dictionary<string, int>() { ["day"] = 10, ["month"] = 11, ["year"] = 2023 });
+                activity.SetNamedOutputs(new Dictionary<string, int>() { ["day"] = 10, ["month"] = 11, ["year"] = 2023 });
             }
 
             applicationLifetime.StopApplication();

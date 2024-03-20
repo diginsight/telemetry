@@ -1,7 +1,5 @@
-﻿using Microsoft.Extensions.Primitives;
-#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
-using Microsoft.Extensions.Options;
-#endif
+﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 
 namespace Diginsight.CAOptions;
 
@@ -15,7 +13,7 @@ public sealed class ClassAwareOptionsMonitor<TOptions> : IClassAwareOptionsMonit
     private event Action<TOptions, string, Type>? Change;
 
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
-    TOptions IOptionsMonitor<TOptions>.CurrentValue => Get(Options.DefaultName, ClassAwareOptions.NoType);
+    TOptions IOptionsMonitor<TOptions>.CurrentValue => Get(null, null);
 #endif
 
     public ClassAwareOptionsMonitor(
@@ -56,13 +54,17 @@ public sealed class ClassAwareOptionsMonitor<TOptions> : IClassAwareOptionsMonit
         }
     }
 
-    public TOptions Get(string name, Type @class)
+    public TOptions Get(string? name, Type? @class)
     {
-        return cache.GetOrAdd(name, @class, static (n, c, f) => f.Create(n, c), factory);
+        return cache.GetOrAdd(
+            name ?? Options.DefaultName,
+            @class ?? ClassAwareOptions.NoClass,
+            static (n, c, f) => f.Create(n, c), factory
+        );
     }
 
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
-    TOptions IOptionsMonitor<TOptions>.Get(string? name) => Get(name ?? Options.DefaultName, ClassAwareOptions.NoType);
+    TOptions IOptionsMonitor<TOptions>.Get(string? name) => Get(name, null);
 #endif
 
     public IDisposable OnChange(Action<TOptions, string, Type> listener)

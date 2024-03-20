@@ -10,24 +10,21 @@ public sealed class SpanDurationMetricProcessor : BaseProcessor<Activity>
 {
     private readonly ILogger logger;
     private readonly IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor;
-    private readonly ISpanDurationMetricSampler? sampler;
-    private readonly ISpanDurationMetricProvider metricProvider;
+    private readonly ISpanDurationMetricProcessorSettings settings;
 
     private Histogram<double>? metric;
 
-    private Histogram<double> Metric => metric ??= metricProvider.Metric;
+    private Histogram<double> Metric => metric ??= settings.Metric;
 
     public SpanDurationMetricProcessor(
         ILogger<SpanDurationMetricProcessor> logger,
         IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor,
-        ISpanDurationMetricSampler? sampler = null,
-        ISpanDurationMetricProvider? metricProvider = null
+        ISpanDurationMetricProcessorSettings? settings = null
     )
     {
         this.logger = logger;
         this.activitiesOptionsMonitor = activitiesOptionsMonitor;
-        this.sampler = sampler;
-        this.metricProvider = metricProvider ?? new DefaultSpanDurationMetricProvider();
+        this.settings = settings ?? new DefaultSpanDurationMetricProcessorSettings();
     }
 
     public override void OnEnd(Activity activity)
@@ -37,16 +34,15 @@ public sealed class SpanDurationMetricProcessor : BaseProcessor<Activity>
         try
         {
             Type? callerType = activity.GetCallerType();
-            IDiginsightActivitiesOptions activitiesOptions = activitiesOptionsMonitor.Get(callerType ?? ClassAwareOptions.NoType);
-            if (!(sampler?.ShouldRecord(activity, callerType) ?? activitiesOptions.RecordSpanDurations))
+            IDiginsightActivitiesOptions activitiesOptions = activitiesOptionsMonitor.Get(callerType);
+            if (!(settings.ShouldRecord(activity) ?? activitiesOptions.RecordSpanDurations))
             {
                 return;
             }
 
             Metric.Record(
                 activity.Duration.TotalMilliseconds,
-                new Tag("span_name", activityName),
-                new Tag("status", activity.Status.ToString())
+                [ new Tag("span_name", activityName), new Tag("status", activity.Status.ToString()), ..settings.ExtractTags(activity) ]
             );
         }
         catch (Exception exception)

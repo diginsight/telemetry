@@ -552,7 +552,7 @@ internal sealed class SmartCache : ISmartCache
 
         maxAge = finalMaxAge;
 
-        activity.StoreOutput(minimumCreationDate);
+        activity.SetOutput(minimumCreationDate);
 
         return minimumCreationDate;
     }

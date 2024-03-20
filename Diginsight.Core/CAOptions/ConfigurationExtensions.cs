@@ -6,10 +6,10 @@ namespace Diginsight.CAOptions;
 public static class ConfigurationExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IConfiguration FilterBy(this IConfiguration configuration, Type @class) =>
+    public static IConfiguration FilterBy(this IConfiguration configuration, Type? @class) =>
         FilteredConfiguration.For(configuration, @class);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IConfiguration FilterByNoType(this IConfiguration configuration) =>
-        FilteredConfiguration.ForNoType(configuration);
+    public static IConfiguration FilterByNoClass(this IConfiguration configuration) =>
+        FilteredConfiguration.ForNoClass(configuration);
 }

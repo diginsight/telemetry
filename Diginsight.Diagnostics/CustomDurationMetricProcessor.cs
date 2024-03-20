@@ -2,21 +2,22 @@
 using OpenTelemetry;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
+using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
 
 public sealed class CustomDurationMetricProcessor : BaseProcessor<Activity>
 {
     private readonly ILogger logger;
-    private readonly ICustomDurationMetricSampler? sampler;
+    private readonly ICustomDurationMetricProcessorSettings? settings;
 
     public CustomDurationMetricProcessor(
         ILogger<CustomDurationMetricProcessor> logger,
-        ICustomDurationMetricSampler? sampler = null
+        ICustomDurationMetricProcessorSettings? settings = null
     )
     {
         this.logger = logger;
-        this.sampler = sampler;
+        this.settings = settings;
     }
 
     public override void OnEnd(Activity activity)
@@ -25,21 +26,29 @@ public sealed class CustomDurationMetricProcessor : BaseProcessor<Activity>
         {
             double duration = activity.Duration.TotalMilliseconds;
 
-            bool ShouldRecord(Instrument instrument) => sampler?.ShouldRecord(activity, activity.GetCallerType(), instrument) ?? true;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            bool ShouldRecord(Instrument instrument) => settings?.ShouldRecord(activity, instrument) ?? true;
 
-            switch (activity.GetCustomProperty(ActivityCustomPropertyNames.DurationMetric))
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            Tag[] ExtractTags(Instrument instrument)
             {
-                case Histogram<double> durationMetric:
-                    if (ShouldRecord(durationMetric))
+                Tag[] tags = activity.GetCustomDurationMetricTags();
+                return settings is not null ? tags.Concat(settings.ExtractTags(activity, instrument)).ToArray() : tags;
+            }
+
+            switch (activity.GetCustomProperty(ActivityCustomPropertyNames.CustomDurationMetric))
+            {
+                case Histogram<double> metric:
+                    if (ShouldRecord(metric))
                     {
-                        durationMetric.Record(duration, activity.GetDurationMetricTags());
+                        metric.Record(duration, ExtractTags(metric));
                     }
                     break;
 
-                case Histogram<long> durationMetric:
-                    if (ShouldRecord(durationMetric))
+                case Histogram<long> metric:
+                    if (ShouldRecord(metric))
                     {
-                        durationMetric.Record((long)duration, activity.GetDurationMetricTags());
+                        metric.Record((long)duration, ExtractTags(metric));
                     }
                     break;
 

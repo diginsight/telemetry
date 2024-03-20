@@ -12,7 +12,7 @@ internal static class SmartCacheMetrics
     public static Activity? StartSerializeActivity(ILogger logger, params KeyValuePair<string, object?>[] tags)
     {
         Activity? activity = ActivitySource.StartRichActivity(logger, $"{nameof(SmartCache)}.Serialize", stackDepth: 1);
-        activity?.WithDurationMetric(Instruments.SerializationDuration, [ Tags.Operation.Serialization, ..tags ]);
+        activity?.SetCustomDurationMetric(Instruments.SerializationDuration, [ Tags.Operation.Serialization, ..tags ]);
         return activity;
     }
 
@@ -20,7 +20,7 @@ internal static class SmartCacheMetrics
     public static Activity? StartDeserializeActivity(ILogger logger, params KeyValuePair<string, object?>[] tags)
     {
         Activity? activity = ActivitySource.StartRichActivity(logger, $"{nameof(SmartCache)}.Deserialize", stackDepth: 1);
-        activity?.WithDurationMetric(Instruments.SerializationDuration, [ Tags.Operation.Deserialization, ..tags ]);
+        activity?.SetCustomDurationMetric(Instruments.SerializationDuration, [ Tags.Operation.Deserialization, ..tags ]);
         return activity;
     }
 

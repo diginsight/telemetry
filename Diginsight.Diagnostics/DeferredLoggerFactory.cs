@@ -60,7 +60,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
             this.underlying = underlying;
         }
 
-        public DiginsightActivitiesOptions Get(string name, Type @class) => underlying;
+        public DiginsightActivitiesOptions Get(string? name, Type? @class) => underlying;
 
         DiginsightActivitiesOptions IOptionsMonitor<DiginsightActivitiesOptions>.Get(string? name) => underlying;
 

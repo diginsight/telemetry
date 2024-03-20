@@ -20,7 +20,7 @@ internal abstract class ReflectionLogStringProvider : ILogStringProvider
 
     protected abstract ReflectionLogStringable MakeLogStringable(object obj);
 
-    protected enum Handling : byte
+    protected enum Handling
     {
         Pass,
         Handle,

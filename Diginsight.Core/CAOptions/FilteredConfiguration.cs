@@ -26,8 +26,9 @@ public class FilteredConfiguration : IFilteredConfiguration
         this.partialVirtualPath = partialVirtualPath;
     }
 
-    public static IConfiguration For(IConfiguration configuration, Type @class)
+    public static IConfiguration For(IConfiguration configuration, Type? @class)
     {
+        @class ??= ClassAwareOptions.NoClass;
         return configuration switch
         {
             IFilteredConfiguration filtered =>
@@ -39,7 +40,7 @@ public class FilteredConfiguration : IFilteredConfiguration
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IConfiguration ForNoType(IConfiguration configuration) => For(configuration, ClassAwareOptions.NoType);
+    public static IConfiguration ForNoClass(IConfiguration configuration) => For(configuration, null);
 
     public IConfigurationSection GetSection(string key)
     {

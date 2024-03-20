@@ -9,7 +9,7 @@ internal sealed class UnnamedClassAwareOptionsManager<TOptions> : IClassAwareOpt
     private readonly IClassAwareOptionsCache<TOptions> cache = new ClassAwareOptionsCache<TOptions>();
 
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
-    TOptions IOptions<TOptions>.Value => Get(ClassAwareOptions.NoType);
+    TOptions IOptions<TOptions>.Value => Get(null);
 #endif
 
     public UnnamedClassAwareOptionsManager(IClassAwareOptionsFactory<TOptions> factory)
@@ -17,8 +17,9 @@ internal sealed class UnnamedClassAwareOptionsManager<TOptions> : IClassAwareOpt
         this.factory = factory;
     }
 
-    public TOptions Get(Type @class)
+    public TOptions Get(Type? @class)
     {
+        @class ??= ClassAwareOptions.NoClass;
         return cache.TryGetValue(Options.DefaultName, @class, out TOptions? options)
             ? options
             : cache.GetOrAdd(Options.DefaultName, @class, static (n, c, f) => f.Create(n, c), factory);
