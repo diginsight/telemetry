@@ -1,19 +1,25 @@
-﻿using System.Collections.Concurrent;
+﻿using Diginsight.CAOptions;
+using System.Collections.Concurrent;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 namespace Diginsight;
 
 public static class ClassConfigurationMarkers
 {
-    private static readonly ConcurrentDictionary<Type, IReadOnlyList<string>> dict = new ();
+    private static readonly ConcurrentDictionary<Type, IReadOnlyList<string>> Markers = new ();
+    private static readonly Regex GenericSuffixRegex = new Regex(@"`\d+");
 
-    // TODO Handle nested types and generic type specificity (type argument count)
     public static IReadOnlyList<string> For(Type @class)
     {
+        if (@class == ClassAwareOptions.NoClass)
+        {
+            return Array.Empty<string>();
+        }
+
         if (
-            @class.IsNested
-            || @class.IsArray
+            @class.IsArray
             || @class.IsByRef
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             || @class.IsByRefLike
@@ -26,7 +32,7 @@ public static class ClassConfigurationMarkers
 #endif
         )
         {
-            throw new ArgumentException("Nested, array, byref, generic parameter and pointer types not supported");
+            throw new ArgumentException("Array, byref, generic parameter and pointer types not supported");
         }
 
         if (@class.IsConstructedGenericType)
@@ -34,14 +40,19 @@ public static class ClassConfigurationMarkers
             @class = @class.GetGenericTypeDefinition();
         }
 
-        return dict.GetOrAdd(@class, static c => GetMarkers(c).ToArray());
+        return Markers.GetOrAdd(@class, static c => CalculateMarkers(c).ToArray());
 
-        static IEnumerable<string> GetMarkers(Type @class)
+        static IEnumerable<string> CalculateMarkers(Type @class)
         {
             string[] namespacePieces = @class.Namespace?.Split('.') ?? Array.Empty<string>();
-            IEnumerable<string> namespaceSegments = Enumerable.Range(1, namespacePieces.Length).Select(i => string.Join(".", namespacePieces.Take(i))).Reverse().ToArray();
+            IEnumerable<string> namespaceSegments = Enumerable.Range(1, namespacePieces.Length)
+                .Select(i => string.Join(".", namespacePieces.Take(i)))
+                .Reverse()
+                .ToArray();
 
-            var availableShorthands = @class.Assembly.GetCustomAttributes<ClassConfigurationNamespaceShorthandAttribute>().ToDictionary(static x => x.Namespace, static x => x.Shorthand);
+            IReadOnlyDictionary<string, string> availableShorthands = @class.Assembly
+                .GetCustomAttributes<ClassConfigurationNamespaceShorthandAttribute>()
+                .ToDictionary(static x => x.Namespace, static x => x.Shorthand);
 
             IEnumerable<string> namespaceShorthands = namespaceSegments
                 .Select(x => availableShorthands.TryGetValue(x, out string? val) ? val : null)
@@ -49,18 +60,40 @@ public static class ClassConfigurationMarkers
                 .ToArray();
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            static string TrimGenericSuffix(string name) => name.IndexOf('`') is > 0 and var idx ? name[..idx] : name;
+            static string CleanGeneric(string x) => GenericSuffixRegex.Replace(x, "");
 
             if (@class is { Namespace: not null, FullName: { } fullName })
             {
-                yield return TrimGenericSuffix(fullName);
+                yield return CleanGeneric(fullName).Replace('+', '.');
             }
 
-            string name = TrimGenericSuffix(@class.Name);
+            static (string Name, string? NestedName) CalculateNames(Type @class)
+            {
+                string name = CleanGeneric(@class.Name);
+                if (!@class.IsNested)
+                {
+                    return (name, null);
+                }
+
+                string nestedName = name;
+                for (Type? c = @class.DeclaringType; c is not null; c = c.DeclaringType)
+                {
+                    nestedName = $"{CleanGeneric(c.Name)}.{nestedName}";
+                }
+
+                return (name, nestedName);
+            }
+
+            (string name, string? nestedName) = CalculateNames(@class);
 
             foreach (string shorthand in namespaceShorthands)
             {
-                yield return $"#{shorthand}.{name}";
+                yield return $"#{shorthand}.{nestedName ?? name}";
+            }
+
+            if (nestedName is not null)
+            {
+                yield return nestedName;
             }
 
             yield return name;
