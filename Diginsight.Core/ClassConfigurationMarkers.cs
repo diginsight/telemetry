@@ -10,12 +10,13 @@ public static class ClassConfigurationMarkers
 {
     private static readonly ConcurrentDictionary<Type, IReadOnlyList<string>> Markers = new ();
     private static readonly Regex GenericSuffixRegex = new Regex(@"`\d+");
+    private static readonly IReadOnlyList<string> NoClassMarkers = new[] { "" };
 
     public static IReadOnlyList<string> For(Type @class)
     {
         if (@class == ClassAwareOptions.NoClass)
         {
-            return Array.Empty<string>();
+            return NoClassMarkers;
         }
 
         if (

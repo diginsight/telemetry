@@ -17,11 +17,10 @@ public sealed class FilteredConfigurationSection : FilteredConfiguration, IConfi
     }
 
     internal FilteredConfigurationSection(IConfigurationSection underlying, Type @class, string? virtualPath = null)
-        : base(underlying, @class, ConfigurationPath.GetParentPath(virtualPath) + ConfigurationPath.KeyDelimiter)
+        : base(underlying, @class, ConfigurationPath.GetParentPath(virtualPath ??= underlying.Path) + ConfigurationPath.KeyDelimiter)
     {
         this.underlying = underlying;
 
-        virtualPath ??= underlying.Path;
         Key = ConfigurationPath.GetSectionKey(virtualPath);
         Path = virtualPath;
     }

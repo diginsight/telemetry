@@ -31,7 +31,7 @@ internal sealed class ConsoleLineDescriptorProvider : IConsoleLineDescriptorProv
         lock (lockObj)
         {
             ValueTuple<int?> descriptorKey = new (width);
-            return descriptorCache.TryGetValue(descriptorKey, out LineDescriptor descriptor)
+            return descriptorCache.TryGetValue(descriptorKey, out LineDescriptor? descriptor)
                 ? descriptor
                 : descriptorCache[descriptorKey] = MakeLineDescriptor();
 

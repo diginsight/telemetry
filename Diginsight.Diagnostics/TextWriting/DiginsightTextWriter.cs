@@ -43,19 +43,18 @@ public static class DiginsightTextWriter
         Exception? exception,
         bool isActivity,
         TimeSpan? duration,
-        in LineDescriptor lineDescriptor
+        LineDescriptor lineDescriptor
     )
     {
         if (DisplayTiming)
         {
-            LineDescriptor newLineDescriptor;
             if (lineDescriptor.MaxMessageLength is (> 7 or < -7) and var maxMessageLength)
             {
                 MutableLineDescriptor mutableLineDescriptor = new (lineDescriptor)
                 {
                     MaxMessageLength = (Math.Abs(maxMessageLength) - 7) * Math.Sign(maxMessageLength),
                 };
-                newLineDescriptor = new (mutableLineDescriptor);
+                lineDescriptor = new (mutableLineDescriptor);
             }
             else if (lineDescriptor.MaxLineLength is (> 7 or < -7) and var maxLineLength)
             {
@@ -63,21 +62,17 @@ public static class DiginsightTextWriter
                 {
                     MaxLineLength = (Math.Abs(maxLineLength) - 7) * Math.Sign(maxLineLength),
                 };
-                newLineDescriptor = new (mutableLineDescriptor);
-            }
-            else
-            {
-                newLineDescriptor = lineDescriptor;
+                lineDescriptor = new (mutableLineDescriptor);
             }
 
             using StringWriter stringWriter = new ();
-            Write(stringWriter, timestamp, logLevel, category, message, exception, isActivity, duration, in newLineDescriptor, out double timing);
+            Write(stringWriter, timestamp, logLevel, category, message, exception, isActivity, duration, lineDescriptor, out double timing);
 
             textWriter.Write("{0,5}µ {1}", ((long)timing).ToString(CultureInfo.InvariantCulture), stringWriter);
         }
         else
         {
-            Write(textWriter, timestamp, logLevel, category, message, exception, isActivity, duration, in lineDescriptor, out _);
+            Write(textWriter, timestamp, logLevel, category, message, exception, isActivity, duration, lineDescriptor, out _);
         }
     }
 
@@ -90,7 +85,7 @@ public static class DiginsightTextWriter
         Exception? exception,
         bool isActivity,
         TimeSpan? duration,
-        in LineDescriptor lineDescriptor,
+        LineDescriptor lineDescriptor,
         out double timing
     )
     {

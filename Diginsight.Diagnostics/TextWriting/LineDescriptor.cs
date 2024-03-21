@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics.TextWriting;
 
-public readonly struct LineDescriptor
+public sealed class LineDescriptor
 {
     private const string MessageThenNothingErrMsg = "'Message' token must be followed by nothing";
     private const string DuplicatedTokenErrMsg = "Duplicated token";
@@ -38,13 +38,11 @@ public readonly struct LineDescriptor
         new MessageToken(),
     ];
 
-    private static readonly IEnumerable<IPrefixTokenAppender> DefaultAppenders = Apply(DefaultLineTokensCore).Appenders;
-
     public static IEnumerable<ILineToken> DefaultLineTokens => DefaultLineTokensCore.Select(static x => x.Clone());
 
-    private readonly IEnumerable<IPrefixTokenAppender>? appenders;
+    public static readonly LineDescriptor DefaultDescriptor = new (Apply(DefaultLineTokensCore));
 
-    public IEnumerable<IPrefixTokenAppender> Appenders => appenders ?? DefaultAppenders;
+    public IEnumerable<IPrefixTokenAppender> Appenders { get; }
 
     public int MaxIndentedDepth { get; }
 
@@ -58,7 +56,7 @@ public readonly struct LineDescriptor
 
     public LineDescriptor(MutableLineDescriptor descriptor)
     {
-        appenders = descriptor.Appenders;
+        Appenders = descriptor.Appenders;
         MaxIndentedDepth = descriptor.MaxIndentedDepth ?? 0;
         MaxMessageLength = descriptor.MaxMessageLength ?? 0;
         MaxLineLength = descriptor.MaxLineLength ?? 0;
@@ -132,7 +130,7 @@ public readonly struct LineDescriptor
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static LineDescriptor ParseFull(string? pattern, IEnumerable<ILineTokenParser>? customLineTokenParsers = null)
     {
-        return pattern is not null ? new LineDescriptor(ParseCore(pattern, customLineTokenParsers), false) : default;
+        return pattern is not null ? new LineDescriptor(ParseCore(pattern, customLineTokenParsers), false) : DefaultDescriptor;
     }
 
     private static IEnumerable<ILineToken> ParseCore(string pattern, IEnumerable<ILineTokenParser>? customLineTokenParsers)
