@@ -8,11 +8,16 @@ namespace Diginsight.Diagnostics.Log4Net;
 
 internal sealed class DiginsightLoggingEventFactory : ILog4NetLoggingEventFactory
 {
+    private readonly IServiceProvider serviceProvider;
     private readonly TimeProvider timeProvider;
     private readonly ILog4NetLoggingEventFactory decoratee = new Log4NetLoggingEventFactory();
 
-    public DiginsightLoggingEventFactory(TimeProvider? timeProvider = null)
+    public DiginsightLoggingEventFactory(
+        IServiceProvider serviceProvider,
+        TimeProvider? timeProvider = null
+    )
     {
+        this.serviceProvider = serviceProvider;
         this.timeProvider = timeProvider ?? TimeProvider.System;
     }
 
@@ -61,6 +66,7 @@ internal sealed class DiginsightLoggingEventFactory : ILog4NetLoggingEventFactor
             }
 
             return new DiginsightLoggingEvent(
+                serviceProvider,
                 loggingEvent,
                 isActivity,
                 duration,

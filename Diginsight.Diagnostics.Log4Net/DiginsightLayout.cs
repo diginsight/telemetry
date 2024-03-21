@@ -1,43 +1,48 @@
 ﻿using Diginsight.Diagnostics.TextWriting;
 using log4net.Core;
 using log4net.Layout;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Diginsight.Diagnostics.Log4Net;
 
-internal sealed class DiginsightLayoutSkeleton : LayoutSkeleton
+public sealed class DiginsightLayout : ILayout
 {
-    private readonly ILog4NetLineDescriptorProvider lineDescriptorProvider;
-    private readonly IDiginsightLayoutSkeletonOptions layoutSkeletonOptions;
+    private LineDescriptor? lineDescriptor;
 
-    public DiginsightLayoutSkeleton(
-        ILog4NetLineDescriptorProvider lineDescriptorProvider,
-        IOptions<DiginsightLayoutSkeletonOptions> layoutSkeletonOptions
-    )
-    {
-        this.lineDescriptorProvider = lineDescriptorProvider;
-        this.layoutSkeletonOptions = layoutSkeletonOptions.Value;
-    }
+    public bool UseUtcTimestamp { get; set; } = true;
 
-    public override void ActivateOptions() { }
+    public string? Pattern { get; set; }
 
-    public override void Format(TextWriter writer, LoggingEvent loggingEvent)
+    string ILayout.ContentType => "text/plain";
+    string? ILayout.Header => null;
+    string? ILayout.Footer => null;
+    bool ILayout.IgnoresException => true;
+
+    public void Format(TextWriter writer, LoggingEvent loggingEvent)
     {
         try
         {
             DiginsightLoggingEvent myLoggingEvent = (DiginsightLoggingEvent)loggingEvent;
 
+            // ReSharper disable once LocalVariableHidesMember
+            if (this.lineDescriptor is not { } lineDescriptor)
+            {
+                IServiceProvider serviceProvider = myLoggingEvent.ServiceProvider;
+                IEnumerable<ILineTokenParser> customLineTokenParsers = serviceProvider.GetRequiredService<IEnumerable<ILineTokenParser>>();
+                this.lineDescriptor = lineDescriptor = LineDescriptor.ParseFull(Pattern, customLineTokenParsers);
+            }
+
             DiginsightTextWriter.Write(
                 writer,
-                layoutSkeletonOptions.UseUtcTimestamp ? loggingEvent.TimeStampUtc : loggingEvent.TimeStamp,
+                UseUtcTimestamp ? loggingEvent.TimeStampUtc : loggingEvent.TimeStamp,
                 TranslateLogLevel(loggingEvent.Level),
                 myLoggingEvent.LoggerName,
                 myLoggingEvent.RenderedMessage,
                 loggingEvent.ExceptionObject,
                 myLoggingEvent.IsActivity,
                 myLoggingEvent.Duration,
-                lineDescriptorProvider.GetLineDescriptor()
+                lineDescriptor
             );
         }
         catch (Exception exception)
@@ -45,6 +50,7 @@ internal sealed class DiginsightLayoutSkeleton : LayoutSkeleton
             writer.WriteLine($"### {exception.GetType().Name} {exception.Message} ###");
         }
     }
+
     private static LogLevel TranslateLogLevel(Level level)
     {
         return level >= Level.Critical ? LogLevel.Critical
