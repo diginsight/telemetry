@@ -95,8 +95,5 @@ internal class Program
     }
 
     [CacheInterchangeName(nameof(MyInvalidationRule))]
-    private sealed record MyInvalidationRule(string Prefix) : IInvalidationRule
-    {
-        public InvalidationReason Reason => InvalidationReason.Created;
-    }
+    private sealed record MyInvalidationRule(string Prefix) : IInvalidationRule;
 }
