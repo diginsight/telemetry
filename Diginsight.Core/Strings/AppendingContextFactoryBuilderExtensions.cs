@@ -1,9 +1,21 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace Diginsight.Strings;
 
 public static class AppendingContextFactoryBuilderExtensions
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static AppendingContext MakeAppendingContext(
+        this IAppendingContextFactory factory, out StringBuilder stringBuilder
+    )
+    {
+        stringBuilder = null!;
+        return factory.MakeAppendingContext(ref stringBuilder);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static AppendingContextFactoryBuilder ConfigureOverall(
         this AppendingContextFactoryBuilder builder, ILogStringOverallConfiguration configuration
     )
@@ -11,6 +23,7 @@ public static class AppendingContextFactoryBuilderExtensions
         return builder.ConfigureOverall(x => x.ResetFrom(configuration));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static AppendingContextFactoryBuilder ConfigureOverall(
         this AppendingContextFactoryBuilder builder, Action<LogStringOverallConfiguration> configure
     )
@@ -19,6 +32,7 @@ public static class AppendingContextFactoryBuilderExtensions
         return builder;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static AppendingContextFactoryBuilder ConfigureContracts(
         this AppendingContextFactoryBuilder builder, Action<LogStringTypeContractAccessor> configure
     )
@@ -27,6 +41,7 @@ public static class AppendingContextFactoryBuilderExtensions
         return builder;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static AppendingContextFactoryBuilder RegisterProvider(
         this AppendingContextFactoryBuilder builder, Type providerType, int priority = 0
     )
@@ -37,6 +52,7 @@ public static class AppendingContextFactoryBuilderExtensions
         return builder;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static AppendingContextFactoryBuilder RegisterProvider<T>(
         this AppendingContextFactoryBuilder builder, int priority = 0
     )
@@ -45,6 +61,7 @@ public static class AppendingContextFactoryBuilderExtensions
         return builder.RegisterProvider(typeof(T), priority);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IAppendingContextFactory Build(this AppendingContextFactoryBuilder builder)
     {
         return builder.Services.BuildServiceProvider().GetRequiredService<IAppendingContextFactory>();

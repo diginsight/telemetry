@@ -11,12 +11,14 @@ public sealed class AppendingContext
     private readonly IMemberInfoLogStringProvider memberInfoLogStringProvider;
     private readonly ISet<object> renderedObjs = new HashSet<object>(ReferenceEqualityComparer.Instance);
     private readonly long maxTimeTicks;
+    private readonly int maxTotalLength;
     private readonly Stopwatch? stopwatch;
 
     private LogStringVariableConfiguration variableConfiguration;
     private Dictionary<string, object?> metaProperties;
     private int currentDepth = 0;
     private bool isTimeOver = false;
+    private bool isFull = false;
 
     public ILogStringVariableConfiguration VariableConfiguration => variableConfiguration;
 
@@ -35,12 +37,25 @@ public sealed class AppendingContext
         }
     }
 
+    public bool IsFull
+    {
+        get
+        {
+            if (isFull)
+                return true;
+            if (stringBuilder.Length < maxTotalLength)
+                return false;
+            return isFull = true;
+        }
+    }
+
     internal AppendingContext(
         StringBuilder stringBuilder,
         IEnumerable<ILogStringProvider> logStringProviders,
         IMemberInfoLogStringProvider memberInfoLogStringProvider,
         LogStringVariableConfiguration variableConfiguration,
         TimeSpan maxTime,
+        int? maxTotalLength,
         IEqualityComparer<string> metaPropertyKeyComparer
     )
     {
@@ -48,6 +63,7 @@ public sealed class AppendingContext
         this.logStringProviders = logStringProviders;
         this.memberInfoLogStringProvider = memberInfoLogStringProvider;
         this.variableConfiguration = variableConfiguration;
+        this.maxTotalLength = maxTotalLength ?? int.MaxValue;
         metaProperties = new Dictionary<string, object?>(metaPropertyKeyComparer);
 
         if (maxTime > TimeSpan.Zero)
@@ -131,21 +147,33 @@ public sealed class AppendingContext
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public AppendingContext AppendDirect(char c)
     {
-        stringBuilder.Append(c);
+        if (!IsFull)
+        {
+            stringBuilder.Append(c);
+        }
+
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public AppendingContext AppendDirect(string s)
     {
+        if (IsFull)
+            return this;
+
         stringBuilder.Append(s);
+        ChopIfFull();
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public AppendingContext AppendDirect(Action<StringBuilder> appendContent)
     {
+        if (IsFull)
+            return this;
+
         appendContent(stringBuilder);
+        ChopIfFull();
         return this;
     }
 
@@ -236,5 +264,15 @@ public sealed class AppendingContext
         {
             throw new MaxAllottedTimeShortCircuit();
         }
+    }
+
+    public void ChopIfFull()
+    {
+        int excessLength = stringBuilder.Length - maxTotalLength;
+        if (excessLength <= 0)
+            return;
+
+        stringBuilder.Remove(maxTotalLength, excessLength);
+        isFull = true;
     }
 }

@@ -2,6 +2,7 @@
 
 public interface ILogStringVariableConfiguration : ILogStringNamespaceConfiguration
 {
+    LogThreshold MaxStringLength { get; }
     LogThreshold MaxCollectionItemCount { get; }
     InheritableLogThreshold MaxDictionaryItemCount { get; }
     InheritableLogThreshold MaxMemberwisePropertyCount { get; }
@@ -11,6 +12,8 @@ public interface ILogStringVariableConfiguration : ILogStringNamespaceConfigurat
     LogThreshold MaxDepth { get; }
 
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+    sealed int? GetEffectiveMaxStringLength() => MaxStringLength.Value;
+
     sealed int? GetEffectiveMaxCollectionItemCount() => MaxCollectionItemCount.Value;
 
     sealed int? GetEffectiveMaxDictionaryItemCount() => MaxDictionaryItemCount.GetValue(MaxCollectionItemCount);

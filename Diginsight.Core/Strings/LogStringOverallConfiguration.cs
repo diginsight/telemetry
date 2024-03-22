@@ -8,7 +8,11 @@ public sealed class LogStringOverallConfiguration : ILogStringOverallConfigurati
     private static readonly Type[] FixedRegistrationTypes;
     private static readonly int MaxCustomRegistrationPriority;
 
+    private LogThreshold maxTotalLength = 300;
+
     public IList<LogStringProviderRegistration> CustomRegistrations { get; } = new List<LogStringProviderRegistration>();
+
+    public LogThreshold MaxStringLength { get; set; } = 50;
 
     public LogThreshold MaxCollectionItemCount { get; set; } = 20;
 
@@ -33,6 +37,12 @@ public sealed class LogStringOverallConfiguration : ILogStringOverallConfigurati
     public bool IsNamespaceExplicitIfAmbiguous { get; set; }
 
     public TimeSpan MaxTime { get; set; } = TimeSpan.FromMilliseconds(5);
+
+    public LogThreshold MaxTotalLength
+    {
+        get => maxTotalLength;
+        set => maxTotalLength = value.Value == 0 ? throw new ArgumentOutOfRangeException(nameof(MaxTotalLength), "Expected positive value") : value;
+    }
 
     public bool ShortenKnownTypes { get; set; } = true;
 
@@ -79,6 +89,7 @@ public sealed class LogStringOverallConfiguration : ILogStringOverallConfigurati
 #endif
         );
 
+        MaxStringLength = source.MaxStringLength;
         MaxCollectionItemCount = source.MaxCollectionItemCount;
         MaxDictionaryItemCount = source.MaxDictionaryItemCount;
         MaxMemberwisePropertyCount = source.MaxMemberwisePropertyCount;
@@ -91,6 +102,7 @@ public sealed class LogStringOverallConfiguration : ILogStringOverallConfigurati
         IsNamespaceExplicitIfUnspecified = source.IsNamespaceExplicitIfUnspecified;
         IsNamespaceExplicitIfAmbiguous = source.IsNamespaceExplicitIfAmbiguous;
         MaxTime = source.MaxTime;
+        MaxTotalLength = source.MaxTotalLength;
         ShortenKnownTypes = source.ShortenKnownTypes;
         IsMemberwiseLogStringableByDefault = source.IsMemberwiseLogStringableByDefault;
         MetaPropertyKeyComparison = source.MetaPropertyKeyComparison;

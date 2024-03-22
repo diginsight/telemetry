@@ -13,7 +13,7 @@ internal sealed class PrimitiveLogStringProvider : ILogStringProvider
     {
         return obj switch
         {
-            string => new DirectLogStringable(obj, "\"{0}\""),
+            string s => new LogStringableString(s),
             bool => new DirectLogStringable(obj),
             char => new DirectLogStringable(obj, "'{0}'"),
             byte or sbyte => new DirectLogStringable(obj, "#{0:X2}"),
@@ -22,6 +22,34 @@ internal sealed class PrimitiveLogStringProvider : ILogStringProvider
             Enum e => e.GetType().IsDefined(typeof(FlagsAttribute)) ? new LogStringableFlaggedEnum(e) : new LogStringableConvertible(e),
             _ => null,
         };
+    }
+
+    private sealed class LogStringableString : ILogStringable
+    {
+        private readonly string str;
+
+        public bool IsDeep => false;
+        public bool CanCycle => false;
+
+        public LogStringableString(string str)
+        {
+            this.str = str;
+        }
+
+        public void AppendTo(AppendingContext appendingContext)
+        {
+            appendingContext.AppendDirect('"');
+            if (appendingContext.VariableConfiguration.GetEffectiveMaxStringLength() is { } length && str.Length > length)
+            {
+                appendingContext.AppendDirect(str[..length]);
+                appendingContext.AppendEllipsis();
+            }
+            else
+            {
+                appendingContext.AppendDirect(str);
+            }
+            appendingContext.AppendDirect('"');
+        }
     }
 
     private sealed class LogStringableConvertible : ILogStringable

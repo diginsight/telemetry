@@ -6,6 +6,7 @@ public sealed class LogStringVariableConfiguration : ILogStringVariableConfigura
 {
     private LogThreshold maxDepth;
 
+    public LogThreshold MaxStringLength { get; set; }
     public LogThreshold MaxCollectionItemCount { get; set; }
     public InheritableLogThreshold MaxDictionaryItemCount { get; set; }
     public InheritableLogThreshold MaxMemberwisePropertyCount { get; set; }
@@ -29,6 +30,7 @@ public sealed class LogStringVariableConfiguration : ILogStringVariableConfigura
 
     public LogStringVariableConfiguration(ILogStringVariableConfiguration source)
     {
+        MaxStringLength = source.MaxStringLength;
         MaxCollectionItemCount = source.MaxCollectionItemCount;
         MaxDictionaryItemCount = source.MaxDictionaryItemCount;
         MaxMemberwisePropertyCount = source.MaxMemberwisePropertyCount;

@@ -57,8 +57,8 @@ public static class LogStringExtensions
 
         try
         {
-            StringBuilder stringBuilder = new ();
-            appendingContextFactory.MakeAppendingContext(stringBuilder).ComposeAndAppend(obj, false, true, configureVariables, configureMetaProperties);
+            appendingContextFactory.MakeAppendingContext(out StringBuilder stringBuilder)
+                .ComposeAndAppend(obj, false, true, configureVariables, configureMetaProperties);
             return stringBuilder.ToString();
         }
         catch (Exception)

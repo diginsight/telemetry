@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace Diginsight.Strings;
@@ -18,7 +19,7 @@ internal sealed class AppendingContextFactory : IAppendingContextFactory
         overallConfiguration = overallConfigurationOptions.Value;
     }
 
-    public AppendingContext MakeAppendingContext(StringBuilder stringBuilder)
+    public AppendingContext MakeAppendingContext([NotNull] ref StringBuilder? stringBuilder)
     {
         ILogStringProvider[] logStringProviders = overallConfiguration.Registrations
             .Select(static x => x ?? throw new ArgumentNullException($"item in {nameof(ILogStringOverallConfiguration)}.{nameof(ILogStringOverallConfiguration.Registrations)}", (Exception?)null))
@@ -29,11 +30,12 @@ internal sealed class AppendingContextFactory : IAppendingContextFactory
         LogStringVariableConfiguration variableConfiguration = new LogStringVariableConfiguration(overallConfiguration);
 
         return new AppendingContext(
-            stringBuilder,
+            stringBuilder ??= new StringBuilder(),
             logStringProviders,
             serviceProvider.GetRequiredService<IMemberInfoLogStringProvider>(),
             variableConfiguration,
             overallConfiguration.MaxTime,
+            overallConfiguration.GetEffectiveMaxTotalLength(),
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             StringComparer.FromComparison(overallConfiguration.MetaPropertyKeyComparison)
 #else

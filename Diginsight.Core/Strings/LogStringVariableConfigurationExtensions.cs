@@ -3,6 +3,10 @@ namespace Diginsight.Strings;
 
 public static class LogStringVariableConfigurationExtensions
 {
+    public static int? GetEffectiveMaxTotalLength(this ILogStringOverallConfiguration c) => c.MaxTotalLength.Value;
+
+    public static int? GetEffectiveMaxStringLength(this ILogStringVariableConfiguration c) => c.MaxStringLength.Value;
+
     public static int? GetEffectiveMaxCollectionItemCount(this ILogStringVariableConfiguration c) => c.MaxCollectionItemCount.Value;
 
     public static int? GetEffectiveMaxDictionaryItemCount(this ILogStringVariableConfiguration c) => c.MaxDictionaryItemCount.GetValue(c.MaxCollectionItemCount);
