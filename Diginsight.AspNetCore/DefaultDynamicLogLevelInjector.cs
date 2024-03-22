@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
 namespace Diginsight.AspNetCore;
@@ -79,12 +81,16 @@ public sealed class DefaultDynamicLogLevelInjector : IDynamicLogLevelInjector
 
         bool any = false;
 
+        const string defaultCategory = "*";
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static string? Collapse(string? c) => c is "" or defaultCategory ? null : c;
+
         foreach (string? rawSpec in context.Request.Headers["Log-Level"])
         {
             if (Enum.TryParse(rawSpec!, true, out LogLevel minLogLevel))
             {
-                newLoggerFilterOptions.MinLevel = minLogLevel;
-                any = true;
+                SetRule(null, null, minLogLevel);
                 continue;
             }
 
@@ -94,26 +100,36 @@ public sealed class DefaultDynamicLogLevelInjector : IDynamicLogLevelInjector
                 continue;
             }
 
-            any = true;
-
-            string category = match.Groups[1].Value;
+            string? category = Collapse(match.Groups[1].Value);
             string? provider = match.Groups[3] is { Success: true } providerGroup ? providerGroup.Value : null;
+            SetRule(category, provider, logLevel);
 
-            int index = newRules.FirstIndexWhere(x => string.Equals(x.CategoryName ?? "*", category, StringComparison.OrdinalIgnoreCase) && x.ProviderName == provider);
-            if (index >= 0)
+            [SuppressMessage("ReSharper", "VariableHidesOuterVariable")]
+            void SetRule(string? category, string? provider, LogLevel logLevel)
             {
-                newRules[index] = new LoggerFilterRule(provider, category, logLevel, null);
-            }
-            else
-            {
-                newRules.Add(new LoggerFilterRule(provider, category, logLevel, null));
+                any = true;
+
+                if (category is null && provider is null)
+                {
+                    newLoggerFilterOptions.MinLevel = logLevel;
+                }
+
+                int index = newRules.FirstIndexWhere(x => string.Equals(Collapse(x.CategoryName), category, StringComparison.OrdinalIgnoreCase) && x.ProviderName == provider);
+                if (index >= 0)
+                {
+                    newRules[index] = new LoggerFilterRule(provider, category, logLevel, null);
+                }
+                else
+                {
+                    newRules.Add(new LoggerFilterRule(provider, category, logLevel, null));
+                }
             }
         }
 
         if (hostEnvironment.IsDevelopment())
         {
             context.Response.Headers["Log-Level"] = newRules
-                .Select(static x => $"{(x.CategoryName is { } category ? $"{category}=" : "")}{x.LogLevel ?? LogLevel.None}{(x.Filter is null ? "" : "!")}{(x.ProviderName is { } provider ? $";p={provider}" : "")}")
+                .Select(static x => $"{Collapse(x.CategoryName) ?? defaultCategory}={x.LogLevel ?? LogLevel.None}{(x.Filter is null ? "" : "!")}{(x.ProviderName is { } provider ? $";p={provider}" : "")}")
                 .Prepend(newLoggerFilterOptions.MinLevel.ToString())
                 .ToArray();
         }
