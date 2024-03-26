@@ -23,6 +23,10 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
     private readonly IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor;
     private readonly IActivityProcessingSampler? activityProcessingSampler;
     private readonly ILogger fallbackLogger;
+    private static string? activityStartLogPrefix;
+    private static string? activityStartLogSuffix;
+    private static string? activityEndLogPrefix;
+    private static string? activityEndLogSuffix;
 
     public DiginsightLogProcessor(
         ILoggerFactory loggerFactory,
@@ -40,6 +44,7 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
 
     public override void OnStart(Activity activity)
     {
+        const string ACTION = "START";
         string activityName = activity.OperationName;
 
         try
@@ -51,9 +56,13 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
                 out bool shouldRecord,
                 out ILogger textLogger,
                 out ILogger otlpLogger,
-                out LogLevel logLevel
-            );
+                out LogLevel logLevel,
+                out string activityLogPrefix,
+                out string activityLogSuffix
 
+            );
+            activityStartLogPrefix = activityLogPrefix.Replace("{ACTION}", ACTION);
+            activityStartLogSuffix = activityLogSuffix.Replace("{ACTION}", ACTION);
             if (!shouldRecord)
             {
                 activity.ActivityTraceFlags &= ~ActivityTraceFlags.Recorded;
@@ -71,18 +80,19 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
                 _ => throw new InvalidOperationException("Invalid inputs in activity"),
             };
 
-            EventId startActivityEventId = new (100, "StartActivity");
-            EventId startMethodActivityEventId = new (110, "StartMethodActivity");
+            EventId startActivityEventId = new(100, "StartActivity");
+            EventId startMethodActivityEventId = new(110, "StartMethodActivity");
 
+            //activitiesOptionsMonitor.CurrentValue.ActionPrefix
             if (inputs is null)
             {
                 if (isStandalone)
                 {
-                    textLogger.Log(logLevel, startActivityEventId, "START {ActivityName}", activityName);
+                    textLogger.Log(logLevel, startActivityEventId, "{activityLogPrefix}{ActivityName}{activityLogSuffix}", activityStartLogPrefix, activityName, activityStartLogSuffix);
                 }
                 else
                 {
-                    textLogger.Log(logLevel, startMethodActivityEventId, "START {ActivityName}()", activityName);
+                    textLogger.Log(logLevel, startMethodActivityEventId, "{activityLogPrefix}{ActivityName}(){activityLogSuffix}", activityStartLogPrefix, activityName, activityStartLogSuffix);
                 }
                 return;
             }
@@ -95,12 +105,12 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
             if (isStandalone)
             {
                 otlpLogger.Log(logLevel, new EventId(101, "ActivityInputs"), inputsAsDict, null, (_, _) => $"Activity inputs: {inputsAsString}");
-                textLogger.Log(logLevel, startActivityEventId, "START {ActivityName}({Inputs})", activityName, inputsAsString);
+                textLogger.Log(logLevel, startActivityEventId, "{activityLogPrefix}{ActivityName}({Inputs}){activityLogSuffix}", activityStartLogPrefix, activityName, inputsAsString, activityStartLogSuffix);
             }
             else
             {
                 otlpLogger.Log(logLevel, new EventId(111, "MethodInputs"), inputsAsDict, null, (_, _) => $"Method inputs: {inputsAsString}");
-                textLogger.Log(logLevel, startMethodActivityEventId, "START {ActivityName}({Inputs})", activityName, inputsAsString);
+                textLogger.Log(logLevel, startMethodActivityEventId, "{activityLogPrefix}{ActivityName}({Inputs}){activityLogSuffix}", activityStartLogPrefix, activityName, inputsAsString, activityStartLogSuffix);
             }
         }
         catch (Exception exception)
@@ -111,6 +121,7 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
 
     public override void OnEnd(Activity activity)
     {
+        const string ACTION = "END";
         string activityName = activity.OperationName;
 
         try
@@ -122,8 +133,12 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
                 out bool shouldRecord,
                 out ILogger textLogger,
                 out ILogger otlpLogger,
-                out LogLevel logLevel
+                out LogLevel logLevel,
+                out string activityLogPrefix,
+                out string activityLogSuffix
             );
+            activityEndLogPrefix ??= activityLogPrefix.Replace("{ACTION}", ACTION);
+            activityEndLogSuffix ??= activityLogSuffix.Replace("{ACTION}", ACTION);
 
             if (!(shouldLog || shouldRecord))
             {
@@ -132,7 +147,7 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
 
             if (isStandalone)
             {
-                textLogger.Log(logLevel, new EventId(200, "EndActivity"), "END {ActivityName}", activityName);
+                textLogger.Log(logLevel, new EventId(200, "EndActivity"), "{activityLogPrefix}{ActivityName}{activityLogSuffix}", activityEndLogPrefix, activityName, activityEndLogSuffix);
                 return;
             }
 
@@ -179,23 +194,23 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
                 return namedOutputsAsString0;
             }
 
-            EventId endMethodActivityEventId = new (210, "EndMethodActivity");
+            EventId endMethodActivityEventId = new(210, "EndMethodActivity");
             switch (outputAsString, namedOutputsAsString)
             {
                 case (null, null):
-                    textLogger.Log(logLevel, endMethodActivityEventId, "END {ActivityName}()", activityName);
+                    textLogger.Log(logLevel, endMethodActivityEventId, "{activityLogPrefix}{ActivityName}(){activityLogSuffix}", activityEndLogPrefix, activityName, activityEndLogSuffix);
                     break;
 
                 case (not null, null):
-                    textLogger.Log(logLevel, endMethodActivityEventId, "END {ActivityName}() => {Output}", activityName, outputAsString);
+                    textLogger.Log(logLevel, endMethodActivityEventId, "{activityLogPrefix}{ActivityName}(){activityLogSuffix} => {Output}", activityEndLogPrefix, activityName, activityEndLogSuffix, outputAsString);
                     break;
 
                 case (null, not null):
-                    textLogger.Log(logLevel, endMethodActivityEventId, "END {ActivityName}() [=> {NamedOutputs}]", activityName, namedOutputsAsString);
+                    textLogger.Log(logLevel, endMethodActivityEventId, "{activityLogPrefix}{ActivityName}(){activityLogSuffix} [=> {NamedOutputs}]", activityEndLogPrefix, activityName, activityEndLogSuffix, namedOutputsAsString);
                     break;
 
                 case (not null, not null):
-                    textLogger.Log(logLevel, endMethodActivityEventId, "END {ActivityName}() => {Output} [=> {NamedOutputs}]", activityName, outputAsString, namedOutputsAsString);
+                    textLogger.Log(logLevel, endMethodActivityEventId, "E{activityLogPrefix}{ActivityName}(){activityLogSuffix} => {Output} [=> {NamedOutputs}]", activityEndLogPrefix, activityName, activityEndLogSuffix, outputAsString, namedOutputsAsString);
                     break;
             }
         }
@@ -222,7 +237,7 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
         {
             return ((IDictionary<string, object?>, string))ExtractLoggableFromKvps_Method
                 .MakeGenericMethod(tValue)
-                .Invoke(this, [ dictPrefix, obj ])!;
+                .Invoke(this, [dictPrefix, obj])!;
         }
 
         return null;
@@ -242,7 +257,7 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
     {
         IDictionary<string, object?> dict = new Dictionary<string, object?>();
 
-        StringBuilder sb = new ();
+        StringBuilder sb = new();
         bool first = true;
         foreach (KeyValuePair<string, TValue> kvp in kvps)
         {
@@ -272,7 +287,9 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
         out bool shouldRecord,
         out ILogger textLogger,
         out ILogger otlpLogger,
-        out LogLevel logLevel
+        out LogLevel logLevel,
+        out string activityLogPrefix,
+        out string activityLogSuffix
     )
     {
         ILogger? providedLogger = activity.GetCustomProperty(ActivityCustomPropertyNames.Logger) switch
@@ -312,6 +329,9 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
             null => activitiesOptions.DefaultActivityLogLevel,
             _ => throw new InvalidOperationException("Invalid log level in activity"),
         };
+
+        activityLogPrefix = activitiesOptions.ActivityLogPrefix;
+        activityLogSuffix = activitiesOptions.ActivityLogSuffix;
     }
 
     private sealed class ActivityLogger : ILogger

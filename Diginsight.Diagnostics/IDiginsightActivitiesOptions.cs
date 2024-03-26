@@ -8,6 +8,8 @@ public interface IDiginsightActivitiesOptions
 
     bool LogActivities { get; }
     bool RecordActivities { get; }
-
     bool RecordSpanDurations { get; }
+
+    string ActivityLogPrefix { get; }
+    string ActivityLogSuffix { get; }
 }

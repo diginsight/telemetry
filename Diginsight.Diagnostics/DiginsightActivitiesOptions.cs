@@ -10,6 +10,8 @@ public sealed class DiginsightActivitiesOptions
     private bool logActivities;
     private bool recordActivities;
     private bool recordSpanDurations;
+    private string activityLogPrefix = "{ACTION} ";
+    private string activityLogSuffix = "";
 
     private ICollection<string>? loggedActivityNames;
     private ICollection<string>? nonLoggedActivityNames;
@@ -40,6 +42,18 @@ public sealed class DiginsightActivitiesOptions
     {
         get => recordSpanDurations;
         set => recordSpanDurations = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
+    }
+
+    public string ActivityLogPrefix
+    {
+        get => activityLogPrefix;
+        set => activityLogPrefix = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
+    }
+
+    public string ActivityLogSuffix
+    {
+        get => activityLogSuffix;
+        set => activityLogSuffix = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
     }
 
     public ICollection<string> LoggedActivityNames => loggedActivityNames ??= new List<string>();
