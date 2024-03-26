@@ -62,15 +62,14 @@ internal sealed class SmartCache : ISmartCache
         return new DateTime(timestamp.Year, timestamp.Month, timestamp.Day, timestamp.Hour, timestamp.Minute, timestamp.Second);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    [return: NotNullIfNotNull(nameof(timestamp))]
-    private static DateTime? Truncate(DateTime? timestamp)
-    {
-        return timestamp is { } ts ? Truncate(ts) : null;
-    }
-
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public async Task<T> GetAsync<T>(ICacheKey key, Func<Task<T>> fetchAsync, SmartCacheOperationOptions? operationOptions, Type? callerType)
+    public async Task<T> GetAsync<T>(
+        ICacheKey key,
+        Func<CancellationToken, Task<T>> fetchAsync,
+        SmartCacheOperationOptions? operationOptions,
+        Type? callerType,
+        CancellationToken cancellationToken
+    )
     {
         using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key, operationOptions, callerType });
 
@@ -88,7 +87,7 @@ internal sealed class SmartCache : ISmartCache
             using (SmartCacheMetrics.Instruments.FetchDuration.StartLap(SmartCacheMetrics.Tags.Type.Disabled))
             {
                 activity?.SetTag("cache.disabled", 1);
-                return await fetchAsync();
+                return await fetchAsync(cancellationToken);
             }
         }
 
@@ -103,17 +102,19 @@ internal sealed class SmartCache : ISmartCache
             timestamp,
             forceFetch ? null : minimumCreationDate,
             operationOptions.AbsoluteExpiration,
-            operationOptions.SlidingExpiration
+            operationOptions.SlidingExpiration,
+            cancellationToken
         );
     }
 
     private async Task<TValue> GetAsync<TValue>(
         CacheKeyHolder keyHolder,
-        Func<Task<TValue>> fetchAsync,
+        Func<CancellationToken, Task<TValue>> fetchAsync,
         DateTime timestamp,
         DateTime? maybeMinimumCreationDate,
-        TimeSpan? absExpiration = null,
-        TimeSpan? sldExpiration = null
+        TimeSpan? absExpiration,
+        TimeSpan? sldExpiration,
+        CancellationToken cancellationToken
     )
     {
         using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(
@@ -159,7 +160,7 @@ internal sealed class SmartCache : ISmartCache
             StrongBox<double> latencyMsecBox = new ();
             using (SmartCacheMetrics.Instruments.FetchDuration.StartLap(latencyMsecBox, SmartCacheMetrics.Tags.Type.Miss))
             {
-                value = await fetchAsync();
+                value = await fetchAsync(cancellationToken);
             }
 
             long latencyMsec = (long)latencyMsecBox.Value;
@@ -237,7 +238,8 @@ internal sealed class SmartCache : ISmartCache
                         coreOptions.CompanionPrefetchCount,
                         coreOptions.CompanionMaxParallelism,
                         // ReSharper disable once AsyncApostle.AsyncWait
-                        isValid: static t => new ValueTask<bool>(t.Status != TaskStatus.RanToCompletion || t.Result is not null)
+                        isValid: static t => new ValueTask<bool>(t.Status != TaskStatus.RanToCompletion || t.Result is not null),
+                        cancellationToken: cancellationToken
                     );
                 }
                 catch (InvalidOperationException)
@@ -267,7 +269,7 @@ internal sealed class SmartCache : ISmartCache
             else
             {
                 logger.LogDebug(
-                    "Cache miss: creation date validation failed (minimum: {MinimumCreationDate:O}, older: {LocalCreationDate:O})",
+                    "Cache miss: creation date validation failed (minimum: {MinimumCreationDate:s}, older: {LocalCreationDate:s})",
                     minimumCreationDate,
                     localCreationDate ?? DateTime.MinValue
                 );
@@ -281,7 +283,7 @@ internal sealed class SmartCache : ISmartCache
         if (localCreationDate >= maybeMinimumCreationDate)
         {
             logger.LogDebug(
-                "Cache hit: valid creation date (minimum: {MaybeMinimumCreationDate:O}, newer: {LocalCreationDate:O})",
+                "Cache hit: valid creation date (minimum: {MaybeMinimumCreationDate:s}, newer: {LocalCreationDate:s})",
                 maybeMinimumCreationDate,
                 localCreationDate.Value
             );
@@ -295,7 +297,7 @@ internal sealed class SmartCache : ISmartCache
         else
         {
             logger.LogDebug(
-                "Cache miss: creation date validation failed (minimum: {MaybeMinimumCreationDate:O}, older: {LocalCreationDate:O})",
+                "Cache miss: creation date validation failed (minimum: {MaybeMinimumCreationDate:s}, older: {LocalCreationDate:s})",
                 maybeMinimumCreationDate,
                 localCreationDate ?? DateTime.MinValue
             );

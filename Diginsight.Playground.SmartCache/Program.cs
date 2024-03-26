@@ -70,9 +70,9 @@ internal class Program
             {
                 IEnumerable<Guid> guids = await smartCache.GetAsync(
                     new MyCacheKey(line),
-                    async static () =>
+                    async static ct =>
                     {
-                        await Task.Delay(1000);
+                        await Task.Delay(1000, ct);
                         return Enumerable.Range(0, 50).Select(static _ => Guid.NewGuid()).ToArray();
                     }
                 );

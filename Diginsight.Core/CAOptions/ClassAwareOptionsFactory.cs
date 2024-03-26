@@ -21,7 +21,6 @@ public sealed class ClassAwareOptionsFactory<TOptions> : IClassAwareOptionsFacto
         IEnumerable<IValidateClassAwareOptions<TOptions>> classAwareValidators
     )
     {
-        // TODO Optimize .ToArray() here and everywhere
         this.configurators = configurators.ToArray();
         this.classAwareConfigurators = classAwareConfigurators.ToArray();
         this.postConfigurators = postConfigurators.ToArray();
