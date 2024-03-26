@@ -7,9 +7,10 @@ public interface ISmartCache
 {
     Task<T> GetAsync<T>(
         ICacheKey key,
-        Func<Task<T>> fetchAsync,
+        Func<CancellationToken, Task<T>> fetchAsync,
         SmartCacheOperationOptions? operationOptions = null,
-        Type? callerType = null
+        Type? callerType = null,
+        CancellationToken cancellationToken = default
     );
 
     bool TryGetDirectFromMemory(ICacheKey key, [NotNullWhen(true)] out Type? type, out object? value);

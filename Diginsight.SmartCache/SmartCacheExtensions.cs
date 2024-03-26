@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Diginsight.SmartCache;
 
@@ -24,34 +25,22 @@ public static partial class SmartCacheExtensions
             .SetLocalCompanion();
     }
 
-    public static ICacheKey ToKey(this ICacheKeyService cacheKeyService, object obj)
+    public static ICacheKey Wrap<TSource>(this ICacheKeyService cacheKeyService, IEnumerable<TSource>? source)
     {
-        return cacheKeyService.TryToKey(obj, out ICacheKey? key)
-            ? key
-            : throw new NotSupportedException($"object not convertible to {nameof(ICacheKey)}");
-    }
-
-    public static ICacheKey Wrap<TSource>(
-        this ICacheKeyService cacheKeyService, IEnumerable<TSource>? source
-    )
-    {
-        return new EquatableArray(
-            (source ?? Enumerable.Empty<TSource>())
-            .Select(x => cacheKeyService.TryToKey(x, out ICacheKey? key) ? key : (object?)x)
-            .ToArray()
-        );
+        return cacheKeyService.WrapCore(source ?? Enumerable.Empty<TSource>());
     }
 
     public static ICacheKey Wrap<TSource, TOrder>(
         this ICacheKeyService cacheKeyService, IEnumerable<TSource>? source, Func<TSource, TOrder> order, IComparer<TOrder>? comparer = null
     )
     {
-        return new EquatableArray(
-            (source ?? Enumerable.Empty<TSource>())
-            .OrderBy(order, comparer)
-            .Select(x => cacheKeyService.TryToKey(x, out ICacheKey? key) ? key : (object?)x)
-            .ToArray()
-        );
+        return cacheKeyService.WrapCore((source ?? Enumerable.Empty<TSource>()).OrderBy(order, comparer));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static ICacheKey WrapCore<TSource>(this ICacheKeyService cacheKeyService, IEnumerable<TSource> source)
+    {
+        return new EquatableArray(source.Select(x => cacheKeyService.ToKey(x).UntypedKey ?? x).ToArray());
     }
 
     public static T UnwrapAs<T>(this ICacheKey key)
@@ -68,6 +57,7 @@ public static partial class SmartCacheExtensions
             .Invoke(null, [ key ])!;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static T UnwrapAsPlain<T>(this ICacheKey key)
     {
         return (T)((IUnwrappable)key).Unwrap();
@@ -82,7 +72,7 @@ public static partial class SmartCacheExtensions
     private sealed class EquatableArray
         : IEquatable<EquatableArray>, ICacheKey, IUnwrappable
     {
-        [JsonProperty(ItemConverterType = typeof(Converter))]
+        [JsonProperty(ItemConverterType = typeof(DetailedJsonConverter))]
         private readonly object?[] array;
 
         public EquatableArray(object?[] array)
@@ -120,55 +110,6 @@ public static partial class SmartCacheExtensions
         public object Unwrap()
         {
             return Array.ConvertAll(array, static x => x is IUnwrappable u ? u.Unwrap() : x);
-        }
-
-        private sealed class Converter : JsonConverter
-        {
-            public override bool CanRead => false;
-
-            public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
-            {
-                if (value is null)
-                {
-                    writer.WriteNull();
-                    return;
-                }
-
-                JToken tempJt;
-                using (JTokenWriter tempWriter = new ())
-                {
-                    serializer.Serialize(tempWriter, value, typeof(object));
-                    tempJt = tempWriter.Token!;
-                }
-
-                Type objectType = value.GetType();
-                if ((tempJt is JObject && tempJt["$type"] is not null)
-                    ||
-                    (tempJt is JValue && JsonConvert.DeserializeObject<JValue>(tempJt.ToString(Formatting.None))!.Value!.GetType() == objectType))
-                {
-                    tempJt.WriteTo(writer);
-                    return;
-                }
-
-                writer.WriteStartObject();
-
-                writer.WritePropertyName("$type", false);
-                serializer.Serialize(writer, objectType);
-                writer.WritePropertyName("$value", false);
-                tempJt.WriteTo(writer);
-
-                writer.WriteEndObject();
-            }
-
-            public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
-            {
-                throw new NotSupportedException();
-            }
-
-            public override bool CanConvert(Type objectType)
-            {
-                throw new NotSupportedException();
-            }
         }
     }
 }

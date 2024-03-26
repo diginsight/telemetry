@@ -1,8 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace Diginsight.SmartCache;
+﻿namespace Diginsight.SmartCache;
 
 public interface ICacheKeyProvider
 {
-    bool TryToKey(ICacheKeyService service, object? obj, [NotNullWhen(true)] out ICacheKey? key);
+    ToKeyResult ToKey(ICacheKeyService service, object? obj);
 }

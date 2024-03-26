@@ -7,7 +7,7 @@ public static class DependencyInjectionExtensions
 {
     public static ILoggingBuilder AddDiginsightLog4Net(this ILoggingBuilder loggingBuilder, string configFileName)
     {
-        loggingBuilder.AddDiginsight();
+        loggingBuilder.AddDiginsightCore();
 
         IServiceCollection services = loggingBuilder.Services;
 

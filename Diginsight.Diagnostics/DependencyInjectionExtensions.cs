@@ -47,12 +47,18 @@ public static class DependencyInjectionExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ILoggingBuilder AddDiginsight(this ILoggingBuilder loggingBuilder)
+    public static ILoggingBuilder AddDiginsightCore(this ILoggingBuilder loggingBuilder)
+    {
+        return loggingBuilder.Configure(
+            static loggerFactoryOptions => { loggerFactoryOptions.ActivityTrackingOptions = ActivityTrackingOptions.SpanId | ActivityTrackingOptions.TraceId | ActivityTrackingOptions.TraceFlags; }
+        );
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ILoggingBuilder AddDiginsightOpenTelemetry(this ILoggingBuilder loggingBuilder)
     {
         return loggingBuilder
-            .Configure(
-                static loggerFactoryOptions => { loggerFactoryOptions.ActivityTrackingOptions = ActivityTrackingOptions.SpanId | ActivityTrackingOptions.TraceId | ActivityTrackingOptions.TraceFlags; }
-            )
+            .AddDiginsightCore()
             .AddOpenTelemetry(
                 static openTelemetryLoggerOptions =>
                 {
@@ -67,7 +73,7 @@ public static class DependencyInjectionExtensions
         this ILoggingBuilder loggingBuilder, Action<DiginsightConsoleFormatterOptions>? configureFormatterOptions = null
     )
     {
-        loggingBuilder.AddDiginsight();
+        loggingBuilder.AddDiginsightCore();
 
         if (configureFormatterOptions is not null)
         {
