@@ -8,6 +8,7 @@ public interface IDiginsightActivitiesOptions
 
     bool LogActivities { get; }
     bool RecordActivities { get; }
+    bool WriteActivityActionAsPrefix { get; }
 
     bool RecordSpanDurations { get; }
 }

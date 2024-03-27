@@ -17,6 +17,7 @@ public sealed class DiginsightActivitiesOptions
     private ICollection<string>? nonRecordedActivityNames;
 
     private readonly bool frozen;
+    private bool writeActivityActionAsPrefix;
 
     public LogLevel DefaultActivityLogLevel
     {
@@ -34,6 +35,12 @@ public sealed class DiginsightActivitiesOptions
     {
         get => recordActivities;
         set => recordActivities = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
+    }
+
+    public bool WriteActivityActionAsPrefix
+    {
+        get => writeActivityActionAsPrefix;
+        set => writeActivityActionAsPrefix = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
     }
 
     public bool RecordSpanDurations

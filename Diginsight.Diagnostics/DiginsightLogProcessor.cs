@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using OpenTelemetry;
 using System.Collections;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -38,6 +39,7 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
         fallbackLogger = loggerFactory.CreateLogger($"{typeof(DiginsightLogProcessor).Namespace!}.$Activity");
     }
 
+    [SuppressMessage("ReSharper", "TemplateIsNotCompileTimeConstantProblem")]
     public override void OnStart(Activity activity)
     {
         string activityName = activity.OperationName;
@@ -48,11 +50,15 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
                 activity,
                 out bool isStandalone,
                 out bool shouldLog,
+                out bool writeActionAsPrefix,
                 out bool shouldRecord,
                 out ILogger textLogger,
                 out ILogger otlpLogger,
                 out LogLevel logLevel
             );
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            string ComposeLogFormat(string format) => writeActionAsPrefix ? $"START {format}" : $"{format} START";
 
             if (!shouldRecord)
             {
@@ -78,11 +84,11 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
             {
                 if (isStandalone)
                 {
-                    textLogger.Log(logLevel, startActivityEventId, "START {ActivityName}", activityName);
+                    textLogger.Log(logLevel, startActivityEventId, ComposeLogFormat("{ActivityName}"), activityName);
                 }
                 else
                 {
-                    textLogger.Log(logLevel, startMethodActivityEventId, "START {ActivityName}()", activityName);
+                    textLogger.Log(logLevel, startMethodActivityEventId, ComposeLogFormat("{ActivityName}()"), activityName);
                 }
                 return;
             }
@@ -95,12 +101,12 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
             if (isStandalone)
             {
                 otlpLogger.Log(logLevel, new EventId(101, "ActivityInputs"), inputsAsDict, null, (_, _) => $"Activity inputs: {inputsAsString}");
-                textLogger.Log(logLevel, startActivityEventId, "START {ActivityName}({Inputs})", activityName, inputsAsString);
+                textLogger.Log(logLevel, startActivityEventId, ComposeLogFormat("{ActivityName}({Inputs})"), activityName, inputsAsString);
             }
             else
             {
                 otlpLogger.Log(logLevel, new EventId(111, "MethodInputs"), inputsAsDict, null, (_, _) => $"Method inputs: {inputsAsString}");
-                textLogger.Log(logLevel, startMethodActivityEventId, "START {ActivityName}({Inputs})", activityName, inputsAsString);
+                textLogger.Log(logLevel, startMethodActivityEventId, ComposeLogFormat("{ActivityName}({Inputs})"), activityName, inputsAsString);
             }
         }
         catch (Exception exception)
@@ -109,6 +115,7 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
         }
     }
 
+    [SuppressMessage("ReSharper", "TemplateIsNotCompileTimeConstantProblem")]
     public override void OnEnd(Activity activity)
     {
         string activityName = activity.OperationName;
@@ -119,11 +126,15 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
                 activity,
                 out bool isStandalone,
                 out bool shouldLog,
+                out bool writeActionAsPrefix,
                 out bool shouldRecord,
                 out ILogger textLogger,
                 out ILogger otlpLogger,
                 out LogLevel logLevel
             );
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            string ComposeLogFormat(string format) => writeActionAsPrefix ? $"END {format}" : $"{format} END";
 
             if (!(shouldLog || shouldRecord))
             {
@@ -132,7 +143,7 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
 
             if (isStandalone)
             {
-                textLogger.Log(logLevel, new EventId(200, "EndActivity"), "END {ActivityName}", activityName);
+                textLogger.Log(logLevel, new EventId(200, "EndActivity"), ComposeLogFormat("{ActivityName}"), activityName);
                 return;
             }
 
@@ -183,19 +194,19 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
             switch (outputAsString, namedOutputsAsString)
             {
                 case (null, null):
-                    textLogger.Log(logLevel, endMethodActivityEventId, "END {ActivityName}()", activityName);
+                    textLogger.Log(logLevel, endMethodActivityEventId, ComposeLogFormat("{ActivityName}()"), activityName);
                     break;
 
                 case (not null, null):
-                    textLogger.Log(logLevel, endMethodActivityEventId, "END {ActivityName}() => {Output}", activityName, outputAsString);
+                    textLogger.Log(logLevel, endMethodActivityEventId, ComposeLogFormat("{ActivityName}() => {Output}"), activityName, outputAsString);
                     break;
 
                 case (null, not null):
-                    textLogger.Log(logLevel, endMethodActivityEventId, "END {ActivityName}() [=> {NamedOutputs}]", activityName, namedOutputsAsString);
+                    textLogger.Log(logLevel, endMethodActivityEventId, ComposeLogFormat("{ActivityName}() [=> {NamedOutputs}]"), activityName, namedOutputsAsString);
                     break;
 
                 case (not null, not null):
-                    textLogger.Log(logLevel, endMethodActivityEventId, "END {ActivityName}() => {Output} [=> {NamedOutputs}]", activityName, outputAsString, namedOutputsAsString);
+                    textLogger.Log(logLevel, endMethodActivityEventId, ComposeLogFormat("{ActivityName}() => {Output} [=> {NamedOutputs}]"), activityName, outputAsString, namedOutputsAsString);
                     break;
             }
         }
@@ -269,6 +280,7 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
         Activity activity,
         out bool isStandalone,
         out bool shouldLog,
+        out bool writeActionAsPrefix,
         out bool shouldRecord,
         out ILogger textLogger,
         out ILogger otlpLogger,
@@ -300,6 +312,8 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
         textLogger = shouldLog
             ? new ActivityLogger(innerLogger ??= MakeInnerLogger(), activity.IsStopped ? activity.Duration : null)
             : NullLogger.Instance;
+
+        writeActionAsPrefix = activitiesOptions.WriteActivityActionAsPrefix;
 
         shouldRecord = activityProcessingSampler?.ShouldRecord(activity) ?? activitiesOptions.RecordActivities;
         otlpLogger = shouldRecord
