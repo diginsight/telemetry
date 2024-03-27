@@ -12,7 +12,7 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
     private readonly IRedisDatabaseAccessor redisDatabaseAccessor;
     private readonly ISmartCacheRedisOptions smartCacheRedisOptions;
 
-    public override KeyValuePair<string, object?> MetricTag => SmartCacheMetrics.Tags.Type.Redis;
+    public override KeyValuePair<string, object?> MetricTag => SmartCacheObservability.Tags.Type.Redis;
 
     public RedisCacheLocation(
         ILogger<RedisCacheLocation> logger,
@@ -31,7 +31,7 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
         CacheKeyHolder keyHolder, DateTime minimumCreationDate, Action markInvalid, CancellationToken cancellationToken
     )
     {
-        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key });
+        using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key });
 
         if (redisDatabaseAccessor.Database is not { } redisDatabase)
         {
@@ -41,7 +41,7 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
         RedisKey redisKey = smartCacheRedisOptions.KeyPrefix + keyHolder.GetAsString();
 
         RedisValue redisEntry;
-        using TimerLap lap = SmartCacheMetrics.Instruments.FetchDuration.CreateLap(SmartCacheMetrics.Tags.Type.Redis);
+        using TimerLap lap = SmartCacheObservability.Instruments.FetchDuration.CreateLap(SmartCacheObservability.Tags.Type.Redis);
 
         using (lap.Start())
         {
@@ -50,14 +50,14 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
 
         if (redisEntry.IsNull)
         {
-            lap.AddTags(SmartCacheMetrics.Tags.Found.False);
+            lap.AddTags(SmartCacheObservability.Tags.Found.False);
             return null;
         }
 
-        lap.AddTags(SmartCacheMetrics.Tags.Found.True);
+        lap.AddTags(SmartCacheObservability.Tags.Found.True);
 
         ValueEntry<TValue> entry;
-        using (SmartCacheMetrics.StartDeserializeActivity(logger, SmartCacheMetrics.Tags.Subject.Value))
+        using (SmartCacheObservability.StartDeserializeActivity(logger, SmartCacheObservability.Tags.Subject.Value))
         {
             entry = SmartCacheSerialization.Deserialize<ValueEntry<TValue>>((byte[])redisEntry!);
         }
@@ -69,7 +69,7 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
         {
             logger.LogDebug("Partial cache miss (latency: {LatencyMsec}): value found in Redis but creation date is invalid", latencyMsecL);
 
-            lap.AddTags(SmartCacheMetrics.Tags.Found.False);
+            lap.AddTags(SmartCacheObservability.Tags.Found.False);
             markInvalid();
             _ = await redisDatabase.KeyDeleteAsync(redisKey);
             return null;
@@ -87,7 +87,7 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
 
     protected override async Task WriteAsync(CacheKeyHolder keyHolder, IValueEntry entry, TimeSpan? expiration, Func<Task> notifyMissAsync)
     {
-        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key, expiration });
+        using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key, expiration });
 
         if (redisDatabaseAccessor.Database is not { } redisDatabase)
         {
@@ -99,7 +99,7 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
         RedisKey redisKey = keyHolder.GetAsBytes();
 
         byte[] rawEntry;
-        using (SmartCacheMetrics.StartSerializeActivity(logger, SmartCacheMetrics.Tags.Subject.Value))
+        using (SmartCacheObservability.StartSerializeActivity(logger, SmartCacheObservability.Tags.Subject.Value))
         {
             rawEntry = SmartCacheSerialization.SerializeToBytes(entry);
         }

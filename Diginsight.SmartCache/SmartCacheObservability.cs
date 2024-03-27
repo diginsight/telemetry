@@ -6,8 +6,10 @@ using System.Runtime.CompilerServices;
 
 namespace Diginsight.SmartCache;
 
-internal static class SmartCacheMetrics
+internal static class SmartCacheObservability
 {
+    public static readonly ActivitySource ActivitySource = new (typeof(SmartCacheObservability).Namespace!);
+
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static Activity? StartSerializeActivity(ILogger logger, params KeyValuePair<string, object?>[] tags)
     {
@@ -22,12 +24,6 @@ internal static class SmartCacheMetrics
         Activity? activity = ActivitySource.StartRichActivity(logger, $"{nameof(SmartCache)}.Deserialize", stackDepth: 1);
         activity?.SetCustomDurationMetric(Instruments.SerializationDuration, [ Tags.Operation.Deserialization, ..tags ]);
         return activity;
-    }
-
-    public static ActivitySource ActivitySource
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => SelfObservabilityUtils.ActivitySource;
     }
 
     public static class Instruments
@@ -49,7 +45,7 @@ internal static class SmartCacheMetrics
 
         static Instruments()
         {
-            Meter meter = SelfObservabilityUtils.Meter;
+            Meter meter = new (ActivitySource.Name);
 
             FetchDuration = meter.CreateTimer("cache.fetch.duration");
             SerializationDuration = meter.CreateHistogram<double>("cache.serialization.duration");

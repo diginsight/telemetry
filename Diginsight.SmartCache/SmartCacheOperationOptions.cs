@@ -8,4 +8,6 @@ public sealed class SmartCacheOperationOptions
 
     public TimeSpan? AbsoluteExpiration { get; set; }
     public TimeSpan? SlidingExpiration { get; set; }
+
+    public SmartCacheOperationOptions Clone() => (SmartCacheOperationOptions)MemberwiseClone();
 }

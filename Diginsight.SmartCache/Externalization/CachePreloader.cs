@@ -34,17 +34,17 @@ public sealed class CachePreloader : ICachePreloader
 
     public async Task PreloadAsync<T>(ICacheKey key, Func<Task<T>> fetchAsync)
     {
-        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key });
+        using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger, new { key });
 
         CacheKeyHolder keyHolder = new CacheKeyHolder(key, logger);
 
-        SmartCacheMetrics.Instruments.Preloads.Add(1);
+        SmartCacheObservability.Instruments.Preloads.Add(1);
 
         DateTime timestamp = SmartCache.Truncate(timeProvider.GetUtcNow().UtcDateTime);
 
         T value;
         StrongBox<double> latencyMsecBox = new ();
-        using (SmartCacheMetrics.Instruments.FetchDuration.StartLap(latencyMsecBox, SmartCacheMetrics.Tags.Type.Preload))
+        using (SmartCacheObservability.Instruments.FetchDuration.StartLap(latencyMsecBox, SmartCacheObservability.Tags.Type.Preload))
         {
             value = await fetchAsync();
         }
@@ -56,7 +56,7 @@ public sealed class CachePreloader : ICachePreloader
 
     private async Task NotifyAsync<TValue>(CacheKeyHolder keyHolder, DateTime creationDate, TValue value)
     {
-        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key, creationDate });
+        using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key, creationDate });
 
         IEnumerable<CacheEventNotifier> eventNotifiers = await companion.GetAllEventNotifiersAsync();
         if (!eventNotifiers.Any())
@@ -66,7 +66,7 @@ public sealed class CachePreloader : ICachePreloader
 
         string selfLocationId = companion.SelfLocationId;
         CacheMissDescriptor descriptor = new (selfLocationId, keyHolder.Key, creationDate, selfLocationId, (typeof(TValue), value));
-        CachePayloadHolder<CacheMissDescriptor> descriptorHolder = new (descriptor, logger, SmartCacheMetrics.Tags.Subject.Value);
+        CachePayloadHolder<CacheMissDescriptor> descriptorHolder = new (descriptor, logger, SmartCacheObservability.Tags.Subject.Value);
 
         CacheEventNotifier[] eventNotifiersArray = eventNotifiers.ToArray();
         eventNotifiersArray[SharedRandom.Next(eventNotifiersArray.Length)].NotifyCacheMissAndForget(descriptorHolder);

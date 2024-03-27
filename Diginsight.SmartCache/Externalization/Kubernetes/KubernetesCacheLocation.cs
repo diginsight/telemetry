@@ -12,7 +12,7 @@ internal sealed class KubernetesCacheLocation : ActiveCacheLocation
     private readonly KubernetesCacheCompanionHelper helper;
     private readonly ISmartCacheMiddlewareOptions middlewareOptions;
 
-    public override KeyValuePair<string, object?> MetricTag => SmartCacheMetrics.Tags.Type.Distributed;
+    public override KeyValuePair<string, object?> MetricTag => SmartCacheObservability.Tags.Type.Distributed;
 
     public KubernetesCacheLocation(
         string podIp,
@@ -31,8 +31,8 @@ internal sealed class KubernetesCacheLocation : ActiveCacheLocation
         CacheKeyHolder keyHolder, DateTime minimumCreationDate, Action markInvalid, CancellationToken cancellationToken
     )
     {
-        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key, minimumCreationDate });
-        using TimerLap lap = SmartCacheMetrics.Instruments.FetchDuration.CreateLap(SmartCacheMetrics.Tags.Type.Distributed);
+        using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key, minimumCreationDate });
+        using TimerLap lap = SmartCacheObservability.Instruments.FetchDuration.CreateLap(SmartCacheObservability.Tags.Type.Distributed);
 
         try
         {
@@ -63,7 +63,7 @@ internal sealed class KubernetesCacheLocation : ActiveCacheLocation
 #else
                 using (Stream contentStream = await responseContent.ReadAsStreamAsync())
 #endif
-                using (SmartCacheMetrics.StartDeserializeActivity(logger, SmartCacheMetrics.Tags.Subject.Value))
+                using (SmartCacheObservability.StartDeserializeActivity(logger, SmartCacheObservability.Tags.Subject.Value))
                 {
                     item = SmartCacheSerialization.Deserialize<TValue>(contentStream);
                 }
@@ -74,7 +74,7 @@ internal sealed class KubernetesCacheLocation : ActiveCacheLocation
 
             logger.LogDebug("Cache hit (latency: {LatencyMsec}): Returning up-to-date value from pod {PodIp}", latencyMsecL, Id);
 
-            lap.AddTags(SmartCacheMetrics.Tags.Found.True);
+            lap.AddTags(SmartCacheObservability.Tags.Found.True);
             return new CacheLocationOutput<TValue>(item, valueSerializedSize, latencyMsecD);
         }
         catch (Exception e)
@@ -83,7 +83,7 @@ internal sealed class KubernetesCacheLocation : ActiveCacheLocation
             markInvalid();
             logger.LogDebug("Partial cache miss: Failed to retrieve value from pod {PodIp}", Id);
 
-            lap.AddTags(SmartCacheMetrics.Tags.Found.False);
+            lap.AddTags(SmartCacheObservability.Tags.Found.False);
             return null;
         }
     }

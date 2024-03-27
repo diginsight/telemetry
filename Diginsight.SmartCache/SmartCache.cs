@@ -71,20 +71,20 @@ internal sealed class SmartCache : ISmartCache
         CancellationToken cancellationToken
     )
     {
-        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key, operationOptions, callerType });
+        using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger, new { key, operationOptions, callerType });
 
         callerType ??= RuntimeUtils.GetCaller().DeclaringType;
         operationOptions ??= new ();
 
         CacheKeyHolder keyHolder = new CacheKeyHolder(key, logger);
 
-        SmartCacheMetrics.Instruments.Calls.Add(1);
+        SmartCacheObservability.Instruments.Calls.Add(1);
 
         if (operationOptions.Disabled)
         {
-            SmartCacheMetrics.Instruments.Sources.Add(1, SmartCacheMetrics.Tags.Type.Disabled);
+            SmartCacheObservability.Instruments.Sources.Add(1, SmartCacheObservability.Tags.Type.Disabled);
 
-            using (SmartCacheMetrics.Instruments.FetchDuration.StartLap(SmartCacheMetrics.Tags.Type.Disabled))
+            using (SmartCacheObservability.Instruments.FetchDuration.StartLap(SmartCacheObservability.Tags.Type.Disabled))
             {
                 activity?.SetTag("cache.disabled", 1);
                 return await fetchAsync(cancellationToken);
@@ -117,11 +117,11 @@ internal sealed class SmartCache : ISmartCache
         CancellationToken cancellationToken
     )
     {
-        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(
+        using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(
             logger, new { keyHolder.Key, timestamp, maybeMinimumCreationDate, absExpiration, sldExpiration }
         );
 
-        using TimerLap memoryLap = SmartCacheMetrics.Instruments.FetchDuration.CreateLap(SmartCacheMetrics.Tags.Type.Memory);
+        using TimerLap memoryLap = SmartCacheObservability.Instruments.FetchDuration.CreateLap(SmartCacheObservability.Tags.Type.Memory);
         memoryLap.DisableCommit = true;
 
         ISmartCacheCoreOptions coreOptions = coreOptionsMonitor.CurrentValue;
@@ -139,7 +139,7 @@ internal sealed class SmartCache : ISmartCache
         else
         {
             using (memoryLap.Start())
-            using (SmartCacheMetrics.ActivitySource.StartRichActivity(logger, $"{nameof(SmartCache)}.GetFromMemory"))
+            using (SmartCacheObservability.ActivitySource.StartRichActivity(logger, $"{nameof(SmartCache)}.GetFromMemory"))
             {
                 localEntry = memoryCache.Get<ValueEntry<TValue>?>(keyHolder.Key);
                 externalEntry = discardExternalMiss ? null : externalMissDictionary.Get(keyHolder.Key);
@@ -153,12 +153,12 @@ internal sealed class SmartCache : ISmartCache
 
         async Task<TValue> FetchAndSetValueAsync([SuppressMessage("ReSharper", "VariableHidesOuterVariable")] Activity? activity)
         {
-            SmartCacheMetrics.Instruments.Sources.Add(1, SmartCacheMetrics.Tags.Type.Miss);
+            SmartCacheObservability.Instruments.Sources.Add(1, SmartCacheObservability.Tags.Type.Miss);
             activity?.SetTag("cache.hit", 0);
 
             TValue value;
             StrongBox<double> latencyMsecBox = new ();
-            using (SmartCacheMetrics.Instruments.FetchDuration.StartLap(latencyMsecBox, SmartCacheMetrics.Tags.Type.Miss))
+            using (SmartCacheObservability.Instruments.FetchDuration.StartLap(latencyMsecBox, SmartCacheObservability.Tags.Type.Miss))
             {
                 value = await fetchAsync(cancellationToken);
             }
@@ -167,7 +167,7 @@ internal sealed class SmartCache : ISmartCache
 
             logger.LogDebug("Fetched in {LatencyMsec} ms", latencyMsec);
 
-            using (SmartCacheMetrics.ActivitySource.StartRichActivity(logger, $"{nameof(SmartCache)}.SetValue"))
+            using (SmartCacheObservability.ActivitySource.StartRichActivity(logger, $"{nameof(SmartCache)}.SetValue"))
             {
                 SetValue(keyHolder, value, timestamp, absExpiration, sldExpiration, discardExternalMiss);
                 return value;
@@ -256,11 +256,11 @@ internal sealed class SmartCache : ISmartCache
 
                 if (maybeOutputTagged is var ((item, valueSerializedSize, latencyMsec), metricTag))
                 {
-                    SmartCacheMetrics.Instruments.KeySerializedSize.Record(keyHolder.GetAsBytes().LongLength, metricTag);
-                    SmartCacheMetrics.Instruments.ValueSerializedSize.Record(valueSerializedSize, metricTag);
-                    SmartCacheMetrics.Instruments.Sources.Add(1, metricTag);
-                    SmartCacheMetrics.Instruments.CompanionFetchDuration.Underlying.Record(latencyMsec, metricTag);
-                    SmartCacheMetrics.Instruments.CompanionFetchRelativeDuration.Record(latencyMsec / valueSerializedSize * 1000, metricTag);
+                    SmartCacheObservability.Instruments.KeySerializedSize.Record(keyHolder.GetAsBytes().LongLength, metricTag);
+                    SmartCacheObservability.Instruments.ValueSerializedSize.Record(valueSerializedSize, metricTag);
+                    SmartCacheObservability.Instruments.Sources.Add(1, metricTag);
+                    SmartCacheObservability.Instruments.CompanionFetchDuration.Underlying.Record(latencyMsec, metricTag);
+                    SmartCacheObservability.Instruments.CompanionFetchRelativeDuration.Record(latencyMsec / valueSerializedSize * 1000, metricTag);
 
                     SetValue(keyHolder, item, othersCreationDate, absExpiration, sldExpiration, discardExternalMiss);
                     return item!;
@@ -288,8 +288,8 @@ internal sealed class SmartCache : ISmartCache
                 localCreationDate.Value
             );
 
-            memoryLap.AddTags(SmartCacheMetrics.Tags.Found.True);
-            SmartCacheMetrics.Instruments.Sources.Add(1, SmartCacheMetrics.Tags.Type.Memory);
+            memoryLap.AddTags(SmartCacheObservability.Tags.Found.True);
+            SmartCacheObservability.Instruments.Sources.Add(1, SmartCacheObservability.Tags.Type.Memory);
             activity?.SetTag("cache.hit", 1);
 
             return localEntry!.Data;
@@ -302,7 +302,7 @@ internal sealed class SmartCache : ISmartCache
                 localCreationDate ?? DateTime.MinValue
             );
 
-            memoryLap.AddTags(SmartCacheMetrics.Tags.Found.False);
+            memoryLap.AddTags(SmartCacheObservability.Tags.Found.False);
 
             return await FetchAndSetValueAsync(activity);
         }
@@ -330,7 +330,7 @@ internal sealed class SmartCache : ISmartCache
         bool skipNotify = false
     )
     {
-        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(
+        using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(
             logger, new { key = keyHolder.Key, valueType, creationDate, absExpiration, sldExpiration, skipNotify }
         );
 
@@ -361,11 +361,11 @@ internal sealed class SmartCache : ISmartCache
         long keySize;
         try
         {
-            using (SmartCacheMetrics.Instruments.SizeComputationDuration.StartLap(SmartCacheMetrics.Tags.Subject.Key))
+            using (SmartCacheObservability.Instruments.SizeComputationDuration.StartLap(SmartCacheObservability.Tags.Subject.Key))
             {
                 keySize = Size.Get(key);
             }
-            SmartCacheMetrics.Instruments.KeyObjectSize.Record(keySize);
+            SmartCacheObservability.Instruments.KeyObjectSize.Record(keySize);
         }
         catch (Exception)
         {
@@ -373,11 +373,11 @@ internal sealed class SmartCache : ISmartCache
         }
 
         long valueSize;
-        using (SmartCacheMetrics.Instruments.SizeComputationDuration.StartLap(SmartCacheMetrics.Tags.Subject.Value))
+        using (SmartCacheObservability.Instruments.SizeComputationDuration.StartLap(SmartCacheObservability.Tags.Subject.Value))
         {
             valueSize = Size.Get(value);
         }
-        SmartCacheMetrics.Instruments.ValueObjectSize.Record(valueSize);
+        SmartCacheObservability.Instruments.ValueObjectSize.Record(valueSize);
 
         long size = keySize + valueSize;
 
@@ -398,7 +398,7 @@ internal sealed class SmartCache : ISmartCache
             (k, v, r, _) =>
             {
                 Interlocked.Add(ref memoryCacheSize, -size);
-                SmartCacheMetrics.Instruments.TotalSize.Add(-size);
+                SmartCacheObservability.Instruments.TotalSize.Add(-size);
 
                 OnEvicted(new CacheKeyHolder((ICacheKey)k, logger), (IValueEntry)v!, r, inftyFinalAbsExpiration);
             }
@@ -407,7 +407,7 @@ internal sealed class SmartCache : ISmartCache
         memoryCache.Set(key, entry, entryOptions);
 
         Interlocked.Add(ref memoryCacheSize, size);
-        SmartCacheMetrics.Instruments.TotalSize.Add(size);
+        SmartCacheObservability.Instruments.TotalSize.Add(size);
 
         if (!skipNotify)
         {
@@ -417,14 +417,14 @@ internal sealed class SmartCache : ISmartCache
 
     private void OnEvicted(CacheKeyHolder keyHolder, IValueEntry entry, EvictionReason reason, TimeSpan? expiration)
     {
-        SmartCacheMetrics.Instruments.Evictions.Add(
+        SmartCacheObservability.Instruments.Evictions.Add(
             1,
             reason switch
             {
-                EvictionReason.Removed => SmartCacheMetrics.Tags.Eviction.Removed,
-                EvictionReason.Replaced => SmartCacheMetrics.Tags.Eviction.Replaced,
-                EvictionReason.Expired or EvictionReason.TokenExpired => SmartCacheMetrics.Tags.Eviction.Expired,
-                EvictionReason.Capacity => SmartCacheMetrics.Tags.Eviction.Capacity,
+                EvictionReason.Removed => SmartCacheObservability.Tags.Eviction.Removed,
+                EvictionReason.Replaced => SmartCacheObservability.Tags.Eviction.Replaced,
+                EvictionReason.Expired or EvictionReason.TokenExpired => SmartCacheObservability.Tags.Eviction.Expired,
+                EvictionReason.Capacity => SmartCacheObservability.Tags.Eviction.Capacity,
                 EvictionReason.None => throw new InvalidOperationException($"unexpected {nameof(EvictionReason)}"),
                 _ => throw new ArgumentOutOfRangeException($"unrecognized {nameof(EvictionReason)}"),
             }
@@ -435,7 +435,7 @@ internal sealed class SmartCache : ISmartCache
             return;
         }
 
-        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key, reason, expiration });
+        using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key, reason, expiration });
 
         keys.Remove(keyHolder.Key);
 
@@ -469,13 +469,13 @@ internal sealed class SmartCache : ISmartCache
 
     private async Task NotifyMissAsync(CacheKeyHolder keyHolder, DateTime creationDate, (object?, Type)? valueHolder, string? locationId)
     {
-        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(
+        using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(
             logger, new { key = keyHolder.Key, creationDate, locationId }
         );
 
         if (locationId is not null)
         {
-            using (SmartCacheMetrics.ActivitySource.StartRichActivity(logger, $"{nameof(SmartCache)}.SetMissValue"))
+            using (SmartCacheObservability.ActivitySource.StartRichActivity(logger, $"{nameof(SmartCache)}.SetMissValue"))
             {
                 externalMissDictionary.Add(keyHolder.Key, creationDate, locationId);
             }
@@ -499,7 +499,7 @@ internal sealed class SmartCache : ISmartCache
             using MemoryStream valueStream = new (valueBytes);
 #endif
 
-            using (SmartCacheMetrics.StartSerializeActivity(logger, SmartCacheMetrics.Tags.Subject.Value))
+            using (SmartCacheObservability.StartSerializeActivity(logger, SmartCacheObservability.Tags.Subject.Value))
             {
                 try
                 {
@@ -520,7 +520,7 @@ internal sealed class SmartCache : ISmartCache
 
         string selfLocationId = companion.SelfLocationId;
         CacheMissDescriptor descriptor = new (selfLocationId, keyHolder.Key, creationDate, locationId ?? selfLocationId, valueTuple);
-        CachePayloadHolder<CacheMissDescriptor> descriptorHolder = new (descriptor, logger, SmartCacheMetrics.Tags.Subject.Value);
+        CachePayloadHolder<CacheMissDescriptor> descriptorHolder = new (descriptor, logger, SmartCacheObservability.Tags.Subject.Value);
 
         foreach (CacheEventNotifier eventNotifier in eventNotifiers)
         {
@@ -530,7 +530,7 @@ internal sealed class SmartCache : ISmartCache
 
     private DateTime GetMinimumCreationDate([NotNull] ref TimeSpan? maxAge, Type callerType, DateTime timestamp)
     {
-        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { maxAge, callerType, timestamp });
+        using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger, new { maxAge, callerType, timestamp });
 
         ISmartCacheCoreOptions coreOptions = coreOptionsMonitor.Get(callerType);
         IOnTheFlySmartCacheCoreOptions otfCoreOptions = otfCoreOptionsMonitor.Get(callerType);
@@ -561,7 +561,7 @@ internal sealed class SmartCache : ISmartCache
 
     public bool TryGetDirectFromMemory(ICacheKey key, [NotNullWhen(true)] out Type? type, out object? value)
     {
-        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key });
+        using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger, new { key });
 
         if (memoryCache.Get<IValueEntry?>(key) is { } entry)
         {
@@ -594,7 +594,7 @@ internal sealed class SmartCache : ISmartCache
 
     private void Invalidate(IInvalidationRule invalidationRule, bool broadcast)
     {
-        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, () => new { invalidationRule, broadcast });
+        using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger, () => new { invalidationRule, broadcast });
 
         ICollection<Func<Task>> invalidationCallbacks = new List<Func<Task>>();
 
@@ -619,7 +619,7 @@ internal sealed class SmartCache : ISmartCache
             }
         }
 
-        using (SmartCacheMetrics.ActivitySource.StartRichActivity(logger, $"{nameof(SmartCache)}.Invalidate"))
+        using (SmartCacheObservability.ActivitySource.StartRichActivity(logger, $"{nameof(SmartCache)}.Invalidate"))
         {
             CoreInvalidate(keys.Keys, memoryCache.Remove);
             CoreInvalidate(externalMissDictionary.Keys, k => RemoveExternalMiss(new CacheKeyHolder(k, logger)));
@@ -654,7 +654,7 @@ internal sealed class SmartCache : ISmartCache
             }
 
             InvalidationDescriptor descriptor = new (companion.SelfLocationId, invalidationRule);
-            CachePayloadHolder<InvalidationDescriptor> descriptorHolder = new (descriptor, logger, SmartCacheMetrics.Tags.Subject.Value);
+            CachePayloadHolder<InvalidationDescriptor> descriptorHolder = new (descriptor, logger, SmartCacheObservability.Tags.Subject.Value);
             foreach (CacheEventNotifier eventNotifier in eventNotifiers)
             {
                 eventNotifier.NotifyInvalidationAndForget(descriptorHolder);

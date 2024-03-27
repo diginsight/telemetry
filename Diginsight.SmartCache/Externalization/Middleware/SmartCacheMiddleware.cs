@@ -63,16 +63,16 @@ internal sealed class SmartCacheMiddleware : IMiddleware
     private async Task<IActionResult> GetAsync(HttpContext httpContext)
     {
         byte[] rawValue;
-        using (TimerLap lap = SmartCacheMetrics.Instruments.FetchDuration.StartLap(SmartCacheMetrics.Tags.Type.Direct))
+        using (TimerLap lap = SmartCacheObservability.Instruments.FetchDuration.StartLap(SmartCacheObservability.Tags.Type.Direct))
         {
             ICacheKey key = await DeserializeBodyAsync<ICacheKey>(httpContext);
             if (!smartCache.TryGetDirectFromMemory(key, out Type? type, out object? value))
             {
-                lap.AddTags(SmartCacheMetrics.Tags.Found.False);
+                lap.AddTags(SmartCacheObservability.Tags.Found.False);
                 return new NotFoundResult();
             }
 
-            lap.AddTags(SmartCacheMetrics.Tags.Found.True);
+            lap.AddTags(SmartCacheObservability.Tags.Found.True);
             rawValue = SmartCacheSerialization.SerializeToBytes(value, type);
         }
 

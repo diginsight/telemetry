@@ -11,7 +11,7 @@ public sealed class CacheKeyHolder : CachePayloadHolder<ICacheKey>, ILogStringab
     public bool CanCycle => false;
 
     public CacheKeyHolder(ICacheKey key, ILogger logger)
-        : base(key, logger, SmartCacheMetrics.Tags.Subject.Key) { }
+        : base(key, logger, SmartCacheObservability.Tags.Subject.Key) { }
 
     public void AppendTo(AppendingContext appendingContext) => appendingContext.ComposeAndAppend(Key, false);
 }

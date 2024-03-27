@@ -196,7 +196,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
     private async Task InstallAsync(CancellationToken cancellationToken)
     {
-        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger);
+        using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger);
 
         string topicName = serviceBusOptions.TopicName;
         string subscriptionName = serviceBusOptions.SubscriptionName;
@@ -382,7 +382,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
     private async Task ProcessAsync(ServiceBusReceiver receiver, ServiceBusReceivedMessage receivedMessage)
     {
-        using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger);
+        using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger);
 
         if (receivedMessage.ApplicationProperties.GetValueOrDefault(SourcePropertyName) is not string emitter)
         {
@@ -412,19 +412,19 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
             async Task<Func<Task>> ProcessGetAsync()
             {
                 byte[]? body;
-                using (TimerLap lap = SmartCacheMetrics.Instruments.FetchDuration.StartLap(SmartCacheMetrics.Tags.Type.Direct))
+                using (TimerLap lap = SmartCacheObservability.Instruments.FetchDuration.StartLap(SmartCacheObservability.Tags.Type.Direct))
                 {
                     ICacheKey key = DeserializeBody<ICacheKey>();
                     await CompleteMessageAsync();
 
                     if (SmartCache.TryGetDirectFromMemory(key, out Type? type, out object? value))
                     {
-                        lap.AddTags(SmartCacheMetrics.Tags.Found.True);
+                        lap.AddTags(SmartCacheObservability.Tags.Found.True);
                         body = SmartCacheSerialization.SerializeToBytes(value, type);
                     }
                     else
                     {
-                        lap.AddTags(SmartCacheMetrics.Tags.Found.False);
+                        lap.AddTags(SmartCacheObservability.Tags.Found.False);
                         body = null;
                     }
                 }
@@ -581,7 +581,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
     {
         try
         {
-            using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger);
+            using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger);
 
             executionMre.Wait();
 
@@ -635,7 +635,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         private readonly ILogger logger;
         private readonly ServiceBusCacheCompanion companion;
 
-        public override KeyValuePair<string, object?> MetricTag => SmartCacheMetrics.Tags.Type.Distributed;
+        public override KeyValuePair<string, object?> MetricTag => SmartCacheObservability.Tags.Type.Distributed;
 
         public ServiceBusCacheLocation(
             string subscriptionName,
@@ -652,10 +652,10 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
             CacheKeyHolder keyHolder, DateTime minimumCreationDate, Action markInvalid, CancellationToken cancellationToken
         )
         {
-            using Activity? activity = SmartCacheMetrics.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key, minimumCreationDate });
+            using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key, minimumCreationDate });
             logger.LogDebug("Sending message for get request to '{Destination}'", Id);
 
-            using TimerLap lap = SmartCacheMetrics.Instruments.FetchDuration.CreateLap(SmartCacheMetrics.Tags.Type.Distributed);
+            using TimerLap lap = SmartCacheObservability.Instruments.FetchDuration.CreateLap(SmartCacheObservability.Tags.Type.Distributed);
 
             string messageId = Guid.NewGuid().ToString("N");
             ServiceBusMessage message = new (keyHolder.GetAsBytes())
@@ -693,12 +693,12 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
                 markInvalid();
                 logger.LogDebug("Partial cache miss: Failed to retrieve value from peer '{PeerId}'", Id);
 
-                lap.AddTags(SmartCacheMetrics.Tags.Found.False);
+                lap.AddTags(SmartCacheObservability.Tags.Found.False);
                 return null;
             }
 
             TValue item;
-            using (SmartCacheMetrics.StartDeserializeActivity(logger, SmartCacheMetrics.Tags.Subject.Value))
+            using (SmartCacheObservability.StartDeserializeActivity(logger, SmartCacheObservability.Tags.Subject.Value))
             {
                 item = SmartCacheSerialization.Deserialize<TValue>(body);
             }
@@ -708,7 +708,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
             logger.LogDebug("Cache hit (latency: {LatencyMsec}): Returning up-to-date value from peer '{PeerId}'", latencyMsecL, Id);
 
-            lap.AddTags(SmartCacheMetrics.Tags.Found.True);
+            lap.AddTags(SmartCacheObservability.Tags.Found.True);
             return new CacheLocationOutput<TValue>(item, valueSerializedSize, latencyMsecD);
         }
     }

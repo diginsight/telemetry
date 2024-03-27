@@ -31,7 +31,7 @@ public static class DependencyInjectionExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static OpenTelemetryBuilder AddDiginsight(this IServiceCollection services)
+    public static OpenTelemetryBuilder AddDiginsightOpenTelemetry(this IServiceCollection services)
     {
         return services
             .AddOpenTelemetry()

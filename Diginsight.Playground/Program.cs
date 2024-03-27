@@ -69,7 +69,7 @@ internal class Program : BackgroundService
                         logger.LogDebug("Diginsight");
                         services
                             .ConfigureClassAware<DiginsightActivitiesOptions>(configuration, diginsightSectionName)
-                            .AddDiginsight()
+                            .AddDiginsightOpenTelemetry()
                             .WithTracing(
                                 tracerProviderBuilder => tracerProviderBuilder
                                     .AddDiginsight()
