@@ -31,6 +31,10 @@ Articles:
 
 - [HOWTO - Use Diginsight Samples.md](<articles/04. HowTo Use Diginsight Samples/HOWTO - Use Diginsight Samples.md>): explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.
 
+Diginsight v3 is coming, get a look to:
+
+- [Introduction to Diginsight v3.md](<articles/10. Introduction to Diginsight v3/Introduction to Diginsight v3.md>): explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.
+
 <br><br>
 
 # GETTING STARTED
