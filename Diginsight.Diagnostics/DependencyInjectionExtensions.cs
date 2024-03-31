@@ -23,7 +23,7 @@ public static class DependencyInjectionExtensions
         return hostBuilder.UseServiceProviderFactory(
             context =>
             {
-                DiginsightServiceProviderOptions options = new ();
+                DiginsightServiceProviderOptions options = new();
                 configureOptions?.Invoke(context, options);
                 return new DiginsightServiceProviderFactory(options);
             }
@@ -100,9 +100,9 @@ public static class DependencyInjectionExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TracerProviderBuilder AddDiginsight(this TracerProviderBuilder tracerProviderBuilder, LogLevel? defaultActivityLogLevel = null)
     {
-        return tracerProviderBuilder
-            .AddProcessor<DiginsightLogProcessor>()
-            .ConfigureServices(
+        tracerProviderBuilder.AddProcessor<DiginsightLogProcessor>();
+
+        tracerProviderBuilder.ConfigureServices(
                 services =>
                 {
                     services.AddLogStrings();
@@ -113,6 +113,8 @@ public static class DependencyInjectionExtensions
                     }
                 }
             );
+
+        return tracerProviderBuilder;
     }
 
     public static MeterProviderBuilder AddViews(
