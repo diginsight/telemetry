@@ -16,7 +16,7 @@ Diginsight is __efficient__ and __cost effective__ so that __local analysis__ an
 > __diginsight v3 is now available__<br>
 > the following article describes improvements of diginsight v3 over the previous version 
 [Introduction to Diginsight v3.md](<articles/10. Introduction to Diginsight v3/Introduction to Diginsight v3.md>).<br>
-> Documentation about v2 packages is still available here [Diginsight v2 documentation.md](<articles/v2/readme.md>).<br>
+> Documentation about v2 packages is still available here [Diginsight v2 documentation.md](<articles/v2/README.md>).<br>
 
 # APPLICATION OBSERVABILITY CONCEPTS 
 __Application observability__ is about aggregating, correlating and analyzing the following key elements:<br>
