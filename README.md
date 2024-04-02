@@ -16,7 +16,7 @@ Diginsight is __efficient__ and __cost effective__ so that __local analysis__ an
 > __diginsight v3 is now available__<br>
 > the following article describes improvements of diginsight v3 over the previous version 
 [Introduction to Diginsight v3.md](<articles/10. Introduction to Diginsight v3/Introduction to Diginsight v3.md>).<br>
-> Documentation about v2 packages is still available here [Diginsight v2 documentation.md](<articles\v2\readme.md>).<br>
+> Documentation about v2 packages is still available here [Diginsight v2 documentation.md](<articles/v2/readme.md>).<br>
 
 # APPLICATION OBSERVABILITY CONCEPTS 
 __Application observability__ is about aggregating, correlating and analyzing the following key elements:<br>
@@ -53,15 +53,6 @@ As you can see latencies can be easily analyzed for any method, within code.
 diginsight is composed of the following packages:
 ![Alt text](<05. Diginsight v3 packages.png>)
 
-
-the following articles explain in detail how they can be integrated into our code:
-
-Articles:
-- [HOWTO - Make your application flow observable.md](<articles/01. Make your application flow observable/HOWTO - Make your application flow observable.md>): explores how to use diginsight to fully expose our application exeution flow.
-
-- [HOWTO - Avoid performance impacts using diginsight telemetry.md](<articles/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.md>): explores how we can do this ensuring no impact on application performance.
-
-- [HOWTO - Integrate the application flow with OpenTelemetry, Azure Monitor and Grafana.md](<articles/03. Integrate the application flow with Azure Monitor and Grafana/HOWTO - Integrate the application flow with Azure Monitor and Grafana.md>): explores how we can connect diginsight telemetry to Azure Monitor and Azure Grafana by means of OpenTelemetry.
 
 - [HOWTO - Use Diginsight Samples.md](<articles/04. HowTo Use Diginsight Samples/HOWTO - Use Diginsight Samples.md>): explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.
 
