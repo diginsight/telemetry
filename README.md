@@ -46,8 +46,7 @@ Latencies for the same function can be analyzed with the `span_duration` metric,
 ![Alt text](<06.3 diginsightv3 metric on azmon.png>)
 
 also, in this case, latencies can be split and compared on different sites, users or specific conditions.
-
-As you can see latencies can be easily analyzed for any method.
+As you can see latencies can be easily analyzed for any method, within code.
 
 
 ## Diginsight v3 packages
