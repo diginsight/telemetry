@@ -1,5 +1,4 @@
-﻿#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-namespace Diginsight;
+﻿namespace Diginsight;
 
 public sealed class CallbackAsyncDisposable : IAsyncDisposable
 {
@@ -12,4 +11,3 @@ public sealed class CallbackAsyncDisposable : IAsyncDisposable
 
     public ValueTask DisposeAsync() => actionAsync();
 }
-#endif

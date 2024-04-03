@@ -6,7 +6,7 @@ internal sealed class DynamicSmartCacheCoreOptions : IDynamicSmartCacheCoreOptio
 {
     public DateTime? MinimumCreationDate { get; set; }
 
-#if !(NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER)
-    public object MakeFiller() => this;
+#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+    object IDynamicallyPostConfigurable.MakeFiller() => this;
 #endif
 }

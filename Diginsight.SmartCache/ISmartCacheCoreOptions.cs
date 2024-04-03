@@ -5,10 +5,10 @@ public interface ISmartCacheCoreOptions
     bool DiscardExternalMiss { get; }
     bool RedisOnlyCache { get; }
 
-    TimeSpan MaxAge { get; }
+    Expiration MaxAge { get; }
 
-    TimeSpan AbsoluteExpiration { get; }
-    TimeSpan SlidingExpiration { get; }
+    Expiration AbsoluteExpiration { get; }
+    Expiration SlidingExpiration { get; }
 
     int CompanionPrefetchCount { get; }
     int CompanionMaxParallelism { get; }

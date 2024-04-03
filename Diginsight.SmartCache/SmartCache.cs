@@ -91,10 +91,10 @@ internal sealed class SmartCache : ISmartCache
             }
         }
 
-        TimeSpan? maxAge = operationOptions.MaxAge;
+        Expiration? maxAge = operationOptions.MaxAge;
         DateTime timestamp = Truncate(timeProvider.GetUtcNow().UtcDateTime);
         DateTime minimumCreationDate = GetMinimumCreationDate(ref maxAge, callerType, timestamp);
-        bool forceFetch = maxAge.Value <= TimeSpan.Zero || minimumCreationDate >= timestamp;
+        bool forceFetch = maxAge.Value == Expiration.Zero || minimumCreationDate >= timestamp;
 
         return await GetAsync(
             keyHolder,
@@ -112,8 +112,8 @@ internal sealed class SmartCache : ISmartCache
         Func<CancellationToken, Task<T>> fetchAsync,
         DateTime timestamp,
         DateTime? maybeMinimumCreationDate,
-        TimeSpan? absExpiration,
-        TimeSpan? sldExpiration,
+        Expiration? absExpiration,
+        Expiration? sldExpiration,
         CancellationToken cancellationToken
     )
     {
@@ -308,8 +308,8 @@ internal sealed class SmartCache : ISmartCache
         CacheKeyHolder keyHolder,
         T value,
         DateTime creationDate,
-        TimeSpan? absExpiration = null,
-        TimeSpan? sldExpiration = null,
+        Expiration? absExpiration = null,
+        Expiration? sldExpiration = null,
         bool skipNotify = false
     )
     {
@@ -321,8 +321,8 @@ internal sealed class SmartCache : ISmartCache
         Type valueType,
         object? value,
         DateTime creationDate,
-        TimeSpan? absExpiration = null,
-        TimeSpan? sldExpiration = null,
+        Expiration? absExpiration = null,
+        Expiration? sldExpiration = null,
         bool skipNotify = false
     )
     {
@@ -339,20 +339,16 @@ internal sealed class SmartCache : ISmartCache
 
         IValueEntry entry = ValueEntry.Create(value, valueType, creationDate);
 
-        static TimeSpan? ToInfinity(TimeSpan ts) => ts == TimeSpan.MaxValue ? null : ts;
-
-        TimeSpan finalAbsExpiration = absExpiration ?? coreOptions.AbsoluteExpiration;
-        TimeSpan? inftyFinalAbsExpiration = ToInfinity(finalAbsExpiration);
+        Expiration finalAbsExpiration = absExpiration ?? coreOptions.AbsoluteExpiration;
 
         if (coreOptions.RedisOnlyCache && redisLocation is not null)
         {
-            WriteToLocation(redisLocation, keyHolder, entry, inftyFinalAbsExpiration, skipNotify);
+            WriteToLocation(redisLocation, keyHolder, entry, finalAbsExpiration, skipNotify);
             return;
         }
 
-        TimeSpan? inftyFinalSldExpiration = ToInfinity(
-            new TimeSpan(Math.Min((sldExpiration ?? coreOptions.SlidingExpiration).Ticks, finalAbsExpiration.Ticks))
-        );
+        Expiration candidateSldExpiration = sldExpiration ?? coreOptions.SlidingExpiration;
+        Expiration finalSldExpiration = candidateSldExpiration < finalAbsExpiration ? candidateSldExpiration : finalAbsExpiration;
 
         long keySize;
         try
@@ -384,8 +380,8 @@ internal sealed class SmartCache : ISmartCache
 
         MemoryCacheEntryOptions entryOptions = new ()
         {
-            AbsoluteExpirationRelativeToNow = inftyFinalAbsExpiration,
-            SlidingExpiration = inftyFinalSldExpiration,
+            AbsoluteExpirationRelativeToNow = finalAbsExpiration.IsNever ? null : finalAbsExpiration.Value,
+            SlidingExpiration = finalSldExpiration.IsNever ? null : finalSldExpiration.Value,
             Size = size,
             Priority = priority,
         };
@@ -396,7 +392,7 @@ internal sealed class SmartCache : ISmartCache
                 Interlocked.Add(ref memoryCacheSize, -size);
                 SmartCacheObservability.Instruments.TotalSize.Add(-size);
 
-                OnEvicted(new CacheKeyHolder((ICacheKey)k, logger), (IValueEntry)v!, r, inftyFinalAbsExpiration);
+                OnEvicted(new CacheKeyHolder((ICacheKey)k, logger), (IValueEntry)v!, r, finalAbsExpiration);
             }
         );
 
@@ -411,7 +407,7 @@ internal sealed class SmartCache : ISmartCache
         }
     }
 
-    private void OnEvicted(CacheKeyHolder keyHolder, IValueEntry entry, EvictionReason reason, TimeSpan? expiration)
+    private void OnEvicted(CacheKeyHolder keyHolder, IValueEntry entry, EvictionReason reason, Expiration expiration)
     {
         using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key, reason, expiration });
 
@@ -446,7 +442,7 @@ internal sealed class SmartCache : ISmartCache
         }
     }
 
-    private void WriteToLocation(PassiveCacheLocation location, CacheKeyHolder keyHolder, IValueEntry entry, TimeSpan? expiration, bool skipNotify = false)
+    private void WriteToLocation(PassiveCacheLocation location, CacheKeyHolder keyHolder, IValueEntry entry, Expiration expiration, bool skipNotify = false)
     {
         location.WriteAndForget(
             keyHolder,
@@ -517,23 +513,14 @@ internal sealed class SmartCache : ISmartCache
         }
     }
 
-    private DateTime GetMinimumCreationDate([NotNull] ref TimeSpan? maxAge, Type callerType, DateTime timestamp)
+    private DateTime GetMinimumCreationDate([NotNull] ref Expiration? maxAge, Type callerType, DateTime timestamp)
     {
         ISmartCacheCoreOptions coreOptions = coreOptionsMonitor.Get(callerType);
         IDynamicSmartCacheCoreOptions dynamicCoreOptions = dynamicCoreOptionsMonitor.Get(callerType);
 
-        TimeSpan finalMaxAge = maxAge ?? coreOptions.MaxAge;
+        Expiration finalMaxAge = maxAge ?? coreOptions.MaxAge;
 
-        DateTime minimumCreationDate;
-        try
-        {
-            minimumCreationDate = timestamp - finalMaxAge;
-        }
-        catch (ArgumentOutOfRangeException)
-        {
-            minimumCreationDate = DateTime.MinValue;
-        }
-
+        DateTime minimumCreationDate = finalMaxAge.IsNever ? DateTime.MinValue : timestamp - finalMaxAge.Value;
         if (dynamicCoreOptions.MinimumCreationDate is { } dynamicMinimumCreationDate && dynamicMinimumCreationDate > minimumCreationDate)
         {
             minimumCreationDate = dynamicMinimumCreationDate;
