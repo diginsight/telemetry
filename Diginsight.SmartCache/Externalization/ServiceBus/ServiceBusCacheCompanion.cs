@@ -579,10 +579,10 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
     private async Task UninstallAsync()
     {
+        using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger);
+
         try
         {
-            using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger);
-
             executionMre.Wait();
 
             clientHolder.Invalidate();
@@ -698,7 +698,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
             }
 
             TValue item;
-            using (SmartCacheObservability.StartDeserializeActivity(logger, SmartCacheObservability.Tags.Subject.Value))
+            using (SmartCacheObservability.Instruments.SerializationDuration.StartLap(SmartCacheObservability.Tags.Operation.Deserialization, SmartCacheObservability.Tags.Subject.Value))
             {
                 item = SmartCacheSerialization.Deserialize<TValue>(body);
             }

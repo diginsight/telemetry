@@ -361,6 +361,7 @@
       "diginsight.core": {
         "type": "Project",
         "dependencies": {
+          "Microsoft.Bcl.AsyncInterfaces": "[8.*, )",
           "Microsoft.Bcl.HashCode": "[1.*, )",
           "Microsoft.Bcl.TimeProvider": "[8.*, )",
           "Microsoft.Extensions.Caching.Memory": "[8.*, )",

@@ -1,33 +1,34 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using Diginsight.CAOptions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Diginsight.SmartCache;
 
-public sealed class SmartCacheCoreOptions : ISmartCacheCoreOptions
+public sealed class SmartCacheCoreOptions : ISmartCacheCoreOptions, IDynamicallyPostConfigurable
 {
+    private Expiration maxAge = Expiration.Never;
+    private Expiration absoluteExpiration = Expiration.Never;
+    private Expiration slidingExpiration = Expiration.Never;
     private TimeSpan localEntryTolerance = TimeSpan.FromSeconds(10);
-    private TimeSpan maxAge = TimeSpan.MaxValue;
-    private TimeSpan absoluteExpiration = TimeSpan.MaxValue;
-    private TimeSpan slidingExpiration = TimeSpan.MaxValue;
 
     public bool DiscardExternalMiss { get; set; }
     public bool RedisOnlyCache { get; set; }
 
-    public TimeSpan MaxAge
+    public Expiration MaxAge
     {
         get => maxAge;
-        set => maxAge = value >= TimeSpan.Zero ? value : TimeSpan.Zero;
+        set => maxAge = value >= Expiration.Zero ? value : Expiration.Zero;
     }
 
-    public TimeSpan AbsoluteExpiration
+    public Expiration AbsoluteExpiration
     {
         get => absoluteExpiration;
-        set => absoluteExpiration = value >= TimeSpan.Zero ? value : TimeSpan.Zero;
+        set => absoluteExpiration = value >= Expiration.Zero ? value : Expiration.Zero;
     }
 
-    public TimeSpan SlidingExpiration
+    public Expiration SlidingExpiration
     {
         get => slidingExpiration;
-        set => slidingExpiration = value >= TimeSpan.Zero ? value : TimeSpan.Zero;
+        set => slidingExpiration = value >= Expiration.Zero ? value : Expiration.Zero;
     }
 
     public int CompanionPrefetchCount { get; set; } = 5;
@@ -44,46 +45,46 @@ public sealed class SmartCacheCoreOptions : ISmartCacheCoreOptions
         set => localEntryTolerance = value >= TimeSpan.Zero ? value : TimeSpan.Zero;
     }
 
-    public object MakeFiller() => new Filler(this);
+    object IDynamicallyPostConfigurable.MakeFiller() => new Filler(this);
 
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
     private sealed class Filler
     {
-        private readonly SmartCacheCoreOptions owner;
+        private readonly SmartCacheCoreOptions filled;
 
-        public Filler(SmartCacheCoreOptions owner)
+        public Filler(SmartCacheCoreOptions filled)
         {
-            this.owner = owner;
+            this.filled = filled;
         }
 
         public bool DiscardExternalMiss
         {
-            get => owner.DiscardExternalMiss;
-            set => owner.DiscardExternalMiss = value;
+            get => filled.DiscardExternalMiss;
+            set => filled.DiscardExternalMiss = value;
         }
 
         public bool RedisOnlyCache
         {
-            get => owner.RedisOnlyCache;
-            set => owner.RedisOnlyCache = value;
+            get => filled.RedisOnlyCache;
+            set => filled.RedisOnlyCache = value;
         }
 
-        public TimeSpan MaxAge
+        public Expiration MaxAge
         {
-            get => owner.MaxAge;
-            set => owner.MaxAge = value;
+            get => filled.MaxAge;
+            set => filled.MaxAge = value;
         }
 
-        public TimeSpan AbsoluteExpiration
+        public Expiration AbsoluteExpiration
         {
-            get => owner.AbsoluteExpiration;
-            set => owner.AbsoluteExpiration = value;
+            get => filled.AbsoluteExpiration;
+            set => filled.AbsoluteExpiration = value;
         }
 
-        public TimeSpan SlidingExpiration
+        public Expiration SlidingExpiration
         {
-            get => owner.SlidingExpiration;
-            set => owner.SlidingExpiration = value;
+            get => filled.SlidingExpiration;
+            set => filled.SlidingExpiration = value;
         }
     }
 }

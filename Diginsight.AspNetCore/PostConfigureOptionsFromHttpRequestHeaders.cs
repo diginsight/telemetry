@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Diginsight.CAOptions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
@@ -9,10 +10,9 @@ namespace Diginsight.AspNetCore;
 
 public class PostConfigureOptionsFromHttpRequestHeaders<TOptions>
     : IPostConfigureOptions<TOptions>, IOptionsChangeTokenSource<TOptions>
-    where TOptions : class
+    where TOptions : class, IDynamicallyPostConfigurable
 {
     private readonly IHttpContextAccessor httpContextAccessor;
-    private readonly Func<TOptions, object>? makeFiller;
 
     private ConfigurationReloadToken changeToken = new ();
 
@@ -20,12 +20,10 @@ public class PostConfigureOptionsFromHttpRequestHeaders<TOptions>
 
     public PostConfigureOptionsFromHttpRequestHeaders(
         string? name,
-        IHttpContextAccessor httpContextAccessor,
-        Func<TOptions, object>? makeFiller = null
+        IHttpContextAccessor httpContextAccessor
     )
     {
         this.httpContextAccessor = httpContextAccessor;
-        this.makeFiller = makeFiller;
         Name = name;
     }
 
@@ -66,8 +64,7 @@ public class PostConfigureOptionsFromHttpRequestHeaders<TOptions>
         {
             configuration = enrichConfiguration(configuration);
         }
-        object filler = makeFiller?.Invoke(options) ?? options;
-        configuration.Bind(filler);
+        configuration.Bind(options.MakeFiller());
     }
 
     protected virtual object GetChangeTokenFiringItemKey(string name) => new ChangeTokenFiringItemKey(name);

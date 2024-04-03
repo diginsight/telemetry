@@ -2,12 +2,12 @@
 
 namespace Diginsight.SmartCache;
 
-public sealed class CacheEntityComparer : IEqualityComparer<ICachable>
+public sealed class CachableComparer : IEqualityComparer<ICachable>
 {
     private readonly ICacheKeyService cacheKeyService;
     private readonly IEqualityComparer<object> keyComparer;
 
-    public CacheEntityComparer(ICacheKeyService cacheKeyService, IEqualityComparer<object>? keyComparer = null)
+    public CachableComparer(ICacheKeyService cacheKeyService, IEqualityComparer<object>? keyComparer = null)
     {
         this.cacheKeyService = cacheKeyService;
         this.keyComparer = keyComparer ?? EqualityComparer<object>.Default;
@@ -17,13 +17,13 @@ public sealed class CacheEntityComparer : IEqualityComparer<ICachable>
     {
         return ReferenceEquals(x, y) ||
             (x?.GetType() == y?.GetType() &&
-                keyComparer.Equals(x!.GetKey(cacheKeyService), y!.GetKey(cacheKeyService)));
+                keyComparer.Equals(x!.ToKey(cacheKeyService), y!.ToKey(cacheKeyService)));
     }
 
     public int GetHashCode(ICachable obj)
     {
-        return obj.GetKey(cacheKeyService) is { } key
-            ? keyComparer.GetHashCode(key)
+        return obj.ToKey(cacheKeyService) is { Success: true } result
+            ? keyComparer.GetHashCode(result.UntypedKey!)
             : RuntimeHelpers.GetHashCode(obj);
     }
 }

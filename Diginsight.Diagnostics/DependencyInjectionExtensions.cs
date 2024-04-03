@@ -23,7 +23,7 @@ public static class DependencyInjectionExtensions
         return hostBuilder.UseServiceProviderFactory(
             context =>
             {
-                DiginsightServiceProviderOptions options = new();
+                DiginsightServiceProviderOptions options = new ();
                 configureOptions?.Invoke(context, options);
                 return new DiginsightServiceProviderFactory(options);
             }
@@ -39,7 +39,7 @@ public static class DependencyInjectionExtensions
                 static resourceBuilder =>
                 {
                     resourceBuilder.AddService(
-                        Assembly.GetEntryAssembly()!.FullName ?? throw new UnreachableException("Entry assembly is not present or unnamed"),
+                        Assembly.GetEntryAssembly()!.GetName().Name ?? throw new UnreachableException("Entry assembly is not present or unnamed"),
                         serviceInstanceId: Environment.MachineName
                     );
                 }
@@ -103,16 +103,16 @@ public static class DependencyInjectionExtensions
         tracerProviderBuilder.AddProcessor<DiginsightLogProcessor>();
 
         tracerProviderBuilder.ConfigureServices(
-                services =>
-                {
-                    services.AddLogStrings();
+            services =>
+            {
+                services.AddLogStrings();
 
-                    if (defaultActivityLogLevel is not null)
-                    {
-                        services.Configure<DiginsightActivitiesOptions>(o => { o.DefaultActivityLogLevel = defaultActivityLogLevel.Value; });
-                    }
+                if (defaultActivityLogLevel is not null)
+                {
+                    services.Configure<DiginsightActivitiesOptions>(o => { o.ActivityLogLevel = defaultActivityLogLevel.Value; });
                 }
-            );
+            }
+        );
 
         return tracerProviderBuilder;
     }

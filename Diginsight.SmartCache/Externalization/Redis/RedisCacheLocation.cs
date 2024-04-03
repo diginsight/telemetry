@@ -31,7 +31,7 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
         CacheKeyHolder keyHolder, DateTime minimumCreationDate, Action markInvalid, CancellationToken cancellationToken
     )
     {
-        using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key });
+        using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key, minimumCreationDate });
 
         if (redisDatabaseAccessor.Database is not { } redisDatabase)
         {
@@ -57,7 +57,7 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
         lap.AddTags(SmartCacheObservability.Tags.Found.True);
 
         ValueEntry<TValue> entry;
-        using (SmartCacheObservability.StartDeserializeActivity(logger, SmartCacheObservability.Tags.Subject.Value))
+        using (SmartCacheObservability.Instruments.SerializationDuration.StartLap(SmartCacheObservability.Tags.Operation.Deserialization, SmartCacheObservability.Tags.Subject.Value))
         {
             entry = SmartCacheSerialization.Deserialize<ValueEntry<TValue>>((byte[])redisEntry!);
         }
@@ -85,7 +85,7 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
         return new CacheLocationOutput<TValue>(entry.Data, valueSerializedSize, latencyMsecD);
     }
 
-    protected override async Task WriteAsync(CacheKeyHolder keyHolder, IValueEntry entry, TimeSpan? expiration, Func<Task> notifyMissAsync)
+    protected override async Task WriteAsync(CacheKeyHolder keyHolder, IValueEntry entry, Expiration expiration, Func<Task> notifyMissAsync)
     {
         using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key, expiration });
 
@@ -99,12 +99,16 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
         RedisKey redisKey = keyHolder.GetAsBytes();
 
         byte[] rawEntry;
-        using (SmartCacheObservability.StartSerializeActivity(logger, SmartCacheObservability.Tags.Subject.Value))
+        using (SmartCacheObservability.Instruments.SerializationDuration.StartLap(SmartCacheObservability.Tags.Operation.Serialization, SmartCacheObservability.Tags.Subject.Value))
         {
             rawEntry = SmartCacheSerialization.SerializeToBytes(entry);
         }
 
-        await redisDatabase.StringSetAsync(redisKey.Prepend(smartCacheRedisOptions.KeyPrefix), rawEntry, expiration);
+        await redisDatabase.StringSetAsync(
+            redisKey.Prepend(smartCacheRedisOptions.KeyPrefix),
+            rawEntry,
+            expiry: expiration.IsNever ? null : expiration.Value
+        );
 
         sw.Stop();
 

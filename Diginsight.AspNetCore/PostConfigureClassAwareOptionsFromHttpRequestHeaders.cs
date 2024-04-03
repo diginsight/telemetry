@@ -8,14 +8,13 @@ public class PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>
     : PostConfigureOptionsFromHttpRequestHeaders<TOptions>,
         IPostConfigureClassAwareOptions<TOptions>,
         IClassAwareOptionsChangeTokenSource<TOptions>
-    where TOptions : class
+    where TOptions : class, IDynamicallyPostConfigurable
 {
     public PostConfigureClassAwareOptionsFromHttpRequestHeaders(
         string name,
-        IHttpContextAccessor httpContextAccessor,
-        Func<TOptions, object>? makeFiller = null
+        IHttpContextAccessor httpContextAccessor
     )
-        : base(name, httpContextAccessor, makeFiller) { }
+        : base(name, httpContextAccessor) { }
 
     public void PostConfigure(string name, Type @class, TOptions options)
     {

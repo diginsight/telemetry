@@ -63,7 +63,7 @@ internal sealed class KubernetesCacheLocation : ActiveCacheLocation
 #else
                 using (Stream contentStream = await responseContent.ReadAsStreamAsync())
 #endif
-                using (SmartCacheObservability.StartDeserializeActivity(logger, SmartCacheObservability.Tags.Subject.Value))
+                using (SmartCacheObservability.Instruments.SerializationDuration.StartLap(SmartCacheObservability.Tags.Operation.Deserialization, SmartCacheObservability.Tags.Subject.Value))
                 {
                     item = SmartCacheSerialization.Deserialize<TValue>(contentStream);
                 }

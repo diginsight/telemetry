@@ -1,5 +1,4 @@
-﻿#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-namespace Diginsight;
+﻿namespace Diginsight;
 
 public sealed class NullAsyncDisposable : IAsyncDisposable
 {
@@ -11,4 +10,3 @@ public sealed class NullAsyncDisposable : IAsyncDisposable
 
     public void Dispose() { }
 }
-#endif
