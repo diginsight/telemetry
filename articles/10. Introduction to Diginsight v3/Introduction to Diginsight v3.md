@@ -9,6 +9,7 @@ __Diginsight v3__ introcuces the following key changes to diginsight telemetry:
 - Support to __dynamic configuration__ of __log levels__.
 - Support to __smart sampling__ to limit telemetry volumes.
 - TBD: Automatic rendering of outbound calls (http, cosmosdb, ... ).
+- a new __Diginsight.SmartCache__ component is available that leverages diginsight v3.
 
 <br>
 

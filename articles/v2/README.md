@@ -1,22 +1,9 @@
 # INTRODUCTION 
-__diginsight telemetry__ is a set .Net packages that that provides __automatic__ __observability__ for dotnet applications.<br><br> 
-In particular, __the full application flow__ is made available to __local text based streams__ such as __traditional file logs__, the __Console log__ or the __Azure Streaming log__.<br>
-Also, the same information is made available also to remote tools for troubleshooting or performance analysis such as __Azure Monitor__ or __Grafana__. 
+__Common.Diagnostics__ is a .Net package that provides a readable __application execution flow__ to __.Net Log providers__ such as __Log4Net, Serilog or Application Insights, Console, EventLog and Debug__ __.Net Log providers__.<br>
 
-Observability is provided by means of .Net __ILogger, System Diagnostics__ classes so that diginsight telemetry can be mixed and analyzed with other components telemetry, as long as they rely on the same standard framework classes.<br>
-Observability for remote tools is provided by means of __OpenTelemetry__ so that telemetry can be targeted to __Azure Monitor__ and also other analysis tools such as __Graphana__.
-<br><br>
-diginsight application flow is __consistent__:
-- __with code__: the application flow is published with information about classes, method names and call nesting so the __'gap' from telemetry and code__ is shortened for __application developers__ and __Site Reliability Engineers__.
-- __across tools__: every information or metric visible on the __local text based streams__ can be published and observed on the __remote analysis tools__ (eg. for analysis of frequency of occurrence).
-- __across applications__ application flow published in the same way for all applications. so it is __easily readable for peopble without background knowledge__ on application code.<br><br>
+Also, __Common.Diagnostics__ publishes application flow structure and metrics to __Azure Monitor__ and __Grafana__ by means of __OpenTelemetry__.<br>
 
-Diginsight is __efficient__ and __cost effective__ so that __local analysis__ and __analysis on the remote tools__ can be supported __without compromises on performance__.
-
-> __diginsight v3 is now available__<br>
-> the following article describes improvements of diginsight v3 over the previous version 
-[Introduction to Diginsight v3.md](<articles/10. Introduction to Diginsight v3/Introduction to Diginsight v3.md>).<br>
-> Documentation about v2 packages is still available here [Diginsight v2 documentation.md](<articles/v2/README.md>).<br>
+This makes the application flow fully observable, __still without compromises on performance__.<br>
 
 # APPLICATION OBSERVABILITY CONCEPTS 
 __Application observability__ is about aggregating, correlating and analyzing the following key elements:<br>
@@ -28,34 +15,25 @@ The image below shows examples about the __3 observability elements__ on Azure M
 ![Alt text](<01. Opentelemetry elements.jpg>)
 <!-- /images/other/ -->
 
-Diginsight __makes observability easy__ as:
+
+Common.Diagnostics __Makes observability easy__ as:
 - it __integrates the 3 observability elements__ (Log, Traces, Metrics) into high performance __text-based streams__.<br>
 In particular, traditional File log, Console log or Azure Streaming Console log can be integrated with the full application execution flow.<br>
-- it __publishes the 3 observability elements__ to OpenTelemetry and allowing application analysis by means of remote APM tools such as __Azure Monitor__ and __Grafana__.<br>
+- it __publishes the 3 observability elements__ to OpenTelemetry and allowing application analysis by means of remote APM tools such as __Azure Monitor__ and __Grafana__.
 <br>
 
-## Example analysis on Diginsight telemetry
+Articles:
+- [HOWTO - Make your application flow observable.md](<articles/01. Make your application flow observable/HOWTO - Make your application flow observable.md>): explores how to use diginsight to fully expose our application exeution flow.
 
-The following image shows a diginsight application flow on a text based stream with an high latency call for `GetServiceSubscriptionLicenseResponseImpl` method:
-![Alt text](<06.1 diginsightv3 flow.png>)
+- [HOWTO - Avoid performance impacts using diginsight telemetry.md](<articles/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.md>): explores how we can do this ensuring no impact on application performance.
 
-A very similar flow can be found as an Azure __Monitor Application transaction__, for the same method:
-![Alt text](<06.1 diginsightv3 flow on azmon.png>)
-
-Latencies for the same function can be analyzed with the `span_duration` metric, filtered on `GetServiceSubscriptionLicenseResponseImpl` method.
-![Alt text](<06.3 diginsightv3 metric on azmon.png>)
-
-also, in this case, latencies can be split and compared on different sites, users or specific conditions.
-As you can see latencies can be easily analyzed for any method, within code.
-
-
-## Diginsight v3 packages
-diginsight is composed of the following packages:
-![Alt text](<05. Diginsight v3 packages.png>)
-
+- [HOWTO - Integrate the application flow with OpenTelemetry, Azure Monitor and Grafana.md](<articles/03. Integrate the application flow with Azure Monitor and Grafana/HOWTO - Integrate the application flow with Azure Monitor and Grafana.md>): explores how we can connect diginsight telemetry to Azure Monitor and Azure Grafana by means of OpenTelemetry.
 
 - [HOWTO - Use Diginsight Samples.md](<articles/04. HowTo Use Diginsight Samples/HOWTO - Use Diginsight Samples.md>): explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.
 
+Diginsight v3 is coming, get a look to:
+
+- [Introduction to Diginsight v3.md](<articles/10. Introduction to Diginsight v3/Introduction to Diginsight v3.md>): explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.
 
 <br><br>
 
