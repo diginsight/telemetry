@@ -2,5 +2,5 @@
 
 public interface ICachable
 {
-    ToKeyResult GetKey(ICacheKeyService service);
+    ToKeyResult ToKey(ICacheKeyService service);
 }

@@ -1,4 +1,4 @@
-﻿namespace Diginsight;
+﻿namespace Diginsight.CAOptions;
 
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
 public sealed class ClassConfigurationNamespaceShorthandAttribute : Attribute

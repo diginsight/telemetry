@@ -1,10 +1,9 @@
-﻿using Diginsight.CAOptions;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
-namespace Diginsight;
+namespace Diginsight.CAOptions;
 
 public static class ClassConfigurationMarkers
 {

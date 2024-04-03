@@ -1,6 +1,6 @@
 ﻿namespace Diginsight.SmartCache;
 
-internal interface IOnTheFlySmartCacheCoreOptions
+internal interface IDynamicSmartCacheCoreOptions
 {
     DateTime? MinimumCreationDate { get; }
 }

@@ -26,7 +26,7 @@ internal sealed class CacheKeyService : ICacheKeyService
                 return new ToKeyResult(x);
 
             case ICachable x:
-                return x.GetKey(this);
+                return x.ToKey(this);
         }
 
         foreach (ICacheKeyProvider provider in cacheKeyProviders)

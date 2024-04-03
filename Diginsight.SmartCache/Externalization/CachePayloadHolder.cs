@@ -38,7 +38,7 @@ public class CachePayloadHolder<T>
             }
             else
             {
-                using (SmartCacheObservability.StartSerializeActivity(logger, metricTag))
+                using (SmartCacheObservability.Instruments.SerializationDuration.StartLap(SmartCacheObservability.Tags.Operation.Serialization, metricTag))
                 {
                     pas = SmartCacheSerialization.SerializeToString(Payload);
                 }
@@ -65,7 +65,7 @@ public class CachePayloadHolder<T>
             }
             else
             {
-                using (SmartCacheObservability.StartSerializeActivity(logger, metricTag))
+                using (SmartCacheObservability.Instruments.SerializationDuration.StartLap(SmartCacheObservability.Tags.Operation.Serialization, metricTag))
                 {
                     pab = SmartCacheSerialization.SerializeToBytes(Payload);
                 }

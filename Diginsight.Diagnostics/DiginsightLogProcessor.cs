@@ -16,6 +16,10 @@ namespace Diginsight.Diagnostics;
 // TODO Inputs and outputs as OTLP custom properties instead of separate log entries
 internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
 {
+    private static readonly EventId StartActivityEventId = new (100, "StartActivity");
+    private static readonly EventId StartMethodActivityEventId = new (110, "StartMethodActivity");
+    private static readonly EventId EndMethodActivityEventId = new (210, "EndMethodActivity");
+
     private static readonly MethodInfo ExtractLoggableFromKvps_Method =
         typeof(DiginsightLogProcessor).GetMethod(nameof(ExtractLoggablesFromKvps), BindingFlags.NonPublic | BindingFlags.Instance)!;
 
@@ -77,18 +81,15 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
                 _ => throw new InvalidOperationException("Invalid inputs in activity"),
             };
 
-            EventId startActivityEventId = new (100, "StartActivity");
-            EventId startMethodActivityEventId = new (110, "StartMethodActivity");
-
             if (inputs is null)
             {
                 if (isStandalone)
                 {
-                    textLogger.Log(logLevel, startActivityEventId, ComposeLogFormat("{ActivityName}"), activityName);
+                    textLogger.Log(logLevel, StartActivityEventId, ComposeLogFormat("{ActivityName}"), activityName);
                 }
                 else
                 {
-                    textLogger.Log(logLevel, startMethodActivityEventId, ComposeLogFormat("{ActivityName}()"), activityName);
+                    textLogger.Log(logLevel, StartMethodActivityEventId, ComposeLogFormat("{ActivityName}()"), activityName);
                 }
                 return;
             }
@@ -101,12 +102,12 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
             if (isStandalone)
             {
                 otlpLogger.Log(logLevel, new EventId(101, "ActivityInputs"), inputsAsDict, null, (_, _) => $"Activity inputs: {inputsAsString}");
-                textLogger.Log(logLevel, startActivityEventId, ComposeLogFormat("{ActivityName}({Inputs})"), activityName, inputsAsString);
+                textLogger.Log(logLevel, StartActivityEventId, ComposeLogFormat("{ActivityName}({Inputs})"), activityName, inputsAsString);
             }
             else
             {
                 otlpLogger.Log(logLevel, new EventId(111, "MethodInputs"), inputsAsDict, null, (_, _) => $"Method inputs: {inputsAsString}");
-                textLogger.Log(logLevel, startMethodActivityEventId, ComposeLogFormat("{ActivityName}({Inputs})"), activityName, inputsAsString);
+                textLogger.Log(logLevel, StartMethodActivityEventId, ComposeLogFormat("{ActivityName}({Inputs})"), activityName, inputsAsString);
             }
         }
         catch (Exception exception)
@@ -190,23 +191,22 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
                 return namedOutputsAsString0;
             }
 
-            EventId endMethodActivityEventId = new (210, "EndMethodActivity");
             switch (outputAsString, namedOutputsAsString)
             {
                 case (null, null):
-                    textLogger.Log(logLevel, endMethodActivityEventId, ComposeLogFormat("{ActivityName}()"), activityName);
+                    textLogger.Log(logLevel, EndMethodActivityEventId, ComposeLogFormat("{ActivityName}()"), activityName);
                     break;
 
                 case (not null, null):
-                    textLogger.Log(logLevel, endMethodActivityEventId, ComposeLogFormat("{ActivityName}() => {Output}"), activityName, outputAsString);
+                    textLogger.Log(logLevel, EndMethodActivityEventId, ComposeLogFormat("{ActivityName}() => {Output}"), activityName, outputAsString);
                     break;
 
                 case (null, not null):
-                    textLogger.Log(logLevel, endMethodActivityEventId, ComposeLogFormat("{ActivityName}() [=> {NamedOutputs}]"), activityName, namedOutputsAsString);
+                    textLogger.Log(logLevel, EndMethodActivityEventId, ComposeLogFormat("{ActivityName}() [=> {NamedOutputs}]"), activityName, namedOutputsAsString);
                     break;
 
                 case (not null, not null):
-                    textLogger.Log(logLevel, endMethodActivityEventId, ComposeLogFormat("{ActivityName}() => {Output} [=> {NamedOutputs}]"), activityName, outputAsString, namedOutputsAsString);
+                    textLogger.Log(logLevel, EndMethodActivityEventId, ComposeLogFormat("{ActivityName}() => {Output} [=> {NamedOutputs}]"), activityName, outputAsString, namedOutputsAsString);
                     break;
             }
         }
@@ -323,7 +323,7 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
         logLevel = activity.GetCustomProperty(ActivityCustomPropertyNames.LogLevel) switch
         {
             LogLevel ll => ll,
-            null => activitiesOptions.DefaultActivityLogLevel,
+            null => activitiesOptions.ActivityLogLevel,
             _ => throw new InvalidOperationException("Invalid log level in activity"),
         };
     }

@@ -164,8 +164,8 @@ public static partial class SmartCacheExtensions
 
     public static SmartCacheBuilder AddHttpHeaderSupport(this SmartCacheBuilder builder)
     {
-        builder.Services.PostConfigureClassAwareFromHttpRequestHeaders<SmartCacheCoreOptions>(static o => o.MakeFiller());
-        builder.Services.PostConfigureClassAwareFromHttpRequestHeaders<OnTheFlySmartCacheCoreOptions>();
+        builder.Services.PostConfigureClassAwareFromHttpRequestHeaders<SmartCacheCoreOptions>();
+        builder.Services.PostConfigureClassAwareFromHttpRequestHeaders<DynamicSmartCacheCoreOptions>();
 
         return builder;
     }

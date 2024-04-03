@@ -1,12 +1,14 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Diginsight.CAOptions;
+using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Diginsight.Diagnostics;
 
 public sealed class DiginsightActivitiesOptions
-    : IDiginsightActivitiesOptions, IDiginsightActivityNamesOptions
+    : IDiginsightActivitiesOptions, IDiginsightActivityNamesOptions, IDynamicallyPostConfigurable
 {
-    private LogLevel defaultActivityLogLevel = LogLevel.Debug;
+    private LogLevel activityLogLevel = LogLevel.Debug;
     private bool logActivities;
     private bool recordActivities;
     private bool recordSpanDurations;
@@ -19,10 +21,10 @@ public sealed class DiginsightActivitiesOptions
     private readonly bool frozen;
     private bool writeActivityActionAsPrefix;
 
-    public LogLevel DefaultActivityLogLevel
+    public LogLevel ActivityLogLevel
     {
-        get => defaultActivityLogLevel;
-        set => defaultActivityLogLevel = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
+        get => activityLogLevel;
+        set => activityLogLevel = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
     }
 
     public bool LogActivities
@@ -77,7 +79,7 @@ public sealed class DiginsightActivitiesOptions
     {
         return new (true)
         {
-            defaultActivityLogLevel = DefaultActivityLogLevel,
+            activityLogLevel = ActivityLogLevel,
             logActivities = LogActivities,
             recordActivities = RecordActivities,
             recordSpanDurations = RecordSpanDurations,
@@ -86,5 +88,42 @@ public sealed class DiginsightActivitiesOptions
             recordedActivityNames = ImmutableArray.CreateRange(RecordedActivityNames.Distinct()),
             nonRecordedActivityNames = ImmutableArray.CreateRange(NonRecordedActivityNames.Distinct()),
         };
+    }
+
+    object IDynamicallyPostConfigurable.MakeFiller() => new Filler(this);
+
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
+    private class Filler
+    {
+        private readonly DiginsightActivitiesOptions filled;
+
+        public Filler(DiginsightActivitiesOptions filled)
+        {
+            this.filled = filled;
+        }
+
+        public LogLevel ActivityLogLevel
+        {
+            get => filled.ActivityLogLevel;
+            set => filled.ActivityLogLevel = value;
+        }
+
+        public bool LogActivities
+        {
+            get => filled.LogActivities;
+            set => filled.LogActivities = value;
+        }
+
+        public bool RecordActivities
+        {
+            get => filled.RecordActivities;
+            set => filled.RecordActivities = value;
+        }
+
+        public bool RecordSpanDurations
+        {
+            get => filled.RecordSpanDurations;
+            set => filled.RecordSpanDurations = value;
+        }
     }
 }

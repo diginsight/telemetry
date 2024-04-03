@@ -39,7 +39,7 @@ public static class DependencyInjectionExtensions
                 static resourceBuilder =>
                 {
                     resourceBuilder.AddService(
-                        Assembly.GetEntryAssembly()!.FullName ?? throw new UnreachableException("Entry assembly is not present or unnamed"),
+                        Assembly.GetEntryAssembly()!.GetName().Name ?? throw new UnreachableException("Entry assembly is not present or unnamed"),
                         serviceInstanceId: Environment.MachineName
                     );
                 }
@@ -109,7 +109,7 @@ public static class DependencyInjectionExtensions
 
                     if (defaultActivityLogLevel is not null)
                     {
-                        services.Configure<DiginsightActivitiesOptions>(o => { o.DefaultActivityLogLevel = defaultActivityLogLevel.Value; });
+                        services.Configure<DiginsightActivitiesOptions>(o => { o.ActivityLogLevel = defaultActivityLogLevel.Value; });
                     }
                 }
             );

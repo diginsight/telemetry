@@ -4,7 +4,7 @@ namespace Diginsight.Diagnostics;
 
 public interface IDiginsightActivitiesOptions
 {
-    LogLevel DefaultActivityLogLevel { get; }
+    LogLevel ActivityLogLevel { get; }
 
     bool LogActivities { get; }
     bool RecordActivities { get; }
