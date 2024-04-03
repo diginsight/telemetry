@@ -36,33 +36,50 @@ In particular, traditional File log, Console log or Azure Streaming Console log 
 
 ## Example analysis on Diginsight telemetry
 
-The following image shows a diginsight application flow on a text based stream with an high latency call for `GetServiceSubscriptionLicenseResponseImpl` method:
-![Alt text](<06.1 diginsightv3 flow.png>)
+The following image shows a diginsight application flow on a text based stream with latency call for `DataAnalyticsReportsController.GetDevices` method:
+![Alt text](<06.1 diginsightv3 flow on textbased stream.png>)
 
-A very similar flow can be found as an Azure __Monitor Application transaction__, for the same method:
-![Alt text](<06.1 diginsightv3 flow on azmon.png>)
 
-Latencies for the same function can be analyzed with the `span_duration` metric, filtered on `GetServiceSubscriptionLicenseResponseImpl` method.
-![Alt text](<06.3 diginsightv3 metric on azmon.png>)
+the same flow can be found as an __Azure Monitor Application transaction__, starting from its `traceid`` (42488cedb33da51726293a70c3463c71):
+![Alt text](<06.2a diginsightv3 flow on azmon.png>)
 
-also, in this case, latencies can be split and compared on different sites, users or specific conditions.
+Latencies for the same function can be analyzed with the `span_duration` metric, filtered on `DataAnalyticsReportsController.GetDevices` method.
+![Alt text](<06.3a diginsightv3 metric on azmon.png>)
+
 As you can see latencies can be easily analyzed for any method, within code.
-
+In case of useful, latencies can be split and compared on different conditions (eg. site properties, user properties etc).
 
 ## Diginsight v3 packages
 diginsight is composed of the following packages:
 ![Alt text](<05. Diginsight v3 packages.png>)
 
+telemetry is implemented by
+- Diginsight.Core
+- Diginsight.Diagnostics
+- Diginsight.AspNetCore
+- Diginsight.Diagnostics.Log4Net
+- Diginsight.Diagnostics.AspNetCore
 
-- [HOWTO - Use Diginsight Samples.md](<articles/04. HowTo Use Diginsight Samples/HOWTO - Use Diginsight Samples.md>): explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.
+
+You can learn how to integrate diginsight v3 into your code by means of the `Diginsight Samples`:
+
+[HOWTO - Use Diginsight Samples.md](<articles/04. HowTo Use Diginsight Samples/HOWTO - Use Diginsight Samples.md>): explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.
 
 
 <br><br>
 
 # GETTING STARTED
 
-Start and completion of __code sections__ are gathered by means of `using statements` that create `Method or Named scopes`.<br>
-Traces are written to __standard .Net log providers__ so that applications can keep using their diagnostics system and standard logs are integrated into the execution flow gathered by __Common.Diagnostics__.<br>
+With __version 3__ diginsight streamlines OpenTelemetry integration embracing standard notation for activity tracing with dotnet System Diagnostic API:
+
+
+Enabling __Opentelemetry__ the same information visible on the log files can be made available on remote tools as __Traces, Metrics and logs__.
+
+the following image shows a transaction details with the entire flow of a single call:
+```c#
+transaction flow of a single call
+```
+
 
 Common.Diagnostics is supported by __any .Net Framework version__ supporting .Net Standard 2.0, __any .Net Log provider__.<br><br>
 Examples are provided for __.NetCore 3.1+ and .Net Framework 4.6.2+ (including  .Net Framework 6.0)__ and __Blazor WebAssembly__.<br>
