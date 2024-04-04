@@ -42,6 +42,8 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
     private IEnumerable<CacheEventNotifier>? eventNotifiers;
 
+    private volatile bool disposed = false;
+
     public string SelfLocationId => serviceBusOptions.SubscriptionName;
 
     public IEnumerable<PassiveCacheLocation> PassiveLocations { get; }
@@ -612,6 +614,11 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
     public override void Dispose()
     {
+        if (disposed)
+            return;
+
+        disposed = true;
+
         base.Dispose();
 
         getResponseDictionary.Dispose();
