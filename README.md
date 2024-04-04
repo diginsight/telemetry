@@ -1,17 +1,31 @@
 # INTRODUCTION 
-__diginsight telemetry__ is a set .Net packages that that provides __automatic__ __observability__ for dotnet applications.<br><br> 
+__diginsight telemetry__ is a set .Net packages that that provides __automatic__ __observability__ for dotnet applications.<br> 
 In particular, __the full application flow__ is made available to __local text based streams__ such as __traditional file logs__, the __Console log__ or the __Azure Streaming log__.<br>
-Also, the same information is made available also to remote tools for troubleshooting or performance analysis such as __Azure Monitor__ or __Grafana__. 
 
-Observability is provided by means of .Net __ILogger, System Diagnostics__ classes so that diginsight telemetry can be mixed and analyzed with other components telemetry, as long as they rely on the same standard framework classes.<br>
-Observability for remote tools is provided by means of __OpenTelemetry__ so that telemetry can be targeted to __Azure Monitor__ and also other analysis tools such as __Graphana__.
+![Alt text](<07.0a Full call on log4net.png>)
+
+Enabling __Opentelemetry__, the same information can be made available to __remote tools__ for troubleshooting or performance analysis such as __Azure Monitor__ or __Grafana__. 
+
+The following image shows the same call on the azure monitor transaction detail with all the __activity spans__ and __trace details__:
+![Alt text](<07.1a Full call on azmon transaction.png>)
+
+Performance information can be analyzed in the form of metrics 
+![Alt text](<07.1c span_duration azmon metrics.png>)
+
+so that latencies and other numeric values exposed by code can be analyzed in __values__ and __frequency__.
+
+
+# ADDITIONAL INFORMATION 
+
+Application flow observability is provided by means of .Net __ILogger, System Diagnostics__ classes so that diginsight telemetry can be mixed and analyzed with other components telemetry, as long as they rely on the same standard framework classes.<br>
+Observability for remote tools is provided by means of __OpenTelemetry__ so that telemetry data can be targeted to __Azure Monitor__ and also other analysis tools such as __Graphana__.
 <br><br>
-diginsight application flow is __consistent__:
+Diginsight application flow is __consistent__:
 - __with code__: the application flow is published with information about classes, method names and call nesting so the __'gap' from telemetry and code__ is shortened for __application developers__ and __Site Reliability Engineers__.
 - __across tools__: every information or metric visible on the __local text based streams__ can be published and observed on the __remote analysis tools__ (eg. for analysis of frequency of occurrence).
-- __across applications__ application flow published in the same way for all applications. so it is __easily readable for peopble without background knowledge__ on application code.<br><br>
+- __across applications__ application flow published in the same way for all applications. so it is __easily readable for peopble without background knowledge__ on the application logic.<br><br>
 
-Diginsight is __efficient__ and __cost effective__ so that __local analysis__ and __analysis on the remote tools__ can be supported __without compromises on performance__.
+Diginsight is __efficient__ and __cost effective__ so that __local analysis__ and __analysis on the remote tools__ can be supported __without compromises on performance__ and  __without compromises on cost of telemetry__.
 
 > __diginsight v3 is now available__<br>
 > the following article describes improvements of diginsight v3 over the previous version 
@@ -40,14 +54,14 @@ The following image shows a diginsight application flow on a text based stream w
 ![Alt text](<06.1 diginsightv3 flow on textbased stream.png>)
 
 
-the same flow can be found as an __Azure Monitor Application transaction__, starting from its `traceid`` (42488cedb33da51726293a70c3463c71):
+Starting from its `traceid` (`42488cedb33da51726293a70c3463c71`), the same flow can be found as an __Azure Monitor Application transaction__:
 ![Alt text](<06.2a diginsightv3 flow on azmon.png>)
 
 Latencies for the same function can be analyzed with the `span_duration` metric, filtered on `DataAnalyticsReportsController.GetDevices` method.
 ![Alt text](<06.3a diginsightv3 metric on azmon.png>)
 
-As you can see latencies can be easily analyzed for any method, within code.
-In case useful, latencies can be split and compared on different conditions (eg. site properties, user properties etc).
+In facts, the `span_duration` metric allows analyzing latencies of __any method__ within code.<br>
+Also, we'll see that the developer can easily add __other metrics__ and __metric properties__ to split and compare values in different conditions (eg. by site properties, user properties etc).
 
 ## Diginsight v3 packages
 Diginsight is composed of the following packages:
@@ -64,8 +78,6 @@ telemetry is implemented by
 You can learn how to integrate diginsight v3 into your code by means of the `Diginsight Samples`:
 
 [HOWTO - Use Diginsight Samples.md](<articles/04. HowTo Use Diginsight Samples/HOWTO - Use Diginsight Samples.md>): explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.
-
-
 <br><br>
 
 # GETTING STARTED
@@ -73,47 +85,31 @@ You can learn how to integrate diginsight v3 into your code by means of the `Dig
 With __version 3__ diginsight streamlines OpenTelemetry integration embracing standard notation for activity tracing with __dotnet System Diagnostic API__.
 
 Using  __dotnet System Diagnostic API__ the following notation can be used to instrument a code span:
-![Alt text](<08.0 Opentelemetry span.png>)
 
+![Alt text](<06.0a Code span with Opentelemetry.png>)
 Using __diginsight v3__ the same section can be instrumented with the following notation:
-![Alt text](<08.1 Diginsight span.png>)
+
+![Alt text](<06.1b Code span with diginsight.png>)
 
 where, `StartMethodActivity`:
 - gathers automatically the method name, 
 - renders automatically the method payload
 - writes the Span START and END to the logger variable 
 
-Instrumenting code as shown we can obtain a __text based log stream__ as shown below.
 
-![Alt text](<07.0 Full call on log4net.png>)
+# Steps to use Diginsight v3:
+you can ottain a console log or file log with diginsight by means of the following steps.<br>
+The following code snippets are available as working samples within the [telemetry_samples](https://github.com/diginsight/telemetry_samples) repository.
 
-Enabling __Opentelemetry__ the same information visible on the log files can be made available on remote tools in the form of OpenTelemetry __Traces, Metrics and logs__.
-
-The following image shows a similar call on an azure monitor transaction detail:
-![Alt text](<07.1 Full call on azmon transaction.png>)
-
-
-## Steps to use Diginsight v3:
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-
-
-
-### STEP 01 - Add a package reference to the package __Diginsight.Diagnostics.AspNetCore__ or __Diginsight.Diagnostics.Log4Net__:
+## STEP 01 - Add a package reference to the package __Diginsight.Diagnostics.AspNetCore__ or __Diginsight.Diagnostics.Log4Net__:
 ![Alt text](<08.1 STEP1 - add reference.png>)
 
-### STEP 02 - Configure logging within the Startup sequence.
+## STEP 02 - Configure logging within the Startup sequence.
 
 ![Alt text](<08.2 STEP - configure logging.png>)
 
 
-### STEP 03 - Add telemetry to code with __StartMethodActivity() and __ILogger Statements__:
+## STEP 03 - Add telemetry to code with __StartMethodActivity() and __ILogger Statements__:
 
 ![Alt text](<08.3 STEP - add telemetry to methods.png>)
 <br><br>
