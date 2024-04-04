@@ -22,8 +22,9 @@ internal sealed class CacheKeyService : ICacheKeyService
             case null:
                 return ToKeyResult.None;
 
-            case ICacheKey x:
-                return new ToKeyResult(x);
+            case string:
+            case ICacheKey:
+                return new ToKeyResult(obj);
 
             case ICachable x:
                 return x.ToKey(this);
