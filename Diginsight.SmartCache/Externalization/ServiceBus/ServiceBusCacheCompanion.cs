@@ -73,7 +73,8 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
     private sealed class ClientHolder : IDisposable
     {
         private readonly ISmartCacheServiceBusOptions serviceBusOptions;
-        private readonly ManualResetEventSlim mre = new ();
+
+        private ManualResetEventSlim? mre = new ();
 
         private ServiceBusClient? client;
         private ServiceBusSender? sender;
@@ -82,7 +83,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         {
             get
             {
-                mre.Wait();
+                (mre ?? throw new ObjectDisposedException(nameof(ClientHolder))).Wait();
                 return client!;
             }
         }
@@ -91,7 +92,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         {
             get
             {
-                mre.Wait();
+                (mre ?? throw new ObjectDisposedException(nameof(ClientHolder))).Wait();
                 return sender!;
             }
         }
@@ -103,13 +104,18 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
         public void Invalidate()
         {
-            mre.Reset();
+            mre?.Reset();
             client = null;
             sender = null;
         }
 
         public void Initialize()
         {
+            if (mre is null)
+            {
+                throw new ObjectDisposedException(nameof(ClientHolder));
+            }
+
             client = new ServiceBusClient(serviceBusOptions.ConnectionString);
             sender = client.CreateSender(serviceBusOptions.TopicName);
             mre.Set();
@@ -118,7 +124,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         public void Dispose()
         {
             Invalidate();
-            mre.Dispose();
+            Interlocked.Exchange(ref mre, null)?.Dispose();
         }
     }
 
