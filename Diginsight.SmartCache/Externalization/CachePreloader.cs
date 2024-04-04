@@ -36,7 +36,7 @@ public sealed class CachePreloader : ICachePreloader
     {
         using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger, new { key });
 
-        CacheKeyHolder keyHolder = new CacheKeyHolder(key, logger);
+        CacheKeyHolder keyHolder = new CacheKeyHolder(key);
 
         SmartCacheObservability.Instruments.Preloads.Add(1);
 
@@ -66,7 +66,7 @@ public sealed class CachePreloader : ICachePreloader
 
         string selfLocationId = companion.SelfLocationId;
         CacheMissDescriptor descriptor = new (selfLocationId, keyHolder.Key, creationDate, selfLocationId, (typeof(TValue), value));
-        CachePayloadHolder<CacheMissDescriptor> descriptorHolder = new (descriptor, logger, SmartCacheObservability.Tags.Subject.Value);
+        CachePayloadHolder<CacheMissDescriptor> descriptorHolder = new (descriptor, SmartCacheObservability.Tags.Subject.Value);
 
         CacheEventNotifier[] eventNotifiersArray = eventNotifiers.ToArray();
         eventNotifiersArray[SharedRandom.Next(eventNotifiersArray.Length)].NotifyCacheMissAndForget(descriptorHolder);

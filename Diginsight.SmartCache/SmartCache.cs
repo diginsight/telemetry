@@ -76,7 +76,7 @@ internal sealed class SmartCache : ISmartCache
         callerType ??= RuntimeUtils.GetCaller().DeclaringType;
         operationOptions ??= new ();
 
-        CacheKeyHolder keyHolder = new CacheKeyHolder(key, logger);
+        CacheKeyHolder keyHolder = new CacheKeyHolder(key);
 
         SmartCacheObservability.Instruments.Calls.Add(1);
 
@@ -392,7 +392,7 @@ internal sealed class SmartCache : ISmartCache
                 Interlocked.Add(ref memoryCacheSize, -size);
                 SmartCacheObservability.Instruments.TotalSize.Add(-size);
 
-                OnEvicted(new CacheKeyHolder((ICacheKey)k, logger), (IValueEntry)v!, r, finalAbsExpiration);
+                OnEvicted(new CacheKeyHolder((ICacheKey)k), (IValueEntry)v!, r, finalAbsExpiration);
             }
         );
 
@@ -505,7 +505,7 @@ internal sealed class SmartCache : ISmartCache
 
         string selfLocationId = companion.SelfLocationId;
         CacheMissDescriptor descriptor = new (selfLocationId, keyHolder.Key, creationDate, locationId ?? selfLocationId, valueTuple);
-        CachePayloadHolder<CacheMissDescriptor> descriptorHolder = new (descriptor, logger, SmartCacheObservability.Tags.Subject.Value);
+        CachePayloadHolder<CacheMissDescriptor> descriptorHolder = new (descriptor, SmartCacheObservability.Tags.Subject.Value);
 
         foreach (CacheEventNotifier eventNotifier in eventNotifiers)
         {
@@ -592,7 +592,7 @@ internal sealed class SmartCache : ISmartCache
         }
 
         CoreInvalidate(keys.Keys, memoryCache.Remove);
-        CoreInvalidate(externalMissDictionary.Keys, k => RemoveExternalMiss(new CacheKeyHolder(k, logger)));
+        CoreInvalidate(externalMissDictionary.Keys, k => RemoveExternalMiss(new CacheKeyHolder(k)));
 
         if (broadcast)
         {
@@ -623,7 +623,7 @@ internal sealed class SmartCache : ISmartCache
             }
 
             InvalidationDescriptor descriptor = new (companion.SelfLocationId, invalidationRule);
-            CachePayloadHolder<InvalidationDescriptor> descriptorHolder = new (descriptor, logger, SmartCacheObservability.Tags.Subject.Value);
+            CachePayloadHolder<InvalidationDescriptor> descriptorHolder = new (descriptor, SmartCacheObservability.Tags.Subject.Value);
             foreach (CacheEventNotifier eventNotifier in eventNotifiers)
             {
                 eventNotifier.NotifyInvalidationAndForget(descriptorHolder);
@@ -646,7 +646,7 @@ internal sealed class SmartCache : ISmartCache
 
         if (valueType is not null)
         {
-            SetValue(new CacheKeyHolder(key, logger), valueType, descriptor.Value, timestamp, skipNotify: true);
+            SetValue(new CacheKeyHolder(key), valueType, descriptor.Value, timestamp, skipNotify: true);
         }
         else
         {
@@ -740,7 +740,7 @@ internal sealed class SmartCache : ISmartCache
             }
             else
             {
-                average = ((average * count) + latency) / ++count;
+                average = (average * count + latency) / ++count;
             }
         }
 

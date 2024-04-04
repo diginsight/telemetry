@@ -1,11 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace Diginsight.SmartCache.Externalization;
+﻿namespace Diginsight.SmartCache.Externalization;
 
 public class CachePayloadHolder<T>
     where T : notnull
 {
-    private readonly ILogger logger;
     private readonly KeyValuePair<string, object?> metricTag;
     private readonly object lockObj = new ();
 
@@ -14,10 +11,9 @@ public class CachePayloadHolder<T>
 
     public T Payload { get; }
 
-    public CachePayloadHolder(T payload, ILogger logger, KeyValuePair<string, object?> metricTag)
+    public CachePayloadHolder(T payload, KeyValuePair<string, object?> metricTag)
     {
         Payload = payload;
-        this.logger = logger;
         this.metricTag = metricTag;
     }
 
