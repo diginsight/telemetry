@@ -1,5 +1,4 @@
-﻿using Diginsight.SmartCache.Externalization.Redis;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Sockets;
@@ -24,17 +23,14 @@ internal sealed class KubernetesCacheCompanion : ICacheCompanion
     public KubernetesCacheCompanion(
         IServiceProvider serviceProvider,
         IOptions<SmartCacheKubernetesOptions> smartCacheKubernetesOptionsOptions,
-        RedisCacheLocation? redisLocation = null
+        IEnumerable<PassiveCacheLocation> passiveLocations
     )
     {
         this.serviceProvider = serviceProvider;
         smartCacheKubernetesOptions = smartCacheKubernetesOptionsOptions.Value;
+        PassiveLocations = passiveLocations;
 
         SelfLocationId = Environment.GetEnvironmentVariable(smartCacheKubernetesOptions.PodIpEnvVariableName) ?? "";
-
-        PassiveLocations = redisLocation is null
-            ? Enumerable.Empty<PassiveCacheLocation>()
-            : new[] { redisLocation };
     }
 
     public async Task<IEnumerable<ActiveCacheLocation>> GetActiveLocationsAsync(IEnumerable<string> locationIds)

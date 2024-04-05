@@ -1,5 +1,8 @@
-﻿namespace Diginsight;
+﻿using System.ComponentModel;
 
+namespace Diginsight;
+
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class CollectionExtensions
 {
     public static int FirstIndexWhere<T>(this IEnumerable<T> source, Func<T, bool> predicate)

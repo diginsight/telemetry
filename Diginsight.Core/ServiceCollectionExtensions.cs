@@ -5,9 +5,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.ComponentModel;
 
 namespace Diginsight;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddClassAwareOptions(this IServiceCollection services)

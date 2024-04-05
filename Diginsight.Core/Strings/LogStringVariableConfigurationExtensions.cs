@@ -1,6 +1,9 @@
 ﻿#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+using System.ComponentModel;
+
 namespace Diginsight.Strings;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class LogStringVariableConfigurationExtensions
 {
     public static int? GetEffectiveMaxTotalLength(this ILogStringOverallConfiguration c) => c.MaxTotalLength.Value;

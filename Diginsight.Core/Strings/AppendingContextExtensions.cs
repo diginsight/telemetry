@@ -1,8 +1,10 @@
 ﻿using System.Collections;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace Diginsight.Strings;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class AppendingContextExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics.AspNetCore;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class DependencyInjectionExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

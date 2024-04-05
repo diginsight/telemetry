@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace Diginsight.AspNetCore;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection PostConfigureFromHttpRequestHeaders<TOptions>(this IServiceCollection services)

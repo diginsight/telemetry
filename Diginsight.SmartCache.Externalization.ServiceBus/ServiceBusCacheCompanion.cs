@@ -1,7 +1,6 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Azure.Messaging.ServiceBus.Administration;
 using Diginsight.Diagnostics;
-using Diginsight.SmartCache.Externalization.Redis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -55,8 +54,8 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         Lazy<ISmartCache> smartCacheLazy,
         IServiceProvider serviceProvider,
         IOptions<SmartCacheServiceBusOptions> serviceBusOptions,
-        TimeProvider? timeProvider = null,
-        RedisCacheLocation? redisLocation = null
+        IEnumerable<PassiveCacheLocation> passiveLocations,
+        TimeProvider? timeProvider = null
     )
     {
         this.logger = logger;
@@ -64,12 +63,10 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         this.serviceProvider = serviceProvider;
         this.serviceBusOptions = serviceBusOptions.Value;
 
+        PassiveLocations = passiveLocations;
+
         clientHolder = new ClientHolder(this.serviceBusOptions);
         getResponseDictionary = new GetResponseDictionary(timeProvider ?? TimeProvider.System);
-
-        PassiveLocations = redisLocation is null
-            ? Enumerable.Empty<PassiveCacheLocation>()
-            : new[] { redisLocation };
     }
 
     private sealed class ClientHolder : IDisposable

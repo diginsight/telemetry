@@ -1,9 +1,11 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace Diginsight;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class JTokenExtensions
 {
     public static TResult Accept<TResult, TArg>(this JToken jtoken, IJTokenVisitor<TResult, TArg> visitor, TArg arg)

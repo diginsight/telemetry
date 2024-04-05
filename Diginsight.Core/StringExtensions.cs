@@ -1,9 +1,11 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 
 namespace Diginsight;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class StringExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

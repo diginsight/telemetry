@@ -18,7 +18,7 @@ internal static class HttpHeadersHelper
                 continue;
             }
 
-            if (ActivityExtensions.NameMatchesPattern(activityName, match.Groups[1].Value))
+            if (ActivityUtils.NameMatchesPattern(activityName, match.Groups[1].Value))
             {
                 return match.Groups[2].Value != "-";
             }

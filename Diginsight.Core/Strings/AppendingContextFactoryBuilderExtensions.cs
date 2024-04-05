@@ -1,9 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Diginsight.Strings;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class AppendingContextFactoryBuilderExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

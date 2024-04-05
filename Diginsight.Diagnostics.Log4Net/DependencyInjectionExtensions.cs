@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.ComponentModel;
 
 namespace Diginsight.Diagnostics.Log4Net;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class DependencyInjectionExtensions
 {
     public static ILoggingBuilder AddDiginsightLog4Net(this ILoggingBuilder loggingBuilder, string configFileName)

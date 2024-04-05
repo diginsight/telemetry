@@ -550,14 +550,6 @@
           "OpenTelemetry": "1.8.0"
         }
       },
-      "Pipelines.Sockets.Unofficial": {
-        "type": "Transitive",
-        "resolved": "2.2.8",
-        "contentHash": "zG2FApP5zxSx6OcdJQLbZDk2AVlN2BNQD6MorwIfV6gVj0RRxWPEp2LXAxqDGZqeNV1Zp0BNPcNaey/GXmTdvQ==",
-        "dependencies": {
-          "System.IO.Pipelines": "5.0.1"
-        }
-      },
       "runtime.native.System": {
         "type": "Transitive",
         "resolved": "4.0.0",
@@ -592,17 +584,6 @@
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "3.1.25",
           "Microsoft.Extensions.DependencyModel": "3.1.25"
-        }
-      },
-      "StackExchange.Redis": {
-        "type": "Transitive",
-        "resolved": "2.7.33",
-        "contentHash": "2kCX5fvhEE824a4Ab5Imyi8DRuGuTxyklXV01kegkRpsWJcPmO6+GAQ+HegKxvXAxlXZ8yaRspvWJ8t3mMClfQ==",
-        "dependencies": {
-          "Microsoft.Bcl.AsyncInterfaces": "5.0.0",
-          "Microsoft.Extensions.Logging.Abstractions": "6.0.0",
-          "Pipelines.Sockets.Unofficial": "2.2.8",
-          "System.Threading.Channels": "5.0.0"
         }
       },
       "System.Buffers": {
@@ -734,16 +715,6 @@
         "contentHash": "kWkKD203JJKxJeE74p8aF8y4Qc9r9WQx4C0cHzHPrY3fv/L/IhWnyCHaFJ3H1QPOH6A93whlQ2vG5nHlBDvzWQ==",
         "dependencies": {
           "System.Runtime": "4.1.0"
-        }
-      },
-      "System.IO.Pipelines": {
-        "type": "Transitive",
-        "resolved": "5.0.1",
-        "contentHash": "qEePWsaq9LoEEIqhbGe6D5J8c9IqQOUuTzzV6wn1POlfdLkJliZY3OlB0j0f17uMWlqZYjH7txj+2YbyrIA8Yg==",
-        "dependencies": {
-          "System.Buffers": "4.5.1",
-          "System.Memory": "4.5.4",
-          "System.Threading.Tasks.Extensions": "4.5.4"
         }
       },
       "System.Linq": {
@@ -1125,14 +1096,6 @@
           "System.Threading.Tasks": "4.0.11"
         }
       },
-      "System.Threading.Channels": {
-        "type": "Transitive",
-        "resolved": "5.0.0",
-        "contentHash": "RLBIxntLaG9pRmmuVDwY1kc8Bvp/FQzSxPU+19VekkScKkWtVP9r8bLhm28ama3usc816UBrmkg3vv3jUea/hw==",
-        "dependencies": {
-          "System.Threading.Tasks.Extensions": "4.5.4"
-        }
-      },
       "System.Threading.Tasks": {
         "type": "Transitive",
         "resolved": "4.0.11",
@@ -1200,8 +1163,7 @@
           "Microsoft.AspNetCore.Http.Abstractions": "[2.2.*, )",
           "Microsoft.AspNetCore.Mvc.Core": "[2.2.*, )",
           "Microsoft.Extensions.Caching.Memory": "[8.*, )",
-          "Microsoft.Extensions.Http": "[8.*, )",
-          "StackExchange.Redis": "[2.*, )"
+          "Microsoft.Extensions.Http": "[8.*, )"
         }
       }
     },
@@ -1728,14 +1690,6 @@
           "OpenTelemetry": "1.8.0"
         }
       },
-      "Pipelines.Sockets.Unofficial": {
-        "type": "Transitive",
-        "resolved": "2.2.8",
-        "contentHash": "zG2FApP5zxSx6OcdJQLbZDk2AVlN2BNQD6MorwIfV6gVj0RRxWPEp2LXAxqDGZqeNV1Zp0BNPcNaey/GXmTdvQ==",
-        "dependencies": {
-          "System.IO.Pipelines": "5.0.1"
-        }
-      },
       "runtime.native.System": {
         "type": "Transitive",
         "resolved": "4.0.0",
@@ -1770,17 +1724,6 @@
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "3.1.25",
           "Microsoft.Extensions.DependencyModel": "3.1.25"
-        }
-      },
-      "StackExchange.Redis": {
-        "type": "Transitive",
-        "resolved": "2.7.33",
-        "contentHash": "2kCX5fvhEE824a4Ab5Imyi8DRuGuTxyklXV01kegkRpsWJcPmO6+GAQ+HegKxvXAxlXZ8yaRspvWJ8t3mMClfQ==",
-        "dependencies": {
-          "Microsoft.Bcl.AsyncInterfaces": "5.0.0",
-          "Microsoft.Extensions.Logging.Abstractions": "6.0.0",
-          "Pipelines.Sockets.Unofficial": "2.2.8",
-          "System.Threading.Channels": "5.0.0"
         }
       },
       "System.Buffers": {
@@ -1912,16 +1855,6 @@
         "contentHash": "kWkKD203JJKxJeE74p8aF8y4Qc9r9WQx4C0cHzHPrY3fv/L/IhWnyCHaFJ3H1QPOH6A93whlQ2vG5nHlBDvzWQ==",
         "dependencies": {
           "System.Runtime": "4.1.0"
-        }
-      },
-      "System.IO.Pipelines": {
-        "type": "Transitive",
-        "resolved": "5.0.1",
-        "contentHash": "qEePWsaq9LoEEIqhbGe6D5J8c9IqQOUuTzzV6wn1POlfdLkJliZY3OlB0j0f17uMWlqZYjH7txj+2YbyrIA8Yg==",
-        "dependencies": {
-          "System.Buffers": "4.5.1",
-          "System.Memory": "4.5.4",
-          "System.Threading.Tasks.Extensions": "4.5.4"
         }
       },
       "System.Linq": {
@@ -2303,11 +2236,6 @@
           "System.Threading.Tasks": "4.0.11"
         }
       },
-      "System.Threading.Channels": {
-        "type": "Transitive",
-        "resolved": "5.0.0",
-        "contentHash": "RLBIxntLaG9pRmmuVDwY1kc8Bvp/FQzSxPU+19VekkScKkWtVP9r8bLhm28ama3usc816UBrmkg3vv3jUea/hw=="
-      },
       "System.Threading.Tasks": {
         "type": "Transitive",
         "resolved": "4.0.11",
@@ -2373,8 +2301,7 @@
           "Microsoft.AspNetCore.Http.Abstractions": "[2.2.*, )",
           "Microsoft.AspNetCore.Mvc.Core": "[2.2.*, )",
           "Microsoft.Extensions.Caching.Memory": "[8.*, )",
-          "Microsoft.Extensions.Http": "[8.*, )",
-          "StackExchange.Redis": "[2.*, )"
+          "Microsoft.Extensions.Http": "[8.*, )"
         }
       }
     },
@@ -2714,14 +2641,6 @@
           "OpenTelemetry": "1.8.0"
         }
       },
-      "Pipelines.Sockets.Unofficial": {
-        "type": "Transitive",
-        "resolved": "2.2.8",
-        "contentHash": "zG2FApP5zxSx6OcdJQLbZDk2AVlN2BNQD6MorwIfV6gVj0RRxWPEp2LXAxqDGZqeNV1Zp0BNPcNaey/GXmTdvQ==",
-        "dependencies": {
-          "System.IO.Pipelines": "5.0.1"
-        }
-      },
       "runtime.native.System": {
         "type": "Transitive",
         "resolved": "4.0.0",
@@ -2756,15 +2675,6 @@
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "6.0.0",
           "Microsoft.Extensions.DependencyModel": "6.0.0"
-        }
-      },
-      "StackExchange.Redis": {
-        "type": "Transitive",
-        "resolved": "2.7.33",
-        "contentHash": "2kCX5fvhEE824a4Ab5Imyi8DRuGuTxyklXV01kegkRpsWJcPmO6+GAQ+HegKxvXAxlXZ8yaRspvWJ8t3mMClfQ==",
-        "dependencies": {
-          "Microsoft.Extensions.Logging.Abstractions": "6.0.0",
-          "Pipelines.Sockets.Unofficial": "2.2.8"
         }
       },
       "System.Buffers": {
@@ -2882,11 +2792,6 @@
         "dependencies": {
           "System.Runtime": "4.1.0"
         }
-      },
-      "System.IO.Pipelines": {
-        "type": "Transitive",
-        "resolved": "5.0.1",
-        "contentHash": "qEePWsaq9LoEEIqhbGe6D5J8c9IqQOUuTzzV6wn1POlfdLkJliZY3OlB0j0f17uMWlqZYjH7txj+2YbyrIA8Yg=="
       },
       "System.Linq": {
         "type": "Transitive",
@@ -3313,8 +3218,7 @@
           "Diginsight.Core": "[1.0.0, )",
           "Diginsight.Diagnostics": "[1.0.0, )",
           "Microsoft.Extensions.Caching.Memory": "[8.*, )",
-          "Microsoft.Extensions.Http": "[8.*, )",
-          "StackExchange.Redis": "[2.*, )"
+          "Microsoft.Extensions.Http": "[8.*, )"
         }
       }
     },
@@ -3650,14 +3554,6 @@
           "OpenTelemetry": "1.8.0"
         }
       },
-      "Pipelines.Sockets.Unofficial": {
-        "type": "Transitive",
-        "resolved": "2.2.8",
-        "contentHash": "zG2FApP5zxSx6OcdJQLbZDk2AVlN2BNQD6MorwIfV6gVj0RRxWPEp2LXAxqDGZqeNV1Zp0BNPcNaey/GXmTdvQ==",
-        "dependencies": {
-          "System.IO.Pipelines": "5.0.1"
-        }
-      },
       "runtime.native.System": {
         "type": "Transitive",
         "resolved": "4.0.0",
@@ -3692,15 +3588,6 @@
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "6.0.0",
           "Microsoft.Extensions.DependencyModel": "6.0.0"
-        }
-      },
-      "StackExchange.Redis": {
-        "type": "Transitive",
-        "resolved": "2.7.33",
-        "contentHash": "2kCX5fvhEE824a4Ab5Imyi8DRuGuTxyklXV01kegkRpsWJcPmO6+GAQ+HegKxvXAxlXZ8yaRspvWJ8t3mMClfQ==",
-        "dependencies": {
-          "Microsoft.Extensions.Logging.Abstractions": "6.0.0",
-          "Pipelines.Sockets.Unofficial": "2.2.8"
         }
       },
       "System.Buffers": {
@@ -3815,11 +3702,6 @@
         "dependencies": {
           "System.Runtime": "4.1.0"
         }
-      },
-      "System.IO.Pipelines": {
-        "type": "Transitive",
-        "resolved": "5.0.1",
-        "contentHash": "qEePWsaq9LoEEIqhbGe6D5J8c9IqQOUuTzzV6wn1POlfdLkJliZY3OlB0j0f17uMWlqZYjH7txj+2YbyrIA8Yg=="
       },
       "System.Linq": {
         "type": "Transitive",
@@ -4242,8 +4124,7 @@
           "Diginsight.Core": "[1.0.0, )",
           "Diginsight.Diagnostics": "[1.0.0, )",
           "Microsoft.Extensions.Caching.Memory": "[8.*, )",
-          "Microsoft.Extensions.Http": "[8.*, )",
-          "StackExchange.Redis": "[2.*, )"
+          "Microsoft.Extensions.Http": "[8.*, )"
         }
       }
     },
@@ -4579,14 +4460,6 @@
           "OpenTelemetry": "1.8.0"
         }
       },
-      "Pipelines.Sockets.Unofficial": {
-        "type": "Transitive",
-        "resolved": "2.2.8",
-        "contentHash": "zG2FApP5zxSx6OcdJQLbZDk2AVlN2BNQD6MorwIfV6gVj0RRxWPEp2LXAxqDGZqeNV1Zp0BNPcNaey/GXmTdvQ==",
-        "dependencies": {
-          "System.IO.Pipelines": "5.0.1"
-        }
-      },
       "runtime.native.System": {
         "type": "Transitive",
         "resolved": "4.0.0",
@@ -4621,15 +4494,6 @@
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "6.0.0",
           "Microsoft.Extensions.DependencyModel": "6.0.0"
-        }
-      },
-      "StackExchange.Redis": {
-        "type": "Transitive",
-        "resolved": "2.7.33",
-        "contentHash": "2kCX5fvhEE824a4Ab5Imyi8DRuGuTxyklXV01kegkRpsWJcPmO6+GAQ+HegKxvXAxlXZ8yaRspvWJ8t3mMClfQ==",
-        "dependencies": {
-          "Microsoft.Extensions.Logging.Abstractions": "6.0.0",
-          "Pipelines.Sockets.Unofficial": "2.2.8"
         }
       },
       "System.Buffers": {
@@ -4744,11 +4608,6 @@
         "dependencies": {
           "System.Runtime": "4.1.0"
         }
-      },
-      "System.IO.Pipelines": {
-        "type": "Transitive",
-        "resolved": "5.0.1",
-        "contentHash": "qEePWsaq9LoEEIqhbGe6D5J8c9IqQOUuTzzV6wn1POlfdLkJliZY3OlB0j0f17uMWlqZYjH7txj+2YbyrIA8Yg=="
       },
       "System.Linq": {
         "type": "Transitive",
@@ -5168,8 +5027,7 @@
           "Diginsight.Core": "[1.0.0, )",
           "Diginsight.Diagnostics": "[1.0.0, )",
           "Microsoft.Extensions.Caching.Memory": "[8.*, )",
-          "Microsoft.Extensions.Http": "[8.*, )",
-          "StackExchange.Redis": "[2.*, )"
+          "Microsoft.Extensions.Http": "[8.*, )"
         }
       }
     }

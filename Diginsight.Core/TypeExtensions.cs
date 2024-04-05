@@ -1,10 +1,12 @@
 ﻿using System.Collections;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace Diginsight;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class TypeExtensions
 {
     private static readonly IDictionary<Type, bool> AnonymousCache = new Dictionary<Type, bool>();

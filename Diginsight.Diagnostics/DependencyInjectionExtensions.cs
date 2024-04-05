@@ -6,12 +6,14 @@ using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class DependencyInjectionExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

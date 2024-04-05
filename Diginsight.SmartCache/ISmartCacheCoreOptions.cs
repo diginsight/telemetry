@@ -3,7 +3,7 @@
 public interface ISmartCacheCoreOptions
 {
     bool DiscardExternalMiss { get; }
-    bool RedisOnlyCache { get; }
+    bool PassiveOnlyCache { get; }
 
     Expiration MaxAge { get; }
 

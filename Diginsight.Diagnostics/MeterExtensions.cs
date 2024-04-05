@@ -1,8 +1,10 @@
-﻿using System.Diagnostics.Metrics;
+﻿using System.ComponentModel;
+using System.Diagnostics.Metrics;
 using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class MeterExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

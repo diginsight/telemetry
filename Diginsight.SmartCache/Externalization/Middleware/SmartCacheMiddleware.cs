@@ -76,9 +76,7 @@ internal sealed class SmartCacheMiddleware : IMiddleware
             rawValue = SmartCacheSerialization.SerializeToBytes(value, type);
         }
 
-        Encoding encoding = SmartCacheSerialization.Encoding;
-
-        return new FileContentResult(rawValue, $"application/json; charset={encoding.WebName}");
+        return new FileContentResult(rawValue, $"application/json; charset={SmartCacheSerialization.Encoding.WebName}");
     }
 
     private async Task<IActionResult> CacheMissAsync(HttpContext httpContext)

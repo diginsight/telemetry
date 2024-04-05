@@ -1,6 +1,4 @@
-﻿using Diginsight.SmartCache.Externalization.Redis;
-
-namespace Diginsight.SmartCache.Externalization.Local;
+﻿namespace Diginsight.SmartCache.Externalization.Local;
 
 internal sealed class LocalCacheCompanion : ICacheCompanion
 {
@@ -8,11 +6,9 @@ internal sealed class LocalCacheCompanion : ICacheCompanion
 
     public IEnumerable<PassiveCacheLocation> PassiveLocations { get; }
 
-    public LocalCacheCompanion(RedisCacheLocation? redisLocation = null)
+    public LocalCacheCompanion(IEnumerable<PassiveCacheLocation> passiveLocations)
     {
-        PassiveLocations = redisLocation is null
-            ? Enumerable.Empty<PassiveCacheLocation>()
-            : new[] { redisLocation };
+        PassiveLocations = passiveLocations;
     }
 
     public Task<IEnumerable<ActiveCacheLocation>> GetActiveLocationsAsync(IEnumerable<string> locationIds)

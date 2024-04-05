@@ -1,9 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class ActivitySourceExtensions
 {
     [MethodImpl(MethodImplOptions.NoInlining)]

@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace Diginsight.CAOptions;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class ConfigurationExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

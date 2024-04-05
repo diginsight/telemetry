@@ -1,6 +1,7 @@
 ﻿using Diginsight.Strings;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Reflection;
@@ -9,6 +10,7 @@ using System.Text;
 
 namespace Diginsight;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class LogStringExtensions
 {
     private static readonly Histogram<double> LogStringDuration = SelfObservabilityUtils.Meter.CreateHistogram<double>("diginsight.log_string_duration", "ms");

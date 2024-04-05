@@ -3,7 +3,6 @@ using Diginsight.SmartCache.Externalization;
 using Diginsight.SmartCache.Externalization.Kubernetes;
 using Diginsight.SmartCache.Externalization.Local;
 using Diginsight.SmartCache.Externalization.Middleware;
-using Diginsight.SmartCache.Externalization.Redis;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -65,40 +64,6 @@ public static partial class SmartCacheExtensions
     {
         builder.Services.Configure<MemoryCacheOptions>(nameof(SmartCache), x => { x.SizeLimit = sizeLimit; });
         return builder;
-    }
-
-    public static SmartCacheBuilder AddRedis(
-        this SmartCacheBuilder builder, Action<SmartCacheRedisOptions>? configureOptions = null
-    )
-    {
-        builder.Services.TryAddSingleton<IRedisDatabaseAccessor, RedisDatabaseAccessor>();
-        builder.Services.TryAddSingleton<RedisCacheLocation>();
-        builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<SmartCacheRedisOptions>, ValidateSmartCacheRedisOptions>());
-
-        if (configureOptions is not null)
-        {
-            builder.Services.Configure(configureOptions);
-        }
-
-        return builder;
-    }
-
-    private sealed class ValidateSmartCacheRedisOptions : IValidateOptions<SmartCacheRedisOptions>
-    {
-        public ValidateOptionsResult Validate(string? name, SmartCacheRedisOptions options)
-        {
-            if (name != Options.DefaultName)
-            {
-                return ValidateOptionsResult.Skip;
-            }
-
-            if (options.Configuration is not null && string.IsNullOrEmpty(options.KeyPrefix))
-            {
-                return ValidateOptionsResult.Fail($"{nameof(SmartCacheRedisOptions.KeyPrefix)} must be non-empty");
-            }
-
-            return ValidateOptionsResult.Success;
-        }
     }
 
     public static SmartCacheBuilder AddMiddleware(

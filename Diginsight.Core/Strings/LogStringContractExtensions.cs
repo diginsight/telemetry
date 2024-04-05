@@ -1,8 +1,10 @@
-﻿using System.Linq.Expressions;
+﻿using System.ComponentModel;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Diginsight.Strings;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class LogStringContractExtensions
 {
     public static LogStringTypeContract<T> GetOrAdd<T>(this LogStringTypeContractAccessor contractAccessor)

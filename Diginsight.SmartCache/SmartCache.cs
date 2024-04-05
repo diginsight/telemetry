@@ -1,7 +1,6 @@
 ﻿using Diginsight.CAOptions;
 using Diginsight.Diagnostics;
 using Diginsight.SmartCache.Externalization;
-using Diginsight.SmartCache.Externalization.Redis;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -26,7 +25,6 @@ internal sealed class SmartCache : ISmartCache
     private readonly IMemoryCache memoryCache;
 
     private readonly IReadOnlyDictionary<string, PassiveCacheLocation> passiveLocations;
-    private readonly PassiveCacheLocation? redisLocation;
 
     private readonly IDictionary<ICacheKey, ValueTuple> keys = new ConcurrentDictionary<ICacheKey, ValueTuple>();
     private readonly ExternalMissDictionary externalMissDictionary = new ();
@@ -53,7 +51,6 @@ internal sealed class SmartCache : ISmartCache
         memoryCache = new MemoryCache(memoryCacheOptionsMonitor.Get(nameof(SmartCache)), loggerFactory);
 
         passiveLocations = companion.PassiveLocations.ToDictionary(static x => x.Id);
-        redisLocation = passiveLocations.Values.OfType<RedisCacheLocation>().SingleOrDefault();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -341,9 +338,12 @@ internal sealed class SmartCache : ISmartCache
 
         Expiration finalAbsExpiration = absExpiration ?? coreOptions.AbsoluteExpiration;
 
-        if (coreOptions.RedisOnlyCache && redisLocation is not null)
+        if (coreOptions.PassiveOnlyCache)
         {
-            WriteToLocation(redisLocation, keyHolder, entry, finalAbsExpiration, skipNotify);
+            foreach (PassiveCacheLocation passiveLocation in passiveLocations.Values)
+            {
+                WriteToLocation(passiveLocation, keyHolder, entry, finalAbsExpiration, skipNotify);
+            }
             return;
         }
 
@@ -436,9 +436,9 @@ internal sealed class SmartCache : ISmartCache
             return;
         }
 
-        if (redisLocation is not null)
+        foreach (PassiveCacheLocation passiveLocation in passiveLocations.Values)
         {
-            WriteToLocation(redisLocation, keyHolder, entry, expiration);
+            WriteToLocation(passiveLocation, keyHolder, entry, expiration);
         }
     }
 
