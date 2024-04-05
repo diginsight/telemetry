@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0</TargetFrameworks>
+    <Title>Diginsight SmartCache Externalization Kubernetes extensions</Title>
+    <PackageTags>$(PackageTags);cache;smartcache;externalization;kubernetes</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Diginsight.Diagnostics\Diginsight.Diagnostics.csproj">
+      <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+    </ProjectReference>
+    <ProjectReference Include="..\Diginsight.SmartCache.Externalization.Http\Diginsight.SmartCache.Externalization.Http.csproj" />
+  </ItemGroup>
+
+</Project>

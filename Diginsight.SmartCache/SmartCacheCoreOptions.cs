@@ -33,8 +33,8 @@ public sealed class SmartCacheCoreOptions : ISmartCacheCoreOptions, IDynamically
         set => slidingExpiration = value >= Expiration.Zero ? value : Expiration.Zero;
     }
 
-    public int CompanionPrefetchCount { get; set; } = 5;
-    public int CompanionMaxParallelism { get; set; } = 2;
+    public int LocationPrefetchCount { get; set; } = 5;
+    public int LocationMaxParallelism { get; set; } = 2;
 
     public int MissValueSizeThreshold { get; set; } = 5_000;
 

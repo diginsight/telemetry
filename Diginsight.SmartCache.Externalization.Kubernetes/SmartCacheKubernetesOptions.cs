@@ -2,17 +2,15 @@
 
 public sealed class SmartCacheKubernetesOptions : ISmartCacheKubernetesOptions
 {
-    public bool UseHttps { get; set; }
+    public string? PodsDnsName { get; set; }
 
-    public string? CompanionsDnsName { get; set; }
-
-    string ISmartCacheKubernetesOptions.CompanionsDnsName =>
-        CompanionsDnsName ?? throw new InvalidOperationException($"{nameof(CompanionsDnsName)} is null");
+    string ISmartCacheKubernetesOptions.PodsDnsName =>
+        PodsDnsName ?? throw new InvalidOperationException($"{nameof(PodsDnsName)} is null");
 
     public string? PodIpEnvVariableName { get; set; }
 
     string ISmartCacheKubernetesOptions.PodIpEnvVariableName =>
         PodIpEnvVariableName ?? throw new InvalidOperationException($"{nameof(PodIpEnvVariableName)} is not null");
 
-    public TimeSpan CompanionRequestTimeout { get; set; } = TimeSpan.FromSeconds(5);
+    public TimeSpan PodRequestTimeout { get; set; } = TimeSpan.FromSeconds(5);
 }

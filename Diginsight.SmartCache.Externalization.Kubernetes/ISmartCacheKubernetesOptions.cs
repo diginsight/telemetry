@@ -2,8 +2,7 @@
 
 public interface ISmartCacheKubernetesOptions
 {
-    bool UseHttps { get; }
-    string CompanionsDnsName { get; }
+    string PodsDnsName { get; }
     string PodIpEnvVariableName { get; }
-    TimeSpan CompanionRequestTimeout { get; }
+    TimeSpan PodRequestTimeout { get; }
 }

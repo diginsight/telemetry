@@ -1,7 +1,9 @@
-﻿namespace Diginsight.SmartCache.Externalization.Middleware;
+﻿namespace Diginsight.SmartCache.Externalization.Http;
 
-public interface ISmartCacheMiddlewareOptions
+public interface ISmartCacheHttpOptions
 {
+    bool UseHttps { get; }
+
     string RootPath { get; }
 
     string GetPathSegment { get; }

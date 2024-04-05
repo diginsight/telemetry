@@ -1,30 +1,29 @@
 ﻿using Diginsight.Diagnostics;
-using Diginsight.SmartCache.Externalization.Middleware;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
 
-namespace Diginsight.SmartCache.Externalization.Kubernetes;
+namespace Diginsight.SmartCache.Externalization.Http;
 
-internal sealed class KubernetesCacheLocation : ActiveCacheLocation
+internal sealed class HttpCacheLocation : ActiveCacheLocation
 {
-    private readonly ILogger<KubernetesCacheLocation> logger;
-    private readonly KubernetesCacheCompanionHelper helper;
-    private readonly ISmartCacheMiddlewareOptions middlewareOptions;
+    private readonly Func<HttpClient> createHttpClient;
+    private readonly ILogger<HttpCacheLocation> logger;
+    private readonly ISmartCacheHttpOptions httpOptions;
 
     public override KeyValuePair<string, object?> MetricTag => SmartCacheObservability.Tags.Type.Distributed;
 
-    public KubernetesCacheLocation(
-        string podIp,
-        ILogger<KubernetesCacheLocation> logger,
-        KubernetesCacheCompanionHelper helper,
-        IOptions<SmartCacheMiddlewareOptions> middlewareOptions
+    public HttpCacheLocation(
+        string host,
+        Func<HttpClient> createHttpClient,
+        ILogger<HttpCacheLocation> logger,
+        IOptions<SmartCacheHttpOptions> httpOptions
     )
-        : base(podIp)
+        : base(host)
     {
+        this.createHttpClient = createHttpClient;
         this.logger = logger;
-        this.helper = helper;
-        this.middlewareOptions = middlewareOptions.Value;
+        this.httpOptions = httpOptions.Value;
     }
 
     public override async Task<CacheLocationOutput<TValue>?> GetAsync<TValue>(
@@ -39,12 +38,7 @@ internal sealed class KubernetesCacheLocation : ActiveCacheLocation
             HttpResponseMessage responseMessage;
             using (lap.Start())
             {
-                responseMessage = await helper.MakeHttpClient()
-                    .PostAsync(
-                        helper.MakeRequestUri(Id, middlewareOptions.GetPathSegment),
-                        new StringContent(keyHolder.GetAsString(), SmartCacheSerialization.Encoding, "application/json"),
-                        cancellationToken
-                    );
+                responseMessage = await HttpCacheCompanionHelper.SendAsync(createHttpClient(), httpOptions, Id, httpOptions.GetPathSegment, keyHolder, true, cancellationToken);
             }
 
             TValue item;
@@ -72,7 +66,7 @@ internal sealed class KubernetesCacheLocation : ActiveCacheLocation
             double latencyMsecD = lap.ElapsedMilliseconds;
             long latencyMsecL = (long)latencyMsecD;
 
-            logger.LogDebug("Cache hit (latency: {LatencyMsec}): Returning up-to-date value from pod {PodIp}", latencyMsecL, Id);
+            logger.LogDebug("Cache hit (latency: {LatencyMsec}): Returning up-to-date value from host {Host}", latencyMsecL, Id);
 
             lap.AddTags(SmartCacheObservability.Tags.Found.True);
             return new CacheLocationOutput<TValue>(item, valueSerializedSize, latencyMsecD);
@@ -81,7 +75,7 @@ internal sealed class KubernetesCacheLocation : ActiveCacheLocation
             when (e is InvalidOperationException or HttpRequestException || e is OperationCanceledException oce && oce.CancellationToken != cancellationToken)
         {
             markInvalid();
-            logger.LogDebug("Partial cache miss: Failed to retrieve value from pod {PodIp}", Id);
+            logger.LogDebug("Partial cache miss: Failed to retrieve value from host {Host}", Id);
 
             lap.AddTags(SmartCacheObservability.Tags.Found.False);
             return null;
