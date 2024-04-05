@@ -26,10 +26,8 @@
   </Choose>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Messaging.ServiceBus" Version="1.*" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.*" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.*" />
-    <PackageReference Include="Polly.Core" Version="8.*" />
     <PackageReference Include="StackExchange.Redis" Version="2.*" />
   </ItemGroup>
 

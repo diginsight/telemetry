@@ -1065,14 +1065,21 @@
       "diginsight.smartcache": {
         "type": "Project",
         "dependencies": {
-          "Azure.Messaging.ServiceBus": "[1.*, )",
           "Diginsight.AspNetCore": "[1.0.0, )",
           "Diginsight.Core": "[1.0.0, )",
           "Diginsight.Diagnostics": "[1.0.0, )",
           "Microsoft.Extensions.Caching.Memory": "[8.*, )",
           "Microsoft.Extensions.Http": "[8.*, )",
-          "Polly.Core": "[8.*, )",
           "StackExchange.Redis": "[2.*, )"
+        }
+      },
+      "diginsight.smartcache.externalization.servicebus": {
+        "type": "Project",
+        "dependencies": {
+          "Azure.Messaging.ServiceBus": "[1.*, )",
+          "Diginsight.Diagnostics": "[1.0.0, )",
+          "Diginsight.SmartCache": "[1.0.0, )",
+          "Polly.Core": "[8.*, )"
         }
       }
     }
