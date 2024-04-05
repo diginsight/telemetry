@@ -7,33 +7,11 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <Choose>
-    <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">
-      <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App" />
-      </ItemGroup>
-    </When>
-    <Otherwise>
-      <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.*">
-          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
-        </PackageReference>
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.*">
-          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
-        </PackageReference>
-      </ItemGroup>
-    </Otherwise>
-  </Choose>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.*" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="8.*" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Diginsight.AspNetCore\Diginsight.AspNetCore.csproj">
-      <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
-    </ProjectReference>
     <ProjectReference Include="..\Diginsight.Core\Diginsight.Core.csproj" />
     <ProjectReference Include="..\Diginsight.Diagnostics\Diginsight.Diagnostics.csproj">
       <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>

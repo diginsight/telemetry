@@ -38,6 +38,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.SmartCache.Exter
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.SmartCache.Externalization.Redis", "Diginsight.SmartCache.Externalization.Redis\Diginsight.SmartCache.Externalization.Redis.csproj", "{ECB16F9B-9297-48D8-BE6F-8611915536C4}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.SmartCache.Externalization.AspNetCore", "Diginsight.SmartCache.Externalization.AspNetCore\Diginsight.SmartCache.Externalization.AspNetCore.csproj", "{A34BDF6B-6FD7-4BEB-8C1B-B13ECE5C90FC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -88,6 +90,10 @@ Global
 		{ECB16F9B-9297-48D8-BE6F-8611915536C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECB16F9B-9297-48D8-BE6F-8611915536C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECB16F9B-9297-48D8-BE6F-8611915536C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A34BDF6B-6FD7-4BEB-8C1B-B13ECE5C90FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A34BDF6B-6FD7-4BEB-8C1B-B13ECE5C90FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A34BDF6B-6FD7-4BEB-8C1B-B13ECE5C90FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A34BDF6B-6FD7-4BEB-8C1B-B13ECE5C90FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -104,6 +110,7 @@ Global
 		{5E953F66-49B0-4ED3-A601-1FEA58E5EF5B} = {7552A1D3-57F4-4B62-BE71-F4394846CDE9}
 		{47EF93D3-FB74-4CA9-BBB1-BA2DCD044117} = {4CA221F9-42C9-407D-960D-A3B4D5086A28}
 		{ECB16F9B-9297-48D8-BE6F-8611915536C4} = {4CA221F9-42C9-407D-960D-A3B4D5086A28}
+		{A34BDF6B-6FD7-4BEB-8C1B-B13ECE5C90FC} = {4CA221F9-42C9-407D-960D-A3B4D5086A28}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1F6C1DEF-2C8A-453A-8974-3571C0B84B89}

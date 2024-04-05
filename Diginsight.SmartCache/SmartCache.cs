@@ -19,7 +19,6 @@ internal sealed class SmartCache : ISmartCache
     private readonly ILogger logger;
     private readonly ICacheCompanion companion;
     private readonly IClassAwareOptionsMonitor<SmartCacheCoreOptions> coreOptionsMonitor;
-    private readonly IClassAwareOptionsMonitor<DynamicSmartCacheCoreOptions> dynamicCoreOptionsMonitor;
     private readonly TimeProvider timeProvider;
 
     private readonly IMemoryCache memoryCache;
@@ -36,7 +35,6 @@ internal sealed class SmartCache : ISmartCache
         ILogger<SmartCache> logger,
         ICacheCompanion companion,
         IClassAwareOptionsMonitor<SmartCacheCoreOptions> coreOptionsMonitor,
-        IClassAwareOptionsMonitor<DynamicSmartCacheCoreOptions> dynamicCoreOptionsMonitor,
         IOptionsMonitor<MemoryCacheOptions> memoryCacheOptionsMonitor,
         ILoggerFactory loggerFactory,
         TimeProvider? timeProvider = null
@@ -45,7 +43,6 @@ internal sealed class SmartCache : ISmartCache
         this.logger = logger;
         this.companion = companion;
         this.coreOptionsMonitor = coreOptionsMonitor;
-        this.dynamicCoreOptionsMonitor = dynamicCoreOptionsMonitor;
         this.timeProvider = timeProvider ?? TimeProvider.System;
 
         memoryCache = new MemoryCache(memoryCacheOptionsMonitor.Get(nameof(SmartCache)), loggerFactory);
@@ -516,12 +513,11 @@ internal sealed class SmartCache : ISmartCache
     private DateTime GetMinimumCreationDate([NotNull] ref Expiration? maxAge, Type callerType, DateTime timestamp)
     {
         ISmartCacheCoreOptions coreOptions = coreOptionsMonitor.Get(callerType);
-        IDynamicSmartCacheCoreOptions dynamicCoreOptions = dynamicCoreOptionsMonitor.Get(callerType);
 
         Expiration finalMaxAge = maxAge ?? coreOptions.MaxAge;
 
         DateTime minimumCreationDate = finalMaxAge.IsNever ? DateTime.MinValue : timestamp - finalMaxAge.Value;
-        if (dynamicCoreOptions.MinimumCreationDate is { } dynamicMinimumCreationDate && dynamicMinimumCreationDate > minimumCreationDate)
+        if (coreOptions.MinimumCreationDate is { } dynamicMinimumCreationDate && dynamicMinimumCreationDate > minimumCreationDate)
         {
             minimumCreationDate = dynamicMinimumCreationDate;
         }

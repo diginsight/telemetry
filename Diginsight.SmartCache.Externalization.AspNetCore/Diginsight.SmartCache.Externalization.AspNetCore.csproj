@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0</TargetFrameworks>
+    <Title>Diginsight SmartCache Externalization ASP.NET Core extensions</Title>
+    <PackageTags>$(PackageTags);cache;smartcache;externalization;aspnetcore</PackageTags>
+    <RootNamespace>Diginsight.SmartCache.Externalization</RootNamespace>
+  </PropertyGroup>
+
+  <Choose>
+    <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">
+      <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.*">
+          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.*">
+          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+        </PackageReference>
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Diginsight.AspNetCore\Diginsight.AspNetCore.csproj" />
+    <ProjectReference Include="..\Diginsight.Diagnostics\Diginsight.Diagnostics.csproj">
+      <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+    </ProjectReference>
+    <ProjectReference Include="..\Diginsight.SmartCache\Diginsight.SmartCache.csproj" />
+  </ItemGroup>
+
+</Project>

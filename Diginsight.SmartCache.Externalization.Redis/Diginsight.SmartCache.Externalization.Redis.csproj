@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0</TargetFrameworks>
     <Title>Diginsight SmartCache Service Bus Externalization extension</Title>
-    <PackageTags>$(PackageTags);cache;smartcache;externalization;servicebus</PackageTags>
+    <PackageTags>$(PackageTags);cache;smartcache;externalization;redis</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

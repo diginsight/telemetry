@@ -19,6 +19,8 @@ public sealed class SmartCacheCoreOptions : ISmartCacheCoreOptions, IDynamically
         set => maxAge = value >= Expiration.Zero ? value : Expiration.Zero;
     }
 
+    public DateTime? MinimumCreationDate { get; private set; }
+
     public Expiration AbsoluteExpiration
     {
         get => absoluteExpiration;
@@ -73,6 +75,12 @@ public sealed class SmartCacheCoreOptions : ISmartCacheCoreOptions, IDynamically
         {
             get => filled.MaxAge;
             set => filled.MaxAge = value;
+        }
+
+        public DateTime? MinimumCreationDate
+        {
+            get => filled.MinimumCreationDate;
+            set => filled.MinimumCreationDate = value;
         }
 
         public Expiration AbsoluteExpiration

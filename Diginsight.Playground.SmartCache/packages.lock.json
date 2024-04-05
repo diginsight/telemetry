@@ -284,19 +284,6 @@
           "Microsoft.Extensions.Logging.Abstractions": "8.0.0"
         }
       },
-      "Microsoft.Extensions.Http": {
-        "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "cWz4caHwvx0emoYe7NkHPxII/KkTI8R/LC9qdqJqnKv2poTJ4e2qqPGQqvRoQ5kaSA4FU5IV3qFAuLuOhoqULQ==",
-        "dependencies": {
-          "Microsoft.Extensions.Configuration.Abstractions": "8.0.0",
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0",
-          "Microsoft.Extensions.Diagnostics": "8.0.0",
-          "Microsoft.Extensions.Logging": "8.0.0",
-          "Microsoft.Extensions.Logging.Abstractions": "8.0.0",
-          "Microsoft.Extensions.Options": "8.0.0"
-        }
-      },
       "Microsoft.Extensions.Logging": {
         "type": "Transitive",
         "resolved": "8.0.0",
@@ -1008,14 +995,6 @@
         "resolved": "4.5.2",
         "contentHash": "BG/TNxDFv0svAzx8OiMXDlsHfGw623BZ8tCXw4YLhDFDvDhNUEV58jKYMGRnkbJNm7c3JNNJDiN7JBMzxRBR2w=="
       },
-      "diginsight.aspnetcore": {
-        "type": "Project",
-        "dependencies": {
-          "Diginsight.Core": "[1.0.0, )",
-          "Microsoft.Extensions.Logging": "[8.*, )",
-          "Scrutor": "[4.*, )"
-        }
-      },
       "diginsight.core": {
         "type": "Project",
         "dependencies": {
@@ -1043,11 +1022,9 @@
       "diginsight.smartcache": {
         "type": "Project",
         "dependencies": {
-          "Diginsight.AspNetCore": "[1.0.0, )",
           "Diginsight.Core": "[1.0.0, )",
           "Diginsight.Diagnostics": "[1.0.0, )",
-          "Microsoft.Extensions.Caching.Memory": "[8.*, )",
-          "Microsoft.Extensions.Http": "[8.*, )"
+          "Microsoft.Extensions.Caching.Memory": "[8.*, )"
         }
       },
       "diginsight.smartcache.externalization.servicebus": {
