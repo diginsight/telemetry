@@ -97,7 +97,7 @@ in the second step you can configure the startup sequence to enable and activate
 
 ![Alt text](<08.2a STEP - configure logging.png>)
 
-## STEP 03 - Add telemetry to code with __StartMethodActivity() and __ILogger Statements__:
+## STEP 03 - Add telemetry to code with __StartMethodActivity()__ and __ILogger Statements__:
 
 ![Alt text](<06.1c Code span with diginsight.png>)
 <br><br>
