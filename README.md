@@ -89,7 +89,7 @@ Article [HOWTO - Use Diginsight Samples.md](<articles/04. HowTo Use Diginsight S
 
 
 ## STEP 01 - Add a package reference to the package __Diginsight.Diagnostics.AspNetCore__ or __Diginsight.Diagnostics.Log4Net__
-In the first step you can just add a diginsight reference to your code:
+In the first step you can just add a diginsight reference to your code:<br>
 ![Alt text](<08.1 STEP1 - add reference.png>)
 
 ## STEP 02 - Configure logging within the Startup sequence.
