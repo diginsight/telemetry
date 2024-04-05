@@ -4,11 +4,10 @@
 using System.Collections;
 #endif
 
-// ReSharper disable once CheckNamespace
 namespace System.Linq;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public static class PolyfillExtensions
+public static class Extensions
 {
 #if !NET6_0_OR_GREATER
     public static bool TryGetNonEnumeratedCount<TSource>(this IEnumerable<TSource>? source, out int count)

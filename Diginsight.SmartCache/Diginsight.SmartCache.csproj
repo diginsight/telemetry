@@ -43,12 +43,4 @@
     </ProjectReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Include="..\Diginsight.Core\Polyfills\Index.cs" Link="Polyfills\Index.cs" />
-    <Compile Include="..\Diginsight.Core\Polyfills\IsExternalInit.cs" Link="Polyfills\IsExternalInit.cs" />
-    <Compile Include="..\Diginsight.Core\Polyfills\NotNullIfNotNullAttribute.cs" Link="Polyfills\NotNullIfNotNullAttribute.cs" />
-    <Compile Include="..\Diginsight.Core\Polyfills\NotNullWhenAttribute.cs" Link="Polyfills\NotNullWhenAttribute.cs" />
-    <Compile Include="..\Diginsight.Core\Polyfills\Range.cs" Link="Polyfills\Range.cs" />
-  </ItemGroup>
-
 </Project>

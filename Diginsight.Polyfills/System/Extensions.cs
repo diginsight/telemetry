@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel;
 
-// ReSharper disable once CheckNamespace
 namespace System;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public static class PolyfillExtensions
+public static class Extensions
 {
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
     public static void Deconstruct<TKey, TValue>(this KeyValuePair<TKey, TValue> kvp, out TKey key, out TValue value)

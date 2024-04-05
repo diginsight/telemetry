@@ -1,10 +1,9 @@
 ﻿#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
 using System.Runtime.CompilerServices;
 
-// ReSharper disable once CheckNamespace
 namespace System;
 
-internal readonly struct Range : IEquatable<Range>
+public readonly struct Range : IEquatable<Range>
 {
     public Index Start { get; }
 

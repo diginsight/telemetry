@@ -456,7 +456,7 @@ internal sealed class SmartCache : ISmartCache
 
     private void NotifyMiss(CacheKeyHolder keyHolder, DateTime creationDate, (object?, Type)? valueHolder, string? locationId)
     {
-        _ = Task.Run(() => NotifyMissAsync(keyHolder, creationDate, valueHolder, locationId));
+        TaskUtils.RunAndForget(() => NotifyMissAsync(keyHolder, creationDate, valueHolder, locationId));
     }
 
     private async Task NotifyMissAsync(CacheKeyHolder keyHolder, DateTime creationDate, (object?, Type)? valueHolder, string? locationId)
@@ -599,7 +599,7 @@ internal sealed class SmartCache : ISmartCache
             NotifyInvalidation(invalidationRule);
         }
 
-        _ = Task.Run(
+        TaskUtils.RunAndForget(
             async () =>
             {
                 foreach (Func<Task> invalidationCallback in invalidationCallbacks)
@@ -612,7 +612,7 @@ internal sealed class SmartCache : ISmartCache
 
     private void NotifyInvalidation(IInvalidationRule invalidationRule)
     {
-        _ = Task.Run(NotifyInvalidationAsync);
+        TaskUtils.RunAndForget(NotifyInvalidationAsync);
 
         async Task NotifyInvalidationAsync()
         {

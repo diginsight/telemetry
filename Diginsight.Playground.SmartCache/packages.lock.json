@@ -1041,6 +1041,7 @@
       "diginsight.core": {
         "type": "Project",
         "dependencies": {
+          "Diginsight.Polyfills": "[1.0.0, )",
           "Microsoft.Extensions.Caching.Memory": "[8.*, )",
           "Microsoft.Extensions.Configuration": "[8.*, )",
           "Microsoft.Extensions.Configuration.Binder": "[8.*, )",
@@ -1057,6 +1058,9 @@
           "Microsoft.Extensions.Logging.Console": "[8.*, )",
           "OpenTelemetry.Extensions.Hosting": "[1.*, )"
         }
+      },
+      "diginsight.polyfills": {
+        "type": "Project"
       },
       "diginsight.smartcache": {
         "type": "Project",

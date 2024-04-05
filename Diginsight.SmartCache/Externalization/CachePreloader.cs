@@ -51,7 +51,7 @@ public sealed class CachePreloader : ICachePreloader
 
         logger.LogDebug("Fetched in {LatencyMsec} ms", (long)latencyMsecBox.Value);
 
-        _ = Task.Run(() => NotifyAsync(keyHolder, timestamp, value));
+        TaskUtils.RunAndForget(() => NotifyAsync(keyHolder, timestamp, value));
     }
 
     private async Task NotifyAsync<TValue>(CacheKeyHolder keyHolder, DateTime creationDate, TValue value)

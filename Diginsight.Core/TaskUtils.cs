@@ -1,4 +1,6 @@
-﻿namespace Diginsight;
+﻿using System.Runtime.CompilerServices;
+
+namespace Diginsight;
 
 public static class TaskUtils
 {
@@ -48,14 +50,14 @@ public static class TaskUtils
             throw new ArgumentException("No tasks provided", nameof(taskFactories));
         }
 
-        ValidateArguments(prefetchCount, maxParallelism, maxDelay);
+        ValidateArgumentsOfWhenAnyValid(prefetchCount, maxParallelism, maxDelay);
 
         SemaphoreSlim semaphore = new (maxParallelism, maxParallelism);
 
         TaskCompletionSource<T> taskCompletionSource = new (TaskCreationOptions.RunContinuationsAsynchronously);
         CancellationTokenSource ownCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
-        _ = Task.Run(
+        RunAndForget(
             async () =>
             {
                 CancellationToken ownCancellationToken = ownCancellationTokenSource.Token;
@@ -134,14 +136,13 @@ public static class TaskUtils
                 {
                     taskCompletionSource.TrySetException(new InvalidOperationException("No task was valid"));
                 }
-            },
-            CancellationToken.None
+            }
         );
 
         return taskCompletionSource.Task;
     }
 
-    private static void ValidateArguments(int prefetchCount, int maxParallelism, TimeSpan? maxDelay)
+    private static void ValidateArgumentsOfWhenAnyValid(int prefetchCount, int maxParallelism, TimeSpan? maxDelay)
     {
         if (prefetchCount <= 0)
             throw new ArgumentOutOfRangeException(nameof(prefetchCount), $"{nameof(prefetchCount)} must be positive");
@@ -151,5 +152,23 @@ public static class TaskUtils
             throw new ArgumentException($"{nameof(maxParallelism)} must be less than or equal to {nameof(prefetchCount)}");
         if (maxDelay is { } maxDelay0 && maxDelay0 < TimeSpan.Zero && maxDelay0 != Timeout.InfiniteTimeSpan)
             throw new ArgumentOutOfRangeException(nameof(maxDelay), $"{nameof(maxDelay)} must be null, positive or infinite");
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void RunAndForget(Action action, CancellationToken cancellationToken = default)
+    {
+        _ = Task.Run(action, cancellationToken);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void RunAndForget<T>(Func<T> func, CancellationToken cancellationToken = default)
+    {
+        _ = Task.Run(func, cancellationToken);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void RunAndForget(Func<Task> actionAsync, CancellationToken cancellationToken = default)
+    {
+        _ = Task.Run(actionAsync, cancellationToken);
     }
 }

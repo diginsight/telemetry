@@ -136,7 +136,7 @@ internal class Program : BackgroundService
             applicationLifetime.StopApplication();
         }
 
-        _ = Task.Run(Execute, stoppingToken);
+        TaskUtils.RunAndForget(Execute, stoppingToken);
         return Task.CompletedTask;
     }
 

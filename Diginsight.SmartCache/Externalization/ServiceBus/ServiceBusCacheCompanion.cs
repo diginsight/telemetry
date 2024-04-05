@@ -552,7 +552,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
             if (finishAsync is not null)
             {
-                _ = Task.Run(finishAsync);
+                TaskUtils.RunAndForget(finishAsync);
             }
         }
         catch (Exception exception)
