@@ -29,6 +29,8 @@ Diginsight uses __Dinamic-Configuration__, __smart sampling__, __automatic trunc
 
 Diginsight __log layout__ and __automatic rendering__ for entities can be customized to ensure best readability of the application flow.
 
+Paragraph [GETTING STARTED](#GETTING-STARTED) discusses basic steps we can follow to integrate diginsight telemetry.
+
 The following articles explain in details:
 - [HowTo: use Dynamic-Configuration to manage loglevel and feature flags.md](<articles/11. use Dynamic-Configuration to manage loglevel and feature flags/use Dynamic-Configuration to manage loglevel and feature flags.md>).
 
