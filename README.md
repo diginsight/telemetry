@@ -97,7 +97,7 @@ where, `StartMethodActivity`:
 
 and `SetOutput` stores  the method `result` for rendering within method END line.
 
-# Steps to use Diginsight v3:
+# Steps to use Diginsight v3
 You can ottain a __console log__ or __file log__ with diginsight by means of the following steps.<br>
 The code snippets below are available as working samples within the [telemetry_samples](https://github.com/diginsight/telemetry_samples) repository.
 
