@@ -225,8 +225,8 @@ internal sealed class SmartCache : ISmartCache
                 {
                     maybeOutputTagged = await TaskUtils.WhenAnyValid(
                         taskFactories.ToArray(),
-                        coreOptions.CompanionPrefetchCount,
-                        coreOptions.CompanionMaxParallelism,
+                        coreOptions.LocationPrefetchCount,
+                        coreOptions.LocationMaxParallelism,
                         // ReSharper disable once AsyncApostle.AsyncWait
                         isValid: static t => new ValueTask<bool>(t.Status != TaskStatus.RanToCompletion || t.Result is not null),
                         cancellationToken: cancellationToken

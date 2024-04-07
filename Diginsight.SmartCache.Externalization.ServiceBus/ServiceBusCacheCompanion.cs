@@ -687,7 +687,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
                 try
                 {
                     CancellationToken combinedCancellationToken = CancellationTokenSource
-                        .CreateLinkedTokenSource(cancellationToken, new CancellationTokenSource(companion.serviceBusOptions.CompanionRequestTimeout).Token)
+                        .CreateLinkedTokenSource(cancellationToken, new CancellationTokenSource(companion.serviceBusOptions.RequestTimeout).Token)
                         .Token;
                     body = companion.getResponseDictionary.Get(messageId, combinedCancellationToken);
                 }

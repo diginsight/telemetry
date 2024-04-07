@@ -18,15 +18,12 @@ public sealed class KubernetesCacheCompanionInstaller : ICacheCompanionInstaller
                 static (sp, client) =>
                 {
                     ISmartCacheKubernetesOptions options = sp.GetRequiredService<IOptions<SmartCacheKubernetesOptions>>().Value;
-                    client.Timeout = options.CompanionRequestTimeout;
+                    client.Timeout = options.PodRequestTimeout;
                 }
             );
 
         ServiceDescriptor sd0 = ServiceDescriptor.Singleton<ICacheCompanion, KubernetesCacheCompanion>();
         services.TryAdd(sd0);
-
-        ServiceDescriptor sd1 = ServiceDescriptor.Singleton<KubernetesCacheCompanionHelper, KubernetesCacheCompanionHelper>();
-        services.TryAdd(sd1);
 
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<SmartCacheKubernetesOptions>, ValidateSmartCacheKubernetesOptions>());
 
@@ -35,7 +32,6 @@ public sealed class KubernetesCacheCompanionInstaller : ICacheCompanionInstaller
         void Uninstall()
         {
             services.Remove(sd0);
-            services.Remove(sd1);
         }
     }
 
@@ -49,17 +45,17 @@ public sealed class KubernetesCacheCompanionInstaller : ICacheCompanionInstaller
             }
 
             ICollection<string> failureMessages = new List<string>();
-            if (string.IsNullOrEmpty(options.CompanionsDnsName))
+            if (string.IsNullOrEmpty(options.PodsDnsName))
             {
-                failureMessages.Add($"{nameof(SmartCacheKubernetesOptions.CompanionsDnsName)} must be non-empty");
+                failureMessages.Add($"{nameof(SmartCacheKubernetesOptions.PodsDnsName)} must be non-empty");
             }
             if (string.IsNullOrEmpty(options.PodIpEnvVariableName))
             {
                 failureMessages.Add($"{nameof(SmartCacheKubernetesOptions.PodIpEnvVariableName)} must be non-empty");
             }
-            if (options.CompanionRequestTimeout < TimeSpan.FromSeconds(1))
+            if (options.PodRequestTimeout < TimeSpan.FromSeconds(1))
             {
-                failureMessages.Add($"{nameof(SmartCacheKubernetesOptions.CompanionRequestTimeout)} must be at least 1 second");
+                failureMessages.Add($"{nameof(SmartCacheKubernetesOptions.PodRequestTimeout)} must be at least 1 second");
             }
 
             return failureMessages.Count > 0 ? ValidateOptionsResult.Fail(failureMessages) : ValidateOptionsResult.Success;

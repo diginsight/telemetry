@@ -13,6 +13,7 @@ using System.Text;
 
 namespace Diginsight.Diagnostics;
 
+// TODO Transform into an ActivityListener
 internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
 {
     // TODO Inputs and outputs as OTLP custom properties instead of separate log entries

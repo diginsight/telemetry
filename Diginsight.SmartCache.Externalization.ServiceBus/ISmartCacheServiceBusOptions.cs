@@ -5,5 +5,5 @@ public interface ISmartCacheServiceBusOptions
     string ConnectionString { get; }
     string TopicName { get; }
     string SubscriptionName { get; }
-    TimeSpan CompanionRequestTimeout { get; }
+    TimeSpan RequestTimeout { get; }
 }

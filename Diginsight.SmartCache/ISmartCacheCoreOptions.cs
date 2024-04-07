@@ -11,8 +11,8 @@ public interface ISmartCacheCoreOptions
     Expiration AbsoluteExpiration { get; }
     Expiration SlidingExpiration { get; }
 
-    int CompanionPrefetchCount { get; }
-    int CompanionMaxParallelism { get; }
+    int LocationPrefetchCount { get; }
+    int LocationMaxParallelism { get; }
 
     int MissValueSizeThreshold { get; }
 

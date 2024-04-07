@@ -1,6 +1,6 @@
 ﻿namespace Diginsight.SmartCache.Externalization;
 
-public class CachePayloadHolder<T>
+public class CachePayloadHolder<T> : ICachePayloadHolder
     where T : notnull
 {
     private readonly KeyValuePair<string, object?> metricTag;

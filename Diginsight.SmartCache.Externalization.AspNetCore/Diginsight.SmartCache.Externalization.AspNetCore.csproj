@@ -4,7 +4,6 @@
     <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0</TargetFrameworks>
     <Title>Diginsight SmartCache Externalization ASP.NET Core extensions</Title>
     <PackageTags>$(PackageTags);cache;smartcache;externalization;aspnetcore</PackageTags>
-    <RootNamespace>Diginsight.SmartCache.Externalization</RootNamespace>
   </PropertyGroup>
 
   <Choose>
@@ -26,15 +25,11 @@
   </Choose>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Http" Version="8.*" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Diginsight.AspNetCore\Diginsight.AspNetCore.csproj" />
     <ProjectReference Include="..\Diginsight.Diagnostics\Diginsight.Diagnostics.csproj">
       <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
     </ProjectReference>
-    <ProjectReference Include="..\Diginsight.SmartCache\Diginsight.SmartCache.csproj" />
+    <ProjectReference Include="..\Diginsight.SmartCache.Externalization.Http\Diginsight.SmartCache.Externalization.Http.csproj" />
   </ItemGroup>
 
 </Project>

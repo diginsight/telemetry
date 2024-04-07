@@ -1,13 +1,13 @@
 ﻿using Diginsight.Diagnostics;
+using Diginsight.SmartCache.Externalization.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
-using System.Text;
 
-namespace Diginsight.SmartCache.Externalization.Middleware;
+namespace Diginsight.SmartCache.Externalization.AspNetCore;
 
 internal sealed class SmartCacheMiddleware : IMiddleware
 {
@@ -16,21 +16,21 @@ internal sealed class SmartCacheMiddleware : IMiddleware
 #endif
 
     private readonly ISmartCache smartCache;
-    private readonly ISmartCacheMiddlewareOptions middlewareOptions;
+    private readonly ISmartCacheHttpOptions httpOptions;
 
     public SmartCacheMiddleware(
         ISmartCache smartCache,
-        IOptions<SmartCacheMiddlewareOptions> middlewareOptions
+        IOptions<SmartCacheHttpOptions> httpOptions
     )
     {
         this.smartCache = smartCache;
-        this.middlewareOptions = middlewareOptions.Value;
+        this.httpOptions = httpOptions.Value;
     }
 
     public async Task InvokeAsync(HttpContext httpContext, RequestDelegate next)
     {
         HttpRequest request = httpContext.Request;
-        if (request.Method != HttpMethod.Post.Method || !request.Path.StartsWithSegments(middlewareOptions.RootPath, out PathString remPath0))
+        if (request.Method != HttpMethod.Post.Method || !request.Path.StartsWithSegments(httpOptions.RootPath, out PathString remPath0))
         {
             await next(httpContext);
             return;
@@ -38,15 +38,15 @@ internal sealed class SmartCacheMiddleware : IMiddleware
 
         string? remPath = remPath0.Value;
         IActionResult actionResult;
-        if (string.Equals(remPath, middlewareOptions.GetPathSegment, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(remPath, httpOptions.GetPathSegment, StringComparison.OrdinalIgnoreCase))
         {
             actionResult = await GetAsync(httpContext);
         }
-        else if (string.Equals(remPath, middlewareOptions.CacheMissPathSegment, StringComparison.OrdinalIgnoreCase))
+        else if (string.Equals(remPath, httpOptions.CacheMissPathSegment, StringComparison.OrdinalIgnoreCase))
         {
             actionResult = await CacheMissAsync(httpContext);
         }
-        else if (string.Equals(remPath, middlewareOptions.InvalidatePathSegment, StringComparison.OrdinalIgnoreCase))
+        else if (string.Equals(remPath, httpOptions.InvalidatePathSegment, StringComparison.OrdinalIgnoreCase))
         {
             actionResult = await InvalidateAsync(httpContext);
         }
