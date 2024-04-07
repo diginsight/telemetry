@@ -25,7 +25,9 @@ Diginsight application flow is __consistent__:
 - __across tools__: every information or metric visible on the __local text based streams__ can be published and observed on the __remote analysis tools__ (eg. for analysis of frequency of occurrence).
 - __across applications__ application flow published in the same way for all applications. so it is __easily readable for peopble without background knowledge__ on the application logic.<br><br>
 
-Diginsight uses __Dinamic-Configuration__ (and other strategies) to __maximize applications efficiency__ and __minimize telemetry cost__ so that __local analysis__ and __analysis on the remote tools__ can be supported __without compromises on performance__ and  __without compromises on cost of telemetry__.
+Diginsight uses __Dinamic-Configuration__, __smart sampling__, __automatic truncation__ and other strategies to __maximize applications efficiency__ and __minimize telemetry cost__ so that __local analysis__ and __analysis on the remote tools__ can be supported __without compromises on performance__ and  __without compromises on cost of telemetry__.
+
+Diginsight __log layout__ and __automatic rendering__ for entities can be customized to ensure best readability of the application flow.
 
 The following articles explain in details:
 - [HowTo: use Dynamic-Configuration to manage loglevel and feature flags.md](<articles/11. use Dynamic-Configuration to manage loglevel and feature flags/use Dynamic-Configuration to manage loglevel and feature flags.md>).
