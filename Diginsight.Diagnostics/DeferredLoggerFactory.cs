@@ -2,7 +2,6 @@
 using Diginsight.Strings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using OpenTelemetry;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -31,7 +30,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
     {
         this.timeProvider = timeProvider ?? TimeProvider.System;
 
-        BaseProcessor<Activity> processor = new DiginsightLogProcessor(
+        ActivityLifecycleLogEmitter emitter = new (
             this,
             appendingContextFactory ?? AppendingContextFactoryBuilder.DefaultFactory,
             new FixedClassAwareOptionsMonitor(activitiesOptions ?? new DiginsightActivitiesOptions()),
@@ -40,8 +39,8 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
 
         ActivityListener listener = new ActivityListener()
         {
-            ActivityStarted = processor.OnStart,
-            ActivityStopped = processor.OnEnd,
+            ActivityStarted = emitter.OnStart,
+            ActivityStopped = emitter.OnEnd,
             Sample = static (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
             ShouldListenTo = s => s == ActivitySource,
         };

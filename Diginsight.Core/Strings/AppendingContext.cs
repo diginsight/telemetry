@@ -136,7 +136,14 @@ public sealed class AppendingContext
         try
         {
             using IDisposable? _3 = logStringable.CanCycle ? AddSeen(obj) : null;
-            logStringable.AppendTo(this);
+            try
+            {
+                logStringable.AppendTo(this);
+            }
+            catch (Exception exception) when (exception is not ShortCircuit)
+            {
+                AppendDirect('%');
+            }
         }
         catch (AlreadySeenShortCircuit)
         {

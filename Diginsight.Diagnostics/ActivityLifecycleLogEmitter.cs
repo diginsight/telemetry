@@ -1,33 +1,24 @@
 ﻿using Diginsight.CAOptions;
-using Diginsight.Diagnostics.TextWriting;
 using Diginsight.Strings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using OpenTelemetry;
 using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace Diginsight.Diagnostics;
 
-// TODO Transform into an ActivityListener
-internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
+public sealed class ActivityLifecycleLogEmitter
 {
-    // TODO Inputs and outputs as OTLP custom properties instead of separate log entries
     private static readonly EventId StartActivityEventId = new (100, "StartActivity");
-    private static readonly EventId ActivityInputsEventId = new EventId(101, "ActivityInputs");
     private static readonly EventId StartMethodActivityEventId = new (110, "StartMethodActivity");
-    private static readonly EventId MethodInputsEventId = new EventId(111, "MethodInputs");
     private static readonly EventId EndActivityEventId = new (200, "EndActivity");
     private static readonly EventId EndMethodActivityEventId = new (210, "EndMethodActivity");
-    private static readonly EventId MethodOutputEventId = new EventId(211, "MethodOutput");
-    private static readonly EventId MethodNamedOutputsEventId = new EventId(212, "MethodNamedOutputs");
 
     private static readonly MethodInfo ExtractLoggableFromKvps_Method =
-        typeof(DiginsightLogProcessor).GetMethod(nameof(ExtractLoggablesFromKvps), BindingFlags.NonPublic | BindingFlags.Instance)!;
+        typeof(ActivityLifecycleLogEmitter).GetMethod(nameof(ExtractLoggablesFromKvps), BindingFlags.NonPublic | BindingFlags.Instance)!;
 
     private readonly ILoggerFactory loggerFactory;
     private readonly IAppendingContextFactory appendingContextFactory;
@@ -35,7 +26,7 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
     private readonly IActivityProcessingSampler? activityProcessingSampler;
     private readonly ILogger fallbackLogger;
 
-    public DiginsightLogProcessor(
+    public ActivityLifecycleLogEmitter(
         ILoggerFactory loggerFactory,
         IAppendingContextFactory appendingContextFactory,
         IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor,
@@ -46,11 +37,11 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
         this.appendingContextFactory = appendingContextFactory;
         this.activitiesOptionsMonitor = activitiesOptionsMonitor;
         this.activityProcessingSampler = activityProcessingSampler;
-        fallbackLogger = loggerFactory.CreateLogger($"{typeof(DiginsightLogProcessor).Namespace!}.$Activity");
+        fallbackLogger = loggerFactory.CreateLogger($"{typeof(ActivityLifecycleLogEmitter).Namespace!}.$Activity");
     }
 
     [SuppressMessage("ReSharper", "TemplateIsNotCompileTimeConstantProblem")]
-    public override void OnStart(Activity activity)
+    public void OnStart(Activity activity)
     {
         string activityName = activity.OperationName;
 
@@ -61,23 +52,16 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
                 out bool isStandalone,
                 out bool shouldLog,
                 out bool writeActionAsPrefix,
-                out bool shouldRecord,
                 out ILogger textLogger,
-                out ILogger otlpLogger,
                 out LogLevel logLevel
             );
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             string ComposeLogFormat(string format) => writeActionAsPrefix ? $"START {format}" : $"{format} START";
 
-            if (!shouldRecord)
+            if (!shouldLog)
             {
-                activity.ActivityTraceFlags &= ~ActivityTraceFlags.Recorded;
-
-                if (!shouldLog)
-                {
-                    return;
-                }
+                return;
             }
 
             object? inputs = activity.GetCustomProperty(ActivityCustomPropertyNames.MakeInputs) switch
@@ -100,19 +84,22 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
                 return;
             }
 
-            if (ExtractLoggable("Inputs", inputs) is not var (inputsAsDict, inputsAsString))
+            if (ExtractLoggable(inputs) is not var (inputsAsDict, inputsAsString))
             {
                 throw new InvalidOperationException("Invalid inputs in activity");
             }
 
+            foreach (KeyValuePair<string, string> input in inputsAsDict)
+            {
+                activity.SetTag(input.Key, input.Value);
+            }
+
             if (isStandalone)
             {
-                otlpLogger.Log(logLevel, ActivityInputsEventId, inputsAsDict, null, (_, _) => $"Activity inputs: {inputsAsString}");
                 textLogger.Log(logLevel, StartActivityEventId, ComposeLogFormat("{ActivityName}({Inputs})"), activityName, inputsAsString);
             }
             else
             {
-                otlpLogger.Log(logLevel, MethodInputsEventId, inputsAsDict, null, (_, _) => $"Method inputs: {inputsAsString}");
                 textLogger.Log(logLevel, StartMethodActivityEventId, ComposeLogFormat("{ActivityName}({Inputs})"), activityName, inputsAsString);
             }
         }
@@ -123,7 +110,7 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
     }
 
     [SuppressMessage("ReSharper", "TemplateIsNotCompileTimeConstantProblem")]
-    public override void OnEnd(Activity activity)
+    public void OnEnd(Activity activity)
     {
         string activityName = activity.OperationName;
 
@@ -134,16 +121,14 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
                 out bool isStandalone,
                 out bool shouldLog,
                 out bool writeActionAsPrefix,
-                out bool shouldRecord,
                 out ILogger textLogger,
-                out ILogger otlpLogger,
                 out LogLevel logLevel
             );
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             string ComposeLogFormat(string format) => writeActionAsPrefix ? $"END {format}" : $"{format} END";
 
-            if (!(shouldLog || shouldRecord))
+            if (!shouldLog)
             {
                 return;
             }
@@ -175,7 +160,7 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
 
                 string outputAsString0 = appendingContextFactory.MakeLogString(output);
 
-                otlpLogger.Log(logLevel, MethodOutputEventId, new Dictionary<string, object?>() { ["Output"] = output }, null, (_, _) => $"Method output: {outputAsString0}");
+                activity.SetTag("Output", outputAsString0);
 
                 return outputAsString0;
             }
@@ -187,12 +172,15 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
                     return null;
                 }
 
-                if (ExtractLoggable("NamedOutputs", namedOutputs) is not var (namedOutputAsDict, namedOutputsAsString0))
+                if (ExtractLoggable(namedOutputs) is not var (namedOutputsAsDict, namedOutputsAsString0))
                 {
                     throw new InvalidOperationException("Invalid named outputs in activity");
                 }
 
-                otlpLogger.Log(logLevel, MethodNamedOutputsEventId, namedOutputAsDict, null, (_, _) => $"Method named outputs: {namedOutputsAsString0}");
+                foreach (KeyValuePair<string, string> namedOutput in namedOutputsAsDict)
+                {
+                    activity.SetTag(namedOutput.Key, namedOutput.Value);
+                }
 
                 return namedOutputsAsString0;
             }
@@ -222,64 +210,47 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
         }
     }
 
-    private (IDictionary<string, object?>, string)? ExtractLoggable(string dictPrefix, object obj)
+    private (IReadOnlyDictionary<string, string>, string)? ExtractLoggable(object obj)
     {
         Type type = obj.GetType();
+
+        IReadOnlyDictionary<string, string>? dict;
         if (type.IsAnonymous())
         {
-            return ExtractLoggableFromAnonymous(dictPrefix, obj);
+            dict = ExtractLoggableFromAnonymous(obj);
         }
-
-        if (obj is Tags kvps)
+        else if (obj is Tags kvps)
         {
-            return ExtractLoggablesFromKvps(dictPrefix, kvps);
+            dict = ExtractLoggablesFromKvps(kvps);
         }
-
-        if (type.IsIEnumerableOfKeyValuePair(out Type? tKey, out Type? tValue) && tKey == typeof(string))
+        else if (type.IsIEnumerableOfKeyValuePair(out Type? tKey, out Type? tValue) && tKey == typeof(string))
         {
-            return ((IDictionary<string, object?>, string))ExtractLoggableFromKvps_Method
+            dict = (IReadOnlyDictionary<string, string>)ExtractLoggableFromKvps_Method
                 .MakeGenericMethod(tValue)
-                .Invoke(this, [ dictPrefix, obj ])!;
+                .Invoke(this, [ obj ])!;
+        }
+        else
+        {
+            dict = null;
         }
 
-        return null;
+        return dict is not null
+            ? (dict, string.Join(LogStringTokens.Separator2, dict.Select(static x => $"{x.Key}{LogStringTokens.Value}{x.Value}")))
+            : null;
     }
 
-    private (IDictionary<string, object?>, string) ExtractLoggableFromAnonymous(string dictPrefix, object anonymous)
+    private IReadOnlyDictionary<string, string> ExtractLoggableFromAnonymous(object anonymous)
     {
         return ExtractLoggablesFromKvps(
-            dictPrefix,
             anonymous.GetType()
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Select(p => new Tag(p.Name, p.GetValue(anonymous)))
         );
     }
 
-    private (IDictionary<string, object?>, string) ExtractLoggablesFromKvps<TValue>(string dictPrefix, IEnumerable<KeyValuePair<string, TValue>> kvps)
+    private IReadOnlyDictionary<string, string> ExtractLoggablesFromKvps<TValue>(IEnumerable<KeyValuePair<string, TValue>> kvps)
     {
-        IDictionary<string, object?> dict = new Dictionary<string, object?>();
-
-        StringBuilder sb = new ();
-        bool first = true;
-        foreach (KeyValuePair<string, TValue> kvp in kvps)
-        {
-            if (first)
-            {
-                first = false;
-            }
-            else
-            {
-                sb.Append(LogStringTokens.Separator2);
-            }
-
-            string key = kvp.Key;
-            object? value = kvp.Value;
-            string valueAsString = appendingContextFactory.MakeLogString(value);
-            dict[$"{dictPrefix}.{key}"] = valueAsString;
-            sb.Append($"{key}{LogStringTokens.Value}{valueAsString}");
-        }
-
-        return (dict, sb.ToString());
+        return kvps.ToDictionary(static x => x.Key, x => appendingContextFactory.MakeLogString(x.Value));
     }
 
     private void ExtractLoggingInfo(
@@ -287,9 +258,7 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
         out bool isStandalone,
         out bool shouldLog,
         out bool writeActionAsPrefix,
-        out bool shouldRecord,
         out ILogger textLogger,
-        out ILogger otlpLogger,
         out LogLevel logLevel
     )
     {
@@ -311,20 +280,13 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
 
         ILogger MakeInnerLogger() => providedLogger ?? (callerType is not null ? loggerFactory.CreateLogger(callerType) : fallbackLogger);
 
-        ILogger? innerLogger = null;
-
         IDiginsightActivitiesOptions activitiesOptions = activitiesOptionsMonitor.Get(callerType);
         shouldLog = activityProcessingSampler?.ShouldLog(activity) ?? activitiesOptions.LogActivities;
         textLogger = shouldLog
-            ? new ActivityLogger(innerLogger ??= MakeInnerLogger(), activity.IsStopped ? activity.Duration : null)
+            ? new ActivityLogger(MakeInnerLogger(), activity.IsStopped ? activity.Duration : null)
             : NullLogger.Instance;
 
         writeActionAsPrefix = activitiesOptions.WriteActivityActionAsPrefix;
-
-        shouldRecord = activityProcessingSampler?.ShouldRecord(activity) ?? activitiesOptions.RecordActivities;
-        otlpLogger = shouldRecord
-            ? new OtlpLogger(innerLogger ??= MakeInnerLogger())
-            : NullLogger.Instance;
 
         logLevel = activity.GetCustomProperty(ActivityCustomPropertyNames.LogLevel) switch
         {
@@ -364,15 +326,40 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
         public IDisposable BeginScope<TState>(TState state)
             where TState : notnull
             => throw new NotSupportedException();
+
+        private static class SuppressInstrumentationScope
+        {
+            private static readonly Func<bool, IDisposable>? BeginCore =
+                (Func<bool, IDisposable>?)Type.GetType("OpenTelemetry.SuppressInstrumentationScope, OpenTelemetry, Version=1.0.0.0, Culture=neutral, PublicKeyToken=7bd6737fe5b67e3c")
+                    ?.GetMethod("Begin", BindingFlags.Public | BindingFlags.Static)
+                    ?.CreateDelegate(typeof(Func<bool, IDisposable>), null);
+
+            public static IDisposable? Begin() => BeginCore?.Invoke(true);
+        }
     }
 
-    private class ActivityMark<TState> : DiginsightTextWriter.IActivityMark<TState>
+    public interface IActivityMark
+    {
+        object? State { get; }
+        TimeSpan? Duration { get; }
+    }
+
+    public interface IActivityMark<out TState> : IActivityMark
+    {
+        new TState State { get; }
+
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        object? IActivityMark.State => State;
+#endif
+    }
+
+    private class ActivityMark<TState> : IActivityMark<TState>
     {
         public TState State { get; }
         public TimeSpan? Duration { get; }
 
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
-        object? DiginsightTextWriter.IActivityMark.State => State;
+        object? IActivityMark.State => State;
 #endif
 
         public ActivityMark(TState state, TimeSpan? duration)
@@ -381,7 +368,7 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
             Duration = duration;
         }
 
-        public static DiginsightTextWriter.IActivityMark<TState> For(TState state, TimeSpan? duration)
+        public static IActivityMark<TState> For(TState state, TimeSpan? duration)
         {
             return state is Tags kvps ? new TagsActivityMark<TState>(state, kvps, duration) : new ActivityMark<TState>(state, duration);
         }
@@ -398,47 +385,6 @@ internal sealed class DiginsightLogProcessor : BaseProcessor<Activity>
         }
 
         public IEnumerator<Tag> GetEnumerator() => kvps.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
-
-    private sealed class OtlpLogger : ILogger
-    {
-        private readonly ILogger decoratee;
-
-        public OtlpLogger(ILogger decoratee)
-        {
-            this.decoratee = decoratee;
-        }
-
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
-        {
-            decoratee.Log(
-                logLevel,
-                eventId,
-                new OtlpOnly((IDictionary<string, object?>)state!),
-                exception,
-                (s, e) => formatter((TState)s.State, e)
-            );
-        }
-
-        public bool IsEnabled(LogLevel logLevel) => decoratee.IsEnabled(logLevel);
-
-        public IDisposable BeginScope<TState>(TState state)
-            where TState : notnull
-            => throw new NotSupportedException();
-    }
-
-    private sealed class OtlpOnly : DiginsightTextWriter.IOtlpOnly, Tags
-    {
-        public Tags State { get; }
-
-        public OtlpOnly(IDictionary<string, object?> state)
-        {
-            State = state;
-        }
-
-        public IEnumerator<Tag> GetEnumerator() => State.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }

@@ -1,81 +1,91 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using OpenTelemetry;
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class DependencyInjectionExtensions
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IHostBuilder UseDiginsightServiceProvider(
-        this IHostBuilder hostBuilder,
-        Action<HostBuilderContext, DiginsightServiceProviderOptions>? configureOptions = null
-    )
+    public static IServiceCollection FlushOnCreateServiceProvider(this IServiceCollection services, IDeferredLoggerFactory deferredLoggerFactory)
     {
-        return hostBuilder.UseServiceProviderFactory(
-            context =>
+        services.AddSingleton<IOnCreateServiceProvider>(sp => ActivatorUtilities.CreateInstance<FlushDeferredLoggerFactory>(sp, deferredLoggerFactory));
+
+        return services;
+    }
+
+    private sealed class FlushDeferredLoggerFactory : IOnCreateServiceProvider
+    {
+        private readonly IDeferredLoggerFactory deferredLoggerFactory;
+        private readonly ILoggerFactory? loggerFactory;
+
+        public FlushDeferredLoggerFactory(IDeferredLoggerFactory deferredLoggerFactory, ILoggerFactory? loggerFactory = null)
+        {
+            this.deferredLoggerFactory = deferredLoggerFactory;
+            this.loggerFactory = loggerFactory;
+        }
+
+        public void Run()
+        {
+            if (loggerFactory is not null)
             {
-                DiginsightServiceProviderOptions options = new ();
-                configureOptions?.Invoke(context, options);
-                return new DiginsightServiceProviderFactory(options);
+                deferredLoggerFactory.FlushTo(loggerFactory);
             }
+        }
+    }
+
+    public static ILoggingBuilder AddDiginsightCore(this ILoggingBuilder loggingBuilder, Func<ActivitySource, bool>? shouldListenToActivitySource = null)
+    {
+        loggingBuilder.Services.AddLogStrings();
+        loggingBuilder.Services.TryAddSingleton<ActivityLifecycleLogEmitter>();
+
+        loggingBuilder.Services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IOnCreateServiceProvider, RegisterLifecycleActivityListener>(
+                sp => ActivatorUtilities.CreateInstance<RegisterLifecycleActivityListener>(sp, shouldListenToActivitySource ?? (static _ => true))
+            )
         );
-    }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IOpenTelemetryBuilder AddDiginsightOpenTelemetry(this IServiceCollection services)
-    {
-        return services
-            .AddOpenTelemetry()
-            .ConfigureResource(
-                static resourceBuilder =>
-                {
-                    resourceBuilder.AddService(
-                        Assembly.GetEntryAssembly()!.GetName().Name ?? throw new UnreachableException("Entry assembly is not present or unnamed"),
-                        serviceInstanceId: Environment.MachineName
-                    );
-                }
-            );
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ILoggingBuilder AddDiginsightCore(this ILoggingBuilder loggingBuilder)
-    {
-        return loggingBuilder.Configure(
+        loggingBuilder.Configure(
             static loggerFactoryOptions => { loggerFactoryOptions.ActivityTrackingOptions = ActivityTrackingOptions.SpanId | ActivityTrackingOptions.TraceId | ActivityTrackingOptions.TraceFlags; }
         );
+
+        return loggingBuilder;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ILoggingBuilder AddDiginsightOpenTelemetry(this ILoggingBuilder loggingBuilder)
+    private sealed class RegisterLifecycleActivityListener : IOnCreateServiceProvider
     {
-        return loggingBuilder
-            .AddDiginsightCore()
-            .AddOpenTelemetry(
-                static openTelemetryLoggerOptions =>
+        private readonly ActivityLifecycleLogEmitter emitter;
+        private readonly Func<ActivitySource, bool> shouldListenTo;
+
+        public RegisterLifecycleActivityListener(ActivityLifecycleLogEmitter emitter, Func<ActivitySource, bool> shouldListenTo)
+        {
+            this.emitter = emitter;
+            this.shouldListenTo = shouldListenTo;
+        }
+
+        public void Run()
+        {
+            ActivitySource.AddActivityListener(
+                new ActivityListener()
                 {
-                    openTelemetryLoggerOptions.IncludeFormattedMessage = true;
-                    openTelemetryLoggerOptions.IncludeScopes = true;
+                    ActivityStarted = emitter.OnStart,
+                    ActivityStopped = emitter.OnEnd,
+                    Sample = static (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
+                    ShouldListenTo = shouldListenTo,
                 }
             );
+        }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ILoggingBuilder AddDiginsightConsole(
-        this ILoggingBuilder loggingBuilder, Action<DiginsightConsoleFormatterOptions>? configureFormatterOptions = null
+        this ILoggingBuilder loggingBuilder,
+        Action<DiginsightConsoleFormatterOptions>? configureFormatterOptions = null,
+        Func<ActivitySource, bool>? shouldListenToActivitySource = null
     )
     {
-        loggingBuilder.AddDiginsightCore();
+        loggingBuilder.AddDiginsightCore(shouldListenToActivitySource);
 
         if (configureFormatterOptions is not null)
         {
@@ -91,68 +101,5 @@ public static class DependencyInjectionExtensions
         loggingBuilder.Services.TryAddSingleton<IConsoleLineDescriptorProvider, ConsoleLineDescriptorProvider>();
 
         return loggingBuilder;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static MeterProviderBuilder AddDiginsight(this MeterProviderBuilder meterProviderBuilder)
-    {
-        return meterProviderBuilder;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static TracerProviderBuilder AddDiginsight(this TracerProviderBuilder tracerProviderBuilder, LogLevel? defaultActivityLogLevel = null)
-    {
-        tracerProviderBuilder.AddProcessor<DiginsightLogProcessor>();
-
-        tracerProviderBuilder.ConfigureServices(
-            services =>
-            {
-                services.AddLogStrings();
-
-                if (defaultActivityLogLevel is not null)
-                {
-                    services.Configure<DiginsightActivitiesOptions>(o => { o.ActivityLogLevel = defaultActivityLogLevel.Value; });
-                }
-            }
-        );
-
-        return tracerProviderBuilder;
-    }
-
-    public static MeterProviderBuilder AddViews(
-        this MeterProviderBuilder builder,
-        params (string InstrumentName, MetricStreamConfiguration MetricStreamConfiguration)[] views
-    )
-    {
-        foreach (var (instrumentName, metricStreamConfiguration) in views)
-        {
-            builder.AddView(instrumentName, metricStreamConfiguration);
-        }
-
-        return builder;
-    }
-
-    public static MeterProviderBuilder AddMetrics<T>(this MeterProviderBuilder builder)
-#if NET7_0_OR_GREATER
-        where T : ICustomMetrics<T>
-#else
-        where T : CustomMetrics
-#endif
-    {
-#if NET7_0_OR_GREATER
-        builder.AddMeter(T.ObservabilityName);
-        builder.AddViews(T.Views);
-#else
-        T customMetrics = (T)typeof(T).GetField("Instance", BindingFlags.Public | BindingFlags.Static)!.GetValue(null)!;
-        builder.AddMeter(customMetrics.ObservabilityName);
-        builder.AddViews(customMetrics.Views);
-#endif
-        return builder;
-    }
-
-    public static void EnsureDiginsight(this IServiceProvider serviceProvider)
-    {
-        _ = serviceProvider.GetService<TracerProvider>();
-        _ = serviceProvider.GetService<MeterProvider>();
     }
 }

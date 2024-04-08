@@ -10,7 +10,5 @@ internal static class ActivityCustomPropertyNames
     public const string MakeInputs = nameof(MakeInputs);
     public const string Output = nameof(Output);
     public const string NamedOutputs = nameof(NamedOutputs);
-    public const string CustomDurationMetric = nameof(CustomDurationMetric);
-    public const string CustomDurationMetricTags = nameof(CustomDurationMetricTags);
     public const string Label = nameof(Label);
 }

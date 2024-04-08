@@ -12,13 +12,13 @@ public static class DependencyInjectionExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IWebHostBuilder UseDiginsightServiceProvider(
         this IWebHostBuilder hostBuilder,
-        Action<WebHostBuilderContext, DiginsightServiceProviderOptions>? configureOptions = null
+        Action<WebHostBuilderContext, ServiceProviderOptions>? configureOptions = null
     )
     {
         return hostBuilder.ConfigureServices(
             (context, services) =>
             {
-                DiginsightServiceProviderOptions options = new ();
+                ServiceProviderOptions options = new ();
                 configureOptions?.Invoke(context, options);
                 services.Replace(ServiceDescriptor.Singleton<IServiceProviderFactory<IServiceCollection>>(new DiginsightServiceProviderFactory(options)));
             }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using OpenTelemetry.Trace;
 using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
@@ -120,7 +119,6 @@ public static class DiginsightTextWriter
             StringBuilder fullMessageSb = new (message);
             if (exception is not null)
             {
-                activity?.RecordException(exception);
                 fullMessageSb.Append(newLine).Append(exception);
             }
             string fullMessage = fullMessageSb.Replace("\r", "").ToString();
@@ -185,25 +183,5 @@ public static class DiginsightTextWriter
             WriteDuration.Record(timing = stopwatch.Elapsed.TotalMilliseconds / 1000);
 #endif
         }
-    }
-
-    public interface IActivityMark
-    {
-        object? State { get; }
-        TimeSpan? Duration { get; }
-    }
-
-    public interface IActivityMark<out TState> : IActivityMark
-    {
-        new TState State { get; }
-
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-        object? IActivityMark.State => State;
-#endif
-    }
-
-    public interface IOtlpOnly
-    {
-        Tags State { get; }
     }
 }

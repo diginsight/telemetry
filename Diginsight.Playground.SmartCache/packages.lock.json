@@ -448,15 +448,6 @@
           "OpenTelemetry.Api": "1.8.0"
         }
       },
-      "OpenTelemetry.Extensions.Hosting": {
-        "type": "Transitive",
-        "resolved": "1.8.0",
-        "contentHash": "mJXRMgd7ZoFLuKc2rUlmGNRbbTk6ayQuPJhJy/rktdTZN3lY3wpTRhKPvZNSlKgftx9w039/ORoCUIXmpcgAVQ==",
-        "dependencies": {
-          "Microsoft.Extensions.Hosting.Abstractions": "8.0.0",
-          "OpenTelemetry": "1.8.0"
-        }
-      },
       "Polly.Core": {
         "type": "Transitive",
         "resolved": "8.3.1",
@@ -1003,6 +994,7 @@
           "Microsoft.Extensions.Configuration": "[8.*, )",
           "Microsoft.Extensions.Configuration.Binder": "[8.*, )",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.*, )",
+          "Microsoft.Extensions.Hosting.Abstractions": "[8.*, )",
           "Microsoft.Extensions.Logging": "[8.*, )",
           "Newtonsoft.Json": "[13.*, )",
           "Scrutor": "[4.*, )"
@@ -1012,8 +1004,7 @@
         "type": "Project",
         "dependencies": {
           "Diginsight.Core": "[1.0.0, )",
-          "Microsoft.Extensions.Logging.Console": "[8.*, )",
-          "OpenTelemetry.Extensions.Hosting": "[1.*, )"
+          "Microsoft.Extensions.Logging.Console": "[8.*, )"
         }
       },
       "diginsight.polyfills": {
@@ -1033,6 +1024,7 @@
           "Azure.Messaging.ServiceBus": "[1.*, )",
           "Diginsight.Diagnostics": "[1.0.0, )",
           "Diginsight.SmartCache": "[1.0.0, )",
+          "Microsoft.Extensions.Hosting.Abstractions": "[8.*, )",
           "Polly.Core": "[8.*, )"
         }
       }

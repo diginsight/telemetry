@@ -99,6 +99,7 @@ public sealed class DiginsightActivitiesOptions
             activityLogLevel = ActivityLogLevel,
             logActivities = LogActivities,
             recordActivities = RecordActivities,
+            writeActivityActionAsPrefix = WriteActivityActionAsPrefix,
             recordSpanDurations = RecordSpanDurations,
         };
     }

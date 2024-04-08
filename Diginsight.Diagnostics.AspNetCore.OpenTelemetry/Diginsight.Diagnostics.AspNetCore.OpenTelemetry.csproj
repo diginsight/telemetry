@@ -2,8 +2,9 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0</TargetFrameworks>
-    <Title>Diginsight Diagnostics ASP.NET Core extensions</Title>
-    <PackageTags>$(PackageTags);diagnostics;aspnetcore</PackageTags>
+    <Title>Diginsight Diagnostics ASP.NET Core OpenTelemetry extensions</Title>
+    <PackageTags>$(PackageTags);diagnostics;aspnetcore;opentelemetry</PackageTags>
+    <RootNamespace>Diginsight.Diagnostics.AspNetCore</RootNamespace>
   </PropertyGroup>
 
   <Choose>
@@ -14,7 +15,7 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.*">
+        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.*">
           <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
         </PackageReference>
       </ItemGroup>
@@ -22,8 +23,11 @@
   </Choose>
 
   <ItemGroup>
-    <ProjectReference Include="..\Diginsight.AspNetCore\Diginsight.AspNetCore.csproj" />
-    <ProjectReference Include="..\Diginsight.Diagnostics\Diginsight.Diagnostics.csproj" />
+    <PackageReference Include="OpenTelemetry" Version="1.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Diginsight.Diagnostics.AspNetCore\Diginsight.Diagnostics.AspNetCore.csproj" />
   </ItemGroup>
 
 </Project>

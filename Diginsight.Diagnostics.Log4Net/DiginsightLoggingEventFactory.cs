@@ -1,5 +1,4 @@
-﻿using Diginsight.Diagnostics.TextWriting;
-using log4net.Core;
+﻿using log4net.Core;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Log4Net.AspNetCore.Entities;
 using ILogger = log4net.Core.ILogger;
@@ -37,12 +36,7 @@ internal sealed class DiginsightLoggingEventFactory : ILog4NetLoggingEventFactor
 
             while (true)
             {
-                if (innerState is DiginsightTextWriter.IOtlpOnly)
-                {
-                    return null;
-                }
-
-                if (innerState is DiginsightTextWriter.IActivityMark activityMark)
+                if (innerState is ActivityLifecycleLogEmitter.IActivityMark activityMark)
                 {
                     innerState = activityMark.State;
                     isActivity = true;

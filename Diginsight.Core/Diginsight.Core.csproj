@@ -13,6 +13,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.*" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.*" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.*" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.*" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.*" />
     <PackageReference Include="Newtonsoft.Json" Version="13.*" />
     <PackageReference Include="Scrutor" Version="4.*">
@@ -30,8 +31,8 @@
 
   <ItemGroup>
     <None Update="CAOptions\PostConfigureClassAwareOptions.tt">
-      <LastGenOutput>PostConfigureClassAwareOptions.g.cs</LastGenOutput>
       <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>PostConfigureClassAwareOptions.g.cs</LastGenOutput>
     </None>
     <None Update="CAOptions\ConfigureClassAwareOptions.tt">
       <Generator>TextTemplatingFileGenerator</Generator>

@@ -8,11 +8,14 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.*" />
-    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.*" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Diginsight.Core\Diginsight.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,10 +27,6 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>LogInterpolatedStringHandler_Levels.g.cs</LastGenOutput>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
 
   <ItemGroup>

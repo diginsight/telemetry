@@ -4,7 +4,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using OpenTelemetry;
 using System.Diagnostics;
 using System.Net;
 using System.Text;
@@ -69,14 +68,7 @@ internal class Program : BackgroundService
 
                         logger.LogDebug("Diginsight");
                         services
-                            .ConfigureClassAware<DiginsightActivitiesOptions>(configuration, diginsightSectionName)
-                            .AddDiginsightOpenTelemetry()
-                            .WithTracing(
-                                tracerProviderBuilder => tracerProviderBuilder
-                                    .AddDiginsight()
-                                    .AddSource(ActivitySource.Name)
-                                    .AddSource(deferredActivitySource.Name)
-                            );
+                            .ConfigureClassAware<DiginsightActivitiesOptions>(configuration, diginsightSectionName);
 
                         logger.LogDebug("Logging");
                         services
@@ -88,9 +80,11 @@ internal class Program : BackgroundService
                                         .AddDiginsightConsole(configuration.GetSection($"{diginsightSectionName}:Console").Bind);
                                 }
                             );
+
+                        services.FlushOnCreateServiceProvider(loggerFactory);
                     }
                 )
-                .UseDiginsightServiceProvider((_, serviceProviderOptions) => { serviceProviderOptions.DeferredLoggerFactory = loggerFactory; })
+                .UseDiginsightServiceProvider()
                 .Build();
 
             logger.LogDebug("Host built");

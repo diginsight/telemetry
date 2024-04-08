@@ -41,12 +41,7 @@ internal sealed class DiginsightConsoleFormatter : ConsoleFormatter
 
             while (true)
             {
-                if (innerState is DiginsightTextWriter.IOtlpOnly)
-                {
-                    return;
-                }
-
-                if (innerState is DiginsightTextWriter.IActivityMark activityMark)
+                if (innerState is ActivityLifecycleLogEmitter.IActivityMark activityMark)
                 {
                     innerState = activityMark.State;
                     isActivity = true;

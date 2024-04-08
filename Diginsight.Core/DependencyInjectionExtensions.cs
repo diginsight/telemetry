@@ -3,15 +3,33 @@ using Diginsight.Strings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace Diginsight;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public static class ServiceCollectionExtensions
+public static class DependencyInjectionExtensions
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IHostBuilder UseDiginsightServiceProvider(
+        this IHostBuilder hostBuilder,
+        Action<HostBuilderContext, ServiceProviderOptions>? configureOptions = null
+    )
+    {
+        return hostBuilder.UseServiceProviderFactory(
+            context =>
+            {
+                ServiceProviderOptions options = new ();
+                configureOptions?.Invoke(context, options);
+                return new DiginsightServiceProviderFactory(options);
+            }
+        );
+    }
+
     public static IServiceCollection AddClassAwareOptions(this IServiceCollection services)
     {
         services.AddOptions();
