@@ -25,7 +25,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
         TimeProvider? timeProvider = null,
         IAppendingContextFactory? appendingContextFactory = null,
         DiginsightActivitiesOptions? activitiesOptions = null,
-        IActivityProcessingSampler? activityProcessingSampler = null
+        IActivityLoggingSampler? activityLoggingSampler = null
     )
     {
         this.timeProvider = timeProvider ?? TimeProvider.System;
@@ -34,7 +34,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
             this,
             appendingContextFactory ?? AppendingContextFactoryBuilder.DefaultFactory,
             new FixedClassAwareOptionsMonitor(activitiesOptions ?? new DiginsightActivitiesOptions()),
-            activityProcessingSampler
+            activityLoggingSampler
         );
 
         ActivityListener listener = new ActivityListener()

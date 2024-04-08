@@ -12,7 +12,6 @@ public sealed class DiginsightActivitiesOptions
 
     private LogLevel activityLogLevel = LogLevel.Debug;
     private bool logActivities;
-    private bool recordActivities;
     private bool writeActivityActionAsPrefix;
     private bool recordSpanDurations;
 
@@ -26,12 +25,6 @@ public sealed class DiginsightActivitiesOptions
     {
         get => logActivities;
         set => logActivities = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
-    }
-
-    public bool RecordActivities
-    {
-        get => recordActivities;
-        set => recordActivities = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
     }
 
     public bool WriteActivityActionAsPrefix
@@ -54,19 +47,9 @@ public sealed class DiginsightActivitiesOptions
 
     IEnumerable<string> IDiginsightActivityNamesOptions.NonLoggedActivityNames => NonLoggedActivityNames;
 
-    public ICollection<string> RecordedActivityNames { get; }
-
-    IEnumerable<string> IDiginsightActivityNamesOptions.RecordedActivityNames => RecordedActivityNames;
-
-    public ICollection<string> NonRecordedActivityNames { get; }
-
-    IEnumerable<string> IDiginsightActivityNamesOptions.NonRecordedActivityNames => NonRecordedActivityNames;
-
     public DiginsightActivitiesOptions()
         : this(
             false,
-            new List<string>(),
-            new List<string>(),
             new List<string>(),
             new List<string>()
         ) { }
@@ -74,16 +57,12 @@ public sealed class DiginsightActivitiesOptions
     private DiginsightActivitiesOptions(
         bool frozen,
         ICollection<string> loggedActivityNames,
-        ICollection<string> nonLoggedActivityNames,
-        ICollection<string> recordedActivityNames,
-        ICollection<string> nonRecordedActivityNames
+        ICollection<string> nonLoggedActivityNames
     )
     {
         this.frozen = frozen;
         LoggedActivityNames = loggedActivityNames;
         NonLoggedActivityNames = nonLoggedActivityNames;
-        RecordedActivityNames = recordedActivityNames;
-        NonRecordedActivityNames = nonRecordedActivityNames;
     }
 
     public DiginsightActivitiesOptions Freeze()
@@ -91,14 +70,11 @@ public sealed class DiginsightActivitiesOptions
         return new (
             true,
             ImmutableArray.CreateRange(LoggedActivityNames.Distinct()),
-            ImmutableArray.CreateRange(NonLoggedActivityNames.Distinct()),
-            ImmutableArray.CreateRange(RecordedActivityNames.Distinct()),
-            ImmutableArray.CreateRange(NonRecordedActivityNames.Distinct())
+            ImmutableArray.CreateRange(NonLoggedActivityNames.Distinct())
         )
         {
             activityLogLevel = ActivityLogLevel,
             logActivities = LogActivities,
-            recordActivities = RecordActivities,
             writeActivityActionAsPrefix = WriteActivityActionAsPrefix,
             recordSpanDurations = RecordSpanDurations,
         };
@@ -121,12 +97,6 @@ public sealed class DiginsightActivitiesOptions
         {
             get => filled.LogActivities;
             set => filled.LogActivities = value;
-        }
-
-        public bool RecordActivities
-        {
-            get => filled.RecordActivities;
-            set => filled.RecordActivities = value;
         }
 
         public bool RecordSpanDurations

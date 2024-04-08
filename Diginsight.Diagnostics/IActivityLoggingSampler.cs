@@ -2,9 +2,7 @@
 
 namespace Diginsight.Diagnostics;
 
-public interface IActivityProcessingSampler
+public interface IActivityLoggingSampler
 {
     bool? ShouldLog(Activity activity);
-
-    bool? ShouldRecord(Activity activity);
 }

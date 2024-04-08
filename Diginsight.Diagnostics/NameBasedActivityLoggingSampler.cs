@@ -4,11 +4,11 @@ using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
 
-public class NameBasedActivityProcessingSampler : IActivityProcessingSampler
+public class NameBasedActivityLoggingSampler : IActivityLoggingSampler
 {
     private readonly IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptions;
 
-    public NameBasedActivityProcessingSampler(
+    public NameBasedActivityLoggingSampler(
         IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptions
     )
     {
@@ -21,15 +21,6 @@ public class NameBasedActivityProcessingSampler : IActivityProcessingSampler
 
         return activity.NameMatchesPattern(activityNamesOptions.NonLoggedActivityNames) ? false
             : activity.NameMatchesPattern(activityNamesOptions.LoggedActivityNames) ? true
-            : null;
-    }
-
-    public virtual bool? ShouldRecord(Activity activity)
-    {
-        IDiginsightActivityNamesOptions activityNamesOptions = GetActivityNamesOptions(activity);
-
-        return activity.NameMatchesPattern(activityNamesOptions.NonRecordedActivityNames) ? false
-            : activity.NameMatchesPattern(activityNamesOptions.RecordedActivityNames) ? true
             : null;
     }
 

@@ -23,20 +23,20 @@ public sealed class ActivityLifecycleLogEmitter
     private readonly ILoggerFactory loggerFactory;
     private readonly IAppendingContextFactory appendingContextFactory;
     private readonly IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor;
-    private readonly IActivityProcessingSampler? activityProcessingSampler;
+    private readonly IActivityLoggingSampler? activityLoggingSampler;
     private readonly ILogger fallbackLogger;
 
     public ActivityLifecycleLogEmitter(
         ILoggerFactory loggerFactory,
         IAppendingContextFactory appendingContextFactory,
         IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor,
-        IActivityProcessingSampler? activityProcessingSampler = null
+        IActivityLoggingSampler? activityLoggingSampler = null
     )
     {
         this.loggerFactory = loggerFactory;
         this.appendingContextFactory = appendingContextFactory;
         this.activitiesOptionsMonitor = activitiesOptionsMonitor;
-        this.activityProcessingSampler = activityProcessingSampler;
+        this.activityLoggingSampler = activityLoggingSampler;
         fallbackLogger = loggerFactory.CreateLogger($"{typeof(ActivityLifecycleLogEmitter).Namespace!}.$Activity");
     }
 
@@ -281,7 +281,7 @@ public sealed class ActivityLifecycleLogEmitter
         ILogger MakeInnerLogger() => providedLogger ?? (callerType is not null ? loggerFactory.CreateLogger(callerType) : fallbackLogger);
 
         IDiginsightActivitiesOptions activitiesOptions = activitiesOptionsMonitor.Get(callerType);
-        shouldLog = activityProcessingSampler?.ShouldLog(activity) ?? activitiesOptions.LogActivities;
+        shouldLog = activityLoggingSampler?.ShouldLog(activity) ?? activitiesOptions.LogActivities;
         textLogger = shouldLog
             ? new ActivityLogger(MakeInnerLogger(), activity.IsStopped ? activity.Duration : null)
             : NullLogger.Instance;
