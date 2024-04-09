@@ -3,7 +3,7 @@
 public interface ILogStringOverallConfiguration : ILogStringVariableConfiguration
 {
     IEnumerable<LogStringProviderRegistration> Registrations { get; }
-    TimeSpan MaxTime { get; }
+    Expiration MaxTime { get; }
     LogThreshold MaxTotalLength { get; }
     bool ShortenKnownTypes { get; }
     bool IsMemberwiseLogStringableByDefault { get; }

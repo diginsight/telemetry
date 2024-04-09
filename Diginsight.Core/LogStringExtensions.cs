@@ -1,6 +1,7 @@
 ﻿using Diginsight.Strings;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+using System.Collections;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
@@ -20,14 +21,11 @@ public static class LogStringExtensions
         typeof(Thread),
         typeof(CancellationToken),
         typeof(CancellationTokenSource),
-        typeof(IAsyncStateMachine),
         typeof(MarshalByRefObject),
 #if NET6_0_OR_GREATER
         typeof(TaskCompletionSource),
 #endif
         typeof(TaskCompletionSource<>),
-        typeof(IEnumerator<>),
-        typeof(IAsyncEnumerator<>),
     ];
 
     private static readonly IMemoryCache ForbiddenTypesCache = new MemoryCache(
@@ -89,6 +87,18 @@ public static class LogStringExtensions
                 && type.GetMethod("GetResult", BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, Array.Empty<ParameterModifier>()) is { IsGenericMethod: false };
         }
 
+        static bool IsEnumerator(Type type)
+        {
+            return (typeof(IEnumerator).IsAssignableFrom(type) || typeof(IEnumerator<>).IsGenericAssignableFrom(type))
+                && !(typeof(IEnumerable).IsAssignableFrom(type) || typeof(IEnumerable<>).IsGenericAssignableFrom(type));
+        }
+
+        static bool IsAsyncStateMachine(Type type)
+        {
+            return (typeof(IAsyncStateMachine).IsAssignableFrom(type) || typeof(IAsyncEnumerator<>).IsGenericAssignableFrom(type))
+                && !typeof(IAsyncEnumerable<>).IsGenericAssignableFrom(type);
+        }
+
         return ForbiddenTypesCache.GetOrCreate(
             type,
             e =>
@@ -98,7 +108,9 @@ public static class LogStringExtensions
 
                 return FixedForbiddenTypes.Any(x => x.IsGenericAssignableFrom(type))
                     || IsAwaitable(type)
-                    || IsAwaiter(type);
+                    || IsAwaiter(type)
+                    || IsEnumerator(type)
+                    || IsAsyncStateMachine(type);
             }
         );
     }

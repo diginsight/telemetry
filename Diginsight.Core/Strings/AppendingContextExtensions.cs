@@ -34,38 +34,56 @@ public static class AppendingContextExtensions
     )
         where T : IEnumerator
     {
-        bool MoveNext()
-        {
-            try
-            {
-                return enumerator.MoveNext();
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
-        if (!MoveNext())
-        {
-            return appendingContext;
-        }
-
         try
         {
-            void AppendEntry()
-            {
-                counter.Decrement();
-                appendingContext.ThrowIfTimeIsOver();
+            bool first = true;
+            bool over = false;
 
-                appendCurrent(appendingContext, enumerator);
+            bool? MoveNext()
+            {
+                try
+                {
+                    return enumerator.MoveNext();
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
             }
 
-            AppendEntry();
-            while (MoveNext())
+            void AppendSeparator()
             {
-                appendingContext.AppendDirect(separator);
-                AppendEntry();
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    appendingContext.AppendDirect(separator);
+                }
+            }
+
+            while (!over)
+            {
+                switch (MoveNext())
+                {
+                    case null:
+                        AppendSeparator();
+                        appendingContext.AppendError();
+                        over = true;
+                        break;
+
+                    case false:
+                        over = true;
+                        break;
+
+                    case true:
+                        AppendSeparator();
+                        counter.Decrement();
+                        appendingContext.ThrowIfTimeIsOver();
+                        appendCurrent(appendingContext, enumerator);
+                        break;
+                }
             }
         }
         catch (MaxAllottedShortCircuit)

@@ -54,7 +54,7 @@ public sealed class AppendingContext
         IEnumerable<ILogStringProvider> logStringProviders,
         IMemberInfoLogStringProvider memberInfoLogStringProvider,
         LogStringVariableConfiguration variableConfiguration,
-        TimeSpan maxTime,
+        Expiration maxTime,
         int? maxTotalLength,
         IEqualityComparer<string> metaPropertyKeyComparer
     )
@@ -66,9 +66,9 @@ public sealed class AppendingContext
         this.maxTotalLength = maxTotalLength ?? int.MaxValue;
         metaProperties = new Dictionary<string, object?>(metaPropertyKeyComparer);
 
-        if (maxTime > TimeSpan.Zero)
+        if (!maxTime.IsNever)
         {
-            maxTimeTicks = maxTime.Ticks;
+            maxTimeTicks = maxTime.Value.Ticks;
             stopwatch = Stopwatch.StartNew();
         }
         else

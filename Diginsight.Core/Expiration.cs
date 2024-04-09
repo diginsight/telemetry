@@ -1,7 +1,7 @@
 ﻿using Diginsight.Strings;
 using System.ComponentModel;
 
-namespace Diginsight.SmartCache;
+namespace Diginsight;
 
 [TypeConverter(typeof(ExpirationConverter))]
 public readonly struct Expiration

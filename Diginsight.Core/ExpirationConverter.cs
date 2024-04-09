@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
 
-namespace Diginsight.SmartCache;
+namespace Diginsight;
 
 internal sealed class ExpirationConverter : TypeConverter
 {

@@ -21,10 +21,18 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
                 .Invoke([ obj ]);
         }
 
-        if (type.IsIEnumerable(out Type? tInner))
+        if (type.IsIEnumerable(out Type? tInner0))
         {
             return (ILogStringable)typeof(LogStringableGenericCollection<>)
-                .MakeGenericType(tInner)
+                .MakeGenericType(tInner0)
+                .GetConstructors()[0]
+                .Invoke([ obj ]);
+        }
+
+        if (type.IsIAsyncEnumerable(out Type? tInner1))
+        {
+            return (ILogStringable)typeof(LogStringableGenericAsyncCollection<>)
+                .MakeGenericType(tInner1)
                 .GetConstructors()[0]
                 .Invoke([ obj ]);
         }
@@ -178,6 +186,53 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
                 static (ac, e) => { ac.ComposeAndAppend(e.Current); },
                 appendingContext.CountCollectionItems()
             );
+        }
+    }
+
+    private sealed class LogStringableGenericAsyncCollection<T> : ILogStringable
+        where T : notnull
+    {
+        private readonly IAsyncEnumerable<T> subject;
+
+#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+        public bool IsDeep => true;
+        public bool CanCycle => true;
+#endif
+
+        public LogStringableGenericAsyncCollection(IAsyncEnumerable<T> subject)
+        {
+            this.subject = subject;
+        }
+
+        public void AppendTo(AppendingContext appendingContext)
+        {
+            appendingContext.ComposeAndAppendType(subject.GetType());
+
+            appendingContext.AppendDelimited(LogStringTokens.CollectionBegin, LogStringTokens.CollectionEnd, AppendToCore);
+        }
+
+        private void AppendToCore(AppendingContext appendingContext)
+        {
+            AppendToCoreAsync().GetAwaiter().GetResult();
+
+            async Task AppendToCoreAsync()
+            {
+                await using IAsyncEnumerator<T> enumerator = subject.GetAsyncEnumerator();
+
+                appendingContext.AppendEnumerator(
+                    SyncWrap(enumerator),
+                    static (ac, e) => { ac.ComposeAndAppend(e.Current); },
+                    appendingContext.CountCollectionItems()
+                );
+            }
+        }
+
+        private static IEnumerator<T> SyncWrap(IAsyncEnumerator<T> enumerator)
+        {
+            while (enumerator.MoveNextAsync().GetAwaiter().GetResult())
+            {
+                yield return enumerator.Current;
+            }
         }
     }
 

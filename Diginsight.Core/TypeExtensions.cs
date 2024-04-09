@@ -138,6 +138,24 @@ public static class TypeExtensions
         return false;
     }
 
+    public static bool IsIAsyncEnumerable(this Type type, [NotNullWhen(true)] out Type? tInner)
+    {
+        if (type is null)
+            throw new ArgumentNullException(nameof(type));
+
+        foreach (Type interfaceType in type.GetInterfaces())
+        {
+            if (!interfaceType.IsGenericType || interfaceType.GetGenericTypeDefinition() != typeof(IAsyncEnumerable<>))
+                continue;
+
+            tInner = interfaceType.GetGenericArguments()[0];
+            return true;
+        }
+
+        tInner = null;
+        return false;
+    }
+
     public static bool IsKeyValuePair(this Type type, [NotNullWhen(true)] out Type? tKey, [NotNullWhen(true)] out Type? tValue)
     {
         if (type is null)

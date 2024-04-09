@@ -36,7 +36,7 @@ public sealed class LogStringOverallConfiguration : ILogStringOverallConfigurati
 
     public bool IsNamespaceExplicitIfAmbiguous { get; set; }
 
-    public TimeSpan MaxTime { get; set; } = TimeSpan.FromMilliseconds(5);
+    public Expiration MaxTime { get; set; } = TimeSpan.FromMilliseconds(5);
 
     public LogThreshold MaxTotalLength
     {
