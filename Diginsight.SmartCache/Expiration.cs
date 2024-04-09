@@ -1,10 +1,12 @@
-﻿using System.ComponentModel;
+﻿using Diginsight.Strings;
+using System.ComponentModel;
 
 namespace Diginsight.SmartCache;
 
 [TypeConverter(typeof(ExpirationConverter))]
 public readonly struct Expiration
-    : IComparable<Expiration>
+    : ILogStringable
+        , IComparable<Expiration>
         , IEquatable<Expiration>
 #if NET6_0_OR_GREATER
         , ISpanFormattable
@@ -18,6 +20,7 @@ public readonly struct Expiration
         , ISpanParsable<Expiration>
 #endif
 {
+    private const string NeverString = "Never";
     public static readonly Expiration Zero = default;
     public static readonly Expiration Never = new (default, true);
 
@@ -26,6 +29,11 @@ public readonly struct Expiration
     public TimeSpan Value => IsNever ? throw new InvalidOperationException("No expiration") : underlying;
 
     public bool IsNever { get; }
+
+#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+    bool ILogStringable.IsDeep => false;
+    bool ILogStringable.CanCycle => false;
+#endif
 
     public Expiration(TimeSpan value)
         : this(value, false) { }
@@ -39,6 +47,18 @@ public readonly struct Expiration
 
         underlying = value;
         IsNever = isNever;
+    }
+
+    void ILogStringable.AppendTo(AppendingContext appendingContext)
+    {
+        if (IsNever)
+        {
+            appendingContext.AppendDirect($"{LogStringTokens.LiteralBegin}Never{LogStringTokens.LiteralEnd}");
+        }
+        else
+        {
+            appendingContext.ComposeAndAppend(underlying, false);
+        }
     }
 
     public override bool Equals(object? obj) => obj is Expiration other && Equals(other);
@@ -66,7 +86,7 @@ public readonly struct Expiration
 
     public string ToString(string? format, IFormatProvider? formatProvider)
     {
-        return IsNever ? "Never" : underlying.ToString(format, formatProvider);
+        return IsNever ? NeverString : underlying.ToString(format, formatProvider);
     }
 
 #if NET6_0_OR_GREATER
@@ -77,7 +97,7 @@ public readonly struct Expiration
             return underlying.TryFormat(destination, out charsWritten, format, provider);
         }
 
-        ReadOnlySpan<char> span = "Never";
+        ReadOnlySpan<char> span = NeverString;
         if (span.TryCopyTo(destination))
         {
             charsWritten = span.Length;
@@ -115,14 +135,14 @@ public readonly struct Expiration
 
     public static Expiration Parse(string s, IFormatProvider? provider)
     {
-        return (s ?? throw new ArgumentNullException(nameof(s))).Equals("Never", StringComparison.OrdinalIgnoreCase)
+        return (s ?? throw new ArgumentNullException(nameof(s))).Equals(NeverString, StringComparison.OrdinalIgnoreCase)
             ? Never
             : new Expiration(TimeSpan.Parse(s, provider));
     }
 
     public static bool TryParse(string? s, IFormatProvider? provider, out Expiration result)
     {
-        if (s?.Equals("Never", StringComparison.OrdinalIgnoreCase) ?? false)
+        if (s?.Equals(NeverString, StringComparison.OrdinalIgnoreCase) ?? false)
         {
             result = Never;
             return true;
@@ -142,12 +162,12 @@ public readonly struct Expiration
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
     public static Expiration Parse(ReadOnlySpan<char> s, IFormatProvider? provider)
     {
-        return s.Equals("Never", StringComparison.OrdinalIgnoreCase) ? Never : new Expiration(TimeSpan.Parse(s, provider));
+        return s.Equals(NeverString, StringComparison.OrdinalIgnoreCase) ? Never : new Expiration(TimeSpan.Parse(s, provider));
     }
 
     public static bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, out Expiration result)
     {
-        if (s.Equals("Never", StringComparison.OrdinalIgnoreCase))
+        if (s.Equals(NeverString, StringComparison.OrdinalIgnoreCase))
         {
             result = Never;
             return true;

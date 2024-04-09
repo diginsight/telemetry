@@ -142,7 +142,7 @@ public sealed class AppendingContext
             }
             catch (Exception exception) when (exception is not ShortCircuit)
             {
-                AppendDirect('%');
+                this.AppendError();
             }
         }
         catch (AlreadySeenShortCircuit)

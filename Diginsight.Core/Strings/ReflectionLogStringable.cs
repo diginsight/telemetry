@@ -73,10 +73,20 @@ public abstract class ReflectionLogStringable : ILogStringable
 
         return (o, appendingContext) =>
         {
-            appendingContext
-                .AppendDirect(outputName)
-                .AppendDirect(LogStringTokens.Value)
-                .ComposeAndAppend(finalGetValue(o));
+            appendingContext.AppendDirect(outputName).AppendDirect(LogStringTokens.Value);
+
+            object? finalValue;
+            try
+            {
+                finalValue = finalGetValue(o);
+            }
+            catch (Exception)
+            {
+                appendingContext.AppendError();
+                return;
+            }
+
+            appendingContext.ComposeAndAppend(finalValue);
         };
     }
 

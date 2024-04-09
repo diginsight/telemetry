@@ -7,6 +7,7 @@ public static class LogStringTokens
     public const char Cycle = '~';
     public const char Deep = '»';
     public const char Ellipsis = '…';
+    public const char Error = '%';
     public const char LiteralBegin = '$';
     public const char LiteralEnd = '$';
     public const char MapBegin = '{';

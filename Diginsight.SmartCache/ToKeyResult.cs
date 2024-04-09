@@ -1,11 +1,15 @@
-﻿namespace Diginsight.SmartCache;
+﻿using Diginsight.Strings;
+
+namespace Diginsight.SmartCache;
 
 public readonly struct ToKeyResult
 {
     public static readonly ToKeyResult None = default;
 
+    [NonLogStringableMember]
     public bool Success => UntypedKey is not null;
 
+    [NonLogStringableMember]
     public ICacheKey? Key { get; }
 
     public object? UntypedKey { get; }

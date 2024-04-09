@@ -1,5 +1,6 @@
 ﻿using Diginsight.Diagnostics;
 using Diginsight.Diagnostics.TextWriting;
+using Diginsight.Strings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -26,8 +27,22 @@ internal class Program : BackgroundService
         this.applicationLifetime = applicationLifetime;
     }
 
+    private sealed class Foo
+    {
+        public int Baz => 42;
+        public string? Bar => throw new ApplicationException();
+    }
+
     private static void Main()
     {
+        new AppendingContextFactoryBuilder()
+            .ConfigureOverall(static lsoc => lsoc.MaxTime = Timeout.InfiniteTimeSpan)
+            .Build()
+            .MakeAppendingContext(out StringBuilder sb)
+            .ComposeAndAppend(new Foo());
+        Console.WriteLine(sb.ToString());
+        return;
+
         DiginsightTextWriter.DisplayTiming = true;
 
         DiginsightActivitiesOptions diginsightActivitiesOptions = new ()

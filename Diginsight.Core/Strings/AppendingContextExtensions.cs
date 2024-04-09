@@ -19,6 +19,12 @@ public static class AppendingContextExtensions
         return appendingContext.AppendDirect(LogStringTokens.Deep);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static AppendingContext AppendError(this AppendingContext appendingContext)
+    {
+        return appendingContext.AppendDirect(LogStringTokens.Error);
+    }
+
     public static AppendingContext AppendEnumerator<T>(
         this AppendingContext appendingContext,
         T enumerator,
@@ -28,7 +34,19 @@ public static class AppendingContextExtensions
     )
         where T : IEnumerator
     {
-        if (!enumerator.MoveNext())
+        bool MoveNext()
+        {
+            try
+            {
+                return enumerator.MoveNext();
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        if (!MoveNext())
         {
             return appendingContext;
         }
@@ -44,7 +62,7 @@ public static class AppendingContextExtensions
             }
 
             AppendEntry();
-            while (enumerator.MoveNext())
+            while (MoveNext())
             {
                 appendingContext.AppendDirect(separator);
                 AppendEntry();

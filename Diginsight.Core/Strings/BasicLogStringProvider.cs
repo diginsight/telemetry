@@ -39,10 +39,8 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
             case Uri:
                 return new DirectLogStringable(obj, LogStringTokens.LiteralBegin + "{0}" + LogStringTokens.LiteralEnd);
 
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             case Index or Range:
                 return new DirectLogStringable(obj);
-#endif
 
             case DateTime or DateTimeOffset
 #if NET6_0_OR_GREATER
