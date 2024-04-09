@@ -4,9 +4,8 @@ namespace Diginsight.Diagnostics;
 
 public interface IDiginsightActivitiesOptions
 {
-    LogLevel ActivityLogLevel { get; }
-
     bool LogActivities { get; }
+    LogLevel ActivityLogLevel { get; }
     bool WriteActivityActionAsPrefix { get; }
 
     bool RecordSpanDurations { get; }

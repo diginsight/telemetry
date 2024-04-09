@@ -133,14 +133,12 @@ public static class DependencyInjectionExtensions
 
     public static IServiceCollection AddLogStrings(this IServiceCollection services)
     {
-        if (services.Any(static x => x.ServiceType == typeof(IAppendingContextFactory)))
-            return services;
+        services.AddOptions();
+        services.TryAddSingleton<IAppendingContextFactory, AppendingContextFactory>();
+        services.TryAddSingleton<IMemberInfoLogStringProvider, MemberInfoLogStringProvider>();
+        services.TryAddSingleton<IReflectionLogStringHelper, ReflectionLogStringHelper>();
 
-        return services
-            .AddOptions()
-            .AddSingleton<IAppendingContextFactory, AppendingContextFactory>()
-            .AddSingleton<IMemberInfoLogStringProvider, MemberInfoLogStringProvider>()
-            .AddSingleton<IReflectionLogStringHelper, ReflectionLogStringHelper>();
+        return services;
     }
 
     public static IServiceCollection AddLoggerFactorySetter(this IServiceCollection services)

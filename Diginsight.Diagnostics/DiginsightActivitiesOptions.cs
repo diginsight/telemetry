@@ -10,21 +10,21 @@ public sealed class DiginsightActivitiesOptions
 {
     private readonly bool frozen;
 
-    private LogLevel activityLogLevel = LogLevel.Debug;
     private bool logActivities;
+    private LogLevel activityLogLevel = LogLevel.Debug;
     private bool writeActivityActionAsPrefix;
     private bool recordSpanDurations;
-
-    public LogLevel ActivityLogLevel
-    {
-        get => activityLogLevel;
-        set => activityLogLevel = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
-    }
 
     public bool LogActivities
     {
         get => logActivities;
         set => logActivities = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
+    }
+
+    public LogLevel ActivityLogLevel
+    {
+        get => activityLogLevel;
+        set => activityLogLevel = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
     }
 
     public bool WriteActivityActionAsPrefix
@@ -73,8 +73,8 @@ public sealed class DiginsightActivitiesOptions
             ImmutableArray.CreateRange(NonLoggedActivityNames.Distinct())
         )
         {
-            activityLogLevel = ActivityLogLevel,
             logActivities = LogActivities,
+            activityLogLevel = ActivityLogLevel,
             writeActivityActionAsPrefix = WriteActivityActionAsPrefix,
             recordSpanDurations = RecordSpanDurations,
         };
@@ -87,16 +87,16 @@ public sealed class DiginsightActivitiesOptions
     {
         private readonly DiginsightActivitiesOptions filled;
 
-        public LogLevel ActivityLogLevel
-        {
-            get => filled.ActivityLogLevel;
-            set => filled.ActivityLogLevel = value;
-        }
-
         public bool LogActivities
         {
             get => filled.LogActivities;
             set => filled.LogActivities = value;
+        }
+
+        public LogLevel ActivityLogLevel
+        {
+            get => filled.ActivityLogLevel;
+            set => filled.ActivityLogLevel = value;
         }
 
         public bool RecordSpanDurations

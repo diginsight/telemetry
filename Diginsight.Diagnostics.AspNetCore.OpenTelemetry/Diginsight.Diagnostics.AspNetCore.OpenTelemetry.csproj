@@ -23,11 +23,8 @@
   </Choose>
 
   <ItemGroup>
-    <PackageReference Include="OpenTelemetry" Version="1.*" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Diginsight.Diagnostics.AspNetCore\Diginsight.Diagnostics.AspNetCore.csproj" />
+    <ProjectReference Include="..\Diginsight.Diagnostics.OpenTelemetry\Diginsight.Diagnostics.OpenTelemetry.csproj" />
   </ItemGroup>
 
 </Project>

@@ -73,23 +73,8 @@ public static class DependencyInjectionExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static TracerProviderBuilder AddDiginsight(this TracerProviderBuilder tracerProviderBuilder, LogLevel? defaultActivityLogLevel = null)
+    public static TracerProviderBuilder AddDiginsight(this TracerProviderBuilder tracerProviderBuilder)
     {
-        tracerProviderBuilder.ConfigureServices(
-            services =>
-            {
-                services.AddLogStrings();
-                services.TryAddSingleton<ActivityLifecycleLogEmitter>();
-
-                if (defaultActivityLogLevel is not null)
-                {
-                    services.Configure<DiginsightActivitiesOptions>(o => { o.ActivityLogLevel = defaultActivityLogLevel.Value; });
-                }
-            }
-        );
-
-        tracerProviderBuilder.AddProcessor<DiginsightLogProcessor>();
-
         return tracerProviderBuilder;
     }
 
