@@ -91,7 +91,7 @@ public sealed class ActivityLifecycleLogEmitter
 
             foreach (KeyValuePair<string, string> input in inputsAsDict)
             {
-                activity.SetTag(input.Key, input.Value);
+                activity.SetTag($"input.{input.Key}", input.Value);
             }
 
             if (isStandalone)
@@ -160,7 +160,7 @@ public sealed class ActivityLifecycleLogEmitter
 
                 string outputAsString0 = appendingContextFactory.MakeLogString(output);
 
-                activity.SetTag("Output", outputAsString0);
+                activity.SetTag("output", outputAsString0);
 
                 return outputAsString0;
             }
@@ -179,7 +179,7 @@ public sealed class ActivityLifecycleLogEmitter
 
                 foreach (KeyValuePair<string, string> namedOutput in namedOutputsAsDict)
                 {
-                    activity.SetTag(namedOutput.Key, namedOutput.Value);
+                    activity.SetTag($"namedOutput.{namedOutput.Key}", namedOutput.Value);
                 }
 
                 return namedOutputsAsString0;

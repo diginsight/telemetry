@@ -57,12 +57,6 @@ public static class ActivityExtensions
         };
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool NameMatchesPattern(this Activity activity, IEnumerable<string> namePatterns)
-    {
-        return namePatterns.Any(x => ActivityUtils.NameMatchesPattern(activity.OperationName, x));
-    }
-
     public static string? GetLabel(this Activity activity)
     {
         if (activity is null)

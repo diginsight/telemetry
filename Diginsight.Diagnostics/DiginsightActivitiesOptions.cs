@@ -15,6 +15,10 @@ public sealed class DiginsightActivitiesOptions
     private bool writeActivityActionAsPrefix;
     private bool recordSpanDurations;
 
+    public ICollection<string> ActivitySources { get; }
+
+    IEnumerable<string> IDiginsightActivitiesOptions.ActivitySources => ActivitySources;
+
     public bool LogActivities
     {
         get => logActivities;
@@ -51,16 +55,19 @@ public sealed class DiginsightActivitiesOptions
         : this(
             false,
             new List<string>(),
+            new List<string>(),
             new List<string>()
         ) { }
 
     private DiginsightActivitiesOptions(
         bool frozen,
+        ICollection<string> activitySources,
         ICollection<string> loggedActivityNames,
         ICollection<string> nonLoggedActivityNames
     )
     {
         this.frozen = frozen;
+        ActivitySources = activitySources;
         LoggedActivityNames = loggedActivityNames;
         NonLoggedActivityNames = nonLoggedActivityNames;
     }
@@ -69,6 +76,7 @@ public sealed class DiginsightActivitiesOptions
     {
         return new (
             true,
+            ImmutableArray.CreateRange(ActivitySources.Distinct()),
             ImmutableArray.CreateRange(LoggedActivityNames.Distinct()),
             ImmutableArray.CreateRange(NonLoggedActivityNames.Distinct())
         )

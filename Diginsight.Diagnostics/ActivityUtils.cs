@@ -1,4 +1,6 @@
-﻿namespace Diginsight.Diagnostics;
+﻿using System.Runtime.CompilerServices;
+
+namespace Diginsight.Diagnostics;
 
 public static class ActivityUtils
 {
@@ -25,5 +27,11 @@ public static class ActivityUtils
             },
             _ => throw new ArgumentException("Invalid activity name pattern"),
         };
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool NameMatchesPattern(string name, IEnumerable<string> namePatterns)
+    {
+        return namePatterns.Any(x => NameMatchesPattern(name, x));
     }
 }

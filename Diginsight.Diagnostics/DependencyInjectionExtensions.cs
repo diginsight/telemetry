@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.ComponentModel;
 using System.Diagnostics;
 
@@ -36,16 +37,11 @@ public static class DependencyInjectionExtensions
         }
     }
 
-    public static ILoggingBuilder AddDiginsightCore(this ILoggingBuilder loggingBuilder, Func<ActivitySource, bool>? shouldListenToActivitySource = null)
+    public static ILoggingBuilder AddDiginsightCore(this ILoggingBuilder loggingBuilder)
     {
         loggingBuilder.Services.AddLogStrings();
         loggingBuilder.Services.TryAddSingleton<ActivityLifecycleLogEmitter>();
-
-        loggingBuilder.Services.TryAddEnumerable(
-            ServiceDescriptor.Singleton<IOnCreateServiceProvider, RegisterLifecycleActivityListener>(
-                sp => ActivatorUtilities.CreateInstance<RegisterLifecycleActivityListener>(sp, shouldListenToActivitySource ?? (static _ => true))
-            )
-        );
+        loggingBuilder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IOnCreateServiceProvider, RegisterLifecycleActivityListener>());
 
         loggingBuilder.Configure(
             static loggerFactoryOptions => { loggerFactoryOptions.ActivityTrackingOptions = ActivityTrackingOptions.SpanId | ActivityTrackingOptions.TraceId | ActivityTrackingOptions.TraceFlags; }
@@ -57,12 +53,15 @@ public static class DependencyInjectionExtensions
     private sealed class RegisterLifecycleActivityListener : IOnCreateServiceProvider
     {
         private readonly ActivityLifecycleLogEmitter emitter;
-        private readonly Func<ActivitySource, bool> shouldListenTo;
+        private readonly IDiginsightActivitiesOptions activitiesOptions;
 
-        public RegisterLifecycleActivityListener(ActivityLifecycleLogEmitter emitter, Func<ActivitySource, bool> shouldListenTo)
+        public RegisterLifecycleActivityListener(
+            ActivityLifecycleLogEmitter emitter,
+            IOptions<DiginsightActivitiesOptions> activitiesOptions
+        )
         {
             this.emitter = emitter;
-            this.shouldListenTo = shouldListenTo;
+            this.activitiesOptions = activitiesOptions.Value.Freeze();
         }
 
         public void Run()
@@ -73,19 +72,21 @@ public static class DependencyInjectionExtensions
                     ActivityStarted = emitter.OnStart,
                     ActivityStopped = emitter.OnEnd,
                     Sample = static (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
-                    ShouldListenTo = shouldListenTo,
+                    ShouldListenTo = activitySource =>
+                    {
+                        string name = activitySource.Name;
+                        return activitiesOptions.ActivitySources.Any(x => ActivityUtils.NameMatchesPattern(name, x));
+                    },
                 }
             );
         }
     }
 
     public static ILoggingBuilder AddDiginsightConsole(
-        this ILoggingBuilder loggingBuilder,
-        Action<DiginsightConsoleFormatterOptions>? configureFormatterOptions = null,
-        Func<ActivitySource, bool>? shouldListenToActivitySource = null
+        this ILoggingBuilder loggingBuilder, Action<DiginsightConsoleFormatterOptions>? configureFormatterOptions = null
     )
     {
-        loggingBuilder.AddDiginsightCore(shouldListenToActivitySource);
+        loggingBuilder.AddDiginsightCore();
 
         if (configureFormatterOptions is not null)
         {

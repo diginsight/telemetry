@@ -1,20 +1,15 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel;
-using System.Diagnostics;
 
 namespace Diginsight.Diagnostics.Log4Net;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class DependencyInjectionExtensions
 {
-    public static ILoggingBuilder AddDiginsightLog4Net(
-        this ILoggingBuilder loggingBuilder,
-        string configFileName,
-        Func<ActivitySource, bool>? shouldListenToActivitySource = null
-    )
+    public static ILoggingBuilder AddDiginsightLog4Net(this ILoggingBuilder loggingBuilder, string configFileName)
     {
-        loggingBuilder.AddDiginsightCore(shouldListenToActivitySource);
+        loggingBuilder.AddDiginsightCore();
 
         IServiceCollection services = loggingBuilder.Services;
 

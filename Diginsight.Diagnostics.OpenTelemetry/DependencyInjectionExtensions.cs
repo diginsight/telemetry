@@ -51,12 +51,10 @@ public static class DependencyInjectionExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ILoggingBuilder AddDiginsightOpenTelemetry(
-        this ILoggingBuilder loggingBuilder, Func<ActivitySource, bool>? shouldListenToActivitySource = null
-    )
+    public static ILoggingBuilder AddDiginsightOpenTelemetry(this ILoggingBuilder loggingBuilder)
     {
         return loggingBuilder
-            .AddDiginsightCore(shouldListenToActivitySource)
+            .AddDiginsightCore()
             .AddOpenTelemetry(
                 static openTelemetryLoggerOptions =>
                 {

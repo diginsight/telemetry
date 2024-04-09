@@ -1,6 +1,5 @@
 ﻿using Diginsight.CAOptions;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
 
@@ -17,16 +16,11 @@ public class NameBasedActivityLoggingSampler : IActivityLoggingSampler
 
     public virtual bool? ShouldLog(Activity activity)
     {
-        IDiginsightActivityNamesOptions activityNamesOptions = GetActivityNamesOptions(activity);
+        IDiginsightActivityNamesOptions activityNamesOptions = activitiesOptions.Get(activity.GetCallerType()).Freeze();
+        string activityName = activity.OperationName;
 
-        return activity.NameMatchesPattern(activityNamesOptions.NonLoggedActivityNames) ? false
-            : activity.NameMatchesPattern(activityNamesOptions.LoggedActivityNames) ? true
+        return ActivityUtils.NameMatchesPattern(activityName, activityNamesOptions.NonLoggedActivityNames) ? false
+            : ActivityUtils.NameMatchesPattern(activityName, activityNamesOptions.LoggedActivityNames) ? true
             : null;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private DiginsightActivitiesOptions GetActivityNamesOptions(Activity activity)
-    {
-        return activitiesOptions.Get(activity.GetCallerType()).Freeze();
     }
 }
