@@ -8,9 +8,9 @@ public abstract class ReflectionLogStringable : ILogStringable
     private readonly IReflectionLogStringHelper helper;
     private readonly bool dontCacheAppenders;
 
+    bool ILogStringable.IsDeep => false;
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
-    public bool IsDeep => true;
-    public bool CanCycle => true;
+    bool ILogStringable.CanCycle => true;
 #endif
 
     protected ReflectionLogStringable(object obj, IReflectionLogStringHelper helper, bool dontCacheAppenders = false)

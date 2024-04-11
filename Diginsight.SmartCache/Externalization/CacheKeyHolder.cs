@@ -6,8 +6,8 @@ public sealed class CacheKeyHolder : CachePayloadHolder<ICacheKey>, ILogStringab
 {
     public ICacheKey Key => Payload;
 
-    public bool IsDeep => false;
-    public bool CanCycle => false;
+    bool ILogStringable.IsDeep => false;
+    bool ILogStringable.CanCycle => false;
 
     public CacheKeyHolder(ICacheKey key)
         : base(key, SmartCacheObservability.Tags.Subject.Key) { }

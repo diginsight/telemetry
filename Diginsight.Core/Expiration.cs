@@ -30,10 +30,8 @@ public readonly struct Expiration
 
     public bool IsNever { get; }
 
-#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
     bool ILogStringable.IsDeep => false;
     bool ILogStringable.CanCycle => false;
-#endif
 
     public Expiration(TimeSpan value)
         : this(value, false) { }

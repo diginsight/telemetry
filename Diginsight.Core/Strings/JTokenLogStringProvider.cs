@@ -14,9 +14,9 @@ internal sealed class JTokenLogStringProvider : ILogStringProvider
     {
         private readonly JToken root;
 
-        public bool IsDeep => root is JObject or JArray or JConstructor or JRaw;
+        bool ILogStringable.IsDeep => root is JObject or JArray or JConstructor or JRaw;
 
-        public bool CanCycle => false;
+        bool ILogStringable.CanCycle => false;
 
         public LogStringableJToken(JToken root)
         {

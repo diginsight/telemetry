@@ -7,8 +7,8 @@ public sealed class DirectLogStringable : ILogStringable
     private readonly object obj;
     private readonly string? format;
 
-    public bool IsDeep => false;
-    public bool CanCycle => false;
+    bool ILogStringable.IsDeep => false;
+    bool ILogStringable.CanCycle => false;
 
     public DirectLogStringable(object obj, string? format = null)
     {

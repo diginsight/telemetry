@@ -9,7 +9,7 @@ public sealed class AppendingContext
     private readonly StringBuilder stringBuilder;
     private readonly IEnumerable<ILogStringProvider> logStringProviders;
     private readonly IMemberInfoLogStringProvider memberInfoLogStringProvider;
-    private readonly ISet<object> renderedObjs = new HashSet<object>(ReferenceEqualityComparer.Instance);
+    private readonly Dictionary<object, int> renderedObjs = new (ReferenceEqualityComparer.Instance);
     private readonly long maxTimeTicks;
     private readonly int maxTotalLength;
     private readonly Stopwatch? stopwatch;
@@ -110,9 +110,8 @@ public sealed class AppendingContext
             return;
         }
 
-        using IDisposable? _0 = WithVariablesSafe(configureVariables);
-        using IDisposable? _1 = WithMetaPropertiesSafe(configureMetaProperties);
-        using IDisposable? _2 = this.IncrementDepth(incrementDepth, out bool isMaxDepth);
+        using IDisposable? _0 = this.WithVariablesSafe(configureVariables);
+        using IDisposable? _1 = this.WithMetaPropertiesSafe(configureMetaProperties);
 
         ILogStringable? logStringable = obj as ILogStringable;
         if (logStringable is null)
@@ -127,7 +126,9 @@ public sealed class AppendingContext
         Type type = obj.GetType();
         logStringable ??= new NonLogStringable(type);
 
-        if (isMaxDepth && logStringable.IsDeep)
+        using IDisposable? _2 = this.IncrementDepth(incrementDepth && logStringable.IsDeep, out bool isMaxDepth);
+
+        if (isMaxDepth)
         {
             this.AppendDeep();
             return;
@@ -145,9 +146,11 @@ public sealed class AppendingContext
                 this.AppendError();
             }
         }
-        catch (AlreadySeenShortCircuit)
+        catch (AlreadySeenShortCircuit shortCircuit)
         {
-            ComposeAndAppendType(type).AppendDirect(LogStringTokens.Cycle);
+            ComposeAndAppendType(type)
+                .AppendDirect('~')
+                .AppendDirect(shortCircuit.DepthDelta.ToStringInvariant());
         }
     }
 
@@ -187,11 +190,13 @@ public sealed class AppendingContext
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public AppendingContext ComposeAndAppendType(Type type, object? collectionLength = null)
     {
-        using IDisposable? _0 = WithMetaPropertiesSafe(
-            configureMetaProperties: collectionLength is null
+        using IDisposable? _0 = WithTimeBubble();
+        using IDisposable? _1 = this.WithMetaPropertiesSafe(
+            collectionLength is null
                 ? null
                 : x => { x[MemberInfoLogStringProvider.CollectionLengthMetaProperty] = collectionLength; }
         );
+        using IDisposable _2 = WithVariables(static x => { x.MaxDepth = LogThreshold.Unspecified; });
 
         memberInfoLogStringProvider.Append(type, this);
         return this;
@@ -220,17 +225,14 @@ public sealed class AppendingContext
         {
             return null;
         }
-        if (renderedObjs.Add(obj))
-        {
-            return new CallbackDisposable(() => { renderedObjs.Remove(obj); });
-        }
-        throw new AlreadySeenShortCircuit();
-    }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IDisposable? WithVariablesSafe(Action<LogStringVariableConfiguration>? configureVariables)
-    {
-        return configureVariables is null ? null : WithVariables(configureVariables);
+        if (renderedObjs.TryGetValue(obj, out int previousDepth))
+        {
+            throw new AlreadySeenShortCircuit(currentDepth - previousDepth);
+        }
+
+        renderedObjs[obj] = currentDepth;
+        return new CallbackDisposable(() => { renderedObjs.Remove(obj); });
     }
 
     public IDisposable WithVariables(Action<LogStringVariableConfiguration> configureVariables)
@@ -242,12 +244,6 @@ public sealed class AppendingContext
         return new CallbackDisposable(() => { variableConfiguration = previous; });
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IDisposable? WithMetaPropertiesSafe(Action<IDictionary<string, object?>>? configureMetaProperties)
-    {
-        return configureMetaProperties is null ? null : WithMetaProperties(configureMetaProperties);
-    }
-
     public IDisposable WithMetaProperties(Action<IDictionary<string, object?>> configureMetaProperties)
     {
         Dictionary<string, object?> previous = metaProperties;
@@ -255,6 +251,14 @@ public sealed class AppendingContext
         configureMetaProperties(clone);
         metaProperties = clone;
         return new CallbackDisposable(() => { metaProperties = previous; });
+    }
+
+    public IDisposable? WithTimeBubble()
+    {
+        bool wasRunning = stopwatch?.IsRunning == true;
+        stopwatch?.Stop();
+
+        return wasRunning ? new CallbackDisposable(() => stopwatch!.Start()) : null;
     }
 
     public IDisposable IncrementDepth(out bool isMaxDepth)

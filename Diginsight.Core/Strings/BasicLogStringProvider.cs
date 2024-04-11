@@ -76,10 +76,7 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
     {
         private readonly ITuple tuple;
 
-#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
-        public bool IsDeep => true;
-#endif
-        public bool CanCycle => false;
+        bool ILogStringable.CanCycle => false;
 
         public LogStringableTuple(ITuple tuple)
         {
@@ -125,8 +122,8 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
     {
         private readonly StringBuilder stringBuilder;
 
-        public bool IsDeep => false;
-        public bool CanCycle => false;
+        bool ILogStringable.IsDeep => false;
+        bool ILogStringable.CanCycle => false;
 
         public LogStringableStringBuilder(StringBuilder stringBuilder)
         {
@@ -146,9 +143,9 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
         private readonly BasicLogStringProvider owner;
 
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
-        public bool IsDeep => true;
+        bool ILogStringable.IsDeep => true;
 #endif
-        public bool CanCycle => false;
+        bool ILogStringable.CanCycle => false;
 
         public LogStringableDelegate(Delegate del, BasicLogStringProvider owner)
         {
@@ -170,9 +167,9 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
         private readonly KeyValuePair<TKey, TValue> kvp;
 
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
-        public bool IsDeep => true;
+        bool ILogStringable.IsDeep => true;
 #endif
-        public bool CanCycle => false;
+        bool ILogStringable.CanCycle => false;
 
         public LogStringableKeyValuePair(KeyValuePair<TKey, TValue> kvp)
         {

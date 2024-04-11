@@ -244,8 +244,8 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
         private readonly MemberInfoLogStringProvider owner;
 
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
-        public bool IsDeep => true;
-        public bool CanCycle => true;
+        bool ILogStringable.IsDeep => true;
+        bool ILogStringable.CanCycle => true;
 #endif
 
         public LogStringableType(Type type, MemberInfoLogStringProvider owner)
@@ -266,8 +266,8 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
         private readonly MemberInfoLogStringProvider owner;
 
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
-        public bool IsDeep => true;
-        public bool CanCycle => true;
+        bool ILogStringable.IsDeep => true;
+        bool ILogStringable.CanCycle => true;
 #endif
 
         public LogStringableMember(MemberInfo member, MemberInfoLogStringProvider owner)
@@ -313,8 +313,8 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
         private readonly ParameterInfo parameter;
         private readonly MemberInfoLogStringProvider owner;
 
-        public bool IsDeep => false;
-        public bool CanCycle => false;
+        bool ILogStringable.IsDeep => false;
+        bool ILogStringable.CanCycle => false;
 
         public LogStringableParameter(ParameterInfo parameter, MemberInfoLogStringProvider owner)
         {
@@ -332,8 +332,8 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
     {
         private readonly Assembly assembly;
 
-        public bool IsDeep => false;
-        public bool CanCycle => false;
+        bool ILogStringable.IsDeep => false;
+        bool ILogStringable.CanCycle => false;
 
         public LogStringableAssembly(Assembly assembly)
         {

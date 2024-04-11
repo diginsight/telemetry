@@ -51,8 +51,8 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
         protected readonly T subject;
 
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
-        public bool IsDeep => true;
-        public bool CanCycle => true;
+        bool ILogStringable.IsDeep => true;
+        bool ILogStringable.CanCycle => true;
 #endif
 
         protected abstract char BeginDelim { get; }
@@ -195,8 +195,8 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
         private readonly IAsyncEnumerable<T> subject;
 
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
-        public bool IsDeep => true;
-        public bool CanCycle => true;
+        bool ILogStringable.IsDeep => true;
+        bool ILogStringable.CanCycle => true;
 #endif
 
         public LogStringableGenericAsyncCollection(IAsyncEnumerable<T> subject)

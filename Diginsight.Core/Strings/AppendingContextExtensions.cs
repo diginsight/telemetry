@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Diginsight.Strings;
@@ -229,6 +230,20 @@ public static class AppendingContextExtensions
         }
 
         return new ItemAppender(appendingContext, counter, separator, isAlive);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [return: NotNullIfNotNull(nameof(configureVariables))]
+    public static IDisposable? WithVariablesSafe(this AppendingContext appendingContext, Action<LogStringVariableConfiguration>? configureVariables)
+    {
+        return configureVariables is null ? null : appendingContext.WithVariables(configureVariables);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [return: NotNullIfNotNull(nameof(configureMetaProperties))]
+    public static IDisposable? WithMetaPropertiesSafe(this AppendingContext appendingContext, Action<IDictionary<string, object?>>? configureMetaProperties)
+    {
+        return configureMetaProperties is null ? null : appendingContext.WithMetaProperties(configureMetaProperties);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

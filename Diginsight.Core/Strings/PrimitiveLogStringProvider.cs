@@ -28,8 +28,8 @@ internal sealed class PrimitiveLogStringProvider : ILogStringProvider
     {
         private readonly string str;
 
-        public bool IsDeep => false;
-        public bool CanCycle => false;
+        bool ILogStringable.IsDeep => false;
+        bool ILogStringable.CanCycle => false;
 
         public LogStringableString(string str)
         {
@@ -56,8 +56,8 @@ internal sealed class PrimitiveLogStringProvider : ILogStringProvider
     {
         private readonly IConvertible convertible;
 
-        public bool IsDeep => false;
-        public bool CanCycle => false;
+        bool ILogStringable.IsDeep => false;
+        bool ILogStringable.CanCycle => false;
 
         public LogStringableConvertible(IConvertible convertible)
         {
@@ -74,8 +74,8 @@ internal sealed class PrimitiveLogStringProvider : ILogStringProvider
     {
         private readonly Enum @enum;
 
-        public bool IsDeep => false;
-        public bool CanCycle => false;
+        bool ILogStringable.IsDeep => false;
+        bool ILogStringable.CanCycle => false;
 
         public LogStringableFlaggedEnum(Enum @enum)
         {
