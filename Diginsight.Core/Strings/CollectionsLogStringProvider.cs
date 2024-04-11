@@ -5,7 +5,7 @@ namespace Diginsight.Strings;
 
 internal sealed class CollectionsLogStringProvider : ILogStringProvider
 {
-    public ILogStringable? TryAsLogStringable(object obj)
+    public ILogStringable? TryToLogStringable(object obj)
     {
         if (obj is IDictionary dict)
         {
@@ -52,8 +52,8 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
 
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
         bool ILogStringable.IsDeep => true;
-        bool ILogStringable.CanCycle => true;
 #endif
+        object ILogStringable.Subject => subject;
 
         protected abstract char BeginDelim { get; }
         protected abstract char EndDelim { get; }
@@ -196,8 +196,8 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
 
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
         bool ILogStringable.IsDeep => true;
-        bool ILogStringable.CanCycle => true;
 #endif
+        object ILogStringable.Subject => subject;
 
         public LogStringableGenericAsyncCollection(IAsyncEnumerable<T> subject)
         {

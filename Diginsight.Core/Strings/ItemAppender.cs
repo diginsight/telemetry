@@ -17,7 +17,6 @@ public sealed class ItemAppender
 
     public ItemAppender ThenItem(
         object? itemValue,
-        bool incrementDepth = true,
         bool? atomic = null,
         Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
@@ -37,7 +36,7 @@ public sealed class ItemAppender
             isAlive = true;
 
             appendingContext
-                .ComposeAndAppend(itemValue, incrementDepth, atomic, configureVariables, configureMetaProperties);
+                .ComposeAndAppend(itemValue, atomic, configureVariables, configureMetaProperties);
         }
         catch (MaxAllottedShortCircuit)
         {

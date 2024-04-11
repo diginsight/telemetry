@@ -31,7 +31,7 @@ public readonly struct Expiration
     public bool IsNever { get; }
 
     bool ILogStringable.IsDeep => false;
-    bool ILogStringable.CanCycle => false;
+    object? ILogStringable.Subject => null;
 
     public Expiration(TimeSpan value)
         : this(value, false) { }
@@ -55,7 +55,7 @@ public readonly struct Expiration
         }
         else
         {
-            appendingContext.ComposeAndAppend(underlying, false);
+            appendingContext.ComposeAndAppend(underlying);
         }
     }
 

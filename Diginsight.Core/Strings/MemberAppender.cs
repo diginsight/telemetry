@@ -18,7 +18,6 @@ public sealed class MemberAppender
     public MemberAppender ThenMember(
         string memberName,
         object? memberValue,
-        bool incrementDepth = true,
         bool? atomic = null,
         Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
@@ -40,7 +39,7 @@ public sealed class MemberAppender
             appendingContext
                 .AppendDirect(memberName)
                 .AppendDirect(LogStringTokens.Value)
-                .ComposeAndAppend(memberValue, incrementDepth, atomic, configureVariables, configureMetaProperties);
+                .ComposeAndAppend(memberValue, atomic, configureVariables, configureMetaProperties);
         }
         catch (MaxAllottedShortCircuit)
         {

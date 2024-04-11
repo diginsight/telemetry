@@ -5,7 +5,7 @@ public sealed class NonLogStringable : ILogStringable
     private readonly Type type;
 
     bool ILogStringable.IsDeep => false;
-    bool ILogStringable.CanCycle => false;
+    object? ILogStringable.Subject => null;
 
     public NonLogStringable(Type type)
     {

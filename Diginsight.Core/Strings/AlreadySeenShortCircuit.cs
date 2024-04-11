@@ -2,10 +2,12 @@
 
 public sealed class AlreadySeenShortCircuit : ShortCircuit
 {
+    public object Subject { get; }
     public int DepthDelta { get; }
 
-    public AlreadySeenShortCircuit(int depthDelta)
+    public AlreadySeenShortCircuit(object subject, int depthDelta)
     {
+        Subject = subject;
         DepthDelta = depthDelta;
     }
 }

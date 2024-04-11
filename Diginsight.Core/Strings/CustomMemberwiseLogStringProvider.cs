@@ -14,5 +14,5 @@ public sealed class CustomMemberwiseLogStringProvider : ILogStringProvider
         this.contract = contract;
     }
 
-    public ILogStringable TryAsLogStringable(object obj) => new MemberwiseLogStringable(obj, helper, contract);
+    public ILogStringable TryToLogStringable(object obj) => new MemberwiseLogStringable(obj, helper, contract);
 }

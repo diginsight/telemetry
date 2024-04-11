@@ -11,6 +11,27 @@ public static class TypeExtensions
 {
     private static readonly IDictionary<Type, bool> AnonymousCache = new Dictionary<Type, bool>();
 
+    public static IEnumerable<Type> GetClosure(this Type type, bool includeSelf = true, bool includeInterfaces = true)
+    {
+        if (type is null)
+            throw new ArgumentNullException(nameof(type));
+
+        Type? currentType = includeSelf ? type : type.BaseType;
+        while (currentType is not null)
+        {
+            yield return currentType;
+            currentType = currentType.BaseType;
+        }
+
+        if (!includeInterfaces)
+            yield break;
+
+        foreach (Type @interface in type.GetInterfaces())
+        {
+            yield return @interface;
+        }
+    }
+
     public static bool IsGenericAssignableFrom(this Type target, Type source)
     {
         if (target is null)
@@ -188,4 +209,16 @@ public static class TypeExtensions
         tValue = null;
         return false;
     }
+
+#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+    public static bool HasSameMetadataDefinitionAs(this MemberInfo m1, MemberInfo m2)
+    {
+        if (m1 is null)
+            throw new ArgumentNullException(nameof(m1));
+        if (m2 is null)
+            throw new ArgumentNullException(nameof(m2));
+
+        return m1.MetadataToken == m2.MetadataToken && ReferenceEquals(m1.Module, m2.Module);
+    }
+#endif
 }

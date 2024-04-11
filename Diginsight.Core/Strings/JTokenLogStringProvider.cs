@@ -5,7 +5,7 @@ namespace Diginsight.Strings;
 
 internal sealed class JTokenLogStringProvider : ILogStringProvider
 {
-    public ILogStringable? TryAsLogStringable(object obj)
+    public ILogStringable? TryToLogStringable(object obj)
     {
         return obj is JToken jt ? new LogStringableJToken(jt) : null;
     }
@@ -15,8 +15,7 @@ internal sealed class JTokenLogStringProvider : ILogStringProvider
         private readonly JToken root;
 
         bool ILogStringable.IsDeep => root is JObject or JArray or JConstructor or JRaw;
-
-        bool ILogStringable.CanCycle => false;
+        object? ILogStringable.Subject => null;
 
         public LogStringableJToken(JToken root)
         {
@@ -34,12 +33,6 @@ internal sealed class JTokenLogStringProvider : ILogStringProvider
 
         public AppendingContext Visit(JArray jarray, AppendingContext appendingContext)
         {
-            using IDisposable? _0 = appendingContext.IncrementDepth(jarray != root, out bool isMaxDepth);
-            if (isMaxDepth)
-            {
-                return appendingContext.AppendDeep();
-            }
-
             appendingContext.AppendDirect('[');
             using (IEnumerator<JToken> enumerator = jarray.Children().GetEnumerator())
             {
@@ -57,12 +50,6 @@ internal sealed class JTokenLogStringProvider : ILogStringProvider
 
         public AppendingContext Visit(JConstructor jconstructor, AppendingContext appendingContext)
         {
-            using IDisposable? _0 = appendingContext.IncrementDepth(jconstructor != root, out bool isMaxDepth);
-            if (isMaxDepth)
-            {
-                return appendingContext.AppendDeep();
-            }
-
             appendingContext.AppendDirect($"new {jconstructor.Name}(");
             using (IEnumerator<JToken> enumerator = jconstructor.Children().GetEnumerator())
             {
@@ -80,12 +67,6 @@ internal sealed class JTokenLogStringProvider : ILogStringProvider
 
         public AppendingContext Visit(JObject jobject, AppendingContext appendingContext)
         {
-            using IDisposable? _0 = appendingContext.IncrementDepth(jobject != root, out bool isMaxDepth);
-            if (isMaxDepth)
-            {
-                return appendingContext.AppendDeep();
-            }
-
             appendingContext.AppendDirect('{');
             using (IEnumerator<JProperty> enumerator = jobject.Properties().GetEnumerator())
             {

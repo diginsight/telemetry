@@ -2,5 +2,5 @@
 
 public interface ILogStringProvider
 {
-    ILogStringable? TryAsLogStringable(object obj);
+    ILogStringable? TryToLogStringable(object obj);
 }

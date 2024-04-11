@@ -80,53 +80,57 @@ public sealed class AppendingContext
 
     public AppendingContext ComposeAndAppend(
         object? obj,
-        bool incrementDepth = true,
         bool? atomic = null,
         Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
     {
-        if (atomic ?? incrementDepth)
+        if (atomic ?? true)
         {
-            return AppendAtom(ac => ac.ComposeAndAppendCore(obj, incrementDepth, configureVariables, configureMetaProperties));
+            return AppendAtom(ac => ac.ComposeAndAppendCore(obj, configureVariables, configureMetaProperties));
         }
         else
         {
-            ComposeAndAppendCore(obj, incrementDepth, configureVariables, configureMetaProperties);
+            ComposeAndAppendCore(obj, configureVariables, configureMetaProperties);
             return this;
         }
     }
 
     private void ComposeAndAppendCore(
         object? obj,
-        bool incrementDepth,
         Action<LogStringVariableConfiguration>? configureVariables,
         Action<IDictionary<string, object?>>? configureMetaProperties
     )
     {
-        if (obj == null)
+        ComposeAndAppendCore(ToLogStringable(obj), configureVariables, configureMetaProperties);
+    }
+
+    private ILogStringable ToLogStringable(object? obj)
+    {
+        if (obj is null)
+            return default(NullLogStringable);
+
+        if (obj is ILogStringable logStringable0)
+            return logStringable0;
+
+        foreach (ILogStringProvider logStringProvider in logStringProviders)
         {
-            AppendDirect('□');
-            return;
+            if (logStringProvider.TryToLogStringable(obj) is { } logStringable1)
+                return logStringable1;
         }
 
+        return new NonLogStringable(obj.GetType());
+    }
+
+    private void ComposeAndAppendCore(
+        in ILogStringable logStringable,
+        Action<LogStringVariableConfiguration>? configureVariables,
+        Action<IDictionary<string, object?>>? configureMetaProperties
+    )
+    {
         using IDisposable? _0 = this.WithVariablesSafe(configureVariables);
         using IDisposable? _1 = this.WithMetaPropertiesSafe(configureMetaProperties);
-
-        ILogStringable? logStringable = obj as ILogStringable;
-        if (logStringable is null)
-        {
-            foreach (ILogStringProvider logStringProvider in logStringProviders)
-            {
-                if ((logStringable = logStringProvider.TryAsLogStringable(obj)) is not null)
-                    break;
-            }
-        }
-
-        Type type = obj.GetType();
-        logStringable ??= new NonLogStringable(type);
-
-        using IDisposable? _2 = this.IncrementDepth(incrementDepth && logStringable.IsDeep, out bool isMaxDepth);
+        using IDisposable? _2 = this.IncrementDepth(logStringable.IsDeep, out bool isMaxDepth);
 
         if (isMaxDepth)
         {
@@ -136,7 +140,7 @@ public sealed class AppendingContext
 
         try
         {
-            using IDisposable? _3 = logStringable.CanCycle ? AddSeen(obj) : null;
+            using IDisposable? _3 = AddSeen(logStringable.Subject);
             try
             {
                 logStringable.AppendTo(this);
@@ -148,9 +152,20 @@ public sealed class AppendingContext
         }
         catch (AlreadySeenShortCircuit shortCircuit)
         {
-            ComposeAndAppendType(type)
+            ComposeAndAppendType(shortCircuit.Subject.GetType())
                 .AppendDirect('~')
                 .AppendDirect(shortCircuit.DepthDelta.ToStringInvariant());
+        }
+    }
+
+    private readonly struct NullLogStringable : ILogStringable
+    {
+        bool ILogStringable.IsDeep => false;
+        object? ILogStringable.Subject => null;
+
+        public void AppendTo(AppendingContext appendingContext)
+        {
+            appendingContext.AppendDirect('□');
         }
     }
 
@@ -190,7 +205,7 @@ public sealed class AppendingContext
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public AppendingContext ComposeAndAppendType(Type type, object? collectionLength = null)
     {
-        using IDisposable? _0 = WithTimeBubble();
+        using IDisposable? _0 = SuspendTime();
         using IDisposable? _1 = this.WithMetaPropertiesSafe(
             collectionLength is null
                 ? null
@@ -219,17 +234,13 @@ public sealed class AppendingContext
         return this;
     }
 
-    public IDisposable? AddSeen(object obj)
+    public IDisposable? AddSeen(object? obj)
     {
-        if (obj is ValueType)
-        {
+        if (obj is null or ValueType)
             return null;
-        }
 
         if (renderedObjs.TryGetValue(obj, out int previousDepth))
-        {
-            throw new AlreadySeenShortCircuit(currentDepth - previousDepth);
-        }
+            throw new AlreadySeenShortCircuit(obj, currentDepth - previousDepth);
 
         renderedObjs[obj] = currentDepth;
         return new CallbackDisposable(() => { renderedObjs.Remove(obj); });
@@ -253,18 +264,19 @@ public sealed class AppendingContext
         return new CallbackDisposable(() => { metaProperties = previous; });
     }
 
-    public IDisposable? WithTimeBubble()
+    public IDisposable? SuspendTime()
     {
-        bool wasRunning = stopwatch?.IsRunning == true;
-        stopwatch?.Stop();
+        if (stopwatch?.IsRunning != true)
+            return null;
 
-        return wasRunning ? new CallbackDisposable(() => stopwatch!.Start()) : null;
+        stopwatch.Stop();
+        return new CallbackDisposable(stopwatch.Start);
     }
 
     public IDisposable IncrementDepth(out bool isMaxDepth)
     {
         currentDepth += 1;
-        isMaxDepth = currentDepth >= VariableConfiguration.GetEffectiveMaxDepth();
+        isMaxDepth = currentDepth > VariableConfiguration.GetEffectiveMaxDepth();
         return new CallbackDisposable(() => currentDepth -= 1);
     }
 

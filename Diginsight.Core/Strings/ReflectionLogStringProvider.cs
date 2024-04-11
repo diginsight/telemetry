@@ -4,7 +4,7 @@ namespace Diginsight.Strings;
 
 internal abstract class ReflectionLogStringProvider : ILogStringProvider
 {
-    public ILogStringable? TryAsLogStringable(object obj)
+    public ILogStringable? TryToLogStringable(object obj)
     {
         Type type = obj.GetType();
         return IsHandled(type) switch

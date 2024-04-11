@@ -39,7 +39,7 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
         overallConfiguration = overallConfigurationOptions.Value;
     }
 
-    public ILogStringable? TryAsLogStringable(object obj)
+    public ILogStringable? TryToLogStringable(object obj)
     {
         return obj switch
         {
@@ -245,8 +245,8 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
 
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
         bool ILogStringable.IsDeep => true;
-        bool ILogStringable.CanCycle => true;
 #endif
+        object ILogStringable.Subject => type;
 
         public LogStringableType(Type type, MemberInfoLogStringProvider owner)
         {
@@ -267,8 +267,8 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
 
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
         bool ILogStringable.IsDeep => true;
-        bool ILogStringable.CanCycle => true;
 #endif
+        object ILogStringable.Subject => member;
 
         public LogStringableMember(MemberInfo member, MemberInfoLogStringProvider owner)
         {
@@ -314,7 +314,7 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
         private readonly MemberInfoLogStringProvider owner;
 
         bool ILogStringable.IsDeep => false;
-        bool ILogStringable.CanCycle => false;
+        object? ILogStringable.Subject => null;
 
         public LogStringableParameter(ParameterInfo parameter, MemberInfoLogStringProvider owner)
         {
@@ -333,7 +333,7 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
         private readonly Assembly assembly;
 
         bool ILogStringable.IsDeep => false;
-        bool ILogStringable.CanCycle => false;
+        object? ILogStringable.Subject => null;
 
         public LogStringableAssembly(Assembly assembly)
         {

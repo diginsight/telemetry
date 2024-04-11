@@ -58,7 +58,11 @@ public static class LogStringExtensions
         try
         {
             appendingContextFactory.MakeAppendingContext(out StringBuilder stringBuilder)
-                .ComposeAndAppend(obj, false, true, configureVariables, configureMetaProperties);
+                .ComposeAndAppend(
+                    obj,
+                    configureVariables: configureVariables,
+                    configureMetaProperties: configureMetaProperties
+                );
             return stringBuilder.ToString();
         }
         catch (Exception)
@@ -113,20 +117,5 @@ public static class LogStringExtensions
                     || IsAsyncStateMachine(type);
             }
         );
-    }
-
-    internal static IEnumerable<Type> GetClosure(this Type type)
-    {
-        Type? currentType = type;
-        while (currentType is not null)
-        {
-            yield return currentType;
-            currentType = currentType.BaseType;
-        }
-
-        foreach (Type @interface in type.GetInterfaces())
-        {
-            yield return @interface;
-        }
     }
 }

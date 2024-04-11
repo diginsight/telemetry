@@ -6,10 +6,9 @@ namespace Diginsight.Strings;
 
 internal sealed class PrimitiveLogStringProvider : ILogStringProvider
 {
-    private static readonly string PTR_FORMAT = $"^{{0:X{IntPtr.Size}}}";
     private static readonly IDictionary<Type, (Enum[] Values, Enum Zero)> EnumCache = new Dictionary<Type, (Enum[] Values, Enum Zero)>();
 
-    public ILogStringable? TryAsLogStringable(object obj)
+    public ILogStringable? TryToLogStringable(object obj)
     {
         return obj switch
         {
@@ -18,7 +17,7 @@ internal sealed class PrimitiveLogStringProvider : ILogStringProvider
             char => new DirectLogStringable(obj, "'{0}'"),
             byte or sbyte => new DirectLogStringable(obj, "#{0:X2}"),
             short or ushort or int or uint or long or ulong or float or double or decimal => new LogStringableConvertible((IConvertible)obj),
-            IntPtr or UIntPtr => new DirectLogStringable(obj, PTR_FORMAT),
+            IntPtr or UIntPtr => new DirectLogStringable(obj, $"^{{0:X{IntPtr.Size}}}"),
             Enum e => e.GetType().IsDefined(typeof(FlagsAttribute)) ? new LogStringableFlaggedEnum(e) : new LogStringableConvertible(e),
             _ => null,
         };
@@ -29,7 +28,7 @@ internal sealed class PrimitiveLogStringProvider : ILogStringProvider
         private readonly string str;
 
         bool ILogStringable.IsDeep => false;
-        bool ILogStringable.CanCycle => false;
+        object? ILogStringable.Subject => null;
 
         public LogStringableString(string str)
         {
@@ -57,7 +56,7 @@ internal sealed class PrimitiveLogStringProvider : ILogStringProvider
         private readonly IConvertible convertible;
 
         bool ILogStringable.IsDeep => false;
-        bool ILogStringable.CanCycle => false;
+        object ILogStringable.Subject => convertible;
 
         public LogStringableConvertible(IConvertible convertible)
         {
@@ -75,7 +74,7 @@ internal sealed class PrimitiveLogStringProvider : ILogStringProvider
         private readonly Enum @enum;
 
         bool ILogStringable.IsDeep => false;
-        bool ILogStringable.CanCycle => false;
+        object? ILogStringable.Subject => null;
 
         public LogStringableFlaggedEnum(Enum @enum)
         {

@@ -100,7 +100,6 @@ public static class AppendingContextExtensions
         char beginDelim,
         char endDelim,
         Action<AppendingContext> appendContent,
-        bool incrementDepth = true,
         Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
@@ -109,16 +108,8 @@ public static class AppendingContextExtensions
 
         using (appendingContext.WithVariablesSafe(configureVariables))
         using (appendingContext.WithMetaPropertiesSafe(configureMetaProperties))
-        using (appendingContext.IncrementDepth(incrementDepth, out bool isMaxDepth))
         {
-            if (isMaxDepth)
-            {
-                appendingContext.AppendDeep();
-            }
-            else
-            {
-                appendContent(appendingContext);
-            }
+            appendContent(appendingContext);
         }
 
         return appendingContext.AppendDirect(endDelim);
@@ -128,7 +119,6 @@ public static class AppendingContextExtensions
         this AppendingContext appendingContext,
         Type mapType,
         Action<AppendingContext> appendContent,
-        bool incrementDepth = true,
         Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
@@ -139,7 +129,6 @@ public static class AppendingContextExtensions
                 LogStringTokens.MapBegin,
                 LogStringTokens.MapEnd,
                 appendContent,
-                incrementDepth,
                 configureVariables,
                 configureMetaProperties
             );
@@ -150,7 +139,6 @@ public static class AppendingContextExtensions
         Type collectionType,
         Action<AppendingContext> appendContent,
         int? count = null,
-        bool incrementDepth = true,
         Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
     )
@@ -161,7 +149,6 @@ public static class AppendingContextExtensions
                 LogStringTokens.CollectionBegin,
                 LogStringTokens.CollectionEnd,
                 appendContent,
-                incrementDepth,
                 configureVariables,
                 configureMetaProperties
             );
@@ -172,7 +159,6 @@ public static class AppendingContextExtensions
         string memberName,
         object? memberValue,
         string separator = LogStringTokens.Separator2,
-        bool incrementDepth = true,
         bool? atomic = null,
         Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
@@ -190,7 +176,7 @@ public static class AppendingContextExtensions
             appendingContext
                 .AppendDirect(memberName)
                 .AppendDirect(LogStringTokens.Value)
-                .ComposeAndAppend(memberValue, incrementDepth, atomic, configureVariables, configureMetaProperties);
+                .ComposeAndAppend(memberValue, atomic, configureVariables, configureMetaProperties);
         }
         catch (MaxAllottedShortCircuit)
         {
@@ -205,7 +191,6 @@ public static class AppendingContextExtensions
         this AppendingContext appendingContext,
         object? itemValue,
         string separator = LogStringTokens.Separator2,
-        bool incrementDepth = true,
         bool? atomic = null,
         Action<LogStringVariableConfiguration>? configureVariables = null,
         Action<IDictionary<string, object?>>? configureMetaProperties = null
@@ -221,7 +206,7 @@ public static class AppendingContextExtensions
             isAlive = true;
 
             appendingContext
-                .ComposeAndAppend(itemValue, incrementDepth, atomic, configureVariables, configureMetaProperties);
+                .ComposeAndAppend(itemValue, atomic, configureVariables, configureMetaProperties);
         }
         catch (MaxAllottedShortCircuit)
         {

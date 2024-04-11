@@ -17,7 +17,7 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
         this.memberInfoLogStringProvider = memberInfoLogStringProvider;
     }
 
-    public ILogStringable? TryAsLogStringable(object obj)
+    public ILogStringable? TryToLogStringable(object obj)
     {
         switch (obj)
         {
@@ -76,7 +76,7 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
     {
         private readonly ITuple tuple;
 
-        bool ILogStringable.CanCycle => false;
+        object? ILogStringable.Subject => null;
 
         public LogStringableTuple(ITuple tuple)
         {
@@ -123,7 +123,7 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
         private readonly StringBuilder stringBuilder;
 
         bool ILogStringable.IsDeep => false;
-        bool ILogStringable.CanCycle => false;
+        object? ILogStringable.Subject => null;
 
         public LogStringableStringBuilder(StringBuilder stringBuilder)
         {
@@ -145,7 +145,7 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
         bool ILogStringable.IsDeep => true;
 #endif
-        bool ILogStringable.CanCycle => false;
+        object? ILogStringable.Subject => null;
 
         public LogStringableDelegate(Delegate del, BasicLogStringProvider owner)
         {
@@ -169,7 +169,7 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
 #if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
         bool ILogStringable.IsDeep => true;
 #endif
-        bool ILogStringable.CanCycle => false;
+        object? ILogStringable.Subject => null;
 
         public LogStringableKeyValuePair(KeyValuePair<TKey, TValue> kvp)
         {
