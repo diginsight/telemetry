@@ -102,7 +102,7 @@ public static class DiginsightTextWriter
                 prefixSb.Append(' ');
             }
 
-            int depth = linePrefixData.Depth.Local;
+            int depth = linePrefixData.Activity.GetDepth().Local;
             int maxIndentedDepth = lineDescriptor.MaxIndentedDepth;
             int indentationLength = maxIndentedDepth < 0 || depth <= maxIndentedDepth
                 ? depth * 2 - (linePrefixData.IsActivity ? 1 : 0)

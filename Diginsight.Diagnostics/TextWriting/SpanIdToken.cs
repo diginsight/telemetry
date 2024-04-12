@@ -2,11 +2,11 @@
 
 namespace Diginsight.Diagnostics.TextWriting;
 
-public sealed class TraceIdToken : ILineToken
+public sealed class SpanIdToken : ILineToken
 {
-    public static readonly ILineToken Instance = new TraceIdToken();
+    public static readonly ILineToken Instance = new SpanIdToken();
 
-    private TraceIdToken() { }
+    private SpanIdToken() { }
 
     public void Apply(ref MutableLineDescriptor lineDescriptor)
     {
@@ -23,7 +23,7 @@ public sealed class TraceIdToken : ILineToken
 
         public void Append(StringBuilder sb, in LinePrefixData linePrefixData)
         {
-            sb.Append(((linePrefixData.Activity?.TraceId)?.ToString() ?? "").PadLeft(32));
+            sb.Append(((linePrefixData.Activity?.SpanId)?.ToString() ?? "").PadLeft(16));
         }
     }
 }

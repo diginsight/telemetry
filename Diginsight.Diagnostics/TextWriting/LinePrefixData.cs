@@ -11,16 +11,14 @@ public readonly ref struct LinePrefixData
     public bool IsActivity { get; }
     public double? Duration { get; }
     public DateTime? PrevTimestamp { get; }
-    public ActivityTraceId? TraceId { get; }
     public bool LastWasStart { get; }
-    public ActivityDepth Depth { get; }
+    public Activity? Activity { get; }
 
     public LinePrefixData(DateTime timestamp, LogLevel logLevel, string category, bool isActivity, TimeSpan? duration, Activity? activity)
     {
         double? durationMsec = duration?.TotalMilliseconds;
 
         DateTime? prevTimestamp;
-        ActivityTraceId? traceId;
         bool lastWasStart;
         {
             const string lastLogTimestampCustomPropertyName = "lastLogTimestamp";
@@ -60,12 +58,9 @@ public readonly ref struct LinePrefixData
                 {
                     activity.Parent?.SetCustomProperty(lastLogTimestampCustomPropertyName, timestamp);
                 }
-
-                traceId = activity.TraceId;
             }
             else
             {
-                traceId = null;
                 lastWasStart = false;
             }
         }
@@ -76,8 +71,7 @@ public readonly ref struct LinePrefixData
         IsActivity = isActivity;
         Duration = durationMsec;
         PrevTimestamp = prevTimestamp;
-        TraceId = traceId;
         LastWasStart = lastWasStart;
-        Depth = activity.GetDepth();
+        Activity = activity;
     }
 }

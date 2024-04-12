@@ -33,14 +33,16 @@ public sealed class DepthToken : ILineToken
 
         public void Append(StringBuilder sb, in LinePrefixData linePrefixData)
         {
+            ActivityDepth depth = linePrefixData.Activity.GetDepth();
+
             bool first = true;
             if ((modes & DepthTokenModes.Layer) != 0)
             {
                 first = false;
 #if NET6_0_OR_GREATER
-                sb.Append($"{linePrefixData.Depth.Layer,2}");
+                sb.Append($"{depth.Layer,2}");
 #else
-                sb.AppendFormat("{0,1}", linePrefixData.Depth.Layer);
+                sb.AppendFormat("{0,1}", depth.Layer);
 #endif
             }
 
@@ -53,9 +55,9 @@ public sealed class DepthToken : ILineToken
                 first = false;
 
 #if NET6_0_OR_GREATER
-                sb.Append($"{linePrefixData.Depth.Local,2}");
+                sb.Append($"{depth.Local,2}");
 #else
-                sb.AppendFormat("{0,2}", linePrefixData.Depth.Local);
+                sb.AppendFormat("{0,2}", depth.Local);
 #endif
             }
 
@@ -67,9 +69,9 @@ public sealed class DepthToken : ILineToken
                 }
 
 #if NET6_0_OR_GREATER
-                sb.Append($"{linePrefixData.Depth.Cumulated,2}");
+                sb.Append($"{depth.Cumulated,2}");
 #else
-                sb.AppendFormat("{0,2}", linePrefixData.Depth.Cumulated);
+                sb.AppendFormat("{0,2}", depth.Cumulated);
 #endif
             }
         }
