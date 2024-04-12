@@ -363,7 +363,7 @@ public static class SmartCacheSerialization
             }
 
             serializer.SerializationBinder.BindToName(value, out string? valueAssemblyName, out string? valueTypeName);
-            serializer.Serialize(writer, valueAssemblyName != null ? $"{valueTypeName},{valueAssemblyName}" : valueTypeName);
+            serializer.Serialize(writer, valueAssemblyName != null ? $"{valueTypeName}, {valueAssemblyName}" : valueTypeName);
         }
 
         public override Type? ReadJson(JsonReader reader, Type objectType, Type? existingValue, bool hasExistingValue, JsonSerializer serializer)
