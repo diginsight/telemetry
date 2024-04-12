@@ -9,33 +9,20 @@ public sealed class AppendingContext
     private readonly StringBuilder stringBuilder;
     private readonly IEnumerable<ILogStringProvider> logStringProviders;
     private readonly IMemberInfoLogStringProvider memberInfoLogStringProvider;
-    private readonly Dictionary<object, int> renderedObjs = new (ReferenceEqualityComparer.Instance);
-    private readonly long maxTimeTicks;
+    private readonly IDictionary<object, int> renderedObjs = new Dictionary<object, int>(ReferenceEqualityComparer.Instance);
     private readonly int maxTotalLength;
-    private readonly Stopwatch? stopwatch;
 
     private LogStringVariableConfiguration variableConfiguration;
     private Dictionary<string, object?> metaProperties;
+    private Timer timer;
     private int currentDepth = 0;
-    private bool isTimeOver = false;
     private bool isFull = false;
 
     public ILogStringVariableConfiguration VariableConfiguration => variableConfiguration;
 
     public IReadOnlyDictionary<string, object?> MetaProperties => metaProperties;
 
-    public bool IsTimeOver
-    {
-        get
-        {
-            if (isTimeOver)
-                return true;
-            if (stopwatch is null || stopwatch.ElapsedTicks <= maxTimeTicks)
-                return false;
-            stopwatch.Stop();
-            return isTimeOver = true;
-        }
-    }
+    public bool IsTimeOver => timer.IsOver;
 
     public bool IsFull
     {
@@ -65,17 +52,7 @@ public sealed class AppendingContext
         this.variableConfiguration = variableConfiguration;
         this.maxTotalLength = maxTotalLength ?? int.MaxValue;
         metaProperties = new Dictionary<string, object?>(metaPropertyKeyComparer);
-
-        if (!maxTime.IsNever)
-        {
-            maxTimeTicks = maxTime.Value.Ticks;
-            stopwatch = Stopwatch.StartNew();
-        }
-        else
-        {
-            maxTimeTicks = 0;
-            stopwatch = null;
-        }
+        timer = new Timer(maxTime);
     }
 
     public AppendingContext ComposeAndAppend(
@@ -205,7 +182,7 @@ public sealed class AppendingContext
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public AppendingContext ComposeAndAppendType(Type type, object? collectionLength = null)
     {
-        using IDisposable? _0 = SuspendTime();
+        using IDisposable? _0 = WithDedicatedTime(Expiration.Never);
         using IDisposable? _1 = this.WithMetaPropertiesSafe(
             collectionLength is null
                 ? null
@@ -264,13 +241,20 @@ public sealed class AppendingContext
         return new CallbackDisposable(() => { metaProperties = previous; });
     }
 
-    public IDisposable? SuspendTime()
+    public IDisposable? WithDedicatedTime(Expiration maxTime)
     {
-        if (stopwatch?.IsRunning != true)
+        if (IsTimeOver)
             return null;
 
-        stopwatch.Stop();
-        return new CallbackDisposable(stopwatch.Start);
+        Timer previousTimer = Interlocked.Exchange(ref timer, new Timer(maxTime));
+        IDisposable? resume = previousTimer.Suspend();
+        return new CallbackDisposable(
+            () =>
+            {
+                resume?.Dispose();
+                Interlocked.Exchange(ref timer, previousTimer);
+            }
+        );
     }
 
     public IDisposable IncrementDepth(out bool isMaxDepth)
@@ -297,5 +281,48 @@ public sealed class AppendingContext
 
         stringBuilder.Remove(maxTotalLength, excessLength);
         isFull = true;
+    }
+
+    private sealed class Timer
+    {
+        private readonly long maxTicks;
+        private readonly Stopwatch? stopwatch;
+        private bool isOver = false;
+
+        public bool IsOver
+        {
+            get
+            {
+                if (isOver)
+                    return true;
+                if (stopwatch is null || stopwatch.ElapsedTicks <= maxTicks)
+                    return false;
+                stopwatch.Stop();
+                return isOver = true;
+            }
+        }
+
+        public Timer(Expiration expiration)
+        {
+            if (expiration.IsNever)
+            {
+                maxTicks = 0;
+                stopwatch = null;
+            }
+            else
+            {
+                maxTicks = expiration.Value.Ticks;
+                stopwatch = Stopwatch.StartNew();
+            }
+        }
+
+        public IDisposable? Suspend()
+        {
+            if (stopwatch?.IsRunning != true)
+                return null;
+
+            stopwatch.Stop();
+            return new CallbackDisposable(stopwatch.Start);
+        }
     }
 }
