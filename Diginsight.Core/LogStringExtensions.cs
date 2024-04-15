@@ -80,15 +80,15 @@ public static class LogStringExtensions
     {
         static bool IsAwaitable(Type type)
         {
-            return type.GetMethod("GetAwaiter", BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, Array.Empty<ParameterModifier>()) is { IsGenericMethod: false } method
+            return type.GetMethod("GetAwaiter", BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, [ ]) is { IsGenericMethod: false } method
                 && IsAwaiter(method.ReturnType);
         }
 
         static bool IsAwaiter(Type type)
         {
             return typeof(INotifyCompletion).IsAssignableFrom(type)
-                && type.GetProperty("IsCompleted", BindingFlags.Public | BindingFlags.Instance, null, typeof(bool), Type.EmptyTypes, Array.Empty<ParameterModifier>()) is not null
-                && type.GetMethod("GetResult", BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, Array.Empty<ParameterModifier>()) is { IsGenericMethod: false };
+                && type.GetProperty("IsCompleted", BindingFlags.Public | BindingFlags.Instance, null, typeof(bool), Type.EmptyTypes, [ ]) is not null
+                && type.GetMethod("GetResult", BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, [ ]) is { IsGenericMethod: false };
         }
 
         static bool IsEnumerator(Type type)

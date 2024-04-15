@@ -58,7 +58,7 @@ public static class ActivityExtensions
         return activity.GetCustomProperty(ActivityCustomPropertyNames.CustomDurationMetricTags) switch
         {
             Tag[] tags => tags,
-            null => Array.Empty<Tag>(),
+            null => [ ],
             _ => throw new InvalidOperationException("Invalid custom duration metric tags in activity"),
         };
     }

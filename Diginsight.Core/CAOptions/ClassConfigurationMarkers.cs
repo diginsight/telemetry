@@ -44,7 +44,7 @@ public static class ClassConfigurationMarkers
 
         static IEnumerable<string> CalculateMarkers(Type @class)
         {
-            string[] namespacePieces = @class.Namespace?.Split('.') ?? Array.Empty<string>();
+            string[] namespacePieces = @class.Namespace?.Split('.') ?? [ ];
             IEnumerable<string> namespaceSegments = Enumerable.Range(1, namespacePieces.Length)
                 .Select(i => string.Join(".", namespacePieces.Take(i)))
                 .Reverse()

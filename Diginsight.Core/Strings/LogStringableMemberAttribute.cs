@@ -13,7 +13,7 @@ public sealed class LogStringableMemberAttribute : Attribute, ILogStringableMemb
 
     public object[] ProviderArgs
     {
-        get => providerArgs ??= Array.Empty<object>();
+        get => providerArgs ??= [ ];
         set => providerArgs = value;
     }
 

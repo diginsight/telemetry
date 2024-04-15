@@ -11,7 +11,7 @@ public interface ICustomMetrics<TSelf>
 
     public static abstract string ObservabilityName { get; }
 
-    public static virtual (string InstrumentName, MetricStreamConfiguration MetricStreamConfiguration)[] Views => Array.Empty<(string, MetricStreamConfiguration)>();
+    public static virtual (string InstrumentName, MetricStreamConfiguration MetricStreamConfiguration)[] Views => [ ];
 }
 #else
 public abstract class CustomMetrics
@@ -20,6 +20,6 @@ public abstract class CustomMetrics
 
     public abstract string ObservabilityName { get; }
 
-    public virtual (string InstrumentName, MetricStreamConfiguration MetricStreamConfiguration)[] Views => Array.Empty<(string, MetricStreamConfiguration)>();
+    public virtual (string InstrumentName, MetricStreamConfiguration MetricStreamConfiguration)[] Views => [ ];
 }
 #endif

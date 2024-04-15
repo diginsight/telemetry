@@ -909,7 +909,7 @@ internal sealed class SmartCache : ISmartCache
         {
             try
             {
-                return (long)GetUnmanagedSizeMethod.MakeGenericMethod(type).Invoke(null, Array.Empty<object>())!;
+                return (long)GetUnmanagedSizeMethod.MakeGenericMethod(type).Invoke(null, [ ])!;
             }
             catch (Exception)
             {

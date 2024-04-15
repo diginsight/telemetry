@@ -31,7 +31,7 @@ public class LogStringMemberContract : ILogStringMemberContract
 
     public object[] ProviderArgs
     {
-        get => providerArgs ??= Array.Empty<object>();
+        get => providerArgs ??= [ ];
         set => providerArgs = value;
     }
 
