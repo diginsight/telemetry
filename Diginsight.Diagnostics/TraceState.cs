@@ -1,0 +1,162 @@
+﻿using System.Collections;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
+using Entry = System.Collections.Generic.KeyValuePair<Diginsight.Diagnostics.TraceStateKey, string>;
+
+namespace Diginsight.Diagnostics;
+
+public sealed class TraceState : IDictionary<TraceStateKey, string>
+{
+    private static readonly Regex SimpleKeyRegex = new (@"^([a-z][a-z0-9_\-*/]{0,255})=");
+    private static readonly Regex ComplexKeyRegex = new (@"^([a-z0-9][a-z0-9_\-*/]{0,240})@([a-z0-9_\-*/]{0,13})=");
+    private static readonly Regex ValueRegex = new (@"[\x20-\x7e-[,=]]{0,255}[\x21-\x7e-[,=]]");
+
+    private readonly IList<Entry> items = new List<Entry>();
+
+    public int Count => items.Count;
+
+    public bool IsReadOnly => false;
+
+    public ICollection<TraceStateKey> Keys => items.Select(static x => x.Key).ToArray();
+
+    public ICollection<string> Values => items.Select(static x => x.Value).ToArray();
+
+    public string this[TraceStateKey key]
+    {
+        get => TryGetValue(key, out string? value) ? value : throw new KeyNotFoundException($"No such key '{key}'");
+        set
+        {
+            _ = Remove(key);
+            items.Insert(0, new Entry(key, value));
+        }
+    }
+
+    public bool Contains(Entry item) => items.Contains(item);
+
+    public bool ContainsKey(TraceStateKey key) => items.Any(x => x.Key.Equals(key));
+
+    public IEnumerator<Entry> GetEnumerator() => items.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public bool TryGetValue(
+        TraceStateKey key,
+#if NET6_0_OR_GREATER
+        [MaybeNullWhen(false)]
+#endif
+        out string value
+    )
+    {
+        if (items.Where(x => x.Key.Equals(key)).Take(1).ToArray() is [ var (_, value0) ])
+        {
+            value = value0;
+            return true;
+        }
+        else
+        {
+#if NET6_0_OR_GREATER
+            value = null;
+#else
+            value = null!;
+#endif
+            return false;
+        }
+    }
+
+    public void CopyTo(Entry[] array, int arrayIndex) => items.CopyTo(array, arrayIndex);
+
+    public void Add(Entry item)
+    {
+        if (Contains(item))
+            throw new ArgumentException($"Key '{item.Key}' already exists");
+
+        items.Insert(0, item);
+    }
+
+    public void Add(TraceStateKey key, string value)
+    {
+        if (ContainsKey(key))
+            throw new ArgumentException($"Key '{key}' already exists");
+
+        items.Insert(0, new Entry(key, value));
+    }
+
+    public bool Remove(Entry item) => items.Remove(item);
+
+    public bool Remove(TraceStateKey key)
+    {
+        return TryGetValue(key, out string? value) && items.Remove(new Entry(key, value));
+    }
+
+    public void Clear() => items.Clear();
+
+    public static TraceState Parse(ReadOnlySpan<char> span)
+    {
+        TraceState result = new ();
+
+        for (int index = 0;;)
+        {
+            static void Advance(ref ReadOnlySpan<char> span, ref int index, int offset)
+            {
+                span = span[offset..];
+                index += offset;
+            }
+
+            while (!span.IsEmpty && span[0] is ' ' or '\t')
+            {
+                Advance(ref span, ref index, 1);
+            }
+
+            if (span.IsEmpty)
+            {
+                return result;
+            }
+
+            if (span[0] == ',')
+            {
+                Advance(ref span, ref index, 1);
+                continue;
+            }
+
+            string? keyTenantId;
+            string keySystemId;
+
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            string tmp = new (span);
+#else
+            string tmp = new (span.ToArray());
+#endif
+            if (SimpleKeyRegex.Match(tmp) is { Success: true } simpleMatch)
+            {
+                keyTenantId = null;
+                keySystemId = simpleMatch.Groups[1].Value;
+                Advance(ref span, ref index, simpleMatch.Length);
+            }
+            else if (ComplexKeyRegex.Match(tmp) is { Success: true } complexMatch)
+            {
+                keyTenantId = complexMatch.Groups[1].Value;
+                keySystemId = complexMatch.Groups[2].Value;
+                Advance(ref span, ref index, complexMatch.Length);
+            }
+            else
+            {
+                throw new FormatException($"Invalid tracestate key at index {index}");
+            }
+
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            tmp = new string(span);
+#else
+            tmp = new string(span.ToArray());
+#endif
+            if (ValueRegex.Match(tmp) is not { Success: true } valueMatch)
+            {
+                throw new FormatException($"Invalid tracestate value at index {index}");
+            }
+
+            string value = valueMatch.Value;
+            Advance(ref span, ref index, valueMatch.Length);
+
+            result.items.Add(new Entry(new TraceStateKey(keyTenantId, keySystemId), value));
+        }
+    }
+}
