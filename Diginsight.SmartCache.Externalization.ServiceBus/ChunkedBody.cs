@@ -4,6 +4,7 @@ internal sealed class ChunkedBody : IDisposable
 {
     private readonly ManualResetEventSlim mre = new ();
     private Chunk[]? chunks;
+    private int chunkCount = -1;
 
     public DateTime Timestamp { get; }
 
@@ -40,12 +41,24 @@ internal sealed class ChunkedBody : IDisposable
     }
 
     // ReSharper disable once ParameterHidesMember
-    public void Set(byte[] body, int chunkIndex, int chunkCount)
+    public bool Set(byte[] body, int chunkIndex, int chunkCount)
     {
-        chunks ??= Enumerable.Range(0, chunkCount).Select(static _ => new Chunk()).ToArray();
-        chunks[chunkIndex].Set(body);
+        Interlocked.CompareExchange(ref this.chunkCount, chunkCount, -1);
+
+        // ReSharper disable once LocalVariableHidesMember
+        Chunk[] chunks = LazyInitializer.EnsureInitialized(
+#if NET6_0_OR_GREATER
+            ref this.chunks,
+#else
+            ref this.chunks!,
+#endif
+            () => Enumerable.Range(0, chunkCount).Select(static _ => new Chunk()).ToArray()
+        );
+        bool decrement = chunks[chunkIndex].Set(body);
 
         mre.Set();
+
+        return (decrement ? Interlocked.Decrement(ref this.chunkCount) : this.chunkCount) == 0;
     }
 
     public void Dispose()
@@ -73,13 +86,14 @@ internal sealed class ChunkedBody : IDisposable
         }
 
         // ReSharper disable once ParameterHidesMember
-        public void Set(byte[] body)
+        public bool Set(byte[] body)
         {
             if (this.body is not null)
-                return;
+                return false;
 
             this.body = body;
             mre.Set();
+            return true;
         }
 
         public void Dispose()

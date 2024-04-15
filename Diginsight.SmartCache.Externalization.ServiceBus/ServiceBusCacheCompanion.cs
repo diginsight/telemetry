@@ -17,8 +17,6 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 {
     private const string SourcePropertyName = "source";
     private const string DestinationPropertyName = "destination";
-    private const string ChunkIndexPropertyName = "chunkIndex";
-    private const string ChunkCountPropertyName = "chunkCount";
 
     private const string GetRequestSubject = "get?";
     private const string GetResponseMessageSubject = "get!";
@@ -31,6 +29,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
     private readonly ISmartCacheServiceBusOptions serviceBusOptions;
 
     private readonly ClientHolder clientHolder;
+    private readonly GetRequestDictionary getRequestDictionary;
     private readonly GetResponseDictionary getResponseDictionary;
 
     private readonly ManualResetEventSlim executionMre = new ();
@@ -66,7 +65,10 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         PassiveLocations = passiveLocations;
 
         clientHolder = new ClientHolder(this.serviceBusOptions);
-        getResponseDictionary = new GetResponseDictionary(timeProvider ?? TimeProvider.System);
+
+        timeProvider ??= TimeProvider.System;
+        getRequestDictionary = new GetRequestDictionary(timeProvider);
+        getResponseDictionary = new GetResponseDictionary(timeProvider);
     }
 
     private sealed class ClientHolder : IDisposable
@@ -127,7 +129,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         }
     }
 
-    private sealed class GetResponseDictionary : IDisposable
+    private abstract class ChunkedBodyDictionary : IDisposable
     {
         private readonly TimeProvider timeProvider;
         private readonly ConcurrentDictionary<string, ChunkedBody> underlying = new ();
@@ -135,7 +137,9 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
         private volatile bool disposed = false;
 
-        public GetResponseDictionary(TimeProvider timeProvider)
+        protected bool Disposed => disposed;
+
+        protected ChunkedBodyDictionary(TimeProvider timeProvider)
         {
             this.timeProvider = timeProvider;
             TimeSpan cleanupPeriod = TimeSpan.FromMinutes(1);
@@ -156,20 +160,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
             }
         }
 
-        public byte[] Get(string messageId, CancellationToken cancellationToken)
-        {
-            return disposed ? Array.Empty<byte>() : InnerGetOrAdd(messageId).Get(cancellationToken);
-        }
-
-        public void Set(string messageId, byte[] body, int chunkIndex, int chunkCount)
-        {
-            if (disposed)
-                return;
-
-            InnerGetOrAdd(messageId).Set(body, chunkIndex, chunkCount);
-        }
-
-        private ChunkedBody InnerGetOrAdd(string messageId)
+        protected ChunkedBody InnerGetOrAdd(string messageId)
         {
             return underlying.GetOrAdd(
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
@@ -190,6 +181,40 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
             cleanupTimer.Dispose();
             Cleanup(null);
             underlying.Clear();
+        }
+    }
+
+    private sealed class GetRequestDictionary : ChunkedBodyDictionary
+    {
+        public GetRequestDictionary(TimeProvider timeProvider)
+            : base(timeProvider) { }
+
+        public byte[]? Set(string messageId, byte[] body, int chunkIndex, int chunkCount)
+        {
+            if (Disposed)
+                return null;
+
+            ChunkedBody chunkedBody = InnerGetOrAdd(messageId);
+            return chunkedBody.Set(body, chunkIndex, chunkCount) ? chunkedBody.Get(CancellationToken.None) : null;
+        }
+    }
+
+    private sealed class GetResponseDictionary : ChunkedBodyDictionary
+    {
+        public GetResponseDictionary(TimeProvider timeProvider)
+            : base(timeProvider) { }
+
+        public byte[] Get(string messageId, CancellationToken cancellationToken)
+        {
+            return Disposed ? [ ] : InnerGetOrAdd(messageId).Get(cancellationToken);
+        }
+
+        public void Set(string messageId, byte[] body, int chunkIndex, int chunkCount)
+        {
+            if (Disposed)
+                return;
+
+            _ = InnerGetOrAdd(messageId).Set(body, chunkIndex, chunkCount);
         }
     }
 
@@ -403,56 +428,70 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
         try
         {
+            const string chunkIndexPName = "chunkIndex";
+            const string chunkCountPName = "chunkCount";
+
             async Task CompleteMessageAsync()
             {
                 await receiver.CompleteMessageAsync(receivedMessage);
                 completedBox.Value = true;
             }
 
-            T DeserializeBody<T>()
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            int GetChunkPValue(string name)
             {
-                return SmartCacheSerialization.Deserialize<T>(receivedMessage.Body.ToArray());
+                return receivedMessage.ApplicationProperties.TryGetValue(name, out object? rawValue) && rawValue is int value ? value : 1;
             }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            int GetChunkIndex() => GetChunkPValue(chunkIndexPName) - 1;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            int GetChunkCount() => GetChunkPValue(chunkCountPName);
 
             async Task<Func<Task>> ProcessGetAsync()
             {
-                byte[]? body;
+                const int chunkLength = 200 << 10;
+                string messageId = receivedMessage.MessageId;
+                byte[]? requestBody = getRequestDictionary.Set(messageId, receivedMessage.Body.ToArray(), GetChunkIndex(), GetChunkCount());
+                await CompleteMessageAsync();
+
+                if (requestBody is null)
+                {
+                    return static () => Task.CompletedTask;
+                }
+
+                byte[]? responseBody;
                 using (TimerLap lap = SmartCacheObservability.Instruments.FetchDuration.StartLap(SmartCacheObservability.Tags.Type.Direct))
                 {
-                    ICacheKey key = DeserializeBody<ICacheKey>();
-                    await CompleteMessageAsync();
+                    ICacheKey key = SmartCacheSerialization.Deserialize<ICacheKey>(requestBody);
 
                     if (SmartCache.TryGetDirectFromMemory(key, out Type? type, out object? value))
                     {
                         lap.AddTags(SmartCacheObservability.Tags.Found.True);
-                        body = SmartCacheSerialization.SerializeToBytes(value, type);
+                        responseBody = SmartCacheSerialization.SerializeToBytes(value, type);
                     }
                     else
                     {
                         lap.AddTags(SmartCacheObservability.Tags.Found.False);
-                        body = null;
+                        responseBody = null;
                     }
                 }
 
-                string messageId = receivedMessage.MessageId;
-
                 return async () =>
                 {
-                    ServiceBusMessage MakeMessage()
+                    ServiceBusMessage MakeMessage() => new ()
                     {
-                        return new ()
+                        Subject = GetResponseMessageSubject,
+                        CorrelationId = messageId,
+                        ApplicationProperties =
                         {
-                            Subject = GetResponseMessageSubject,
-                            CorrelationId = messageId,
-                            ApplicationProperties =
-                            {
-                                [SourcePropertyName] = serviceBusOptions.SubscriptionName,
-                                [DestinationPropertyName] = emitter,
-                            },
-                        };
-                    }
+                            [SourcePropertyName] = serviceBusOptions.SubscriptionName,
+                            [DestinationPropertyName] = emitter,
+                        },
+                    };
 
-                    if (body is null)
+                    if (responseBody is null)
                     {
                         logger.LogDebug("Sending message {ChunkIndex}/{ChunkCount} for get reply to '{Destination}'", 1, 1, emitter);
 
@@ -460,28 +499,27 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
                         return;
                     }
 
-                    const int chunkLength = 200 << 10;
-                    int bodyLength = body.Length;
-                    int chunkCount = bodyLength / chunkLength + 1;
+                    int responseBodyLength = responseBody.Length;
+                    int responseChunkCount = responseBodyLength / chunkLength + 1;
 
 #if NET6_0_OR_GREATER
                     await Parallel.ForEachAsync(
-                        Enumerable.Range(0, chunkCount),
-                        async (chunkIndex, _) =>
+                        Enumerable.Range(0, responseChunkCount),
+                        async (responseChunkIndex, _) =>
 #else
                     {
-                        for (int chunkIndex = 0; chunkIndex < chunkCount; chunkIndex++)
+                        for (int responseChunkIndex = 0; responseChunkIndex < responseChunkCount; responseChunkIndex++)
 #endif
                         {
                             ServiceBusMessage message = MakeMessage();
-                            message.ApplicationProperties[ChunkIndexPropertyName] = chunkIndex + 1;
-                            message.ApplicationProperties[ChunkCountPropertyName] = chunkCount;
+                            message.ApplicationProperties[chunkIndexPName] = responseChunkIndex + 1;
+                            message.ApplicationProperties[chunkCountPName] = responseChunkCount;
 
-                            Range range = (chunkLength * chunkIndex)..Math.Min(chunkLength * (chunkIndex + 1), bodyLength);
-                            (int rangeOffset, int rangeLength) = range.GetOffsetAndLength(bodyLength);
-                            message.Body = BinaryData.FromBytes(body.AsMemory(rangeOffset, rangeLength));
+                            Range range = (chunkLength * responseChunkIndex)..Math.Min(chunkLength * (responseChunkIndex + 1), responseBodyLength);
+                            (int rangeOffset, int rangeLength) = range.GetOffsetAndLength(responseBodyLength);
+                            message.Body = BinaryData.FromBytes(responseBody.AsMemory(rangeOffset, rangeLength));
 
-                            logger.LogDebug("Sending message {ChunkIndex}/{ChunkCount} for get reply to '{Destination}'", chunkIndex + 1, chunkCount, emitter);
+                            logger.LogDebug("Sending message {ChunkIndex}/{ChunkCount} for get reply to '{Destination}'", responseChunkIndex + 1, responseChunkCount, emitter);
 
                             await clientHolder.Sender.SendMessageAsync(message, CancellationToken.None);
                         }
@@ -495,16 +533,10 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
             async Task<Func<Task>> ProcessGetReplyAsync()
             {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                int GetChunkPropertyValue(string name)
-                {
-                    return receivedMessage.ApplicationProperties.TryGetValue(name, out object? rawValue) && rawValue is int value ? value : 1;
-                }
-
                 string messageId = receivedMessage.CorrelationId;
                 byte[] body = receivedMessage.Body.ToArray();
-                int chunkIndex = GetChunkPropertyValue(ChunkIndexPropertyName) - 1;
-                int chunkCount = GetChunkPropertyValue(ChunkCountPropertyName);
+                int chunkIndex = GetChunkIndex();
+                int chunkCount = GetChunkCount();
                 await CompleteMessageAsync();
 
                 return () =>
@@ -516,7 +548,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
             async Task<Func<Task>> ProcessCacheMissAsync()
             {
-                CacheMissDescriptor descriptor = DeserializeBody<CacheMissDescriptor>();
+                CacheMissDescriptor descriptor = SmartCacheSerialization.Deserialize<CacheMissDescriptor>(receivedMessage.Body.ToArray());
                 await CompleteMessageAsync();
 
                 return () =>
@@ -528,7 +560,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
             async Task<Func<Task>> ProcessInvalidateAsync()
             {
-                InvalidationDescriptor descriptor = DeserializeBody<InvalidationDescriptor>();
+                InvalidationDescriptor descriptor = SmartCacheSerialization.Deserialize<InvalidationDescriptor>(receivedMessage.Body.ToArray());
                 await CompleteMessageAsync();
 
                 return () =>
@@ -618,6 +650,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
         base.Dispose();
 
+        getRequestDictionary.Dispose();
         getResponseDictionary.Dispose();
         clientHolder.Dispose();
 
@@ -693,7 +726,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
                 }
                 catch (OperationCanceledException oce) when (oce.CancellationToken != cancellationToken)
                 {
-                    body = Array.Empty<byte>();
+                    body = [ ];
                 }
             }
 
