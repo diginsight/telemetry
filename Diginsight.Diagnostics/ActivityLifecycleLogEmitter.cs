@@ -118,7 +118,7 @@ public sealed class ActivityLifecycleLogEmitter
         {
             ExtractLoggingInfo(
                 activity,
-                out bool isStandalone,
+                out bool _,
                 out bool shouldLog,
                 out bool writeActionAsPrefix,
                 out ILogger textLogger,
@@ -130,12 +130,6 @@ public sealed class ActivityLifecycleLogEmitter
 
             if (!shouldLog)
             {
-                return;
-            }
-
-            if (isStandalone)
-            {
-                textLogger.Log(logLevel, EndActivityEventId, ComposeLogFormat("{ActivityName}"), activityName);
                 return;
             }
 
@@ -188,19 +182,19 @@ public sealed class ActivityLifecycleLogEmitter
             switch (outputAsString, namedOutputsAsString)
             {
                 case (null, null):
-                    textLogger.Log(logLevel, EndMethodActivityEventId, ComposeLogFormat("{ActivityName}()"), activityName);
+                    textLogger.Log(logLevel, EndMethodActivityEventId, ComposeLogFormat("{ActivityName}"), activityName);
                     break;
 
                 case (not null, null):
-                    textLogger.Log(logLevel, EndMethodActivityEventId, ComposeLogFormat("{ActivityName}() => {Output}"), activityName, outputAsString);
+                    textLogger.Log(logLevel, EndMethodActivityEventId, ComposeLogFormat("{ActivityName} => {Output}"), activityName, outputAsString);
                     break;
 
                 case (null, not null):
-                    textLogger.Log(logLevel, EndMethodActivityEventId, ComposeLogFormat("{ActivityName}() [=> {NamedOutputs}]"), activityName, namedOutputsAsString);
+                    textLogger.Log(logLevel, EndMethodActivityEventId, ComposeLogFormat("{ActivityName} [=> {NamedOutputs}]"), activityName, namedOutputsAsString);
                     break;
 
                 case (not null, not null):
-                    textLogger.Log(logLevel, EndMethodActivityEventId, ComposeLogFormat("{ActivityName}() => {Output} [=> {NamedOutputs}]"), activityName, outputAsString, namedOutputsAsString);
+                    textLogger.Log(logLevel, EndMethodActivityEventId, ComposeLogFormat("{ActivityName} => {Output} [=> {NamedOutputs}]"), activityName, outputAsString, namedOutputsAsString);
                     break;
             }
         }

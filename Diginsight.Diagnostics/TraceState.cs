@@ -1,11 +1,13 @@
 ﻿using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Entry = System.Collections.Generic.KeyValuePair<Diginsight.Diagnostics.TraceStateKey, string>;
 
 namespace Diginsight.Diagnostics;
 
-public sealed class TraceState : IDictionary<TraceStateKey, string>
+// TODO Validate values
+public sealed class TraceState : IDictionary<TraceStateKey, string>, IReadOnlyDictionary<TraceStateKey, string>
 {
     private static readonly Regex SimpleKeyRegex = new (@"^([a-z][a-z0-9_\-*/]{0,255})=");
     private static readonly Regex ComplexKeyRegex = new (@"^([a-z0-9][a-z0-9_\-*/]{0,240})@([a-z0-9_\-*/]{0,13})=");
@@ -17,9 +19,17 @@ public sealed class TraceState : IDictionary<TraceStateKey, string>
 
     public bool IsReadOnly => false;
 
-    public ICollection<TraceStateKey> Keys => items.Select(static x => x.Key).ToArray();
+    ICollection<TraceStateKey> IDictionary<TraceStateKey, string>.Keys => KeysCore;
 
-    public ICollection<string> Values => items.Select(static x => x.Value).ToArray();
+    public IEnumerable<TraceStateKey> Keys => KeysCore;
+
+    private ICollection<TraceStateKey> KeysCore => items.Select(static x => x.Key).ToArray();
+
+    ICollection<string> IDictionary<TraceStateKey, string>.Values => ValuesCore;
+
+    public IEnumerable<string> Values => ValuesCore;
+
+    private ICollection<string> ValuesCore => items.Select(static x => x.Value).ToArray();
 
     public string this[TraceStateKey key]
     {
@@ -89,6 +99,22 @@ public sealed class TraceState : IDictionary<TraceStateKey, string>
     }
 
     public void Clear() => items.Clear();
+
+    public override string ToString()
+    {
+        return string.Join
+        (
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            ',',
+#else
+            ",",
+#endif
+            items.Select(static x => $"{x.Key}={x.Value}")
+        );
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static TraceState Parse(string? str) => string.IsNullOrWhiteSpace(str) ? new TraceState() : Parse(str.AsSpan());
 
     public static TraceState Parse(ReadOnlySpan<char> span)
     {

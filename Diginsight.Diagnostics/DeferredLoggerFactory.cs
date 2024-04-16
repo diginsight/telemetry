@@ -37,15 +37,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
             activityLoggingSampler
         );
 
-        ActivityListener listener = new ActivityListener()
-        {
-            ActivityStarted = emitter.OnStart,
-            ActivityStopped = emitter.OnEnd,
-            Sample = static (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
-            ShouldListenTo = s => s == ActivitySource,
-        };
-
-        ActivitySource.AddActivityListener(listener);
+        ActivityUtils.AddActivityListeners(emitter, s => s == ActivitySource);
     }
 
     private sealed class FixedClassAwareOptionsMonitor : IClassAwareOptionsMonitor<DiginsightActivitiesOptions>

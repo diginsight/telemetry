@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.ComponentModel;
-using System.Diagnostics;
 
 namespace Diginsight.Diagnostics;
 
@@ -66,17 +65,12 @@ public static class DependencyInjectionExtensions
 
         public void Run()
         {
-            ActivitySource.AddActivityListener(
-                new ActivityListener()
+            ActivityUtils.AddActivityListeners(
+                emitter,
+                activitySource =>
                 {
-                    ActivityStarted = emitter.OnStart,
-                    ActivityStopped = emitter.OnEnd,
-                    Sample = static (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
-                    ShouldListenTo = activitySource =>
-                    {
-                        string name = activitySource.Name;
-                        return activitiesOptions.ActivitySources.Any(x => ActivityUtils.NameMatchesPattern(name, x));
-                    },
+                    string name = activitySource.Name;
+                    return activitiesOptions.ActivitySources.Any(x => ActivityUtils.NameMatchesPattern(name, x));
                 }
             );
         }

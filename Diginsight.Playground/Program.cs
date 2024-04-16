@@ -97,22 +97,22 @@ internal class Program : BackgroundService
     {
         void Execute()
         {
-            using (ActivitySource.StartMethodActivity(logger, new { SomeInput = "ciao" }, logLevel: LogLevel.Information))
+            using Activity? rootActivity = ActivitySource.StartMethodActivity(logger, logLevel: LogLevel.Information);
+
+            using (ActivitySource.StartRichActivity(logger, "First", new { SomeInput = "ciao" }))
             {
                 logger.LogWarning($"foo {42:x} {{pippo}}");
             }
 
-            using (Activity? activity = ActivitySource.StartMethodActivity(logger, new Dictionary<string, object> { ["SomeInput"] = "hola" }, logLevel: LogLevel.Information))
+            using (Activity? activity = ActivitySource.StartRichActivity(logger, "Second", new Dictionary<string, object> { ["SomeInput"] = "hola" }))
             {
                 logger.LogWarning($"bar {404:x} {{paperino}}");
                 activity.SetOutput(Math.E);
             }
 
-            _ = Console.ReadLine();
-
-            using (Activity? activity = ActivitySource.StartMethodActivity(logger, new Dictionary<string, string> { ["SomeInput"] = "hello" }, logLevel: LogLevel.Information))
+            using (Activity? activity = ActivitySource.StartRichActivity(logger, "Third", new Dictionary<string, string> { ["SomeInput"] = "hello" }))
             {
-                using (ActivitySource.StartRichActivity(logger, "Deep"))
+                using (ActivitySource.StartRichActivity(logger, "ThirdDeep"))
                 {
                     logger.LogWarning($"baz {409:x} {{pluto}}");
                 }
@@ -121,7 +121,7 @@ internal class Program : BackgroundService
                 activity.SetNamedOutputs(new { statusCode = HttpStatusCode.Conflict, character = "pluto" });
             }
 
-            using (Activity? activity = ActivitySource.StartMethodActivity(logger, logLevel: LogLevel.Information))
+            using (Activity? activity = ActivitySource.StartRichActivity(logger, "Fourth"))
             {
                 logger.LogWarning($"quux {2023:x} {{topolino}}");
                 activity.SetNamedOutputs(new Dictionary<string, int>() { ["day"] = 10, ["month"] = 11, ["year"] = 2023 });

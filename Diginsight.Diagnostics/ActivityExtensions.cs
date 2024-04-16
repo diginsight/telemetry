@@ -40,7 +40,8 @@ public static class ActivityExtensions
 
         if (activity.GetCustomProperty(ActivityCustomPropertyNames.Depth) is not ActivityDepth depth)
         {
-            depth = GetDepth(activity.Parent).GetChild(activity.HasRemoteParent);
+            string? traceStateValue = TraceState.Parse(activity.TraceStateString).GetValueOrDefault(ActivityDepth.DepthTraceStateKey);
+            depth = ActivityDepth.FromTraceStateValue(traceStateValue) ?? default;
             activity.SetCustomProperty(ActivityCustomPropertyNames.Depth, depth);
         }
 
