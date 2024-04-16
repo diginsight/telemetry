@@ -386,10 +386,13 @@ internal sealed class SmartCache : ISmartCache
         entryOptions.RegisterPostEvictionCallback(
             (k, v, r, _) =>
             {
-                Interlocked.Add(ref memoryCacheSize, -size);
-                SmartCacheObservability.Instruments.TotalSize.Add(-size);
+                using (ActivityUtils.UnsetCurrent())
+                {
+                    Interlocked.Add(ref memoryCacheSize, -size);
+                    SmartCacheObservability.Instruments.TotalSize.Add(-size);
 
-                OnEvicted(new CacheKeyHolder((ICacheKey)k), (IValueEntry)v!, r, finalAbsExpiration);
+                    OnEvicted(new CacheKeyHolder((ICacheKey)k), (IValueEntry)v!, r, finalAbsExpiration);
+                }
             }
         );
 

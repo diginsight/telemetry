@@ -67,4 +67,13 @@ public static class ActivityUtils
             }
         );
     }
+
+    public static IDisposable? UnsetCurrent()
+    {
+        if (Activity.Current is not { } activity)
+            return null;
+
+        Activity.Current = null;
+        return new CallbackDisposable(() => { Activity.Current = activity; });
+    }
 }
