@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using Newtonsoft.Json.Linq;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
@@ -40,8 +41,9 @@ public static class ActivityExtensions
 
         if (activity.GetCustomProperty(ActivityCustomPropertyNames.Depth) is not ActivityDepth depth)
         {
-            string? traceStateValue = TraceState.Parse(activity.TraceStateString).GetValueOrDefault(ActivityDepth.DepthTraceStateKey);
-            depth = ActivityDepth.FromTraceStateValue(traceStateValue) ?? default;
+            depth = ActivityDepth.FromTraceStateValue(TraceState.Parse(activity.TraceStateString).GetValueOrDefault(ActivityDepth.DepthTraceStateKey))
+                ?? GetDepth(activity.Parent).MakeChild(false);
+
             activity.SetCustomProperty(ActivityCustomPropertyNames.Depth, depth);
         }
 
