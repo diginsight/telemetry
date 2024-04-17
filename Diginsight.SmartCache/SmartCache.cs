@@ -68,9 +68,9 @@ internal sealed class SmartCache : ISmartCache
         using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger, new { key, operationOptions, callerType });
 
         callerType ??= RuntimeUtils.GetCaller().DeclaringType;
-        operationOptions ??= new ();
+        operationOptions ??= new SmartCacheOperationOptions();
 
-        CacheKeyHolder keyHolder = new CacheKeyHolder(key);
+        CacheKeyHolder keyHolder = new (key);
 
         SmartCacheObservability.Instruments.Calls.Add(1);
 
@@ -666,11 +666,11 @@ internal sealed class SmartCache : ISmartCache
 
     private sealed class ExternalMissDictionary
     {
-        private readonly ConcurrentDictionary<ICacheKey, Entry> underlying = new ConcurrentDictionary<ICacheKey, Entry>();
+        private readonly ConcurrentDictionary<ICacheKey, Entry> underlying = new ();
 
         public IEnumerable<ICacheKey> Keys => underlying.Keys;
 
-        private readonly object lockObject = new object();
+        private readonly object lockObject = new ();
 
         public Entry? Get(ICacheKey key)
         {

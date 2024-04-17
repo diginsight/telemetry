@@ -112,7 +112,7 @@ public static class DiginsightTextWriter
 
             string actualPrefix = prefixSb.ToString();
             int prefixLength = actualPrefix.Length;
-            string blankPrefix = new string(' ', prefixLength);
+            string blankPrefix = new (' ', prefixLength);
 
             const char newLine = '\n';
 

@@ -8,7 +8,7 @@ namespace Diginsight.CAOptions;
 public static class ClassConfigurationMarkers
 {
     private static readonly ConcurrentDictionary<Type, IReadOnlyList<string>> Markers = new ();
-    private static readonly Regex GenericSuffixRegex = new Regex(@"`\d+");
+    private static readonly Regex GenericSuffixRegex = new (@"`\d+");
     private static readonly IReadOnlyList<string> NoClassMarkers = new[] { "" };
 
     public static IReadOnlyList<string> For(Type @class)

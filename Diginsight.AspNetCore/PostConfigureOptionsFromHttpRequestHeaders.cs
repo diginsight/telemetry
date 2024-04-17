@@ -48,9 +48,9 @@ public class PostConfigureOptionsFromHttpRequestHeaders<TOptions>
         }
 
         IDictionary<string, string?> dict = new Dictionary<string, string?>();
-        foreach (string? rawSpec in httpContext.Request.Headers["Dynamic-Configuration"])
+        foreach (string rawSpec in httpContext.Request.Headers["Dynamic-Configuration"].NormalizeHttpHeaderValue())
         {
-            if (Statics.SpecRegex.Match(rawSpec!) is not { Success: true } match)
+            if (Statics.SpecRegex.Match(rawSpec) is not { Success: true } match)
                 continue;
 
             dict[match.Groups[1].Value] = match.Groups[2].Value;

@@ -30,7 +30,7 @@ public static class SmartCacheSerialization
 
     public static byte[] SerializeToBytes(object? value, Type type)
     {
-        using MemoryStream stream = new MemoryStream();
+        using MemoryStream stream = new ();
         SerializeToStream(value, type, stream);
         return stream.ToArray();
     }

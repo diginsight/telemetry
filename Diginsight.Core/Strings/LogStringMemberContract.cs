@@ -71,7 +71,7 @@ public sealed class LogStringMemberContract<T> : LogStringMemberContract
 
     public LogStringMemberContract<T> WithCustomTypeContract(Action<LogStringTypeContract<T>> configureContract)
     {
-        LogStringTypeContract<T> typeContract = new LogStringTypeContract<T>();
+        LogStringTypeContract<T> typeContract = new ();
         configureContract(typeContract);
 
         providerType = typeof(CustomMemberwiseLogStringProvider);

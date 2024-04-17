@@ -70,7 +70,7 @@ public sealed class DefaultDynamicLogLevelInjector : IDynamicLogLevelInjector
     public ILoggerFactory? TryCreateLoggerFactory(HttpContext context, IEnumerable<ILoggerProvider> loggerProviders)
     {
         LoggerFilterOptions oldLoggerFilterOptions = loggerFilterOptionsMonitor.CurrentValue;
-        LoggerFilterOptions newLoggerFilterOptions = new LoggerFilterOptions()
+        LoggerFilterOptions newLoggerFilterOptions = new ()
         {
             CaptureScopes = oldLoggerFilterOptions.CaptureScopes,
             MinLevel = oldLoggerFilterOptions.MinLevel,
@@ -86,15 +86,15 @@ public sealed class DefaultDynamicLogLevelInjector : IDynamicLogLevelInjector
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static string? Collapse(string? c) => c is "" or defaultCategory ? null : c;
 
-        foreach (string? rawSpec in context.Request.Headers["Log-Level"])
+        foreach (string rawSpec in context.Request.Headers["Log-Level"].NormalizeHttpHeaderValue())
         {
-            if (Enum.TryParse(rawSpec!, true, out LogLevel minLogLevel))
+            if (Enum.TryParse(rawSpec, true, out LogLevel minLogLevel))
             {
                 SetRule(null, null, minLogLevel);
                 continue;
             }
 
-            if (SpecRegex.Match(rawSpec!) is not { Success: true } match ||
+            if (SpecRegex.Match(rawSpec) is not { Success: true } match ||
                 !Enum.TryParse(match.Groups[2].Value, true, out LogLevel logLevel))
             {
                 continue;
