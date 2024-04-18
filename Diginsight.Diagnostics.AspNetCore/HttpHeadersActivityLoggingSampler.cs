@@ -14,6 +14,8 @@ public sealed class HttpHeadersActivityLoggingSampler : IActivityLoggingSampler
 
     public bool? ShouldLog(Activity activity)
     {
-        return HttpHeadersHelper.ShouldInclude(activity.OperationName, "Activity-Logging", httpContextAccessor);
+        return HttpHeadersHelper.ShouldInclude(activity.Source.Name, "Activity-Source-Logging", httpContextAccessor) == false
+            ? false
+            : HttpHeadersHelper.ShouldInclude(activity.OperationName, "Activity-Logging", httpContextAccessor);
     }
 }

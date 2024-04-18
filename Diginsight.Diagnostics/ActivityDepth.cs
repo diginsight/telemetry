@@ -1,8 +1,9 @@
 ﻿using System.Globalization;
+using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
 
-public readonly struct ActivityDepth
+public readonly struct ActivityDepth : IFormattable
 {
     public static readonly TraceStateKey DepthTraceStateKey = "diginsightdepth";
 
@@ -34,7 +35,24 @@ public readonly struct ActivityDepth
                 : null;
     }
 
-    public override string ToString() => string.Format(CultureInfo.InvariantCulture, "{0}.{1}", Layer, Local);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override string ToString() => ToString(null);
 
-    public string ToTraceStateValue() => string.Format(CultureInfo.InvariantCulture, "{0}_{1}_{2}", Layer, Local, Cumulated);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public string ToTraceStateValue() => ToString("T");
+
+    public string ToString(string? format)
+    {
+        return format?.ToUpperInvariant() switch
+        {
+            null or "G" or "YL" => string.Format(CultureInfo.InvariantCulture, "{0}.{1}", Layer, Local),
+            "L" => Layer.ToString(CultureInfo.InvariantCulture),
+            "YLC" => string.Format(CultureInfo.InvariantCulture, "{0}.{1}.{2}", Layer, Local, Cumulated),
+            "T" => string.Format(CultureInfo.InvariantCulture, "{0}_{1}_{2}", Layer, Local, Cumulated),
+            _ => throw new FormatException($"The '{format}' format string is not supported."),
+        };
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public string ToString(string? format, IFormatProvider? formatProvider) => ToString(format);
 }
