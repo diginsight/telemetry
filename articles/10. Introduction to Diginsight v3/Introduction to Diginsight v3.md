@@ -20,7 +20,7 @@ Adding .Net instrumentation is a matter of defining __System.Diagnostics activit
 ```c#
 static async Task<int> DoSomeWork(string foo, int bar)
 {
-    using (var activity = source.StartActivity($"DoSomeWork({foo}, {bar})"));
+    using var activity = source.StartActivity($"DoSomeWork({foo}, {bar})");
 
     var result1 = await StepOne(); 
     logger.LogDebug($"await StepOne(); returned {result1}");
@@ -37,7 +37,7 @@ with __Diginsight v3__ activity scopes can be created with similar notation, __w
 ```c#
 static async Task DoSomeWork(string foo, int bar)
 {
-    using (var activity = source.StartMethodActivity(logger, new { foo, bar }));
+    using var activity = source.StartMethodActivity(logger, new { foo, bar });
 
     var result1 = await StepOne(); 
     logger.LogDebug($"await StepOne(); returned {result1}");
