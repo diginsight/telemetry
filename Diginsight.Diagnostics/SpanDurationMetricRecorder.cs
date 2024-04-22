@@ -1,33 +1,44 @@
 ﻿using Diginsight.CAOptions;
 using Microsoft.Extensions.Logging;
-using OpenTelemetry;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 
 namespace Diginsight.Diagnostics;
 
-public sealed class SpanDurationMetricProcessor : BaseProcessor<Activity>
+public sealed class SpanDurationMetricRecorder
 {
     private readonly ILogger logger;
     private readonly IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor;
-    private readonly ISpanDurationMetricProcessorSettings settings;
+    private readonly ISpanDurationMetricRecorderSettings settings;
 
     private Histogram<double>? metric;
 
     private Histogram<double> Metric => metric ??= settings.Metric;
 
-    public SpanDurationMetricProcessor(
-        ILogger<SpanDurationMetricProcessor> logger,
+    public SpanDurationMetricRecorder(
+        ILogger<SpanDurationMetricRecorder> logger,
         IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor,
-        ISpanDurationMetricProcessorSettings? settings = null
+        ISpanDurationMetricRecorderSettings? settings = null
     )
     {
         this.logger = logger;
         this.activitiesOptionsMonitor = activitiesOptionsMonitor;
-        this.settings = settings ?? new DefaultSpanDurationMetricProcessorSettings();
+        this.settings = settings ?? new DefaultSpanDurationMetricRecorderSettings();
     }
 
-    public override void OnEnd(Activity activity)
+    public void InstallActivityListener(Func<ActivitySource, bool> shouldListenTo)
+    {
+        ActivitySource.AddActivityListener(
+            new ActivityListener()
+            {
+                ActivityStopped = OnEnd,
+                Sample = static (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
+                ShouldListenTo = shouldListenTo,
+            }
+        );
+    }
+
+    private void OnEnd(Activity activity)
     {
         string activityName = activity.OperationName;
 
@@ -36,9 +47,7 @@ public sealed class SpanDurationMetricProcessor : BaseProcessor<Activity>
             Type? callerType = activity.GetCallerType();
             IDiginsightActivitiesOptions activitiesOptions = activitiesOptionsMonitor.Get(callerType);
             if (!(settings.ShouldRecord(activity) ?? activitiesOptions.RecordSpanDurations))
-            {
                 return;
-            }
 
             Metric.Record(
                 activity.Duration.TotalMilliseconds,

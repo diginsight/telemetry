@@ -1,26 +1,37 @@
 ﻿using Microsoft.Extensions.Logging;
-using OpenTelemetry;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
 
-public sealed class CustomDurationMetricProcessor : BaseProcessor<Activity>
+public sealed class CustomDurationMetricRecorder
 {
     private readonly ILogger logger;
-    private readonly ICustomDurationMetricProcessorSettings? settings;
+    private readonly ICustomDurationMetricRecorderSettings? settings;
 
-    public CustomDurationMetricProcessor(
-        ILogger<CustomDurationMetricProcessor> logger,
-        ICustomDurationMetricProcessorSettings? settings = null
+    public CustomDurationMetricRecorder(
+        ILogger<CustomDurationMetricRecorder> logger,
+        ICustomDurationMetricRecorderSettings? settings = null
     )
     {
         this.logger = logger;
         this.settings = settings;
     }
 
-    public override void OnEnd(Activity activity)
+    public void InstallActivityListener(Func<ActivitySource, bool> shouldListenTo)
+    {
+        ActivitySource.AddActivityListener(
+            new ActivityListener
+            {
+                ActivityStopped = OnEnd,
+                Sample = static (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
+                ShouldListenTo = shouldListenTo,
+            }
+        );
+    }
+
+    private void OnEnd(Activity activity)
     {
         try
         {

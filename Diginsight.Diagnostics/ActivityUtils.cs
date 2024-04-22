@@ -53,19 +53,10 @@ public static class ActivityUtils
         return namePatterns.Any(x => NameMatchesPattern(name, x));
     }
 
-    public static void AddActivityListeners(ActivityLifecycleLogEmitter emitter, Func<ActivitySource, bool> shouldEmit)
+    public static void AddActivityListeners(ActivityLifecycleLogEmitter logEmitter, Func<ActivitySource, bool> shouldEmitLog)
     {
         ActivitySource.AddActivityListener(DepthActivityListener);
-
-        ActivitySource.AddActivityListener(
-            new ActivityListener()
-            {
-                ActivityStarted = emitter.OnStart,
-                ActivityStopped = emitter.OnEnd,
-                Sample = static (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
-                ShouldListenTo = shouldEmit,
-            }
-        );
+        logEmitter.InstallActivityListener(shouldEmitLog);
     }
 
     public static IDisposable? UnsetCurrent()

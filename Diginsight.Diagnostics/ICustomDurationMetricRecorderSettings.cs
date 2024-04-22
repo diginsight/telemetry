@@ -3,7 +3,7 @@ using System.Diagnostics.Metrics;
 
 namespace Diginsight.Diagnostics;
 
-public interface ICustomDurationMetricProcessorSettings
+public interface ICustomDurationMetricRecorderSettings
 {
     bool? ShouldRecord(Activity activity, Instrument instrument);
 

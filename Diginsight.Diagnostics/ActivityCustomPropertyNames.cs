@@ -3,6 +3,8 @@
 internal static class ActivityCustomPropertyNames
 {
     public const string CallerType = nameof(CallerType);
+    public const string CustomDurationMetric = nameof(CustomDurationMetric);
+    public const string CustomDurationMetricTags = nameof(CustomDurationMetricTags);
     public const string Depth = nameof(Depth);
     public const string IsStandalone = nameof(IsStandalone);
     public const string Logger = nameof(Logger);

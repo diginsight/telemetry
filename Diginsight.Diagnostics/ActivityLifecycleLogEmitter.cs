@@ -40,8 +40,21 @@ public sealed class ActivityLifecycleLogEmitter
         fallbackLogger = loggerFactory.CreateLogger($"{typeof(ActivityLifecycleLogEmitter).Namespace!}.$Activity");
     }
 
+    public void InstallActivityListener(Func<ActivitySource, bool> shouldListenTo)
+    {
+        ActivitySource.AddActivityListener(
+            new ActivityListener()
+            {
+                ActivityStarted = OnStart,
+                ActivityStopped = OnEnd,
+                Sample = static (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
+                ShouldListenTo = shouldListenTo,
+            }
+        );
+    }
+
     [SuppressMessage("ReSharper", "TemplateIsNotCompileTimeConstantProblem")]
-    public void OnStart(Activity activity)
+    private void OnStart(Activity activity)
     {
         string activityName = activity.OperationName;
 
@@ -60,9 +73,7 @@ public sealed class ActivityLifecycleLogEmitter
             string ComposeLogFormat(string format) => writeActionAsPrefix ? $"START {format}" : $"{format} START";
 
             if (!shouldLog)
-            {
                 return;
-            }
 
             object? inputs = activity.GetCustomProperty(ActivityCustomPropertyNames.MakeInputs) switch
             {
@@ -71,16 +82,10 @@ public sealed class ActivityLifecycleLogEmitter
                 _ => throw new InvalidOperationException("Invalid inputs in activity"),
             };
 
+            EventId eventId = isStandalone ? StartActivityEventId : StartMethodActivityEventId;
             if (inputs is null)
             {
-                if (isStandalone)
-                {
-                    textLogger.Log(logLevel, StartActivityEventId, ComposeLogFormat("{ActivityName}"), activityName);
-                }
-                else
-                {
-                    textLogger.Log(logLevel, StartMethodActivityEventId, ComposeLogFormat("{ActivityName}()"), activityName);
-                }
+                textLogger.Log(logLevel, eventId, ComposeLogFormat(isStandalone ? "{ActivityName}" : "{ActivityName}()"), activityName);
                 return;
             }
 
@@ -94,14 +99,7 @@ public sealed class ActivityLifecycleLogEmitter
                 activity.SetTag($"input.{input.Key}", input.Value);
             }
 
-            if (isStandalone)
-            {
-                textLogger.Log(logLevel, StartActivityEventId, ComposeLogFormat("{ActivityName}({Inputs})"), activityName, inputsAsString);
-            }
-            else
-            {
-                textLogger.Log(logLevel, StartMethodActivityEventId, ComposeLogFormat("{ActivityName}({Inputs})"), activityName, inputsAsString);
-            }
+            textLogger.Log(logLevel, eventId, ComposeLogFormat("{ActivityName}({Inputs})"), activityName, inputsAsString);
         }
         catch (Exception exception)
         {
@@ -110,7 +108,7 @@ public sealed class ActivityLifecycleLogEmitter
     }
 
     [SuppressMessage("ReSharper", "TemplateIsNotCompileTimeConstantProblem")]
-    public void OnEnd(Activity activity)
+    private void OnEnd(Activity activity)
     {
         string activityName = activity.OperationName;
 
@@ -118,7 +116,7 @@ public sealed class ActivityLifecycleLogEmitter
         {
             ExtractLoggingInfo(
                 activity,
-                out bool _,
+                out bool isStandalone,
                 out bool shouldLog,
                 out bool writeActionAsPrefix,
                 out ILogger textLogger,
@@ -129,9 +127,7 @@ public sealed class ActivityLifecycleLogEmitter
             string ComposeLogFormat(string format) => writeActionAsPrefix ? $"END {format}" : $"{format} END";
 
             if (!shouldLog)
-            {
                 return;
-            }
 
             string? outputAsString = LogOutput();
             string? namedOutputsAsString = LogNamedOutputs();
@@ -162,14 +158,10 @@ public sealed class ActivityLifecycleLogEmitter
             string? LogNamedOutputs()
             {
                 if (activity.GetCustomProperty(ActivityCustomPropertyNames.NamedOutputs) is not { } namedOutputs)
-                {
                     return null;
-                }
 
                 if (ExtractLoggable(namedOutputs) is not var (namedOutputsAsDict, namedOutputsAsString0))
-                {
                     throw new InvalidOperationException("Invalid named outputs in activity");
-                }
 
                 foreach (KeyValuePair<string, string> namedOutput in namedOutputsAsDict)
                 {
@@ -179,22 +171,23 @@ public sealed class ActivityLifecycleLogEmitter
                 return namedOutputsAsString0;
             }
 
+            EventId eventId = isStandalone ? EndActivityEventId : EndMethodActivityEventId;
             switch (outputAsString, namedOutputsAsString)
             {
                 case (null, null):
-                    textLogger.Log(logLevel, EndMethodActivityEventId, ComposeLogFormat("{ActivityName}"), activityName);
+                    textLogger.Log(logLevel, eventId, ComposeLogFormat("{ActivityName}"), activityName);
                     break;
 
                 case (not null, null):
-                    textLogger.Log(logLevel, EndMethodActivityEventId, ComposeLogFormat("{ActivityName} => {Output}"), activityName, outputAsString);
+                    textLogger.Log(logLevel, eventId, ComposeLogFormat("{ActivityName} => {Output}"), activityName, outputAsString);
                     break;
 
                 case (null, not null):
-                    textLogger.Log(logLevel, EndMethodActivityEventId, ComposeLogFormat("{ActivityName} [=> {NamedOutputs}]"), activityName, namedOutputsAsString);
+                    textLogger.Log(logLevel, eventId, ComposeLogFormat("{ActivityName} [=> {NamedOutputs}]"), activityName, namedOutputsAsString);
                     break;
 
                 case (not null, not null):
-                    textLogger.Log(logLevel, EndMethodActivityEventId, ComposeLogFormat("{ActivityName} => {Output} [=> {NamedOutputs}]"), activityName, outputAsString, namedOutputsAsString);
+                    textLogger.Log(logLevel, eventId, ComposeLogFormat("{ActivityName} => {Output} [=> {NamedOutputs}]"), activityName, outputAsString, namedOutputsAsString);
                     break;
             }
         }

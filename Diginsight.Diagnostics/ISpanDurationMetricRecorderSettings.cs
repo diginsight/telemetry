@@ -3,7 +3,7 @@ using System.Diagnostics.Metrics;
 
 namespace Diginsight.Diagnostics;
 
-public interface ISpanDurationMetricProcessorSettings
+public interface ISpanDurationMetricRecorderSettings
 {
     Histogram<double> Metric { get; }
 
