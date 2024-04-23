@@ -45,10 +45,10 @@
       "OpenTelemetry.Exporter.Console": {
         "type": "Direct",
         "requested": "[1.*, )",
-        "resolved": "1.8.0",
-        "contentHash": "WCswvEenmbpWTK3NvmWkDGjnocMpoj3eXJ64QcrJM2Ss1ZCRFBqA9XITSlWhFrFCiCA0rlcZKJo8joLXPbn0xg==",
+        "resolved": "1.8.1",
+        "contentHash": "XmMaxVoJjVYwEpV3XCvntSGbmRelhQv0gT1JSTRK5BRXgq7OunU18GJtJsgkQW0bRf1y4nevkxo5QDts62j41Q==",
         "dependencies": {
-          "OpenTelemetry": "1.8.0",
+          "OpenTelemetry": "1.8.1",
           "System.Text.Encodings.Web": "4.7.2",
           "System.Text.Json": "4.7.2"
         }
@@ -423,29 +423,29 @@
       },
       "OpenTelemetry": {
         "type": "Transitive",
-        "resolved": "1.8.0",
-        "contentHash": "REAYqOj2KcLYdg7Xtj4xdx9bSqwNkUQMBl3jpqhQD1AX4qs+ip4Cd8fs7xUDRj7+7Sce2mRvBX4V8Fy0GHranA==",
+        "resolved": "1.8.1",
+        "contentHash": "70pb4YyPJnoV3vZOxpusEzBqgY6NyLwyruhas5d3bUO10GnldRWGE8DF4UusbinxnTLOpSmNzsaOb5R1v+Mt0g==",
         "dependencies": {
           "Microsoft.Extensions.Diagnostics.Abstractions": "8.0.0",
           "Microsoft.Extensions.Logging.Configuration": "8.0.0",
-          "OpenTelemetry.Api.ProviderBuilderExtensions": "1.8.0"
+          "OpenTelemetry.Api.ProviderBuilderExtensions": "1.8.1"
         }
       },
       "OpenTelemetry.Api": {
         "type": "Transitive",
-        "resolved": "1.8.0",
-        "contentHash": "+daN4OqIXne3QLlFHEzb6ybAETgKs7Hg5jINYT5P8p8A/cEtuP6CRDYdDpOe6AlW8oAaV/nJJ5tLyPUVKKQu0w==",
+        "resolved": "1.8.1",
+        "contentHash": "QCwCJp/ndXzlTBiTJjcpkpi4tntv1qSRJMXv0YNKcptE/FRMufiIA7IWTegS7C1/r3YQQwGiwdHARcZcS41JMw==",
         "dependencies": {
           "System.Diagnostics.DiagnosticSource": "8.0.0"
         }
       },
       "OpenTelemetry.Api.ProviderBuilderExtensions": {
         "type": "Transitive",
-        "resolved": "1.8.0",
-        "contentHash": "BLo2IwO+sJZMsedvKyMtDJL1Pk7gto2B5lf0rkGKigihUUYDaWwh7HTYtftTamXn0UthCB9B+VUaF7h9AohXMg==",
+        "resolved": "1.8.1",
+        "contentHash": "/M1vkPg2i2UpnHMlV8kFS4ct9O2cg3C+KVgPI/6G/tp99AzwGIvZZv0NswnjKBqis/Lr9Lv2eeF1yvG1KpBP/w==",
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0",
-          "OpenTelemetry.Api": "1.8.0"
+          "OpenTelemetry.Api": "1.8.1"
         }
       },
       "Polly.Core": {
