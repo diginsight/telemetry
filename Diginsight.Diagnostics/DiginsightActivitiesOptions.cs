@@ -74,7 +74,7 @@ public sealed class DiginsightActivitiesOptions
 
     public DiginsightActivitiesOptions Freeze()
     {
-        return new (
+        return new DiginsightActivitiesOptions(
             true,
             ImmutableArray.CreateRange(ActivitySources.Distinct()),
             ImmutableArray.CreateRange(LoggedActivityNames.Distinct()),

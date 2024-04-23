@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
 
-public sealed class ActivityLifecycleLogEmitter
+public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
 {
     private static readonly EventId StartActivityEventId = new (100, "StartActivity");
     private static readonly EventId StartMethodActivityEventId = new (110, "StartMethodActivity");
@@ -40,21 +40,8 @@ public sealed class ActivityLifecycleLogEmitter
         fallbackLogger = loggerFactory.CreateLogger($"{typeof(ActivityLifecycleLogEmitter).Namespace!}.$Activity");
     }
 
-    public void InstallActivityListener(Func<ActivitySource, bool> shouldListenTo)
-    {
-        ActivitySource.AddActivityListener(
-            new ActivityListener()
-            {
-                ActivityStarted = OnStart,
-                ActivityStopped = OnEnd,
-                Sample = static (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
-                ShouldListenTo = shouldListenTo,
-            }
-        );
-    }
-
     [SuppressMessage("ReSharper", "TemplateIsNotCompileTimeConstantProblem")]
-    private void OnStart(Activity activity)
+    void IActivityListenerLogic.ActivityStarted(Activity activity)
     {
         string activityName = activity.OperationName;
 
@@ -108,7 +95,7 @@ public sealed class ActivityLifecycleLogEmitter
     }
 
     [SuppressMessage("ReSharper", "TemplateIsNotCompileTimeConstantProblem")]
-    private void OnEnd(Activity activity)
+    void IActivityListenerLogic.ActivityStopped(Activity activity)
     {
         string activityName = activity.OperationName;
 
@@ -196,6 +183,8 @@ public sealed class ActivityLifecycleLogEmitter
             fallbackLogger.LogWarning(exception, "Unhandled exception while logging end of activity {ActivityName}", activityName);
         }
     }
+
+    ActivitySamplingResult IActivityListenerLogic.Sample(ref ActivityCreationOptions<ActivityContext> creationOptions) => ActivitySamplingResult.AllData;
 
     private (IReadOnlyDictionary<string, string>, string)? ExtractLoggable(object obj)
     {

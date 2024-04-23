@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace Diginsight.Diagnostics;
 
@@ -11,17 +12,16 @@ public static class DependencyInjectionExtensions
 {
     public static IServiceCollection FlushOnCreateServiceProvider(this IServiceCollection services, IDeferredLoggerFactory deferredLoggerFactory)
     {
-        services.AddSingleton<IOnCreateServiceProvider>(sp => ActivatorUtilities.CreateInstance<FlushDeferredLoggerFactory>(sp, deferredLoggerFactory));
-
+        services.AddSingleton<IOnCreateServiceProvider>(sp => ActivatorUtilities.CreateInstance<DeferredLoggerFactoryFlusher>(sp, deferredLoggerFactory));
         return services;
     }
 
-    private sealed class FlushDeferredLoggerFactory : IOnCreateServiceProvider
+    private sealed class DeferredLoggerFactoryFlusher : IOnCreateServiceProvider
     {
         private readonly IDeferredLoggerFactory deferredLoggerFactory;
         private readonly ILoggerFactory? loggerFactory;
 
-        public FlushDeferredLoggerFactory(IDeferredLoggerFactory deferredLoggerFactory, ILoggerFactory? loggerFactory = null)
+        public DeferredLoggerFactoryFlusher(IDeferredLoggerFactory deferredLoggerFactory, ILoggerFactory? loggerFactory = null)
         {
             this.deferredLoggerFactory = deferredLoggerFactory;
             this.loggerFactory = loggerFactory;
@@ -36,43 +36,71 @@ public static class DependencyInjectionExtensions
         }
     }
 
+    public static IServiceCollection AddActivityListenersAdder(this IServiceCollection services)
+    {
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IOnCreateServiceProvider, ActivityListenersAdder>());
+        return services;
+    }
+
+    private sealed class ActivityListenersAdder : IOnCreateServiceProvider
+    {
+        private readonly IEnumerable<IActivityListenerRegistration> registrations;
+
+        public ActivityListenersAdder(IEnumerable<IActivityListenerRegistration> registrations)
+        {
+            this.registrations = registrations;
+        }
+
+        public void Run()
+        {
+            ActivitySource.AddActivityListener(ActivityUtils.DepthSetterActivityListener);
+
+            foreach (IActivityListenerRegistration registration in registrations)
+            {
+                ActivitySource.AddActivityListener(registration.ToActivityListener());
+            }
+        }
+    }
+
     public static ILoggingBuilder AddDiginsightCore(this ILoggingBuilder loggingBuilder)
     {
-        loggingBuilder.Services.AddLogStrings();
-        loggingBuilder.Services.TryAddSingleton<ActivityLifecycleLogEmitter>();
-        loggingBuilder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IOnCreateServiceProvider, RegisterLifecycleActivityListener>());
+        IServiceCollection services = loggingBuilder.Services;
+
+        services
+            .AddLogStrings()
+            .AddActivityListenersAdder();
+        services.TryAddSingleton<ActivityLifecycleLogEmitter>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IActivityListenerRegistration, ActivityLifecycleLogEmitterRegistration>());
 
         loggingBuilder.Configure(
-            static loggerFactoryOptions => { loggerFactoryOptions.ActivityTrackingOptions = ActivityTrackingOptions.SpanId | ActivityTrackingOptions.TraceId | ActivityTrackingOptions.TraceFlags; }
+            static loggerFactoryOptions =>
+            {
+                loggerFactoryOptions.ActivityTrackingOptions = ActivityTrackingOptions.SpanId | ActivityTrackingOptions.TraceId | ActivityTrackingOptions.TraceFlags;
+            }
         );
 
         return loggingBuilder;
     }
 
-    private sealed class RegisterLifecycleActivityListener : IOnCreateServiceProvider
+    private sealed class ActivityLifecycleLogEmitterRegistration : IActivityListenerRegistration
     {
-        private readonly ActivityLifecycleLogEmitter emitter;
         private readonly IDiginsightActivitiesOptions activitiesOptions;
 
-        public RegisterLifecycleActivityListener(
+        public IActivityListenerLogic Logic { get; }
+
+        public ActivityLifecycleLogEmitterRegistration(
             ActivityLifecycleLogEmitter emitter,
             IOptions<DiginsightActivitiesOptions> activitiesOptions
         )
         {
-            this.emitter = emitter;
+            Logic = emitter;
             this.activitiesOptions = activitiesOptions.Value.Freeze();
         }
 
-        public void Run()
+        public bool ShouldListenTo(ActivitySource activitySource)
         {
-            ActivityUtils.AddActivityListeners(
-                emitter,
-                activitySource =>
-                {
-                    string name = activitySource.Name;
-                    return activitiesOptions.ActivitySources.Any(x => ActivityUtils.NameMatchesPattern(name, x));
-                }
-            );
+            string name = activitySource.Name;
+            return activitiesOptions.ActivitySources.Any(x => ActivityUtils.NameMatchesPattern(name, x));
         }
     }
 

@@ -9,7 +9,7 @@ public static class ActivityUtils
     private static readonly char[] StarSeparators = [ '*' ];
 #endif
 
-    private static readonly ActivityListener DepthActivityListener = new ()
+    public static readonly ActivityListener DepthSetterActivityListener = new ()
     {
         Sample = static (ref ActivityCreationOptions<ActivityContext> creationOptions) =>
         {
@@ -51,12 +51,6 @@ public static class ActivityUtils
     public static bool NameMatchesPattern(string name, IEnumerable<string> namePatterns)
     {
         return namePatterns.Any(x => NameMatchesPattern(name, x));
-    }
-
-    public static void AddActivityListeners(ActivityLifecycleLogEmitter logEmitter, Func<ActivitySource, bool> shouldEmitLog)
-    {
-        ActivitySource.AddActivityListener(DepthActivityListener);
-        logEmitter.InstallActivityListener(shouldEmitLog);
     }
 
     public static IDisposable? UnsetCurrent()

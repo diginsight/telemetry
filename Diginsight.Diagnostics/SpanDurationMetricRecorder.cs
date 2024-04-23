@@ -5,7 +5,7 @@ using System.Diagnostics.Metrics;
 
 namespace Diginsight.Diagnostics;
 
-public sealed class SpanDurationMetricRecorder
+public sealed class SpanDurationMetricRecorder : ISpanDurationMetricRecorder
 {
     private readonly ILogger logger;
     private readonly IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor;
@@ -26,19 +26,11 @@ public sealed class SpanDurationMetricRecorder
         this.settings = settings ?? new DefaultSpanDurationMetricRecorderSettings();
     }
 
-    public void InstallActivityListener(Func<ActivitySource, bool> shouldListenTo)
-    {
-        ActivitySource.AddActivityListener(
-            new ActivityListener()
-            {
-                ActivityStopped = OnEnd,
-                Sample = static (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
-                ShouldListenTo = shouldListenTo,
-            }
-        );
-    }
+#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+    void IActivityListenerLogic.ActivityStarted(Activity activity) { }
+#endif
 
-    private void OnEnd(Activity activity)
+    void IActivityListenerLogic.ActivityStopped(Activity activity)
     {
         string activityName = activity.OperationName;
 
@@ -59,6 +51,8 @@ public sealed class SpanDurationMetricRecorder
             logger.LogWarning(exception, "Unhandled exception while recording span duration metric of activity {ActivityName}", activityName);
         }
     }
+
+    ActivitySamplingResult IActivityListenerLogic.Sample(ref ActivityCreationOptions<ActivityContext> creationOptions) => ActivitySamplingResult.AllData;
 
     public bool IsSpanDurationMetric(Instrument instrument) => instrument == Metric;
 }

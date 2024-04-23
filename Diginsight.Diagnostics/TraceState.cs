@@ -1,8 +1,10 @@
 ﻿using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Entry = System.Collections.Generic.KeyValuePair<Diginsight.Diagnostics.TraceStateKey, string>;
+#if NET6_0_OR_GREATER
+using System.Diagnostics.CodeAnalysis;
+#endif
 
 namespace Diginsight.Diagnostics;
 

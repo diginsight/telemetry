@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
 
-public sealed class CustomDurationMetricRecorder
+public sealed class CustomDurationMetricRecorder : IActivityListenerLogic
 {
     private readonly ILogger logger;
     private readonly ICustomDurationMetricRecorderSettings? settings;
@@ -19,19 +19,11 @@ public sealed class CustomDurationMetricRecorder
         this.settings = settings;
     }
 
-    public void InstallActivityListener(Func<ActivitySource, bool> shouldListenTo)
-    {
-        ActivitySource.AddActivityListener(
-            new ActivityListener
-            {
-                ActivityStopped = OnEnd,
-                Sample = static (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
-                ShouldListenTo = shouldListenTo,
-            }
-        );
-    }
+#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+    void IActivityListenerLogic.ActivityStarted(Activity activity) { }
+#endif
 
-    private void OnEnd(Activity activity)
+    void IActivityListenerLogic.ActivityStopped(Activity activity)
     {
         try
         {
@@ -75,4 +67,6 @@ public sealed class CustomDurationMetricRecorder
             logger.LogWarning(exception, "Unhandled exception while recording custom duration metric of activity {ActivityName}", activity.OperationName);
         }
     }
+
+    ActivitySamplingResult IActivityListenerLogic.Sample(ref ActivityCreationOptions<ActivityContext> creationOptions) => ActivitySamplingResult.AllData;
 }

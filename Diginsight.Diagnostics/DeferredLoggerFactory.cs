@@ -37,7 +37,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
             activityLoggingSampler
         );
 
-        ActivityUtils.AddActivityListeners(emitter, s => s == ActivitySource);
+        ActivitySource.AddActivityListener(emitter.ToActivityListener(s => s == ActivitySource));
     }
 
     private sealed class FixedClassAwareOptionsMonitor : IClassAwareOptionsMonitor<DiginsightActivitiesOptions>
