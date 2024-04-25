@@ -1,33 +1,41 @@
 # INTRODUCTION 
 __diginsight telemetry__ is a set .Net packages that that provides __automatic__ __observability__ for dotnet applications.<br> 
-In particular, __the full application flow__ is made available to __local text based streams__ such as __traditional file logs__, the __Console log__ or the __Azure Streaming log__.<br>
+In particular, __the full application flow__ is made available to __local text based streams__ such as __traditional file logs__, the __Console log__ or the __Azure Streaming log__ and also to the remote analysis tool such as __Azure Monitor__ and __Prometheus__/__Grafana__.<br>
 
-![Alt text](<07.0a Full call on log4net.png>)
+The image below shows the text based stream associated to to a Web API call.
+![Alt text](<000.01 Full call on log4net.png>)
 
-Enabling __Opentelemetry__, the same information can be made available to __remote tools__ for troubleshooting or performance analysis such as __Azure Monitor__ or __Grafana__. 
+The following image shows the same call on the __Azure Monitor Transaction Detail__ where the call structure is shown as a hierarchy of __activities__ (alaso called __spans__) and __trace details__:
+![Alt text](<000.02 Full call on azmon transaction.png>)
 
-The following image shows the same call on the azure monitor transaction detail with all the __activity spans__ and __trace details__:
-![Alt text](<07.1b Full call on azmon transaction.png>)
-
-Performance information gathered by __diginsight__ can be analyzed in the form of __metrics__: 
-![Alt text](<07.1c span_duration azmon metrics.png>)
-
-so that latencies and other numeric values exposed by code can be analyzed in __values__ and __frequency__.
+Performance information gathered by __diginsight__ can be analyzed in the form of __metrics__.<br>
+The following image shows the __Azure Monitor Metrics__ dashboard where method invocations and latencies can be analized in __value__ and __frequency__:
+![Alt text](<000.03 span_duration azmon metrics.png>)
 
 
 # ADDITIONAL INFORMATION 
 
-Application flow observability is provided by means of .Net __ILogger, System Diagnostics__ classes so that diginsight telemetry can be mixed and analyzed with other components telemetry, as long as they rely on the same standard framework classes.<br>
-Observability for remote tools is provided by means of __OpenTelemetry__ so that telemetry data can be targeted to __Azure Monitor__ and also other analysis tools such as __Graphana__.
-<br><br>
+Application flow observability is provided by means of __.Net__ __ILogger, System Diagnostics__ classes so that diginsight telemetry can be mixed and analyzed with other components telemetry, as long as they rely on the same standard framework classes.<br>
+Observability for remote tools is provided by means of __OpenTelemetry__ so that telemetry data can be targeted to __Azure Monitor__ and also other analysis tools such as __Prometheus__/__Graphana__.
+
+The following image shows diginsight metrics such as __span durations__  and __frequencies__ on a custom __Grafana__ dashboard receiving data by means of __Opentelemetry Prometheus__ stack.
+![alt text](<001.00 Prometheus Grafana dashboard.png>)
+<br>
+<br>
 Diginsight application flow is __consistent__:
 - __with code__: the application flow is published with information about classes, method names and call nesting so the __'gap' from telemetry and code__ is shortened for __application developers__ and __site reliability engineers__.
 - __across tools__: every information or metric visible on the __local text based streams__ can be published and observed on the __remote analysis tools__ (eg. for analysis of frequency of occurrence).
-- __across applications__ application flow published in the same way for all applications. so it is __easily readable for peopble without background knowledge__ on the application logic.<br><br>
+![alt text](<001.01 Consistency across tools and code.png>)
+
+- __across applications__ application flow published in the same way for all applications. so it is __easily readable for peopble without background knowledge__ on the application logic.
+![alt text](<001.02 Consistency across applications.png>)
+<br><br>
 
 Diginsight uses __Dinamic-Configuration__, __smart sampling__, __automatic truncation__ and other strategies to __maximize applications efficiency__ and __minimize telemetry cost__ so that __local analysis__ and __analysis on the remote tools__ can be supported __without compromises on performance__ and  __without compromises on cost of telemetry__.
 
 Diginsight __log layout__ and __automatic rendering__ for entities can be customized to ensure best readability of the application flow.
+
+![alt text](<001.03 NoPerformance impact.png>)
 
 Paragraph [GETTING STARTED](#GETTING-STARTED) discusses basic steps we can follow to integrate diginsight telemetry.
 
