@@ -48,9 +48,11 @@ The following articles explain in details:
 
 - [HowTo: Configure diginsight telemetry to the remote tools.md](<articles/13.a Configure diginsight telemetry to the remote tools/Configure diginsight telemetry to the remote tools.md>).
 
-- [HowTo: Customize diginsight log streams row content.md](<articles/14. Customize diginsight log streams row content/Customize diginsight log streams row content.md>).
+- [HowTo: Customize metrics sent to the remote tools.md](<articles/14. Customize metrics sent to the remote tools/Customize metrics sent to the remote tools.md>).
 
-- [HowTo: maximize application performance and minimize telemetry cost with diginsight.md](<articles/15. maximize application performance and minimize telemetry cost with diginsight/maximize application performance and minimize telemetry cost with diginsight.md>).
+- [HowTo: Customize diginsight log streams row content.md](<articles/15. Customize diginsight log streams row content/Customize diginsight log streams row content.md>).
+
+- [HowTo: maximize application performance and minimize telemetry cost with diginsight.md](<articles/16. maximize application performance and minimize telemetry cost with diginsight/maximize application performance and minimize telemetry cost with diginsight.md>).
 
 <br>
 
