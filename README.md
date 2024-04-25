@@ -22,12 +22,12 @@ The following image shows diginsight metrics such as __span durations__  and __f
 ![alt text](<001.00 Prometheus Grafana dashboard.png>)
 <br>
 <br>
-Diginsight application flow is __consistent__:
-- __with code__: the application flow is published with information about classes, method names and call nesting so the __'gap' from telemetry and code__ is shortened for __application developers__ and __site reliability engineers__.
-- __across tools__: every information or metric visible on the __local text based streams__ can be published and observed on the __remote analysis tools__ (eg. for analysis of frequency of occurrence).
+Diginsight application flow is:
+- __consistent across tools__: every information or metric visible on the __local text based streams__ can be published and observed on the __remote analysis tools__ (eg. on Appinsight Transaction detail or Appinsight Metrics).
+- __consistent with code__: the application flow is published with information about classes, method names and call nesting so the __'gap' from telemetry and code__ is shortened for __application developers__ and __site reliability engineers__.
 ![alt text](<001.01 Consistency across tools and code.png>)
 
-- __across applications__ application flow published in the same way for all applications. so it is __easily readable for peopble without background knowledge__ on the application logic.
+- __consistent across applications__ application flow published in the same way for all applications. so it is __easily readable for peopble without background knowledge__ on the application logic.
 ![alt text](<001.02 Consistency across applications.png>)
 <br><br>
 
