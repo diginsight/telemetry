@@ -28,25 +28,29 @@ Diginsight application flow is:
 ![alt text](<001.01 Consistency across tools and code.png>)
 
 - __consistent across applications__ application flow published in the same way for all applications. so it is __easily readable for peopble without background knowledge__ on the application logic.
-![alt text](<001.02 Consistency across applications.png>)
+![alt text](<001.02 Consistency across applications.png>) 
 <br><br>
 
 Diginsight uses __Dinamic-Configuration__, __smart sampling__, __automatic truncation__ and other strategies to __maximize applications efficiency__ and __minimize telemetry cost__ so that __local analysis__ and __analysis on the remote tools__ can be supported __without compromises on performance__ and  __without compromises on cost of telemetry__.
 
-Diginsight __log layout__ and __automatic rendering__ for entities can be customized to ensure best readability of the application flow.
+![alt text](<001.03 NoPerformanceImpact.png>)
 
-![alt text](<001.03 NoPerformance impact.png>)
+Diginsight __log layout__ and __automatic rendering__ for entities can be fully customized to ensure best readability of the application flow.
 
 Paragraph [GETTING STARTED](#GETTING-STARTED) discusses basic steps we can follow to integrate diginsight telemetry.
 
 The following articles explain in details:
-- [HowTo: use Dynamic-Configuration to manage loglevel and feature flags.md](<articles/11. use Dynamic-Configuration to manage loglevel and feature flags/use Dynamic-Configuration to manage loglevel and feature flags.md>).
+- [HowTo: use Dynamic-Configuration to manage loglevel dynamically.md](<articles/11. use Dynamic-Configuration to manage loglevel and feature flags/use Dynamic-Configuration to manage loglevel and feature flags.md>).
 
-- [HowTo: maximize application performance and minimize telemetry cost with diginsight.md](<articles/12. maximize application performance and minimize telemetry cost with diginsight/maximize application performance and minimize telemetry cost with diginsight.md>).
+- [HowTo: customize entities rendering on diginsight log streams.md](<articles/12. Customize entities rendering on diginsight log streams/Customize entities rendering on diginsight log streams.md>).
 
-- [HowTo: customize entities rendering on diginsight log streams.md](<articles/13. customize entities rendering on diginsight log streams/customize entities rendering on diginsight log streams.md>).
+- [HowTo: Configure diginsight telemetry to the local text based streams.md](<articles/13. Configure diginsight telemetry to the local text based streams/Configure diginsight telemetry to the local text based streams.md>).
 
-- [HowTo: configure and customize diginsight log streams row content.md](<articles/14. configure and customize diginsight log streams row content/configure and customize diginsight log streams row content.md>).
+- [HowTo: Configure diginsight telemetry to the remote tools.md](<articles/13.a Configure diginsight telemetry to the remote tools/Configure diginsight telemetry to the remote tools.md>).
+
+- [HowTo: Customize diginsight log streams row content.md](<articles/14. Customize diginsight log streams row content/Customize diginsight log streams row content.md>).
+
+- [HowTo: maximize application performance and minimize telemetry cost with diginsight.md](<articles/15. maximize application performance and minimize telemetry cost with diginsight/maximize application performance and minimize telemetry cost with diginsight.md>).
 
 <br>
 
@@ -64,8 +68,7 @@ __Application observability__ is about aggregating, correlating and analyzing th
 -  __Metrics__: numeric values (such as latencies, payload sizes, frequencies) that can be aggregated and correlated with the operations structure and the logs.
 
 The image below shows examples about the __3 observability elements__ on Azure Monitor Performance Management (APM) Tools:<br><br>
-![Alt text](<01. Opentelemetry elements.jpg>)
-<!-- /images/other/ -->
+![alt text](<002.00 Opentelemetry elements.png>)<!-- /images/other/ -->
 
 Diginsight __makes observability easy__ as:
 - it __integrates the 3 observability elements__ (Log, Traces, Metrics) into high performance __text-based streams__.<br>
@@ -76,14 +79,14 @@ In particular, traditional File log, Console log or Azure Streaming Console log 
 ## Example analysis on Diginsight telemetry
 
 The following image shows a diginsight application flow on a text based stream for `DataAnalyticsReportsController.GetDevices` method:
-![Alt text](<06.1 diginsightv3 flow on textbased stream.png>)
+![Alt text](<002.01 diginsightv3 flow on textbased stream.png>)
 
 
 Starting from its `traceid` (`42488cedb33da51726293a70c3463c71`), the same flow can be found as an __Azure Monitor Application transaction__:
-![Alt text](<06.2a diginsightv3 flow on azmon.png>)
+![Alt text](<002.02 diginsightv3 flow on azmon.png>)
 
 Latencies for the same function can be analyzed with the `span_duration` metric, filtered on `DataAnalyticsReportsController.GetDevices` method.
-![Alt text](<06.3a diginsightv3 metric on azmon.png>)
+![Alt text](<002.03 diginsightv3 metric on azmon.png>)
 
 In facts, the `span_duration` metric allows analyzing latencies of __any method__ within code.<br>
 Also, we'll see that the developer can easily add __other metrics__ and __metric properties__ to split and compare values in different conditions (eg. by site properties, user properties etc).
@@ -94,11 +97,10 @@ Also, we'll see that the developer can easily add __other metrics__ and __metric
 With __version 3__ diginsight streamlines OpenTelemetry integration embracing standard notation for activity tracing with __dotnet System Diagnostic API__.
 
 Using  __dotnet System Diagnostic API__ the following notation can be used to instrument a code span:
+![alt text](<003.00 Code span with Opentelemetry.png>)
 
-![Alt text](<06.0a Code span with Opentelemetry.png>)
 Using __diginsight v3__ the same section can be instrumented with the following notation:
-
-![Alt text](<06.1c Code span with diginsight.png>)
+![alt text](<003.01 Code span with diginsight.png>)
 
 where, `StartMethodActivity`:
 - gathers automatically the method name, 
@@ -114,29 +116,47 @@ The code snippets below are available as working samples within the [telemetry_s
 Article [HOWTO - Use Diginsight Samples.md](<articles/04. HowTo Use Diginsight Samples/HOWTO - Use Diginsight Samples.md>): explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.
 
 
-## STEP 01 - Add a package reference to the package __Diginsight.Diagnostics.AspNetCore__ or __Diginsight.Diagnostics.Log4Net__
+## STEP 01 - Add a package reference to the package __Diginsight.Diagnostics__ or __Diginsight.Diagnostics.Log4Net__
 In the first step you can just add a diginsight reference to your code:<br>
-![Alt text](<08.1 STEP1 - add reference.png>)
+![Alt text](<004.01 STEP1 - add reference.png>)
 
 ## STEP 02 - Configure logging within the Startup sequence
-in the second step you can configure the startup sequence to enable and activate diginsight log:
-![Alt text](<08.2a STEP - configure logging.png>)
+in the second step you can configure the startup sequence to enable  diginsight log:
+![alt text](<004.02b STEP - configure logging.png>)
+
+in this case: 
+- __AddDiginsightConsole()__ is used to enabled log to the application Console.
+- __AddDiginsightLog4Net()__ is used to enabled file log by means of log4net.
+
+a separate - __log4net.config__ can be used to specify the usual log4net configuration:
+![alt text](<004.03 Log4Net configuration file.png>)
+
+also, the __Diginsight:Activities__ section can be used to specify __enabled ActivitySources__ and whether __Activity logging__ is enabled. <br>
+![alt text](<004.04 DiginsightActivities configuration.png>)
 
 ## STEP 03 - Add telemetry to code with __StartMethodActivity()__ and __ILogger Statements__
-
-![Alt text](<06.1c Code span with diginsight.png>)
+we are now ready to add instrumentation to the code and make the application flow observable:
+![alt text](<003.01 Code span with diginsight.png>)
 
 ## STEP 04 - Enable OpenTelemetry and send data to the remote tools
-With few changes to the startup sequence, telemetry can be sent to the remote tools.
+With few changes to the startup sequence, __telemetry can be sent to the remote tools__.
 Telemetry to the local tools is less expensive, more efficient, well protected and often it is not even persisted.
-So, telemetry to the local tools can include verbose data with the maximum level of information.
+So, telemetry to the local tools can include verbose data with the maximum level of information.<br>
+
 Telemetry to the remote tools is more expensive (in cost and performance) so it will normally include only critical and warning non verbose information.
 
+In our samples we enable openteemetry by means of the __AddObservability()__ extension method that essentially: 
+- Configures __Opentelemetry options__
+- Registers __Opentelemetry logging provider__
+- Configures __tracing to the remote tools__
+- Configures __metrics  to the remote tools__
 
+![alt text](<004.00 AddObservability Extension method.png>)
+
+details about opentelemetry configuration is available here:
+[HowTo: Configure diginsight telemetry to the remote tools.md](<articles/13.a Configure diginsight telemetry to the remote tools/Configure diginsight telemetry to the remote tools.md>).
 
 <br><br>
-
-
 ## Tracing method parameters, variables and return values
 When calling extensions methods `StartMethodActivity()` the method name is obtained by compiler generated information.<br>
 You can __provide method parameters__ to the application flow by means of an __unnamed class__ in the __object payload parameter__.<br>
