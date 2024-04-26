@@ -1,7 +1,7 @@
 # HowTo: Use Dynamic Logging to manage loglevel dinamically, at runtime
 
 ## INTRODUCTION 
-__diginsight telemetry__ implements __dynamic logging__ to hot switch the minimum log level (e.g. from Information or Warning to Debug or Trace levels) of any log category.<br>
+__diginsight telemetry__ supports __dynamic logging__ to hot switch the minimum log level (e.g. from Information or Warning to Debug or Trace levels) of any log category.<br>
 
 To minimize telemetry cost and performance impact, telemetry sent to the remote tools is normally limited to LogLevels __Critical__, __Warning__ or __Information__.<br>
 
