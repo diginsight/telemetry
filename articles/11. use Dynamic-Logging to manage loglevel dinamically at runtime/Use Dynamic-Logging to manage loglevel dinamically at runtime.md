@@ -14,16 +14,24 @@ __Using Diginsight telemetry__ on a Web API or Web Application, the __log level_
 
 The image below shows the logstream for a web API where only __Critical__, __Warning__ and __Information__ and levels are enabled.
 
-While the application is running the streaming log shows only limited information about the application execution flow.
+While the application is running the streaming log shows only __limited (or no) information about the application execution flow__.
 
 ![alt text](<001.01 default application streaming log.png>)
 
-In case we need to troubleshoot a specific application call flow, it is possible to reporduce the call specifying different levels for some categories
-
+In case we need to troubleshoot a specific application call flow, it is possible to reporduce the call specifying __different log levels for some categories__:
 ![alt text](<001.02 Postman call with overloaded log levels.png>)
 
-This will result in the full application flow being shown for the specific call:
+__This will result in the full application flow being shown__ for the specific call:
 ![alt text](<001.03 Call application flow obtained with Dynamic Logging.png>)
 
 > this way every call application flow can be easily __isolated__ and __analized__ on a live server, that is processing other calls at the same time.
+
+## HOW TO Enable Dynamic Loggging
+Dynamic logging can be enabled adding the following stagement>
+`services.AddDynamicLogLevel<DefaultDynamicLogLevelInjector>();`
+
+to the `ConfigureServices` methods, in the application startup sequence.
+
+the image below shows the startup sequence of the `SampleWebApi` project, within diginsight telemetry_samples:
+![alt text](<002.01 SampleWebApi startup sequence.png>)
 
