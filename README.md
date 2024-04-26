@@ -31,22 +31,24 @@ Diginsight application flow is:
 ![alt text](<001.02 Consistency across applications.png>) 
 <br><br>
 
-Diginsight uses __Dinamic-Configuration__, __smart sampling__, __automatic truncation__ and other strategies to __maximize applications efficiency__ and __minimize telemetry cost__ so that __local analysis__ and __analysis on the remote tools__ can be supported __without compromises on performance__ and  __without compromises on cost of telemetry__.
+Diginsight uses __Dinamic-Logging__, __smart sampling__, __automatic truncation__ and other strategies to __maximize applications efficiency__ and __minimize telemetry cost__ so that __local analysis__ and __analysis on the remote tools__ can be supported __without compromises on performance__ and  __without compromises on cost of telemetry__.
 
-![alt text](<001.03 NoPerformanceImpact.png>)
+![alt text](<001.03a NoPerformanceImpact.png>)
 
 Diginsight __log layout__ and __automatic rendering__ for entities can be fully customized to ensure best readability of the application flow.
 
 Paragraph [GETTING STARTED](#GETTING-STARTED) discusses basic steps we can follow to integrate diginsight telemetry.
 
 The following articles explain in details:
-- [HowTo: use Dynamic-Configuration to manage loglevel dynamically.md](<articles/11. use Dynamic-Configuration to manage loglevel and feature flags/use Dynamic-Configuration to manage loglevel and feature flags.md>).
+- [HowTo: use Dynamic-Logging to manage loglevel dynamically, at runtime.md](<articles/11. use Dynamic-Logging to manage loglevel dinamically at runtime/Use Dynamic-Logging to manage loglevel dinamically at runtime.md>).
 
-- [HowTo: customize entities rendering on diginsight log streams.md](<articles/12. Customize entities rendering on diginsight log streams/Customize entities rendering on diginsight log streams.md>).
+- [HowTo: use Dynamic-Configuration to manage configurations and feature flags dynamically, at runtime.md](<articles/11.a use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime/use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.md>).
 
-- [HowTo: Configure diginsight telemetry to the local text based streams.md](<articles/13. Configure diginsight telemetry to the local text based streams/Configure diginsight telemetry to the local text based streams.md>).
+- [HowTo: Configure diginsight telemetry to the local text based streams.md](<articles/12. Configure diginsight telemetry to the local text based streams/Configure diginsight telemetry to the local text based streams.md>).
 
-- [HowTo: Configure diginsight telemetry to the remote tools.md](<articles/13.a Configure diginsight telemetry to the remote tools/Configure diginsight telemetry to the remote tools.md>).
+- [HowTo: Configure diginsight telemetry to the remote tools.md](<articles/12.a Configure diginsight telemetry to the remote tools/Configure diginsight telemetry to the remote tools.md>).
+
+- [HowTo: customize entities rendering on diginsight log streams.md](<articles/13. Customize entities rendering on diginsight log streams/Customize entities rendering on diginsight log streams.md>).
 
 - [HowTo: Customize metrics sent to the remote tools.md](<articles/14. Customize metrics sent to the remote tools/Customize metrics sent to the remote tools.md>).
 
