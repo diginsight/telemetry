@@ -159,19 +159,6 @@ details about opentelemetry configuration is available here:
 [HowTo: Configure diginsight telemetry to the remote tools.md](<articles/13.a Configure diginsight telemetry to the remote tools/Configure diginsight telemetry to the remote tools.md>).
 
 <br><br>
-## Tracing method parameters, variables and return values
-When calling extensions methods `StartMethodActivity()` the method name is obtained by compiler generated information.<br>
-You can __provide method parameters__ to the application flow by means of an __unnamed class__ in the __object payload parameter__.<br>
-
-At the same way you can describe __variable values__ using the LogDebug overload with the __object payload parameter__.
-
-Also, the __return value of a method scope__ can be tracked by means of the `activity.SetOutput()` method.
-
-The following image shows a method scope where parameters and variabes are tracked with the __object payload parameter__ and the return value is tracked with the `scope.SetOutput()` method
-![Alt text](<09. example method with payload and SetOutput.png>)
-
-The following image shows trace output of such traces:
-![Alt text](<09.1 example method log.png>)
 
 
 # Previous versions of diginsight
@@ -193,8 +180,7 @@ You can start using diginsight telemetry by running the samples on the [telemetr
 
 Article [HOWTO - Use Diginsight Samples.md](<articles/04. HowTo Use Diginsight Samples/HOWTO - Use Diginsight Samples.md>): explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.
 
-
-![Alt text](image-6.png)
+![alt text](<004.01 Diginsight samples solution.png>)
 
 # Build and Test 
 You can easily test Diginsight integration with OpenTelemetry by means of the EasySampleBlazorv2 project:
@@ -202,7 +188,8 @@ You can easily test Diginsight integration with OpenTelemetry by means of the Ea
 - Open and build solution Diginsight.sln. 
 - build the solution
 
-![Alt text](image-7.png)
+
+
 <br><br>
 
 # Contribute
