@@ -22,7 +22,7 @@ than the option will be overridable by means of the __`Dynamic-Configuration` ht
 
 In such case, when calling the API with __`Dynamic-Configuration` http request header__ as shown below.
 
-![alt text](<000.02b Postman call overriding Feature flags.png>)
+![alt text](<000.02c Postman call overriding Feature flags.png>)
 
 The `PermissionCheckEnabled` and `TraceResponseBody` configuration options will be overriden from the http request headers.
 
