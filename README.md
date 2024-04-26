@@ -42,7 +42,7 @@ Paragraph [GETTING STARTED](#GETTING-STARTED) discusses basic steps we can follo
 The following articles explain in details:
 - [HowTo: use Dynamic-Logging to manage loglevel dynamically, at runtime.md](<articles/11. use Dynamic-Logging to manage loglevel dinamically at runtime/Use Dynamic-Logging to manage loglevel dinamically at runtime.md>).
 
-- [HowTo: use Dynamic-Configuration to manage configurations and feature flags dynamically, at runtime.md](<articles/11.a use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime/use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.md>).
+- [HowTo: use Dynamic-Configuration to manage configurations and feature flags dynamically, at runtime.md](<articles/11.a use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime/Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.md>).
 
 - [HowTo: Configure diginsight telemetry to the local text based streams.md](<articles/12. Configure diginsight telemetry to the local text based streams/Configure diginsight telemetry to the local text based streams.md>).
 
