@@ -16,7 +16,7 @@ The image below shows the logstream for a web API where only __Critical__, __War
 
 While the application is running the streaming log shows only __limited (or no) information about the application execution flow__.
 
-![alt text](<001.01 default application streaming log.png>)
+![alt text](<001.01a default application streaming log.png>)
 
 In case we need to troubleshoot a specific application call flow, it is possible to reporduce the call specifying __different log levels for some categories__:
 ![alt text](<001.02 Postman call with overloaded log levels.png>)
