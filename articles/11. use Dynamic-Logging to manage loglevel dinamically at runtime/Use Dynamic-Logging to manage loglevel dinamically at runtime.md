@@ -27,11 +27,10 @@ __This will result in the full application flow being shown__ for the specific c
 > this way every call application flow can be easily __isolated__ and __analized__ on a live server, that is processing other calls at the same time.
 
 ## HOW TO Enable Dynamic Loggging
-Dynamic logging can be enabled adding the following stagement>
+Dynamic logging can be enabled adding the following stagement:<br>
 `services.AddDynamicLogLevel<DefaultDynamicLogLevelInjector>();`
+to the `ConfigureServices` methods, in the __application startup sequence__.
 
-to the `ConfigureServices` methods, in the application startup sequence.
-
-the image below shows the startup sequence of the `SampleWebApi` project, within diginsight telemetry_samples:
+The image below shows the startup sequence of the `SampleWebApi` project, within diginsight telemetry_samples:
 ![alt text](<002.01 SampleWebApi startup sequence.png>)
 
