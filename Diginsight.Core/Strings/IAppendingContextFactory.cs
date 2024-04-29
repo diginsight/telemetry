@@ -8,4 +8,6 @@ public interface IAppendingContextFactory
     AppendingContext MakeAppendingContext([NotNull] ref StringBuilder? stringBuilder);
 
     AppendingContextFactoryBuilder PrepareClone();
+
+    ILogStringable ToLogStringable(object? obj);
 }

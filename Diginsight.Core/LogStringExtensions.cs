@@ -33,6 +33,16 @@ public static class LogStringExtensions
     );
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ILogStringable ToLogStringable(
+        this object? obj,
+        IAppendingContextFactory? appendingContextFactory = null
+    )
+    {
+        return (appendingContextFactory ?? AppendingContextFactoryBuilder.DefaultFactory)
+            .ToLogStringable(obj);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string ToLogString(
         this object? obj,
         IAppendingContextFactory? appendingContextFactory = null,

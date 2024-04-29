@@ -68,6 +68,7 @@ public static class DependencyInjectionExtensions
 
         services
             .AddLogStrings()
+            .AddClassAwareOptions()
             .AddActivityListenersAdder();
         services.TryAddSingleton<ActivityLifecycleLogEmitter>();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IActivityListenerRegistration, ActivityLifecycleLogEmitterRegistration>());

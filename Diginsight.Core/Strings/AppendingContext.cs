@@ -82,22 +82,8 @@ public sealed class AppendingContext
         ComposeAndAppendCore(ToLogStringable(obj), configureVariables, configureMetaProperties);
     }
 
-    private ILogStringable ToLogStringable(object? obj)
-    {
-        if (obj is null)
-            return default(NullLogStringable);
-
-        if (obj is ILogStringable logStringable0)
-            return logStringable0;
-
-        foreach (ILogStringProvider logStringProvider in logStringProviders)
-        {
-            if (logStringProvider.TryToLogStringable(obj) is { } logStringable1)
-                return logStringable1;
-        }
-
-        return new NonLogStringable(obj.GetType());
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ILogStringable ToLogStringable(object? obj) => AppendingContextFactory.ToLogStringable(obj, logStringProviders);
 
     private void ComposeAndAppendCore(
         in ILogStringable logStringable,
@@ -132,17 +118,6 @@ public sealed class AppendingContext
             ComposeAndAppendType(shortCircuit.Subject.GetType())
                 .AppendDirect('~')
                 .AppendDirect(shortCircuit.DepthDelta.ToStringInvariant());
-        }
-    }
-
-    private readonly struct NullLogStringable : ILogStringable
-    {
-        bool ILogStringable.IsDeep => false;
-        object? ILogStringable.Subject => null;
-
-        public void AppendTo(AppendingContext appendingContext)
-        {
-            appendingContext.AppendDirect('□');
         }
     }
 
