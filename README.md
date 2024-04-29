@@ -31,7 +31,7 @@ Diginsight application flow is:
 ![alt text](<001.02 Consistency across applications.png>) 
 <br><br>
 
-Diginsight uses __Dinamic-Logging__, __smart sampling__, __automatic truncation__ and other strategies to __maximize applications efficiency__ and __minimize telemetry cost__ so that __local analysis__ and __analysis on the remote tools__ can be supported __without compromises on performance__ and  __without compromises on cost of telemetry__.
+Diginsight uses __dynamic logging__, __smart sampling__, __automatic truncation__ and other strategies to __maximize applications efficiency__ and __minimize telemetry cost__ so that __local analysis__ and __analysis on the remote tools__ can be supported __without compromises on performance__ and  __without compromises on cost of telemetry__.
 
 ![alt text](<001.03a NoPerformanceImpact.png>)
 
@@ -40,28 +40,28 @@ Diginsight __log layout__ and __automatic rendering__ for entities can be fully 
 Paragraph [GETTING STARTED](#GETTING-STARTED) discusses basic steps we can follow to integrate diginsight telemetry.
 
 The following articles explain in details:
-- [HowTo: use Dynamic-Logging to manage loglevel dynamically, at runtime.md](<articles/11. use Dynamic-Logging to manage loglevel dinamically at runtime/Use Dynamic-Logging to manage loglevel dinamically at runtime.md>).
+- [HowTo: use dynamic logging to manage loglevel dynamically, at runtime](<articles/11. use Dynamic-Logging to manage loglevel dinamically at runtime/Use Dynamic-Logging to manage loglevel dinamically at runtime.md>).
 
-- [HowTo: use Dynamic-Configuration to manage configurations and feature flags dynamically, at runtime.md](<articles/11.a use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime/Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.md>).
+- [HowTo: use Dynamic-Configuration to manage configurations and feature flags dynamically, at runtime](<articles/11.a use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime/Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.md>).
 
-- [HowTo: Configure diginsight telemetry to the local text based streams.md](<articles/12. Configure diginsight telemetry to the local text based streams/Configure diginsight telemetry to the local text based streams.md>).
+- [HowTo: Configure diginsight telemetry to the local text based streams](<articles/12. Configure diginsight telemetry to the local text based streams/Configure diginsight telemetry to the local text based streams.md>).
 
-- [HowTo: Configure diginsight telemetry to the remote tools.md](<articles/12.a Configure diginsight telemetry to the remote tools/Configure diginsight telemetry to the remote tools.md>).
+- [HowTo: Configure diginsight telemetry to the remote tools](<articles/12.a Configure diginsight telemetry to the remote tools/Configure diginsight telemetry to the remote tools.md>).
 
-- [HowTo: customize entities rendering on diginsight log streams.md](<articles/13. Customize entities rendering on diginsight log streams/Customize entities rendering on diginsight log streams.md>).
+- [HowTo: customize entities rendering on diginsight log streams](<articles/13. Customize entities rendering on diginsight log streams/Customize entities rendering on diginsight log streams.md>).
 
-- [HowTo: Customize metrics sent to the remote tools.md](<articles/14. Customize metrics sent to the remote tools/Customize metrics sent to the remote tools.md>).
+- [HowTo: Customize metrics sent to the remote tools](<articles/14. Customize metrics sent to the remote tools/Customize metrics sent to the remote tools.md>).
 
-- [HowTo: Customize diginsight log streams row content.md](<articles/15. Customize diginsight log streams row content/Customize diginsight log streams row content.md>).
+- [HowTo: Customize diginsight log streams row content](<articles/15. Customize diginsight log streams row content/Customize diginsight log streams row content.md>).
 
-- [HowTo: maximize application performance and minimize telemetry cost with diginsight.md](<articles/16. maximize application performance and minimize telemetry cost with diginsight/maximize application performance and minimize telemetry cost with diginsight.md>).
+- [HowTo: maximize application performance and minimize telemetry cost with diginsight](<articles/16. maximize application performance and minimize telemetry cost with diginsight/maximize application performance and minimize telemetry cost with diginsight.md>).
 
 <br>
 
 > __diginsight v3 is now available__<br>
 > the following article describes improvements of diginsight v3 over the previous version 
-[Introduction to Diginsight v3.md](<articles/10. Introduction to Diginsight v3/Introduction to Diginsight v3.md>).<br>
-> Documentation about v2 packages is still available here [Diginsight v2 documentation.md](<articles/v2/README.md>).<br>
+[Introduction to Diginsight v3](<articles/10. Introduction to Diginsight v3/Introduction to Diginsight v3.md>).<br>
+> Documentation about v2 packages is still available here [Diginsight v2 documentation](<articles/v2/README.md>).<br>
 
 
 
@@ -117,7 +117,7 @@ and `SetOutput` stores  the method `result` for rendering within method END line
 You can ottain a __console log__ or __file log__ with diginsight by means of the following steps.<br>
 The code snippets below are available as working samples within the [telemetry_samples](https://github.com/diginsight/telemetry_samples) repository.
 
-Article [HOWTO - Use Diginsight Samples.md](<articles/04. HowTo Use Diginsight Samples/HOWTO - Use Diginsight Samples.md>): explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.
+Article [HOWTO - Use Diginsight Samples](<articles/04. HowTo Use Diginsight Samples/HOWTO - Use Diginsight Samples.md>): explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.
 
 
 ## STEP 01 - Add a package reference to the package __Diginsight.Diagnostics__ or __Diginsight.Diagnostics.Log4Net__
@@ -158,7 +158,7 @@ In our samples we enable openteemetry by means of the __AddObservability()__ ext
 ![alt text](<004.00 AddObservability Extension method.png>)
 
 details about opentelemetry configuration is available here:
-[HowTo: Configure diginsight telemetry to the remote tools.md](<articles/13.a Configure diginsight telemetry to the remote tools/Configure diginsight telemetry to the remote tools.md>).
+[HowTo: Configure diginsight telemetry to the remote tools](<articles/13.a Configure diginsight telemetry to the remote tools/Configure diginsight telemetry to the remote tools.md>).
 
 <br><br>
 
@@ -166,8 +166,8 @@ details about opentelemetry configuration is available here:
 # Previous versions of diginsight
 > __diginsight v3 is now available__<br>
 > the following article describes improvements of diginsight v3 over the previous version 
-[Introduction to Diginsight v3.md](<articles/10. Introduction to Diginsight v3/Introduction to Diginsight v3.md>).<br>
-> Documentation about v2 packages is still available here [Diginsight v2 documentation.md](<articles/v2/README.md>).<br>
+[Introduction to Diginsight v3](<articles/10. Introduction to Diginsight v3/Introduction to Diginsight v3.md>).<br>
+> Documentation about v2 packages is still available here [Diginsight v2 documentation](<articles/v2/README.md>).<br>
 
 <br>
 
@@ -180,7 +180,7 @@ Enabling __Opentelemetry__, the same information can be made available to __remo
 # SAMPLES
 You can start using diginsight telemetry by running the samples on the [telemetry_samples](https://github.com/diginsight/telemetry_samples) repository.
 
-Article [HOWTO - Use Diginsight Samples.md](<articles/04. HowTo Use Diginsight Samples/HOWTO - Use Diginsight Samples.md>): explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.
+Article [HOWTO - Use Diginsight Samples](<articles/04. HowTo Use Diginsight Samples/HOWTO - Use Diginsight Samples.md>): explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.
 
 ![alt text](<004.01 Diginsight samples solution.png>)
 
