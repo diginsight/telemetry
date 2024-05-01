@@ -16,7 +16,9 @@
 		<SignAssembly>true</SignAssembly>
 		<AssemblyOriginatorKeyFile>diginsight.snk</AssemblyOriginatorKeyFile>
 		<Version>1.0.0.0</Version>
-	</PropertyGroup>
+    <Nullable>disable</Nullable>
+    <WarningsAsErrors>none</WarningsAsErrors>
+  </PropertyGroup>
 
 	<ItemGroup>
 	  <None Include="..\images\01. Project image\Telemetry\TelemetryBig.png" Link="TelemetryBig.png">
