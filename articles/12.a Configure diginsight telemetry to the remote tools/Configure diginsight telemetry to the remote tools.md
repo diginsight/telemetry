@@ -38,7 +38,7 @@ public static void Main(string[] args)
     host.Run();
 }
 ```
-## STEP 03 - add `AddObservability` to the `ConfgureServices` method
+## STEP 03 - add `AddObservability` to enable OpenTelemetry and send data to the AzureMonitor
 
 `AddObservability` includes all details to install Opentelemetry stack and activate the connection to __AzureMonitor__.
 
@@ -51,9 +51,9 @@ public void ConfigureServices(IServiceCollection services)
 ```
 
 
-## STEP 04 - add `AddDynamicLogLevel` enable support for request level dynamic logging
+## STEP 04 (Optional) - add `AddDynamicLogLevel` enable support for request level dynamic logging
 
-`AddObservability` includes all details to install 
+`AddDynamicLogLevel` enables use of __request level dynamic log__
 
 ```c#
 public void ConfigureServices(IServiceCollection services)
