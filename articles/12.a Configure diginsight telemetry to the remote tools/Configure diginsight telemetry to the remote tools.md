@@ -14,7 +14,7 @@ Article [HOWTO - Use Diginsight Samples.md](<../04. HowTo Use Diginsight Samples
 ## STEP 01 - Add a package reference to the package __Diginsight.Core__, __Diginsight.Diagnostics__ and __Diginsight.Diagnostics.AspNetCore.OpenTelemetry__
 
 In the first step you can just add a diginsight references to your code:
-![alt text](<001.01 Add Diginsight references.png>)
+![alt text](<001.01 Add Diginsight references1.png>)
 
 ## STEP 02 - Configure telemetry on the Startup sequence
 The `SampleWebApi` sample shows an example WebApi fully integrated with OpenTelemetry and AzureMonitor.
