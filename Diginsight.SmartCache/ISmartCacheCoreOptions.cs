@@ -6,7 +6,7 @@ public interface ISmartCacheCoreOptions
     bool PassiveOnlyCache { get; }
 
     Expiration MaxAge { get; }
-    DateTime? MinimumCreationDate { get; }
+    DateTimeOffset? MinimumCreationDate { get; }
 
     Expiration AbsoluteExpiration { get; }
     Expiration SlidingExpiration { get; }

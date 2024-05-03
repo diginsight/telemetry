@@ -40,7 +40,7 @@ public sealed class CachePreloader : ICachePreloader
 
         SmartCacheObservability.Instruments.Preloads.Add(1);
 
-        DateTime timestamp = SmartCache.Truncate(timeProvider.GetUtcNow().UtcDateTime);
+        DateTimeOffset timestamp = SmartCache.Truncate(timeProvider.GetUtcNow());
 
         T value;
         StrongBox<double> latencyMsecBox = new ();
@@ -54,7 +54,7 @@ public sealed class CachePreloader : ICachePreloader
         TaskUtils.RunAndForget(() => NotifyAsync(keyHolder, timestamp, value));
     }
 
-    private async Task NotifyAsync<TValue>(CacheKeyHolder keyHolder, DateTime creationDate, TValue value)
+    private async Task NotifyAsync<TValue>(CacheKeyHolder keyHolder, DateTimeOffset creationDate, TValue value)
     {
         using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key, creationDate });
 

@@ -12,7 +12,7 @@ public sealed class CacheMissDescriptor
 
     public ICacheKey Key { get; }
 
-    public DateTime Timestamp { get; }
+    public DateTimeOffset Timestamp { get; }
 
     public string Location { get; }
 
@@ -27,7 +27,7 @@ public sealed class CacheMissDescriptor
     public CacheMissDescriptor(
         string emitter,
         ICacheKey key,
-        DateTime timestamp,
+        DateTimeOffset timestamp,
         string location,
         (Type Type, object? Value)? valueTuple
     )
@@ -37,7 +37,7 @@ public sealed class CacheMissDescriptor
     private CacheMissDescriptor(
         string emitter,
         ICacheKey key,
-        DateTime timestamp,
+        DateTimeOffset timestamp,
         string location,
         Type? valueType,
         object? value
@@ -52,7 +52,7 @@ public sealed class CacheMissDescriptor
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public void Deconstruct(out string emitter, out ICacheKey key, out DateTime timestamp, out string location, out Type? valueType)
+    public void Deconstruct(out string emitter, out ICacheKey key, out DateTimeOffset timestamp, out string location, out Type? valueType)
     {
         emitter = Emitter;
         key = Key;

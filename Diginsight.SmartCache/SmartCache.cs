@@ -19,6 +19,7 @@ internal sealed class SmartCache : ISmartCache
     private readonly ILogger logger;
     private readonly ICacheCompanion companion;
     private readonly IClassAwareOptionsMonitor<SmartCacheCoreOptions> coreOptionsMonitor;
+    private readonly SmartCacheDownstreamSettings downstreamSettings;
     private readonly TimeProvider timeProvider;
 
     private readonly IMemoryCache memoryCache;
@@ -37,12 +38,14 @@ internal sealed class SmartCache : ISmartCache
         IClassAwareOptionsMonitor<SmartCacheCoreOptions> coreOptionsMonitor,
         IOptionsMonitor<MemoryCacheOptions> memoryCacheOptionsMonitor,
         ILoggerFactory loggerFactory,
+        SmartCacheDownstreamSettings downstreamSettings,
         TimeProvider? timeProvider = null
     )
     {
         this.logger = logger;
         this.companion = companion;
         this.coreOptionsMonitor = coreOptionsMonitor;
+        this.downstreamSettings = downstreamSettings;
         this.timeProvider = timeProvider ?? TimeProvider.System;
 
         memoryCache = new MemoryCache(memoryCacheOptionsMonitor.Get(nameof(SmartCache)), loggerFactory);
@@ -51,9 +54,9 @@ internal sealed class SmartCache : ISmartCache
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static DateTime Truncate(DateTime timestamp)
+    internal static DateTimeOffset Truncate(DateTimeOffset timestamp)
     {
-        return new DateTime(timestamp.Year, timestamp.Month, timestamp.Day, timestamp.Hour, timestamp.Minute, timestamp.Second);
+        return new DateTimeOffset(timestamp.Year, timestamp.Month, timestamp.Day, timestamp.Hour, timestamp.Minute, timestamp.Second, timestamp.Offset);
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
@@ -86,26 +89,29 @@ internal sealed class SmartCache : ISmartCache
         }
 
         Expiration? maxAge = operationOptions.MaxAge;
-        DateTime timestamp = Truncate(timeProvider.GetUtcNow().UtcDateTime);
-        DateTime minimumCreationDate = GetMinimumCreationDate(ref maxAge, callerType, timestamp);
+        DateTimeOffset timestamp = Truncate(timeProvider.GetUtcNow());
+        DateTimeOffset minimumCreationDate = GetMinimumCreationDate(ref maxAge, callerType, timestamp);
         bool forceFetch = maxAge.Value == Expiration.Zero || minimumCreationDate >= timestamp;
 
-        return await GetAsync(
-            keyHolder,
-            fetchAsync,
-            timestamp,
-            forceFetch ? null : minimumCreationDate,
-            operationOptions.AbsoluteExpiration,
-            operationOptions.SlidingExpiration,
-            cancellationToken
-        );
+        using (forceFetch ? downstreamSettings.WithZeroMaxAge() : downstreamSettings.WithMinimumCreationDate(minimumCreationDate))
+        {
+            return await GetAsync(
+                keyHolder,
+                fetchAsync,
+                timestamp,
+                forceFetch ? null : minimumCreationDate,
+                operationOptions.AbsoluteExpiration,
+                operationOptions.SlidingExpiration,
+                cancellationToken
+            );
+        }
     }
 
     private async Task<T> GetAsync<T>(
         CacheKeyHolder keyHolder,
         Func<CancellationToken, Task<T>> fetchAsync,
-        DateTime timestamp,
-        DateTime? maybeMinimumCreationDate,
+        DateTimeOffset timestamp,
+        DateTimeOffset? maybeMinimumCreationDate,
         Expiration? absExpiration,
         Expiration? sldExpiration,
         CancellationToken cancellationToken
@@ -164,11 +170,11 @@ internal sealed class SmartCache : ISmartCache
             return value;
         }
 
-        DateTime? localCreationDate = localEntry?.CreationDate;
+        DateTimeOffset? localCreationDate = localEntry?.CreationDate;
 
         if (externalEntry is var (othersCreationDate, locationIds) && !(othersCreationDate - coreOptions.LocalEntryTolerance <= localCreationDate))
         {
-            DateTime minimumCreationDate = maybeMinimumCreationDate!.Value;
+            DateTimeOffset minimumCreationDate = maybeMinimumCreationDate!.Value;
             if (othersCreationDate >= minimumCreationDate)
             {
                 logger.LogDebug("Key is also available and up-to-date in other locations: {LocationIds}", locationIds);
@@ -261,7 +267,7 @@ internal sealed class SmartCache : ISmartCache
                 logger.LogDebug(
                     "Cache miss: creation date validation failed (minimum: {MinimumCreationDate:s}, older: {LocalCreationDate:s})",
                     minimumCreationDate,
-                    localCreationDate ?? DateTime.MinValue
+                    localCreationDate ?? DateTimeOffset.MinValue
                 );
             }
 
@@ -289,7 +295,7 @@ internal sealed class SmartCache : ISmartCache
             logger.LogDebug(
                 "Cache miss: creation date validation failed (minimum: {MaybeMinimumCreationDate:s}, older: {LocalCreationDate:s})",
                 maybeMinimumCreationDate,
-                localCreationDate ?? DateTime.MinValue
+                localCreationDate ?? DateTimeOffset.MinValue
             );
 
             memoryLap.AddTags(SmartCacheObservability.Tags.Found.False);
@@ -301,7 +307,7 @@ internal sealed class SmartCache : ISmartCache
     private void SetValue<T>(
         CacheKeyHolder keyHolder,
         T value,
-        DateTime creationDate,
+        DateTimeOffset creationDate,
         Expiration? absExpiration = null,
         Expiration? sldExpiration = null,
         bool skipNotify = false
@@ -314,7 +320,7 @@ internal sealed class SmartCache : ISmartCache
         CacheKeyHolder keyHolder,
         Type valueType,
         object? value,
-        DateTime creationDate,
+        DateTimeOffset creationDate,
         Expiration? absExpiration = null,
         Expiration? sldExpiration = null,
         bool skipNotify = false
@@ -454,12 +460,12 @@ internal sealed class SmartCache : ISmartCache
         );
     }
 
-    private void NotifyMiss(CacheKeyHolder keyHolder, DateTime creationDate, (object?, Type)? valueHolder, string? locationId)
+    private void NotifyMiss(CacheKeyHolder keyHolder, DateTimeOffset creationDate, (object?, Type)? valueHolder, string? locationId)
     {
         TaskUtils.RunAndForget(() => NotifyMissAsync(keyHolder, creationDate, valueHolder, locationId));
     }
 
-    private async Task NotifyMissAsync(CacheKeyHolder keyHolder, DateTime creationDate, (object?, Type)? valueHolder, string? locationId)
+    private async Task NotifyMissAsync(CacheKeyHolder keyHolder, DateTimeOffset creationDate, (object?, Type)? valueHolder, string? locationId)
     {
         if (locationId is not null)
         {
@@ -513,13 +519,13 @@ internal sealed class SmartCache : ISmartCache
         }
     }
 
-    private DateTime GetMinimumCreationDate([NotNull] ref Expiration? maxAge, Type callerType, DateTime timestamp)
+    private DateTimeOffset GetMinimumCreationDate([NotNull] ref Expiration? maxAge, Type callerType, DateTimeOffset timestamp)
     {
         ISmartCacheCoreOptions coreOptions = coreOptionsMonitor.Get(callerType);
 
         Expiration finalMaxAge = maxAge ?? coreOptions.MaxAge;
 
-        DateTime minimumCreationDate = finalMaxAge.IsNever ? DateTime.MinValue : timestamp - finalMaxAge.Value;
+        DateTimeOffset minimumCreationDate = finalMaxAge.IsNever ? DateTimeOffset.MinValue : timestamp - finalMaxAge.Value;
         if (coreOptions.MinimumCreationDate is { } dynamicMinimumCreationDate && dynamicMinimumCreationDate > minimumCreationDate)
         {
             minimumCreationDate = dynamicMinimumCreationDate;
@@ -634,7 +640,7 @@ internal sealed class SmartCache : ISmartCache
     {
         (string emitter,
             ICacheKey key,
-            DateTime timestamp,
+            DateTimeOffset timestamp,
             string location,
             Type? valueType) = descriptor;
 
@@ -707,7 +713,7 @@ internal sealed class SmartCache : ISmartCache
             }
         }
 
-        public void Add(ICacheKey key, DateTime timestamp, string location)
+        public void Add(ICacheKey key, DateTimeOffset timestamp, string location)
         {
             lock (lockObject)
             {
@@ -722,7 +728,7 @@ internal sealed class SmartCache : ISmartCache
             }
         }
 
-        public sealed record Entry(DateTime Timestamp, IEnumerable<string> Locations);
+        public sealed record Entry(DateTimeOffset Timestamp, IEnumerable<string> Locations);
     }
 
     private sealed class Latency : IComparable<Latency>

@@ -148,7 +148,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
         private void Cleanup(TimeSpan? maybeAge)
         {
-            DateTime now = timeProvider.GetUtcNow().UtcDateTime;
+            DateTimeOffset now = timeProvider.GetUtcNow();
 
             foreach ((string messageId, ChunkedBody chunkedBody) in underlying)
             {
@@ -164,9 +164,9 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         {
             return underlying.GetOrAdd(
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                messageId, static (_, a) => new ChunkedBody(a.GetUtcNow().UtcDateTime), timeProvider
+                messageId, static (_, a) => new ChunkedBody(a.GetUtcNow()), timeProvider
 #else
-                messageId, _ => new ChunkedBody(timeProvider.GetUtcNow().UtcDateTime)
+                messageId, _ => new ChunkedBody(timeProvider.GetUtcNow())
 #endif
             );
         }
@@ -692,7 +692,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         }
 
         public override async Task<CacheLocationOutput<TValue>?> GetAsync<TValue>(
-            CacheKeyHolder keyHolder, DateTime minimumCreationDate, Action markInvalid, CancellationToken cancellationToken
+            CacheKeyHolder keyHolder, DateTimeOffset minimumCreationDate, Action markInvalid, CancellationToken cancellationToken
         )
         {
             using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key, minimumCreationDate });

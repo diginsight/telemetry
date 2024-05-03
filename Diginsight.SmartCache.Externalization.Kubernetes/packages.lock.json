@@ -387,7 +387,8 @@
         "dependencies": {
           "Diginsight.Core": "[1.0.0, )",
           "Diginsight.Diagnostics": "[1.0.0, )",
-          "Microsoft.Extensions.Caching.Memory": "[8.*, )"
+          "Microsoft.Extensions.Caching.Memory": "[8.*, )",
+          "Microsoft.Extensions.Http": "[8.*, )"
         }
       },
       "diginsight.smartcache.externalization.http": {
@@ -752,7 +753,8 @@
         "dependencies": {
           "Diginsight.Core": "[1.0.0, )",
           "Diginsight.Diagnostics": "[1.0.0, )",
-          "Microsoft.Extensions.Caching.Memory": "[8.*, )"
+          "Microsoft.Extensions.Caching.Memory": "[8.*, )",
+          "Microsoft.Extensions.Http": "[8.*, )"
         }
       },
       "diginsight.smartcache.externalization.http": {
@@ -1072,7 +1074,8 @@
         "dependencies": {
           "Diginsight.Core": "[1.0.0, )",
           "Diginsight.Diagnostics": "[1.0.0, )",
-          "Microsoft.Extensions.Caching.Memory": "[8.*, )"
+          "Microsoft.Extensions.Caching.Memory": "[8.*, )",
+          "Microsoft.Extensions.Http": "[8.*, )"
         }
       },
       "diginsight.smartcache.externalization.http": {
@@ -1381,7 +1384,8 @@
         "dependencies": {
           "Diginsight.Core": "[1.0.0, )",
           "Diginsight.Diagnostics": "[1.0.0, )",
-          "Microsoft.Extensions.Caching.Memory": "[8.*, )"
+          "Microsoft.Extensions.Caching.Memory": "[8.*, )",
+          "Microsoft.Extensions.Http": "[8.*, )"
         }
       },
       "diginsight.smartcache.externalization.http": {
@@ -1685,7 +1689,8 @@
         "dependencies": {
           "Diginsight.Core": "[1.0.0, )",
           "Diginsight.Diagnostics": "[1.0.0, )",
-          "Microsoft.Extensions.Caching.Memory": "[8.*, )"
+          "Microsoft.Extensions.Caching.Memory": "[8.*, )",
+          "Microsoft.Extensions.Http": "[8.*, )"
         }
       },
       "diginsight.smartcache.externalization.http": {

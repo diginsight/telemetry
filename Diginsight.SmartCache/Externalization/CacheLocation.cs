@@ -12,6 +12,6 @@ public abstract class CacheLocation
     }
 
     public abstract Task<CacheLocationOutput<TValue>?> GetAsync<TValue>(
-        CacheKeyHolder keyHolder, DateTime minimumCreationDate, Action markInvalid, CancellationToken cancellationToken
+        CacheKeyHolder keyHolder, DateTimeOffset minimumCreationDate, Action markInvalid, CancellationToken cancellationToken
     );
 }

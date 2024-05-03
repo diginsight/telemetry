@@ -111,4 +111,13 @@ public static partial class SmartCacheExtensions
             return Array.ConvertAll(array, static x => x is IUnwrappable u ? u.Unwrap() : x);
         }
     }
+
+    public static void PreventSmartCacheDownstreamHeaders(this HttpRequestMessage requestMessage)
+    {
+#if NET6_0_OR_GREATER
+        requestMessage.Options.Set(SmartCacheHttpMessageHandlerBuilderFilter.PreventSmartCacheDownstreamOptionsKey, true);
+#else
+        requestMessage.Properties[SmartCacheHttpMessageHandlerBuilderFilter.PreventSmartCacheDownstreamOptionsKey] = true;
+#endif
+    }
 }

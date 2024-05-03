@@ -5,10 +5,10 @@ namespace Diginsight.SmartCache;
 
 public static class ValueEntry
 {
-    public static IValueEntry Create(object? data, Type type, DateTime creationDate)
+    public static IValueEntry Create(object? data, Type type, DateTimeOffset creationDate)
     {
         return (IValueEntry)typeof(ValueEntry<>).MakeGenericType(type)
-            .GetConstructor([ type, typeof(DateTime) ])!
+            .GetConstructor([ type, typeof(DateTimeOffset) ])!
             .Invoke([ data, creationDate ]);
     }
 }
@@ -16,14 +16,14 @@ public static class ValueEntry
 [CacheInterchangeName("VE")]
 public sealed class ValueEntry<T> : IValueEntry
 {
-    public DateTime CreationDate { get; }
+    public DateTimeOffset CreationDate { get; }
     public T Data { get; }
     public Type Type { get; } = typeof(T);
 
     object? IValueEntry.Data => Data;
 
     [JsonConstructor]
-    public ValueEntry(T data, DateTime creationDate)
+    public ValueEntry(T data, DateTimeOffset creationDate)
     {
         Data = data;
         CreationDate = creationDate;

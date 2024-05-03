@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Options;
 
 namespace Diginsight.SmartCache;
@@ -16,6 +17,8 @@ public sealed class SmartCacheBuilder
         services.TryAddSingleton(static sp => new Lazy<ISmartCache>(sp.GetRequiredService<ISmartCache>));
         services.TryAddSingleton<ICacheKeyService, CacheKeyService>();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<SmartCacheCoreOptions>, ValidateSmartCacheCoreOptions>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IHttpMessageHandlerBuilderFilter, SmartCacheHttpMessageHandlerBuilderFilter>());
+        services.TryAddSingleton<SmartCacheDownstreamSettings>();
 
         Services = services;
     }

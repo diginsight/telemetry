@@ -12,11 +12,12 @@ internal static class HttpCacheCompanionHelper
         CancellationToken cancellationToken = default
     )
     {
-        using HttpRequestMessage requestMessage = new HttpRequestMessage(
+        using HttpRequestMessage requestMessage = new (
             HttpMethod.Post,
             $"{(httpOptions.UseHttps ? "https" : "http")}://{host}{httpOptions.RootPath}{pathSegment}"
         );
         requestMessage.Content = new StringContent(payloadHolder.GetAsString(), SmartCacheSerialization.Encoding, "application/json");
+        requestMessage.PreventSmartCacheDownstreamHeaders();
 
         return await httpClient
             .SendAsync(requestMessage, full ? HttpCompletionOption.ResponseContentRead : HttpCompletionOption.ResponseHeadersRead, cancellationToken);

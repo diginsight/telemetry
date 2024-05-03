@@ -6,9 +6,9 @@ internal sealed class ChunkedBody : IDisposable
     private Chunk[]? chunks;
     private int chunkCount = -1;
 
-    public DateTime Timestamp { get; }
+    public DateTimeOffset Timestamp { get; }
 
-    public ChunkedBody(DateTime timestamp)
+    public ChunkedBody(DateTimeOffset timestamp)
     {
         Timestamp = timestamp;
     }

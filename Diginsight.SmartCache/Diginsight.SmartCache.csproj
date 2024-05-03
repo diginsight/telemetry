@@ -9,6 +9,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.*" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.*">
+      <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

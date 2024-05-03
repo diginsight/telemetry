@@ -166,6 +166,18 @@
           "System.Threading.Tasks.Extensions": "4.5.4"
         }
       },
+      "Microsoft.Extensions.Http": {
+        "type": "Transitive",
+        "resolved": "8.0.0",
+        "contentHash": "cWz4caHwvx0emoYe7NkHPxII/KkTI8R/LC9qdqJqnKv2poTJ4e2qqPGQqvRoQ5kaSA4FU5IV3qFAuLuOhoqULQ==",
+        "dependencies": {
+          "Microsoft.Extensions.Configuration.Abstractions": "8.0.0",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0",
+          "Microsoft.Extensions.Logging": "8.0.0",
+          "Microsoft.Extensions.Logging.Abstractions": "8.0.0",
+          "Microsoft.Extensions.Options": "8.0.0"
+        }
+      },
       "Microsoft.Extensions.Logging": {
         "type": "Transitive",
         "resolved": "8.0.0",
@@ -413,7 +425,8 @@
         "dependencies": {
           "Diginsight.Core": "[1.0.0, )",
           "Diginsight.Diagnostics": "[1.0.0, )",
-          "Microsoft.Extensions.Caching.Memory": "[8.*, )"
+          "Microsoft.Extensions.Caching.Memory": "[8.*, )",
+          "Microsoft.Extensions.Http": "[8.*, )"
         }
       }
     },
@@ -555,6 +568,18 @@
           "Microsoft.Extensions.Diagnostics.Abstractions": "8.0.0",
           "Microsoft.Extensions.FileProviders.Abstractions": "8.0.0",
           "Microsoft.Extensions.Logging.Abstractions": "8.0.0"
+        }
+      },
+      "Microsoft.Extensions.Http": {
+        "type": "Transitive",
+        "resolved": "8.0.0",
+        "contentHash": "cWz4caHwvx0emoYe7NkHPxII/KkTI8R/LC9qdqJqnKv2poTJ4e2qqPGQqvRoQ5kaSA4FU5IV3qFAuLuOhoqULQ==",
+        "dependencies": {
+          "Microsoft.Extensions.Configuration.Abstractions": "8.0.0",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0",
+          "Microsoft.Extensions.Logging": "8.0.0",
+          "Microsoft.Extensions.Logging.Abstractions": "8.0.0",
+          "Microsoft.Extensions.Options": "8.0.0"
         }
       },
       "Microsoft.Extensions.Logging": {
@@ -793,7 +818,8 @@
         "dependencies": {
           "Diginsight.Core": "[1.0.0, )",
           "Diginsight.Diagnostics": "[1.0.0, )",
-          "Microsoft.Extensions.Caching.Memory": "[8.*, )"
+          "Microsoft.Extensions.Caching.Memory": "[8.*, )",
+          "Microsoft.Extensions.Http": "[8.*, )"
         }
       }
     },
@@ -934,6 +960,18 @@
           "Microsoft.Extensions.Diagnostics.Abstractions": "8.0.0",
           "Microsoft.Extensions.FileProviders.Abstractions": "8.0.0",
           "Microsoft.Extensions.Logging.Abstractions": "8.0.0"
+        }
+      },
+      "Microsoft.Extensions.Http": {
+        "type": "Transitive",
+        "resolved": "8.0.0",
+        "contentHash": "cWz4caHwvx0emoYe7NkHPxII/KkTI8R/LC9qdqJqnKv2poTJ4e2qqPGQqvRoQ5kaSA4FU5IV3qFAuLuOhoqULQ==",
+        "dependencies": {
+          "Microsoft.Extensions.Configuration.Abstractions": "8.0.0",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0",
+          "Microsoft.Extensions.Logging": "8.0.0",
+          "Microsoft.Extensions.Logging.Abstractions": "8.0.0",
+          "Microsoft.Extensions.Options": "8.0.0"
         }
       },
       "Microsoft.Extensions.Logging": {
@@ -1116,7 +1154,8 @@
         "dependencies": {
           "Diginsight.Core": "[1.0.0, )",
           "Diginsight.Diagnostics": "[1.0.0, )",
-          "Microsoft.Extensions.Caching.Memory": "[8.*, )"
+          "Microsoft.Extensions.Caching.Memory": "[8.*, )",
+          "Microsoft.Extensions.Http": "[8.*, )"
         }
       }
     },
@@ -1257,6 +1296,18 @@
           "Microsoft.Extensions.Diagnostics.Abstractions": "8.0.0",
           "Microsoft.Extensions.FileProviders.Abstractions": "8.0.0",
           "Microsoft.Extensions.Logging.Abstractions": "8.0.0"
+        }
+      },
+      "Microsoft.Extensions.Http": {
+        "type": "Transitive",
+        "resolved": "8.0.0",
+        "contentHash": "cWz4caHwvx0emoYe7NkHPxII/KkTI8R/LC9qdqJqnKv2poTJ4e2qqPGQqvRoQ5kaSA4FU5IV3qFAuLuOhoqULQ==",
+        "dependencies": {
+          "Microsoft.Extensions.Configuration.Abstractions": "8.0.0",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0",
+          "Microsoft.Extensions.Logging": "8.0.0",
+          "Microsoft.Extensions.Logging.Abstractions": "8.0.0",
+          "Microsoft.Extensions.Options": "8.0.0"
         }
       },
       "Microsoft.Extensions.Logging": {
@@ -1428,7 +1479,8 @@
         "dependencies": {
           "Diginsight.Core": "[1.0.0, )",
           "Diginsight.Diagnostics": "[1.0.0, )",
-          "Microsoft.Extensions.Caching.Memory": "[8.*, )"
+          "Microsoft.Extensions.Caching.Memory": "[8.*, )",
+          "Microsoft.Extensions.Http": "[8.*, )"
         }
       }
     },
@@ -1528,6 +1580,16 @@
           "System.Text.Json": "6.0.0"
         }
       },
+      "Microsoft.Extensions.Diagnostics": {
+        "type": "Transitive",
+        "resolved": "8.0.0",
+        "contentHash": "3PZp/YSkIXrF7QK7PfC1bkyRYwqOHpWFad8Qx+4wkuumAeXo1NHaxpS9LboNA9OvNSAu+QOVlXbMyoY+pHSqcw==",
+        "dependencies": {
+          "Microsoft.Extensions.Configuration": "8.0.0",
+          "Microsoft.Extensions.Diagnostics.Abstractions": "8.0.0",
+          "Microsoft.Extensions.Options.ConfigurationExtensions": "8.0.0"
+        }
+      },
       "Microsoft.Extensions.Diagnostics.Abstractions": {
         "type": "Transitive",
         "resolved": "8.0.0",
@@ -1556,6 +1618,19 @@
           "Microsoft.Extensions.Diagnostics.Abstractions": "8.0.0",
           "Microsoft.Extensions.FileProviders.Abstractions": "8.0.0",
           "Microsoft.Extensions.Logging.Abstractions": "8.0.0"
+        }
+      },
+      "Microsoft.Extensions.Http": {
+        "type": "Transitive",
+        "resolved": "8.0.0",
+        "contentHash": "cWz4caHwvx0emoYe7NkHPxII/KkTI8R/LC9qdqJqnKv2poTJ4e2qqPGQqvRoQ5kaSA4FU5IV3qFAuLuOhoqULQ==",
+        "dependencies": {
+          "Microsoft.Extensions.Configuration.Abstractions": "8.0.0",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0",
+          "Microsoft.Extensions.Diagnostics": "8.0.0",
+          "Microsoft.Extensions.Logging": "8.0.0",
+          "Microsoft.Extensions.Logging.Abstractions": "8.0.0",
+          "Microsoft.Extensions.Options": "8.0.0"
         }
       },
       "Microsoft.Extensions.Logging": {
@@ -1724,7 +1799,8 @@
         "dependencies": {
           "Diginsight.Core": "[1.0.0, )",
           "Diginsight.Diagnostics": "[1.0.0, )",
-          "Microsoft.Extensions.Caching.Memory": "[8.*, )"
+          "Microsoft.Extensions.Caching.Memory": "[8.*, )",
+          "Microsoft.Extensions.Http": "[8.*, )"
         }
       }
     }

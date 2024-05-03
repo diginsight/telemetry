@@ -1,10 +1,8 @@
 ﻿namespace Diginsight;
 
-public sealed class NullDisposable : IDisposable
+public readonly struct NullDisposable : IDisposable, IAsyncDisposable
 {
-    public static readonly IDisposable Instance = new NullDisposable();
-
-    private NullDisposable() { }
-
     public void Dispose() { }
+
+    public ValueTask DisposeAsync() => default;
 }

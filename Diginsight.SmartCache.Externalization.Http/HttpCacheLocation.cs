@@ -27,7 +27,7 @@ internal sealed class HttpCacheLocation : ActiveCacheLocation
     }
 
     public override async Task<CacheLocationOutput<TValue>?> GetAsync<TValue>(
-        CacheKeyHolder keyHolder, DateTime minimumCreationDate, Action markInvalid, CancellationToken cancellationToken
+        CacheKeyHolder keyHolder, DateTimeOffset minimumCreationDate, Action markInvalid, CancellationToken cancellationToken
     )
     {
         using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key, minimumCreationDate });
