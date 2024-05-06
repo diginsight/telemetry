@@ -7,11 +7,14 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Diginsight.Diagnostics;
 
 public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
 {
+    private const string ExceptionPointersCustomPropertyName = "ExceptionPointers";
+
     private static readonly EventId StartActivityEventId = new (100, "StartActivity");
     private static readonly EventId StartMethodActivityEventId = new (110, "StartMethodActivity");
     private static readonly EventId EndActivityEventId = new (200, "EndActivity");
@@ -25,6 +28,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
     private readonly IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor;
     private readonly IActivityLoggingSampler? activityLoggingSampler;
     private readonly ILogger fallbackLogger;
+    private readonly Func<nint> getExceptionPointers;
 
     public ActivityLifecycleLogEmitter(
         ILoggerFactory loggerFactory,
@@ -38,6 +42,14 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         this.activitiesOptionsMonitor = activitiesOptionsMonitor;
         this.activityLoggingSampler = activityLoggingSampler;
         fallbackLogger = loggerFactory.CreateLogger($"{typeof(ActivityLifecycleLogEmitter).Namespace!}.$Activity");
+
+#if NET
+        getExceptionPointers = Marshal.GetExceptionPointers;
+#else
+        getExceptionPointers = (Func<nint>?)typeof(Marshal).GetMethod("GetExceptionPointers", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
+                ?.CreateDelegate(typeof(Func<nint>), null)
+            ?? (static () => 0);
+#endif
     }
 
     [SuppressMessage("ReSharper", "TemplateIsNotCompileTimeConstantProblem")]
@@ -61,6 +73,8 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
 
             if (!shouldLog)
                 return;
+
+            activity.SetCustomProperty(ExceptionPointersCustomPropertyName, getExceptionPointers());
 
             object? inputs = activity.GetCustomProperty(ActivityCustomPropertyNames.MakeInputs) switch
             {
@@ -116,8 +130,18 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
             if (!shouldLog)
                 return;
 
-            string? outputAsString = LogOutput();
-            string? namedOutputsAsString = LogNamedOutputs();
+            bool IsFaulted()
+            {
+                nint currentExceptionPointers = getExceptionPointers();
+                return currentExceptionPointers != 0
+                    && activity.GetCustomProperty(ExceptionPointersCustomPropertyName) is nint previousExceptionPointers
+                    && previousExceptionPointers != currentExceptionPointers;
+            }
+
+            bool faulted = IsFaulted();
+
+            string? outputAsString = faulted ? null : LogOutput();
+            string? namedOutputsAsString = faulted ? null : LogNamedOutputs();
 
             string? LogOutput()
             {
@@ -162,7 +186,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
             switch (outputAsString, namedOutputsAsString)
             {
                 case (null, null):
-                    textLogger.Log(logLevel, eventId, ComposeLogFormat("{ActivityName}"), activityName);
+                    textLogger.Log(logLevel, eventId, ComposeLogFormat(faulted ? "{ActivityName} ‼" : "{ActivityName}"), activityName);
                     break;
 
                 case (not null, null):

@@ -8,6 +8,10 @@ namespace Diginsight.Diagnostics;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class ActivityExtensions
 {
+    private const string CustomDurationMetricTagsCustomPropertyName = "CustomDurationMetricTags";
+    private const string DepthCustomPropertyName = "Depth";
+    private const string LabelCustomPropertyName = "Label";
+
     public static void SetOutput(this Activity? activity, object? output)
     {
         if (activity is null)
@@ -39,12 +43,12 @@ public static class ActivityExtensions
             return default;
         }
 
-        if (activity.GetCustomProperty(ActivityCustomPropertyNames.Depth) is not ActivityDepth depth)
+        if (activity.GetCustomProperty(DepthCustomPropertyName) is not ActivityDepth depth)
         {
             depth = ActivityDepth.FromTraceStateValue(TraceState.Parse(activity.TraceStateString).GetValueOrDefault(ActivityDepth.DepthTraceStateKey))
                 ?? GetDepth(activity.Parent).MakeChild(false);
 
-            activity.SetCustomProperty(ActivityCustomPropertyNames.Depth, depth);
+            activity.SetCustomProperty(DepthCustomPropertyName, depth);
         }
 
         return depth;
@@ -67,7 +71,7 @@ public static class ActivityExtensions
             throw new ArgumentNullException(nameof(activity));
         }
 
-        return activity.GetCustomProperty(ActivityCustomPropertyNames.Label) switch
+        return activity.GetCustomProperty(LabelCustomPropertyName) switch
         {
             string s => s,
             null => null,
@@ -82,7 +86,7 @@ public static class ActivityExtensions
             throw new ArgumentNullException(nameof(activity));
         }
 
-        activity.SetCustomProperty(ActivityCustomPropertyNames.Label, label);
+        activity.SetCustomProperty(LabelCustomPropertyName, label);
     }
 
     public static Activity? FindLabeledParent(this Activity activity, string label)
@@ -126,7 +130,7 @@ public static class ActivityExtensions
         }
 
         activity.SetCustomProperty(ActivityCustomPropertyNames.CustomDurationMetric, metric);
-        activity.SetCustomProperty(ActivityCustomPropertyNames.CustomDurationMetricTags, tags);
+        activity.SetCustomProperty(CustomDurationMetricTagsCustomPropertyName, tags);
     }
 
     public static void AddTagsToCustomDurationMetric(this Activity activity, params Tag[] tags)
@@ -149,12 +153,12 @@ public static class ActivityExtensions
             .GroupBy(static x => x.Key, static (_, xs) => xs.First())
 #endif
             .ToArray();
-        activity.SetCustomProperty(ActivityCustomPropertyNames.CustomDurationMetricTags, allTags);
+        activity.SetCustomProperty(CustomDurationMetricTagsCustomPropertyName, allTags);
     }
 
     internal static Tag[] GetCustomDurationMetricTags(this Activity activity)
     {
-        return activity.GetCustomProperty(ActivityCustomPropertyNames.CustomDurationMetricTags) switch
+        return activity.GetCustomProperty(CustomDurationMetricTagsCustomPropertyName) switch
         {
             Tag[] tags => tags,
             null => [ ],
