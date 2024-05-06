@@ -1,4 +1,4 @@
-﻿#if NET6_0_OR_GREATER
+﻿#if NET
 using Microsoft.Extensions.Hosting;
 #else
 using Microsoft.AspNetCore.Hosting;
@@ -37,7 +37,7 @@ public sealed class DefaultDynamicLogLevelInjector : IDynamicLogLevelInjector
 {
     private static readonly Regex SpecRegex = new ("^([^=]+?)=([a-z]+?)(?:;p=(.+?))?$", RegexOptions.IgnoreCase);
 
-#if NET6_0_OR_GREATER
+#if NET
     private readonly IHostEnvironment hostEnvironment;
 #else
     private readonly IHostingEnvironment hostEnvironment;
@@ -52,7 +52,7 @@ public sealed class DefaultDynamicLogLevelInjector : IDynamicLogLevelInjector
     /// <param name="loggerFilterOptionsMonitor"></param>
     /// <param name="loggerFactoryOptions"></param>
     public DefaultDynamicLogLevelInjector(
-#if NET6_0_OR_GREATER
+#if NET
         IHostEnvironment hostEnvironment,
 #else
         IHostingEnvironment hostEnvironment,

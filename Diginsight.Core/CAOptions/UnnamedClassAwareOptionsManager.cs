@@ -8,7 +8,7 @@ internal sealed class UnnamedClassAwareOptionsManager<TOptions> : IClassAwareOpt
     private readonly IClassAwareOptionsFactory<TOptions> factory;
     private readonly IClassAwareOptionsCache<TOptions> cache = new ClassAwareOptionsCache<TOptions>();
 
-#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+#if !(NET || NETSTANDARD2_1_OR_GREATER)
     TOptions IOptions<TOptions>.Value => Get(null);
 #endif
 

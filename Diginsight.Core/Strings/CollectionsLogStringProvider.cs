@@ -50,7 +50,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
     {
         protected readonly T subject;
 
-#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+#if !(NET || NETSTANDARD2_1_OR_GREATER)
         bool ILogStringable.IsDeep => true;
 #endif
         object ILogStringable.Subject => subject;
@@ -143,7 +143,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
                 enumerator,
                 static (ac, e) =>
                 {
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
                     (TKey key, TValue value) = e.Current;
 #else
                     TKey key = e.Current.Key;
@@ -194,7 +194,7 @@ internal sealed class CollectionsLogStringProvider : ILogStringProvider
     {
         private readonly IAsyncEnumerable<T> subject;
 
-#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+#if !(NET || NETSTANDARD2_1_OR_GREATER)
         bool ILogStringable.IsDeep => true;
 #endif
         object ILogStringable.Subject => subject;

@@ -39,7 +39,7 @@ internal sealed class KubernetesCacheCompanion : HttpCacheCompanion
 
     private async Task<IEnumerable<string>> GetAllPodIpsAsync()
     {
-#if NET6_0_OR_GREATER
+#if NET
         return (await Dns.GetHostAddressesAsync(smartCacheKubernetesOptions.PodsDnsName, AddressFamily.InterNetwork))
 #else
         return (await Dns.GetHostAddressesAsync(smartCacheKubernetesOptions.PodsDnsName))

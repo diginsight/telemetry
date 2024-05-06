@@ -2,7 +2,7 @@
 
 public interface ILogStringable
 {
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
     bool IsDeep => true;
 #else
     bool IsDeep { get; }

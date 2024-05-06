@@ -21,7 +21,7 @@ public static class ClassConfigurationMarkers
         if (
             @class.IsArray
             || @class.IsByRef
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
             || @class.IsByRefLike
 #endif
             || @class.IsGenericParameter

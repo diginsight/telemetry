@@ -54,7 +54,7 @@ public static class RuntimeUtils
 
                     case 'g':
                         span = span[3..span.IndexOf('|')];
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
                         localFunctionName = new string(span);
 #else
                         localFunctionName = new string(span.ToArray());

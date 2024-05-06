@@ -484,7 +484,7 @@ internal sealed class SmartCache : ISmartCache
         if (valueHolder is var (value, valueType) && coreOptions.MissValueSizeThreshold is > 0 and var size)
         {
             byte[] valueBytes = new byte[size];
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
             await using MemoryStream valueStream = new (valueBytes);
 #else
             using MemoryStream valueStream = new (valueBytes);
@@ -795,7 +795,7 @@ internal sealed class SmartCache : ISmartCache
                         }
                         else
                         {
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
                             ManagedTypes.TryAdd(type, default);
 #else
                             if (!ManagedTypes.ContainsKey(type))

@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using System.Text.RegularExpressions;
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
 using System.Runtime.CompilerServices;
 #endif
 
@@ -21,13 +21,13 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
     {
         switch (obj)
         {
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
             case ITuple tuple:
                 return new LogStringableTuple(tuple);
 #endif
 
             case StringBuilder sb:
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
                 return new LogStringableStringBuilder(sb);
 #else
                 return new DirectLogStringable(sb);
@@ -43,7 +43,7 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
                 return new DirectLogStringable(obj);
 
             case DateTime or DateTimeOffset
-#if NET6_0_OR_GREATER
+#if NET
                 or DateOnly or TimeOnly
 #endif
                 :
@@ -71,7 +71,7 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
         return null;
     }
 
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
     private sealed class LogStringableTuple : ILogStringable
     {
         private readonly ITuple tuple;
@@ -142,7 +142,7 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
         private readonly Delegate del;
         private readonly BasicLogStringProvider owner;
 
-#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+#if !(NET || NETSTANDARD2_1_OR_GREATER)
         bool ILogStringable.IsDeep => true;
 #endif
         object? ILogStringable.Subject => null;
@@ -166,7 +166,7 @@ internal sealed class BasicLogStringProvider : ILogStringProvider
     {
         private readonly KeyValuePair<TKey, TValue> kvp;
 
-#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+#if !(NET || NETSTANDARD2_1_OR_GREATER)
         bool ILogStringable.IsDeep => true;
 #endif
         object? ILogStringable.Subject => null;

@@ -11,7 +11,7 @@ namespace Diginsight.SmartCache.Externalization.AspNetCore;
 
 internal sealed class SmartCacheMiddleware : IMiddleware
 {
-#if !NET6_0_OR_GREATER
+#if !NET
     private static string? tempDirectory;
 #endif
 
@@ -100,7 +100,7 @@ internal sealed class SmartCacheMiddleware : IMiddleware
     private static async Task<T> DeserializeBodyAsync<T>(HttpContext httpContext)
         where T : notnull
     {
-#if NET6_0_OR_GREATER
+#if NET
         await using FileBufferingReadStream stream = new (httpContext.Request.Body, 100 * 1024);
 #else
 #if NETSTANDARD2_1_OR_GREATER

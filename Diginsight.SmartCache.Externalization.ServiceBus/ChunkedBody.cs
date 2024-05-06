@@ -47,7 +47,7 @@ internal sealed class ChunkedBody : IDisposable
 
         // ReSharper disable once LocalVariableHidesMember
         Chunk[] chunks = LazyInitializer.EnsureInitialized(
-#if NET6_0_OR_GREATER
+#if NET
             ref this.chunks,
 #else
             ref this.chunks!,

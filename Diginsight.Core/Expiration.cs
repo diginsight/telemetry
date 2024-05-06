@@ -8,7 +8,7 @@ public readonly struct Expiration
     : ILogStringable
         , IComparable<Expiration>
         , IEquatable<Expiration>
-#if NET6_0_OR_GREATER
+#if NET
         , ISpanFormattable
 #else
         , IFormattable
@@ -87,7 +87,7 @@ public readonly struct Expiration
         return IsNever ? NeverString : underlying.ToString(format, formatProvider);
     }
 
-#if NET6_0_OR_GREATER
+#if NET
     public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
     {
         if (!IsNever)
@@ -157,7 +157,7 @@ public readonly struct Expiration
         }
     }
 
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
     public static Expiration Parse(ReadOnlySpan<char> s, IFormatProvider? provider)
     {
         return s.Equals(NeverString, StringComparison.OrdinalIgnoreCase) ? Never : new Expiration(TimeSpan.Parse(s, provider));

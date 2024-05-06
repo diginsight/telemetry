@@ -122,7 +122,7 @@ public static class TaskUtils
                     }
                 }
 
-#if NET6_0_OR_GREATER
+#if NET
                 await Parallel.ForEachAsync(
                     taskFactories,
                     new ParallelOptions() { CancellationToken = ownCancellationToken, MaxDegreeOfParallelism = prefetchCount },

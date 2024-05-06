@@ -13,7 +13,7 @@ internal sealed class CategoryTokenParser : ILineTokenParser
         }
         else if (tokenDetailSpan[0] == '|')
         {
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
             ReadOnlySpan<char> src = tokenDetailSpan[1..];
 #else
             string src = tokenDetailSpan[1..].ToString();

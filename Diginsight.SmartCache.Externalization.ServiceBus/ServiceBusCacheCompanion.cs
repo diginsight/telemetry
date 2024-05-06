@@ -163,7 +163,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         protected ChunkedBody InnerGetOrAdd(string messageId)
         {
             return underlying.GetOrAdd(
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
                 messageId, static (_, a) => new ChunkedBody(a.GetUtcNow()), timeProvider
 #else
                 messageId, _ => new ChunkedBody(timeProvider.GetUtcNow())
@@ -502,7 +502,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
                     int responseBodyLength = responseBody.Length;
                     int responseChunkCount = responseBodyLength / chunkLength + 1;
 
-#if NET6_0_OR_GREATER
+#if NET
                     await Parallel.ForEachAsync(
                         Enumerable.Range(0, responseChunkCount),
                         async (responseChunkIndex, _) =>
@@ -523,7 +523,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
 
                             await clientHolder.Sender.SendMessageAsync(message, CancellationToken.None);
                         }
-#if NET6_0_OR_GREATER
+#if NET
                     );
 #else
                     }

@@ -12,7 +12,7 @@ public sealed class ClassAwareOptionsMonitor<TOptions> : IClassAwareOptionsMonit
 
     private event Action<TOptions, string, Type>? Change;
 
-#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+#if !(NET || NETSTANDARD2_1_OR_GREATER)
     TOptions IOptionsMonitor<TOptions>.CurrentValue => Get(null, null);
 #endif
 
@@ -63,7 +63,7 @@ public sealed class ClassAwareOptionsMonitor<TOptions> : IClassAwareOptionsMonit
         );
     }
 
-#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+#if !(NET || NETSTANDARD2_1_OR_GREATER)
     TOptions IOptionsMonitor<TOptions>.Get(string? name) => Get(name, null);
 #endif
 
@@ -74,7 +74,7 @@ public sealed class ClassAwareOptionsMonitor<TOptions> : IClassAwareOptionsMonit
         return changeTrackerDisposable;
     }
 
-#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+#if !(NET || NETSTANDARD2_1_OR_GREATER)
     public IDisposable? OnChange(Action<TOptions, string?> listener)
     {
         return OnChange((options, name, _) => listener(options, name));

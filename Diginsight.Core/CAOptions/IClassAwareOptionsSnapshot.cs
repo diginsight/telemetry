@@ -7,7 +7,7 @@ public interface IClassAwareOptionsSnapshot<out TOptions> : IClassAwareOptions<T
 {
     TOptions Get(string? name, Type? @class);
 
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
     TOptions IClassAwareOptions<TOptions>.Get(Type? @class) => Get(null, @class);
 
     TOptions IOptionsSnapshot<TOptions>.Get(string? name) => Get(name, null);

@@ -1,4 +1,4 @@
-﻿#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+﻿#if !(NET || NETSTANDARD2_1_OR_GREATER)
 namespace System.Diagnostics.CodeAnalysis;
 
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, Inherited = false, AllowMultiple = true)]

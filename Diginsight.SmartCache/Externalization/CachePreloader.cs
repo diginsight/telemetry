@@ -7,7 +7,7 @@ namespace Diginsight.SmartCache.Externalization;
 
 public sealed class CachePreloader : ICachePreloader
 {
-#if NET6_0_OR_GREATER
+#if NET
     private static Random SharedRandom
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

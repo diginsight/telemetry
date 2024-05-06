@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Entry = System.Collections.Generic.KeyValuePair<Diginsight.Diagnostics.TraceStateKey, string>;
-#if NET6_0_OR_GREATER
+#if NET
 using System.Diagnostics.CodeAnalysis;
 #endif
 
@@ -53,7 +53,7 @@ public sealed class TraceState : IDictionary<TraceStateKey, string>, IReadOnlyDi
 
     public bool TryGetValue(
         TraceStateKey key,
-#if NET6_0_OR_GREATER
+#if NET
         [MaybeNullWhen(false)]
 #endif
         out string value
@@ -66,7 +66,7 @@ public sealed class TraceState : IDictionary<TraceStateKey, string>, IReadOnlyDi
         }
         else
         {
-#if NET6_0_OR_GREATER
+#if NET
             value = null;
 #else
             value = null!;
@@ -108,7 +108,7 @@ public sealed class TraceState : IDictionary<TraceStateKey, string>, IReadOnlyDi
     {
         return string.Join
         (
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
             ',',
 #else
             ",",
@@ -177,7 +177,7 @@ public sealed class TraceState : IDictionary<TraceStateKey, string>, IReadOnlyDi
             string? keyTenantId;
             string keySystemId;
 
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
             string tmp = new (span);
 #else
             string tmp = new (span.ToArray());
@@ -199,7 +199,7 @@ public sealed class TraceState : IDictionary<TraceStateKey, string>, IReadOnlyDi
                 throw new FormatException($"Invalid tracestate key at index {index}");
             }
 
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
             tmp = new string(span);
 #else
             tmp = new string(span.ToArray());

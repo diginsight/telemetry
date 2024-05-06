@@ -217,7 +217,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
     {
         new TState State { get; }
 
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
         object? ITimestamped.State => State;
 #endif
     }
@@ -227,7 +227,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
         public TState State { get; }
         public DateTimeOffset Timestamp { get; }
 
-#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+#if !(NET || NETSTANDARD2_1_OR_GREATER)
         object? ITimestamped.State => State;
 #endif
 

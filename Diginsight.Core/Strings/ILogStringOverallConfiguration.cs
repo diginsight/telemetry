@@ -11,7 +11,7 @@ public interface ILogStringOverallConfiguration : ILogStringVariableConfiguratio
 
     void ResetFrom(ILogStringOverallConfiguration source);
 
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
     sealed int? GetEffectiveMaxTotalLength() => MaxTotalLength.Value;
 #endif
 }

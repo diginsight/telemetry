@@ -50,7 +50,7 @@ internal sealed class HttpCacheLocation : ActiveCacheLocation
 
                 valueSerializedSize = responseContent.Headers.ContentLength!.Value;
 
-#if NET6_0_OR_GREATER
+#if NET
                 await using (Stream contentStream = await responseContent.ReadAsStreamAsync(cancellationToken))
 #elif NETSTANDARD2_1_OR_GREATER
                 await using (Stream contentStream = await responseContent.ReadAsStreamAsync())

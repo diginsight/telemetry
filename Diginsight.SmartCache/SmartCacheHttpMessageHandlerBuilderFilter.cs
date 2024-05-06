@@ -4,7 +4,7 @@ namespace Diginsight.SmartCache;
 
 internal sealed class SmartCacheHttpMessageHandlerBuilderFilter : IHttpMessageHandlerBuilderFilter
 {
-#if NET6_0_OR_GREATER
+#if NET
     public static readonly HttpRequestOptionsKey<bool> PreventSmartCacheDownstreamOptionsKey = new("PreventSmartCacheDownstream");
 #else
     public const string PreventSmartCacheDownstreamOptionsKey = "PreventSmartCacheDownstream";
@@ -40,7 +40,7 @@ internal sealed class SmartCacheHttpMessageHandlerBuilderFilter : IHttpMessageHa
         {
             bool IsNotPrevented()
             {
-#if NET6_0_OR_GREATER
+#if NET
                 return requestMessage.Options.TryGetValue(PreventSmartCacheDownstreamOptionsKey, out bool prevent) && prevent;
 #else
                 return requestMessage.Properties.TryGetValue(PreventSmartCacheDownstreamOptionsKey, out object? rawPrevent) && rawPrevent is true;

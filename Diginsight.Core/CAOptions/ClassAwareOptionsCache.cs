@@ -13,7 +13,7 @@ public sealed class ClassAwareOptionsCache<TOptions> : IClassAwareOptionsCache<T
     {
         return dict.GetOrAdd(
             (name, @class),
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
             static (k, a) =>
                 new Lazy<TOptions>(() => a(k.Name, k.Class)),
             create
@@ -27,7 +27,7 @@ public sealed class ClassAwareOptionsCache<TOptions> : IClassAwareOptionsCache<T
     {
         return dict.GetOrAdd(
             (name, @class),
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
             static ((string Name, Type Class) k, (Func<string, Type, TArg, TOptions> Create, TArg Arg) a) =>
                 new Lazy<TOptions>(() => a.Create(k.Name, k.Class, a.Arg)),
             (create, creatorArg)
@@ -47,7 +47,7 @@ public sealed class ClassAwareOptionsCache<TOptions> : IClassAwareOptionsCache<T
     {
         return dict.TryAdd(
             (name, @class),
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
             new Lazy<TOptions>(options)
 #else
             new Lazy<TOptions>(() => options)

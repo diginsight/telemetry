@@ -114,7 +114,7 @@ public static partial class SmartCacheExtensions
 
     public static void PreventSmartCacheDownstreamHeaders(this HttpRequestMessage requestMessage)
     {
-#if NET6_0_OR_GREATER
+#if NET
         requestMessage.Options.Set(SmartCacheHttpMessageHandlerBuilderFilter.PreventSmartCacheDownstreamOptionsKey, true);
 #else
         requestMessage.Properties[SmartCacheHttpMessageHandlerBuilderFilter.PreventSmartCacheDownstreamOptionsKey] = true;

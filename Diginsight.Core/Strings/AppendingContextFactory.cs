@@ -34,7 +34,7 @@ internal sealed class AppendingContextFactory : IAppendingContextFactory
             new LogStringVariableConfiguration(overallConfiguration),
             overallConfiguration.MaxTime,
             overallConfiguration.GetEffectiveMaxTotalLength(),
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
             StringComparer.FromComparison(overallConfiguration.MetaPropertyKeyComparison)
 #else
             overallConfiguration.MetaPropertyKeyComparison switch

@@ -324,7 +324,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
     {
         new TState State { get; }
 
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
         object? IActivityMark.State => State;
 #endif
     }
@@ -334,7 +334,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         public TState State { get; }
         public TimeSpan? Duration { get; }
 
-#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+#if !(NET || NETSTANDARD2_1_OR_GREATER)
         object? IActivityMark.State => State;
 #endif
 

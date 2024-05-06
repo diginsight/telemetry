@@ -25,7 +25,7 @@ internal sealed class MessageTokenParser : ILineTokenParser
             int separatorIndex = tokenDetailSpan.IndexOf('|');
             if (separatorIndex < 0)
             {
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
                 // ReSharper disable once InlineTemporaryVariable
                 ReadOnlySpan<char> src = tokenDetailSpan;
 #else
@@ -36,14 +36,14 @@ internal sealed class MessageTokenParser : ILineTokenParser
             }
             else
             {
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
                 ReadOnlySpan<char> src1 = tokenDetailSpan[..separatorIndex];
 #else
                 string src1 = tokenDetailSpan[..separatorIndex].ToString();
 #endif
                 maxMessageLength = src1.Length == 0 ? null : int.TryParse(src1, out int tmp1) ? tmp1 : throw new FormatException("Expected integer");
 
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
                 ReadOnlySpan<char> src2 = tokenDetailSpan[(separatorIndex + 1)..];
 #else
                 string src2 = tokenDetailSpan[(separatorIndex + 1)..].ToString();

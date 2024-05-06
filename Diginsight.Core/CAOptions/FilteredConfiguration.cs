@@ -45,7 +45,7 @@ public class FilteredConfiguration : IFilteredConfiguration
     public IConfigurationSection GetSection(string key)
     {
         string[] segments = key
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
             .Split(ConfigurationPath.KeyDelimiter);
 #else
             .Split([ ConfigurationPath.KeyDelimiter ], StringSplitOptions.None);

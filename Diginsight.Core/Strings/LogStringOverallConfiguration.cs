@@ -71,7 +71,7 @@ public sealed class LogStringOverallConfiguration : ILogStringOverallConfigurati
     public IEnumerable<LogStringProviderRegistration> Registrations => CustomRegistrations
         .Select(static x => x.Priority > MaxCustomRegistrationPriority ? new LogStringProviderRegistration(x.Type, MaxCustomRegistrationPriority) : x)
         .Concat(FixedRegistrations)
-#if NET6_0_OR_GREATER
+#if NET
         .DistinctBy(static x => x.Type);
 #else
         .GroupBy(static x => x.Type, static (_, xs) => xs.First());
@@ -82,7 +82,7 @@ public sealed class LogStringOverallConfiguration : ILogStringOverallConfigurati
         CustomRegistrations.Clear();
         CustomRegistrations.AddRange(
             source.Registrations
-#if NET6_0_OR_GREATER
+#if NET
                 .ExceptBy(FixedRegistrationTypes, static x => x.Type)
 #else
                 .Where(static x => !FixedRegistrationTypes.Contains(x.Type))

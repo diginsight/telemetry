@@ -143,7 +143,7 @@ public static class ActivityExtensions
 
         Tag[] allTags = tags
             .Concat(activity.GetCustomDurationMetricTags())
-#if NET6_0_OR_GREATER
+#if NET
             .DistinctBy(static x => x.Key)
 #else
             .GroupBy(static x => x.Key, static (_, xs) => xs.First())

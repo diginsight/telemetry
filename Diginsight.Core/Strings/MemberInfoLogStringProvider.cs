@@ -243,7 +243,7 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
         private readonly Type type;
         private readonly MemberInfoLogStringProvider owner;
 
-#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+#if !(NET || NETSTANDARD2_1_OR_GREATER)
         bool ILogStringable.IsDeep => true;
 #endif
         object ILogStringable.Subject => type;
@@ -265,7 +265,7 @@ internal sealed class MemberInfoLogStringProvider : IMemberInfoLogStringProvider
         private readonly MemberInfo member;
         private readonly MemberInfoLogStringProvider owner;
 
-#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+#if !(NET || NETSTANDARD2_1_OR_GREATER)
         bool ILogStringable.IsDeep => true;
 #endif
         object ILogStringable.Subject => member;

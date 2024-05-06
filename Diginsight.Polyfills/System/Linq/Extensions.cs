@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-#if !NET6_0_OR_GREATER
+#if !NET
 using System.Collections;
 #endif
 
@@ -9,7 +9,7 @@ namespace System.Linq;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class Extensions
 {
-#if !NET6_0_OR_GREATER
+#if !NET
     public static bool TryGetNonEnumeratedCount<TSource>(this IEnumerable<TSource>? source, out int count)
     {
         switch (source)

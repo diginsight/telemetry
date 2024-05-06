@@ -210,7 +210,7 @@ public static class TypeExtensions
         return false;
     }
 
-#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+#if !(NET || NETSTANDARD2_1_OR_GREATER)
     public static bool HasSameMetadataDefinitionAs(this MemberInfo m1, MemberInfo m2)
     {
         if (m1 is null)

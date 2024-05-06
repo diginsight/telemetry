@@ -42,7 +42,7 @@ public static class SmartCacheSerialization
 
     public static void SerializeToStream(object? value, Type type, Stream stream)
     {
-#if NET6_0_OR_GREATER
+#if NET
         using TextWriter tw = new StreamWriter(stream, Encoding, leaveOpen: true);
 #else
         using TextWriter tw = new StreamWriter(stream, Encoding, 1024, true);
@@ -270,7 +270,7 @@ public static class SmartCacheSerialization
             Type[] typeArgs = TypeArgsRegex.Match(typeArgNames.ToString())
                 .Groups[1]
                 .Captures
-#if !(NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+#if !(NET || NETSTANDARD2_1_OR_GREATER)
                 .Cast<Capture>()
 #endif
                 .Select(x => NestedBindToType(x.Value))
@@ -306,7 +306,7 @@ public static class SmartCacheSerialization
                 BindToName(serializedType.GetGenericTypeDefinition(), out assemblyName, out string? rootTypeName);
 
                 StringBuilder sb = new ();
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
                 sb.AppendJoin(",", serializedType.GetGenericArguments().Select(GetNestedBoundName));
 #else
                 using (IEnumerator<string> nbnEnumerator = serializedType.GetGenericArguments().Select(GetNestedBoundName).GetEnumerator())

@@ -11,7 +11,7 @@ public interface ILogStringVariableConfiguration : ILogStringNamespaceConfigurat
     LogThreshold MaxMethodParameterCount { get; }
     LogThreshold MaxDepth { get; }
 
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1_OR_GREATER
     sealed int? GetEffectiveMaxStringLength() => MaxStringLength.Value;
 
     sealed int? GetEffectiveMaxCollectionItemCount() => MaxCollectionItemCount.Value;

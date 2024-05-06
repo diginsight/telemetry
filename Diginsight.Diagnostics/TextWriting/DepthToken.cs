@@ -16,7 +16,7 @@ public sealed class DepthToken : ILineToken
     private sealed class Appender : IPrefixTokenAppender
     {
         private static readonly DepthTokenModes ModesMask =
-#if NET6_0_OR_GREATER
+#if NET
             Enum.GetValues<DepthTokenModes>()
 #else
             Enum.GetValues(typeof(DepthTokenModes)).Cast<DepthTokenModes>()
@@ -39,7 +39,7 @@ public sealed class DepthToken : ILineToken
             if ((modes & DepthTokenModes.Layer) != 0)
             {
                 first = false;
-#if NET6_0_OR_GREATER
+#if NET
                 sb.Append($"{depth.Layer,2}");
 #else
                 sb.AppendFormat("{0,1}", depth.Layer);
@@ -54,7 +54,7 @@ public sealed class DepthToken : ILineToken
                 }
                 first = false;
 
-#if NET6_0_OR_GREATER
+#if NET
                 sb.Append($"{depth.Local,2}");
 #else
                 sb.AppendFormat("{0,2}", depth.Local);
@@ -68,7 +68,7 @@ public sealed class DepthToken : ILineToken
                     sb.Append('.');
                 }
 
-#if NET6_0_OR_GREATER
+#if NET
                 sb.Append($"{depth.Cumulated,2}");
 #else
                 sb.AppendFormat("{0,2}", depth.Cumulated);

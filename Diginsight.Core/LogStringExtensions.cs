@@ -22,7 +22,7 @@ public static class LogStringExtensions
         typeof(CancellationToken),
         typeof(CancellationTokenSource),
         typeof(MarshalByRefObject),
-#if NET6_0_OR_GREATER
+#if NET
         typeof(TaskCompletionSource),
 #endif
         typeof(TaskCompletionSource<>),
