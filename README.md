@@ -33,7 +33,7 @@ Diginsight application flow is:
 
 Diginsight uses __dynamic logging__, __smart sampling__, __automatic truncation__ and other strategies to __maximize applications efficiency__ and __minimize telemetry cost__ so that __local analysis__ and __analysis on the remote tools__ can be supported __without compromises on performance__ and  __without compromises on cost of telemetry__.
 
-![alt text](<001.03a NoPerformanceImpact.png>)
+![alt text](<001.03b NoPerformanceImpact.png>)
 
 Diginsight __log layout__ and __automatic rendering__ for entities can be fully customized to ensure best readability of the application flow.
 
@@ -59,8 +59,11 @@ The following articles explain in details:
 <br>
 
 > __diginsight v3 is now available__<br>
-> the following article describes improvements of diginsight v3 over the previous version 
+> the following article describes improvements of diginsight v3 over the previous version.
 [Introduction to Diginsight v3](<articles/10. Introduction to Diginsight v3/Introduction to Diginsight v3.md>).<br>
+> Features such as old frameworks support (eg. .Net Framework 4.5+) or observability for startup and static sections may still have limited support on Diginsight v3.<br>
+> In these cases the developer may decide to keep the old model.<br>
+> Diginsight v2 will not be discontinued until feature parity is reached.<br>
 > Documentation about v2 packages is still available here [Diginsight v2 documentation](<articles/v2/README.md>).<br>
 
 
@@ -165,8 +168,11 @@ details about opentelemetry configuration is available here:
 
 # Previous versions of diginsight
 > __diginsight v3 is now available__<br>
-> the following article describes improvements of diginsight v3 over the previous version 
+> the following article describes improvements of diginsight v3 over the previous version.
 [Introduction to Diginsight v3](<articles/10. Introduction to Diginsight v3/Introduction to Diginsight v3.md>).<br>
+> Features such as __old frameworks support (eg. .Net Framework 4.5+)__ or __observability for startup and static sections__ may still have limited support on Diginsight v3.<br>
+> In these cases the developer may decide to keep the old model.<br>
+> Diginsight v2 will not be discontinued until feature parity is reached.<br>
 > Documentation about v2 packages is still available here [Diginsight v2 documentation](<articles/v2/README.md>).<br>
 
 <br>
@@ -182,7 +188,7 @@ You can start using diginsight telemetry by running the samples on the [telemetr
 
 Article [HOWTO - Use Diginsight Samples](<articles/04. HowTo Use Diginsight Samples/HOWTO - Use Diginsight Samples.md>): explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.
 
-![alt text](<004.01 Diginsight samples solution.png>)
+![alt text](<004.01a Diginsight samples solution.png>)
 
 # Build and Test 
 You can easily test Diginsight integration with OpenTelemetry by means of the EasySampleBlazorv2 project:

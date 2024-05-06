@@ -26,7 +26,9 @@
 		<Configurations>Debug;Release;DebugWithProjectReferences</Configurations>
 		<!--<LangVersion>10.0</LangVersion>-->
 		<!--<PackageReadmeFile>README.nuget.md</PackageReadmeFile>-->
-	</PropertyGroup>
+    <Nullable>disable</Nullable>
+    <WarningsAsErrors>none</WarningsAsErrors>
+  </PropertyGroup>
 
 	<ItemGroup>
 		<Compile Remove="Providers\TraceLoggerAppinsightProvider.cs" />
@@ -67,12 +69,12 @@
 		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
-		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.7.0" />
-		<PackageReference Include="OpenTelemetry" Version="1.*" />
+		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.8.1" />
+		<PackageReference Include="OpenTelemetry" Version="1.8.1" />
 		<PackageReference Include="System.Net.Http.Json" Version="8.0.0" />
-		<PackageReference Include="System.Text.Json" Version="8.0.2" />
+		<PackageReference Include="System.Text.Json" Version="8.0.3" />
 		<PackageReference Include="System.Threading.Tasks.Dataflow" Version="8.0.0" />
 	</ItemGroup>
 

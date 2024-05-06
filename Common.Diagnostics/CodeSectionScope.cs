@@ -89,11 +89,11 @@ namespace Common
 
             var services = TraceLogger.Services;
 
-            IClassConfigurationGetter classConfigurationGetter = null;
+            IClassConfigurationGetter classConfigurationGetter = default;
             if (services != null)
             {
                 var classConfigurationGetterType = classConfigurationGetterGenericType.MakeGenericType(type ?? typeof(CodeSectionScope));
-                try { classConfigurationGetter = services?.GetService(classConfigurationGetterType) as IClassConfigurationGetter; } catch (Exception _) { }
+                try { classConfigurationGetter = services.GetService(classConfigurationGetterType) as IClassConfigurationGetter; } catch (Exception _) { }
                 this.ClassConfigurationGetter = classConfigurationGetter;
             }
             this.MinimumLogLevel = classConfigurationGetter?.Get("TraceLoggerMinimumLevel", LogLevel.Trace) ?? LogLevel.Trace;

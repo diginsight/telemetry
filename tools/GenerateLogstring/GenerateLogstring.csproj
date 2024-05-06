@@ -5,7 +5,9 @@
 		<TargetFramework>net6.0-windows</TargetFramework>
 		<Nullable>enable</Nullable>
 		<UseWPF>true</UseWPF>
-	</PropertyGroup>
+    <Nullable>disable</Nullable>
+    <WarningsAsErrors>none</WarningsAsErrors>
+  </PropertyGroup>
 
 	<ItemGroup>
 	  <None Remove="appsettings.json" />
