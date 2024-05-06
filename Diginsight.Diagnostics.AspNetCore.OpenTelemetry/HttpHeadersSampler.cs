@@ -3,8 +3,10 @@ using OpenTelemetry.Trace;
 
 namespace Diginsight.Diagnostics.AspNetCore;
 
-public sealed class HttpHeadersSampler : Sampler
+internal sealed class HttpHeadersSampler : Sampler
 {
+    internal const string HeaderName = "Activity-Sampling";
+
     private readonly IHttpContextAccessor httpContextAccessor;
     private readonly Sampler decoratee;
 
@@ -16,7 +18,7 @@ public sealed class HttpHeadersSampler : Sampler
 
     public override SamplingResult ShouldSample(in SamplingParameters samplingParameters)
     {
-        return HttpHeadersHelper.ShouldInclude(samplingParameters.Name, "Activity-Sampling", httpContextAccessor) is { } shouldInclude
+        return HttpHeadersHelper.ShouldInclude(samplingParameters.Name, HeaderName, httpContextAccessor) is { } shouldInclude
             ? new SamplingResult(shouldInclude)
             : decoratee.ShouldSample(in samplingParameters);
     }

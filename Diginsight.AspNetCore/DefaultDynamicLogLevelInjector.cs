@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Hosting;
 #endif
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Diagnostics.CodeAnalysis;
@@ -35,6 +36,8 @@ namespace Diginsight.AspNetCore;
 /// </remarks>
 public sealed class DefaultDynamicLogLevelInjector : IDynamicLogLevelInjector
 {
+    private const string HeaderName = "Log-Level";
+
     private static readonly Regex SpecRegex = new ("^([^=]+?)=([a-z]+?)(?:;p=(.+?))?$", RegexOptions.IgnoreCase);
 
 #if NET
@@ -86,7 +89,7 @@ public sealed class DefaultDynamicLogLevelInjector : IDynamicLogLevelInjector
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static string? Collapse(string? c) => c is "" or defaultCategory ? null : c;
 
-        foreach (string rawSpec in context.Request.Headers["Log-Level"].NormalizeHttpHeaderValue())
+        foreach (string rawSpec in context.Request.Headers[HeaderName].NormalizeHttpHeaderValue())
         {
             if (Enum.TryParse(rawSpec, true, out LogLevel minLogLevel))
             {
@@ -128,7 +131,7 @@ public sealed class DefaultDynamicLogLevelInjector : IDynamicLogLevelInjector
 
         if (hostEnvironment.IsDevelopment())
         {
-            context.Response.Headers["Log-Level"] = newRules
+            context.Response.Headers[HeaderName] = newRules
                 .Select(static x => $"{Collapse(x.CategoryName) ?? defaultCategory}={x.LogLevel ?? LogLevel.None}{(x.Filter is null ? "" : "!")}{(x.ProviderName is { } provider ? $";p={provider}" : "")}")
                 .Prepend(newLoggerFilterOptions.MinLevel.ToString())
                 .ToArray();
@@ -151,5 +154,11 @@ public sealed class DefaultDynamicLogLevelInjector : IDynamicLogLevelInjector
         public LoggerFilterOptions Get(string? name) => CurrentValue;
 
         public IDisposable? OnChange(Action<LoggerFilterOptions, string?> listener) => null;
+    }
+
+    public static void AddToServices(IServiceCollection services)
+    {
+        services.AddDynamicLogLevel<DefaultDynamicLogLevelInjector>();
+        services.Configure<DiginsightDistributedContextOptions>(static x => { x.NonBaggageKeys.Add(HeaderName); });
     }
 }

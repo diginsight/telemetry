@@ -5,6 +5,11 @@ namespace Diginsight.Diagnostics.AspNetCore;
 
 public sealed class HttpHeadersActivityLoggingSampler : IActivityLoggingSampler
 {
+    private const string SourceHeaderName = "Activity-Source-Logging";
+    private const string PlainHeaderName = "Activity-Logging";
+
+    public static readonly IEnumerable<string> HeaderNames = new[] { SourceHeaderName, PlainHeaderName };
+
     private readonly IHttpContextAccessor httpContextAccessor;
 
     public HttpHeadersActivityLoggingSampler(IHttpContextAccessor httpContextAccessor)
@@ -14,8 +19,8 @@ public sealed class HttpHeadersActivityLoggingSampler : IActivityLoggingSampler
 
     public bool? ShouldLog(Activity activity)
     {
-        return HttpHeadersHelper.ShouldInclude(activity.Source.Name, "Activity-Source-Logging", httpContextAccessor) == false
+        return HttpHeadersHelper.ShouldInclude(activity.Source.Name, SourceHeaderName, httpContextAccessor) == false
             ? false
-            : HttpHeadersHelper.ShouldInclude(activity.OperationName, "Activity-Logging", httpContextAccessor);
+            : HttpHeadersHelper.ShouldInclude(activity.OperationName, PlainHeaderName, httpContextAccessor);
     }
 }

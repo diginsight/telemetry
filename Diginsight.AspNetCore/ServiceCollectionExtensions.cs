@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Diginsight.AspNetCore;
@@ -20,8 +21,6 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection PostConfigureFromHttpRequestHeaders<TOptions>(this IServiceCollection services, string name)
         where TOptions: class, IDynamicallyPostConfigurable
     {
-        services.AddOptions();
-
         services.AddHttpContextAccessor();
 
         services.TryAddSingleton(
@@ -32,6 +31,10 @@ public static class ServiceCollectionExtensions
         );
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IOptionsChangeTokenSource<TOptions>, PostConfigureOptionsFromHttpRequestHeaders<TOptions>>(
             static sp => sp.GetRequiredService<PostConfigureOptionsFromHttpRequestHeaders<TOptions>>())
+        );
+
+        services.Configure<DiginsightDistributedContextOptions>(
+            static x => { x.NonBaggageKeys.Add(PostConfigureOptionsFromHttpRequestHeaders<TOptions>.HeaderName); }
         );
 
         return services;
@@ -46,11 +49,8 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection PostConfigureClassAwareFromHttpRequestHeaders<TOptions>(this IServiceCollection services, string name)
         where TOptions: class, IDynamicallyPostConfigurable
     {
-        services.PostConfigureFromHttpRequestHeaders<TOptions>(name);
-
         services.AddClassAwareOptions();
-
-        services.AddHttpContextAccessor();
+        services.PostConfigureFromHttpRequestHeaders<TOptions>(name);
 
         services.TryAddSingleton(
             sp => new PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>(name, sp.GetRequiredService<IHttpContextAccessor>())
@@ -88,5 +88,29 @@ public static class ServiceCollectionExtensions
         services.AddLoggerFactorySetter();
         services.AddHttpContextAccessor();
         services.Decorate<IHttpContextFactory, DynamicLogLevelHttpContextFactory>();
+    }
+
+    public static void AddAspNetCorePropagator(this IServiceCollection services)
+    {
+        services.AddHttpContextAccessor();
+        services.TryAddSingleton<DistributedContextPropagator>(
+            static sp => ActivatorUtilities.CreateInstance<AspNetCorePropagator>(sp, DistributedContextPropagator.Current)
+        );
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IOnCreateServiceProvider, SetCurrentPropagator>());
+    }
+
+    public sealed class SetCurrentPropagator : IOnCreateServiceProvider
+    {
+        private readonly DistributedContextPropagator propagator;
+
+        public SetCurrentPropagator(DistributedContextPropagator propagator)
+        {
+            this.propagator = propagator;
+        }
+
+        public void Run()
+        {
+            DistributedContextPropagator.Current = propagator;
+        }
     }
 }

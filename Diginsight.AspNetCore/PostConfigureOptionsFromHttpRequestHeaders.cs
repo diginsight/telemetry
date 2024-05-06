@@ -12,6 +12,8 @@ public class PostConfigureOptionsFromHttpRequestHeaders<TOptions>
     : IPostConfigureOptions<TOptions>, IOptionsChangeTokenSource<TOptions>
     where TOptions : class, IDynamicallyPostConfigurable
 {
+    internal const string HeaderName = "Dynamic-Configuration";
+
     private readonly IHttpContextAccessor httpContextAccessor;
 
     private ConfigurationReloadToken changeToken = new ();
@@ -48,7 +50,7 @@ public class PostConfigureOptionsFromHttpRequestHeaders<TOptions>
         }
 
         IDictionary<string, string?> dict = new Dictionary<string, string?>();
-        foreach (string rawSpec in httpContext.Request.Headers["Dynamic-Configuration"].NormalizeHttpHeaderValue())
+        foreach (string rawSpec in httpContext.Request.Headers[HeaderName].NormalizeHttpHeaderValue())
         {
             if (Statics.SpecRegex.Match(rawSpec) is not { Success: true } match)
                 continue;
