@@ -106,6 +106,7 @@ public class LogStringTypeContract : ILogStringTypeContract
                 {
                     throw new ArgumentException($"Property '{memberName}' has a forbidden type");
                 }
+
                 break;
 
             default:

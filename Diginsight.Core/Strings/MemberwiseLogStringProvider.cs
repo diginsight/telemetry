@@ -51,7 +51,7 @@ internal sealed class MemberwiseLogStringProvider : ReflectionLogStringProvider
                         }
                     }
 
-                    if (t.IsDefined(typeof(LogStringableObjectAttribute), false))
+                    if (t.IsDefined(typeof(LogStringableTypeAttribute), false))
                     {
                         return Handling.Handle;
                     }

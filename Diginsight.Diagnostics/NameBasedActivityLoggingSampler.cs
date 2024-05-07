@@ -1,22 +1,21 @@
-﻿using Diginsight.CAOptions;
+﻿using Microsoft.Extensions.Options;
 using System.Diagnostics;
 
 namespace Diginsight.Diagnostics;
 
 public class NameBasedActivityLoggingSampler : IActivityLoggingSampler
 {
-    private readonly IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptions;
+    private readonly IDiginsightActivityNamesOptions activityNamesOptions;
 
     public NameBasedActivityLoggingSampler(
-        IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptions
+        IOptions<DiginsightActivitiesOptions> activitiesOptions
     )
     {
-        this.activitiesOptions = activitiesOptions;
+        activityNamesOptions = activitiesOptions.Value;
     }
 
     public virtual bool? ShouldLog(Activity activity)
     {
-        IDiginsightActivityNamesOptions activityNamesOptions = activitiesOptions.Get(activity.GetCallerType()).Freeze();
         string activityName = activity.OperationName;
 
         return ActivityUtils.NameMatchesPattern(activityName, activityNamesOptions.NonLoggedActivityNames) ? false

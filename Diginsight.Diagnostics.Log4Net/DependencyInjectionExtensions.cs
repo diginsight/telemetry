@@ -30,7 +30,7 @@ public static class DependencyInjectionExtensions
 
                 foreach (IAppender appender in createAppenders(sp))
                 {
-                    logger.AddAppender(appender);
+                    logger.AddAppender(appender.AsActivatedOptionHandler());
                 }
 
                 if (getLevel?.Invoke(sp) is { } logLevel)

@@ -19,9 +19,9 @@ public sealed class LogStringTypeContractAccessor : ILogStringTypeContractAccess
 
     public LogStringTypeContract GetOrAdd(Type type)
     {
-        if (contracts.TryGetValue(type, out LogStringTypeContract? contract0))
+        if (contracts.TryGetValue(type, out LogStringTypeContract? contract))
         {
-            return contract0;
+            return contract;
         }
 
         if (type.IsForbidden())

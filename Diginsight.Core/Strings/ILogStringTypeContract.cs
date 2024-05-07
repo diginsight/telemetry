@@ -2,7 +2,7 @@
 
 namespace Diginsight.Strings;
 
-public interface ILogStringTypeContract : ILogStringTypeContractAccessor
+public interface ILogStringTypeContract : ILogStringTypeContractAccessor, ILogStringableTypeDescriptor
 {
     bool? Included { get; }
 
