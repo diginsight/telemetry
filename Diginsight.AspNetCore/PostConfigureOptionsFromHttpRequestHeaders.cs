@@ -40,13 +40,21 @@ public class PostConfigureOptionsFromHttpRequestHeaders<TOptions>
             return;
 
         if (httpContextAccessor.HttpContext is not { } httpContext)
+        {
             return;
+        }
 
         object chanegTokenFiringItemKey = GetChangeTokenFiringItemKey(name);
         if (!httpContext.Items.ContainsKey(chanegTokenFiringItemKey))
         {
             httpContext.Items[chanegTokenFiringItemKey] = null;
-            httpContext.Response.OnCompleted(FireChangeTokenAsync);
+            httpContext.Response.OnCompleted(
+                () =>
+                {
+                    FireChangeToken();
+                    return Task.CompletedTask;
+                }
+            );
         }
 
         IDictionary<string, string?> dict = new Dictionary<string, string?>();
@@ -71,10 +79,9 @@ public class PostConfigureOptionsFromHttpRequestHeaders<TOptions>
 
     protected virtual object GetChangeTokenFiringItemKey(string name) => new ChangeTokenFiringItemKey(name);
 
-    private Task FireChangeTokenAsync()
+    private void FireChangeToken()
     {
         Interlocked.Exchange(ref changeToken, new ConfigurationReloadToken()).OnReload();
-        return Task.CompletedTask;
     }
 
     public IChangeToken GetChangeToken() => changeToken;

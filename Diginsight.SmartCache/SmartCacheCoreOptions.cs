@@ -94,5 +94,11 @@ public sealed class SmartCacheCoreOptions : ISmartCacheCoreOptions, IDynamically
             get => filled.SlidingExpiration;
             set => filled.SlidingExpiration = value;
         }
+
+        public int MissValueSizeThreshold
+        {
+            get => filled.MissValueSizeThreshold;
+            set => filled.MissValueSizeThreshold = value;
+        }
     }
 }

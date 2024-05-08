@@ -37,6 +37,8 @@ public static class ServiceCollectionExtensions
             static x => { x.NonBaggageKeys.Add(PostConfigureOptionsFromHttpRequestHeaders<TOptions>.HeaderName); }
         );
 
+        services.FlagAsDynamic<TOptions>(name);
+
         return services;
     }
 

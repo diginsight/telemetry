@@ -6,11 +6,24 @@ namespace Diginsight.CAOptions;
 public sealed class ClassAwareOptionsCache<TOptions> : IClassAwareOptionsCache<TOptions>
     where TOptions : class
 {
+    private readonly OptionsCacheSettings settings;
+
     private readonly ConcurrentDictionary<(string Name, Type Class), Lazy<TOptions>> dict =
         new (new TupleEqualityComparer<string, Type>(c1: StringComparer.Ordinal));
 
+    public ClassAwareOptionsCache(OptionsCacheSettings? settings = null)
+    {
+        this.settings = settings ?? new OptionsCacheSettings();
+    }
+
     public TOptions GetOrAdd(string name, Type @class, Func<string, Type, TOptions> create)
     {
+        ISet<(Type, string?)> set = settings.DynamicEntries;
+        if (set.Contains((typeof(TOptions), null)) || set.Contains((typeof(TOptions), name)))
+        {
+            return create(name, @class);
+        }
+
         return dict.GetOrAdd(
             (name, @class),
 #if NET || NETSTANDARD2_1_OR_GREATER
@@ -25,6 +38,12 @@ public sealed class ClassAwareOptionsCache<TOptions> : IClassAwareOptionsCache<T
 
     public TOptions GetOrAdd<TArg>(string name, Type @class, Func<string, Type, TArg, TOptions> create, TArg creatorArg)
     {
+        ISet<(Type, string?)> set = settings.DynamicEntries;
+        if (set.Contains((typeof(TOptions), null)) || set.Contains((typeof(TOptions), name)))
+        {
+            return create(name, @class, creatorArg);
+        }
+
         return dict.GetOrAdd(
             (name, @class),
 #if NET || NETSTANDARD2_1_OR_GREATER
@@ -45,6 +64,12 @@ public sealed class ClassAwareOptionsCache<TOptions> : IClassAwareOptionsCache<T
 
     public bool TryAdd(string name, Type @class, TOptions options)
     {
+        ISet<(Type, string?)> set = settings.DynamicEntries;
+        if (set.Contains((typeof(TOptions), null)) || set.Contains((typeof(TOptions), name)))
+        {
+            return false;
+        }
+
         return dict.TryAdd(
             (name, @class),
 #if NET || NETSTANDARD2_1_OR_GREATER

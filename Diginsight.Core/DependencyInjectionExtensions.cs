@@ -30,6 +30,25 @@ public static class DependencyInjectionExtensions
         );
     }
 
+    public static IServiceCollection FlagAsDynamic<TOptions>(this IServiceCollection services, string? name)
+        where TOptions : class, IDynamicallyPostConfigurable
+    {
+        OptionsCacheSettings settings;
+        if (services.FirstOrDefault(static x => x.ServiceType == typeof(OptionsCacheSettings)) is { } descriptor)
+        {
+            settings = (OptionsCacheSettings)descriptor.ImplementationInstance!;
+        }
+        else
+        {
+            settings = new OptionsCacheSettings();
+            services.AddSingleton(settings);
+        }
+
+        settings.DynamicEntries.Add((typeof(TOptions), name));
+
+        return services;
+    }
+
     public static IServiceCollection AddClassAwareOptions(this IServiceCollection services)
     {
         services.AddOptions();

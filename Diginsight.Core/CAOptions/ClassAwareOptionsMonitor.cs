@@ -59,7 +59,8 @@ public sealed class ClassAwareOptionsMonitor<TOptions> : IClassAwareOptionsMonit
         return cache.GetOrAdd(
             name ?? Options.DefaultName,
             @class ?? ClassAwareOptions.NoClass,
-            static (n, c, f) => f.Create(n, c), factory
+            static (n, c, f) => f.Create(n, c),
+            factory
         );
     }
 
