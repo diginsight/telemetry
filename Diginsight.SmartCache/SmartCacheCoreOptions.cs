@@ -11,7 +11,7 @@ public sealed class SmartCacheCoreOptions : ISmartCacheCoreOptions, IDynamically
     private TimeSpan localEntryTolerance = TimeSpan.FromSeconds(10);
 
     public bool DiscardExternalMiss { get; set; }
-    public bool PassiveOnlyCache { get; set; }
+    public StorageMode StorageMode { get; set; }
 
     public Expiration MaxAge
     {
@@ -65,10 +65,10 @@ public sealed class SmartCacheCoreOptions : ISmartCacheCoreOptions, IDynamically
             set => filled.DiscardExternalMiss = value;
         }
 
-        public bool PassiveOnlyCache
+        public StorageMode StorageMode
         {
-            get => filled.PassiveOnlyCache;
-            set => filled.PassiveOnlyCache = value;
+            get => filled.StorageMode;
+            set => filled.StorageMode = value;
         }
 
         public Expiration MaxAge

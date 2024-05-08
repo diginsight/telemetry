@@ -8,7 +8,7 @@ namespace Diginsight.SmartCache.Externalization.Http;
 internal sealed class HttpCacheLocation : ActiveCacheLocation
 {
     private readonly Func<HttpClient> createHttpClient;
-    private readonly ILogger<HttpCacheLocation> logger;
+    private readonly ILogger logger;
     private readonly ISmartCacheHttpOptions httpOptions;
 
     public override KeyValuePair<string, object?> MetricTag => SmartCacheObservability.Tags.Type.Distributed;
@@ -66,7 +66,7 @@ internal sealed class HttpCacheLocation : ActiveCacheLocation
             double latencyMsecD = lap.ElapsedMilliseconds;
             long latencyMsecL = (long)latencyMsecD;
 
-            logger.LogDebug("Cache hit (latency: {LatencyMsec}): Returning up-to-date value from host {Host}", latencyMsecL, Id);
+            logger.LogDebug("Cache hit (latency: {LatencyMsec} ms): Returning up-to-date value from host {Host}", latencyMsecL, Id);
 
             lap.AddTags(SmartCacheObservability.Tags.Found.True);
             return new CacheLocationOutput<TValue>(item, valueSerializedSize, latencyMsecD);

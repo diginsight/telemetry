@@ -1,15 +1,23 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
 namespace Diginsight.SmartCache.Externalization.Redis;
 
-internal sealed class RedisDatabaseAccessor : IRedisDatabaseAccessor
+internal sealed class RedisDatabaseAccessor : IRedisDatabaseAccessor, IDisposable
 {
+    private readonly ILogger logger;
     private readonly string? redisConfiguration;
+
+    private readonly object lockObj = new ();
     private IConnectionMultiplexer? connectionMultiplexer;
 
-    public RedisDatabaseAccessor(IOptions<SmartCacheRedisOptions> smartCacheRedisOptions)
+    public RedisDatabaseAccessor(
+        ILogger<RedisDatabaseAccessor> logger,
+        IOptions<SmartCacheRedisOptions> smartCacheRedisOptions
+    )
     {
+        this.logger = logger;
         ISmartCacheRedisOptions options = smartCacheRedisOptions.Value;
         redisConfiguration = options.Configuration;
     }
@@ -23,25 +31,45 @@ internal sealed class RedisDatabaseAccessor : IRedisDatabaseAccessor
                 return null;
             }
 
-            if (connectionMultiplexer is not null)
+            logger.LogDebug("Accessing Redis database");
+
+            IConnectionMultiplexer? cm;
+            if ((cm = connectionMultiplexer) is not null)
             {
-                return connectionMultiplexer.GetDatabase();
+                return cm.GetDatabase();
             }
 
-            lock (this)
+            lock (lockObj)
             {
-                if (connectionMultiplexer is not null)
+                if ((cm = connectionMultiplexer) is not null)
                 {
-                    return connectionMultiplexer.GetDatabase();
+                    return cm.GetDatabase();
                 }
+
+                logger.LogDebug("Connecting to Redis");
 
                 try
                 {
-                    connectionMultiplexer = ConnectionMultiplexer.Connect(redisConfiguration);
+                    connectionMultiplexer = cm = ConnectionMultiplexer.Connect(redisConfiguration, static o => { o.AbortOnConnectFail = true; });
                 }
-                catch (RedisConnectionException) { }
+                catch (Exception exception)
+                {
+                    logger.LogError(exception, "Failed to connect to Redis");
+                }
 
-                return connectionMultiplexer?.GetDatabase();
+                return cm?.GetDatabase();
+            }
+        }
+    }
+
+    void IDisposable.Dispose()
+    {
+        lock (lockObj)
+        {
+            if (connectionMultiplexer is { } cm)
+            {
+                cm.Dispose();
+                connectionMultiplexer = null;
             }
         }
     }

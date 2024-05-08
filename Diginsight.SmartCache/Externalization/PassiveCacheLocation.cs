@@ -7,10 +7,18 @@ public abstract class PassiveCacheLocation : CacheLocation
 
     public void WriteAndForget(CacheKeyHolder keyHolder, IValueEntry entry, Expiration expiration, Func<Task> notifyMissAsync)
     {
-        TaskUtils.RunAndForget(() => WriteAsync(keyHolder, entry, expiration, notifyMissAsync));
+        TaskUtils.RunAndForget(
+            async () =>
+            {
+                if (await TryWriteAsync(keyHolder, entry, expiration))
+                {
+                    await notifyMissAsync();
+                }
+            }
+        );
     }
 
-    protected abstract Task WriteAsync(CacheKeyHolder keyHolder, IValueEntry entry, Expiration expiration, Func<Task> notifyMissAsync);
+    protected abstract Task<bool> TryWriteAsync(CacheKeyHolder keyHolder, IValueEntry entry, Expiration expiration);
 
     public void DeleteAndForget(CacheKeyHolder keyHolder)
     {

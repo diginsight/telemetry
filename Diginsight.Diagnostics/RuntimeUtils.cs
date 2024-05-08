@@ -43,23 +43,36 @@ public static class RuntimeUtils
             else
             {
                 string innerDeclaringTypeName = innerDeclaringType.Name;
-                ReadOnlySpan<char> span = (methodName == "MoveNext" ? innerDeclaringTypeName[1..^2] : methodName).AsSpan();
-                span = span[(span.IndexOf('>') + 1)..];
+                ReadOnlySpan<char> span0 = (methodName == "MoveNext" ? innerDeclaringTypeName[1..^2] : methodName).AsSpan();
+                ReadOnlySpan<char> span1 = span0[(span0.IndexOf('>') + 1)..];
 
-                switch (span[0])
+                switch (span1[0])
                 {
                     case 'b':
                         localFunctionName = "";
                         break;
 
                     case 'g':
-                        span = span[3..span.IndexOf('|')];
+                    {
+                        ReadOnlySpan<char> span2 = span1[3..span1.IndexOf('|')];
 #if NET || NETSTANDARD2_1_OR_GREATER
-                        localFunctionName = new string(span);
+                        localFunctionName = new string(span2);
 #else
-                        localFunctionName = new string(span.ToArray());
+                        localFunctionName = new string(span2.ToArray());
 #endif
                         break;
+                    }
+
+                    case 'd':
+                    {
+                        ReadOnlySpan<char> span2 = span0[..span0.IndexOf('>')];
+#if NET || NETSTANDARD2_1_OR_GREATER
+                        localFunctionName = new string(span2);
+#else
+                        localFunctionName = new string(span2.ToArray());
+#endif
+                        break;
+                    }
 
                     default:
                         localFunctionName = null;

@@ -23,14 +23,15 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
     private const string CacheMissMessageSubject = "cachemiss";
     private const string InvalidateMessageSubject = "invalidate";
 
-    private readonly ILogger<ServiceBusCacheCompanion> logger;
+    private readonly ILogger logger;
     private readonly Lazy<ISmartCache> smartCacheLazy;
     private readonly IServiceProvider serviceProvider;
     private readonly ISmartCacheServiceBusOptions serviceBusOptions;
 
     private readonly ClientHolder clientHolder;
-    private readonly GetRequestDictionary getRequestDictionary;
-    private readonly GetResponseDictionary getResponseDictionary;
+    // TODO Add cacheMiss and invalidate dictionaries
+    private readonly RequestDictionary getRequestDictionary;
+    private readonly ResponseDictionary getResponseDictionary;
 
     private readonly ManualResetEventSlim executionMre = new ();
     private readonly ManualResetEventSlim uninstallationMre = new ();
@@ -67,8 +68,8 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         clientHolder = new ClientHolder(this.serviceBusOptions);
 
         timeProvider ??= TimeProvider.System;
-        getRequestDictionary = new GetRequestDictionary(timeProvider);
-        getResponseDictionary = new GetResponseDictionary(timeProvider);
+        getRequestDictionary = new RequestDictionary(timeProvider);
+        getResponseDictionary = new ResponseDictionary(timeProvider);
     }
 
     private sealed class ClientHolder : IDisposable
@@ -184,9 +185,9 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         }
     }
 
-    private sealed class GetRequestDictionary : ChunkedBodyDictionary
+    private sealed class RequestDictionary : ChunkedBodyDictionary
     {
-        public GetRequestDictionary(TimeProvider timeProvider)
+        public RequestDictionary(TimeProvider timeProvider)
             : base(timeProvider) { }
 
         public byte[]? Set(string messageId, byte[] body, int chunkIndex, int chunkCount)
@@ -199,9 +200,9 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
         }
     }
 
-    private sealed class GetResponseDictionary : ChunkedBodyDictionary
+    private sealed class ResponseDictionary : ChunkedBodyDictionary
     {
-        public GetResponseDictionary(TimeProvider timeProvider)
+        public ResponseDictionary(TimeProvider timeProvider)
             : base(timeProvider) { }
 
         public byte[] Get(string messageId, CancellationToken cancellationToken)
@@ -749,7 +750,7 @@ internal sealed class ServiceBusCacheCompanion : BackgroundService, ICacheCompan
             double latencyMsecD = lap.ElapsedMilliseconds;
             long latencyMsecL = (long)latencyMsecD;
 
-            logger.LogDebug("Cache hit (latency: {LatencyMsec}): Returning up-to-date value from peer '{PeerId}'", latencyMsecL, Id);
+            logger.LogDebug("Cache hit (latency: {LatencyMsec} ms): Returning up-to-date value from peer '{PeerId}'", latencyMsecL, Id);
 
             lap.AddTags(SmartCacheObservability.Tags.Found.True);
             return new CacheLocationOutput<TValue>(item, valueSerializedSize, latencyMsecD);

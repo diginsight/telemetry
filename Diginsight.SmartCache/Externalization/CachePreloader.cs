@@ -17,7 +17,7 @@ public sealed class CachePreloader : ICachePreloader
     private static readonly Random SharedRandom = new ();
 #endif
 
-    private readonly ILogger<CachePreloader> logger;
+    private readonly ILogger logger;
     private readonly ICacheCompanion companion;
     private readonly TimeProvider timeProvider;
 

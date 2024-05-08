@@ -3,7 +3,7 @@
 public interface ISmartCacheCoreOptions
 {
     bool DiscardExternalMiss { get; }
-    bool PassiveOnlyCache { get; }
+    StorageMode StorageMode { get; }
 
     Expiration MaxAge { get; }
     DateTimeOffset? MinimumCreationDate { get; }

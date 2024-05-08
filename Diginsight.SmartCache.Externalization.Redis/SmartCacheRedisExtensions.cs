@@ -13,7 +13,7 @@ public static class SmartCacheRedisExtensions
     )
     {
         builder.Services.TryAddSingleton<IRedisDatabaseAccessor, RedisDatabaseAccessor>();
-        builder.Services.TryAddSingleton<RedisCacheLocation>();
+        builder.Services.TryAddSingleton<PassiveCacheLocation, RedisCacheLocation>();
         builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<SmartCacheRedisOptions>, ValidateSmartCacheRedisOptions>());
 
         if (configureOptions is not null)

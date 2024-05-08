@@ -23,8 +23,8 @@ internal sealed class SmartCache : ISmartCache
     private readonly TimeProvider timeProvider;
 
     private readonly IMemoryCache memoryCache;
-
     private readonly IReadOnlyDictionary<string, PassiveCacheLocation> passiveLocations;
+    private readonly ISmartCacheCoreOptions fallbackCoreOptions;
 
     private readonly IDictionary<ICacheKey, ValueTuple> keys = new ConcurrentDictionary<ICacheKey, ValueTuple>();
     private readonly ExternalMissDictionary externalMissDictionary = new ();
@@ -51,6 +51,8 @@ internal sealed class SmartCache : ISmartCache
         memoryCache = new MemoryCache(memoryCacheOptionsMonitor.Get(nameof(SmartCache)), loggerFactory);
 
         passiveLocations = companion.PassiveLocations.ToDictionary(static x => x.Id);
+
+        fallbackCoreOptions = coreOptionsMonitor.CurrentValue;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -339,18 +341,21 @@ internal sealed class SmartCache : ISmartCache
 
         IValueEntry entry = ValueEntry.Create(value, valueType, creationDate);
 
-        Expiration finalAbsExpiration = absExpiration ?? coreOptions.AbsoluteExpiration;
+        Expiration finalAbsExpiration = Choose(coreOptions.AbsoluteExpiration, absExpiration, fallbackCoreOptions.AbsoluteExpiration);
 
-        if (coreOptions.PassiveOnlyCache)
+        StorageMode storageMode = coreOptions.StorageMode;
+        if (storageMode != StorageMode.Auto)
         {
             foreach (PassiveCacheLocation passiveLocation in passiveLocations.Values)
             {
                 WriteToLocation(passiveLocation, keyHolder, entry, finalAbsExpiration, skipNotify);
             }
-            return;
+
+            if (storageMode == StorageMode.Passive)
+                return;
         }
 
-        Expiration candidateSldExpiration = sldExpiration ?? coreOptions.SlidingExpiration;
+        Expiration candidateSldExpiration = Choose(coreOptions.SlidingExpiration, sldExpiration, fallbackCoreOptions.SlidingExpiration);
         Expiration finalSldExpiration = candidateSldExpiration < finalAbsExpiration ? candidateSldExpiration : finalAbsExpiration;
 
         long keySize;
@@ -455,8 +460,8 @@ internal sealed class SmartCache : ISmartCache
             entry,
             expiration,
             skipNotify
-                ? () => NotifyMissAsync(keyHolder, entry.CreationDate, null, location.Id)
-                : static () => Task.CompletedTask
+                ? static () => Task.CompletedTask
+                : () => NotifyMissAsync(keyHolder, entry.CreationDate, null, location.Id)
         );
     }
 
@@ -523,7 +528,7 @@ internal sealed class SmartCache : ISmartCache
     {
         ISmartCacheCoreOptions coreOptions = coreOptionsMonitor.Get(callerType);
 
-        Expiration finalMaxAge = maxAge ?? coreOptions.MaxAge;
+        Expiration finalMaxAge = Choose(coreOptions.MaxAge, maxAge, fallbackCoreOptions.MaxAge);
 
         DateTimeOffset minimumCreationDate = finalMaxAge.IsNever ? DateTimeOffset.MinValue : timestamp - finalMaxAge.Value;
         if (coreOptions.MinimumCreationDate is { } dynamicMinimumCreationDate && dynamicMinimumCreationDate > minimumCreationDate)
@@ -535,6 +540,9 @@ internal sealed class SmartCache : ISmartCache
 
         return minimumCreationDate;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static Expiration Choose(Expiration dynamic, Expiration? operation, Expiration fallback) => dynamic.IsNever ? operation ?? fallback : dynamic;
 
     public bool TryGetDirectFromMemory(ICacheKey key, [NotNullWhen(true)] out Type? type, out object? value)
     {

@@ -8,7 +8,7 @@ namespace Diginsight.SmartCache.Externalization.Redis;
 
 public sealed class RedisCacheLocation : PassiveCacheLocation
 {
-    private readonly ILogger<RedisCacheLocation> logger;
+    private readonly ILogger logger;
     private readonly IRedisDatabaseAccessor redisDatabaseAccessor;
     private readonly ISmartCacheRedisOptions smartCacheRedisOptions;
 
@@ -67,7 +67,7 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
 
         if (entry.CreationDate < minimumCreationDate)
         {
-            logger.LogDebug("Partial cache miss (latency: {LatencyMsec}): value found in Redis but creation date is invalid", latencyMsecL);
+            logger.LogDebug("Partial cache miss (latency: {LatencyMsec} ms): value found in Redis but creation date is invalid", latencyMsecL);
 
             lap.AddTags(SmartCacheObservability.Tags.Found.False);
             markInvalid();
@@ -77,7 +77,7 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
 
         long valueSerializedSize = redisEntry.Length();
         logger.LogDebug(
-            "Cache hit (latency: {LatencyMsec}, size: {ValueSerializedSize:#,##0}): returning up-to-date value from Redis",
+            "Cache hit (latency: {LatencyMsec} ms, size: {ValueSerializedSize:#,##0} B): returning up-to-date value from Redis",
             latencyMsecL,
             valueSerializedSize
         );
@@ -85,13 +85,13 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
         return new CacheLocationOutput<TValue>(entry.Data, valueSerializedSize, latencyMsecD);
     }
 
-    protected override async Task WriteAsync(CacheKeyHolder keyHolder, IValueEntry entry, Expiration expiration, Func<Task> notifyMissAsync)
+    protected override async Task<bool> TryWriteAsync(CacheKeyHolder keyHolder, IValueEntry entry, Expiration expiration)
     {
         using Activity? activity = SmartCacheObservability.ActivitySource.StartMethodActivity(logger, new { key = keyHolder.Key, expiration });
 
         if (redisDatabaseAccessor.Database is not { } redisDatabase)
         {
-            return;
+            return false;
         }
 
         Stopwatch sw = Stopwatch.StartNew();
@@ -114,7 +114,7 @@ public sealed class RedisCacheLocation : PassiveCacheLocation
 
         logger.LogDebug("redisDatabase.StringSet completed ({ElapsedMsec} ms, {EntryLength} bytes)", sw.ElapsedMilliseconds, rawEntry.LongLength);
 
-        await notifyMissAsync();
+        return true;
     }
 
     protected override async Task DeleteAsync(CacheKeyHolder keyHolder)
