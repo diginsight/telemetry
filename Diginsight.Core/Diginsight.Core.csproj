@@ -17,7 +17,7 @@
       still without compromises on performance.
     </Description>
     <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
-  </PropertyGroup>
+  </PropertyGroup> 
 
   <ItemGroup>
     <None Include="..\README.nuget.md">
