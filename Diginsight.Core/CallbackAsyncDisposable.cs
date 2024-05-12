@@ -1,4 +1,4 @@
-﻿namespace Diginsight; 
+﻿namespace Diginsight;
 
 public sealed class CallbackAsyncDisposable : IAsyncDisposable
 {
