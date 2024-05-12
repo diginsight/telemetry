@@ -5,7 +5,35 @@
     <Title>Diginsight Diagnostics OpenTelemetry extensions</Title>
     <PackageTags>$(PackageTags);diagnostics;opentelemetry</PackageTags>
     <RootNamespace>Diginsight.Diagnostics</RootNamespace>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/diginsight/telemetry</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/diginsight/telemetry.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>telemetry diginsight diagnostic insight</PackageTags>
+    <PackageIcon>TelemetryBig.png</PackageIcon>
+    <Authors>diginsight</Authors>
+    <Description>
+      Diginsight telemetry are a set of .Net packages that provide readable log with application execution flow to .Net Log providers such as Log4Net, Serilog or Application Insights, etc.&lt;br&gt;
+      still without compromises on performance.
+    </Description>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.nuget.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\images\01. Project image\Telemetry\TelemetryBig.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\LICENSE.md">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.*" />

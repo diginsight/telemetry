@@ -4,8 +4,34 @@
     <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0</TargetFrameworks>
     <Title>Diginsight SmartCache Externalization ASP.NET Core extensions</Title>
     <PackageTags>$(PackageTags);cache;smartcache;externalization;aspnetcore</PackageTags>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/diginsight/smartcache</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/diginsight/smartcache.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>diginsight cache smartcache</PackageTags>
+    <PackageIcon>TelemetryBig.png</PackageIcon>
+    <Authors>diginsight</Authors>
+    <Description>
+      Diginsight.SmartCache provides hybrid, distributed, multilevel caching based on age sensitive data management.
+    </Description>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="..\README.nuget.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\images\01. Project image\Telemetry\TelemetryBig.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\LICENSE.md">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
   <Choose>
     <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">
       <ItemGroup>
