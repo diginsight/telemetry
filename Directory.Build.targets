@@ -11,7 +11,7 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/diginsight/telemetry</PackageProjectUrl>
-    <PackageTags>diginsight;telemetry</PackageTags>
+    <PackageTags>diginsight</PackageTags>
     <!-- TODO <PackageIcon> -->
     <!-- TODO <Description> in each csproj -->
 

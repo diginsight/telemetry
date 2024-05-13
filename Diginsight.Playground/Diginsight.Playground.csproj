@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Diginsight.Diagnostics\Diginsight.Diagnostics.csproj" />
-    <ProjectReference Include="..\Diginsight.SmartCache\Diginsight.SmartCache.csproj" />
   </ItemGroup>
 
   <ItemGroup>
