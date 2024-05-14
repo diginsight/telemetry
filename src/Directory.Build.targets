@@ -10,10 +10,9 @@
     <Product>Diginsight</Product>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/diginsight/telemetry</PackageProjectUrl>
     <PackageTags>diginsight</PackageTags>
-    <PackageIcon>TelemetryBig.png</PackageIcon>
     <!-- TODO <Description> in each csproj -->
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -49,15 +48,18 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(IsPackable)' != 'false'">
-    <None Include="$(MSBuildThisFileDirectory)README.nuget.md" Link="Properties\Package\README.nuget.md">
+    <None Include="$(MSBuildThisFileDirectory)README.md">
+      <Visible>false</Visible>
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
-    <None Include="$(MSBuildThisFileDirectory)images\01. Project image\Telemetry\TelemetryBig.png" Link="Properties\Package\TelemetryBig.png">
+    <None Include="$(MSBuildThisFileDirectory)$(PackageIcon)">
+      <Visible>false</Visible>
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
-    <None Include="$(MSBuildThisFileDirectory)LICENSE.md" Link="Properties\Package\LICENSE.md">
+    <None Include="$(MSBuildThisFileDirectory)LICENSE.md">
+      <Visible>false</Visible>
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
