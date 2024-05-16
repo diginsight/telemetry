@@ -37,7 +37,36 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
             activityLoggingSampler
         );
 
-        ActivitySource.AddActivityListener(emitter.ToActivityListener(s => s == ActivitySource));
+        ActivitySource.AddActivityListener(new DeferredActivityLifecycleLogEmitter(this, emitter).ToActivityListener(s => s == ActivitySource));
+    }
+
+    private sealed class DeferredActivityLifecycleLogEmitter : IActivityListenerLogic
+    {
+        private readonly DeferredLoggerFactory owner;
+        private readonly IActivityListenerLogic decoratee;
+
+        public DeferredActivityLifecycleLogEmitter(DeferredLoggerFactory owner, IActivityListenerLogic decoratee)
+        {
+            this.owner = owner;
+            this.decoratee = decoratee;
+        }
+
+        void IActivityListenerLogic.ActivityStarted(Activity activity)
+        {
+            if (owner.target is null)
+                decoratee.ActivityStarted(activity);
+        }
+
+        void IActivityListenerLogic.ActivityStopped(Activity activity)
+        {
+            if (owner.target is null)
+                decoratee.ActivityStopped(activity);
+        }
+
+        ActivitySamplingResult IActivityListenerLogic.Sample(ref ActivityCreationOptions<ActivityContext> creationOptions)
+        {
+            return decoratee.Sample(ref creationOptions);
+        }
     }
 
     private sealed class FixedClassAwareOptionsMonitor : IClassAwareOptionsMonitor<DiginsightActivitiesOptions>
