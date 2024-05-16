@@ -8,7 +8,7 @@ public sealed class EquatableMemberAttribute : Attribute, IEquatableMemberDescri
     private int order;
     private bool isOrderSet;
 
-    public bool ByReference { get; set; }
+    public EqualityMode Mode { get; set; }
 
     public Type? ProxyType { get; set; }
 

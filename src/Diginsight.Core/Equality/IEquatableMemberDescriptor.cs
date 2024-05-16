@@ -1,13 +1,7 @@
 ﻿namespace Diginsight.Equality;
 
-public interface IEquatableMemberDescriptor
+public interface IEquatableMemberDescriptor : IEquatableDescriptor
 {
-    bool ByReference { get; }
-
-    Type? ProxyType { get; }
-
-    object[] ProxyArgs { get; }
-
     Type? ComparerType { get; }
 
     string? ComparerMember { get; }

@@ -1,3 +1,3 @@
 ﻿namespace Diginsight.Strings;
 
-public interface ILogStringableTypeDescriptor;
+public interface ILogStringableTypeDescriptor : ILogStringableDescriptor;

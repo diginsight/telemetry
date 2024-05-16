@@ -32,9 +32,7 @@ public class EqualityTypeContract : IEqualityTypeContract
 
     public bool? Included { get; set; }
 
-    public bool Loose { get; set; }
-
-    public bool ByReference { get; set; }
+    public EqualityMode Mode { get; set; }
 
     public Type? ProxyType { get; set; }
 
