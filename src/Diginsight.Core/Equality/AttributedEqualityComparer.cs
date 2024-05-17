@@ -1,4 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Collections.Concurrent;
+using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 
 namespace Diginsight.Equality;
 
@@ -6,78 +8,131 @@ public sealed class AttributedEqualityComparer : IEqualityComparer<object>
 {
     public static readonly IEqualityComparer<object> Instance = new AttributedEqualityComparer();
 
+    private readonly ConcurrentDictionary<Type, IReadOnlyDictionary<Type, EquatorTemplate>> cachedEquatorTemplatesDicts = new ();
+
     private AttributedEqualityComparer() { }
 
-    public bool Equals(object? o1, object? o2)
+    public bool Equals(object? obj1, object? obj2)
     {
-        if (ReferenceEquals(o1, o2))
+        if (ReferenceEquals(obj1, obj2))
         {
             return true;
         }
-        if (o1 is null || o2 is null)
+        if (obj1 is null || obj2 is null)
         {
             return false;
         }
 
-        EqualityMode m = GetEqualityMode(o1);
-        if (m != GetEqualityMode(o2))
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        EqualityMode GetEqualityMode(IEquatableDescriptor? descriptor) => descriptor?.Mode ?? EqualityMode.Default;
+
+        IEqualityTypeContract? typeContract = GetContract(obj1.GetType());
+        EqualityMode mode = GetEqualityMode(typeContract);
+        if (mode != GetEqualityMode(GetContract(obj2.GetType())))
         {
             throw new ArgumentException("Equality modes are different");
         }
 
-        if (m == EqualityMode.Reference)
+        if (mode == EqualityMode.Reference)
         {
             return false;
         }
 
-        if (TryByEquatable(o1, o2, m, nameof(o1)) && TryByEquatable(o2, o1, m, nameof(o2)))
+        if (TryByEquatable(obj1, obj2, mode))
         {
             return true;
         }
 
-        if (m == EqualityMode.Default)
+        if (mode == EqualityMode.Default)
         {
-            return EqualityComparer<object>.Default.Equals(o1, o2);
+            return EqualityComparer<object>.Default.Equals(obj1, obj2);
         }
 
         throw new NotImplementedException();
     }
 
-    private static EqualityMode GetEqualityMode(object o)
+    private IEqualityTypeContract GetContract(Type objType)
     {
         throw new NotImplementedException();
     }
 
-    private static bool TryByEquatable(object o1, object o2, EqualityMode m, string n1)
+    private bool TryByEquatable(object obj1, object obj2, EqualityMode mode)
     {
-        IReadOnlyDictionary<Type, Func<object, bool>> eed = GetEquatableEquators(o1);
-        if (eed.Count > 0)
+        IReadOnlyDictionary<Type, EquatorTemplate> templates = GetEquatorTemplates(obj1.GetType());
+        if (!(templates.Count > 0))
         {
-            if (m != EqualityMode.Default)
-            {
-                throw new ArgumentException($"Object implements {nameof(IEquatable<object>)}<> but equality mode is not {nameof(EqualityMode.Default)}", n1);
-            }
-
-            if (eed.Where(x => x.Key.IsInstanceOfType(o2)).Select(static x => x.Value).Any(x => x(o2)))
-            {
-                return true;
-            }
+            return false;
+        }
+        if (mode != EqualityMode.Default)
+        {
+            throw new ArgumentException($"Object implements {nameof(IEquatable<object>)}<> but equality mode is not {nameof(EqualityMode.Default)}", nameof(obj1));
         }
 
-        return false;
+        return templates.Any(x => x.Key.IsInstanceOfType(obj2) && x.Value.CreateEquator(obj1)(obj2));
     }
 
-    private static IReadOnlyDictionary<Type, Func<object, bool>> GetEquatableEquators(object o1)
+    private IReadOnlyDictionary<Type, EquatorTemplate> GetEquatorTemplates(Type objType)
     {
-        return o1.GetType().GetGenericArgumentsAs(typeof(IEquatable<>))
-            .Select(static t => t[0])
-            .ToDictionary(
-                static t => t,
-                t => new Func<object, bool>(
-                    o2 => t.IsInstanceOfType(o2) &&
-                        (bool)typeof(IEquatable<>).MakeGenericType(t).GetMethod(nameof(IEquatable<object>.Equals))!.Invoke(o1, [ o2 ])!
-                )
-            );
+        static IReadOnlyDictionary<Type, EquatorTemplate> CoreGetEquatorTemplates(Type objType)
+        {
+            return objType.GetGenericArgumentsAs(typeof(IEquatable<>))
+                .Select(static argTypes => argTypes[0])
+                .ToDictionary(
+                    static argType => argType, static argType =>
+                    {
+                        Type equatableType = typeof(IEquatable<>).MakeGenericType(argType);
+                        ParameterExpression parameterExpr = Expression.Parameter(typeof(object));
+                        ParameterExpression placeholderExpr = Expression.Parameter(equatableType);
+
+                        Expression<Func<object, bool>> lambdaExpr = Expression.Lambda<Func<object, bool>>(
+                            Expression.Call(
+                                placeholderExpr,
+                                equatableType.GetMethod(nameof(IEquatable<object>.Equals))!,
+                                Expression.Convert(parameterExpr, argType)
+                            ),
+                            parameterExpr
+                        );
+
+                        return new EquatorTemplate(lambdaExpr, placeholderExpr);
+                    }
+                );
+        }
+
+        return cachedEquatorTemplatesDicts.GetOrAdd(objType, CoreGetEquatorTemplates);
+    }
+
+    private sealed class EquatorTemplate
+    {
+        private readonly Expression<Func<object, bool>> lambda;
+        private readonly Expression placeholder;
+
+        public EquatorTemplate(Expression<Func<object, bool>> lambda, Expression placeholder)
+        {
+            this.lambda = lambda;
+            this.placeholder = placeholder;
+        }
+
+        public Func<object, bool> CreateEquator(object instance)
+        {
+            return ((Expression<Func<object, bool>>)new Replacer(placeholder, instance).Visit(lambda)!).Compile();
+        }
+
+        private sealed class Replacer : ExpressionVisitor
+        {
+            private readonly Expression placeholder;
+            private readonly object instance;
+
+            public Replacer(Expression placeholder, object instance)
+            {
+                this.placeholder = placeholder;
+                this.instance = instance;
+            }
+
+            public override Expression? Visit(Expression? node)
+            {
+                return node == placeholder ? Expression.Constant(instance) : base.Visit(node);
+            }
+        }
     }
 
     public int GetHashCode(object obj)
