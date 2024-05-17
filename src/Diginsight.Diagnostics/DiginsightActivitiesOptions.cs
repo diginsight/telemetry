@@ -13,6 +13,7 @@ public sealed class DiginsightActivitiesOptions
     private bool logActivities;
     private LogLevel activityLogLevel = LogLevel.Debug;
     private bool writeActivityActionAsPrefix;
+    private bool disablePayloadRendering;
     private bool recordSpanDurations;
 
     public ICollection<string> ActivitySources { get; }
@@ -35,6 +36,12 @@ public sealed class DiginsightActivitiesOptions
     {
         get => writeActivityActionAsPrefix;
         set => writeActivityActionAsPrefix = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
+    }
+
+    public bool DisablePayloadRendering
+    {
+        get => disablePayloadRendering;
+        set => disablePayloadRendering = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
     }
 
     public bool RecordSpanDurations
@@ -105,6 +112,12 @@ public sealed class DiginsightActivitiesOptions
         {
             get => filled.ActivityLogLevel;
             set => filled.ActivityLogLevel = value;
+        }
+
+        public bool DisablePayloadRendering
+        {
+            get => filled.DisablePayloadRendering;
+            set => filled.DisablePayloadRendering = value;
         }
 
         public bool RecordSpanDurations
