@@ -9,6 +9,7 @@ public interface IDiginsightActivitiesOptions
     bool LogActivities { get; }
     LogLevel ActivityLogLevel { get; }
     bool WriteActivityActionAsPrefix { get; }
+    bool DisablePayloadRendering { get; }
 
     bool RecordSpanDurations { get; }
 }
