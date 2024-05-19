@@ -64,6 +64,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
                 out bool isStandalone,
                 out bool shouldLog,
                 out bool writeActionAsPrefix,
+                out bool disablePayloadRendering,
                 out ILogger textLogger,
                 out LogLevel logLevel
             );
@@ -84,7 +85,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
             };
 
             EventId eventId = isStandalone ? StartActivityEventId : StartMethodActivityEventId;
-            if (inputs is null)
+            if (inputs is null || disablePayloadRendering)
             {
                 textLogger.Log(logLevel, eventId, ComposeLogFormat(isStandalone ? "{ActivityName}" : "{ActivityName}()"), activityName);
                 return;
@@ -120,6 +121,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
                 out bool isStandalone,
                 out bool shouldLog,
                 out bool writeActionAsPrefix,
+                out bool disablePayloadRendering,
                 out ILogger textLogger,
                 out LogLevel logLevel
             );
@@ -140,8 +142,8 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
 
             bool faulted = IsFaulted();
 
-            string? outputAsString = faulted ? null : LogOutput();
-            string? namedOutputsAsString = faulted ? null : LogNamedOutputs();
+            string? outputAsString = faulted || disablePayloadRendering ? null : LogOutput();
+            string? namedOutputsAsString = faulted || disablePayloadRendering ? null : LogNamedOutputs();
 
             string? LogOutput()
             {
@@ -258,6 +260,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         out bool isStandalone,
         out bool shouldLog,
         out bool writeActionAsPrefix,
+        out bool disablePayloadRendering,
         out ILogger textLogger,
         out LogLevel logLevel
     )
@@ -287,6 +290,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
             : NullLogger.Instance;
 
         writeActionAsPrefix = activitiesOptions.WriteActivityActionAsPrefix;
+        disablePayloadRendering = activitiesOptions.DisablePayloadRendering;
 
         logLevel = activity.GetCustomProperty(ActivityCustomPropertyNames.LogLevel) switch
         {
