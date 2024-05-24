@@ -1,6 +1,8 @@
-﻿using log4net.Core;
+﻿using Diginsight.Diagnostics.TextWriting;
+using log4net.Core;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Log4Net.AspNetCore.Entities;
+using System.Diagnostics;
 using ILogger = log4net.Core.ILogger;
 
 namespace Diginsight.Diagnostics.Log4Net;
@@ -29,29 +31,10 @@ internal sealed class DiginsightLoggingEventFactory : ILog4NetLoggingEventFactor
     {
         try
         {
-            object? innerState = messageCandidate.State;
-            bool isActivity = false;
-            TimeSpan? duration = null;
-            DateTimeOffset? maybeTimestamp = null;
-
-            while (true)
-            {
-                if (innerState is ActivityLifecycleLogEmitter.IActivityMark activityMark)
-                {
-                    innerState = activityMark.State;
-                    isActivity = true;
-                    duration = activityMark.Duration;
-                }
-                else if (innerState is DeferredLoggerFactory.ITimestamped timestamped)
-                {
-                    innerState = timestamped.State;
-                    maybeTimestamp = timestamped.Timestamp;
-                }
-                else
-                {
-                    break;
-                }
-            }
+            object? state = messageCandidate.State;
+            DiginsightTextWriter.ExpandState(
+                ref state, out bool isActivity, out TimeSpan? duration, out DateTimeOffset? maybeTimestamp, out Activity? activity
+            );
 
             LoggingEvent? loggingEvent = decoratee.CreateLoggingEvent(messageCandidate, logger, options, scopeProvider);
             if (loggingEvent is null)
@@ -64,7 +47,8 @@ internal sealed class DiginsightLoggingEventFactory : ILog4NetLoggingEventFactor
                 loggingEvent,
                 isActivity,
                 duration,
-                maybeTimestamp ?? timeProvider.GetUtcNow()
+                maybeTimestamp ?? timeProvider.GetUtcNow(),
+                activity ?? Activity.Current
             );
         }
         catch (Exception)

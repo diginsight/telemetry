@@ -162,7 +162,9 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
                 }
                 else
                 {
-                    owner.operations.Enqueue(new DeferredLogOperation<TState>(category, GetTimestamp(), logLevel, eventId, state, exception, formatter));
+                    owner.operations.Enqueue(new DeferredLogOperation<TState>(
+                        category, GetTimestamp(), Activity.Current, logLevel, eventId, state, exception, formatter
+                    ));
                 }
             }
         }
@@ -197,6 +199,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
     {
         private readonly string category;
         private readonly DateTimeOffset timestamp;
+        private readonly Activity? activity;
         private readonly LogLevel logLevel;
         private readonly EventId eventId;
         private readonly TState state;
@@ -206,6 +209,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
         public DeferredLogOperation(
             string category,
             DateTimeOffset timestamp,
+            Activity? activity,
             LogLevel logLevel,
             EventId eventId,
             TState state,
@@ -215,6 +219,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
         {
             this.category = category;
             this.timestamp = timestamp;
+            this.activity = activity;
             this.logLevel = logLevel;
             this.eventId = eventId;
             this.state = state;
@@ -229,55 +234,60 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
                 .Log(
                     logLevel,
                     eventId,
-                    Timestamped<TState>.For(state, timestamp),
+                    Deferred<TState>.For(state, timestamp, activity),
                     exception,
                     (s, e) => formatter(s.State, e)
                 );
         }
     }
 
-    public interface ITimestamped
+    public interface IDeferred
     {
         object? State { get; }
         DateTimeOffset Timestamp { get; }
+        Activity? Activity { get; }
     }
 
-    public interface ITimestamped<out TState> : ITimestamped
+    public interface IDeferred<out TState> : IDeferred
     {
         new TState State { get; }
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-        object? ITimestamped.State => State;
+        object? IDeferred.State => State;
 #endif
     }
 
-    private class Timestamped<TState> : ITimestamped<TState>
+    private class Deferred<TState> : IDeferred<TState>
     {
         public TState State { get; }
         public DateTimeOffset Timestamp { get; }
+        public Activity? Activity { get; }
 
 #if !(NET || NETSTANDARD2_1_OR_GREATER)
-        object? ITimestamped.State => State;
+        object? IDeferred.State => State;
 #endif
 
-        public Timestamped(TState state, DateTimeOffset timestamp)
+        public Deferred(TState state, DateTimeOffset timestamp, Activity? activity)
         {
             State = state;
             Timestamp = timestamp;
+            Activity = activity;
         }
 
-        public static ITimestamped<TState> For(TState state, DateTimeOffset timestamp)
+        public static IDeferred<TState> For(TState state, DateTimeOffset timestamp, Activity? activity)
         {
-            return state is Tags kvps ? new TagsTimestamped<TState>(state, kvps, timestamp) : new Timestamped<TState>(state, timestamp);
+            return state is Tags kvps
+                ? new TagsDeferred<TState>(state, kvps, timestamp, activity)
+                : new Deferred<TState>(state, timestamp, activity);
         }
     }
 
-    private sealed class TagsTimestamped<TState> : Timestamped<TState>, Tags
+    private sealed class TagsDeferred<TState> : Deferred<TState>, Tags
     {
         private readonly Tags kvps;
 
-        public TagsTimestamped(TState state, Tags kvps, DateTimeOffset timestamp)
-            : base(state, timestamp)
+        public TagsDeferred(TState state, Tags kvps, DateTimeOffset timestamp, Activity? activity)
+            : base(state, timestamp, activity)
         {
             this.kvps = kvps;
         }

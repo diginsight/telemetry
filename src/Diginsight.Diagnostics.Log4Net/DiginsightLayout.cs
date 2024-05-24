@@ -36,6 +36,7 @@ public sealed class DiginsightLayout : ILayout
             DiginsightTextWriter.Write(
                 writer,
                 UseUtcTimestamp ? loggingEvent.TimeStampUtc : loggingEvent.TimeStamp,
+                myLoggingEvent.Activity,
                 TranslateLogLevel(loggingEvent.Level),
                 myLoggingEvent.LoggerName,
                 myLoggingEvent.RenderedMessage,
