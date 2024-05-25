@@ -160,7 +160,7 @@ Also, logging to the local troubleshooting tools can normally be kept at __Warni
 This way, only __limited information is sent to the remote tools__ and also, __limited information is written to the local troubleshooting tools__.
 
 
-The image below shows a normal configuration for a runtime environment where only Information or warning level is enabled for few logging categories:
+The image below shows a normal configuration for a runtime environment where only Information or warning level is enabled for few logging categories:<br>
 ![alt text](<001.06 exammple runtime environment configuration.png>)
 
 The image below shows an application streaming log where only limited information is written about exceptional conditions:
@@ -181,7 +181,7 @@ This way, every call application flow can be easily isolated and analized on a l
 # Additional information
 
 Additional information is available in the following articles:<br>
->- [GETTING STARTED](https://github.com/diginsight/telemetry/tree/main?tab=readme-ov-file#getting-started)<br>
+>- [GETTING STARTED](https://github.com/diginsight/telemetry?tab=readme-ov-file#GETTING-STARTED)<br>
 We explore __how we can make our application flow fully observable__.<br>
 >- [HowTo: Use dynamic logging to manage loglevel dinamically, at runtime](https://github.com/diginsight/telemetry/blob/main/docs/articles/11.%20use%20Dynamic-Logging%20to%20manage%20loglevel%20dinamically%20at%20runtime/Use%20Dynamic-Logging%20to%20manage%20loglevel%20dinamically%20at%20runtime.md) <br>
 We explore how we can troubleshoot applications by means of __dynamic logging__.<br>
