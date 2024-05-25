@@ -173,7 +173,7 @@ Additional information is available in the following articles:<br>
 >Explores __basic steps we can follow to integrate diginsight telemetry__<br>
 >- [HowTo: use dynamic logging to manage loglevel dynamically, at runtime](<docs/articles/11. use Dynamic-Logging to manage loglevel dinamically at runtime/Use Dynamic-Logging to manage loglevel dinamically at runtime.md>)<br>
 >Explores how we can troubleshoot applications by means of __dynamic logging__.<br>
->- [HowTo: use `Dynamic-Configuration` to manage configurations and feature flags dynamically, at runtime](<docs/articles/11.a use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime/Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.md>)<br>
+>- [HowTo: use dynamic configuration to manage configurations and feature flags dynamically, at runtime](<docs/articles/11.a use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime/Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.md>)<br>
 >Explores how we can troubleshoot applications by means of __dynamic configuration__.<br>
 >- [HowTo: configure diginsight telemetry to the local text based streams](<docs/articles/12. Configure diginsight telemetry to the local text based streams/Configure diginsight telemetry to the local text based streams.md>)<br>
 >Explores how we configure diginsight telemetry to the __local analysis tools__.<br>
