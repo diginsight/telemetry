@@ -10,9 +10,10 @@ In the following paragraphs we'll understand how this can be obtained without im
 Also, you will soon learn that diginsight can be of great help with identifying and reducing `high latency flows` and `redundant flows` within the application execution paths.<br>
 So diginsight can greatly contribute to application performance optimization more than provide a limitation to it. 
 
-> With article:<br>
-[HOWTO - Make your application flow observable.md](HOWTO%20-%20Make%20your%20application%20flow%20observable.md)<br>
-We'll explore __how we can make our application flow fully observable__.<br><br>
+> 
+>With article:
+[GETTING STARTED](https://github.com/diginsight/telemetry/tree/main?tab=readme-ov-file#getting-started)<br>
+We explore __how we can make our application flow fully observable__.<br><br>
 
 # Performance considerations
 The following image defines key drivers used by diginsights to avoid performence impacts:
@@ -176,7 +177,21 @@ This will result in the full application flow being shown for the specific call:
 This way, every call application flow can be easily isolated and analized on a live server, that is processing other calls at the same time.
 
 
-<br><br>
+
+# Additional information
+
+Additional information is available in the following articles:<br>
+>- [GETTING STARTED](https://github.com/diginsight/telemetry/tree/main?tab=readme-ov-file#getting-started)<br>
+We explore __how we can make our application flow fully observable__.<br>
+>- [HowTo: Use dynamic logging to manage loglevel dinamically, at runtime](https://github.com/diginsight/telemetry/blob/main/docs/articles/11.%20use%20Dynamic-Logging%20to%20manage%20loglevel%20dinamically%20at%20runtime/Use%20Dynamic-Logging%20to%20manage%20loglevel%20dinamically%20at%20runtime.md) <br>
+We explore how we can troubleshoot applications by means of __dynamic logging__.<br>
+>- [HowTo: Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime](https://github.com/diginsight/telemetry/blob/main/docs/articles/11.a%20use%20Dynamic-Configuration%20to%20manage%20configurations%20and%20feature%20flags%20dynamically%20at%20runtime/Use%20Dynamic-Configuration%20to%20manage%20configurations%20and%20feature%20flags%20dynamically%20at%20runtime.md)<br>
+We explore how we can troubleshoot applications by means of __dynamic configuration__.<br>
+>- [HowTo: Configure diginsight telemetry to the local text based streams](https://github.com/diginsight/telemetry/blob/main/docs/articles/12.%20Configure%20diginsight%20telemetry%20to%20the%20local%20text%20based%20streams/Configure%20diginsight%20telemetry%20to%20the%20local%20text%20based%20streams.md)<br>
+We explore how we configure diginsight telemetry to the __local analysis tools__.<br>
+>- [HowTo: Configure diginsight telemetry to the remote tools](https://github.com/diginsight/telemetry/blob/main/docs/articles/12.a%20Configure%20diginsight%20telemetry%20to%20the%20remote%20tools/Configure%20diginsight%20telemetry%20to%20the%20remote%20tools.md)<br>
+We explore how we configure diginsight telemetry to the __remote analysis tools__.<br>
+
 
 # Build and Test 
 Clone the repository, open and build solution Diginsight.sln. 
