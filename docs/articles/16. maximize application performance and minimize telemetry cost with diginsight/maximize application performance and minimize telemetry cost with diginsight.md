@@ -168,13 +168,13 @@ The image below shows an application streaming log where only limited informatio
 
 In case specific troubleshooting is needed for an application behaviour you can use __dynamic logging__ to elevate application logging level for any logging category.
 
-The image shows an example call to the server where LogLevel is elevated to Trace f
+The image shows an example call to the server where LogLevel is elevated to Trace:
 ![alt text](<001.08a request with elevated logging.png>)
 
-This will result in the full application flow being shown for the specific call:
+This will result in the __full application flow__ being shown for the specific call:
 ![alt text](<001.09b full application flow.png>)
 
-This way, every call application flow can be easily isolated and analized on a live server, that is processing other calls at the same time.
+This way, every call application flow can be easily __isolated and analized on a live server__, that is __processing other calls at the same time__.
 
 
 
