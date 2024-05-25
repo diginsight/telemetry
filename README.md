@@ -143,7 +143,9 @@ also, the __Diginsight:Activities__ section can be used to specify __enabled Act
 
 ## STEP 03 - Add telemetry to code with __StartMethodActivity()__ and __ILogger Statements__
 we are now ready to add instrumentation to the code and make the application flow observable:
-![alt text](<docs/003.01 Code span with diginsight.png>)
+![alt text](<docs/003.01a Code span with diginsight.png>)
+
+Please, note that in this case the method payload is passed to `StartMethodActivity` by means of a __delegate notation__ so that the payload class allocation can be avoided when __logging__ or __payload rendering__ is disabled.
 
 ## STEP 04 - Enable OpenTelemetry and send data to the remote tools
 With few changes to the startup sequence, __telemetry can be sent to the remote tools__.
