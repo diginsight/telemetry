@@ -179,11 +179,15 @@ Additional information is available in the following articles:<br>
 >Explores how we configure diginsight telemetry to the __local analysis tools__.<br>
 >- [HowTo: configure diginsight telemetry to the remote tools](<docs/articles/12.a Configure diginsight telemetry to the remote tools/Configure diginsight telemetry to the remote tools.md>)<br>
 >Explores how we configure diginsight telemetry to the __remote analysis tools__.<br>
+>- [HowTo: maximize application performance and minimize telemetry cost with diginsight](<docs/articles/16. maximize application performance and minimize telemetry cost with diginsight/maximize application performance and minimize telemetry cost with diginsight.md>)<br>
+>Explores diginsight telemetry can be used without impact on __application performance__ and __telemetry cost__.<br>
+
+Advanced topics
 >- [HowTo: customize entities rendering on diginsight log streams](<docs/articles/13. Customize entities rendering on diginsight log streams/Customize entities rendering on diginsight log streams.md>).
 >- [HowTo: customize metrics sent to the remote tools](<docs/articles/14. Customize metrics sent to the remote tools/Customize metrics sent to the remote tools.md>).
 >- [HowTo: customize diginsight log streams row content](<docs/articles/15. Customize diginsight log streams row content/Customize diginsight log streams row content.md>).
->- [HowTo: maximize application performance and minimize telemetry cost with diginsight](<docs/articles/16. maximize application performance and minimize telemetry cost with diginsight/maximize application performance and minimize telemetry cost with diginsight.md>)<br>
->Explores diginsight telemetry can be used without impact on __application performance__ and __telemetry cost__.<br>
+>- [HowTo: troubleshoot the startup sequence](<docs/articles/16. troubleshoot the startup sequence/troubleshoot the startup sequence.md>).
+>- [HowTo: use class aware configurations to support comonent level or class level configurations](<docs/articles/17. use class aware configurations to support comonent level or class level configurations/use class aware configurations to support comonent level or class level configurations.md>).
 
 
 
