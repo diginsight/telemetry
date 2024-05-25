@@ -181,16 +181,17 @@ This way, every call application flow can be easily __isolated and analized on a
 # Additional information
 
 Additional information is available in the following articles:<br>
+
 >- [GETTING STARTED](https://github.com/diginsight/telemetry?tab=readme-ov-file#GETTING-STARTED)<br>
-We explore __how we can make our application flow fully observable__.<br>
+>Explores __how we can make our application flow fully observable__.<br>
 >- [HowTo: Use dynamic logging to manage loglevel dinamically, at runtime](https://github.com/diginsight/telemetry/blob/main/docs/articles/11.%20use%20Dynamic-Logging%20to%20manage%20loglevel%20dinamically%20at%20runtime/Use%20Dynamic-Logging%20to%20manage%20loglevel%20dinamically%20at%20runtime.md) <br>
-We explore how we can troubleshoot applications by means of __dynamic logging__.<br>
+>Explores how we can troubleshoot applications by means of __dynamic logging__.<br>
 >- [HowTo: Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime](https://github.com/diginsight/telemetry/blob/main/docs/articles/11.a%20use%20Dynamic-Configuration%20to%20manage%20configurations%20and%20feature%20flags%20dynamically%20at%20runtime/Use%20Dynamic-Configuration%20to%20manage%20configurations%20and%20feature%20flags%20dynamically%20at%20runtime.md)<br>
-We explore how we can troubleshoot applications by means of __dynamic configuration__.<br>
+>Explores how we can troubleshoot applications by means of __dynamic configuration__.<br>
 >- [HowTo: Configure diginsight telemetry to the local text based streams](https://github.com/diginsight/telemetry/blob/main/docs/articles/12.%20Configure%20diginsight%20telemetry%20to%20the%20local%20text%20based%20streams/Configure%20diginsight%20telemetry%20to%20the%20local%20text%20based%20streams.md)<br>
-We explore how we configure diginsight telemetry to the __local analysis tools__.<br>
+>Explores how we configure diginsight telemetry to the __local analysis tools__.<br>
 >- [HowTo: Configure diginsight telemetry to the remote tools](https://github.com/diginsight/telemetry/blob/main/docs/articles/12.a%20Configure%20diginsight%20telemetry%20to%20the%20remote%20tools/Configure%20diginsight%20telemetry%20to%20the%20remote%20tools.md)<br>
-We explore how we configure diginsight telemetry to the __remote analysis tools__.<br>
+>Explore how we configure diginsight telemetry to the __remote analysis tools__.<br>
 
 
 # Build and Test 
