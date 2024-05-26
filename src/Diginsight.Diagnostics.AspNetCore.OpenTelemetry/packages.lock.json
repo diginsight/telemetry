@@ -491,7 +491,7 @@
         "type": "Project",
         "dependencies": {
           "Diginsight.Diagnostics": "[1.0.0, )",
-          "OpenTelemetry.Extensions.Hosting": "[1.*, )"
+          "OpenTelemetry.Extensions.Hosting": "[1.8.1, )"
         }
       },
       "diginsight.polyfills": {
@@ -963,7 +963,7 @@
         "type": "Project",
         "dependencies": {
           "Diginsight.Diagnostics": "[1.0.0, )",
-          "OpenTelemetry.Extensions.Hosting": "[1.*, )"
+          "OpenTelemetry.Extensions.Hosting": "[1.8.1, )"
         }
       },
       "diginsight.polyfills": {
@@ -1314,7 +1314,7 @@
         "type": "Project",
         "dependencies": {
           "Diginsight.Diagnostics": "[1.0.0, )",
-          "OpenTelemetry.Extensions.Hosting": "[1.*, )"
+          "OpenTelemetry.Extensions.Hosting": "[1.8.1, )"
         }
       },
       "diginsight.polyfills": {
@@ -1653,7 +1653,7 @@
         "type": "Project",
         "dependencies": {
           "Diginsight.Diagnostics": "[1.0.0, )",
-          "OpenTelemetry.Extensions.Hosting": "[1.*, )"
+          "OpenTelemetry.Extensions.Hosting": "[1.8.1, )"
         }
       },
       "diginsight.polyfills": {
@@ -1979,7 +1979,7 @@
         "type": "Project",
         "dependencies": {
           "Diginsight.Diagnostics": "[1.0.0, )",
-          "OpenTelemetry.Extensions.Hosting": "[1.*, )"
+          "OpenTelemetry.Extensions.Hosting": "[1.8.1, )"
         }
       },
       "diginsight.polyfills": {
