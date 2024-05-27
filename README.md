@@ -1,5 +1,5 @@
 # INTRODUCTION 
-__diginsight telemetry__ is a set .Net packages that that provides __automatic__ __observability__ for dotnet applications.<br> 
+__diginsight telemetry__ is a set .Net packages that that provide __automatic__ __observability__ for dotnet applications.<br> 
 In particular, __the full application flow__ is made available to __local text based streams__ such as __traditional file logs__, the __Console log__ or the __Azure Streaming log__ and also to remote analysis tools such as __Azure Monitor__ and __Prometheus__/__Grafana__.<br>
 
 The image below shows the text based stream associated to to a Web API call.
