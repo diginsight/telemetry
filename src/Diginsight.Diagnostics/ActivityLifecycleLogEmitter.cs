@@ -64,6 +64,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
                 out bool isStandalone,
                 out bool shouldLog,
                 out bool writeActionAsPrefix,
+                out bool disablePayloadRendering,
                 out ILogger textLogger,
                 out LogLevel logLevel
             );
@@ -84,7 +85,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
             };
 
             EventId eventId = isStandalone ? StartActivityEventId : StartMethodActivityEventId;
-            if (inputs is null)
+            if (inputs is null || disablePayloadRendering)
             {
                 textLogger.Log(logLevel, eventId, ComposeLogFormat(isStandalone ? "{ActivityName}" : "{ActivityName}()"), activityName);
                 return;
@@ -120,6 +121,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
                 out bool isStandalone,
                 out bool shouldLog,
                 out bool writeActionAsPrefix,
+                out bool disablePayloadRendering,
                 out ILogger textLogger,
                 out LogLevel logLevel
             );
@@ -140,8 +142,8 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
 
             bool faulted = IsFaulted();
 
-            string? outputAsString = faulted ? null : LogOutput();
-            string? namedOutputsAsString = faulted ? null : LogNamedOutputs();
+            string? outputAsString = faulted || disablePayloadRendering ? null : LogOutput();
+            string? namedOutputsAsString = faulted || disablePayloadRendering ? null : LogNamedOutputs();
 
             string? LogOutput()
             {
@@ -258,6 +260,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         out bool isStandalone,
         out bool shouldLog,
         out bool writeActionAsPrefix,
+        out bool disablePayloadRendering,
         out ILogger textLogger,
         out LogLevel logLevel
     )
@@ -283,10 +286,11 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         IDiginsightActivitiesOptions activitiesOptions = activitiesOptionsMonitor.Get(callerType);
         shouldLog = activityLoggingSampler?.ShouldLog(activity) ?? activitiesOptions.LogActivities;
         textLogger = shouldLog
-            ? new ActivityLogger(MakeInnerLogger(), activity.IsStopped ? activity.Duration : null)
+            ? new ActivityLogger(MakeInnerLogger(), activity)
             : NullLogger.Instance;
 
         writeActionAsPrefix = activitiesOptions.WriteActivityActionAsPrefix;
+        disablePayloadRendering = activitiesOptions.DisablePayloadRendering;
 
         logLevel = activity.GetCustomProperty(ActivityCustomPropertyNames.LogLevel) switch
         {
@@ -299,12 +303,14 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
     private sealed class ActivityLogger : ILogger
     {
         private readonly ILogger decoratee;
+        private readonly Activity activity;
         private readonly TimeSpan? duration;
 
-        public ActivityLogger(ILogger decoratee, TimeSpan? duration = null)
+        public ActivityLogger(ILogger decoratee, Activity activity)
         {
             this.decoratee = decoratee;
-            this.duration = duration;
+            this.activity = activity;
+            duration = activity.IsStopped ? activity.Duration : null;
         }
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
@@ -314,7 +320,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
                 decoratee.Log(
                     logLevel,
                     eventId,
-                    ActivityMark<TState>.For(state, duration),
+                    ActivityMark<TState>.For(state, duration, activity),
                     exception,
                     (s, e) => formatter(s.State, e)
                 );
@@ -342,6 +348,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
     {
         object? State { get; }
         TimeSpan? Duration { get; }
+        Activity Activity { get; }
     }
 
     public interface IActivityMark<out TState> : IActivityMark
@@ -357,20 +364,24 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
     {
         public TState State { get; }
         public TimeSpan? Duration { get; }
+        public Activity Activity { get; }
 
 #if !(NET || NETSTANDARD2_1_OR_GREATER)
         object? IActivityMark.State => State;
 #endif
 
-        public ActivityMark(TState state, TimeSpan? duration)
+        public ActivityMark(TState state, TimeSpan? duration, Activity activity)
         {
             State = state;
             Duration = duration;
+            Activity = activity;
         }
 
-        public static IActivityMark<TState> For(TState state, TimeSpan? duration)
+        public static IActivityMark<TState> For(TState state, TimeSpan? duration, Activity activity)
         {
-            return state is Tags kvps ? new TagsActivityMark<TState>(state, kvps, duration) : new ActivityMark<TState>(state, duration);
+            return state is Tags kvps
+                ? new TagsActivityMark<TState>(state, kvps, duration, activity)
+                : new ActivityMark<TState>(state, duration, activity);
         }
     }
 
@@ -378,8 +389,8 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
     {
         private readonly Tags kvps;
 
-        public TagsActivityMark(TState state, Tags kvps, TimeSpan? duration)
-            : base(state, duration)
+        public TagsActivityMark(TState state, Tags kvps, TimeSpan? duration, Activity activity)
+            : base(state, duration, activity)
         {
             this.kvps = kvps;
         }

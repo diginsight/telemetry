@@ -41,6 +41,7 @@ internal class Program : BackgroundService
 
         IHost host;
         using (deferredActivitySource.StartMethodActivity(logger))
+        using (deferredActivitySource.StartRichActivity(logger, "Inner"))
         {
             host = new HostBuilder()
                 .ConfigureAppConfiguration(
