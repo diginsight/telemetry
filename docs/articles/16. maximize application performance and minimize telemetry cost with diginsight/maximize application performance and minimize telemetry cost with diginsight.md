@@ -73,7 +73,7 @@ When an exevution flow is omitted, __all the rows within the flow are omitted__.
 This way. __consistency and readability__ of data sent to the remote tools is ensured.<br>
 Also, __data sent to the remote tools is limited in size__, as well as its __cost__ and __performance impact__.
 
-The image below shows an __end to end transation detail__ sent to the __Azure Monitor__: all the transaction flow is sent, regardless of the sampling ratio configured for the application.
+The image below shows an __end to end transation detail__ sent to the __Azure Monitor__:<br> all the transaction flow is sent, regardless of the sampling ratio configured for the application.
 ![alt text](<001.04 Full call on azmon transaction-1.png>)
 
 The configuration section below, specifies a `"TracingSamplingRatio": 0.1`.<br>
