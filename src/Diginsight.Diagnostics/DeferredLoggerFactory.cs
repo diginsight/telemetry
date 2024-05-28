@@ -13,13 +13,13 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
 {
     private readonly TimeProvider timeProvider;
     private readonly object lockObj = new ();
-
     private readonly IDictionary<string, DeferredLogger> loggers = new Dictionary<string, DeferredLogger>(StringComparer.Ordinal);
     private readonly ConcurrentQueue<DeferredOperation> operations = new ();
 
+    private ActivityListener? activityListener;
     private ILoggerFactory? target;
 
-    public ActivitySource ActivitySource { get; } = new ($"{typeof(DeferredLoggerFactory).FullName!}_{Guid.NewGuid():N}");
+    public ISet<ActivitySource> ActivitySources { get; } = new HashSet<ActivitySource>();
 
     public DeferredLoggerFactory(
         TimeProvider? timeProvider = null,
@@ -36,8 +36,8 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
             new FixedClassAwareOptionsMonitor(activitiesOptions ?? new DiginsightActivitiesOptions()),
             activityLoggingSampler
         );
-
-        ActivitySource.AddActivityListener(new DeferredActivityLifecycleLogEmitter(this, emitter).ToActivityListener(s => s == ActivitySource));
+        activityListener = new DeferredActivityLifecycleLogEmitter(this, emitter).ToActivityListener(static _ => true);
+        ActivitySource.AddActivityListener(activityListener);
     }
 
     private sealed class DeferredActivityLifecycleLogEmitter : IActivityListenerLogic
@@ -53,19 +53,44 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
 
         void IActivityListenerLogic.ActivityStarted(Activity activity)
         {
-            if (owner.target is null)
+            if (!owner.ActivitySources.Contains(activity.Source) || owner.target is not null)
+                return;
+
+            lock (owner.lockObj)
+            {
+                if (owner.target is not null)
+                    return;
+
                 decoratee.ActivityStarted(activity);
+            }
         }
 
         void IActivityListenerLogic.ActivityStopped(Activity activity)
         {
-            if (owner.target is null)
+            if (!owner.ActivitySources.Contains(activity.Source) || owner.target is not null)
+                return;
+
+            lock (owner.lockObj)
+            {
+                if (owner.target is not null)
+                    return;
+
                 decoratee.ActivityStopped(activity);
+            }
         }
 
         ActivitySamplingResult IActivityListenerLogic.Sample(ref ActivityCreationOptions<ActivityContext> creationOptions)
         {
-            return decoratee.Sample(ref creationOptions);
+            if (!owner.ActivitySources.Contains(creationOptions.Source) || owner.target is not null)
+                return ActivitySamplingResult.None;
+
+            lock (owner.lockObj)
+            {
+                if (owner.target is not null)
+                    return ActivitySamplingResult.None;
+
+                return decoratee.Sample(ref creationOptions);
+            }
         }
     }
 
@@ -91,9 +116,15 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
 
     public ILogger CreateLogger(string categoryName)
     {
+        // ReSharper disable once LocalVariableHidesMember
+        if (this.target is { } target)
+        {
+            return target.CreateLogger(categoryName);
+        }
+
         lock (lockObj)
         {
-            if (target is not null)
+            if ((target = this.target) is not null)
             {
                 return target.CreateLogger(categoryName);
             }
@@ -106,29 +137,50 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
 
     public void AddProvider(ILoggerProvider provider)
     {
+        // ReSharper disable once LocalVariableHidesMember
+        if (this.target is { } target)
+        {
+            target.AddProvider(provider);
+            return;
+        }
+
         lock (lockObj)
         {
-            if (target is null)
+            if ((target = this.target) is not null)
+            {
+                target.AddProvider(provider);
+            }
+            else
             {
                 throw new NotSupportedException("Logger factory is deferred");
             }
-
-            target.AddProvider(provider);
         }
     }
 
     // ReSharper disable once ParameterHidesMember
-    public void FlushTo(ILoggerFactory target)
+    public void FlushTo(ILoggerFactory target, bool throwOnFlushed)
     {
+        if (this.target is not null)
+        {
+            if (throwOnFlushed)
+                throw new InvalidOperationException("Already flushed");
+            else
+                return;
+        }
+
         lock (lockObj)
         {
             if (this.target is not null)
             {
-                throw new InvalidOperationException("Already flushed");
+                if (throwOnFlushed)
+                    throw new InvalidOperationException("Already flushed");
+                else
+                    return;
             }
 
             this.target = target;
             loggers.Clear();
+            Interlocked.Exchange(ref activityListener, null)?.Dispose();
         }
 
         while (operations.TryDequeue(out DeferredOperation? operation))
@@ -137,7 +189,10 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
         }
     }
 
-    public void Dispose() { }
+    public void Dispose()
+    {
+        Interlocked.Exchange(ref activityListener, null)?.Dispose();
+    }
 
     private sealed class DeferredLogger : ILogger
     {
@@ -154,9 +209,15 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
         {
+            if (owner.target is { } target)
+            {
+                target.CreateLogger(category).Log(logLevel, eventId, state, exception, formatter);
+                return;
+            }
+
             lock (owner.lockObj)
             {
-                if (owner.target is { } target)
+                if ((target = owner.target) is not null)
                 {
                     target.CreateLogger(category).Log(logLevel, eventId, state, exception, formatter);
                 }
@@ -172,18 +233,21 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
         public IDisposable? BeginScope<TState>(TState state)
             where TState : notnull
         {
+            if (owner.target is { } target)
+            {
+                return target.CreateLogger(category).BeginScope(state);
+            }
+
             lock (owner.lockObj)
             {
-                if (owner.target is { } target)
+                if ((target = owner.target) is not null)
                 {
                     return target.CreateLogger(category).BeginScope(state);
                 }
-                else
-                {
-                    StrongBox<IDisposable?> scopeBox = new ();
-                    owner.operations.Enqueue(new DeferredBeginScopeOperation<TState>(category, state, scopeBox));
-                    return new CallbackDisposable(() => { owner.operations.Enqueue(new DeferredEndScopeOperation(scopeBox)); });
-                }
+
+                StrongBox<IDisposable?> scopeBox = new ();
+                owner.operations.Enqueue(new DeferredBeginScopeOperation<TState>(category, state, scopeBox));
+                return new CallbackDisposable(() => { owner.operations.Enqueue(new DeferredEndScopeOperation(scopeBox)); });
             }
         }
 
