@@ -1,5 +1,5 @@
 # INTRODUCTION 
-__diginsight telemetry__ is a set .Net packages that that provides __automatic__ __observability__ for dotnet applications.<br> 
+__diginsight telemetry__ provides __automatic__ __observability__ for dotnet applications.<br> 
 In particular, __the full application flow__ is made available to __local text based streams__ such as __traditional file logs__, the __Console log__ or the __Azure Streaming log__ and also to remote analysis tools such as __Azure Monitor__ and __Prometheus__/__Grafana__.<br>
 
 The image below shows the text based stream associated to to a Web API call.
@@ -143,7 +143,9 @@ also, the __Diginsight:Activities__ section can be used to specify __enabled Act
 
 ## STEP 03 - Add telemetry to code with __StartMethodActivity()__ and __ILogger Statements__
 we are now ready to add instrumentation to the code and make the application flow observable:
-![alt text](<docs/003.01 Code span with diginsight.png>)
+![alt text](<docs/003.01a Code span with diginsight.png>)
+
+Please, note that in this case the method payload is passed to `StartMethodActivity` by means of a __delegate notation__ so that the payload class allocation can be avoided when __logging__ or __payload rendering__ is disabled.
 
 ## STEP 04 - Enable OpenTelemetry and send data to the remote tools
 With few changes to the startup sequence, __telemetry can be sent to the remote tools__.
@@ -161,9 +163,32 @@ In our samples we enable openteemetry by means of the __AddObservability()__ ext
 ![alt text](<docs/004.00 AddObservability Extension method.png>)
 
 details about opentelemetry configuration is available here:
-[HowTo: Configure diginsight telemetry to the remote tools](<docs/articles/13.a Configure diginsight telemetry to the remote tools/Configure diginsight telemetry to the remote tools.md>).
+[HowTo: Configure diginsight telemetry to the remote tools](<docs/articles/13.a Configure diginsight telemetry to the remote tools/Configure diginsight telemetry to the remote tools.md>).<br>
 
-<br><br>
+# Additional information
+
+Additional information is available in the following articles:<br>
+
+>- [GETTING STARTED](https://github.com/diginsight/telemetry?tab=readme-ov-file#GETTING-STARTED)<br>
+>Explores __basic steps we can follow to integrate diginsight telemetry__<br>
+>- [HowTo: use dynamic logging to manage loglevel dynamically, at runtime](<docs/articles/11. use Dynamic-Logging to manage loglevel dinamically at runtime/Use Dynamic-Logging to manage loglevel dinamically at runtime.md>)<br>
+>Explores how we can troubleshoot applications by means of __dynamic logging__.<br>
+>- [HowTo: use dynamic configuration to manage configurations and feature flags dynamically, at runtime](<docs/articles/11.a use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime/Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.md>)<br>
+>Explores how we can troubleshoot applications by means of __dynamic configuration__.<br>
+>- [HowTo: configure diginsight telemetry to the local text based streams](<docs/articles/12. Configure diginsight telemetry to the local text based streams/Configure diginsight telemetry to the local text based streams.md>)<br>
+>Explores how we configure diginsight telemetry to the __local analysis tools__.<br>
+>- [HowTo: configure diginsight telemetry to the remote tools](<docs/articles/12.a Configure diginsight telemetry to the remote tools/Configure diginsight telemetry to the remote tools.md>)<br>
+>Explores how we configure diginsight telemetry to the __remote analysis tools__.<br>
+>- [HowTo: maximize application performance and minimize telemetry cost with diginsight](<docs/articles/16. maximize application performance and minimize telemetry cost with diginsight/maximize application performance and minimize telemetry cost with diginsight.md>)<br>
+>Explores diginsight telemetry can be used without impact on __application performance__ and __telemetry cost__.<br>
+
+Advanced topics
+>- [HowTo: customize entities rendering on diginsight log streams](<docs/articles/13. Customize entities rendering on diginsight log streams/Customize entities rendering on diginsight log streams.md>).
+>- [HowTo: customize metrics sent to the remote tools](<docs/articles/14. Customize metrics sent to the remote tools/Customize metrics sent to the remote tools.md>).
+>- [HowTo: customize diginsight log streams row content](<docs/articles/15. Customize diginsight log streams row content/Customize diginsight log streams row content.md>).
+>- [HowTo: troubleshoot the startup sequence](<docs/articles/16. troubleshoot the startup sequence/troubleshoot the startup sequence.md>).
+>- [HowTo: use class aware configurations to support comonent level or class level configurations](<docs/articles/17. use class aware configurations to support comonent level or class level configurations/use class aware configurations to support comonent level or class level configurations.md>).
+
 
 
 # Previous versions of diginsight

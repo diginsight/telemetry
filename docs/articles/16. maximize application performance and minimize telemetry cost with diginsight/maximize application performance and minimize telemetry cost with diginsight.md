@@ -1,3 +1,208 @@
 # INTRODUCTION 
-__diginsight telemetry__ is a set .Net packages that that provides __automatic__ __observability__ for dotnet applications.<br> 
-In particular, __the full application flow__ is made available to __local text based streams__ such as __traditional file logs__, the __Console log__ or the __Azure Streaming log__.<br>
+Diginsight brings __application behavior observability__ to the next step.<br>
+In particular The '__full application flow__' is made available to local text based streams such as the '__Console log__' or the '__Streaming log__'.<br> 
+The same information can be made available to '__remote tools__' for troubleshooting or performance analysis such as '__Azure Monitor__' or '__Grafana__'.<br>
+
+The following example shows the execution flow of a Web API call, .<br>
+![alt text](<000.01 Full call on log4net.png>)
+
+In the following paragraphs we'll understand how this can be obtained without impact on the application performance.<br>
+Also, you will soon learn that diginsight can be of great help with identifying and reducing `high latency flows` and `redundant flows` within the application execution paths.<br>
+So diginsight can greatly contribute to application performance optimization more than provide a limitation to it. 
+
+> 
+>With article:
+[GETTING STARTED](https://github.com/diginsight/telemetry/tree/main?tab=readme-ov-file#getting-started)<br>
+We explore __how we can make our application flow fully observable__.<br><br>
+
+# Performance considerations
+The following image defines key drivers used by diginsights to avoid performence impacts:
+
+![alt text](<001.02a NoPerformanceImpact.png>)
+
+## Driver n°1: No heap pressure when disabled
+The following code snippet shows a method instrumented by means of __diginsight__ `System.Diagnostics` __activities__:
+```c#
+public async Task<IEnumerable<Plant>> GetPlantByIdCachedAsync(Guid id)
+{
+    using var activity = Program.ActivitySource.StartMethodActivity(logger, () => new { id });
+
+    // Method implementation
+    // ...
+
+    activity?.SetOutput(plants);
+    return plants;
+}
+```
+
+When __disabling an activity source__, the activities for it are not created and `StartMethodActivity` returns `null`.<br>
+Also, in case __logging__ or __payload rendering__ are disabled, if __delegate notation__ is used to provide the `StartMethodActivity` payload, the delegate is not used and __the payload class is not allocated__ into the heap.
+
+![alt text](<001.03c No heap pressure.png>)
+In such conditions, diginsight activities are __not at all generated or used__ and do not provide any performance impact to the overall application.
+
+## Driver n°2: No processing for disabled logs 
+Needless to say, when log is disabled, method payloads are not processed and no strings are generated for method spans __start__ and __completion__.
+
+Also intermediate `logger.LogXxxx()` statements, when using `structured logging` notation do not involve any string composition.
+
+```c#
+public async Task<IEnumerable<Plant>> GetPlantByIdCachedAsync(Guid id)
+{
+    using var activity = Program.ActivitySource.StartMethodActivity(logger, () => new { id });
+
+    // Method implementation
+    // ...
+    logger.LogInformation("Plant '{Name}' ({Id}) accessed", plant.Name, plant.Id)
+
+    activity?.SetOutput(plants);
+    return plants;
+}
+```
+
+## Driver n°3: Intelligent sampling can be used to limit data sent to the remote tools
+Diginsight supports __intelligent sampling__ by means of `OpenTelemetry` sampling support.
+
+With OpenTelemetry, a full execution within a component is identified as a __trace__.<br>
+The image below shows an example __trace__ where all rows share the same __trace_id__.
+
+![alt text](<001.04 End to end transaction flow.png>)
+
+When an exevution flow is selected for sending to the remote tools, __all the rows within the flow are sent__.<br>
+When an exevution flow is omitted, __all the rows within the flow are omitted__.<br>
+This way. __consistency and readability__ of data sent to the remote tools is ensured.<br>
+Also, __data sent to the remote tools is limited in size__, as well as its __cost__ and __performance impact__.
+
+The image below shows an __end to end transation detail__ sent to the __Azure Monitor__:<br> all the transaction flow is sent, regardless of the sampling ratio configured for the application.
+![alt text](<001.04 Full call on azmon transaction-1.png>)
+
+The configuration section below, specifies a `"TracingSamplingRatio": 0.1`.<br>
+In such case, __only one execution flow should be sent__ to the remote tools, __out of 10__.
+
+```c#
+  "OpenTelemetry": {
+    "EnableMetrics": true,
+    "EnableTraces": true,
+    "TracingSamplingRatio": 0.1,
+    "ActivitySources": [
+      "Azure.Cosmos.Operation",
+      "Azure.Storage.Blobs.BlobBaseClient",
+      "Microsoft.AspNetCore",
+      "Diginsight.*",
+      "ABB.*"
+    ],
+    "ExcludedHttpHosts": [
+      "login.microsoftonline.com",
+      ".documents.azure.com",
+      ".applicationinsights.azure.com",
+      ".monitor.azure.com",
+      ".b2clogin.com"
+    ],
+    "DurationMetricTags": [
+      "widget_template",
+      "site_name"
+    ]
+  },
+```
+
+Reducing data volumes sent to the remote tools still __allows analyzig system behaviours and trends__ with __minimal cost__ and __minimal performance impact__.<br>
+At the same time, __full troubleshooting capability__ is available with __dynamic logging__ and __dynamic configuration__ on the local troubleshooting tools (eg. the __console log__ or the __streaming log__).
+
+## Driver n°4: Traces sent to the remote tools are higly configurable
+Data sent to the remote tools can be configured by means of the `OpenTelemetry` section:
+```c#
+"OpenTelemetry": {
+    "EnableMetrics": true,
+    "EnableTraces": true,
+    "TracingSamplingRatio": 0.1,
+    "ActivitySources": [
+        "Azure.Cosmos.Operation",
+        "Azure.Storage.Blobs.BlobBaseClient",
+        "Microsoft.AspNetCore",
+        "Diginsight.*",
+        "ABB.*"
+    ]
+},
+```
+- `EnableMetrics` (def. true): specifies whether metrics are sent to the remote tools
+- `EnableTraces` (def. true): specifies whether traces are sent to the remote tools
+- `TracingSamplingRatio` (def. 1): specifies the __sampling ratio__ for data sent to the remote tools.
+- `ActivitySources`: identifies the __activity sources__ enabled for sending data to the remote tools.
+
+## Driver n°5: Metrics sent to the remote tools are higly configurable
+With OpenTelemetry, every execution flow (__trace__) can be composed of multiple __spans__.<br>
+Diginsight gathers automatically few simple metrics such as the __diginsight.span_duration__ that describes every single __method latency__.
+
+The local troubleshooting tools show the __diginsight.span_duration__ metric at any __span completion__ row:
+![alt text](<001.04a End to end transaction flow.png>)
+
+Diginsights can be configured to send the `span_duration` metric to the remote tools.<br>
+The following charts show diginsight `span_duration` metric for a few methods on an Azure Monitor dashboard:
+![alt text](<001.05a span_duration on azure monitor.png>)
+
+`RecordSpanDurations` __class aware option__ can be used to specify __which span_duration__ metrics should be sent to the remmote tools.<br>
+In particular, the `RecordSpanDurations` flag can be set at __namespace__ or __class__ granularity level.<br>
+As an example, the configuration snippet below specifies that `RecordSpanDurations` flag is enabled only for `Microsoft` and `Diginsight` namespaces:
+
+```c#
+"Diginsight": {
+    "Activities": {
+        "RecordSpanDurations": false,
+        "RecordSpanDurations@Microsoft.*": true,
+        "RecordSpanDurations@Diginsight.*": true
+    }
+}
+```
+## Driver n°6: Use Request level `dynamic Logging` to hot switch log levels on local troubleshooting tools
+With diginsight, you can safely send __sampled telemetry__ to the remote troubleshooting tools.<br>
+This allows capturing application behaviors and trends.<br>
+Also, logging to the local troubleshooting tools can normally be kept at __Warning__ or __Information level__.<br>
+This way, only __limited information is sent to the remote tools__ and also, __limited information is written to the local troubleshooting tools__.
+
+
+The image below shows a normal configuration for a runtime environment where only Information or warning level is enabled for few logging categories:<br>
+![alt text](<001.06 exammple runtime environment configuration.png>)
+
+The image below shows an application streaming log where only limited information is written about exceptional conditions:
+![alt text](<001.07c application streaming log with limited runtime info.png>)
+
+In case specific troubleshooting is needed for an application behaviour you can use __dynamic logging__ to elevate application logging level for any logging category.
+
+The image shows an example call to the server where LogLevel is elevated to Trace:
+![alt text](<001.08a request with elevated logging.png>)
+
+This will result in the __full application flow__ being shown for the specific call:
+![alt text](<001.09b full application flow.png>)
+
+This way, every call application flow can be easily __isolated and analized on a live server__, that is __processing other calls at the same time__.
+
+
+
+# Additional information
+
+Additional information is available in the following articles:<br>
+
+>- [GETTING STARTED](https://github.com/diginsight/telemetry?tab=readme-ov-file#GETTING-STARTED)<br>
+>Explores __how we can make our application flow fully observable__.<br>
+>- [HowTo: Use dynamic logging to manage loglevel dinamically, at runtime](https://github.com/diginsight/telemetry/blob/main/docs/articles/11.%20use%20Dynamic-Logging%20to%20manage%20loglevel%20dinamically%20at%20runtime/Use%20Dynamic-Logging%20to%20manage%20loglevel%20dinamically%20at%20runtime.md) <br>
+>Explores how we can troubleshoot applications by means of __dynamic logging__.<br>
+>- [HowTo: Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime](https://github.com/diginsight/telemetry/blob/main/docs/articles/11.a%20use%20Dynamic-Configuration%20to%20manage%20configurations%20and%20feature%20flags%20dynamically%20at%20runtime/Use%20Dynamic-Configuration%20to%20manage%20configurations%20and%20feature%20flags%20dynamically%20at%20runtime.md)<br>
+>Explores how we can troubleshoot applications by means of __dynamic configuration__.<br>
+>- [HowTo: Configure diginsight telemetry to the local text based streams](https://github.com/diginsight/telemetry/blob/main/docs/articles/12.%20Configure%20diginsight%20telemetry%20to%20the%20local%20text%20based%20streams/Configure%20diginsight%20telemetry%20to%20the%20local%20text%20based%20streams.md)<br>
+>Explores how we configure diginsight telemetry to the __local analysis tools__.<br>
+>- [HowTo: Configure diginsight telemetry to the remote tools](https://github.com/diginsight/telemetry/blob/main/docs/articles/12.a%20Configure%20diginsight%20telemetry%20to%20the%20remote%20tools/Configure%20diginsight%20telemetry%20to%20the%20remote%20tools.md)<br>
+>Explore how we configure diginsight telemetry to the __remote analysis tools__.<br>
+
+
+# Build and Test 
+Clone the repository, open and build solution Diginsight.sln. 
+run EasySample and open the log file in your **\Log** folder.
+
+# Contribute
+Contribute to the repository with your pull requests. 
+
+- [ASP.NET Core](https://github.com/aspnet/Home)
+- [Visual Studio Code](https://github.com/Microsoft/vscode)
+
+# License
+See the [LICENSE](LICENSE.md) file for license rights and limitations (MIT).

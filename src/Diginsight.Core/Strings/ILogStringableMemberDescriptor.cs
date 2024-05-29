@@ -1,6 +1,6 @@
 ﻿namespace Diginsight.Strings;
 
-public interface ILogStringableMemberDescriptor
+public interface ILogStringableMemberDescriptor : ILogStringableDescriptor
 {
     string? Name { get; }
 
