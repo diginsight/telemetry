@@ -8,7 +8,7 @@ public sealed class HttpHeadersActivityLoggingSampler : IActivityLoggingSampler
     private const string SourceHeaderName = "Activity-Source-Logging";
     private const string PlainHeaderName = "Activity-Logging";
 
-    public static readonly IEnumerable<string> HeaderNames = new[] { SourceHeaderName, PlainHeaderName };
+    public static readonly IEnumerable<string> HeaderNames = [ SourceHeaderName, PlainHeaderName ];
 
     private readonly IHttpContextAccessor httpContextAccessor;
 

@@ -9,7 +9,7 @@ public static class ClassConfigurationMarkers
 {
     private static readonly ConcurrentDictionary<Type, IReadOnlyList<string>> Markers = new ();
     private static readonly Regex GenericSuffixRegex = new (@"`\d+");
-    private static readonly IReadOnlyList<string> NoClassMarkers = new[] { "" };
+    private static readonly IReadOnlyList<string> NoClassMarkers = [ "" ];
 
     public static IReadOnlyList<string> For(Type @class)
     {
