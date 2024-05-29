@@ -18,7 +18,7 @@ public static class DependencyInjectionExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IOpenTelemetryBuilder AddDiginsightOpenTelemetry(this IServiceCollection services)
     {
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IOnCreateServiceProvider, OpenTelemetryEnsurer>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IOnCreateServiceProvider, EnsureOpenTelemetry>());
 
         IOpenTelemetryBuilder openTelemetryBuilder = services.AddOpenTelemetry();
 
@@ -36,9 +36,9 @@ public static class DependencyInjectionExtensions
         return openTelemetryBuilder;
     }
 
-    private sealed class OpenTelemetryEnsurer : IOnCreateServiceProvider
+    private sealed class EnsureOpenTelemetry : IOnCreateServiceProvider
     {
-        public OpenTelemetryEnsurer(
+        public EnsureOpenTelemetry(
             TracerProvider? tracerProvider = null,
             MeterProvider? meterProvider = null
         )
