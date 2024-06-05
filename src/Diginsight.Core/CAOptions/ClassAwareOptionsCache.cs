@@ -97,7 +97,7 @@ public sealed class ClassAwareOptionsCache<TOptions> : IClassAwareOptionsCache<T
         {
             foreach ((string Name, Type Class) item in dict.Keys)
             {
-                if (!string.Equals(name, item.Name, StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(name, item.Name, StringComparison.Ordinal))
                     continue;
 
                 dict.TryRemove(item, out _);
