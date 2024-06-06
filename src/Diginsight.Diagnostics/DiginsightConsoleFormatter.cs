@@ -42,14 +42,19 @@ internal sealed class DiginsightConsoleFormatter : ConsoleFormatter
 
             DateTimeOffset finalTimestamp = maybeTimestamp ?? timeProvider.GetUtcNow();
 
-            int width;
+            int? width;
             try
             {
-                width = Console.WindowWidth;
+                width = formatterOptions.TotalWidth switch
+                {
+                    < 0 => null,
+                    0 => Console.WindowWidth,
+                    var w => w,
+                };
             }
             catch (Exception)
             {
-                width = int.MaxValue;
+                width = null;
             }
 
             DiginsightTextWriter.Write(

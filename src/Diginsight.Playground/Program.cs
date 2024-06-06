@@ -28,7 +28,7 @@ internal class Program : BackgroundService
 
     private static void Main()
     {
-        DiginsightTextWriter.DisplayTiming = true;
+        //DiginsightTextWriter.DisplayTiming = true;
 
         DiginsightActivitiesOptions diginsightActivitiesOptions = new ()
         {

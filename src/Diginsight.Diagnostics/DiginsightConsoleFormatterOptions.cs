@@ -17,6 +17,8 @@ public sealed class DiginsightConsoleFormatterOptions : ConsoleFormatterOptions,
 
     IReadOnlyDictionary<string, string?> IDiginsightConsoleFormatterOptions.Patterns => patterns;
 
+    public int TotalWidth { get; set; }
+
     public DiginsightConsoleFormatterOptions()
     {
         UseUtcTimestamp = true;
