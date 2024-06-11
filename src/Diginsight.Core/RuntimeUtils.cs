@@ -1,4 +1,6 @@
+using Newtonsoft.Json.Linq;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -138,5 +140,295 @@ public static class RuntimeUtils
                 return (memberName, localFunctionName);
             }
         }
+    }
+
+    public static long GetSizeHeuristically(this object? obj, int depthLimit = 25)
+    {
+        (long size, Exception? exception) = SizeCalculator.Get(obj, depthLimit);
+        return exception is null ? size : throw exception;
+    }
+
+    private static class SizeCalculator
+    {
+#if NET || NETSTANDARD2_1_OR_GREATER
+        private static readonly MethodInfo IsReferenceOrContainsReferencesMethod = typeof(RuntimeHelpers)
+            .GetMethod(nameof(RuntimeHelpers.IsReferenceOrContainsReferences), BindingFlags.Public | BindingFlags.Static)!;
+#endif
+        private static readonly MethodInfo GetUnmanagedSizeMethod = typeof(SizeCalculator)
+            .GetMethod(nameof(GetUnmanagedSize), BindingFlags.NonPublic | BindingFlags.Static)!;
+
+        private static readonly ConcurrentDictionary<Type, long> FixedSizes = new ();
+        private static readonly ConcurrentDictionary<Type, ValueTuple> ManagedTypes = new ();
+#if NET || NETSTANDARD2_1_OR_GREATER
+        private static readonly ConcurrentDictionary<Type, (long, IEnumerable<int>)> VariableIndexCache = new ();
+#endif
+        private static readonly ConcurrentDictionary<Type, (long, IEnumerable<FieldInfo>)> VariableFieldCache = new ();
+
+        public static (long, Exception?) Get(object? obj, int depthLimit)
+        {
+            ISet<object> seen = new HashSet<object>();
+            StrongBox<int> depthBox = new(0);
+
+            HeuristicSizeResult CoreGet(object? current)
+            {
+                if (depthBox.Value++ > depthLimit)
+                {
+                    return new HeuristicSizeResult(long.MaxValue, new InvalidOperationException("Size calculation recursion limit reached"));
+                }
+
+                try
+                {
+                    if (current is null)
+                    {
+                        return default;
+                    }
+
+                    if (current is Pointer or Delegate)
+                    {
+                        return new HeuristicSizeResult(IntPtr.Size, true);
+                    }
+
+                    Type type = current.GetType();
+                    if (FixedSizes.TryGetValue(type, out long fsz))
+                    {
+                        return new HeuristicSizeResult(fsz, true);
+                    }
+
+                    if (!ManagedTypes.ContainsKey(type))
+                    {
+                        if (TryGetUnmanagedSize(type) is { } usz)
+                        {
+                            return new HeuristicSizeResult(FixedSizes[type] = usz, true);
+                        }
+                        else
+                        {
+                            ManagedTypes[type] = default;
+                        }
+                    }
+
+                    if (current is string str)
+                    {
+                        return new HeuristicSizeResult(str.Length * sizeof(char));
+                    }
+
+#if NET || NETSTANDARD2_1_OR_GREATER
+                    if (current is ITuple tuple)
+                    {
+                        if (VariableIndexCache.TryGetValue(type, out (long, IEnumerable<int>) pair))
+                        {
+                            (long baseSz, IEnumerable<int> indexes) = pair;
+                            HeuristicSizeResult result = new (baseSz);
+
+                            foreach (int index in indexes)
+                            {
+                                result += CoreGet(tuple[index]);
+                            }
+
+                            return result;
+                        }
+
+                        HeuristicSizeResult fixedResult = new (0, true);
+                        HeuristicSizeResult variableResult = new (0, false);
+
+                        ICollection<int> variableIndexes = new List<int>();
+
+                        for (int index = 0; index < tuple.Length; index++)
+                        {
+                            HeuristicSizeResult currentResult = CoreGet(tuple[index]);
+                            if (currentResult.Fxd)
+                            {
+                                fixedResult += currentResult;
+                            }
+                            else
+                            {
+                                variableResult += currentResult;
+                                variableIndexes.Add(index);
+                            }
+                        }
+
+                        if (!variableIndexes.Any())
+                        {
+                            return fixedResult;
+                        }
+
+                        VariableIndexCache[type] = (fixedResult.Sz, variableIndexes);
+                        return fixedResult + variableResult;
+                    }
+#endif
+
+                    if (current is Type)
+                    {
+                        return new HeuristicSizeResult(IntPtr.Size, true);
+                    }
+
+                    if (current is JToken jt)
+                    {
+                        return jt switch
+                        {
+                            JValue jv => ~CoreGet(jv.Value),
+                            JArray ja => ~CoreGet(ja.Children().ToArray()),
+                            JObject jo => ~CoreGet(jo.Properties().ToArray()),
+                            JProperty jp => ~(CoreGet(jp.Name) + CoreGet(jp.Value)),
+                            JConstructor jc => ~(CoreGet(jc.Name) + CoreGet(jc.Children().ToArray())),
+                            _ => new HeuristicSizeResult(0, new UnreachableException($"Unsupported {nameof(JToken)} subclass")),
+                        };
+                    }
+
+                    if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Lazy<>))
+                    {
+                        return CoreGet(type.GetProperty(nameof(Lazy<object>.Value))!.GetValue(current));
+                    }
+
+                    if (!seen.Add(current))
+                    {
+                        return new HeuristicSizeResult(IntPtr.Size);
+                    }
+
+                    try
+                    {
+                        if (current is ISizeableHeuristically ms)
+                        {
+                            return ms.GetSizeHeuristically(CoreGet);
+                        }
+
+                        if (current is IEnumerable enumerable)
+                        {
+                            HeuristicSizeResult result = default;
+
+                            IEnumerator enumerator = enumerable.GetEnumerator();
+                            try
+                            {
+                                bool SafeMoveNext(ref HeuristicSizeResult result)
+                                {
+                                    try
+                                    {
+                                        return enumerator.MoveNext();
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        result += e;
+                                        return false;
+                                    }
+                                }
+
+                                while (SafeMoveNext(ref result))
+                                {
+                                    result += CoreGet(enumerator.Current);
+                                }
+                            }
+                            finally
+                            {
+                                (enumerator as IDisposable)?.Dispose();
+                            }
+
+                            return result;
+                        }
+
+                        if (VariableFieldCache.TryGetValue(type, out (long, IEnumerable<FieldInfo>) pair))
+                        {
+                            (long baseSz, IEnumerable<FieldInfo> fields) = pair;
+                            HeuristicSizeResult result = new (baseSz);
+
+                            foreach (FieldInfo field in fields)
+                            {
+                                object? fieldValue;
+                                try
+                                {
+                                    fieldValue = field.GetValue(current);
+                                }
+                                catch (Exception e)
+                                {
+                                    result += e;
+                                    continue;
+                                }
+
+                                result += CoreGet(fieldValue);
+                            }
+
+                            return result;
+                        }
+
+                        HeuristicSizeResult fixedResult = new (0, true);
+                        HeuristicSizeResult variableResult = new (0, false);
+
+                        FieldInfo[] allFields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        ICollection<FieldInfo> variableFields = new List<FieldInfo>();
+
+                        foreach (FieldInfo field in allFields)
+                        {
+                            object? fieldValue;
+                            try
+                            {
+                                fieldValue = field.GetValue(current);
+                            }
+                            catch (Exception e)
+                            {
+                                variableResult += e;
+                                continue;
+                            }
+
+                            HeuristicSizeResult currentResult = CoreGet(fieldValue);
+                            if (currentResult.Fxd)
+                            {
+                                fixedResult += currentResult;
+                            }
+                            else
+                            {
+                                variableResult += currentResult;
+                                variableFields.Add(field);
+                            }
+                        }
+
+                        if (!variableFields.Any())
+                        {
+                            return fixedResult;
+                        }
+
+                        VariableFieldCache[type] = (fixedResult.Sz, variableFields);
+                        return fixedResult + variableResult;
+                    }
+                    finally
+                    {
+                        seen.Remove(current);
+                    }
+                }
+                finally
+                {
+                    depthBox.Value--;
+                }
+            }
+
+            HeuristicSizeResult result = CoreGet(obj);
+            return (result.Sz, result.Exc);
+        }
+
+        private static long? TryGetUnmanagedSize(Type type)
+        {
+            try
+            {
+                return IsUnmanaged(type)
+                    ? (long)GetUnmanagedSizeMethod.MakeGenericMethod(type).Invoke(null, [ ])!
+                    : null;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+            static bool IsUnmanaged(Type type)
+            {
+#if NET || NETSTANDARD2_1_OR_GREATER
+                return !(bool)IsReferenceOrContainsReferencesMethod.MakeGenericMethod(type).Invoke(null, [ ])!;
+#else
+                if (type.IsPrimitive || type.IsEnum || type.IsPointer)
+                    return true;
+                if (!type.IsValueType)
+                    return false;
+                return type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).All(static f => IsUnmanaged(f.FieldType));
+#endif
+            }
+        }
+
+        private static unsafe long GetUnmanagedSize<T>() where T : unmanaged => sizeof(T);
     }
 }
