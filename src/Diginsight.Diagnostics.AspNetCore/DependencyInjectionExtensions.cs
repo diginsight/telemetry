@@ -15,6 +15,7 @@ public static class DependencyInjectionExtensions
         Action<WebHostBuilderContext, ServiceProviderOptions>? configureOptions = null
     )
     {
+
         return hostBuilder.ConfigureServices(
             (context, services) =>
             {
