@@ -1,6 +1,6 @@
 # INTRODUCTION 
-__diginsight telemetry__ provides __automatic__ __observability__ for dotnet applications.<br> 
-In particular, __the full application flow__ is made available to __local text based streams__ such as __traditional file logs__, the __Console log__ or the __Azure Streaming log__ and also to remote analysis tools such as __Azure Monitor__ and __Prometheus__/__Grafana__.<br>
+__Diginsight telemetry__ provides __automatic__ __observability__ for dotnet applications.<br> 
+In particular, __the full application flow__ is made available to __local text based streams__ such as __traditional file logs__, the __Console log__ or the __Azure Streaming Log__ and also to remote analysis tools such as __Azure Monitor__ and __Prometheus__/__Grafana__.<br>
 
 The image below shows the text based stream associated to to a Web API call.
 ![Alt text](<docs/000.01 Full call on log4net.png>)
@@ -38,34 +38,6 @@ Diginsight uses __dynamic logging__, __smart sampling__, __automatic truncation_
 Diginsight __log layout__ and __automatic rendering__ for entities can be fully customized to ensure best readability of the application flow.
 
 Paragraph [GETTING STARTED](#GETTING-STARTED) discusses basic steps we can follow to integrate diginsight telemetry.
-
-The following articles explain in details:
-- [HowTo: use dynamic logging to manage loglevel dynamically, at runtime](<docs/articles/11. use Dynamic-Logging to manage loglevel dinamically at runtime/Use Dynamic-Logging to manage loglevel dinamically at runtime.md>).
-
-- [HowTo: use Dynamic-Configuration to manage configurations and feature flags dynamically, at runtime](<docs/articles/11.a use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime/Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.md>).
-
-- [HowTo: Configure diginsight telemetry to the local text based streams](<docs/articles/12. Configure diginsight telemetry to the local text based streams/Configure diginsight telemetry to the local text based streams.md>).
-
-- [HowTo: Configure diginsight telemetry to the remote tools](<docs/articles/12.a Configure diginsight telemetry to the remote tools/Configure diginsight telemetry to the remote tools.md>).
-
-- [HowTo: customize entities rendering on diginsight log streams](<docs/articles/13. Customize entities rendering on diginsight log streams/Customize entities rendering on diginsight log streams.md>).
-
-- [HowTo: Customize metrics sent to the remote tools](<docs/articles/14. Customize metrics sent to the remote tools/Customize metrics sent to the remote tools.md>).
-
-- [HowTo: Customize diginsight log streams row content](<docs/articles/15. Customize diginsight log streams row content/Customize diginsight log streams row content.md>).
-
-- [HowTo: maximize application performance and minimize telemetry cost with diginsight](<docs/articles/16. maximize application performance and minimize telemetry cost with diginsight/maximize application performance and minimize telemetry cost with diginsight.md>).
-
-<br>
-
-> __diginsight v3 is now available__<br>
-> the following article describes improvements of diginsight v3 over the previous version.
-[Introduction to Diginsight v3](<docs/articles/10. Introduction to Diginsight v3/Introduction to Diginsight v3.md>).<br>
-> Features such as old frameworks support (eg. .Net Framework 4.5+) or observability for startup and static sections may still have limited support on Diginsight v3.<br>
-> In these cases the developer may decide to keep the old model.<br>
-> Diginsight v2 will not be discontinued until feature parity is reached.<br>
-> Documentation about v2 packages is still available here [Diginsight v2 documentation](<docs/articles/v2/README.md>).<br>
-
 
 
 # APPLICATION OBSERVABILITY CONCEPTS 
