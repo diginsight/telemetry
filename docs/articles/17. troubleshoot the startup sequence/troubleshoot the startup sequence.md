@@ -15,7 +15,7 @@ In particular the steps shown below explain how the startup sequence can be made
 
 ![alt text](<000.01 - telemetry_samples repository.png>)
 
-# HOW TO INSTRUMENT THE STARTUP SEQUENCE
+# HOW TO MAKE THE STARTUP SEQUENCE OBSERVABLE
 
 The following code snippet shows the startup method of the `SampleWebApi` project:
 
