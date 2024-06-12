@@ -121,7 +121,7 @@ Please, note that in this case the method payload is passed to `StartMethodActiv
 
 ## STEP 04 - Enable OpenTelemetry and send data to the remote tools
 With few changes to the startup sequence, __telemetry can be sent to the remote tools__.
-Telemetry to the local tools is less expensive, more efficient, well protected and often it is not even persisted.
+Telemetry to the local tools is less expensive, m4ore efficient, well protected and often it is not even persisted.
 So, telemetry to the local tools can include verbose data with the maximum level of information.<br>
 
 Telemetry to the remote tools is more expensive (in cost and performance) so it will normally include only critical and warning non verbose information.
@@ -146,7 +146,7 @@ Additional information is available in the following articles:<br>
 >- [HowTo: use dynamic logging to manage loglevel dynamically, at runtime](<docs/articles/11. use Dynamic-Logging to manage loglevel dinamically at runtime/Use Dynamic-Logging to manage loglevel dinamically at runtime.md>)<br>
 >Explores how we can troubleshoot applications by means of __dynamic logging__.<br>
 >- [HowTo: use dynamic configuration to manage configurations and feature flags dynamically, at runtime](<docs/articles/11.a use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime/Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.md>)<br>
->Explores how we can troubleshoot applications by means of __dynamic configuration__.<br>
+>Explores how we can troubleshoot applications by means of __dynamic configuration__.<br>4
 >- [HowTo: configure diginsight telemetry to the local text based streams](<docs/articles/12. Configure diginsight telemetry to the local text based streams/Configure diginsight telemetry to the local text based streams.md>)<br>
 >Explores how we configure diginsight telemetry to the __local analysis tools__.<br>
 >- [HowTo: configure diginsight telemetry to the remote tools](<docs/articles/12.a Configure diginsight telemetry to the remote tools/Configure diginsight telemetry to the remote tools.md>)<br>
@@ -158,7 +158,7 @@ Advanced topics
 >- [HowTo: customize entities rendering on diginsight log streams](<docs/articles/13. Customize entities rendering on diginsight log streams/Customize entities rendering on diginsight log streams.md>).
 >- [HowTo: customize metrics sent to the remote tools](<docs/articles/14. Customize metrics sent to the remote tools/Customize metrics sent to the remote tools.md>).
 >- [HowTo: customize diginsight log streams row content](<docs/articles/15. Customize diginsight log streams row content/Customize diginsight log streams row content.md>).
->- [HowTo: troubleshoot the startup sequence](<docs/articles/16. troubleshoot the startup sequence/troubleshoot the startup sequence.md>).
+>- [HowTo: troubleshoot the startup sequence](<docs/articles/17. troubleshoot the startup sequence/troubleshoot the startup sequence.md>).
 >- [HowTo: use class aware configurations to support comonent level or class level configurations](<docs/articles/17. use class aware configurations to support comonent level or class level configurations/use class aware configurations to support comonent level or class level configurations.md>).
 
 

@@ -1,14 +1,94 @@
 # INTRODUCTION 
-Often, the __most tricky__ or the __most critical__ __bugs__ can be hidden in the __application startup sequence__ or __application static methods__.<br>
+The __most tricky__ or the __most critical__ __bugs__ are often hidden in the __application startup sequence__ or __application static methods__.<br>
 As an example, startup configurations such as __connection string__ or __resources access keys__ may be wrong or missing.<br>
 Also, __static contructors__ within the application or its dependencies may hide tricky bugs that are difficult to troubleshoot. 
 
-Those places are difficult to troubleshoot as telemetry bey be not already active at the moment of execution.
+Those places are usually __difficult to troubleshoot__ as telemetry may be not active when they are executed.
 
-Diginsight telemetry supports __full observability also for these parts__ by means of the `DeferredLoggerFactory` that enables __recording the application flow__ untill the telemetry infrastructure is set up.
+Diginsight telemetry enables __full observability also for these parts__ by means of the `DeferredLoggerFactory` that provides __recording the application flow__ until the telemetry infrastructure is set up.
 
-Upon setup completion, telemetry recording is flushed right before the standard telemetry flow gathering.
+Upon setup completion, telemetry recording is flushed right before the standard telemetry flow gathering so that any configuration problem or error can be made visible.
+
+The code snippets below are available as working samples within the __telemetry_samples__ repository.
+
+In particular the steps shown below explain how the startup sequence can be made observable on the `SampleWebApi` within the `telemetry_samples` repository.
+
+![alt text](image-1.png)
+
+# HOW TO INSTRUMENT THE STARTUP SEQUENCE
+
+The following code snippet shows the startup method of the `SampleWebApi` project:
+
+```c#
+public static IDeferredLoggerFactory DeferredLoggerFactory;
+internal static readonly ActivitySource ActivitySource = new(typeof(Program).Namespace ?? typeof(Program).Name!);
+
+public static void Main(string[] args)
+{
+    DiginsightActivitiesOptions activitiesOptions = new() { LogActivities = true };
+    DeferredLoggerFactory = new DeferredLoggerFactory(activitiesOptions: activitiesOptions);
+    var logger = DeferredLoggerFactory.CreateLogger<Program>();
+
+    ActivitySource activitySource = new(typeof(Program).Namespace!);
+    DeferredLoggerFactory.ActivitySources.Add(activitySource);
+    DiginsightDefaults.ActivitySource = activitySource;
+
+    IWebHost host;
+    using (var activity = DiginsightDefaults.ActivitySource.StartMethodActivity(logger, new { args }))
+    {
+        host = WebHost.CreateDefaultBuilder(args)
+            .ConfigureAppConfiguration2()
+            .UseStartup<Startup>()
+            .ConfigureServices(services =>
+            {
+                var logger = DeferredLoggerFactory.CreateLogger<Startup>();
+                using var innerActivity = ActivitySource.StartRichActivity(logger, "ConfigureServicesCallback", new { services });
+
+                services.TryAddSingleton(DeferredLoggerFactory);
+            })
+            .UseDiginsightServiceProvider()
+            .Build();
+
+        logger.LogDebug("Host built");
+    }
+
+    host.Run();
+}
+```
+
+a `IDeferredLoggerFactory` and an ILogger instance are created at startup, __immediatly after application start__:
+```
+DiginsightActivitiesOptions activitiesOptions = new() { LogActivities = true };
+DeferredLoggerFactory = new DeferredLoggerFactory(activitiesOptions: activitiesOptions);
+var logger = DeferredLoggerFactory.CreateLogger<Program>();
+```
+
+__Dotnet logging is not configured or activated already__, however __logger instance is recording__ all activities START, END and all explicit logging operations.
+
+Please, note that the logger factory is passed the `activitySources` that are used so that it can register as a listener to them.
+```
+DeferredLoggerFactory.ActivitySources.Add(activitySource);
+```
+
+the `Startup` `ConfigureServices` method __registers observability__ with `AddObservability()` method.<br>
+Also, it __registers recorded telemetry flush__ with `FlushOnCreateServiceProvider()`.
+```
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddHttpContextAccessor();
+    services.AddObservability(configuration);
+    services.AddDynamicLogLevel<DefaultDynamicLogLevelInjector>();
+    services.FlushOnCreateServiceProvider(deferredLoggerFactory);
+```
+
+After services configuration, right __before the host build__, the telemetry and logging will be configured and activated.
+The `UseDiginsightServiceProvider()` call will run the registered telemetry __Flush()__ and all the deferred logs will be flushed to the telemetry targets.
 
 
-# INTRODUCTION 
+![alt text](<001.01 - UseDiginsightProvider call.png>)
+
+
+Api startup __will then show all logs recorded during startup__:
+
+![alt text](<002.01 resulting startup log.png>)
 
