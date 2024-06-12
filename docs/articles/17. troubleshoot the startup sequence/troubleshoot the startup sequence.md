@@ -13,7 +13,7 @@ The code snippets below are available as working samples within the __telemetry_
 
 In particular the steps shown below explain how the startup sequence can be made observable on the `SampleWebApi` within the `telemetry_samples` repository.
 
-![alt text](image-1.png)
+![alt text](<000.01 - telemetry_samples repository.png>)
 
 # HOW TO INSTRUMENT THE STARTUP SEQUENCE
 
