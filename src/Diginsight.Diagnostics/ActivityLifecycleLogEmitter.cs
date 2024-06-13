@@ -283,7 +283,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
 
         ILogger MakeInnerLogger() => providedLogger ?? (callerType is not null ? loggerFactory.CreateLogger(callerType) : fallbackLogger);
 
-        IDiginsightActivitiesOptions activitiesOptions = activitiesOptionsMonitor.Get(callerType);
+        IDiginsightActivitiesLogOptions activitiesOptions = activitiesOptionsMonitor.Get(callerType);
         shouldLog = activityLoggingSampler?.ShouldLog(activity) ?? activitiesOptions.LogActivities;
         textLogger = shouldLog
             ? new ActivityLogger(MakeInnerLogger(), activity)

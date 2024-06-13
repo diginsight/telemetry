@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
 
@@ -70,13 +71,15 @@ public static class DependencyInjectionExtensions
             .AddLogStrings()
             .AddClassAwareOptions()
             .AddActivityListenersAdder();
+
         services.TryAddSingleton<ActivityLifecycleLogEmitter>();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IActivityListenerRegistration, ActivityLifecycleLogEmitterRegistration>());
 
         loggingBuilder.Configure(
             static loggerFactoryOptions =>
             {
-                loggerFactoryOptions.ActivityTrackingOptions = ActivityTrackingOptions.SpanId | ActivityTrackingOptions.TraceId | ActivityTrackingOptions.TraceFlags;
+                loggerFactoryOptions.ActivityTrackingOptions =
+                    ActivityTrackingOptions.SpanId | ActivityTrackingOptions.TraceId | ActivityTrackingOptions.TraceFlags;
             }
         );
 
@@ -100,8 +103,8 @@ public static class DependencyInjectionExtensions
 
         public bool ShouldListenTo(ActivitySource activitySource)
         {
-            string name = activitySource.Name;
-            return activitiesOptions.ActivitySources.Any(x => ActivityUtils.NameMatchesPattern(name, x));
+            return ActivityUtils.NameCompliesWithPatterns(activitySource.Name, activitiesOptions.ActivitySources, activitiesOptions.NotActivitySources)
+                ?? true;
         }
     }
 
@@ -125,5 +128,25 @@ public static class DependencyInjectionExtensions
         loggingBuilder.Services.TryAddSingleton<IConsoleLineDescriptorProvider, ConsoleLineDescriptorProvider>();
 
         return loggingBuilder;
+    }
+
+    public static IServiceCollection AddSpanDurationMetricRecorder<TRegistration>(this IServiceCollection services)
+        where TRegistration : SpanDurationMetricRecorderRegistration
+    {
+        services
+            .AddClassAwareOptions()
+            .AddActivityListenersAdder()
+            .AddMetrics();
+
+        services.TryAddSingleton<SpanDurationMetricRecorder>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IActivityListenerRegistration, TRegistration>());
+
+        return services;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IServiceCollection AddSpanDurationMetricRecorder(this IServiceCollection services)
+    {
+        return services.AddSpanDurationMetricRecorder<SpanDurationMetricRecorderRegistration>();
     }
 }

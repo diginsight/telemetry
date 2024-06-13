@@ -11,15 +11,13 @@ public class NameBasedActivityLoggingSampler : IActivityLoggingSampler
         IOptions<DiginsightActivitiesOptions> activitiesOptions
     )
     {
-        activityNamesOptions = activitiesOptions.Value;
+        activityNamesOptions = activitiesOptions.Value.Freeze();
     }
 
     public virtual bool? ShouldLog(Activity activity)
     {
-        string activityName = activity.OperationName;
-
-        return ActivityUtils.NameMatchesPattern(activityName, activityNamesOptions.NonLoggedActivityNames) ? false
-            : ActivityUtils.NameMatchesPattern(activityName, activityNamesOptions.LoggedActivityNames) ? true
-            : null;
+        return ActivityUtils.FullNameCompliesWithPatterns(
+            activity.Source.Name, activity.OperationName, activityNamesOptions.LoggedActivityNames, activityNamesOptions.NonLoggedActivityNames
+        );
     }
 }

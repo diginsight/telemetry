@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.Metrics;
 using System.Reflection;
 
-namespace Diginsight;
+namespace Diginsight.Diagnostics;
 
 internal static class SelfObservabilityUtils
 {
