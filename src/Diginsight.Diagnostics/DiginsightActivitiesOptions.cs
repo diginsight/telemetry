@@ -62,11 +62,13 @@ public sealed class DiginsightActivitiesOptions
         set => recordSpanDurations = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
     }
 
-    public string MeterName
+    public string? MeterName
     {
-        get => meterName ?? throw new InvalidOperationException($"{nameof(MeterName)} is unset");
+        get => meterName;
         set => meterName = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
     }
+
+    string IDiginsightActivitiesMetricOptions.MeterName => MeterName ?? throw new InvalidOperationException($"{nameof(MeterName)} is unset");
 
     public string MetricName
     {
@@ -136,8 +138,8 @@ public sealed class DiginsightActivitiesOptions
     {
         return new DiginsightActivitiesOptions(
             true,
-            ImmutableArray.CreateRange(NotActivitySources.Distinct()),
             ImmutableArray.CreateRange(ActivitySources.Distinct()),
+            ImmutableArray.CreateRange(NotActivitySources.Distinct()),
             ImmutableArray.CreateRange(LoggedActivityNames.Distinct()),
             ImmutableArray.CreateRange(NonLoggedActivityNames.Distinct()),
             ImmutableArray.CreateRange(SpanMeasuredActivityNames.Distinct()),
