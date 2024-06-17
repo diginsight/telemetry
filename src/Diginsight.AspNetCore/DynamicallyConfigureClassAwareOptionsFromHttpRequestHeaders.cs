@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Http;
 
 namespace Diginsight.AspNetCore;
 
-public class ConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>
-    : ConfigureOptionsFromHttpRequestHeaders<TOptions>, IConfigureClassAwareOptions<TOptions>, IPostConfigureClassAwareOptions<TOptions>
+public class DynamicallyConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>
+    : DynamicallyConfigureOptionsFromHttpRequestHeaders<TOptions>, IConfigureClassAwareOptions<TOptions>, IPostConfigureClassAwareOptions<TOptions>
     where TOptions : class, IDynamicallyConfigurable
 {
-    public ConfigureClassAwareOptionsFromHttpRequestHeaders(
+    public DynamicallyConfigureClassAwareOptionsFromHttpRequestHeaders(
         string? name,
         IHttpContextAccessor httpContextAccessor
     )
