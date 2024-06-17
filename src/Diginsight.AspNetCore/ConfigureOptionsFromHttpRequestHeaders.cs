@@ -6,8 +6,8 @@ using System.Text.RegularExpressions;
 
 namespace Diginsight.AspNetCore;
 
-public class PostConfigureOptionsFromHttpRequestHeaders<TOptions> : IPostConfigureOptions<TOptions>
-    where TOptions : class, IDynamicallyPostConfigurable
+public class ConfigureOptionsFromHttpRequestHeaders<TOptions> : IConfigureNamedOptions<TOptions>, IPostConfigureOptions<TOptions>
+    where TOptions : class, IDynamicallyConfigurable
 {
     internal const string HeaderName = "Dynamic-Configuration";
 
@@ -15,7 +15,7 @@ public class PostConfigureOptionsFromHttpRequestHeaders<TOptions> : IPostConfigu
 
     public string? Name { get; }
 
-    public PostConfigureOptionsFromHttpRequestHeaders(
+    public ConfigureOptionsFromHttpRequestHeaders(
         string? name,
         IHttpContextAccessor httpContextAccessor
     )
@@ -24,12 +24,22 @@ public class PostConfigureOptionsFromHttpRequestHeaders<TOptions> : IPostConfigu
         Name = name;
     }
 
-    public void PostConfigure(string? name, TOptions options)
+    public void Configure(TOptions options)
     {
-        PostConfigureCore(name ?? Options.DefaultName, options);
+        ConfigureCore(Options.DefaultName, options);
     }
 
-    protected void PostConfigureCore(string name, TOptions options, Func<IConfiguration, IConfiguration>? enrichConfiguration = null)
+    public void Configure(string? name, TOptions options)
+    {
+        ConfigureCore(name ?? Options.DefaultName, options);
+    }
+
+    public void PostConfigure(string? name, TOptions options)
+    {
+        ConfigureCore(name ?? Options.DefaultName, options);
+    }
+
+    protected void ConfigureCore(string name, TOptions options, Func<IConfiguration, IConfiguration>? enrichConfiguration = null)
     {
         if (Name is not null && !string.Equals(Name, name, StringComparison.Ordinal))
             return;

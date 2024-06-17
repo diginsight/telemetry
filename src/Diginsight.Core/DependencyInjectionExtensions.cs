@@ -31,7 +31,7 @@ public static class DependencyInjectionExtensions
     }
 
     public static IServiceCollection FlagAsDynamic<TOptions>(this IServiceCollection services, string? name)
-        where TOptions : class, IDynamicallyPostConfigurable
+        where TOptions : class, IDynamicallyConfigurable
     {
         OptionsCacheSettings settings;
         if (services.FirstOrDefault(static x => x.ServiceType == typeof(OptionsCacheSettings)) is { } descriptor)

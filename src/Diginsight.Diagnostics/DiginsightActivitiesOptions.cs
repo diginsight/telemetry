@@ -10,7 +10,7 @@ public sealed class DiginsightActivitiesOptions
         IDiginsightActivityNamesOptions,
         IDiginsightActivitiesLogOptions,
         IDiginsightActivitiesMetricOptions,
-        IDynamicallyPostConfigurable
+        IDynamicallyConfigurable
 {
     private readonly bool frozen;
 
@@ -157,7 +157,7 @@ public sealed class DiginsightActivitiesOptions
         };
     }
 
-    object IDynamicallyPostConfigurable.MakeFiller() => new Filler(this);
+    object IDynamicallyConfigurable.MakeFiller() => new Filler(this);
 
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
     private class Filler

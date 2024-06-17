@@ -12,26 +12,26 @@ namespace Diginsight.AspNetCore;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection PostConfigureFromHttpRequestHeaders<TOptions>(this IServiceCollection services)
-        where TOptions: class, IDynamicallyPostConfigurable
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IServiceCollection ConfigureFromHttpRequestHeaders<TOptions>(this IServiceCollection services)
+        where TOptions: class, IDynamicallyConfigurable
     {
-        return services.PostConfigureFromHttpRequestHeaders<TOptions>(Options.DefaultName);
+        return services.ConfigureFromHttpRequestHeaders<TOptions>(Options.DefaultName);
     }
 
-    public static IServiceCollection PostConfigureFromHttpRequestHeaders<TOptions>(this IServiceCollection services, string name)
-        where TOptions: class, IDynamicallyPostConfigurable
+    public static IServiceCollection ConfigureFromHttpRequestHeaders<TOptions>(this IServiceCollection services, string name)
+        where TOptions: class, IDynamicallyConfigurable
     {
         services.AddHttpContextAccessor();
 
-        services.TryAddSingleton(
-            sp => ActivatorUtilities.CreateInstance<PostConfigureOptionsFromHttpRequestHeaders<TOptions>>(sp, name)
-        );
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<TOptions>, PostConfigureOptionsFromHttpRequestHeaders<TOptions>>(
-            static sp => sp.GetRequiredService<PostConfigureOptionsFromHttpRequestHeaders<TOptions>>())
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IConfigureOptions<TOptions>, ConfigureOptionsFromHttpRequestHeaders<TOptions>>(
+                sp => ActivatorUtilities.CreateInstance<ConfigureOptionsFromHttpRequestHeaders<TOptions>>(sp, name)
+            )
         );
 
         services.Configure<DiginsightDistributedContextOptions>(
-            static x => { x.NonBaggageKeys.Add(PostConfigureOptionsFromHttpRequestHeaders<TOptions>.HeaderName); }
+            static x => { x.NonBaggageKeys.Add(ConfigureOptionsFromHttpRequestHeaders<TOptions>.HeaderName); }
         );
 
         services.FlagAsDynamic<TOptions>(name);
@@ -39,23 +39,72 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IServiceCollection ConfigureClassAwareFromHttpRequestHeaders<TOptions>(this IServiceCollection services)
+        where TOptions: class, IDynamicallyConfigurable
+    {
+        return services.ConfigureClassAwareFromHttpRequestHeaders<TOptions>(Options.DefaultName);
+    }
+
+    public static IServiceCollection ConfigureClassAwareFromHttpRequestHeaders<TOptions>(this IServiceCollection services, string name)
+        where TOptions: class, IDynamicallyConfigurable
+    {
+        services.AddClassAwareOptions();
+        services.ConfigureFromHttpRequestHeaders<TOptions>(name);
+
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IConfigureOptions<TOptions>, ConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>>(
+                sp => ActivatorUtilities.CreateInstance<ConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>>(sp, name)
+            )
+        );
+
+        return services;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IServiceCollection PostConfigureFromHttpRequestHeaders<TOptions>(this IServiceCollection services)
+        where TOptions: class, IDynamicallyConfigurable
+    {
+        return services.PostConfigureFromHttpRequestHeaders<TOptions>(Options.DefaultName);
+    }
+
+    public static IServiceCollection PostConfigureFromHttpRequestHeaders<TOptions>(this IServiceCollection services, string name)
+        where TOptions: class, IDynamicallyConfigurable
+    {
+        services.AddHttpContextAccessor();
+
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IPostConfigureOptions<TOptions>, ConfigureOptionsFromHttpRequestHeaders<TOptions>>(
+                sp => ActivatorUtilities.CreateInstance<ConfigureOptionsFromHttpRequestHeaders<TOptions>>(sp, name)
+            )
+        );
+
+        services.Configure<DiginsightDistributedContextOptions>(
+            static x => { x.NonBaggageKeys.Add(ConfigureOptionsFromHttpRequestHeaders<TOptions>.HeaderName); }
+        );
+
+        services.FlagAsDynamic<TOptions>(name);
+
+        return services;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IServiceCollection PostConfigureClassAwareFromHttpRequestHeaders<TOptions>(this IServiceCollection services)
-        where TOptions: class, IDynamicallyPostConfigurable
+        where TOptions: class, IDynamicallyConfigurable
     {
         return services.PostConfigureClassAwareFromHttpRequestHeaders<TOptions>(Options.DefaultName);
     }
 
     public static IServiceCollection PostConfigureClassAwareFromHttpRequestHeaders<TOptions>(this IServiceCollection services, string name)
-        where TOptions: class, IDynamicallyPostConfigurable
+        where TOptions: class, IDynamicallyConfigurable
     {
         services.AddClassAwareOptions();
         services.PostConfigureFromHttpRequestHeaders<TOptions>(name);
 
-        services.TryAddSingleton(
-            sp => new PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>(name, sp.GetRequiredService<IHttpContextAccessor>())
-        );
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureClassAwareOptions<TOptions>, PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>>(
-            static sp => sp.GetRequiredService<PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>>())
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IPostConfigureOptions<TOptions>, ConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>>(
+                sp => ActivatorUtilities.CreateInstance<ConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>>(sp, name)
+            )
         );
 
         return services;

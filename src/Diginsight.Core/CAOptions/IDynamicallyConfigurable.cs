@@ -1,6 +1,6 @@
 ﻿namespace Diginsight.CAOptions;
 
-public interface IDynamicallyPostConfigurable
+public interface IDynamicallyConfigurable
 {
     object MakeFiller()
 #if NET || NETSTANDARD2_1_OR_GREATER
