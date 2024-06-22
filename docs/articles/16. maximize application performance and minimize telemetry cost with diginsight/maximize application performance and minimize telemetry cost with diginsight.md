@@ -71,7 +71,14 @@ The image below shows an example __trace__ where all rows share the same __trace
 When an exevution flow is selected for sending to the remote tools, __all the rows within the flow are sent__.<br>
 When an exevution flow is omitted, __all the rows within the flow are omitted__.<br>
 This way. __consistency and readability__ of data sent to the remote tools is ensured.<br>
-Also, __data sent to the remote tools is limited in size__, as well as its __cost__ and __performance impact__.
+Also, __data sent to the remote tools can be limited in size__, as well as its __cost__ and __performance impact__.
+
+As an example, on a production environment you may choose to keep a default __Sampling Ratio__ from __0.1__ to __0.4__
+to ensure __minimal telemetry volumes and cost__ still allowing systems behaviours analysis (eg. average Latencies, metrics dashboards etc).<br>
+__Dynamic Logging__ and __Dynamic configuration__ can be used to act on this parameter, for __limited intervals__ or for __specific execution flows__, __without need of application restart__.
+This will ensure Full troubleshooting support. 
+
+> it is perfectly feasible to __operate on a production environment keeping telemetry cost below a threshold__ (eg. in our case we work at about 5%) of the overall infrastructure cost, still ensuring __full observability__ for troubleshooting of production issues.
 
 The image below shows an __end to end transation detail__ sent to the __Azure Monitor__:<br> all the transaction flow is sent, regardless of the sampling ratio configured for the application.
 ![alt text](<001.04 Full call on azmon transaction-1.png>)

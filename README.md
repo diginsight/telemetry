@@ -12,7 +12,13 @@ The following image shows the same call on the __Azure Monitor Transaction Detai
 
 Performance information gathered by __diginsight__ can be analyzed in the form of __metrics__.<br>
 The following image shows the __Azure Monitor Metrics__ dashboard where method invocations and latencies can be analized in __value__ and __frequency__:
-![Alt text](<docs/000.03 span_duration azmon metrics.png>)
+![Alt text](<docs/000.03 span_duration azmon metrics.png>)<br><br>
+
+Diginsight uses __dynamic logging__, __smart sampling__, __automatic truncation__ and other strategies to __maximize applications efficiency__ and __minimize telemetry cost__<br>For these reasons __Local analysis__ and __analysis on the remote tools__ can be supported __without compromises on performance__ and  __without compromises on cost of telemetry__ in __test__ and __production__ environments.<br><br>
+![alt text](<docs/001.03d NoPerformanceImpact.png>)<br>
+
+>[HowTo: Use diginsight telemetry with no impact on Application performance an telemetry cost](<docs/articles/16. maximize application performance and minimize telemetry cost with diginsight/maximize application performance and minimize telemetry cost with diginsight.md>)<br>
+>Explores how diginsight telemetry can be used without impact on __application performance__ and __telemetry cost__.<br>
 
 
 # ADDITIONAL INFORMATION 
@@ -32,10 +38,6 @@ Diginsight application flow rendering is:
 - __consistent across applications__ application flow published in the same way for all applications. so it is __easily readable for peopble without background knowledge__ on the application logic.
 ![alt text](<docs/001.02 Consistency across applications.png>) 
 <br><br>
-
-Diginsight uses __dynamic logging__, __smart sampling__, __automatic truncation__ and other strategies to __maximize applications efficiency__ and __minimize telemetry cost__ so that __local analysis__ and __analysis on the remote tools__ can be supported __without compromises on performance__ and  __without compromises on cost of telemetry__.
-
-![alt text](<docs/001.03b NoPerformanceImpact.png>)
 
 Diginsight __log layout__ and __automatic rendering__ for entities can be fully customized to ensure best readability of the application flow.
 
