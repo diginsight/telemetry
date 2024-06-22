@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Console;
 using Microsoft.Extensions.Options;
+using System.Diagnostics;
 
 namespace Diginsight.Diagnostics;
 
@@ -34,45 +35,32 @@ internal sealed class DiginsightConsoleFormatter : ConsoleFormatter
     {
         try
         {
-            object? innerState = logEntry.State;
-            bool isActivity = false;
-            TimeSpan? duration = null;
-            DateTimeOffset? maybeTimestamp = null;
-
-            while (true)
-            {
-                if (innerState is ActivityLifecycleLogEmitter.IActivityMark activityMark)
-                {
-                    innerState = activityMark.State;
-                    isActivity = true;
-                    duration = activityMark.Duration;
-                }
-                else if (innerState is DeferredLoggerFactory.ITimestamped timestamped)
-                {
-                    innerState = timestamped.State;
-                    maybeTimestamp = timestamped.Timestamp;
-                }
-                else
-                {
-                    break;
-                }
-            }
+            object? state = logEntry.State;
+            DiginsightTextWriter.ExpandState(
+                ref state, out bool isActivity, out TimeSpan? duration, out DateTimeOffset? maybeTimestamp, out Activity? activity
+            );
 
             DateTimeOffset finalTimestamp = maybeTimestamp ?? timeProvider.GetUtcNow();
 
-            int width;
+            int? width;
             try
             {
-                width = Console.WindowWidth;
+                width = formatterOptions.TotalWidth switch
+                {
+                    < 0 => null,
+                    0 => Console.WindowWidth,
+                    var w => w,
+                };
             }
             catch (Exception)
             {
-                width = int.MaxValue;
+                width = null;
             }
 
             DiginsightTextWriter.Write(
                 textWriter,
                 formatterOptions.UseUtcTimestamp ? finalTimestamp.UtcDateTime : finalTimestamp.LocalDateTime,
+                activity ?? Activity.Current,
                 logEntry.LogLevel,
                 logEntry.Category,
                 logEntry.Formatter(logEntry.State, logEntry.Exception),

@@ -58,6 +58,7 @@ public static class DependencyInjectionExtensions
         services.TryAddSingleton(typeof(IClassAwareOptionsMonitor<>), typeof(ClassAwareOptionsMonitor<>));
         services.TryAddTransient(typeof(IClassAwareOptionsFactory<>), typeof(ClassAwareOptionsFactory<>));
         services.TryAddSingleton(typeof(IClassAwareOptionsCache<>), typeof(ClassAwareOptionsCache<>));
+        services.TryDecorate(typeof(IOptionsMonitorCache<>), typeof(ExcludableOptionsCache<>));
 
         if (ClassAwareOptions.OverrideClassAgnosticOptions)
         {
@@ -70,61 +71,96 @@ public static class DependencyInjectionExtensions
         return services;
     }
 
-    private sealed class ProxyClassAwareOptions<T> : IOptions<T>
-        where T : class
+    private sealed class ProxyClassAwareOptions<TOptions> : IOptions<TOptions>
+        where TOptions : class
     {
-        private readonly IClassAwareOptions<T> underlying;
+        private readonly IClassAwareOptions<TOptions> underlying;
 
-        public T Value => underlying.Value;
+        public TOptions Value => underlying.Value;
 
-        public ProxyClassAwareOptions(IClassAwareOptions<T> underlying)
+        public ProxyClassAwareOptions(IClassAwareOptions<TOptions> underlying)
         {
             this.underlying = underlying;
         }
     }
 
-    private sealed class ProxyClassAwareOptionsSnapshot<T> : IOptionsSnapshot<T>
-        where T : class
+    private sealed class ProxyClassAwareOptionsSnapshot<TOptions> : IOptionsSnapshot<TOptions>
+        where TOptions : class
     {
-        private readonly IClassAwareOptionsSnapshot<T> underlying;
+        private readonly IClassAwareOptionsSnapshot<TOptions> underlying;
 
-        public T Value => underlying.Value;
+        public TOptions Value => underlying.Value;
 
-        public ProxyClassAwareOptionsSnapshot(IClassAwareOptionsSnapshot<T> underlying)
+        public ProxyClassAwareOptionsSnapshot(IClassAwareOptionsSnapshot<TOptions> underlying)
         {
             this.underlying = underlying;
         }
 
-        public T Get(string? name) => underlying.Get(name);
+        public TOptions Get(string? name) => underlying.Get(name);
     }
 
-    private sealed class ProxyClassAwareOptionsMonitor<T> : IOptionsMonitor<T>
+    private sealed class ProxyClassAwareOptionsMonitor<TOptions> : IOptionsMonitor<TOptions>
     {
-        private readonly IClassAwareOptionsMonitor<T> underlying;
+        private readonly IClassAwareOptionsMonitor<TOptions> underlying;
 
-        public T CurrentValue => underlying.CurrentValue;
+        public TOptions CurrentValue => underlying.CurrentValue;
 
-        public ProxyClassAwareOptionsMonitor(IClassAwareOptionsMonitor<T> underlying)
+        public ProxyClassAwareOptionsMonitor(IClassAwareOptionsMonitor<TOptions> underlying)
         {
             this.underlying = underlying;
         }
 
-        public T Get(string? name) => underlying.Get(name);
+        public TOptions Get(string? name) => underlying.Get(name);
 
-        public IDisposable? OnChange(Action<T, string?> listener) => underlying.OnChange(listener);
+        public IDisposable? OnChange(Action<TOptions, string?> listener) => underlying.OnChange(listener);
     }
 
-    private sealed class ProxyClassAwareOptionsFactory<T> : IOptionsFactory<T>
-        where T : class
+    private sealed class ProxyClassAwareOptionsFactory<TOptions> : IOptionsFactory<TOptions>
+        where TOptions : class
     {
-        private readonly IClassAwareOptionsFactory<T> underlying;
+        private readonly IClassAwareOptionsFactory<TOptions> underlying;
 
-        public ProxyClassAwareOptionsFactory(IClassAwareOptionsFactory<T> underlying)
+        public ProxyClassAwareOptionsFactory(IClassAwareOptionsFactory<TOptions> underlying)
         {
             this.underlying = underlying;
         }
 
-        public T Create(string name) => underlying.Create(name);
+        public TOptions Create(string name) => underlying.Create(name);
+    }
+
+    private sealed class ExcludableOptionsCache<TOptions> : IOptionsMonitorCache<TOptions>
+        where TOptions : class
+    {
+        private readonly IOptionsMonitorCache<TOptions> decoratee;
+        private readonly OptionsCacheSettings settings;
+
+        public ExcludableOptionsCache(IOptionsMonitorCache<TOptions> decoratee, OptionsCacheSettings? settings = null)
+        {
+            this.decoratee = decoratee;
+            this.settings = settings ?? new OptionsCacheSettings();
+        }
+
+        private bool IsDynamic(string name)
+        {
+            ISet<(Type, string?)> set = settings.DynamicEntries;
+            return set.Contains((typeof(TOptions), null)) || set.Contains((typeof(TOptions), name));
+        }
+
+        public TOptions GetOrAdd(string? name, Func<TOptions> createOptions)
+        {
+            name ??= Options.DefaultName;
+            return IsDynamic(name) ? createOptions() : decoratee.GetOrAdd(name, createOptions);
+        }
+
+        public bool TryAdd(string? name, TOptions options)
+        {
+            name ??= Options.DefaultName;
+            return IsDynamic(name) ? throw new ArgumentException("Dynamic option cannot be cached") : decoratee.TryAdd(name, options);
+        }
+
+        public bool TryRemove(string? name) => decoratee.TryRemove(name);
+
+        public void Clear() => decoratee.Clear();
     }
 
     public static IServiceCollection ConfigureClassAware<TOptions>(

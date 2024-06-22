@@ -16,10 +16,15 @@ public sealed class ClassAwareOptionsCache<TOptions> : IClassAwareOptionsCache<T
         this.settings = settings ?? new OptionsCacheSettings();
     }
 
-    public TOptions GetOrAdd(string name, Type @class, Func<string, Type, TOptions> create)
+    private bool IsDynamic(string name)
     {
         ISet<(Type, string?)> set = settings.DynamicEntries;
-        if (set.Contains((typeof(TOptions), null)) || set.Contains((typeof(TOptions), name)))
+        return set.Contains((typeof(TOptions), null)) || set.Contains((typeof(TOptions), name));
+    }
+
+    public TOptions GetOrAdd(string name, Type @class, Func<string, Type, TOptions> create)
+    {
+        if (IsDynamic(name))
         {
             return create(name, @class);
         }
@@ -38,8 +43,7 @@ public sealed class ClassAwareOptionsCache<TOptions> : IClassAwareOptionsCache<T
 
     public TOptions GetOrAdd<TArg>(string name, Type @class, Func<string, Type, TArg, TOptions> create, TArg creatorArg)
     {
-        ISet<(Type, string?)> set = settings.DynamicEntries;
-        if (set.Contains((typeof(TOptions), null)) || set.Contains((typeof(TOptions), name)))
+        if (IsDynamic(name))
         {
             return create(name, @class, creatorArg);
         }
@@ -67,7 +71,7 @@ public sealed class ClassAwareOptionsCache<TOptions> : IClassAwareOptionsCache<T
         ISet<(Type, string?)> set = settings.DynamicEntries;
         if (set.Contains((typeof(TOptions), null)) || set.Contains((typeof(TOptions), name)))
         {
-            return false;
+            throw new ArgumentException("Dynamic option cannot be cached");
         }
 
         return dict.TryAdd(
@@ -93,7 +97,7 @@ public sealed class ClassAwareOptionsCache<TOptions> : IClassAwareOptionsCache<T
         {
             foreach ((string Name, Type Class) item in dict.Keys)
             {
-                if (!string.Equals(name, item.Name, StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(name, item.Name, StringComparison.Ordinal))
                     continue;
 
                 dict.TryRemove(item, out _);

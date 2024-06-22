@@ -3,12 +3,9 @@ using System.Diagnostics;
 
 namespace Diginsight.Diagnostics.AspNetCore;
 
-public class HttpHeadersSpanDurationMetricRecorderSettings : DefaultSpanDurationMetricRecorderSettings
+public class HttpHeadersSpanDurationMetricRecorderSettings : ISpanDurationMetricRecorderSettings
 {
-    private const string SourceHeaderName = "Activity-Source-Span-Recording";
-    private const string PlainHeaderName = "Activity-Span-Recording";
-
-    public static readonly IEnumerable<string> HeaderNames = new[] { SourceHeaderName, PlainHeaderName };
+    public const string HeaderName = "Activity-Span-Measuring";
 
     private readonly IHttpContextAccessor httpContextAccessor;
 
@@ -17,10 +14,10 @@ public class HttpHeadersSpanDurationMetricRecorderSettings : DefaultSpanDuration
         this.httpContextAccessor = httpContextAccessor;
     }
 
-    public override bool? ShouldRecord(Activity activity)
+    public virtual bool? ShouldRecord(Activity activity)
     {
-        return HttpHeadersHelper.ShouldInclude(activity.Source.Name, "Activity-Source-Span-Recording", httpContextAccessor) == false
-            ? false
-            : HttpHeadersHelper.ShouldInclude(activity.OperationName, "Activity-Span-Recording", httpContextAccessor);
+        return HttpHeadersHelper.ShouldInclude(activity.Source.Name, activity.OperationName, HeaderName, httpContextAccessor);
     }
+
+    public virtual IEnumerable<KeyValuePair<string, object?>> ExtractTags(Activity activity) => [ ];
 }

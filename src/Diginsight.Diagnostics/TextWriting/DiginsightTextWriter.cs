@@ -33,9 +33,41 @@ public static class DiginsightTextWriter
         }
     }
 
+    public static void ExpandState(
+        ref object? state, out bool isActivity, out TimeSpan? duration, out DateTimeOffset? maybeTimestamp, out Activity? activity
+    )
+    {
+        isActivity = false;
+        duration = null;
+        maybeTimestamp = null;
+        activity = null;
+
+        while (true)
+        {
+            if (state is ActivityLifecycleLogEmitter.IActivityMark activityMark)
+            {
+                state = activityMark.State;
+                isActivity = true;
+                duration = activityMark.Duration;
+                activity ??= activityMark.Activity;
+            }
+            else if (state is DeferredLoggerFactory.IDeferred timestamped)
+            {
+                state = timestamped.State;
+                maybeTimestamp = timestamped.Timestamp;
+                activity = timestamped.Activity;
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+
     public static void Write(
         TextWriter textWriter,
         DateTime timestamp,
+        Activity? activity,
         LogLevel logLevel,
         string category,
         string message,
@@ -65,19 +97,20 @@ public static class DiginsightTextWriter
             }
 
             using StringWriter stringWriter = new ();
-            Write(stringWriter, timestamp, logLevel, category, message, exception, isActivity, duration, lineDescriptor, out double timing);
+            Write(stringWriter, timestamp, activity, logLevel, category, message, exception, isActivity, duration, lineDescriptor, out double timing);
 
             textWriter.Write("{0,5}µ {1}", ((long)timing).ToString(CultureInfo.InvariantCulture), stringWriter);
         }
         else
         {
-            Write(textWriter, timestamp, logLevel, category, message, exception, isActivity, duration, lineDescriptor, out _);
+            Write(textWriter, timestamp, activity, logLevel, category, message, exception, isActivity, duration, lineDescriptor, out _);
         }
     }
 
     public static void Write(
         TextWriter textWriter,
         DateTime timestamp,
+        Activity? activity,
         LogLevel logLevel,
         string category,
         string message,
@@ -92,7 +125,6 @@ public static class DiginsightTextWriter
 
         try
         {
-            Activity? activity = Activity.Current;
             LinePrefixData linePrefixData = new (timestamp, logLevel, category, isActivity, duration, activity);
 
             StringBuilder prefixSb = new ();

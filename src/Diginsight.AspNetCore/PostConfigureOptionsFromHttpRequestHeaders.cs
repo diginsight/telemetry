@@ -2,21 +2,16 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace Diginsight.AspNetCore;
 
-public class PostConfigureOptionsFromHttpRequestHeaders<TOptions>
-    : IPostConfigureOptions<TOptions>, IOptionsChangeTokenSource<TOptions>
+public class PostConfigureOptionsFromHttpRequestHeaders<TOptions> : IPostConfigureOptions<TOptions>
     where TOptions : class, IDynamicallyPostConfigurable
 {
     internal const string HeaderName = "Dynamic-Configuration";
 
     private readonly IHttpContextAccessor httpContextAccessor;
-
-    private ConfigurationReloadToken changeToken = new ();
 
     public string? Name { get; }
 
@@ -36,25 +31,12 @@ public class PostConfigureOptionsFromHttpRequestHeaders<TOptions>
 
     protected void PostConfigureCore(string name, TOptions options, Func<IConfiguration, IConfiguration>? enrichConfiguration = null)
     {
-        if (Name is not null && !string.Equals(Name, name, StringComparison.OrdinalIgnoreCase))
+        if (Name is not null && !string.Equals(Name, name, StringComparison.Ordinal))
             return;
 
         if (httpContextAccessor.HttpContext is not { } httpContext)
         {
             return;
-        }
-
-        object chanegTokenFiringItemKey = GetChangeTokenFiringItemKey(name);
-        if (!httpContext.Items.ContainsKey(chanegTokenFiringItemKey))
-        {
-            httpContext.Items[chanegTokenFiringItemKey] = null;
-            httpContext.Response.OnCompleted(
-                () =>
-                {
-                    FireChangeToken();
-                    return Task.CompletedTask;
-                }
-            );
         }
 
         IDictionary<string, string?> dict = new Dictionary<string, string?>();
@@ -76,18 +58,6 @@ public class PostConfigureOptionsFromHttpRequestHeaders<TOptions>
         }
         configuration.Bind(options.MakeFiller());
     }
-
-    protected virtual object GetChangeTokenFiringItemKey(string name) => new ChangeTokenFiringItemKey(name);
-
-    private void FireChangeToken()
-    {
-        Interlocked.Exchange(ref changeToken, new ConfigurationReloadToken()).OnReload();
-    }
-
-    public IChangeToken GetChangeToken() => changeToken;
-
-    [SuppressMessage("ReSharper", "NotAccessedPositionalProperty.Local")]
-    private readonly record struct ChangeTokenFiringItemKey(string Name);
 }
 
 file static class Statics

@@ -28,25 +28,27 @@ internal class Program : BackgroundService
 
     private static void Main()
     {
-        DiginsightTextWriter.DisplayTiming = true;
+        //DiginsightTextWriter.DisplayTiming = true;
 
         DiginsightActivitiesOptions diginsightActivitiesOptions = new ()
         {
             LogActivities = true,
             RecordSpanDurations = false,
         };
+
         IDeferredLoggerFactory loggerFactory = new DeferredLoggerFactory(activitiesOptions: diginsightActivitiesOptions);
+        loggerFactory.ActivitySources.Add(ActivitySource);
         ILogger logger = loggerFactory.CreateLogger<Program>();
-        ActivitySource deferredActivitySource = loggerFactory.ActivitySource;
 
         IHost host;
-        using (deferredActivitySource.StartMethodActivity(logger))
+        using (ActivitySource.StartMethodActivity(logger))
+        using (ActivitySource.StartRichActivity(logger, "Inner"))
         {
             host = new HostBuilder()
                 .ConfigureAppConfiguration(
                     (_, configurationBuilder) =>
                     {
-                        using Activity? innerActivity = deferredActivitySource.StartRichActivity(logger, "ConfigureAppConfiguration");
+                        using Activity? innerActivity = ActivitySource.StartRichActivity(logger, "ConfigureAppConfiguration");
 
                         logger.LogDebug("Json file");
                         configurationBuilder.AddJsonFile("appsettings.json");
@@ -55,7 +57,7 @@ internal class Program : BackgroundService
                 .ConfigureServices(
                     (hostBuilderContext, services) =>
                     {
-                        using Activity? innerActivity = deferredActivitySource.StartRichActivity(logger, "ConfigureServices");
+                        using Activity? innerActivity = ActivitySource.StartRichActivity(logger, "ConfigureServices");
 
                         IConfiguration configuration = hostBuilderContext.Configuration;
 

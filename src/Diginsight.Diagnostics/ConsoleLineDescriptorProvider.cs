@@ -25,7 +25,7 @@ internal sealed class ConsoleLineDescriptorProvider : IConsoleLineDescriptorProv
     {
         if (width <= 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(width), "Must be positive");
+            width = null;
         }
 
         lock (lockObj)

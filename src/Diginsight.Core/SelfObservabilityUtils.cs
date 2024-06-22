@@ -1,8 +1,9 @@
 ﻿using System.Diagnostics.Metrics;
+using System.Reflection;
 
 namespace Diginsight;
 
 internal static class SelfObservabilityUtils
 {
-    public static readonly Meter Meter = new Meter("Diginsight");
+    public static readonly Meter Meter = new (Assembly.GetExecutingAssembly().GetName().Name!);
 }

@@ -24,12 +24,9 @@ public static class ServiceCollectionExtensions
         services.AddHttpContextAccessor();
 
         services.TryAddSingleton(
-            sp => new PostConfigureOptionsFromHttpRequestHeaders<TOptions>(name, sp.GetRequiredService<IHttpContextAccessor>())
+            sp => ActivatorUtilities.CreateInstance<PostConfigureOptionsFromHttpRequestHeaders<TOptions>>(sp, name)
         );
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<TOptions>, PostConfigureOptionsFromHttpRequestHeaders<TOptions>>(
-            static sp => sp.GetRequiredService<PostConfigureOptionsFromHttpRequestHeaders<TOptions>>())
-        );
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IOptionsChangeTokenSource<TOptions>, PostConfigureOptionsFromHttpRequestHeaders<TOptions>>(
             static sp => sp.GetRequiredService<PostConfigureOptionsFromHttpRequestHeaders<TOptions>>())
         );
 
@@ -58,9 +55,6 @@ public static class ServiceCollectionExtensions
             sp => new PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>(name, sp.GetRequiredService<IHttpContextAccessor>())
         );
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureClassAwareOptions<TOptions>, PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>>(
-            static sp => sp.GetRequiredService<PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>>())
-        );
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IClassAwareOptionsChangeTokenSource<TOptions>, PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>>(
             static sp => sp.GetRequiredService<PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>>())
         );
 
