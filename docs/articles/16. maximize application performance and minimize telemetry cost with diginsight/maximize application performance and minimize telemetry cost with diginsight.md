@@ -18,7 +18,9 @@ We explore __how we can make our application flow fully observable__.<br><br>
 # Performance considerations
 The following image defines key drivers used by diginsights to avoid performence impacts:
 
-![alt text](<001.02a NoPerformanceImpact.png>)
+![alt text](<001.02c NoPerformanceImpact.png>)
+
+
 
 ## Driver n°1: No heap pressure when disabled
 The following code snippet shows a method instrumented by means of __diginsight__ `System.Diagnostics` __activities__:
@@ -73,13 +75,6 @@ When an exevution flow is omitted, __all the rows within the flow are omitted__.
 This way. __consistency and readability__ of data sent to the remote tools is ensured.<br>
 Also, __data sent to the remote tools can be limited in size__, as well as its __cost__ and __performance impact__.
 
-As an example, on a production environment you may choose to keep a default __Sampling Ratio__ from __0.1__ to __0.4__
-to ensure __minimal telemetry volumes and cost__ still allowing systems behaviours analysis (eg. average Latencies, metrics dashboards etc).<br>
-__Dynamic Logging__ and __Dynamic configuration__ can be used to act on this parameter, for __limited intervals__ or for __specific execution flows__, __without need of application restart__.
-This will ensure Full troubleshooting support. 
-
-> it is perfectly feasible to __operate on a production environment keeping telemetry cost below a threshold__ (eg. in our case we work at about 5%) of the overall infrastructure cost, still ensuring __full observability__ for troubleshooting of production issues.
-
 The image below shows an __end to end transation detail__ sent to the __Azure Monitor__:<br> all the transaction flow is sent, regardless of the sampling ratio configured for the application.
 ![alt text](<001.04 Full call on azmon transaction-1.png>)
 
@@ -112,8 +107,13 @@ In such case, __only one execution flow should be sent__ to the remote tools, __
   },
 ```
 
-Reducing data volumes sent to the remote tools still __allows analyzig system behaviours and trends__ with __minimal cost__ and __minimal performance impact__.<br>
-At the same time, __full troubleshooting capability__ is available with __dynamic logging__ and __dynamic configuration__ on the local troubleshooting tools (eg. the __console log__ or the __streaming log__).
+On a production environment you may choose to keep a default __Sampling Ratio__ from __0.1__ to __0.4__
+to ensure __minimal telemetry volumes and cost__ still allowing systems behaviours analysis (eg. average Latencies, metrics dashboards etc).<br>
+__Dynamic Logging__ and __Dynamic configuration__ can be used to act on this parameter, for __limited intervals__ or for __specific execution flows__, __without need of application restart__.
+This will ensure Full troubleshooting support. 
+
+> it is perfectly feasible to __operate on a production environment keeping telemetry cost below a threshold__ (eg. in our case we work at about 5%) of the overall infrastructure cost, still ensuring __full observability__ for troubleshooting of production issues.
+
 
 ## Driver n°4: Traces sent to the remote tools are higly configurable
 Data sent to the remote tools can be configured by means of the `OpenTelemetry` section:
