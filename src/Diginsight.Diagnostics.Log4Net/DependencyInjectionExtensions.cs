@@ -1,11 +1,10 @@
-﻿using log4net;
-using log4net.Appender;
+﻿using log4net.Appender;
 using log4net.Core;
 using log4net.Repository.Hierarchy;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel;
-using System.Reflection;
+using System.Globalization;
 
 namespace Diginsight.Diagnostics.Log4Net;
 
@@ -15,35 +14,48 @@ public static class DependencyInjectionExtensions
     public static ILoggingBuilder AddDiginsightLog4Net(
         this ILoggingBuilder loggingBuilder,
         Func<IServiceProvider, IEnumerable<IAppender>> createAppenders,
-        Func<IServiceProvider, Level?>? getLevel = null
+        Func<IServiceProvider, Level?>? getLevel = null,
+        string? repositoryName = null
     )
     {
         loggingBuilder.AddDiginsightCore();
 
         IServiceCollection services = loggingBuilder.Services;
 
+        repositoryName ??= Guid.NewGuid().ToString("N");
+
         ServiceDescriptor descriptor = ServiceDescriptor.Singleton<ILoggerProvider, Log4NetProvider>(
             sp =>
             {
-                Hierarchy hierarchy = (Hierarchy)LogManager.GetRepository(Assembly.GetEntryAssembly()!);
-                Logger logger = hierarchy.Root;
+                string fullRepositoryName = string.Format(CultureInfo.InvariantCulture, "{0}_{1:X8}", repositoryName, sp.GetHashCode());
+                IRepositorySelector repositorySelector = LoggerManager.RepositorySelector;
 
-                foreach (IAppender appender in createAppenders(sp))
+                Hierarchy hierarchy = repositorySelector.ExistsRepository(fullRepositoryName)
+                    ? (Hierarchy)repositorySelector.GetRepository(fullRepositoryName)
+                    : (Hierarchy)repositorySelector.CreateRepository(fullRepositoryName, typeof(Hierarchy));
+
+                if (!hierarchy.Configured)
                 {
-                    logger.AddAppender(appender.AsActivatedOptionHandler());
-                }
+                    Logger logger = hierarchy.Root;
 
-                if (getLevel?.Invoke(sp) is { } logLevel)
-                {
-                    logger.Level = logLevel;
-                }
+                    foreach (IAppender appender in createAppenders(sp))
+                    {
+                        logger.AddAppender(appender.AsActivatedOptionHandler());
+                    }
 
-                hierarchy.Configured = true;
+                    if (getLevel?.Invoke(sp) is { } logLevel)
+                    {
+                        logger.Level = logLevel;
+                    }
+
+                    hierarchy.Configured = true;
+                }
 
                 Log4NetProviderOptions providerOptions = new ()
                 {
                     LoggingEventFactory = ActivatorUtilities.CreateInstance<DiginsightLoggingEventFactory>(sp),
                     ExternalConfigurationSetup = true,
+                    LoggerRepository = hierarchy.Name,
                 };
                 return new Log4NetProvider(providerOptions);
             }

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -51,15 +52,16 @@ public static class DependencyInjectionExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ILoggingBuilder AddDiginsightOpenTelemetry(this ILoggingBuilder loggingBuilder)
+    public static ILoggingBuilder AddDiginsightOpenTelemetry(this ILoggingBuilder loggingBuilder, Action<OpenTelemetryLoggerOptions>? configure = null)
     {
         return loggingBuilder
             .AddDiginsightCore()
             .AddOpenTelemetry(
-                static openTelemetryLoggerOptions =>
+                openTelemetryLoggerOptions =>
                 {
                     openTelemetryLoggerOptions.IncludeFormattedMessage = true;
                     openTelemetryLoggerOptions.IncludeScopes = true;
+                    configure?.Invoke(openTelemetryLoggerOptions);
                 }
             );
     }
