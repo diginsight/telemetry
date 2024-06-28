@@ -56,7 +56,9 @@ public static class RuntimeUtils
                 bool isGenerated = Enumerable.Contains(innerDeclaringType.FullName!, '<') || Enumerable.Contains(method.Name, '<');
 
                 Type declaringType = innerDeclaringType;
-                if (isGenerated && !method.IsDefined(typeof(CompilerGeneratedAttribute)))
+                if (isGenerated &&
+                    !method.IsDefined(typeof(CompilerGeneratedAttribute)) &&
+                    method != innerDeclaringType.Assembly.EntryPoint)
                 {
                     while (!declaringType.IsDefined(typeof(CompilerGeneratedAttribute)))
                     {
