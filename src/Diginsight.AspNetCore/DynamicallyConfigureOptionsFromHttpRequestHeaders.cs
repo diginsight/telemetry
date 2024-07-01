@@ -2,36 +2,50 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace Diginsight.AspNetCore;
 
-public class PostConfigureOptionsFromHttpRequestHeaders<TOptions> : IPostConfigureOptions<TOptions>
-    where TOptions : class, IDynamicallyPostConfigurable
+public class DynamicallyConfigureOptionsFromHttpRequestHeaders<TOptions> : IConfigureNamedOptions<TOptions>, IPostConfigureOptions<TOptions>
+    where TOptions : class, IDynamicallyConfigurable
 {
     internal const string HeaderName = "Dynamic-Configuration";
 
+    private readonly string? name;
     private readonly IHttpContextAccessor httpContextAccessor;
 
-    public string? Name { get; }
-
-    public PostConfigureOptionsFromHttpRequestHeaders(
+    public DynamicallyConfigureOptionsFromHttpRequestHeaders(
         string? name,
         IHttpContextAccessor httpContextAccessor
     )
     {
         this.httpContextAccessor = httpContextAccessor;
-        Name = name;
+        this.name = name;
     }
 
-    public void PostConfigure(string? name, TOptions options)
+    public void Configure(TOptions options)
     {
-        PostConfigureCore(name ?? Options.DefaultName, options);
+        ConfigureCore(Options.DefaultName, options);
     }
 
-    protected void PostConfigureCore(string name, TOptions options, Func<IConfiguration, IConfiguration>? enrichConfiguration = null)
+    public void Configure([SuppressMessage("ReSharper", "ParameterHidesMember")] string? name, TOptions options)
     {
-        if (Name is not null && !string.Equals(Name, name, StringComparison.Ordinal))
+        ConfigureCore(name ?? Options.DefaultName, options);
+    }
+
+    public void PostConfigure([SuppressMessage("ReSharper", "ParameterHidesMember")] string? name, TOptions options)
+    {
+        ConfigureCore(name ?? Options.DefaultName, options);
+    }
+
+    protected void ConfigureCore(
+        [SuppressMessage("ReSharper", "ParameterHidesMember")] string name,
+        TOptions options,
+        Func<IConfiguration, IConfiguration>? enrichConfiguration = null
+    )
+    {
+        if (this.name is not null && !string.Equals(this.name, name, StringComparison.Ordinal))
             return;
 
         if (httpContextAccessor.HttpContext is not { } httpContext)

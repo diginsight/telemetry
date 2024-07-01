@@ -12,26 +12,28 @@ namespace Diginsight.AspNetCore;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection PostConfigureFromHttpRequestHeaders<TOptions>(this IServiceCollection services)
-        where TOptions: class, IDynamicallyPostConfigurable
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IServiceCollection DynamicallyConfigureFromHttpRequestHeaders<TOptions>(this IServiceCollection services)
+        where TOptions: class, IDynamicallyConfigurable
     {
-        return services.PostConfigureFromHttpRequestHeaders<TOptions>(Options.DefaultName);
+        return services.DynamicallyConfigureFromHttpRequestHeaders<TOptions>(Options.DefaultName);
     }
 
-    public static IServiceCollection PostConfigureFromHttpRequestHeaders<TOptions>(this IServiceCollection services, string name)
-        where TOptions: class, IDynamicallyPostConfigurable
+    public static IServiceCollection DynamicallyConfigureFromHttpRequestHeaders<TOptions>(this IServiceCollection services, string name)
+        where TOptions: class, IDynamicallyConfigurable
     {
-        services.AddHttpContextAccessor();
+        services
+            .AddOptions()
+            .AddHttpContextAccessor();
 
-        services.TryAddSingleton(
-            sp => ActivatorUtilities.CreateInstance<PostConfigureOptionsFromHttpRequestHeaders<TOptions>>(sp, name)
-        );
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<TOptions>, PostConfigureOptionsFromHttpRequestHeaders<TOptions>>(
-            static sp => sp.GetRequiredService<PostConfigureOptionsFromHttpRequestHeaders<TOptions>>())
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IConfigureOptions<TOptions>, DynamicallyConfigureOptionsFromHttpRequestHeaders<TOptions>>(
+                sp => ActivatorUtilities.CreateInstance<DynamicallyConfigureOptionsFromHttpRequestHeaders<TOptions>>(sp, name)
+            )
         );
 
         services.Configure<DiginsightDistributedContextOptions>(
-            static x => { x.NonBaggageKeys.Add(PostConfigureOptionsFromHttpRequestHeaders<TOptions>.HeaderName); }
+            static x => { x.NonBaggageKeys.Add(DynamicallyConfigureOptionsFromHttpRequestHeaders<TOptions>.HeaderName); }
         );
 
         services.FlagAsDynamic<TOptions>(name);
@@ -39,23 +41,74 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection PostConfigureClassAwareFromHttpRequestHeaders<TOptions>(this IServiceCollection services)
-        where TOptions: class, IDynamicallyPostConfigurable
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IServiceCollection DynamicallyConfigureClassAwareFromHttpRequestHeaders<TOptions>(this IServiceCollection services)
+        where TOptions: class, IDynamicallyConfigurable
     {
-        return services.PostConfigureClassAwareFromHttpRequestHeaders<TOptions>(Options.DefaultName);
+        return services.DynamicallyConfigureClassAwareFromHttpRequestHeaders<TOptions>(Options.DefaultName);
     }
 
-    public static IServiceCollection PostConfigureClassAwareFromHttpRequestHeaders<TOptions>(this IServiceCollection services, string name)
-        where TOptions: class, IDynamicallyPostConfigurable
+    public static IServiceCollection DynamicallyConfigureClassAwareFromHttpRequestHeaders<TOptions>(this IServiceCollection services, string name)
+        where TOptions: class, IDynamicallyConfigurable
     {
         services.AddClassAwareOptions();
-        services.PostConfigureFromHttpRequestHeaders<TOptions>(name);
+        services.DynamicallyConfigureFromHttpRequestHeaders<TOptions>(name);
 
-        services.TryAddSingleton(
-            sp => new PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>(name, sp.GetRequiredService<IHttpContextAccessor>())
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IConfigureClassAwareOptions<TOptions>, DynamicallyConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>>(
+                sp => ActivatorUtilities.CreateInstance<DynamicallyConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>>(sp, name)
+            )
         );
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureClassAwareOptions<TOptions>, PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>>(
-            static sp => sp.GetRequiredService<PostConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>>())
+
+        return services;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IServiceCollection DynamicallyPostConfigureFromHttpRequestHeaders<TOptions>(this IServiceCollection services)
+        where TOptions: class, IDynamicallyConfigurable
+    {
+        return services.DynamicallyPostConfigureFromHttpRequestHeaders<TOptions>(Options.DefaultName);
+    }
+
+    public static IServiceCollection DynamicallyPostConfigureFromHttpRequestHeaders<TOptions>(this IServiceCollection services, string name)
+        where TOptions: class, IDynamicallyConfigurable
+    {
+        services
+            .AddOptions()
+            .AddHttpContextAccessor();
+
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IPostConfigureOptions<TOptions>, DynamicallyConfigureOptionsFromHttpRequestHeaders<TOptions>>(
+                sp => ActivatorUtilities.CreateInstance<DynamicallyConfigureOptionsFromHttpRequestHeaders<TOptions>>(sp, name)
+            )
+        );
+
+        services.Configure<DiginsightDistributedContextOptions>(
+            static x => { x.NonBaggageKeys.Add(DynamicallyConfigureOptionsFromHttpRequestHeaders<TOptions>.HeaderName); }
+        );
+
+        services.FlagAsDynamic<TOptions>(name);
+
+        return services;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IServiceCollection DynamicallyPostConfigureClassAwareFromHttpRequestHeaders<TOptions>(this IServiceCollection services)
+        where TOptions: class, IDynamicallyConfigurable
+    {
+        return services.DynamicallyPostConfigureClassAwareFromHttpRequestHeaders<TOptions>(Options.DefaultName);
+    }
+
+    public static IServiceCollection DynamicallyPostConfigureClassAwareFromHttpRequestHeaders<TOptions>(this IServiceCollection services, string name)
+        where TOptions: class, IDynamicallyConfigurable
+    {
+        services.AddClassAwareOptions();
+        services.DynamicallyPostConfigureFromHttpRequestHeaders<TOptions>(name);
+
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IPostConfigureClassAwareOptions<TOptions>, DynamicallyConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>>(
+                sp => ActivatorUtilities.CreateInstance<DynamicallyConfigureClassAwareOptionsFromHttpRequestHeaders<TOptions>>(sp, name)
+            )
         );
 
         return services;

@@ -31,7 +31,7 @@ public static class DependencyInjectionExtensions
     }
 
     public static IServiceCollection FlagAsDynamic<TOptions>(this IServiceCollection services, string? name)
-        where TOptions : class, IDynamicallyPostConfigurable
+        where TOptions : class, IDynamicallyConfigurable
     {
         OptionsCacheSettings settings;
         if (services.FirstOrDefault(static x => x.ServiceType == typeof(OptionsCacheSettings)) is { } descriptor)
@@ -180,6 +180,126 @@ public static class DependencyInjectionExtensions
         services.TryAddEnumerable(
             ServiceDescriptor.Singleton<IConfigureClassAwareOptions<TOptions>>(
                 new ConfigureClassAwareOptionsFromConfiguration<TOptions>(name, configuration, sectionKey, configureBinder)
+            )
+        );
+
+        return services;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IServiceCollection VolatilelyConfigure<TOptions>(this IServiceCollection services)
+        where TOptions: class, IVolatilelyConfigurable
+    {
+        return services.VolatilelyConfigure<TOptions>(Options.DefaultName);
+    }
+
+    public static IServiceCollection VolatilelyConfigure<TOptions>(this IServiceCollection services, string name)
+        where TOptions: class, IVolatilelyConfigurable
+    {
+        services.AddOptions();
+        services.TryAddSingleton<IVolatileConfigurationStorage, VolatileConfigurationStorage>();
+
+        services.TryAddSingleton(
+            sp => ActivatorUtilities.CreateInstance<VolatilelyConfigureOptions<TOptions>>(sp, name)
+        );
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IConfigureOptions<TOptions>, VolatilelyConfigureOptions<TOptions>>(
+                static sp => sp.GetRequiredService<VolatilelyConfigureOptions<TOptions>>()
+            )
+        );
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IOptionsChangeTokenSource<TOptions>, VolatilelyConfigureOptions<TOptions>>(
+                static sp => sp.GetRequiredService<VolatilelyConfigureOptions<TOptions>>()
+            )
+        );
+
+        return services;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IServiceCollection VolatilelyConfigureClassAware<TOptions>(this IServiceCollection services)
+        where TOptions: class, IVolatilelyConfigurable
+    {
+        return services.VolatilelyConfigureClassAware<TOptions>(Options.DefaultName);
+    }
+
+    public static IServiceCollection VolatilelyConfigureClassAware<TOptions>(this IServiceCollection services, string name)
+        where TOptions: class, IVolatilelyConfigurable
+    {
+        services.AddClassAwareOptions();
+        services.VolatilelyConfigure<TOptions>(name);
+
+        services.TryAddSingleton(
+            sp => ActivatorUtilities.CreateInstance<VolatilelyConfigureClassAwareOptions<TOptions>>(sp, name)
+        );
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IConfigureClassAwareOptions<TOptions>, VolatilelyConfigureClassAwareOptions<TOptions>>(
+                static sp => sp.GetRequiredService<VolatilelyConfigureClassAwareOptions<TOptions>>()
+            )
+        );
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IClassAwareOptionsChangeTokenSource<TOptions>, VolatilelyConfigureClassAwareOptions<TOptions>>(
+                static sp => sp.GetRequiredService<VolatilelyConfigureClassAwareOptions<TOptions>>()
+            )
+        );
+
+        return services;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IServiceCollection VolatilelyPostConfigure<TOptions>(this IServiceCollection services)
+        where TOptions: class, IVolatilelyConfigurable
+    {
+        return services.VolatilelyPostConfigure<TOptions>(Options.DefaultName);
+    }
+
+    public static IServiceCollection VolatilelyPostConfigure<TOptions>(this IServiceCollection services, string name)
+        where TOptions: class, IVolatilelyConfigurable
+    {
+        services.AddOptions();
+        services.TryAddSingleton<IVolatileConfigurationStorage, VolatileConfigurationStorage>();
+
+        services.TryAddSingleton(
+            sp => ActivatorUtilities.CreateInstance<VolatilelyConfigureOptions<TOptions>>(sp, name)
+        );
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IPostConfigureOptions<TOptions>, VolatilelyConfigureOptions<TOptions>>(
+                static sp => sp.GetRequiredService<VolatilelyConfigureOptions<TOptions>>()
+            )
+        );
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IOptionsChangeTokenSource<TOptions>, VolatilelyConfigureOptions<TOptions>>(
+                static sp => sp.GetRequiredService<VolatilelyConfigureOptions<TOptions>>()
+            )
+        );
+
+        return services;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IServiceCollection VolatilelyPostConfigureClassAware<TOptions>(this IServiceCollection services)
+        where TOptions: class, IVolatilelyConfigurable
+    {
+        return services.VolatilelyPostConfigureClassAware<TOptions>(Options.DefaultName);
+    }
+
+    public static IServiceCollection VolatilelyPostConfigureClassAware<TOptions>(this IServiceCollection services, string name)
+        where TOptions: class, IVolatilelyConfigurable
+    {
+        services.AddClassAwareOptions();
+        services.VolatilelyPostConfigure<TOptions>(name);
+
+        services.TryAddSingleton(
+            sp => ActivatorUtilities.CreateInstance<VolatilelyConfigureClassAwareOptions<TOptions>>(sp, name)
+        );
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IPostConfigureClassAwareOptions<TOptions>, VolatilelyConfigureClassAwareOptions<TOptions>>(
+                static sp => sp.GetRequiredService<VolatilelyConfigureClassAwareOptions<TOptions>>()
+            )
+        );
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IClassAwareOptionsChangeTokenSource<TOptions>, VolatilelyConfigureClassAwareOptions<TOptions>>(
+                static sp => sp.GetRequiredService<VolatilelyConfigureClassAwareOptions<TOptions>>()
             )
         );
 
