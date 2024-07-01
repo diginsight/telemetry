@@ -10,7 +10,8 @@ public sealed class DiginsightActivitiesOptions
         IDiginsightActivityNamesOptions,
         IDiginsightActivitiesLogOptions,
         IDiginsightActivitiesMetricOptions,
-        IDynamicallyPostConfigurable
+        IDynamicallyConfigurable,
+        IVolatilelyConfigurable
 {
     private readonly bool frozen;
 
@@ -157,11 +158,19 @@ public sealed class DiginsightActivitiesOptions
         };
     }
 
-    object IDynamicallyPostConfigurable.MakeFiller() => new Filler(this);
+    object IDynamicallyConfigurable.MakeFiller() => new Filler(this);
+
+    object IVolatilelyConfigurable.MakeFiller() => new Filler(this);
 
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
     private class Filler
     {
+#if NET || NETSTANDARD2_1_OR_GREATER
+        private const char SpaceSeparator = ' ';
+#else
+        private static readonly char[] SpaceSeparator = [ ' ' ];
+#endif
+
         private readonly DiginsightActivitiesOptions filled;
 
         public bool LogActivities
@@ -186,6 +195,46 @@ public sealed class DiginsightActivitiesOptions
         {
             get => filled.RecordSpanDurations;
             set => filled.RecordSpanDurations = value;
+        }
+
+        public string LoggedActivityNames
+        {
+            get => string.Join(" ", filled.LoggedActivityNames);
+            set
+            {
+                filled.LoggedActivityNames.Clear();
+                filled.LoggedActivityNames.AddRange(value.Split(SpaceSeparator, StringSplitOptions.RemoveEmptyEntries));
+            }
+        }
+
+        public string NonLoggedActivityNames
+        {
+            get => string.Join(" ", filled.NonLoggedActivityNames);
+            set
+            {
+                filled.NonLoggedActivityNames.Clear();
+                filled.NonLoggedActivityNames.AddRange(value.Split(SpaceSeparator, StringSplitOptions.RemoveEmptyEntries));
+            }
+        }
+
+        public string SpanMeasuredActivityNames
+        {
+            get => string.Join(" ", filled.SpanMeasuredActivityNames);
+            set
+            {
+                filled.SpanMeasuredActivityNames.Clear();
+                filled.SpanMeasuredActivityNames.AddRange(value.Split(SpaceSeparator, StringSplitOptions.RemoveEmptyEntries));
+            }
+        }
+
+        public string NonSpanMeasuredActivityNames
+        {
+            get => string.Join(" ", filled.NonSpanMeasuredActivityNames);
+            set
+            {
+                filled.NonSpanMeasuredActivityNames.Clear();
+                filled.NonSpanMeasuredActivityNames.AddRange(value.Split(SpaceSeparator, StringSplitOptions.RemoveEmptyEntries));
+            }
         }
 
         public Filler(DiginsightActivitiesOptions filled)
