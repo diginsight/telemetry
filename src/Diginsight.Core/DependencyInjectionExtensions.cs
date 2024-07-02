@@ -186,6 +186,12 @@ public static class DependencyInjectionExtensions
         return services;
     }
 
+    public static IServiceCollection AddVolatileConfiguration(this IServiceCollection services)
+    {
+        services.TryAddSingleton<IVolatileConfigurationStorage, VolatileConfigurationStorage>();
+        return services;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IServiceCollection VolatilelyConfigure<TOptions>(this IServiceCollection services)
         where TOptions: class, IVolatilelyConfigurable
@@ -196,8 +202,9 @@ public static class DependencyInjectionExtensions
     public static IServiceCollection VolatilelyConfigure<TOptions>(this IServiceCollection services, string name)
         where TOptions: class, IVolatilelyConfigurable
     {
-        services.AddOptions();
-        services.TryAddSingleton<IVolatileConfigurationStorage, VolatileConfigurationStorage>();
+        services
+            .AddOptions()
+            .AddVolatileConfiguration();
 
         services.TryAddSingleton(
             sp => ActivatorUtilities.CreateInstance<VolatilelyConfigureOptions<TOptions>>(sp, name)
@@ -256,8 +263,9 @@ public static class DependencyInjectionExtensions
     public static IServiceCollection VolatilelyPostConfigure<TOptions>(this IServiceCollection services, string name)
         where TOptions: class, IVolatilelyConfigurable
     {
-        services.AddOptions();
-        services.TryAddSingleton<IVolatileConfigurationStorage, VolatileConfigurationStorage>();
+        services
+            .AddOptions()
+            .AddVolatileConfiguration();
 
         services.TryAddSingleton(
             sp => ActivatorUtilities.CreateInstance<VolatilelyConfigureOptions<TOptions>>(sp, name)

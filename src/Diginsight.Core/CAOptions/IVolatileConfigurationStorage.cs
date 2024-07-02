@@ -6,5 +6,5 @@ public interface IVolatileConfigurationStorage
 {
     IConfiguration Configuration { get; }
 
-    void Apply(IEnumerable<KeyValuePair<string, string?>> entries);
+    void Apply(IEnumerable<KeyValuePair<string, string?>> entries, bool overwrite = false);
 }

@@ -21,6 +21,9 @@
         <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.*">
           <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
         </PackageReference>
+        <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.2.*">
+          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+        </PackageReference>
       </ItemGroup>
     </Otherwise>
   </Choose>

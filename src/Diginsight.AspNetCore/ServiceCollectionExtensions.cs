@@ -1,11 +1,14 @@
 ﻿using Diginsight.CAOptions;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 namespace Diginsight.AspNetCore;
 
@@ -132,20 +135,23 @@ public static class ServiceCollectionExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void AddDynamicLogLevelCore(IServiceCollection services)
+    private static IServiceCollection AddDynamicLogLevelCore(IServiceCollection services)
     {
-        services.AddLoggerFactorySetter();
-        services.AddHttpContextAccessor();
-        services.Decorate<IHttpContextFactory, DynamicLogLevelHttpContextFactory>();
+        return services
+            .AddLoggerFactorySetter()
+            .AddHttpContextAccessor()
+            .Decorate<IHttpContextFactory, DynamicLogLevelHttpContextFactory>();
     }
 
-    public static void AddAspNetCorePropagator(this IServiceCollection services)
+    public static IServiceCollection AddAspNetCorePropagator(this IServiceCollection services)
     {
         services.AddHttpContextAccessor();
         services.TryAddSingleton<DistributedContextPropagator>(
             static sp => ActivatorUtilities.CreateInstance<AspNetCorePropagator>(sp, DistributedContextPropagator.Current)
         );
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IOnCreateServiceProvider, SetCurrentPropagator>());
+
+        return services;
     }
 
     public sealed class SetCurrentPropagator : IOnCreateServiceProvider
@@ -162,4 +168,64 @@ public static class ServiceCollectionExtensions
             DistributedContextPropagator.Current = propagator;
         }
     }
+
+#if NET
+    public static IEndpointConventionBuilder MapVolatileConfiguration(this IEndpointRouteBuilder endpoints, string pattern = ".volatile-configuration")
+#else
+    public static IRouteBuilder MapVolatileConfiguration(this IRouteBuilder routes, string template = ".volatile-configuration")
+#endif
+    {
+        static Task ApplyVolatileConfiguration(HttpContext httpContext)
+        {
+            IVolatileConfigurationStorage storage = httpContext.RequestServices.GetRequiredService<IVolatileConfigurationStorage>();
+
+            string method = httpContext.Request.Method;
+            IEnumerable<KeyValuePair<string, string?>> entries;
+
+            if (method != HttpMethods.Delete)
+            {
+                IDictionary<string, string?> dict = new Dictionary<string, string?>();
+                foreach (string rawSpec in httpContext.Request.Headers["Volatile-Configuration"].NormalizeHttpHeaderValue())
+                {
+                    if (VolatileConfigurationSpecRegex.Match(rawSpec) is not { Success: true } match)
+                        continue;
+
+                    dict[match.Groups[1].Value] = match.Groups[2] is { Success: true, Value: var matchValue } ? matchValue : null;
+                }
+
+                entries = dict;
+            }
+            else
+            {
+                entries = [ ];
+            }
+
+            storage.Apply(entries, method != HttpMethods.Patch);
+
+            httpContext.Response.StatusCode = StatusCodes.Status204NoContent;
+            return Task.CompletedTask;
+        }
+
+        IServiceProvider serviceProvider =
+#if NET
+            endpoints.ServiceProvider;
+#else
+            routes.ServiceProvider;
+#endif
+        if (serviceProvider.GetService<IVolatileConfigurationStorage>() is null)
+        {
+            throw new InvalidOperationException($"Required service {nameof(IVolatileConfigurationStorage)} not registered");
+        }
+
+#if NET
+        return endpoints.MapMethods(pattern, [ HttpMethods.Put, HttpMethods.Patch, HttpMethods.Delete ], ApplyVolatileConfiguration);
+#else
+        return routes
+            .MapPut(template, ApplyVolatileConfiguration)
+            .MapVerb(HttpMethods.Patch, template, ApplyVolatileConfiguration)
+            .MapDelete(template, ApplyVolatileConfiguration);
+#endif
+    }
+
+    private static readonly Regex VolatileConfigurationSpecRegex = new ("^([^=]+?)(?:=(.*))?$");
 }

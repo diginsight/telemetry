@@ -16,18 +16,31 @@ internal sealed class VolatileConfigurationStorage : IVolatileConfigurationStora
         configurationProvider = configurationRoot.Providers.OfType<MemoryConfigurationProvider>().Single();
     }
 
-    public void Apply(IEnumerable<KeyValuePair<string, string?>> entries)
+    public void Apply(IEnumerable<KeyValuePair<string, string?>> entries, bool overwrite)
     {
-        if (!entries.Any())
+        bool reload = false;
+
+        if (overwrite)
         {
-            return;
+            reload = true;
+            foreach (string entryKey in configurationProvider.Select(static x => x.Key))
+            {
+                configurationProvider.Set(entryKey, null);
+            }
         }
 
-        foreach ((string entryKey, string? entryValue) in entries)
+        if (entries.Any())
         {
-            configurationProvider.Set(entryKey, entryValue);
+            reload = true;
+            foreach ((string entryKey, string? entryValue) in entries)
+            {
+                configurationProvider.Set(entryKey, entryValue);
+            }
         }
 
-        configurationRoot.Reload();
+        if (reload)
+        {
+            configurationRoot.Reload();
+        }
     }
 }
