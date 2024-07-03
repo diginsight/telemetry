@@ -188,7 +188,7 @@ public static class DependencyInjectionExtensions
 
     public static IServiceCollection AddVolatileConfiguration(this IServiceCollection services)
     {
-        services.TryAddSingleton<IVolatileConfigurationStorage, VolatileConfigurationStorage>();
+        services.TryAddSingleton<IVolatileConfigurationStorageProvider, VolatileConfigurationStorageProvider>();
         return services;
     }
 

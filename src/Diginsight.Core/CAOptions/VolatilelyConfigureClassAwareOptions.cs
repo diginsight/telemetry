@@ -9,9 +9,9 @@ public class VolatilelyConfigureClassAwareOptions<TOptions>
 {
     public VolatilelyConfigureClassAwareOptions(
         string? name,
-        IVolatileConfigurationStorage storage
+        IVolatileConfigurationStorageProvider storageProvider
     )
-        : base(name, storage) { }
+        : base(name, storageProvider) { }
 
     public void Configure(string name, Type @class, TOptions options)
     {

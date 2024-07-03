@@ -1,14 +1,16 @@
 ﻿using Diginsight.CAOptions;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
+#if NET
+using Microsoft.AspNetCore.Builder;
+#endif
 
 namespace Diginsight.AspNetCore;
 
@@ -175,32 +177,21 @@ public static class ServiceCollectionExtensions
     public static IRouteBuilder MapVolatileConfiguration(this IRouteBuilder routes, string template = ".volatile-configuration")
 #endif
     {
-        static Task ApplyVolatileConfiguration(HttpContext httpContext)
+        static Task ApplyVolatileConfigurationAsync(HttpContext httpContext)
         {
-            IVolatileConfigurationStorage storage = httpContext.RequestServices.GetRequiredService<IVolatileConfigurationStorage>();
+            IServiceProvider serviceProvider = httpContext.RequestServices;
+            IVolatileConfigurationStorageProvider storageProvider = serviceProvider.GetRequiredService<IVolatileConfigurationStorageProvider>();
 
             string method = httpContext.Request.Method;
-            IEnumerable<KeyValuePair<string, string?>> entries;
+            bool delete = method == HttpMethods.Delete;
+            bool overwrite = method != HttpMethods.Patch;
 
-            if (method != HttpMethods.Delete)
+            foreach (IHttpContextVolatileConfigurationLoader loader in serviceProvider.GetServices<IHttpContextVolatileConfigurationLoader>())
             {
-                IDictionary<string, string?> dict = new Dictionary<string, string?>();
-                foreach (string rawSpec in httpContext.Request.Headers["Volatile-Configuration"].NormalizeHttpHeaderValue())
-                {
-                    if (VolatileConfigurationSpecRegex.Match(rawSpec) is not { Success: true } match)
-                        continue;
-
-                    dict[match.Groups[1].Value] = match.Groups[2] is { Success: true, Value: var matchValue } ? matchValue : null;
-                }
-
-                entries = dict;
+                IVolatileConfigurationStorage storage = storageProvider[loader.StorageName];
+                IEnumerable<KeyValuePair<string, string?>> entries = delete ? [ ] : loader.Load(httpContext);
+                storage.Apply(entries, overwrite);
             }
-            else
-            {
-                entries = [ ];
-            }
-
-            storage.Apply(entries, method != HttpMethods.Patch);
 
             httpContext.Response.StatusCode = StatusCodes.Status204NoContent;
             return Task.CompletedTask;
@@ -212,20 +203,18 @@ public static class ServiceCollectionExtensions
 #else
             routes.ServiceProvider;
 #endif
-        if (serviceProvider.GetService<IVolatileConfigurationStorage>() is null)
+        if (serviceProvider.GetService<IVolatileConfigurationStorageProvider>() is null)
         {
-            throw new InvalidOperationException($"Required service {nameof(IVolatileConfigurationStorage)} not registered");
+            throw new InvalidOperationException($"Required service {nameof(IVolatileConfigurationStorageProvider)} not registered");
         }
 
 #if NET
-        return endpoints.MapMethods(pattern, [ HttpMethods.Put, HttpMethods.Patch, HttpMethods.Delete ], ApplyVolatileConfiguration);
+        return endpoints.MapMethods(pattern, [ HttpMethods.Put, HttpMethods.Patch, HttpMethods.Delete ], ApplyVolatileConfigurationAsync);
 #else
         return routes
-            .MapPut(template, ApplyVolatileConfiguration)
-            .MapVerb(HttpMethods.Patch, template, ApplyVolatileConfiguration)
-            .MapDelete(template, ApplyVolatileConfiguration);
+            .MapPut(template, ApplyVolatileConfigurationAsync)
+            .MapVerb(HttpMethods.Patch, template, ApplyVolatileConfigurationAsync)
+            .MapDelete(template, ApplyVolatileConfigurationAsync);
 #endif
     }
-
-    private static readonly Regex VolatileConfigurationSpecRegex = new ("^([^=]+?)(?:=(.*))?$");
 }

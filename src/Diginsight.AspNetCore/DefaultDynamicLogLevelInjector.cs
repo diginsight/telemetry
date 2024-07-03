@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
 namespace Diginsight.AspNetCore;
@@ -38,7 +36,7 @@ public sealed class DefaultDynamicLogLevelInjector : IDynamicLogLevelInjector
 {
     private const string HeaderName = "Log-Level";
 
-    private static readonly Regex SpecRegex = new ("^([^=]+?)=([a-z]+?)(?:;p=(.+?))?$", RegexOptions.IgnoreCase);
+    private static readonly Regex SpecRegex = new ("^([^= ]+?) *= *([a-z]+?)(?: *; *p *= *([^ ]+?))?$", RegexOptions.IgnoreCase);
 
 #if NET
     private readonly IHostEnvironment hostEnvironment;
@@ -80,59 +78,14 @@ public sealed class DefaultDynamicLogLevelInjector : IDynamicLogLevelInjector
         };
 
         IList<LoggerFilterRule> newRules = newLoggerFilterOptions.Rules;
-        newRules.AddRange(oldLoggerFilterOptions.Rules);
+        newLoggerFilterOptions.Rules.AddRange(oldLoggerFilterOptions.Rules);
 
-        bool any = false;
-
-        const string defaultCategory = "*";
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static string? Collapse(string? c) => c is "" or defaultCategory ? null : c;
-
-        foreach (string rawSpec in context.Request.Headers[HeaderName].NormalizeHttpHeaderValue())
-        {
-            if (Enum.TryParse(rawSpec, true, out LogLevel minLogLevel))
-            {
-                SetRule(null, null, minLogLevel);
-                continue;
-            }
-
-            if (SpecRegex.Match(rawSpec) is not { Success: true } match ||
-                !Enum.TryParse(match.Groups[2].Value, true, out LogLevel logLevel))
-            {
-                continue;
-            }
-
-            string? category = Collapse(match.Groups[1].Value);
-            string? provider = match.Groups[3] is { Success: true } providerGroup ? providerGroup.Value : null;
-            SetRule(category, provider, logLevel);
-
-            [SuppressMessage("ReSharper", "VariableHidesOuterVariable")]
-            void SetRule(string? category, string? provider, LogLevel logLevel)
-            {
-                any = true;
-
-                if (category is null && provider is null)
-                {
-                    newLoggerFilterOptions.MinLevel = logLevel;
-                }
-
-                int index = newRules.FirstIndexWhere(x => string.Equals(Collapse(x.CategoryName), category, StringComparison.OrdinalIgnoreCase) && x.ProviderName == provider);
-                if (index >= 0)
-                {
-                    newRules[index] = new LoggerFilterRule(provider, category, logLevel, null);
-                }
-                else
-                {
-                    newRules.Add(new LoggerFilterRule(provider, category, logLevel, null));
-                }
-            }
-        }
+        bool any = DynamicHttpHeadersParser.ParseLogLevel(context.Request.Headers[HeaderName].NormalizeHttpHeaderValue(), newLoggerFilterOptions, true);
 
         if (hostEnvironment.IsDevelopment())
         {
             context.Response.Headers[HeaderName] = newRules
-                .Select(static x => $"{Collapse(x.CategoryName) ?? defaultCategory}={x.LogLevel ?? LogLevel.None}{(x.Filter is null ? "" : "!")}{(x.ProviderName is { } provider ? $";p={provider}" : "")}")
+                .Select(static x => $"{x.CategoryName ?? "Default"}={x.LogLevel ?? LogLevel.None}{(x.Filter is null ? "" : "!")}{(x.ProviderName is { } provider ? $";p={provider}" : "")}")
                 .Prepend(newLoggerFilterOptions.MinLevel.ToString())
                 .ToArray();
         }

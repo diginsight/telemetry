@@ -149,4 +149,13 @@ public static class DependencyInjectionExtensions
     {
         return services.AddSpanDurationMetricRecorder<SpanDurationMetricRecorderRegistration>();
     }
+
+    //public static ILoggingBuilder AddVolatileConfiguration(this ILoggingBuilder loggingBuilder)
+    //{
+    //    IServiceCollection services = loggingBuilder.Services;
+    //    services.AddSingleton<IConfigureOptions<LoggerFilterOptions>>(new LoggerFilterConfigureOptions(configuration));
+    //    services.AddSingleton<IOptionsChangeTokenSource<LoggerFilterOptions>>(new ConfigurationChangeTokenSource<LoggerFilterOptions>(configuration));
+    //    services.AddSingleton(new LoggingConfiguration(configuration));
+    //    return loggingBuilder;
+    //}
 }

@@ -53,19 +53,14 @@ public class DynamicallyConfigureOptionsFromHttpRequestHeaders<TOptions> : IConf
             return;
         }
 
-        IDictionary<string, string?> dict = new Dictionary<string, string?>();
-        foreach (string rawSpec in httpContext.Request.Headers[HeaderName].NormalizeHttpHeaderValue())
-        {
-            if (Statics.SpecRegex.Match(rawSpec) is not { Success: true } match)
-                continue;
+        KeyValuePair<string, string?>[] specs = DynamicHttpHeadersParser
+            .ParseConfiguration(httpContext.Request.Headers[HeaderName].NormalizeHttpHeaderValue(), false)
+            .ToArray();
 
-            dict[match.Groups[1].Value] = match.Groups[2].Value;
-        }
-
-        if (!(dict.Count > 0))
+        if (!(specs.Length > 0))
             return;
 
-        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(dict).Build();
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(specs).Build();
         if (enrichConfiguration is not null)
         {
             configuration = enrichConfiguration(configuration);

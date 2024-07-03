@@ -5,9 +5,7 @@ using Microsoft.Extensions.Primitives;
 namespace Diginsight.CAOptions;
 
 public class VolatilelyConfigureOptions<TOptions>
-    : IConfigureNamedOptions<TOptions>,
-        IPostConfigureOptions<TOptions>,
-        IOptionsChangeTokenSource<TOptions>
+    : IConfigureNamedOptions<TOptions>, IPostConfigureOptions<TOptions>, IOptionsChangeTokenSource<TOptions>
     where TOptions : class, IVolatilelyConfigurable
 {
     private readonly IVolatileConfigurationStorage storage;
@@ -16,10 +14,10 @@ public class VolatilelyConfigureOptions<TOptions>
 
     public VolatilelyConfigureOptions(
         string? name,
-        IVolatileConfigurationStorage storage
+        IVolatileConfigurationStorageProvider storageProvider
     )
     {
-        this.storage = storage;
+        storage = storageProvider[KnownVolatileConfigurationStorageNames.Configuration];
         Name = name;
     }
 
