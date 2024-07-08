@@ -157,23 +157,28 @@ public static class DependencyInjectionExtensions
     {
         IServiceCollection services = loggingBuilder.Services;
 
+        if (services.Any(static sd => sd.ImplementationType == typeof(VolatileLogLevelOptionsChangeTokenSource)))
+        {
+            return loggingBuilder;
+        }
+
+        services.AddSingleton<IOptionsChangeTokenSource<LoggerFilterOptions>, VolatileLogLevelOptionsChangeTokenSource>();
+
         Assembly assembly = typeof(ILoggerProviderConfigurationFactory).Assembly;
 
         services.AddSingleton(
             sp => (IConfigureOptions<LoggerFilterOptions>)Activator.CreateInstance(
                 assembly.GetType("Microsoft.Extensions.Logging.LoggerFilterConfigureOptions")!,
-                sp.GetRequiredService<IVolatileConfigurationStorageProvider>()[KnownVolatileConfigurationStorageNames.LogLevel].Configuration
+                sp.GetRequiredService<IVolatileConfigurationStorageProvider>().Get(KnownVolatileConfigurationStorageNames.LogLevel).Configuration
             )!
         );
-
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IOptionsChangeTokenSource<LoggerFilterOptions>, VolatileLogLevelOptionsChangeTokenSource>());
 
         Type loggingConfigurationType = assembly.GetType("Microsoft.Extensions.Logging.Configuration.LoggingConfiguration")!;
         services.AddSingleton(
             loggingConfigurationType,
             sp => Activator.CreateInstance(
                 loggingConfigurationType,
-                sp.GetRequiredService<IVolatileConfigurationStorageProvider>()[KnownVolatileConfigurationStorageNames.LogLevel].Configuration
+                sp.GetRequiredService<IVolatileConfigurationStorageProvider>().Get(KnownVolatileConfigurationStorageNames.LogLevel).Configuration
             )!
         );
 
@@ -183,6 +188,6 @@ public static class DependencyInjectionExtensions
     private sealed class VolatileLogLevelOptionsChangeTokenSource : ConfigurationChangeTokenSource<LoggerFilterOptions>
     {
         public VolatileLogLevelOptionsChangeTokenSource(IVolatileConfigurationStorageProvider storageProvider)
-            : base(storageProvider[KnownVolatileConfigurationStorageNames.LogLevel].Configuration) { }
+            : base(storageProvider.Get(KnownVolatileConfigurationStorageNames.LogLevel).Configuration) { }
     }
 }

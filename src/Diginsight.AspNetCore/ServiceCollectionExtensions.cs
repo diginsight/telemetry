@@ -188,7 +188,7 @@ public static class ServiceCollectionExtensions
 
             foreach (IAspNetCoreVolatileConfigurationLoader loader in serviceProvider.GetServices<IAspNetCoreVolatileConfigurationLoader>())
             {
-                IVolatileConfigurationStorage storage = storageProvider[loader.StorageName];
+                IVolatileConfigurationStorage storage = storageProvider.Get(loader.StorageName);
                 IEnumerable<KeyValuePair<string, string?>> entries = delete ? [ ] : loader.Load(httpContext);
                 storage.Apply(entries, overwrite);
             }

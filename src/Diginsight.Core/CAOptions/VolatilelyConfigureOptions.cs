@@ -17,7 +17,7 @@ public class VolatilelyConfigureOptions<TOptions>
         IVolatileConfigurationStorageProvider storageProvider
     )
     {
-        storage = storageProvider[KnownVolatileConfigurationStorageNames.Configuration];
+        storage = storageProvider.Get(KnownVolatileConfigurationStorageNames.Configuration);
         Name = name;
     }
 
