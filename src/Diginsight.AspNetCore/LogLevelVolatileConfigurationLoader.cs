@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Diginsight.AspNetCore;
 
-public sealed class LogLevelVolatileConfigurationLoader : IHttpContextVolatileConfigurationLoader
+public sealed class LogLevelVolatileConfigurationLoader : IAspNetCoreVolatileConfigurationLoader
 {
     public string StorageName => KnownVolatileConfigurationStorageNames.LogLevel;
 

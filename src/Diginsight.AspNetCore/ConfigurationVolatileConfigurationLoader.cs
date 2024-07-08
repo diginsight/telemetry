@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Diginsight.AspNetCore;
 
-public sealed class ConfigurationVolatileConfigurationLoader : IHttpContextVolatileConfigurationLoader
+public sealed class ConfigurationVolatileConfigurationLoader : IAspNetCoreVolatileConfigurationLoader
 {
     public string StorageName => KnownVolatileConfigurationStorageNames.Configuration;
 

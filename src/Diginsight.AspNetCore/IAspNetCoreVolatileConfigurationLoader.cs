@@ -2,7 +2,7 @@
 
 namespace Diginsight.AspNetCore;
 
-public interface IHttpContextVolatileConfigurationLoader
+public interface IAspNetCoreVolatileConfigurationLoader
 {
     string StorageName { get; }
 

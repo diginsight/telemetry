@@ -186,7 +186,7 @@ public static class ServiceCollectionExtensions
             bool delete = method == HttpMethods.Delete;
             bool overwrite = method != HttpMethods.Patch;
 
-            foreach (IHttpContextVolatileConfigurationLoader loader in serviceProvider.GetServices<IHttpContextVolatileConfigurationLoader>())
+            foreach (IAspNetCoreVolatileConfigurationLoader loader in serviceProvider.GetServices<IAspNetCoreVolatileConfigurationLoader>())
             {
                 IVolatileConfigurationStorage storage = storageProvider[loader.StorageName];
                 IEnumerable<KeyValuePair<string, string?>> entries = delete ? [ ] : loader.Load(httpContext);

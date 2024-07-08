@@ -1,9 +1,12 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Diginsight.CAOptions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Configuration;
 using Microsoft.Extensions.Options;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
@@ -150,12 +153,36 @@ public static class DependencyInjectionExtensions
         return services.AddSpanDurationMetricRecorder<SpanDurationMetricRecorderRegistration>();
     }
 
-    //public static ILoggingBuilder AddVolatileConfiguration(this ILoggingBuilder loggingBuilder)
-    //{
-    //    IServiceCollection services = loggingBuilder.Services;
-    //    services.AddSingleton<IConfigureOptions<LoggerFilterOptions>>(new LoggerFilterConfigureOptions(configuration));
-    //    services.AddSingleton<IOptionsChangeTokenSource<LoggerFilterOptions>>(new ConfigurationChangeTokenSource<LoggerFilterOptions>(configuration));
-    //    services.AddSingleton(new LoggingConfiguration(configuration));
-    //    return loggingBuilder;
-    //}
+    public static ILoggingBuilder AddVolatileConfiguration(this ILoggingBuilder loggingBuilder)
+    {
+        IServiceCollection services = loggingBuilder.Services;
+
+        Assembly assembly = typeof(ILoggerProviderConfigurationFactory).Assembly;
+
+        services.AddSingleton(
+            sp => (IConfigureOptions<LoggerFilterOptions>)Activator.CreateInstance(
+                assembly.GetType("Microsoft.Extensions.Logging.LoggerFilterConfigureOptions")!,
+                sp.GetRequiredService<IVolatileConfigurationStorageProvider>()[KnownVolatileConfigurationStorageNames.LogLevel].Configuration
+            )!
+        );
+
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IOptionsChangeTokenSource<LoggerFilterOptions>, VolatileLogLevelOptionsChangeTokenSource>());
+
+        Type loggingConfigurationType = assembly.GetType("Microsoft.Extensions.Logging.Configuration.LoggingConfiguration")!;
+        services.AddSingleton(
+            loggingConfigurationType,
+            sp => Activator.CreateInstance(
+                loggingConfigurationType,
+                sp.GetRequiredService<IVolatileConfigurationStorageProvider>()[KnownVolatileConfigurationStorageNames.LogLevel].Configuration
+            )!
+        );
+
+        return loggingBuilder;
+    }
+
+    private sealed class VolatileLogLevelOptionsChangeTokenSource : ConfigurationChangeTokenSource<LoggerFilterOptions>
+    {
+        public VolatileLogLevelOptionsChangeTokenSource(IVolatileConfigurationStorageProvider storageProvider)
+            : base(storageProvider[KnownVolatileConfigurationStorageNames.LogLevel].Configuration) { }
+    }
 }
