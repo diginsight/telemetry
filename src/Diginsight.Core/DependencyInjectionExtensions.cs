@@ -33,10 +33,25 @@ public static class DependencyInjectionExtensions
     public static IServiceCollection FlagAsDynamic<TOptions>(this IServiceCollection services, string? name)
         where TOptions : class, IDynamicallyConfigurable
     {
-        OptionsCacheSettings settings;
-        if (services.FirstOrDefault(static x => x.ServiceType == typeof(OptionsCacheSettings)) is { } descriptor)
+        services.AddOptions();
+        if (!services.Any(static x => x.ServiceType == typeof(IOptionsMonitorCache<TOptions>)))
         {
-            settings = (OptionsCacheSettings)descriptor.ImplementationInstance!;
+            ServiceDescriptor cacheDescriptor = services.First(static x => x.ServiceType == typeof(IOptionsMonitorCache<>));
+            Type cacheType = cacheDescriptor.ImplementationType!.MakeGenericType(typeof(TOptions));
+
+            services.TryAddSingleton(cacheType);
+            services.TryAddSingleton<IOptionsMonitorCache<TOptions>>(
+                sp => ActivatorUtilities.CreateInstance<ExcludableOptionsCache<TOptions>>(sp, sp.GetRequiredService(cacheType))
+            );
+        }
+
+        services.TryAddSingleton<OptionsCache<TOptions>>();
+        services.TryAddSingleton<IOptionsMonitorCache<TOptions>, ExcludableOptionsCache<TOptions>>();
+
+        OptionsCacheSettings settings;
+        if (services.FirstOrDefault(static x => x.ServiceType == typeof(OptionsCacheSettings)) is { } settingsDescriptor)
+        {
+            settings = (OptionsCacheSettings)settingsDescriptor.ImplementationInstance!;
         }
         else
         {
@@ -49,6 +64,41 @@ public static class DependencyInjectionExtensions
         return services;
     }
 
+    private sealed class ExcludableOptionsCache<TOptions> : IOptionsMonitorCache<TOptions>
+        where TOptions : class
+    {
+        private readonly IOptionsMonitorCache<TOptions> decoratee;
+        private readonly OptionsCacheSettings settings;
+
+        public ExcludableOptionsCache(IOptionsMonitorCache<TOptions> decoratee, OptionsCacheSettings? settings = null)
+        {
+            this.decoratee = decoratee;
+            this.settings = settings ?? new OptionsCacheSettings();
+        }
+
+        private bool IsDynamic(string name)
+        {
+            ISet<(Type, string?)> set = settings.DynamicEntries;
+            return set.Contains((typeof(TOptions), null)) || set.Contains((typeof(TOptions), name));
+        }
+
+        public TOptions GetOrAdd(string? name, Func<TOptions> createOptions)
+        {
+            name ??= Options.DefaultName;
+            return IsDynamic(name) ? createOptions() : decoratee.GetOrAdd(name, createOptions);
+        }
+
+        public bool TryAdd(string? name, TOptions options)
+        {
+            name ??= Options.DefaultName;
+            return IsDynamic(name) ? throw new ArgumentException("Dynamic option cannot be cached") : decoratee.TryAdd(name, options);
+        }
+
+        public bool TryRemove(string? name) => decoratee.TryRemove(name);
+
+        public void Clear() => decoratee.Clear();
+    }
+
     public static IServiceCollection AddClassAwareOptions(this IServiceCollection services)
     {
         services.AddOptions();
@@ -58,7 +108,6 @@ public static class DependencyInjectionExtensions
         services.TryAddSingleton(typeof(IClassAwareOptionsMonitor<>), typeof(ClassAwareOptionsMonitor<>));
         services.TryAddTransient(typeof(IClassAwareOptionsFactory<>), typeof(ClassAwareOptionsFactory<>));
         services.TryAddSingleton(typeof(IClassAwareOptionsCache<>), typeof(ClassAwareOptionsCache<>));
-        services.TryDecorate(typeof(IOptionsMonitorCache<>), typeof(ExcludableOptionsCache<>));
 
         if (ClassAwareOptions.OverrideClassAgnosticOptions)
         {
@@ -126,41 +175,6 @@ public static class DependencyInjectionExtensions
         }
 
         public TOptions Create(string name) => underlying.Create(name);
-    }
-
-    private sealed class ExcludableOptionsCache<TOptions> : IOptionsMonitorCache<TOptions>
-        where TOptions : class
-    {
-        private readonly IOptionsMonitorCache<TOptions> decoratee;
-        private readonly OptionsCacheSettings settings;
-
-        public ExcludableOptionsCache(IOptionsMonitorCache<TOptions> decoratee, OptionsCacheSettings? settings = null)
-        {
-            this.decoratee = decoratee;
-            this.settings = settings ?? new OptionsCacheSettings();
-        }
-
-        private bool IsDynamic(string name)
-        {
-            ISet<(Type, string?)> set = settings.DynamicEntries;
-            return set.Contains((typeof(TOptions), null)) || set.Contains((typeof(TOptions), name));
-        }
-
-        public TOptions GetOrAdd(string? name, Func<TOptions> createOptions)
-        {
-            name ??= Options.DefaultName;
-            return IsDynamic(name) ? createOptions() : decoratee.GetOrAdd(name, createOptions);
-        }
-
-        public bool TryAdd(string? name, TOptions options)
-        {
-            name ??= Options.DefaultName;
-            return IsDynamic(name) ? throw new ArgumentException("Dynamic option cannot be cached") : decoratee.TryAdd(name, options);
-        }
-
-        public bool TryRemove(string? name) => decoratee.TryRemove(name);
-
-        public void Clear() => decoratee.Clear();
     }
 
     public static IServiceCollection ConfigureClassAware<TOptions>(
