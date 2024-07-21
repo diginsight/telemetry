@@ -12,9 +12,9 @@ namespace Diginsight.Diagnostics;
 public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
 {
     private readonly TimeProvider timeProvider;
-    private readonly object lockObj = new ();
+    private readonly object lockObj = new();
     private readonly IDictionary<string, DeferredLogger> loggers = new Dictionary<string, DeferredLogger>(StringComparer.Ordinal);
-    private readonly ConcurrentQueue<DeferredOperation> operations = new ();
+    private readonly ConcurrentQueue<DeferredOperation> operations = new();
 
     private ActivityListener? activityListener;
     private ILoggerFactory? target;
@@ -223,9 +223,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
                 }
                 else
                 {
-                    owner.operations.Enqueue(new DeferredLogOperation<TState>(
-                        category, GetTimestamp(), Activity.Current, logLevel, eventId, state, exception, formatter
-                    ));
+                    owner.operations.Enqueue(new DeferredLogOperation<TState>(category, GetTimestamp(), Activity.Current, logLevel, eventId, state, exception, formatter));
                 }
             }
         }
@@ -245,7 +243,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
                     return target.CreateLogger(category).BeginScope(state);
                 }
 
-                StrongBox<IDisposable?> scopeBox = new ();
+                StrongBox<IDisposable?> scopeBox = new();
                 owner.operations.Enqueue(new DeferredBeginScopeOperation<TState>(category, state, scopeBox));
                 return new CallbackDisposable(() => { owner.operations.Enqueue(new DeferredEndScopeOperation(scopeBox)); });
             }
@@ -293,15 +291,8 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
 
         public override void FlushTo(ILoggerFactory target)
         {
-            target
-                .CreateLogger(category)
-                .Log(
-                    logLevel,
-                    eventId,
-                    Deferred<TState>.For(state, timestamp, activity),
-                    exception,
-                    (s, e) => formatter(s.State, e)
-                );
+            var logger = target.CreateLogger(category);
+            logger.Log(logLevel, eventId, Deferred<TState>.For(state, timestamp, activity), exception, (s, e) => formatter(s.State, e));
         }
     }
 
