@@ -64,4 +64,8 @@
     </Compile>
   </ItemGroup>
 
+  <ItemGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <Compile Remove="Equality/**/*.cs" />
+  </ItemGroup>
+
 </Project>

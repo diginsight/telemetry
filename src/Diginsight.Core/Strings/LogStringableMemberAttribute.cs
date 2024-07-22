@@ -28,4 +28,10 @@ public sealed class LogStringableMemberAttribute : Attribute, ILogStringableMemb
     }
 
     int? ILogStringableMemberDescriptor.Order => isOrderSet ? order : null;
+
+    public void UnsetOrder()
+    {
+        isOrderSet = false;
+        order = 0;
+    }
 }

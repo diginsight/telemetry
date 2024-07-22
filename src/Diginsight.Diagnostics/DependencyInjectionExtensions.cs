@@ -157,6 +157,8 @@ public static class DependencyInjectionExtensions
     {
         IServiceCollection services = loggingBuilder.Services;
 
+        services.AddVolatileConfiguration();
+
         if (services.Any(static sd => sd.ImplementationType == typeof(VolatileLogLevelOptionsChangeTokenSource)))
         {
             return loggingBuilder;

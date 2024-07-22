@@ -8,4 +8,8 @@
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' != 'true'">
+    <DefineConstants>$(DefineConstants);EXPERIMENT_EQUALITY</DefineConstants>
+  </PropertyGroup>
+
 </Project>
