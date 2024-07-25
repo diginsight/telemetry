@@ -72,13 +72,13 @@ public sealed class MemberwiseLogStringable : ReflectionLogStringable
 
         IEnumerable<(LogStringAppender Appender, int Order)> fieldAppendersWithOrder = MakeAppendersWithOrder(
             type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic),
-            static f => f.FieldType.IsForbidden(),
+            static f => f.FieldType.CannotCustomizeLogString(),
             static f => f.IsPublic,
             static f => f.GetValue
         );
         IEnumerable<(LogStringAppender Appender, int Order)> propertyAppendersWithOrder = MakeAppendersWithOrder(
             type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic),
-            static p => p.PropertyType.IsForbidden() || p.GetMethod is null || p.GetIndexParameters().Length != 0,
+            static p => p.PropertyType.CannotCustomizeLogString() || p.GetMethod is null || p.GetIndexParameters().Length != 0,
             static p => p.GetMethod!.IsPublic,
             static p => p.GetValue
         );

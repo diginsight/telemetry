@@ -3,13 +3,13 @@
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
 public sealed class ProxyEquatableMemberAttribute : EquatableMemberAttribute, IProxyEquatableMemberDescriptor
 {
-    private object[]? proxyArgs;
+    private object?[]? proxyArgs;
 
     public Type ProxyType { get; }
 
     public string? ProxyMember { get; }
 
-    public object[] ProxyArgs
+    public object?[] ProxyArgs
     {
         get => proxyArgs ??= [ ];
         set => proxyArgs = value;

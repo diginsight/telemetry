@@ -4,5 +4,5 @@ public interface IProxyEquatableDescriptor
 {
     Type ProxyType { get; }
     string? ProxyMember { get; }
-    object[] ProxyArgs { get; }
+    object?[] ProxyArgs { get; }
 }

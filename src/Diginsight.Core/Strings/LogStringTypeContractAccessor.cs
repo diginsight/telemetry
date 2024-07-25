@@ -24,7 +24,7 @@ public sealed class LogStringTypeContractAccessor : ILogStringTypeContractAccess
             return contract;
         }
 
-        if (type.IsForbidden())
+        if (type.CannotCustomizeLogString())
         {
             throw new ArgumentException($"Type {type.Name} is forbidden");
         }

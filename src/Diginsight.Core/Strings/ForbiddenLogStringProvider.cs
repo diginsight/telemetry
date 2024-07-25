@@ -5,6 +5,6 @@ internal sealed class ForbiddenLogStringProvider : ILogStringProvider
     public ILogStringable? TryToLogStringable(object obj)
     {
         Type type = obj.GetType();
-        return type.IsForbidden() ? new NonLogStringable(type) : null;
+        return type.CannotCustomizeLogString() ? new NonLogStringable(type) : null;
     }
 }

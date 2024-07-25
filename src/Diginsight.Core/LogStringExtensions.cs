@@ -86,7 +86,7 @@ public static class LogStringExtensions
         }
     }
 
-    internal static bool IsForbidden(this Type type)
+    internal static bool CannotCustomizeLogString(this Type type)
     {
         static bool IsAwaitable(Type type)
         {
