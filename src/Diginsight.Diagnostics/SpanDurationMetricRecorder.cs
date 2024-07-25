@@ -70,6 +70,4 @@ public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
     }
 
     ActivitySamplingResult IActivityListenerLogic.Sample(ref ActivityCreationOptions<ActivityContext> creationOptions) => ActivitySamplingResult.AllData;
-
-    public bool IsSpanDurationMetric(Instrument instrument) => instrument == Metric;
 }
