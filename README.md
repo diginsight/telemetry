@@ -3,18 +3,30 @@ __diginsight telemetry__ is a set .Net packages that that provides __automatic__
 In particular, __the full application flow__ is made available to __local text based streams__ such as __traditional file logs__, the __Console Log__ or the __Azure Streaming Log__ and also to remote analysis tools such as __Azure Monitor__ and __Prometheus__/__Grafana__.<br><br>
 __diginsight telemetry__ targets __all dotnet framework versions__ starting from __netstandard2.0__.<br>Samples are available on [telemetry_samples](https://github.com/diginsight/telemetry_samples) repository to demonstrate use of telemetry on __.net 4.8__ up to [__blazor webassembly__,]__.net6__ and __.net8+__ assemblies.<br> 
 
-
 The image below shows the text based stream associated to to a Web API call.
 ![Alt text](<docs/000.01 Full call on log4net.png>)
 
 The following image shows the same call on the __Azure Monitor Transaction Detail__ where the call structure is shown as a hierarchy of __activities__ (also called __spans__) and __trace details__:
 ![Alt text](<docs/000.02 Full call on azmon transaction.png>)
 
+
+Diginsight uses __dynamic logging__ to support __full observability__ on live environments.<br>
+Live environments logging level is normally limited to __Warning__ or __Information__ levels to limit telemetry volumes produced by the applications.<br>
+With __dynamic logging__ Log level can be raied to debug or trace __for a single call__, for example, by means of the __Log-Level http headers__.
+
+The image below shows a __call to a live environment__ where the log level is set to Debug or Trace for 2 categories:
+![alt text](<docs/000.021a live environment request with loglevel debug.png>)
+
+the image below shows the __live environment AKS console__ where __our call is traced with full datail__, __while other calls are running with limited Log level__.
+![alt text](<docs/000.021b live environment request with loglevel debug.png>)
+
+
 Performance information gathered by __diginsight__ can be analyzed in the form of __metrics__.<br>
 The following image shows the __Azure Monitor Metrics__ dashboard where method invocations and latencies can be analized in __value__ and __frequency__:
 ![Alt text](<docs/000.03 span_duration azmon metrics.png>)<br><br>
 
-Diginsight uses __dynamic logging__, __smart sampling__, __automatic truncation__ and other strategies to __maximize applications efficiency__ and __minimize telemetry cost__<br>For these reasons __Local analysis__ and __analysis on the remote tools__ can be supported __without compromises on performance__ and  __without compromises on cost of telemetry__ in __test__ and __production__ environments.<br><br>
+
+ __Intelligent sampling__, __dynamic compilation__, __automatic truncation__ and other strategies are used to __maximize application efficiency__ and __minimize telemetry cost__<br>For these reasons __Local analysis__ and __analysis on the remote tools__ can be supported __without compromises on performance__ and  __without compromises on cost of telemetry__ in __test__ and __production__ environments.<br><br>
 ![alt text](<docs/001.03d NoPerformanceImpact.png>)<br>
 
 >[HowTo: Use diginsight telemetry with no impact on Application performance an telemetry cost](<docs/articles/16. maximize application performance and minimize telemetry cost with diginsight/maximize application performance and minimize telemetry cost with diginsight.md>)<br>
