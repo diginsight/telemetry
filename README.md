@@ -70,7 +70,7 @@ Also, details are provided to use its relevant features such as __Dynamic config
 Example code used in the articles is also available in the [telemetry_samples](https://github.com/diginsight/telemetry_samples) repository.
 
 
->- [GETTING STARTED](https://github.com/diginsight/telemetry?tab=readme-ov-file#GETTING-STARTED)<br>
+>- [GETTING STARTED](https://github.com/diginsight/telemetry/blob/main/docs/articles/00. GETTING STARTED/GETTING STARTED.md)<br>
 >Explores __basic steps we can follow to integrate diginsight telemetry__<br>
 >- [HowTo: use dynamic logging to manage loglevel dynamically, at runtime](<docs/articles/11. use Dynamic-Logging to manage loglevel dinamically at runtime/Use Dynamic-Logging to manage loglevel dinamically at runtime.md>)<br>
 >Explores how we can troubleshoot applications by means of __dynamic logging__.<br>
