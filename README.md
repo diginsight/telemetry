@@ -23,14 +23,14 @@ The following image shows the same call on the __Azure Monitor Transaction Detai
 ![Alt text](<docs/000.02 Full call on azmon transaction.png>)
 
 
-Diginsight uses __dynamic logging__ to support __full observability__ on live environments.<br>
+Diginsight uses __dynamic logging__ to support __full observability on live environments__.<br>
 Live environments logging level is normally limited to __Warning__ or __Information__ levels to limit telemetry volumes produced by the applications.<br>
 With __dynamic logging__ Log level can be raied to debug or trace __for a single call__, for example, by means of the __Log-Level http headers__.
 
 The image below shows a __call to a live environment__ where the log level is set to Debug or Trace for 2 categories:
 ![alt text](<docs/000.021a live environment request with loglevel debug.png>)
 
-The image below shows the __live environment AKS console__ where __our call is traced with full datail__, __while other calls are running with limited Log level__.
+The image below shows the __live environment AKS console__ where __our call is traced with full datail__, __while other calls are being processed with limited Log level__.
 ![alt text](<docs/000.021b live environment request with loglevel debug.png>)
 
 
@@ -70,8 +70,8 @@ Also, details are provided to use its relevant features such as __Dynamic config
 Example code used in the articles is also available in the [telemetry_samples](https://github.com/diginsight/telemetry_samples) repository.
 
 
->- [GETTING STARTED](https://github.com/diginsight/telemetry/blob/main/docs/articles/00. GETTING STARTED/GETTING STARTED.md)<br>
->Explores __basic steps we can follow to integrate diginsight telemetry__<br>
+>- [Getting Started](<docs/articles/00. GETTING STARTED/GETTING STARTED.md>): explores __basic steps we can follow to integrate diginsight telemetry__<br>
+>- [Observability Concepts](<docs/articles/00. Observability Concepts/Observability Concepts.md>): Explores basic concepts for __application observability and Opentelemetry__.<br>
 >- [HowTo: use dynamic logging to manage loglevel dynamically, at runtime](<docs/articles/11. use Dynamic-Logging to manage loglevel dinamically at runtime/Use Dynamic-Logging to manage loglevel dinamically at runtime.md>)<br>
 >Explores how we can troubleshoot applications by means of __dynamic logging__.<br>
 >- [HowTo: use dynamic configuration to manage configurations and feature flags dynamically, at runtime](<docs/articles/11.a use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime/Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.md>)<br>
