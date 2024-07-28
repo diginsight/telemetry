@@ -56,11 +56,15 @@ The flow can be easily obtained from __developer machine log file__, or from `ap
 Starting from its `traceid` (`42488cedb33da51726293a70c3463c71`), the same flow can be found as an __Azure Monitor Application transaction__:
 ![Alt text](<docs/002.02 diginsightv3 flow on azmon.png>)
 
-Latencies for the same function can be analyzed with the `span_duration` metric, filtered on `DataAnalyticsReportsController.GetDevices` method.
+from the image we can observe that __internal component calls are shown into the transaction flow__ and not just interactions across different components.<br>
+Also, note that __the transaction flow structure is consistent__ with the transaction flow rendered on the live console log, where more detail is available.
+
+
+Latencies for the same function can be analyzed in a chart with the `span_duration` metric, filtered on `DataAnalyticsReportsController.GetDevices` method.
 ![Alt text](<docs/002.03 diginsightv3 metric on azmon.png>)
 
 In facts, the `span_duration` metric allows analyzing latencies of __any method__ within code.<br>
-Also, we'll see that the developer can easily add __other metrics__ and __metric properties__ to split and compare values in different conditions (eg. by site properties, user properties etc).
+Also, we'll see that the developer can easily add __other metrics__ and __metric tags__ to split and compare values in different conditions (eg. by site properties, user properties etc).
 
 # LEARN MORE
 

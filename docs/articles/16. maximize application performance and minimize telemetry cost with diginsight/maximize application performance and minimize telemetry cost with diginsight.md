@@ -40,7 +40,7 @@ public async Task<IEnumerable<Plant>> GetPlantByIdCachedAsync(Guid id)
 ```
 
 When __disabling an activity source__, the activities for it are not created and `StartMethodActivity` returns `null`.<br>
-Also, in case __logging__ or __payload rendering__ are disabled, if __delegate notation__ is used to provide the `StartMethodActivity` payload, the delegate is not used and __the payload class is not allocated__ into the heap.
+Also, if __delegate notation__ is used to provide the `StartMethodActivity` payload, in case __logging__ or __payload rendering__ are disabled, the delegate is not used and __the payload class is not allocated__ into the heap.
 
 ![alt text](<001.03c No heap pressure.png>)
 In such conditions, diginsight activities are __not at all generated or used__ and do not provide any performance impact to the overall application.
