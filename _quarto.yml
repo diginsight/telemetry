@@ -1,0 +1,85 @@
+project:
+  type: website
+  output-dir: wwwroot
+  render:
+  - "*.md"
+  - "*.qmd"
+  - "!ignore.qmd"
+  - "!ignore-dir/"
+
+website:
+  title: "telemetry"
+  back-to-top-navigation: true
+  reader-mode: true
+  # favicon: lightbulb
+  search: false
+    # location: navbar
+    # type: overlay
+    # keyboard-shortcut: ["?", "H"]
+    # logo: bi-lightbulb diginsight.ico
+    # language: 
+    #     search-box-placeholder: Search    
+  navbar:
+    background: primary
+    search: false
+    left:
+      - text: "Home"
+        href: index.md
+      - text: "Concepts"
+        href: docs/01. Concepts/concepts.qmd
+      - text: "Advanced Articles"
+        href: docs/02. Advanced/Advanced Concepts.qmd
+      - text: "About"
+        href: about.qmd
+    tools:
+       # - icon: twitter
+       #   href: https://twitter.com
+       - icon: github
+         menu:
+           - text: Profile
+             href:  https://github.com/diginsight
+           - text: Source Code
+             href:  https://github.com/diginsight/telemetry
+           - text: Report a Bug
+             href:  https://github.com/diginsight/telemetry
+  # contents: auto
+  sidebar:
+    style: "docked"
+    search: false
+    contents:
+    - text: Home
+      href:  index.md
+    - text: "---"
+    - text: Getting Started
+      href:  docs/00.01 - Getting Started.md
+    - text: "---"
+    - section: Concepts
+      contents: "docs/01. Concepts/**"
+    - text: "---"
+    - section: Advanced Articles
+      contents: "docs/02. Advanced/*"
+    - text: "---"
+    - section: Other
+      contents: "docs/04. Other/*"
+    tools:
+    # - icon: twitter
+    #   href: https://twitter.com
+    - icon: github
+      menu:
+        - text: Source Code
+          href:  https://github.com/diginsight
+        - text: Report a Bug
+          href:  https://github.com/diginsight
+  page-footer: 
+    left: "Copyright 2021, Diginsight" 
+    border: false
+    right: 
+      - icon: github
+        href: https://github.com/diginsight
+      # - icon: twitter 
+      #   href: https://twitter.com/         # - acknowlegment.qmd
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true

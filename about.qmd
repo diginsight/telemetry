@@ -1,0 +1,27 @@
+---
+title: "Diginsight"
+about:
+  template: marquee
+  image: diginsight.jpg
+  links:
+    - icon: twitter
+      text: twitter
+      href: https://twitter.com
+    - icon: github
+      text: Github
+      href: https://github.com
+---
+
+Diginsight is a free opensource project.
+
+## Project members
+
+Filippo Mineo | Milan, Italy<br>
+Dario Airoldi | Milan, Italy<br>
+Alessandro Avila | Milan, Italy<br>
+
+## Contributors
+
+Carlo Bollini | Milan, Italy<br>
+Chayashree Gholally | Bhangalore, India<br>
+Alessandro Avila | Milan, Italy<br>
