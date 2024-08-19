@@ -5,7 +5,7 @@ namespace System.Collections.Generic;
 
 public sealed class ReferenceEqualityComparer : IEqualityComparer<object?>, IEqualityComparer
 {
-    public static ReferenceEqualityComparer Instance { get; } = new ReferenceEqualityComparer();
+    public static ReferenceEqualityComparer Instance { get; } = new ();
 
     private ReferenceEqualityComparer() { }
 

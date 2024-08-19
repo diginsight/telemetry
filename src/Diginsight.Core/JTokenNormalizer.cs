@@ -5,7 +5,7 @@ namespace Diginsight;
 
 internal sealed class JTokenNormalizer : JTokenTransformer<ValueTuple>
 {
-    public static readonly JTokenNormalizer Instance = new JTokenNormalizer();
+    public static readonly JTokenNormalizer Instance = new ();
 
     private static JToken ToFlat(JValue jvalue) => JsonConvert.DeserializeObject<string>(jvalue.ToString(Formatting.None));
 

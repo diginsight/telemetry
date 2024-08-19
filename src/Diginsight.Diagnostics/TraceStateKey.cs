@@ -2,7 +2,7 @@
 
 namespace Diginsight.Diagnostics;
 
-public readonly struct TraceStateKey
+public readonly struct TraceStateKey : IEquatable<TraceStateKey>
 {
     public string? TenantId { get; }
     public string SystemId { get; }
@@ -61,6 +61,25 @@ public readonly struct TraceStateKey
     }
 
     public override string ToString() => TenantId is null ? SystemId : $"{TenantId}@{SystemId}";
+
+    public override bool Equals(object? obj)
+    {
+        return obj is TraceStateKey other && Equals(other);
+    }
+
+    public bool Equals(TraceStateKey other)
+    {
+        return TenantId == other.TenantId && SystemId == other.SystemId;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(TenantId, SystemId);
+    }
+
+    public static bool operator ==(TraceStateKey left, TraceStateKey right) => left.Equals(right);
+
+    public static bool operator !=(TraceStateKey left, TraceStateKey right) => !left.Equals(right);
 
     public static implicit operator TraceStateKey(string str)
     {

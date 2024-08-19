@@ -1,17 +1,28 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.Collections;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Diginsight.Strings;
 
 internal sealed class ReflectionLogStringHelper : IReflectionLogStringHelper
 {
     private readonly IServiceProvider serviceProvider;
+    private readonly ILogger logger;
+    private readonly IAppendingContextFactory? appendingContextFactory;
     private readonly IDictionary<Type, IEnumerable<LogStringAppender>> appendersCache = new Dictionary<Type, IEnumerable<LogStringAppender>>();
     private readonly IDictionary<Type, ILogStringProvider> customProvidersCache = new Dictionary<Type, ILogStringProvider>();
 
-    public ReflectionLogStringHelper(IServiceProvider serviceProvider)
+    public ReflectionLogStringHelper(
+        IServiceProvider serviceProvider,
+        ILogger<ReflectionLogStringHelper> logger,
+        IAppendingContextFactory? appendingContextFactory
+    )
     {
         this.serviceProvider = serviceProvider;
+        this.logger = logger;
+        this.appendingContextFactory = appendingContextFactory;
     }
 
     public IEnumerable<LogStringAppender> GetCachedAppenders(Type type, Func<Type, LogStringAppender[]> makeAppenders)
@@ -41,6 +52,29 @@ internal sealed class ReflectionLogStringHelper : IReflectionLogStringHelper
             return customProvidersCache.TryGetValue(providerType, out ILogStringProvider? customProvider)
                 ? customProvider
                 : customProvidersCache[providerType] = (ILogStringProvider)ActivatorUtilities.CreateInstance(serviceProvider, providerType);
+        }
+    }
+
+    public void LogAppenderExpression(MemberInfo member, string outputName, (Type, object[])? providerInfo, Expression<LogStringAppender> appenderExpr)
+    {
+        if (providerInfo is var (providerType, _))
+        {
+            logger.LogTrace(
+                "Built appender expression for {Member} with name {Name} and provider {ProviderType}:\n{Expression}",
+                member.ToLogString(appendingContextFactory),
+                outputName,
+                providerType.ToLogString(appendingContextFactory),
+                appenderExpr.ToString()
+            );
+        }
+        else
+        {
+            logger.LogTrace(
+                "Built appender expression for {Member} with name {Name}:\n{Expression}",
+                member.ToLogString(appendingContextFactory),
+                outputName,
+                appenderExpr.ToString()
+            );
         }
     }
 }
