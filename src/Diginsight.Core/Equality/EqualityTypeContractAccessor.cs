@@ -14,7 +14,7 @@ public sealed class EqualityTypeContractAccessor : IEqualityTypeContractAccessor
         contract = EqualityTypeContract.For(type);
         if (type.CannotCustomizeEquality())
         {
-            throw new NotImplementedException();
+            contract.Freeze();
         }
 
         return contracts[type] = contract;

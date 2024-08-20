@@ -41,6 +41,7 @@ public abstract class EqualityContract : IEqualityContract
     private void SetBehavior(EqualityBehavior? behavior)
     {
         CheckFrozen();
+        Behavior = behavior;
     }
 
     public void UnsetBehavior() => SetBehavior(null);
