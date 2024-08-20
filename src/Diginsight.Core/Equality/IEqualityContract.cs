@@ -2,13 +2,9 @@
 
 public interface IEqualityContract
 {
-    IAttributedEquatableDescriptor? AttributedDescriptor { get; }
-
-    IDefaultEquatableDescriptor? DefaultDescriptor { get; }
-
-    IIdentityEquatableDescriptor? IdentityDescriptor { get; }
-
-    IProxyEquatableDescriptor? ProxyDescriptor { get; }
+    EqualityBehavior? Behavior { get; }
 
     IComparerEquatableDescriptor? ComparerDescriptor { get; }
+
+    IProxyEquatableDescriptor? ProxyDescriptor { get; }
 }

@@ -1,10 +1,12 @@
 ﻿namespace Diginsight.Equality;
 
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-public class EquatableMemberAttribute : Attribute, IEquatableMemberDescriptor
+public abstract class EquatableMemberAttribute : Attribute, IEquatableMemberDescriptor
 {
     private int order;
     private bool isOrderSet;
+
+    public abstract EqualityBehavior Behavior { get; }
 
     public int Order
     {

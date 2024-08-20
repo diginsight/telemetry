@@ -1,6 +1,6 @@
 ﻿namespace Diginsight.Equality;
 
-public interface IEquatableMemberDescriptor
+public interface IEquatableMemberDescriptor : IEquatableDescriptor
 {
     int? Order { get; }
 }

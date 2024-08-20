@@ -6,10 +6,6 @@ public class EqualityMemberContract : EqualityContract, IEqualityMemberContract
 
     public int? Order { get; set; }
 
-    public bool? Included { get; set; }
-
-    protected override bool Excluded => Included == false;
-
     private protected EqualityMemberContract(Type memberType)
     {
         this.memberType = memberType;

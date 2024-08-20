@@ -5,6 +5,8 @@ public sealed class ComparerEquatableMemberAttribute : EquatableMemberAttribute,
 {
     private object?[]? comparerArgs;
 
+    public override EqualityBehavior Behavior => EqualityBehavior.Comparer;
+
     public Type ComparerType { get; }
 
     public string? ComparerMember { get; }

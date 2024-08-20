@@ -3,8 +3,9 @@
 public enum EqualityBehavior
 {
     Default,
-    Attributed,
+    Forbidden,
     Identity,
+    Attributed,
     Proxy,
     Comparer,
 }
