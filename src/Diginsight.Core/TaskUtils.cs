@@ -136,7 +136,8 @@ public static class TaskUtils
                 {
                     taskCompletionSource.TrySetException(new InvalidOperationException("No task was valid"));
                 }
-            }
+            },
+            CancellationToken.None
         );
 
         return taskCompletionSource.Task;

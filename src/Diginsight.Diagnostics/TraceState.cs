@@ -45,7 +45,7 @@ public sealed class TraceState : IDictionary<TraceStateKey, string>, IReadOnlyDi
 
     public bool Contains(Entry item) => items.Contains(item);
 
-    public bool ContainsKey(TraceStateKey key) => items.Any(x => x.Key.Equals(key));
+    public bool ContainsKey(TraceStateKey key) => items.Any(x => key == x.Key);
 
     public IEnumerator<Entry> GetEnumerator() => items.GetEnumerator();
 
@@ -59,7 +59,7 @@ public sealed class TraceState : IDictionary<TraceStateKey, string>, IReadOnlyDi
         out string value
     )
     {
-        if (items.Where(x => x.Key.Equals(key)).Take(1).ToArray() is [ var (_, value0) ])
+        if (items.Where(x => key == x.Key).Take(1).ToArray() is [ var (_, value0) ])
         {
             value = value0;
             return true;

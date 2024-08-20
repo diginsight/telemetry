@@ -23,7 +23,7 @@ internal sealed class AnonymousLogStringProvider : ReflectionLogStringProvider
         protected override LogStringAppender[] MakeAppenders(Type type)
         {
             return type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                .Select(x => MakeAppender(null, null, x))
+                .Select(x => MakeAppender(x, null, null))
                 .ToArray();
         }
 

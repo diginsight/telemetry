@@ -85,7 +85,7 @@ public static class DiginsightTextWriter
                 {
                     MaxMessageLength = (Math.Abs(maxMessageLength) - 7) * Math.Sign(maxMessageLength),
                 };
-                lineDescriptor = new (mutableLineDescriptor);
+                lineDescriptor = new LineDescriptor(mutableLineDescriptor);
             }
             else if (lineDescriptor.MaxLineLength is (> 7 or < -7) and var maxLineLength)
             {
@@ -93,7 +93,7 @@ public static class DiginsightTextWriter
                 {
                     MaxLineLength = (Math.Abs(maxLineLength) - 7) * Math.Sign(maxLineLength),
                 };
-                lineDescriptor = new (mutableLineDescriptor);
+                lineDescriptor = new LineDescriptor(mutableLineDescriptor);
             }
 
             using StringWriter stringWriter = new ();

@@ -77,6 +77,13 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
 
             activity.SetCustomProperty(ExceptionPointersCustomPropertyName, getExceptionPointers());
 
+            EventId eventId = isStandalone ? StartActivityEventId : StartMethodActivityEventId;
+            if (disablePayloadRendering)
+            {
+                textLogger.Log(logLevel, eventId, ComposeLogFormat(isStandalone ? "{ActivityName}" : "{ActivityName}()"), activityName);
+                return;
+            }
+
             object? inputs = activity.GetCustomProperty(ActivityCustomPropertyNames.MakeInputs) switch
             {
                 Func<object> makeObj => makeObj() ?? throw new InvalidOperationException("Invalid inputs in activity"),
@@ -84,8 +91,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
                 _ => throw new InvalidOperationException("Invalid inputs in activity"),
             };
 
-            EventId eventId = isStandalone ? StartActivityEventId : StartMethodActivityEventId;
-            if (inputs is null || disablePayloadRendering)
+            if (inputs is null)
             {
                 textLogger.Log(logLevel, eventId, ComposeLogFormat(isStandalone ? "{ActivityName}" : "{ActivityName}()"), activityName);
                 return;
