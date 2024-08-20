@@ -2,7 +2,7 @@
 
 namespace Diginsight.Equality;
 
-public interface IEqualityTypeContract : IEqualityContract
+public interface IEqualityTypeContract : IEqualityContract, IEquatableObjectDescriptor
 {
     IEqualityMemberContract? TryGet(MemberInfo member);
 }

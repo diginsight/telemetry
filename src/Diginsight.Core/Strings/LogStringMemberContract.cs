@@ -4,7 +4,7 @@ namespace Diginsight.Strings;
 
 public class LogStringMemberContract : ILogStringMemberContract
 {
-    public static readonly ILogStringMemberContract Empty = new LogStringMemberContract();
+    internal static readonly ILogStringMemberContract Empty = new LogStringMemberContract();
 
     private readonly Type? memberType;
 

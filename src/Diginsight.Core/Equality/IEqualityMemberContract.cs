@@ -1,6 +1,3 @@
 ﻿namespace Diginsight.Equality;
 
-public interface IEqualityMemberContract : IEqualityContract
-{
-    int? Order { get; }
-}
+public interface IEqualityMemberContract : IEqualityContract, IEquatableMemberDescriptor;

@@ -6,10 +6,20 @@ namespace Diginsight.Equality;
 
 public class EqualityTypeContract : EqualityContract, IEqualityTypeContract
 {
-    private readonly Type type;
+    internal static readonly IEqualityTypeContract Empty = new EqualityTypeContract();
+
+    private readonly Type? type;
 
     private readonly IDictionary<MemberInfo, EqualityMemberContract> memberContracts =
         new Dictionary<MemberInfo, EqualityMemberContract>(MetadataMemberInfoEqualityComparer.Instance);
+
+    private Type Type => type ?? throw new UnreachableException("Dummy type contract");
+
+    private EqualityTypeContract()
+    {
+        type = null;
+        Freeze();
+    }
 
     private protected EqualityTypeContract(Type type)
     {
@@ -23,7 +33,7 @@ public class EqualityTypeContract : EqualityContract, IEqualityTypeContract
 
     public EqualityMemberContract GetOrAdd(string memberName)
     {
-        MemberInfo[] candidateMembers = type.FindMembers(
+        MemberInfo[] candidateMembers = Type.FindMembers(
             MemberTypes.Field | MemberTypes.Property,
             BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
             static (m, o) => m.Name == (string)o!,
@@ -49,6 +59,9 @@ public class EqualityTypeContract : EqualityContract, IEqualityTypeContract
         {
             return memberContract;
         }
+
+        // ReSharper disable once LocalVariableHidesMember
+        Type type = Type;
 
         string memberName = member.Name;
         Type memberType;
