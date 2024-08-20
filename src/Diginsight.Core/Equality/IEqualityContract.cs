@@ -9,4 +9,6 @@ public interface IEqualityContract
     IIdentityEquatableDescriptor? IdentityDescriptor { get; }
 
     IProxyEquatableDescriptor? ProxyDescriptor { get; }
+
+    IComparerEquatableDescriptor? ComparerDescriptor { get; }
 }

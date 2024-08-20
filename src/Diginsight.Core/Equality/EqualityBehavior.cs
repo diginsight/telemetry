@@ -6,4 +6,5 @@ public enum EqualityBehavior
     Attributed,
     Identity,
     Proxy,
+    Comparer,
 }

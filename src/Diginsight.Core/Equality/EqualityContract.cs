@@ -20,6 +20,9 @@ public abstract class EqualityContract : IEqualityContract
     IProxyEquatableDescriptor? IEqualityContract.ProxyDescriptor =>
         !Excluded && Behavior == EqualityBehavior.Proxy ? fullDescriptor : null;
 
+    IComparerEquatableDescriptor? IEqualityContract.ComparerDescriptor =>
+        !Excluded && Behavior == EqualityBehavior.Comparer ? fullDescriptor : null;
+
     public EqualityBehavior? Behavior { get; private set; }
 
     protected virtual bool Excluded => false;
@@ -74,5 +77,29 @@ public abstract class EqualityContract : IEqualityContract
         fullDescriptor.ProxyType = proxyType;
         fullDescriptor.ProxyMember = proxyMember;
         fullDescriptor.ProxyArgs = proxyArgs;
+    }
+
+    public void SetComparerBehavior(Type comparerType, object?[]? comparerArgs = null)
+    {
+        SetBehavior(EqualityBehavior.Comparer);
+        fullDescriptor.ComparerType = comparerType;
+        fullDescriptor.ComparerMember = null;
+        fullDescriptor.ComparerArgs = comparerArgs;
+    }
+
+    public void SetComparerBehavior(string comparerMember, object?[]? comparerArgs = null)
+    {
+        SetBehavior(EqualityBehavior.Comparer);
+        fullDescriptor.ComparerType = null;
+        fullDescriptor.ComparerMember = comparerMember;
+        fullDescriptor.ComparerArgs = comparerArgs;
+    }
+
+    public void SetComparerBehavior(Type comparerType, string comparerMember, object?[]? comparerArgs = null)
+    {
+        SetBehavior(EqualityBehavior.Comparer);
+        fullDescriptor.ComparerType = comparerType;
+        fullDescriptor.ComparerMember = comparerMember;
+        fullDescriptor.ComparerArgs = comparerArgs;
     }
 }
