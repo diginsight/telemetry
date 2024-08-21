@@ -1,10 +1,6 @@
 ﻿namespace Diginsight.Equality;
 
-public interface IEqualityContract : IEquatableDescriptor
+public interface IEqualityContract
 {
-    new EqualityBehavior? Behavior { get; }
-
-    IComparerEquatableDescriptor? ComparerDescriptor { get; }
-
-    IProxyEquatableDescriptor? ProxyDescriptor { get; }
+    EqualityBehavior? Behavior { get; }
 }

@@ -3,36 +3,47 @@ using System.Runtime.CompilerServices;
 
 namespace Diginsight.Equality;
 
-public abstract class EqualityContract : IEqualityContract, IComparerEquatableDescriptor, IProxyEquatableDescriptor
+public abstract class EqualityContract : IEqualityContract
 {
     private Type? comparerType;
-    private string? comparerMember;
     private object?[]? comparerArgs;
     private Type? proxyType;
-    private string? proxyMember;
     private object?[]? proxyArgs;
 
     private bool frozen = false;
 
     public EqualityBehavior? Behavior { get; private set; }
 
-    EqualityBehavior IEquatableDescriptor.Behavior => Behavior ?? default;
+    protected Type ComparerType
+    {
+        get => comparerType ?? throw new InvalidOperationException($"{nameof(IComparerEquatableDescriptor.ComparerType)} is not set");
+        private set => comparerType = value;
+    }
 
-    IComparerEquatableDescriptor? IEqualityContract.ComparerDescriptor => Behavior == EqualityBehavior.Comparer ? this : null;
+    protected string? ComparerMember { get; private set; }
 
-    IProxyEquatableDescriptor? IEqualityContract.ProxyDescriptor => Behavior == EqualityBehavior.Proxy ? this : null;
+    [AllowNull]
+    protected object?[] ComparerArgs
+    {
+        get => comparerArgs ??= [ ];
+        private set => comparerArgs = value;
+    }
 
-    Type IProxyEquatableDescriptor.ProxyType => proxyType ??= typeof(void);
+    [AllowNull]
+    protected Type ProxyType
+    {
+        get => proxyType ??= typeof(void);
+        private set => proxyType = value;
+    }
 
-    string? IProxyEquatableDescriptor.ProxyMember => proxyMember;
+    protected string? ProxyMember { get; private set; }
 
-    object?[] IProxyEquatableDescriptor.ProxyArgs => proxyArgs ??= [ ];
-
-    Type IComparerEquatableDescriptor.ComparerType => comparerType ??= typeof(void);
-
-    string? IComparerEquatableDescriptor.ComparerMember => comparerMember;
-
-    object?[] IComparerEquatableDescriptor.ComparerArgs => comparerArgs ??= [ ];
+    [AllowNull]
+    protected object?[] ProxyArgs
+    {
+        get => proxyArgs ??= [ ];
+        private set => proxyArgs = value;
+    }
 
     internal void Freeze()
     {
@@ -66,37 +77,23 @@ public abstract class EqualityContract : IEqualityContract, IComparerEquatableDe
     )
     {
         SetBehavior(EqualityBehavior.Comparer);
-        this.comparerType = comparerType;
-        comparerMember = null;
-        this.comparerArgs = comparerArgs;
-    }
-
-    public void SetComparerBehavior(
-        [SuppressMessage("ReSharper", "ParameterHidesMember")]
-        string comparerMember,
-        [SuppressMessage("ReSharper", "ParameterHidesMember")]
-        object?[]? comparerArgs = null
-    )
-    {
-        SetBehavior(EqualityBehavior.Comparer);
-        comparerType = null;
-        this.comparerMember = comparerMember;
-        this.comparerArgs = comparerArgs;
+        ComparerType = comparerType;
+        ComparerMember = null;
+        ComparerArgs = comparerArgs;
     }
 
     public void SetComparerBehavior(
         [SuppressMessage("ReSharper", "ParameterHidesMember")]
         Type comparerType,
-        [SuppressMessage("ReSharper", "ParameterHidesMember")]
         string comparerMember,
         [SuppressMessage("ReSharper", "ParameterHidesMember")]
         object?[]? comparerArgs = null
     )
     {
         SetBehavior(EqualityBehavior.Comparer);
-        this.comparerType = comparerType;
-        this.comparerMember = comparerMember;
-        this.comparerArgs = comparerArgs;
+        ComparerType = comparerType;
+        ComparerMember = comparerMember;
+        ComparerArgs = comparerArgs;
     }
 
     public void SetDefaultBehavior() => SetBehavior(EqualityBehavior.Default);
@@ -113,36 +110,34 @@ public abstract class EqualityContract : IEqualityContract, IComparerEquatableDe
     )
     {
         SetBehavior(EqualityBehavior.Proxy);
-        this.proxyType = proxyType;
-        proxyMember = null;
-        this.proxyArgs = proxyArgs;
+        ProxyType = proxyType;
+        ProxyMember = null;
+        ProxyArgs = proxyArgs;
     }
 
     public void SetProxyBehavior(
-        [SuppressMessage("ReSharper", "ParameterHidesMember")]
         string proxyMember,
         [SuppressMessage("ReSharper", "ParameterHidesMember")]
         object?[]? proxyArgs = null
     )
     {
         SetBehavior(EqualityBehavior.Proxy);
-        proxyType = null;
-        this.proxyMember = proxyMember;
-        this.proxyArgs = proxyArgs;
+        ProxyType = null;
+        ProxyMember = proxyMember;
+        ProxyArgs = proxyArgs;
     }
 
     public void SetProxyBehavior(
         [SuppressMessage("ReSharper", "ParameterHidesMember")]
         Type proxyType,
-        [SuppressMessage("ReSharper", "ParameterHidesMember")]
         string proxyMember,
         [SuppressMessage("ReSharper", "ParameterHidesMember")]
         object?[]? proxyArgs = null
     )
     {
         SetBehavior(EqualityBehavior.Proxy);
-        this.proxyType = proxyType;
-        this.proxyMember = proxyMember;
-        this.proxyArgs = proxyArgs;
+        ProxyType = proxyType;
+        ProxyMember = proxyMember;
+        ProxyArgs = proxyArgs;
     }
 }

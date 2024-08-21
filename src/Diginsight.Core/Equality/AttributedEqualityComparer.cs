@@ -1,12 +1,17 @@
-﻿using System.Diagnostics;
+﻿using System.Collections;
+using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using ArgumentException = System.ArgumentException;
 
 namespace Diginsight.Equality;
 
 public sealed class AttributedEqualityComparer : IEqualityComparer<object>
 {
-    private readonly IEqualityTypeContractAccessor contractAccessor = null!;
+    public static readonly EqualityTypeContractAccessor ContractAccessor = new ();
+    public static readonly IEqualityComparer<object> Instance = new AttributedEqualityComparer();
+
+    private AttributedEqualityComparer() { }
 
     public new bool Equals(object? obj1, object? obj2)
     {
@@ -20,16 +25,13 @@ public sealed class AttributedEqualityComparer : IEqualityComparer<object>
             return false;
         }
 
-        Type type1 = obj1.GetType();
-        Type type2 = obj2.GetType();
-
-        IEquatableObjectDescriptor FindTypeDescriptor(Type type, string paramName)
+        static IEquatableObjectDescriptor FindTypeDescriptor(Type type)
         {
             foreach (Type t in type.GetClosure())
             {
-                if (contractAccessor.TryGet(t) is { Behavior: not null } typeContract)
+                if (ContractAccessor.TryGet(t) is { Behavior: not null } typeContract)
                 {
-                    return typeContract;
+                    return typeContract.ToDescriptor();
                 }
 
                 EquatableObjectAttribute[] attributes = t.GetCustomAttributes<EquatableObjectAttribute>().Take(2).ToArray();
@@ -42,34 +44,120 @@ public sealed class AttributedEqualityComparer : IEqualityComparer<object>
                         return attribute;
 
                     case [ _, _ ]:
-                        throw new ArgumentException($"Multiple {nameof(EquatableObjectAttribute)}s applied to type {t}", paramName);
+                        throw new ArgumentException($"Multiple {nameof(EquatableObjectAttribute)}s applied to type {t}");
                 }
             }
 
-            return EqualityTypeContract.Empty;
+            return EquatableObjectAttribute.Default;
         }
 
-        IEquatableObjectDescriptor eod1 = FindTypeDescriptor(type1, nameof(obj1));
-        IEquatableObjectDescriptor eod2 = FindTypeDescriptor(type2, nameof(obj2));
+        (IEquatableDescriptor descriptor1, EqualityBehavior behavior1) = UnwrapProxy(ref obj1);
+        (IEquatableDescriptor descriptor2, EqualityBehavior behavior2) = UnwrapProxy(ref obj2);
 
-        EqualityBehavior b1 = eod1.Behavior;
-        EqualityBehavior b2 = eod2.Behavior;
-        if (b1 != b2)
+        Type type1 = obj1.GetType();
+        Type type2 = obj2.GetType();
+        if (behavior1 != behavior2)
         {
-            throw new ArgumentException($"Inputs have different equality behaviors ({b1:G} vs {b2:G})");
+            throw new ArgumentException($"Inputs have different equality behaviors ({behavior1:G} vs {behavior2:G})");
         }
 
-        switch (b1)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static bool IsBindable(Type t, object? o)
+        {
+            return o is not null
+                ? t.IsInstanceOfType(o)
+                : !t.IsValueType || Nullable.GetUnderlyingType(t) is not null;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static bool IsCallable(ParameterInfo[] parameters, object?[] args)
+        {
+            return parameters
+#if NET
+                .Zip(args)
+#else
+                .Zip(args, static (p, o) => (First: p, Second: o))
+#endif
+                .All(static x => IsBindable(x.First.ParameterType, x.Second));
+        }
+
+        switch (behavior1)
         {
             case EqualityBehavior.Attributed:
                 throw new NotImplementedException();
 
             case EqualityBehavior.Comparer:
             {
-                IComparerEquatableObjectDescriptor ceod1 = (IComparerEquatableObjectDescriptor)eod1;
-                IComparerEquatableObjectDescriptor ceod2 = (IComparerEquatableObjectDescriptor)eod2;
+                IComparerEquatableDescriptor comparerDescriptor = (IComparerEquatableObjectDescriptor)descriptor1;
+                IComparerEquatableObjectDescriptor comparerDescriptor2 = (IComparerEquatableObjectDescriptor)descriptor2;
+                if (comparerDescriptor.ComparerType != comparerDescriptor2.ComparerType ||
+                    !string.Equals(comparerDescriptor.ComparerMember, comparerDescriptor2.ComparerMember) ||
+                    !((IStructuralEquatable)comparerDescriptor.ComparerArgs).Equals(comparerDescriptor2.ComparerArgs, EqualityComparer<object>.Default))
+                {
+                    throw new ArgumentException("Inputs have different comparer descriptors");
+                }
 
-                throw new NotImplementedException();
+                static object? ResolveComparer(Type type, string? memberName, object?[] args)
+                {
+                    if (memberName is null)
+                    {
+                        try
+                        {
+                            return Activator.CreateInstance(type, args)!;
+                        }
+                        catch (Exception e) when (e is MissingMethodException or MethodAccessException)
+                        {
+                            throw new ArgumentException($"Cannot resolve comparer descriptor {type}");
+                        }
+                    }
+
+                    if (args.Length <= 0 && type.GetField(memberName, BindingFlags.Public | BindingFlags.Static) is { } field)
+                    {
+                        return field.GetValue(null);
+                    }
+
+                    PropertyInfo? property = type
+                        .GetProperties(BindingFlags.Public | BindingFlags.Static)
+                        .FirstOrDefault(p => p.Name == memberName && p.CanRead && IsCallable(p.GetIndexParameters(), args));
+                    if (property is not null)
+                    {
+                        return property.GetValue(null, args);
+                    }
+
+                    MethodInfo? method = type
+                        .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                        .FirstOrDefault(p => p.Name == memberName && !p.IsGenericMethod && IsCallable(p.GetParameters(), args));
+                    if (method is not null)
+                    {
+                        return method.Invoke(null, args);
+                    }
+
+                    throw new ArgumentException($"Cannot resolve comparer descriptor {type}.{memberName}");
+                }
+
+                object? maybeComparer = ResolveComparer(comparerDescriptor.ComparerType, comparerDescriptor.ComparerMember, comparerDescriptor.ComparerArgs);
+                if (maybeComparer is null)
+                {
+                    throw new ArgumentException("Comparer descriptor resolved to null");
+                }
+
+                Type[] comparedTypes = maybeComparer.GetType().GetGenericArgumentsAs(typeof(IEqualityComparer<>))
+                    .Select(static x => x[0]).ToArray();
+                Type? comparedType = comparedTypes.FirstOrDefault(t => IsBindable(t, obj1) && IsBindable(t, obj2));
+                if (comparedType is not null)
+                {
+                    return (bool)typeof(IEqualityComparer<>)
+                        .MakeGenericType(comparedType)
+                        .GetMethod(nameof(IEqualityComparer.Equals))!
+                        .Invoke(maybeComparer, [ obj1, obj2 ])!;
+                }
+
+                if (maybeComparer is IEqualityComparer comparer)
+                {
+                    return comparer.Equals(obj1, obj2);
+                }
+
+                throw new ArgumentException("Comparer descriptor resolved to something incompatible");
             }
 
             case EqualityBehavior.Default:
@@ -81,8 +169,60 @@ public sealed class AttributedEqualityComparer : IEqualityComparer<object>
 
             case EqualityBehavior.Proxy:
             {
-                IProxyEquatableObjectDescriptor peod1 = (IProxyEquatableObjectDescriptor)eod1;
-                IProxyEquatableObjectDescriptor peod2 = (IProxyEquatableObjectDescriptor)eod2;
+                IProxyEquatableObjectDescriptor proxyDescriptor1 = (IProxyEquatableObjectDescriptor)descriptor1;
+                IProxyEquatableObjectDescriptor proxyDescriptor2 = (IProxyEquatableObjectDescriptor)descriptor2;
+
+                static object? ResolveProxy(object self, Type type, string? memberName, object?[] args)
+                {
+                    if (memberName is null)
+                    {
+                        try
+                        {
+                            return Activator.CreateInstance(type, [ self, ..args ])!;
+                        }
+                        catch (Exception e) when (e is MissingMethodException or MethodAccessException)
+                        {
+                            throw new ArgumentException($"Cannot resolve proxy descriptor {type}");
+                        }
+                    }
+
+                    BindingFlags bindingFlags;
+                    object? target;
+
+                    if (type == typeof(void))
+                    {
+                        bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+                        target = self;
+                        type = self.GetType();
+
+                        if (args.Length <= 0 && type.GetField(memberName, bindingFlags) is { } field)
+                        {
+                            return field.GetValue(target);
+                        }
+                    }
+                    else
+                    {
+                        bindingFlags = BindingFlags.Public | BindingFlags.Static;
+                        target = null;
+                        args = [ self, ..args ];
+                    }
+
+                    PropertyInfo? property = type.GetProperties(bindingFlags)
+                        .FirstOrDefault(p => p.Name == memberName && p.CanRead && IsCallable(p.GetIndexParameters(), args));
+                    if (property is not null)
+                    {
+                        return property.GetValue(target, args);
+                    }
+
+                    MethodInfo? method = type.GetMethods(bindingFlags)
+                        .FirstOrDefault(p => p.Name == memberName && !p.IsGenericMethod && IsCallable(p.GetParameters(), args));
+                    if (method is not null)
+                    {
+                        return method.Invoke(target, args);
+                    }
+
+                    throw new ArgumentException($"Cannot resolve comparer descriptor {(type == typeof(void) ? "" : $"{type}.")}{memberName}");
+                }
 
                 throw new NotImplementedException();
             }

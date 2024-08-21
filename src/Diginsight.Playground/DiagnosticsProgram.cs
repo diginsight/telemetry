@@ -10,15 +10,15 @@ using System.Text;
 
 namespace Diginsight.Playground;
 
-internal class Program : BackgroundService
+internal sealed class DiagnosticsProgram : BackgroundService
 {
-    private static readonly ActivitySource ActivitySource = new (typeof(Program).Namespace!);
+    private static readonly ActivitySource ActivitySource = new (typeof(DiagnosticsProgram).Namespace!);
 
     private readonly ILogger logger;
     private readonly IHostApplicationLifetime applicationLifetime;
 
-    public Program(
-        ILogger<Program> logger,
+    public DiagnosticsProgram(
+        ILogger<DiagnosticsProgram> logger,
         IHostApplicationLifetime applicationLifetime
     )
     {
@@ -38,7 +38,7 @@ internal class Program : BackgroundService
 
         IDeferredLoggerFactory loggerFactory = new DeferredLoggerFactory(activitiesOptions: diginsightActivitiesOptions);
         loggerFactory.ActivitySources.Add(ActivitySource);
-        ILogger logger = loggerFactory.CreateLogger<Program>();
+        ILogger logger = loggerFactory.CreateLogger<DiagnosticsProgram>();
 
         IHost host;
         using (ActivitySource.StartMethodActivity(logger))
@@ -64,7 +64,7 @@ internal class Program : BackgroundService
                         logger.LogDebug("Misc");
                         services
                             .AddSingleton<ILineTokenParser>(new SimpleTokenParser("processid", ProcessIdToken.Instance))
-                            .AddHostedService<Program>();
+                            .AddHostedService<DiagnosticsProgram>();
 
                         const string diginsightSectionName = "Diginsight";
 

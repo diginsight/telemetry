@@ -6,20 +6,10 @@ namespace Diginsight.Equality;
 
 public class EqualityTypeContract : EqualityContract, IEqualityTypeContract
 {
-    internal static readonly IEqualityTypeContract Empty = new EqualityTypeContract();
-
-    private readonly Type? type;
+    private readonly Type type;
 
     private readonly IDictionary<MemberInfo, EqualityMemberContract> memberContracts =
         new Dictionary<MemberInfo, EqualityMemberContract>(MetadataMemberInfoEqualityComparer.Instance);
-
-    private Type Type => type ?? throw new UnreachableException("Dummy type contract");
-
-    private EqualityTypeContract()
-    {
-        type = null;
-        Freeze();
-    }
 
     private protected EqualityTypeContract(Type type)
     {
@@ -33,7 +23,7 @@ public class EqualityTypeContract : EqualityContract, IEqualityTypeContract
 
     public EqualityMemberContract GetOrAdd(string memberName)
     {
-        MemberInfo[] candidateMembers = Type.FindMembers(
+        MemberInfo[] candidateMembers = type.FindMembers(
             MemberTypes.Field | MemberTypes.Property,
             BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
             static (m, o) => m.Name == (string)o!,
@@ -59,9 +49,6 @@ public class EqualityTypeContract : EqualityContract, IEqualityTypeContract
         {
             return memberContract;
         }
-
-        // ReSharper disable once LocalVariableHidesMember
-        Type type = Type;
 
         string memberName = member.Name;
         Type memberType;
@@ -112,6 +99,25 @@ public class EqualityTypeContract : EqualityContract, IEqualityTypeContract
     {
         return memberContracts.TryGetValue(member, out EqualityMemberContract? memberContract) ? memberContract : null;
     }
+
+    public IEquatableObjectDescriptor ToDescriptor()
+    {
+        return Behavior switch
+        {
+            EqualityBehavior.Comparer => new ComparerEquatableObjectDescriptor(ComparerType, ComparerMember, ComparerArgs),
+            EqualityBehavior.Proxy => new ProxyEquatableObjectDescriptor(ProxyType, ProxyMember, ProxyArgs),
+            { } behavior => new EquatableObjectDescriptor(behavior),
+            null => throw new InvalidOperationException($"{nameof(Behavior)} is unset"),
+        };
+    }
+
+    private record EquatableObjectDescriptor(EqualityBehavior Behavior) : IEquatableObjectDescriptor;
+
+    private sealed record ComparerEquatableObjectDescriptor(Type ComparerType, string? ComparerMember, object?[] ComparerArgs)
+        : EquatableObjectDescriptor(EqualityBehavior.Comparer), IComparerEquatableObjectDescriptor;
+
+    private sealed record ProxyEquatableObjectDescriptor(Type ProxyType, string? ProxyMember, object?[] ProxyArgs)
+        : EquatableObjectDescriptor(EqualityBehavior.Proxy), IProxyEquatableObjectDescriptor;
 }
 
 public sealed class EqualityTypeContract<T> : EqualityTypeContract

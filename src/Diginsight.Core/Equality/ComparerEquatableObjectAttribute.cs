@@ -22,9 +22,6 @@ public sealed class ComparerEquatableObjectAttribute : EquatableObjectAttribute,
         ComparerType = comparerType;
     }
 
-    public ComparerEquatableObjectAttribute(string comparerMember)
-        : this(typeof(void), comparerMember) { }
-
     public ComparerEquatableObjectAttribute(Type comparerType, string comparerMember)
     {
         ComparerType = comparerType;
