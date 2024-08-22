@@ -2,11 +2,12 @@
 
 public class EqualityMemberContract : EqualityContract, IEqualityMemberContract
 {
-    private readonly Type? memberType;
+    private readonly Type memberType;
 
     public int? Order { get; set; }
 
     private protected EqualityMemberContract(Type memberType)
+        : base(memberType)
     {
         this.memberType = memberType;
     }
@@ -16,14 +17,16 @@ public class EqualityMemberContract : EqualityContract, IEqualityMemberContract
         return (EqualityMemberContract)Activator.CreateInstance(typeof(EqualityMemberContract<>).MakeGenericType(memberType))!;
     }
 
+    public static IEquatableMemberDescriptor FallbackDescriptorFor(Type type) => new EquatableMemberDescriptor(GetFallbackBehavior(type), null);
+
     public IEquatableMemberDescriptor ToDescriptor()
     {
-        return Behavior switch
+        return ChosenBehavior switch
         {
             EqualityBehavior.Comparer => new ComparerEquatableMemberDescriptor(ComparerType, ComparerMember, ComparerArgs, Order),
             EqualityBehavior.Proxy => new ProxyEquatableMemberDescriptor(ProxyType, ProxyMember, ProxyArgs, Order),
             { } behavior => new EquatableMemberDescriptor(behavior, Order),
-            null => throw new InvalidOperationException($"{nameof(Behavior)} is unset"),
+            null => throw new InvalidOperationException($"{nameof(ChosenBehavior)} is unset"),
         };
     }
 

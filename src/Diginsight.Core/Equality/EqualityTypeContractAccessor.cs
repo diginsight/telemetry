@@ -6,18 +6,9 @@ public sealed class EqualityTypeContractAccessor : IEqualityTypeContractAccessor
 
     public EqualityTypeContract GetOrAdd(Type type)
     {
-        if (contracts.TryGetValue(type, out EqualityTypeContract? contract))
-        {
-            return contract;
-        }
-
-        contract = EqualityTypeContract.For(type);
-        if (type.CannotCustomizeEquality())
-        {
-            contract.Freeze();
-        }
-
-        return contracts[type] = contract;
+        return contracts.TryGetValue(type, out EqualityTypeContract? contract)
+            ? contract
+            : contracts[type] = EqualityTypeContract.For(type);
     }
 
     public IEqualityTypeContract? TryGet(Type type)

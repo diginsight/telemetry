@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
+using System.Collections;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -9,6 +11,22 @@ namespace Diginsight;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class TypeExtensions
 {
+    private static readonly IEnumerable<Type> FixedBannedTypes =
+    [
+        typeof(Thread),
+        typeof(CancellationToken),
+        typeof(CancellationTokenSource),
+        typeof(MarshalByRefObject),
+#if NET
+        typeof(TaskCompletionSource),
+#endif
+        typeof(TaskCompletionSource<>),
+    ];
+
+    private static readonly IMemoryCache BannedTypesCache = new MemoryCache(
+        Options.Create(new MemoryCacheOptions() { SizeLimit = 2000 })
+    );
+
     private static readonly IDictionary<Type, bool> AnonymousCache = new Dictionary<Type, bool>();
 
     public static IEnumerable<Type> GetClosure(this Type type, bool includeSelf = true, bool includeInterfaces = true)
@@ -221,4 +239,47 @@ public static class TypeExtensions
         return m1.MetadataToken == m2.MetadataToken && ReferenceEquals(m1.Module, m2.Module);
     }
 #endif
+
+    internal static bool IsBanned(this Type type)
+    {
+        static bool IsAwaitable(Type type)
+        {
+            return type.GetMethod("GetAwaiter", BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, [ ]) is { IsGenericMethod: false } method
+                && IsAwaiter(method.ReturnType);
+        }
+
+        static bool IsAwaiter(Type type)
+        {
+            return typeof(INotifyCompletion).IsAssignableFrom(type)
+                && type.GetProperty("IsCompleted", BindingFlags.Public | BindingFlags.Instance, null, typeof(bool), Type.EmptyTypes, [ ]) is not null
+                && type.GetMethod("GetResult", BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, [ ]) is { IsGenericMethod: false };
+        }
+
+        static bool IsEnumerator(Type type)
+        {
+            return (typeof(IEnumerator).IsAssignableFrom(type) || typeof(IEnumerator<>).IsGenericAssignableFrom(type))
+                && !(typeof(IEnumerable).IsAssignableFrom(type) || typeof(IEnumerable<>).IsGenericAssignableFrom(type));
+        }
+
+        static bool IsAsyncStateMachine(Type type)
+        {
+            return (typeof(IAsyncStateMachine).IsAssignableFrom(type) || typeof(IAsyncEnumerator<>).IsGenericAssignableFrom(type))
+                && !typeof(IAsyncEnumerable<>).IsGenericAssignableFrom(type);
+        }
+
+        return BannedTypesCache.GetOrCreate(
+            type,
+            e =>
+            {
+                e.SlidingExpiration = TimeSpan.FromMinutes(30);
+                e.Size = 1;
+
+                return FixedBannedTypes.Any(x => x.IsGenericAssignableFrom(type))
+                    || IsAwaitable(type)
+                    || IsAwaiter(type)
+                    || IsEnumerator(type)
+                    || IsAsyncStateMachine(type);
+            }
+        );
+    }
 }

@@ -7,5 +7,5 @@ public enum EqualityBehavior
     Identity,
     Comparer,
     Proxy,
-    Attributed,
+    Structural,
 }

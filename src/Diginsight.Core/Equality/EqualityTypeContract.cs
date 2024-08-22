@@ -12,6 +12,7 @@ public class EqualityTypeContract : EqualityContract, IEqualityTypeContract
         new Dictionary<MemberInfo, EqualityMemberContract>(MetadataMemberInfoEqualityComparer.Instance);
 
     private protected EqualityTypeContract(Type type)
+        : base(type)
     {
         this.type = type;
     }
@@ -20,6 +21,8 @@ public class EqualityTypeContract : EqualityContract, IEqualityTypeContract
     {
         return (EqualityTypeContract)Activator.CreateInstance(typeof(EqualityTypeContract<>).MakeGenericType(type))!;
     }
+
+    public static IEquatableObjectDescriptor FallbackDescriptorFor(Type type) => new EquatableObjectDescriptor(GetFallbackBehavior(type));
 
     public EqualityMemberContract GetOrAdd(string memberName)
     {
@@ -86,13 +89,7 @@ public class EqualityTypeContract : EqualityContract, IEqualityTypeContract
                 throw new ArgumentException($"Member '{memberName}' is not a field or a property");
         }
 
-        memberContract = EqualityMemberContract.For(memberType);
-        if (memberType.CannotCustomizeEquality())
-        {
-            memberContract.Freeze();
-        }
-
-        return memberContracts[member] = memberContract;
+        return memberContracts[member] = EqualityMemberContract.For(memberType);
     }
 
     public IEqualityMemberContract? TryGet(MemberInfo member)
@@ -102,12 +99,12 @@ public class EqualityTypeContract : EqualityContract, IEqualityTypeContract
 
     public IEquatableObjectDescriptor ToDescriptor()
     {
-        return Behavior switch
+        return ChosenBehavior switch
         {
             EqualityBehavior.Comparer => new ComparerEquatableObjectDescriptor(ComparerType, ComparerMember, ComparerArgs),
             EqualityBehavior.Proxy => new ProxyEquatableObjectDescriptor(ProxyType, ProxyMember, ProxyArgs),
             { } behavior => new EquatableObjectDescriptor(behavior),
-            null => throw new InvalidOperationException($"{nameof(Behavior)} is unset"),
+            null => throw new InvalidOperationException($"{nameof(ChosenBehavior)} is unset"),
         };
     }
 
