@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using ArgumentException = System.ArgumentException;
+using Equator = System.Func<object, object, bool>;
 
 namespace Diginsight.Equality;
 
@@ -49,6 +49,35 @@ public sealed class FlexibleEqualityComparer : IEqualityComparer<object>
             }
 
             return EqualityTypeContract.FallbackDescriptorFor(type);
+        }
+
+        static IEquatableMemberDescriptor FindMemberDescriptor(Type callerType, MemberInfo member)
+        {
+            foreach (Type t in callerType.GetClosure())
+            {
+                if (ContractAccessor.TryGet(t) is { } typeContract && typeContract.TryGet(member) is { } memberContract)
+                {
+                    return memberContract.ToDescriptor();
+                }
+
+                EquatableMemberAttribute[] attributes = t.GetCustomAttributes<EquatableMemberAttribute>().Take(2).ToArray();
+                switch (attributes)
+                {
+                    case [ ]:
+                        break;
+
+                    case [ var attribute ]:
+                        return attribute;
+
+                    case [ _, _ ]:
+                        throw new ArgumentException($"Multiple {nameof(EquatableMemberAttribute)}s applied to member {t}.{member.Name}");
+                }
+
+                if (member.DeclaringType == t)
+                    break;
+            }
+
+            return EqualityMemberContract.FallbackDescriptorFor(member);
         }
 
         UnwrapProxy(ref obj1, out IEquatableObjectDescriptor descriptor1);
@@ -238,7 +267,70 @@ public sealed class FlexibleEqualityComparer : IEqualityComparer<object>
             }
 
             case EqualityBehavior.Structural:
-                throw new NotImplementedException();
+            {
+                Type type = obj1.GetType();
+                if (type != obj2.GetType())
+                {
+                    throw new ArgumentException("Cannot use structural equality between objects of different type");
+                }
+
+                IEnumerable<(Equator Equator, int Order)> MakeEquatorsWithOrder<TMember>(
+                    TMember[] members, Func<TMember, bool> isUnreadable, Func<TMember, object, object?> getValue
+                )
+                    where TMember : MemberInfo
+                {
+                    foreach (TMember member in members)
+                    {
+                        if (isUnreadable(member))
+                        {
+                            continue;
+                        }
+
+                        IEquatableMemberDescriptor memberDescriptor = FindMemberDescriptor(type, member);
+                        Equator equator;
+                        switch (memberDescriptor.Behavior)
+                        {
+                            case EqualityBehavior.Default:
+                                throw new NotImplementedException();
+
+                            case EqualityBehavior.Forbidden:
+                                continue;
+
+                            case EqualityBehavior.Identity:
+                                throw new NotImplementedException();
+
+                            case EqualityBehavior.Comparer:
+                                throw new NotImplementedException();
+
+                            case EqualityBehavior.Proxy:
+                                throw new NotImplementedException();
+
+                            case EqualityBehavior.Structural:
+                                throw new NotImplementedException();
+
+                            default:
+                                throw new UnreachableException($"Unrecognized {nameof(EqualityBehavior)}");
+                        }
+
+                        yield return (equator, memberDescriptor.Order ?? 0);
+                    }
+                }
+
+                IEnumerable<(Equator Equator, int Order)> fieldEquatorsWithOrder = MakeEquatorsWithOrder(
+                    type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic),
+                    static _ => false,
+                    static (f, o) => f.GetValue(o)
+                );
+                IEnumerable<(Equator Equator, int Order)> propertyEquatorsWithOrder = MakeEquatorsWithOrder(
+                    type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic),
+                    static p => p.GetMethod is null || p.GetIndexParameters().Length != 0,
+                    static (p, o) => p.GetValue(o)
+                );
+
+                return fieldEquatorsWithOrder.Concat(propertyEquatorsWithOrder)
+                    .OrderByDescending(static x => x.Order)
+                    .All(x => x.Equator(obj1, obj2));
+            }
 
             default:
                 throw new UnreachableException($"Unrecognized {nameof(EqualityBehavior)}");

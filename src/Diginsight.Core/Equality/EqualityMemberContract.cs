@@ -1,4 +1,7 @@
-﻿namespace Diginsight.Equality;
+﻿using System.Diagnostics;
+using System.Reflection;
+
+namespace Diginsight.Equality;
 
 public class EqualityMemberContract : EqualityContract, IEqualityMemberContract
 {
@@ -17,7 +20,20 @@ public class EqualityMemberContract : EqualityContract, IEqualityMemberContract
         return (EqualityMemberContract)Activator.CreateInstance(typeof(EqualityMemberContract<>).MakeGenericType(memberType))!;
     }
 
-    public static IEquatableMemberDescriptor FallbackDescriptorFor(Type type) => new EquatableMemberDescriptor(GetFallbackBehavior(type), null);
+    public static IEquatableMemberDescriptor FallbackDescriptorFor(MemberInfo member)
+    {
+        return new EquatableMemberDescriptor(
+            GetFallbackBehavior(
+                member switch
+                {
+                    FieldInfo field => field.FieldType,
+                    PropertyInfo property => property.PropertyType,
+                    _ => throw new UnreachableException("Unexpected member"),
+                }
+            ),
+            null
+        );
+    }
 
     public IEquatableMemberDescriptor ToDescriptor()
     {
