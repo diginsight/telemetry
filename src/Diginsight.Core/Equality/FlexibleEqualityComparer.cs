@@ -130,6 +130,7 @@ public sealed class FlexibleEqualityComparer : IEqualityComparer<object>
         where TMember : MemberInfo
     {
         return members
+            .Where(static x => !x.IsDefined(typeof(CompilerGeneratedAttribute)))
             .Where(isReadable)
             .Select(
                 member =>
