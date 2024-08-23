@@ -1,3 +1,3 @@
 ﻿namespace Diginsight.Equality;
 
-public interface IComparerEquatableObjectDescriptor : IComparerEquatableDescriptor;
+public interface IComparerEquatableObjectDescriptor : IComparerEquatableDescriptor, IEquatableObjectDescriptor;

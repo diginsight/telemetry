@@ -108,13 +108,18 @@ public class EqualityTypeContract : EqualityContract, IEqualityTypeContract
         };
     }
 
-    private record EquatableObjectDescriptor(EqualityBehavior Behavior) : IEquatableObjectDescriptor;
+    private record EquatableObjectDescriptor(EqualityBehavior Behavior) : IEquatableObjectDescriptor, IEquatableMemberDescriptor
+    {
+        int? IEquatableMemberDescriptor.Order => null;
+
+        IEquatableMemberDescriptor IEquatableObjectDescriptor.ToMemberDescriptor() => this;
+    }
 
     private sealed record ComparerEquatableObjectDescriptor(Type ComparerType, string? ComparerMember, object?[] ComparerArgs)
-        : EquatableObjectDescriptor(EqualityBehavior.Comparer), IComparerEquatableObjectDescriptor;
+        : EquatableObjectDescriptor(EqualityBehavior.Comparer), IComparerEquatableObjectDescriptor, IComparerEquatableMemberDescriptor;
 
     private sealed record ProxyEquatableObjectDescriptor(Type ProxyType, string? ProxyMember, object?[] ProxyArgs)
-        : EquatableObjectDescriptor(EqualityBehavior.Proxy), IProxyEquatableObjectDescriptor;
+        : EquatableObjectDescriptor(EqualityBehavior.Proxy), IProxyEquatableObjectDescriptor, IProxyEquatableMemberDescriptor;
 }
 
 public sealed class EqualityTypeContract<T> : EqualityTypeContract

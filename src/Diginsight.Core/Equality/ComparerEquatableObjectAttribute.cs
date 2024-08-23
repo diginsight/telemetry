@@ -1,7 +1,8 @@
 ﻿namespace Diginsight.Equality;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Struct)]
-public sealed class ComparerEquatableObjectAttribute : EquatableObjectAttribute, IComparerEquatableObjectDescriptor
+public sealed class ComparerEquatableObjectAttribute
+    : EquatableObjectAttribute, IComparerEquatableObjectDescriptor, IComparerEquatableMemberDescriptor
 {
     private object?[]? comparerArgs;
 

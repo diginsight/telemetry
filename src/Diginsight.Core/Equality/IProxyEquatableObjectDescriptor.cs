@@ -1,3 +1,3 @@
 ﻿namespace Diginsight.Equality;
 
-public interface IProxyEquatableObjectDescriptor : IProxyEquatableDescriptor;
+public interface IProxyEquatableObjectDescriptor : IProxyEquatableDescriptor, IEquatableObjectDescriptor;

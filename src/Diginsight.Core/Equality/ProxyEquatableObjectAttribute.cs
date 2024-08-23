@@ -1,7 +1,8 @@
 ﻿namespace Diginsight.Equality;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Struct)]
-public sealed class ProxyEquatableObjectAttribute : EquatableObjectAttribute, IProxyEquatableObjectDescriptor
+public sealed class ProxyEquatableObjectAttribute
+    : EquatableObjectAttribute, IProxyEquatableObjectDescriptor, IProxyEquatableMemberDescriptor
 {
     private object?[]? proxyArgs;
 

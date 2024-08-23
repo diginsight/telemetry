@@ -1,3 +1,6 @@
 ﻿namespace Diginsight.Equality;
 
-public interface IEquatableObjectDescriptor : IEquatableDescriptor;
+public interface IEquatableObjectDescriptor : IEquatableDescriptor
+{
+    IEquatableMemberDescriptor ToMemberDescriptor();
+}
