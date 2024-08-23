@@ -2,5 +2,5 @@
 
 public interface IEqualityMemberContract : IEqualityContract
 {
-    IEquatableMemberDescriptor ToDescriptor();
+    IEquatableMemberDescriptor ToMemberDescriptor();
 }

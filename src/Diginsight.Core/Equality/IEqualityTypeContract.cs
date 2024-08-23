@@ -6,5 +6,5 @@ public interface IEqualityTypeContract : IEqualityContract
 {
     IEqualityMemberContract? TryGet(MemberInfo member);
 
-    IEquatableObjectDescriptor ToDescriptor();
+    IEquatableObjectDescriptor ToObjectDescriptor();
 }

@@ -5,7 +5,7 @@ public sealed class ProxyEquatableMemberAttribute : EquatableMemberAttribute, IP
 {
     private object?[]? proxyArgs;
 
-    public override EqualityBehavior Behavior => EqualityBehavior.Proxy;
+    public override EqualityBehavior? Behavior => EqualityBehavior.Proxy;
 
     public Type ProxyType { get; }
 

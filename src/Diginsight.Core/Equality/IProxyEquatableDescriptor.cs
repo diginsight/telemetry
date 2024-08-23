@@ -1,6 +1,6 @@
 ﻿namespace Diginsight.Equality;
 
-public interface IProxyEquatableDescriptor
+public interface IProxyEquatableDescriptor : IEquatableDescriptor
 {
     Type ProxyType { get; }
     string? ProxyMember { get; }

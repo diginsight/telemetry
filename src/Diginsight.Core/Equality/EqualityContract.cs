@@ -41,7 +41,7 @@ public abstract class EqualityContract : IEqualityContract
     private Type? proxyType;
     private object?[]? proxyArgs;
 
-    public EqualityBehavior? ChosenBehavior { get; private set; }
+    public EqualityBehavior? Behavior { get; private set; }
 
     protected Type ComparerType
     {
@@ -128,7 +128,7 @@ public abstract class EqualityContract : IEqualityContract
             throw new ArgumentException($"{nameof(EqualityBehavior)}.{behavior0:G} is not allowed for this contract");
         }
 
-        ChosenBehavior = behavior;
+        Behavior = behavior;
     }
 
     public void UnsetBehavior() => SetBehavior(null);

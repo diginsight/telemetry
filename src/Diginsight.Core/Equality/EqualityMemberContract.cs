@@ -35,18 +35,18 @@ public class EqualityMemberContract : EqualityContract, IEqualityMemberContract
         );
     }
 
-    public IEquatableMemberDescriptor ToDescriptor()
+    public IEquatableMemberDescriptor ToMemberDescriptor()
     {
-        return ChosenBehavior switch
+        EqualityBehavior? behavior = Behavior;
+        return behavior switch
         {
             EqualityBehavior.Comparer => new ComparerEquatableMemberDescriptor(ComparerType, ComparerMember, ComparerArgs, Order),
             EqualityBehavior.Proxy => new ProxyEquatableMemberDescriptor(ProxyType, ProxyMember, ProxyArgs, Order),
-            { } behavior => new EquatableMemberDescriptor(behavior, Order),
-            null => throw new InvalidOperationException($"{nameof(ChosenBehavior)} is unset"),
+            _ => new EquatableMemberDescriptor(behavior, Order),
         };
     }
 
-    private record EquatableMemberDescriptor(EqualityBehavior Behavior, int? Order) : IEquatableMemberDescriptor;
+    private record EquatableMemberDescriptor(EqualityBehavior? Behavior, int? Order) : IEquatableMemberDescriptor;
 
     private sealed record ComparerEquatableMemberDescriptor(Type ComparerType, string? ComparerMember, object?[] ComparerArgs, int? Order)
         : EquatableMemberDescriptor(EqualityBehavior.Comparer, Order), IComparerEquatableMemberDescriptor;

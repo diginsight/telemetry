@@ -4,6 +4,8 @@ public abstract class EquatableObjectAttribute : Attribute, IEquatableObjectDesc
 {
     public abstract EqualityBehavior Behavior { get; }
 
+    EqualityBehavior? IEquatableMemberDescriptor.Behavior => Behavior;
+
     int? IEquatableMemberDescriptor.Order => null;
 
     IEquatableMemberDescriptor IEquatableObjectDescriptor.ToMemberDescriptor() => this;

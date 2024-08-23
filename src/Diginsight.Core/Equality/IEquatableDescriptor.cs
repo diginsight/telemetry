@@ -1,6 +1,3 @@
 ﻿namespace Diginsight.Equality;
 
-public interface IEquatableDescriptor
-{
-    EqualityBehavior Behavior { get; }
-}
+public interface IEquatableDescriptor;

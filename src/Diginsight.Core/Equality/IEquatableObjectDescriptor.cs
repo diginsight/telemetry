@@ -2,5 +2,7 @@
 
 public interface IEquatableObjectDescriptor : IEquatableDescriptor
 {
+    EqualityBehavior Behavior { get; }
+
     IEquatableMemberDescriptor ToMemberDescriptor();
 }

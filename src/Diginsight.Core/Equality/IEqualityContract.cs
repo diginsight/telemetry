@@ -2,5 +2,5 @@
 
 public interface IEqualityContract
 {
-    EqualityBehavior? ChosenBehavior { get; }
+    EqualityBehavior? Behavior { get; }
 }

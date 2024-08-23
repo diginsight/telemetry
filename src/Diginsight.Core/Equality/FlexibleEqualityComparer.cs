@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Equator = System.Func<object, object, bool>;
@@ -19,7 +18,7 @@ public sealed class FlexibleEqualityComparer : IEqualityComparer<object>
         return EqualsCore(obj1, obj2, null);
     }
 
-    private static bool EqualsCore(object? obj1, object? obj2, IEquatableDescriptor? outerDescriptor)
+    private static bool EqualsCore(object? obj1, object? obj2, IEquatableMemberDescriptor? outerDescriptor)
     {
         if (obj1 is null && obj2 is null)
         {
@@ -30,10 +29,8 @@ public sealed class FlexibleEqualityComparer : IEqualityComparer<object>
             return false;
         }
 
-        IEquatableDescriptor? descriptor1 = outerDescriptor;
-        IEquatableDescriptor? descriptor2 = outerDescriptor;
-        UnwrapProxy(ref obj1, ref descriptor1);
-        UnwrapProxy(ref obj2, ref descriptor2);
+        UnwrapProxy(ref obj1, out IEquatableObjectDescriptor descriptor1, outerDescriptor);
+        UnwrapProxy(ref obj2, out IEquatableObjectDescriptor descriptor2, outerDescriptor);
 
         if (ReferenceEquals(obj1, obj2))
         {
@@ -53,6 +50,9 @@ public sealed class FlexibleEqualityComparer : IEqualityComparer<object>
                 return obj1.Equals(obj2);
 
             case EqualityBehavior.Forbidden:
+                // TODO This should not happen when outerDescriptor is not null
+                return false;
+
             case EqualityBehavior.Identity:
                 return false;
 
@@ -132,6 +132,7 @@ public sealed class FlexibleEqualityComparer : IEqualityComparer<object>
         return members
             .Where(static x => !x.IsDefined(typeof(CompilerGeneratedAttribute)))
             .Where(isReadable)
+            // TODO Find member descriptor and filter out forbidden members
             .Select(
                 member =>
                 {
@@ -257,12 +258,11 @@ public sealed class FlexibleEqualityComparer : IEqualityComparer<object>
         throw new ArgumentException($"Cannot resolve proxy descriptor {(type == typeof(void) ? "" : $"{type}.")}{memberName}");
     }
 
-    private static void UnwrapProxy(ref object obj, [NotNull] ref IEquatableDescriptor? descriptor)
+    private static void UnwrapProxy(ref object obj, out IEquatableObjectDescriptor descriptor, IEquatableMemberDescriptor? outerDescriptor)
     {
         while (true)
         {
-            descriptor ??= FindTypeDescriptor(obj.GetType());
-
+            descriptor = outerDescriptor?.TryToObjectDescriptor() ?? FindTypeDescriptor(obj.GetType());
             if (descriptor.Behavior != EqualityBehavior.Proxy)
             {
                 return;
@@ -271,44 +271,16 @@ public sealed class FlexibleEqualityComparer : IEqualityComparer<object>
             IProxyEquatableDescriptor proxyDescriptor = (IProxyEquatableDescriptor)descriptor;
             obj = ResolveProxy(obj, proxyDescriptor.ProxyType, proxyDescriptor.ProxyMember, proxyDescriptor.ProxyArgs)
                 ?? throw new ArgumentException("Proxy descriptor resolved to null");
-            descriptor = null;
         }
     }
-
-    //private static void UnwrapMemberProxy(ref object obj, Type callerType, MemberInfo member, out IEquatableMemberDescriptor descriptor)
-    //{
-    //    bool first = true;
-
-    //    while (true)
-    //    {
-    //        if (first)
-    //        {
-    //            descriptor = FindMemberDescriptor(callerType, member);
-    //            first = false;
-    //        }
-    //        else
-    //        {
-    //            descriptor = FindTypeDescriptor(obj.GetType()).ToMemberDescriptor();
-    //        }
-
-    //        if (descriptor.Behavior != EqualityBehavior.Proxy)
-    //        {
-    //            return;
-    //        }
-
-    //        IProxyEquatableDescriptor proxyDescriptor = (IProxyEquatableDescriptor)descriptor;
-    //        obj = ResolveProxy(obj, proxyDescriptor.ProxyType, proxyDescriptor.ProxyMember, proxyDescriptor.ProxyArgs)
-    //            ?? throw new ArgumentException("Proxy descriptor resolved to null");
-    //    }
-    //}
 
     private static IEquatableObjectDescriptor FindTypeDescriptor(Type type)
     {
         foreach (Type t in type.GetClosure())
         {
-            if (ContractAccessor.TryGet(t) is { ChosenBehavior: not null } typeContract)
+            if (ContractAccessor.TryGet(t) is { Behavior: not null } typeContract)
             {
-                return typeContract.ToDescriptor();
+                return typeContract.ToObjectDescriptor();
             }
 
             EquatableObjectAttribute[] attributes = t.GetCustomAttributes<EquatableObjectAttribute>().Take(2).ToArray();
@@ -334,7 +306,7 @@ public sealed class FlexibleEqualityComparer : IEqualityComparer<object>
         {
             if (ContractAccessor.TryGet(t) is { } typeContract && typeContract.TryGet(member) is { } memberContract)
             {
-                return memberContract.ToDescriptor();
+                return memberContract.ToMemberDescriptor();
             }
 
             EquatableMemberAttribute[] attributes = t.GetCustomAttributes<EquatableMemberAttribute>().Take(2).ToArray();

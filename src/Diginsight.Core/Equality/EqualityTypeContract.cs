@@ -97,19 +97,21 @@ public class EqualityTypeContract : EqualityContract, IEqualityTypeContract
         return memberContracts.TryGetValue(member, out EqualityMemberContract? memberContract) ? memberContract : null;
     }
 
-    public IEquatableObjectDescriptor ToDescriptor()
+    public IEquatableObjectDescriptor ToObjectDescriptor()
     {
-        return ChosenBehavior switch
+        EqualityBehavior? behavior = Behavior;
+        return behavior switch
         {
             EqualityBehavior.Comparer => new ComparerEquatableObjectDescriptor(ComparerType, ComparerMember, ComparerArgs),
             EqualityBehavior.Proxy => new ProxyEquatableObjectDescriptor(ProxyType, ProxyMember, ProxyArgs),
-            { } behavior => new EquatableObjectDescriptor(behavior),
-            null => throw new InvalidOperationException($"{nameof(ChosenBehavior)} is unset"),
+            _ => new EquatableObjectDescriptor(behavior ?? GetFallbackBehavior(type)),
         };
     }
 
     private record EquatableObjectDescriptor(EqualityBehavior Behavior) : IEquatableObjectDescriptor, IEquatableMemberDescriptor
     {
+        EqualityBehavior? IEquatableMemberDescriptor.Behavior => Behavior;
+
         int? IEquatableMemberDescriptor.Order => null;
 
         IEquatableMemberDescriptor IEquatableObjectDescriptor.ToMemberDescriptor() => this;
