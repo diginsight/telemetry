@@ -185,7 +185,7 @@ public readonly struct Expiration
 
     public static Expiration operator +(Expiration lhs, Expiration rhs)
     {
-        return lhs.IsNever || rhs.IsNever ? Never : new (lhs.Value + rhs.Value);
+        return lhs.IsNever || rhs.IsNever ? Never : new Expiration(lhs.Value + rhs.Value);
     }
 
     public static bool operator ==(Expiration lhs, Expiration rhs) => lhs.Equals(rhs);
