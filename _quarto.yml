@@ -1,6 +1,6 @@
 project:
   type: website
-  output-dir: wwwroot
+  output-dir: docs
   render:
   - "*.md"
   - "*.qmd"
@@ -26,9 +26,9 @@ website:
       - text: "Home"
         href: index.md
       - text: "Concepts"
-        href: docs/01. Concepts/concepts.qmd
+        href: src/docs/01. Concepts/concepts.qmd
       - text: "Advanced Articles"
-        href: docs/02. Advanced/Advanced Concepts.qmd
+        href: src/docs/02. Advanced/Advanced Concepts.qmd
       - text: "About"
         href: about.qmd
     tools:
@@ -51,16 +51,16 @@ website:
       href:  index.md
     - text: "---"
     - text: Getting Started
-      href:  docs/00.01 - Getting Started.md
+      href:  "src/docs/00.01 - Getting Started.md"
     - text: "---"
     - section: Concepts
-      contents: "docs/01. Concepts/**"
+      contents: "src/docs/01. Concepts/**"
     - text: "---"
     - section: Advanced Articles
-      contents: "docs/02. Advanced/*"
+      contents: "src/docs/02. Advanced/*"
     - text: "---"
     - section: Other
-      contents: "docs/04. Other/*"
+      contents: "src/docs/04. Other/*"
     tools:
     # - icon: twitter
     #   href: https://twitter.com
