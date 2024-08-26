@@ -1,12 +1,11 @@
 ﻿namespace Diginsight.Equality;
 
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-public sealed class ProxyEquatableMemberAttribute
-    : EquatableMemberAttribute, IProxyEquatableMemberDescriptor, IProxyEquatableObjectDescriptor
+public sealed class ProxyEquatableMemberAttribute : EquatableMemberAttribute
 {
     private object?[]? proxyArgs;
 
-    public override EqualityBehavior? Behavior => EqualityBehavior.Proxy;
+    protected override EqualityBehavior? Behavior => EqualityBehavior.Proxy;
 
     public Type ProxyType { get; }
 
@@ -31,4 +30,7 @@ public sealed class ProxyEquatableMemberAttribute
         ProxyType = proxyType;
         ProxyMember = proxyMember;
     }
+
+    public override IEquatableMemberDescriptor ToMemberDescriptor() =>
+        new ProxyEquatableDescriptor(ProxyType, ProxyMember, ProxyArgs, OrderCore);
 }

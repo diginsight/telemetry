@@ -1,12 +1,9 @@
 ﻿namespace Diginsight.Equality;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Struct)]
-public sealed class ComparerEquatableObjectAttribute
-    : EquatableObjectAttribute, IComparerEquatableObjectDescriptor, IComparerEquatableMemberDescriptor
+public sealed class ComparerEquatableObjectAttribute : EquatableObjectAttribute
 {
     private object?[]? comparerArgs;
-
-    public override EqualityBehavior Behavior => EqualityBehavior.Comparer;
 
     public Type ComparerType { get; }
 
@@ -28,4 +25,7 @@ public sealed class ComparerEquatableObjectAttribute
         ComparerType = comparerType;
         ComparerMember = comparerMember;
     }
+
+    public override IEquatableObjectDescriptor ToObjectDescriptor() =>
+        new ComparerEquatableDescriptor(ComparerType, ComparerMember, ComparerArgs, null);
 }

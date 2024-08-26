@@ -1,15 +1,12 @@
 ﻿namespace Diginsight.Equality;
 
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-public class EquatableMemberAttribute
-    : Attribute, IEquatableMemberDescriptor, IEquatableObjectDescriptor
+public class EquatableMemberAttribute : Attribute
 {
     private int order;
     private bool isOrderSet;
 
-    public virtual EqualityBehavior? Behavior => null;
-
-    EqualityBehavior IEquatableObjectDescriptor.Behavior => Behavior ?? throw new InvalidOperationException($"{nameof(Behavior)} is unset");
+    protected virtual EqualityBehavior? Behavior => null;
 
     public int Order
     {
@@ -21,7 +18,7 @@ public class EquatableMemberAttribute
         }
     }
 
-    int? IEquatableMemberDescriptor.Order => isOrderSet ? order : null;
+    protected int? OrderCore => isOrderSet ? order : null;
 
     public void UnsetOrder()
     {
@@ -29,7 +26,5 @@ public class EquatableMemberAttribute
         order = 0;
     }
 
-    IEquatableObjectDescriptor? IEquatableMemberDescriptor.TryToObjectDescriptor() => Behavior is null ? null : this;
-
-    IEquatableMemberDescriptor IEquatableObjectDescriptor.ToMemberDescriptor() => this;
+    public virtual IEquatableMemberDescriptor ToMemberDescriptor() => new EquatableDescriptor(Behavior, OrderCore);
 }

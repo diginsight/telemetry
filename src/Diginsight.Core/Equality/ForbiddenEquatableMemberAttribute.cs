@@ -3,5 +3,5 @@
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
 public sealed class ForbiddenEquatableMemberAttribute : EquatableMemberAttribute
 {
-    public override EqualityBehavior? Behavior => EqualityBehavior.Forbidden;
+    protected override EqualityBehavior? Behavior => EqualityBehavior.Forbidden;
 }

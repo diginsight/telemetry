@@ -294,7 +294,7 @@ public sealed class FlexibleEqualityComparer : IEqualityComparer<object>
                     break;
 
                 case [ var attribute ]:
-                    return attribute;
+                    return attribute.ToObjectDescriptor();
 
                 case [ _, _ ]:
                     throw new ArgumentException($"Multiple {nameof(EquatableObjectAttribute)}s applied to type {t}");
@@ -313,21 +313,23 @@ public sealed class FlexibleEqualityComparer : IEqualityComparer<object>
                 return memberContract.ToMemberDescriptor();
             }
 
-            EquatableMemberAttribute[] attributes = t.GetCustomAttributes<EquatableMemberAttribute>().Take(2).ToArray();
+            if (member.DeclaringType != t)
+                continue;
+
+            EquatableMemberAttribute[] attributes = member.GetCustomAttributes<EquatableMemberAttribute>().Take(2).ToArray();
             switch (attributes)
             {
                 case [ ]:
                     break;
 
                 case [ var attribute ]:
-                    return attribute;
+                    return attribute.ToMemberDescriptor();
 
                 case [ _, _ ]:
                     throw new ArgumentException($"Multiple {nameof(EquatableMemberAttribute)}s applied to member {t}.{member.Name}");
             }
 
-            if (member.DeclaringType == t)
-                break;
+            break;
         }
 
         return EqualityMemberContract.EmptyDescriptor;
