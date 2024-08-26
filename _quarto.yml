@@ -11,7 +11,7 @@ website:
   title: "telemetry"
   back-to-top-navigation: true
   reader-mode: true
-  # favicon: lightbulb
+  favicon: lightbulb
   search: false
     # location: navbar
     # type: overlay
