@@ -9,4 +9,6 @@ public abstract class EquatableObjectAttribute : Attribute, IEquatableObjectDesc
     int? IEquatableMemberDescriptor.Order => null;
 
     IEquatableMemberDescriptor IEquatableObjectDescriptor.ToMemberDescriptor() => this;
+
+    IEquatableObjectDescriptor? IEquatableMemberDescriptor.TryToObjectDescriptor() => this;
 }

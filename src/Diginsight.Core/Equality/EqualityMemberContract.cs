@@ -1,10 +1,9 @@
-﻿using System.Diagnostics;
-using System.Reflection;
-
-namespace Diginsight.Equality;
+﻿namespace Diginsight.Equality;
 
 public class EqualityMemberContract : EqualityContract, IEqualityMemberContract
 {
+    internal static readonly IEquatableMemberDescriptor EmptyDescriptor = new EquatableMemberDescriptor(null, null);
+
     private readonly Type memberType;
 
     public int? Order { get; set; }
@@ -20,21 +19,6 @@ public class EqualityMemberContract : EqualityContract, IEqualityMemberContract
         return (EqualityMemberContract)Activator.CreateInstance(typeof(EqualityMemberContract<>).MakeGenericType(memberType))!;
     }
 
-    public static IEquatableMemberDescriptor FallbackDescriptorFor(MemberInfo member)
-    {
-        return new EquatableMemberDescriptor(
-            GetFallbackBehavior(
-                member switch
-                {
-                    FieldInfo field => field.FieldType,
-                    PropertyInfo property => property.PropertyType,
-                    _ => throw new UnreachableException("Unexpected member"),
-                }
-            ),
-            null
-        );
-    }
-
     public IEquatableMemberDescriptor ToMemberDescriptor()
     {
         EqualityBehavior? behavior = Behavior;
@@ -46,7 +30,15 @@ public class EqualityMemberContract : EqualityContract, IEqualityMemberContract
         };
     }
 
-    private record EquatableMemberDescriptor(EqualityBehavior? Behavior, int? Order) : IEquatableMemberDescriptor;
+    private record EquatableMemberDescriptor(EqualityBehavior? Behavior, int? Order)
+        : IEquatableMemberDescriptor, IEquatableObjectDescriptor
+    {
+        EqualityBehavior IEquatableObjectDescriptor.Behavior => Behavior ?? throw new InvalidOperationException($"{nameof(Behavior)} is unset");
+
+        IEquatableObjectDescriptor? IEquatableMemberDescriptor.TryToObjectDescriptor() => Behavior is null ? null : this;
+
+        IEquatableMemberDescriptor IEquatableObjectDescriptor.ToMemberDescriptor() => this;
+    }
 
     private sealed record ComparerEquatableMemberDescriptor(Type ComparerType, string? ComparerMember, object?[] ComparerArgs, int? Order)
         : EquatableMemberDescriptor(EqualityBehavior.Comparer, Order), IComparerEquatableMemberDescriptor;

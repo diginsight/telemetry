@@ -115,6 +115,8 @@ public class EqualityTypeContract : EqualityContract, IEqualityTypeContract
         int? IEquatableMemberDescriptor.Order => null;
 
         IEquatableMemberDescriptor IEquatableObjectDescriptor.ToMemberDescriptor() => this;
+
+        IEquatableObjectDescriptor? IEquatableMemberDescriptor.TryToObjectDescriptor() => this;
     }
 
     private sealed record ComparerEquatableObjectDescriptor(Type ComparerType, string? ComparerMember, object?[] ComparerArgs)

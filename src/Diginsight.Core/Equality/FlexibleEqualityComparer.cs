@@ -32,11 +32,6 @@ public sealed class FlexibleEqualityComparer : IEqualityComparer<object>
         UnwrapProxy(ref obj1, out IEquatableObjectDescriptor descriptor1, outerDescriptor);
         UnwrapProxy(ref obj2, out IEquatableObjectDescriptor descriptor2, outerDescriptor);
 
-        if (ReferenceEquals(obj1, obj2))
-        {
-            return true;
-        }
-
         EqualityBehavior behavior1 = descriptor1.Behavior;
         EqualityBehavior behavior2 = descriptor2.Behavior;
         if (behavior1 != behavior2)
@@ -44,20 +39,23 @@ public sealed class FlexibleEqualityComparer : IEqualityComparer<object>
             throw new ArgumentException($"Inputs have different equality behaviors ({behavior1:G} vs {behavior2:G})");
         }
 
+        if (behavior1 == EqualityBehavior.Forbidden)
+        {
+            throw new ArgumentException("Equality comparison is forbidden");
+        }
+
+        if (ReferenceEquals(obj1, obj2))
+        {
+            return true;
+        }
+
         switch (behavior1)
         {
             case EqualityBehavior.Default:
                 return obj1.Equals(obj2);
 
-            case EqualityBehavior.Forbidden:
-                // TODO This should not happen when outerDescriptor is not null
-                return false;
-
             case EqualityBehavior.Identity:
                 return false;
-
-            case EqualityBehavior.Proxy:
-                throw new UnreachableException($"{nameof(EqualityBehavior)}.{nameof(EqualityBehavior.Proxy)} should have been already handled");
 
             case EqualityBehavior.Comparer:
             {
@@ -119,6 +117,10 @@ public sealed class FlexibleEqualityComparer : IEqualityComparer<object>
                     .All(x => x.Equator(obj1, obj2));
             }
 
+            case EqualityBehavior.Forbidden:
+            case EqualityBehavior.Proxy:
+                throw new UnreachableException($"{nameof(EqualityBehavior)}.{behavior1:G} already handled");
+
             default:
                 throw new UnreachableException($"Unrecognized {nameof(EqualityBehavior)}");
         }
@@ -132,11 +134,13 @@ public sealed class FlexibleEqualityComparer : IEqualityComparer<object>
         return members
             .Where(static x => !x.IsDefined(typeof(CompilerGeneratedAttribute)))
             .Where(isReadable)
-            // TODO Find member descriptor and filter out forbidden members
+            .Select(static x => (Member: x, Descriptor: FindMemberDescriptor(x)))
+            .Where(static x => x.Descriptor.Behavior != EqualityBehavior.Forbidden)
             .Select(
-                member =>
+                x =>
                 {
-                    IEquatableMemberDescriptor descriptor = FindMemberDescriptor(member);
+                    TMember member = x.Member;
+                    IEquatableMemberDescriptor descriptor = x.Descriptor;
 
                     return (
                         (Equator)((outerObj1, outerObj2) => EqualsCore(getValue(member, outerObj1), getValue(member, outerObj2), descriptor)),
@@ -161,7 +165,7 @@ public sealed class FlexibleEqualityComparer : IEqualityComparer<object>
 #if NET
             .Zip(args)
 #else
-                .Zip(args, static (p, o) => (First: p, Second: o))
+            .Zip(args, static (p, o) => (First: p, Second: o))
 #endif
             .All(static x => IsBindable(x.First.ParameterType, x.Second));
     }
@@ -326,7 +330,7 @@ public sealed class FlexibleEqualityComparer : IEqualityComparer<object>
                 break;
         }
 
-        return EqualityMemberContract.FallbackDescriptorFor(member);
+        return EqualityMemberContract.EmptyDescriptor;
     }
 
     public int GetHashCode(object obj)
