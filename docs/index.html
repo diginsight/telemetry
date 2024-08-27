@@ -318,7 +318,14 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="additional-information" class="level1">
 <h1>Additional Information</h1>
-<p>Diginsight telemetry is <strong>readable</strong>, <strong>consistent</strong> and <strong>efficient</strong>:<br> - <strong>readable</strong>: telemetry is <strong>easily readable</strong> on <code>local troubleshooting tools</code>, <code>live server consoles</code> and <code>remote analysis tools</code> such as the Azure monitor. The generated application flow is <strong>consistent with application code</strong> so that problems understanding is much simplified.<br> - <strong>consistent</strong>: the application flow is <strong>rendered consistently</strong> on <code>local troubleshooting tools</code>, where maximun flow detail is available, and to the <code>remote analysis tools</code> such as the Azure monitor, where metrics and data from past executions can be easily compared.<br> - <strong>efficient</strong>: application flow is generated with fully optimized techniques (such as dynamic compilation). Also, the full application flow observability can be <strong>enabled dynamically</strong> and <strong>only on the specific executions</strong> that are under analysis. this ensures that diginsight can be leveraged with no pratical impact on application performance.<br></p>
+<p>Diginsight telemetry is <strong>readable</strong>, <strong>consistent</strong> and <strong>efficient</strong>:<br></p>
+<blockquote class="blockquote">
+<ul>
+<li><strong>readable</strong>: telemetry is <strong>easily readable</strong> on <code>local troubleshooting tools</code>, <code>live server consoles</code> and <code>remote analysis tools</code> such as the Azure monitor. The generated application flow is <strong>consistent with application code</strong> so that problems understanding is much simplified.<br></li>
+<li><strong>consistent</strong>: the application flow is <strong>rendered consistently</strong> on <code>local troubleshooting tools</code>, where maximun flow detail is available, and to the <code>remote analysis tools</code> such as the Azure monitor, where metrics and data from past executions can be easily compared.<br></li>
+<li><strong>efficient</strong>: application flow is generated with fully optimized techniques (such as dynamic compilation). Also, the full application flow observability can be <strong>enabled dynamically</strong> and <strong>only on the specific executions</strong> that are under analysis. this ensures that diginsight can be leveraged with no pratical impact on application performance.<br></li>
+</ul>
+</blockquote>
 <p>The image below shows the text based stream associated to to a Web API call. <img src="src/docs/000.01 Full call on log4net.png" class="img-fluid" alt="Alt text"></p>
 <p>The following image shows the same call on the <strong>Azure Monitor Transaction Detail</strong> where the call structure is shown as a hierarchy of <strong>activities</strong> (also called <strong>spans</strong>) and <strong>trace details</strong>: <img src="src/docs/000.02 Full call on azmon transaction.png" class="img-fluid" alt="Alt text"></p>
 <p>Diginsight uses <strong>dynamic logging</strong> to support <strong>full observability on live environments</strong>.<br> Live environments logging level is normally limited to <strong>Warning</strong> or <strong>Information</strong> levels to limit telemetry volumes produced by the applications.<br> With <strong>dynamic logging</strong> Log level can be raied to debug or trace <strong>for a single call</strong>, for example, by means of the <strong>Log-Level http headers</strong>.</p>
@@ -353,7 +360,16 @@ ul.task-list li input[type="checkbox"] {
 <li><a href="./src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.html">HowTo: maximize application performance and minimize telemetry cost with diginsight</a><br> Explores diginsight telemetry can be used without impact on <strong>application performance</strong> and <strong>telemetry cost</strong>.<br></li>
 </ul>
 </blockquote>
-<p>Advanced topics &gt;- <a href="./src/docs/02. Advanced/13.00 - Customize entities rendering on diginsight log streams.html">HowTo: customize entities rendering on diginsight log streams</a>. &gt;- <a href="./src/docs/02. Advanced/14.00 - Customize metrics sent to the remote tools.html">HowTo: customize metrics sent to the remote tools</a>. &gt;- <a href="./src/docs/02. Advanced/15.00 - Customize diginsight log streams row content.html">HowTo: customize diginsight log streams row content</a>. &gt;- <a href="./src/docs/02. Advanced/17.00 - Troubleshoot the startup sequence.html">HowTo: troubleshoot the startup sequence</a>. &gt;- <a href="./src/docs/02. Advanced/18.00 - HowTo - Use class aware configurations to support comonent level or class level configurations.html">HowTo: use class aware configurations to support comonent level or class level configurations</a>.</p>
+<p>Advanced topics:</p>
+<blockquote class="blockquote">
+<ul>
+<li><a href="./src/docs/02. Advanced/13.00 - Customize entities rendering on diginsight log streams.html">HowTo: customize entities rendering on diginsight log streams</a>.</li>
+<li><a href="./src/docs/02. Advanced/14.00 - Customize metrics sent to the remote tools.html">HowTo: customize metrics sent to the remote tools</a>.</li>
+<li><a href="./src/docs/02. Advanced/15.00 - Customize diginsight log streams row content.html">HowTo: customize diginsight log streams row content</a>.</li>
+<li><a href="./src/docs/02. Advanced/17.00 - Troubleshoot the startup sequence.html">HowTo: troubleshoot the startup sequence</a>.</li>
+<li><a href="./src/docs/02. Advanced/18.00 - HowTo - Use class aware configurations to support comonent level or class level configurations.html">HowTo: use class aware configurations to support comonent level or class level configurations</a>.</li>
+</ul>
+</blockquote>
 </section>
 <section id="previous-versions" class="level1">
 <h1>Previous versions</h1>

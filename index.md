@@ -11,9 +11,10 @@ __Diginsight telemetry__ targets __all dotnet framework versions__ starting from
 
 # Additional Information 
 Diginsight telemetry is __readable__, __consistent__ and __efficient__:<br>
-- __readable__: telemetry is __easily readable__ on `local troubleshooting tools`, `live server consoles` and `remote analysis tools` such as the Azure monitor. The generated application flow is __consistent with application code__ so that problems understanding is much simplified.<br>
-- __consistent__: the application flow is __rendered consistently__ on `local troubleshooting tools`, where maximun flow detail is available, and to the `remote analysis tools` such as the Azure monitor, where metrics and data from past executions can be easily compared.<br>
-- __efficient__: application flow is generated with fully optimized techniques (such as dynamic compilation). Also, the full application flow observability can be __enabled dynamically__ and __only on the specific executions__ that are under analysis. this ensures that diginsight can be leveraged with no pratical impact on application performance.<br>
+
+>- __readable__: telemetry is __easily readable__ on `local troubleshooting tools`, `live server consoles` and `remote analysis tools` such as the Azure monitor. The generated application flow is __consistent with application code__ so that problems understanding is much simplified.<br>
+>- __consistent__: the application flow is __rendered consistently__ on `local troubleshooting tools`, where maximun flow detail is available, and to the `remote analysis tools` such as the Azure monitor, where metrics and data from past executions can be easily compared.<br>
+>- __efficient__: application flow is generated with fully optimized techniques (such as dynamic compilation). Also, the full application flow observability can be __enabled dynamically__ and __only on the specific executions__ that are under analysis. this ensures that diginsight can be leveraged with no pratical impact on application performance.<br>
 
 
 The image below shows the text based stream associated to to a Web API call.
@@ -87,7 +88,8 @@ Example code used in the articles is also available in the [telemetry_samples](h
 >- [HowTo: maximize application performance and minimize telemetry cost with diginsight](<src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.md>)<br>
 >Explores diginsight telemetry can be used without impact on __application performance__ and __telemetry cost__.<br>
 
-Advanced topics
+Advanced topics:
+
 >- [HowTo: customize entities rendering on diginsight log streams](<src/docs/02. Advanced/13.00 - Customize entities rendering on diginsight log streams.md>).
 >- [HowTo: customize metrics sent to the remote tools](<src/docs/02. Advanced/14.00 - Customize metrics sent to the remote tools.md>).
 >- [HowTo: customize diginsight log streams row content](<src/docs/02. Advanced/15.00 - Customize diginsight log streams row content.md>).
