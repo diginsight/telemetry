@@ -169,7 +169,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../src/docs/01. Concepts/00.01 - Observability Concepts.html">Concepts</a></li><li class="breadcrumb-item"><a href="../../../src/docs/01. Concepts/12.00 - Configure diginsight telemetry to the local text based streams.html">Configure the local text based streams</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../src/docs/01. Concepts/00.01 - Observability Concepts.html">Concepts</a></li><li class="breadcrumb-item"><a href="../../../src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html">Configure the local text based streams</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -229,6 +229,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Configure the local text based streams</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../../../src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Use dynamic logging</span></a>
   </div>
@@ -237,12 +243,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="../../../src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Use dynamic configuration</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../src/docs/01. Concepts/12.00 - Configure diginsight telemetry to the local text based streams.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Configure the local text based streams</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -346,7 +346,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../src/docs/01. Concepts/00.01 - Observability Concepts.html">Concepts</a></li><li class="breadcrumb-item"><a href="../../../src/docs/01. Concepts/12.00 - Configure diginsight telemetry to the local text based streams.html">Configure the local text based streams</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../src/docs/01. Concepts/00.01 - Observability Concepts.html">Concepts</a></li><li class="breadcrumb-item"><a href="../../../src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html">Configure the local text based streams</a></li></ol></nav>
 <div class="quarto-title">
 <h1 class="title">Configure the local text based streams</h1>
 </div>
@@ -372,14 +372,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="step-01---add-a-package-reference-to-the-package-diginsight.diagnostics-or-diginsight.diagnostics.log4net" class="level2">
 <h2 class="anchored" data-anchor-id="step-01---add-a-package-reference-to-the-package-diginsight.diagnostics-or-diginsight.diagnostics.log4net">STEP 01 - Add a package reference to the package <code>Diginsight.Diagnostics</code> or <code>Diginsight.Diagnostics.Log4Net</code></h2>
-<p>In the first step you can just add a diginsight reference to your code:<br> <img src="12.00 - Configure diginsight telemetry to the local text based streams/004.01 STEP1 - add reference.png" class="img-fluid" alt="Alt text"></p>
+<p>In the first step you can just add a diginsight reference to your code:<br> <img src="01.00 - Configure diginsight telemetry to the local text based streams/004.01 STEP1 - add reference.png" class="img-fluid" alt="Alt text"></p>
 </section>
 <section id="step-02---configure-logging-within-the-startup-sequence" class="level2">
 <h2 class="anchored" data-anchor-id="step-02---configure-logging-within-the-startup-sequence">STEP 02 - Configure logging within the Startup sequence</h2>
-<p>in the second step you can configure the startup sequence to enable diginsight log: <img src="12.00 - Configure diginsight telemetry to the local text based streams/004.02b STEP - configure logging.png" class="img-fluid" alt="alt text"></p>
+<p>in the second step you can configure the startup sequence to enable diginsight log: <img src="01.00 - Configure diginsight telemetry to the local text based streams/004.02b STEP - configure logging.png" class="img-fluid" alt="alt text"></p>
 <p>in this case: - <strong>AddDiginsightConsole()</strong> is used to enabled log to the application Console. - <strong>AddDiginsightLog4Net()</strong> is used to enabled file log by means of log4net.</p>
-<p>a separate - <strong>log4net.config</strong> can be used to specify the usual log4net configuration: <img src="12.00 - Configure diginsight telemetry to the local text based streams/004.03 Log4Net configuration file.png" class="img-fluid" alt="alt text"></p>
-<p>also, the <strong>Diginsight:Activities</strong> section can be used to specify <strong>enabled ActivitySources</strong> and whether <strong>Activity logging</strong> is enabled. <br> <img src="12.00 - Configure diginsight telemetry to the local text based streams/004.04 DiginsightActivities configuration.png" class="img-fluid" alt="alt text"></p>
+<p>a separate - <strong>log4net.config</strong> can be used to specify the usual log4net configuration: <img src="01.00 - Configure diginsight telemetry to the local text based streams/004.03 Log4Net configuration file.png" class="img-fluid" alt="alt text"></p>
+<p>also, the <strong>Diginsight:Activities</strong> section can be used to specify <strong>enabled ActivitySources</strong> and whether <strong>Activity logging</strong> is enabled. <br> <img src="01.00 - Configure diginsight telemetry to the local text based streams/004.04 DiginsightActivities configuration.png" class="img-fluid" alt="alt text"></p>
 </section>
 <section id="step-03---add-telemetry-to-code-with-startmethodactivity-and-ilogger-statements" class="level2">
 <h2 class="anchored" data-anchor-id="step-03---add-telemetry-to-code-with-startmethodactivity-and-ilogger-statements">STEP 03 - Add telemetry to code with <code>StartMethodActivity()</code> and <code>ILogger</code> Statements</h2>
@@ -405,7 +405,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="step-04---run-your-code-and-look-at-the-resulting-application-flow" class="level2">
 <h2 class="anchored" data-anchor-id="step-04---run-your-code-and-look-at-the-resulting-application-flow">STEP 04 - run your code and look at the resulting application flow</h2>
-<p>the image below shows the application flow generated by DoSomeWork method <img src="12.00 - Configure diginsight telemetry to the local text based streams/004.06 View application flow.png" class="img-fluid" alt="alt text"></p>
+<p>the image below shows the application flow generated by DoSomeWork method <img src="01.00 - Configure diginsight telemetry to the local text based streams/004.06 View application flow.png" class="img-fluid" alt="alt text"></p>
 
 
 </section>

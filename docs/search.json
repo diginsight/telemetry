@@ -282,8 +282,44 @@
     ]
   },
   {
-    "objectID": "src/docs/01. Concepts/12.00 - Configure diginsight telemetry to the local text based streams.html",
-    "href": "src/docs/01. Concepts/12.00 - Configure diginsight telemetry to the local text based streams.html",
+    "objectID": "src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.html",
+    "href": "src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.html",
+    "title": "Use dynamic configuration",
+    "section": "",
+    "text": "Diginsight telemetry supports dynamic configuration to hot switch configuration values, based on http headers. As an example, lets assume that a Web API or Web Application implements a feature flag such as the following:\n\"FeatureFlags\": {\n  \"TraceRequestBody\": false,\n  \"TraceResponseBody\": false\n}\nThe developer can register such a configuration option so that it can be overridden at runtime, for a single call, by means of the Dynamic-Configuration http request header.",
+    "crumbs": [
+      "Home",
+      "Concepts",
+      "Use dynamic configuration"
+    ]
+  },
+  {
+    "objectID": "src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.html#use-dynamic-configuration-to-manage-configurations-and-feature-flags-dynamically-at-runtime",
+    "href": "src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.html#use-dynamic-configuration-to-manage-configurations-and-feature-flags-dynamically-at-runtime",
+    "title": "Use dynamic configuration",
+    "section": "",
+    "text": "Diginsight telemetry supports dynamic configuration to hot switch configuration values, based on http headers. As an example, lets assume that a Web API or Web Application implements a feature flag such as the following:\n\"FeatureFlags\": {\n  \"TraceRequestBody\": false,\n  \"TraceResponseBody\": false\n}\nThe developer can register such a configuration option so that it can be overridden at runtime, for a single call, by means of the Dynamic-Configuration http request header.",
+    "crumbs": [
+      "Home",
+      "Concepts",
+      "Use dynamic configuration"
+    ]
+  },
+  {
+    "objectID": "src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.html#additional-information",
+    "href": "src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.html#additional-information",
+    "title": "Use dynamic configuration",
+    "section": "Additional information",
+    "text": "Additional information\nThe snippet below, shows the FeatureFlags configuration option class of the SampleWebApi project in Diginsight telemetry_samples repository:\npublic class FeatureFlagOptions : IDynamicallyPostConfigurable\n{\n    public bool TraceRequestBody { get; set; }\n    public bool TraceResponseBody { get; set; }\n\n}\nIf the developer registers it with the .PostConfigureClassAwareFromHttpRequestHeaders&lt;FeatureFlagOptions&gt;() method as shown below: \nthan the options will be overridable by means of the Dynamic-Configuration http request header.\nIn such case, when calling the API with Dynamic-Configuration http request header as shown below.\n\n\n\nalt text\n\n\nThe TraceRequestBody and TraceResponseBody configuration options will be overriden from the http request headers.\nThe image below shows the application log where in the first call the options are loaded from the appSettings.json configuration file. in the second call, the same options are overridden by the incoming Dinamic-Configuration headers.\n\n\n\nalt text",
+    "crumbs": [
+      "Home",
+      "Concepts",
+      "Use dynamic configuration"
+    ]
+  },
+  {
+    "objectID": "src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html",
+    "href": "src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html",
     "title": "Configure the local text based streams",
     "section": "",
     "text": "You can ottain a console log or file log with diginsight by means of the steps shown below. The code snippets are available as working samples within the telemetry_samples repository.\nArticle HOWTO - Use Diginsight Samples.md: explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.",
@@ -294,8 +330,8 @@
     ]
   },
   {
-    "objectID": "src/docs/01. Concepts/12.00 - Configure diginsight telemetry to the local text based streams.html#howto-configure-diginsight-telemetry-to-the-local-text-based-streams",
-    "href": "src/docs/01. Concepts/12.00 - Configure diginsight telemetry to the local text based streams.html#howto-configure-diginsight-telemetry-to-the-local-text-based-streams",
+    "objectID": "src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html#howto-configure-diginsight-telemetry-to-the-local-text-based-streams",
+    "href": "src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html#howto-configure-diginsight-telemetry-to-the-local-text-based-streams",
     "title": "Configure the local text based streams",
     "section": "",
     "text": "You can ottain a console log or file log with diginsight by means of the steps shown below. The code snippets are available as working samples within the telemetry_samples repository.\nArticle HOWTO - Use Diginsight Samples.md: explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.",
@@ -306,8 +342,8 @@
     ]
   },
   {
-    "objectID": "src/docs/01. Concepts/12.00 - Configure diginsight telemetry to the local text based streams.html#step-01---add-a-package-reference-to-the-package-diginsight.diagnostics-or-diginsight.diagnostics.log4net",
-    "href": "src/docs/01. Concepts/12.00 - Configure diginsight telemetry to the local text based streams.html#step-01---add-a-package-reference-to-the-package-diginsight.diagnostics-or-diginsight.diagnostics.log4net",
+    "objectID": "src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html#step-01---add-a-package-reference-to-the-package-diginsight.diagnostics-or-diginsight.diagnostics.log4net",
+    "href": "src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html#step-01---add-a-package-reference-to-the-package-diginsight.diagnostics-or-diginsight.diagnostics.log4net",
     "title": "Configure the local text based streams",
     "section": "STEP 01 - Add a package reference to the package Diginsight.Diagnostics or Diginsight.Diagnostics.Log4Net",
     "text": "STEP 01 - Add a package reference to the package Diginsight.Diagnostics or Diginsight.Diagnostics.Log4Net\nIn the first step you can just add a diginsight reference to your code:",
@@ -318,8 +354,8 @@
     ]
   },
   {
-    "objectID": "src/docs/01. Concepts/12.00 - Configure diginsight telemetry to the local text based streams.html#step-02---configure-logging-within-the-startup-sequence",
-    "href": "src/docs/01. Concepts/12.00 - Configure diginsight telemetry to the local text based streams.html#step-02---configure-logging-within-the-startup-sequence",
+    "objectID": "src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html#step-02---configure-logging-within-the-startup-sequence",
+    "href": "src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html#step-02---configure-logging-within-the-startup-sequence",
     "title": "Configure the local text based streams",
     "section": "STEP 02 - Configure logging within the Startup sequence",
     "text": "STEP 02 - Configure logging within the Startup sequence\nin the second step you can configure the startup sequence to enable diginsight log: \nin this case: - AddDiginsightConsole() is used to enabled log to the application Console. - AddDiginsightLog4Net() is used to enabled file log by means of log4net.\na separate - log4net.config can be used to specify the usual log4net configuration: \nalso, the Diginsight:Activities section can be used to specify enabled ActivitySources and whether Activity logging is enabled.",
@@ -330,8 +366,8 @@
     ]
   },
   {
-    "objectID": "src/docs/01. Concepts/12.00 - Configure diginsight telemetry to the local text based streams.html#step-03---add-telemetry-to-code-with-startmethodactivity-and-ilogger-statements",
-    "href": "src/docs/01. Concepts/12.00 - Configure diginsight telemetry to the local text based streams.html#step-03---add-telemetry-to-code-with-startmethodactivity-and-ilogger-statements",
+    "objectID": "src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html#step-03---add-telemetry-to-code-with-startmethodactivity-and-ilogger-statements",
+    "href": "src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html#step-03---add-telemetry-to-code-with-startmethodactivity-and-ilogger-statements",
     "title": "Configure the local text based streams",
     "section": "STEP 03 - Add telemetry to code with StartMethodActivity() and ILogger Statements",
     "text": "STEP 03 - Add telemetry to code with StartMethodActivity() and ILogger Statements\nwe are now ready to add instrumentation to the code and make the application flow observable:\n[HttpGet(\"dosomework\", Name = \"DoSomeWork\")]\n[ApiVersion(ApiVersions.V_2024_04_26.Name)]\npublic async Task DoSomeWork()\n{\n    using var activity = Program.ActivitySource.StartMethodActivity(logger); \n\n    var result1 = await StepOne();\n    logger.LogDebug(\"await StepOne(); returned {result1}\", result1);\n\n    var result2 = await StepTwo();\n    logger.LogDebug(\"await StepTwo(); completed {result2}\", result2);\n\n    var result = result1 + result2;\n\n    activity.SetOutput(result);\n    return;\n}\nin the snippet above, the DoSomeWork method from Diginsight telemetry_samples repository is shown where: - using var activity = Program.ActivitySource.StartMethodActivity(logger); is added to provide observability of method start and end - logger.LogDebug(\"await StepTwo(); completed {result2}\", result2); are added during the method execution - activity.SetOutput(result); is used at the method end to log the method result",
@@ -342,8 +378,8 @@
     ]
   },
   {
-    "objectID": "src/docs/01. Concepts/12.00 - Configure diginsight telemetry to the local text based streams.html#step-04---run-your-code-and-look-at-the-resulting-application-flow",
-    "href": "src/docs/01. Concepts/12.00 - Configure diginsight telemetry to the local text based streams.html#step-04---run-your-code-and-look-at-the-resulting-application-flow",
+    "objectID": "src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html#step-04---run-your-code-and-look-at-the-resulting-application-flow",
+    "href": "src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html#step-04---run-your-code-and-look-at-the-resulting-application-flow",
     "title": "Configure the local text based streams",
     "section": "STEP 04 - run your code and look at the resulting application flow",
     "text": "STEP 04 - run your code and look at the resulting application flow\nthe image below shows the application flow generated by DoSomeWork method",
@@ -351,54 +387,6 @@
       "Home",
       "Concepts",
       "Configure the local text based streams"
-    ]
-  },
-  {
-    "objectID": "src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html",
-    "href": "src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html",
-    "title": "Use dynamic logging",
-    "section": "",
-    "text": "diginsight telemetry supports dynamic logging to hot switch the minimum log level (e.g. from Information or Warning to Debug or Trace levels) of any log category.\nTo minimize telemetry cost and performance impact, telemetry sent to the remote tools is normally limited to LogLevels Critical, Warning or Information.\nThe snippet below shows a tipical Logging section configuration for a production environment:\n\"Logging\": {\n  \"LogLevel\": {\n    \"Default\": \"Information\",\n    \"Microsoft\": \"Warning\",\n    \"Microsoft.Hosting.Lifetime\": \"Information\"\n  }\n}\nUsing Diginsight telemetry on a Web API or Web Application, the log level for any category can be overridden at runtime, for a single call, by means of the Log-Level http request headers.",
-    "crumbs": [
-      "Home",
-      "Concepts",
-      "Use dynamic logging"
-    ]
-  },
-  {
-    "objectID": "src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html#howto-use-dynamic-logging-to-manage-loglevel-dinamically-at-runtime",
-    "href": "src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html#howto-use-dynamic-logging-to-manage-loglevel-dinamically-at-runtime",
-    "title": "Use dynamic logging",
-    "section": "",
-    "text": "diginsight telemetry supports dynamic logging to hot switch the minimum log level (e.g. from Information or Warning to Debug or Trace levels) of any log category.\nTo minimize telemetry cost and performance impact, telemetry sent to the remote tools is normally limited to LogLevels Critical, Warning or Information.\nThe snippet below shows a tipical Logging section configuration for a production environment:\n\"Logging\": {\n  \"LogLevel\": {\n    \"Default\": \"Information\",\n    \"Microsoft\": \"Warning\",\n    \"Microsoft.Hosting.Lifetime\": \"Information\"\n  }\n}\nUsing Diginsight telemetry on a Web API or Web Application, the log level for any category can be overridden at runtime, for a single call, by means of the Log-Level http request headers.",
-    "crumbs": [
-      "Home",
-      "Concepts",
-      "Use dynamic logging"
-    ]
-  },
-  {
-    "objectID": "src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html#additional-information",
-    "href": "src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html#additional-information",
-    "title": "Use dynamic logging",
-    "section": "Additional Information",
-    "text": "Additional Information\nThe image below shows the logstream for a web API where only Critical, Warning and Information and levels are enabled.\nWhile the application is running the streaming log shows only limited (or no) information about the application execution flow.\n\n\n\nalt text\n\n\nIn case we need to troubleshoot a specific application call flow, it is possible to reporduce the call specifying different log levels for some categories: \nThis will result in the full application flow being shown for the specific call: \n\nthis way, every call application flow can be easily isolated and analized on a live server, that is processing other calls at the same time.",
-    "crumbs": [
-      "Home",
-      "Concepts",
-      "Use dynamic logging"
-    ]
-  },
-  {
-    "objectID": "src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html#howto-enable-dynamic-loggging",
-    "href": "src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html#howto-enable-dynamic-loggging",
-    "title": "Use dynamic logging",
-    "section": "HowTo Enable Dynamic Loggging",
-    "text": "HowTo Enable Dynamic Loggging\nDynamic logging can be enabled adding the following stagement: services.AddDynamicLogLevel&lt;DefaultDynamicLogLevelInjector&gt;(); to the ConfigureServices methods, in the application startup sequence.\nThe image below shows the startup sequence of the SampleWebApi project, within diginsight telemetry_samples:",
-    "crumbs": [
-      "Home",
-      "Concepts",
-      "Use dynamic logging"
     ]
   },
   {
@@ -565,39 +553,51 @@
     ]
   },
   {
-    "objectID": "src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.html",
-    "href": "src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.html",
-    "title": "Use dynamic configuration",
+    "objectID": "src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html",
+    "href": "src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html",
+    "title": "Use dynamic logging",
     "section": "",
-    "text": "Diginsight telemetry supports dynamic configuration to hot switch configuration values, based on http headers. As an example, lets assume that a Web API or Web Application implements a feature flag such as the following:\n\"FeatureFlags\": {\n  \"TraceRequestBody\": false,\n  \"TraceResponseBody\": false\n}\nThe developer can register such a configuration option so that it can be overridden at runtime, for a single call, by means of the Dynamic-Configuration http request header.",
+    "text": "diginsight telemetry supports dynamic logging to hot switch the minimum log level (e.g. from Information or Warning to Debug or Trace levels) of any log category.\nTo minimize telemetry cost and performance impact, telemetry sent to the remote tools is normally limited to LogLevels Critical, Warning or Information.\nThe snippet below shows a tipical Logging section configuration for a production environment:\n\"Logging\": {\n  \"LogLevel\": {\n    \"Default\": \"Information\",\n    \"Microsoft\": \"Warning\",\n    \"Microsoft.Hosting.Lifetime\": \"Information\"\n  }\n}\nUsing Diginsight telemetry on a Web API or Web Application, the log level for any category can be overridden at runtime, for a single call, by means of the Log-Level http request headers.",
     "crumbs": [
       "Home",
       "Concepts",
-      "Use dynamic configuration"
+      "Use dynamic logging"
     ]
   },
   {
-    "objectID": "src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.html#use-dynamic-configuration-to-manage-configurations-and-feature-flags-dynamically-at-runtime",
-    "href": "src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.html#use-dynamic-configuration-to-manage-configurations-and-feature-flags-dynamically-at-runtime",
-    "title": "Use dynamic configuration",
+    "objectID": "src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html#howto-use-dynamic-logging-to-manage-loglevel-dinamically-at-runtime",
+    "href": "src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html#howto-use-dynamic-logging-to-manage-loglevel-dinamically-at-runtime",
+    "title": "Use dynamic logging",
     "section": "",
-    "text": "Diginsight telemetry supports dynamic configuration to hot switch configuration values, based on http headers. As an example, lets assume that a Web API or Web Application implements a feature flag such as the following:\n\"FeatureFlags\": {\n  \"TraceRequestBody\": false,\n  \"TraceResponseBody\": false\n}\nThe developer can register such a configuration option so that it can be overridden at runtime, for a single call, by means of the Dynamic-Configuration http request header.",
+    "text": "diginsight telemetry supports dynamic logging to hot switch the minimum log level (e.g. from Information or Warning to Debug or Trace levels) of any log category.\nTo minimize telemetry cost and performance impact, telemetry sent to the remote tools is normally limited to LogLevels Critical, Warning or Information.\nThe snippet below shows a tipical Logging section configuration for a production environment:\n\"Logging\": {\n  \"LogLevel\": {\n    \"Default\": \"Information\",\n    \"Microsoft\": \"Warning\",\n    \"Microsoft.Hosting.Lifetime\": \"Information\"\n  }\n}\nUsing Diginsight telemetry on a Web API or Web Application, the log level for any category can be overridden at runtime, for a single call, by means of the Log-Level http request headers.",
     "crumbs": [
       "Home",
       "Concepts",
-      "Use dynamic configuration"
+      "Use dynamic logging"
     ]
   },
   {
-    "objectID": "src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.html#additional-information",
-    "href": "src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.html#additional-information",
-    "title": "Use dynamic configuration",
-    "section": "Additional information",
-    "text": "Additional information\nThe snippet below, shows the FeatureFlags configuration option class of the SampleWebApi project in Diginsight telemetry_samples repository:\npublic class FeatureFlagOptions : IDynamicallyPostConfigurable\n{\n    public bool TraceRequestBody { get; set; }\n    public bool TraceResponseBody { get; set; }\n\n}\nIf the developer registers it with the .PostConfigureClassAwareFromHttpRequestHeaders&lt;FeatureFlagOptions&gt;() method as shown below: \nthan the options will be overridable by means of the Dynamic-Configuration http request header.\nIn such case, when calling the API with Dynamic-Configuration http request header as shown below.\n\n\n\nalt text\n\n\nThe TraceRequestBody and TraceResponseBody configuration options will be overriden from the http request headers.\nThe image below shows the application log where in the first call the options are loaded from the appSettings.json configuration file. in the second call, the same options are overridden by the incoming Dinamic-Configuration headers.\n\n\n\nalt text",
+    "objectID": "src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html#additional-information",
+    "href": "src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html#additional-information",
+    "title": "Use dynamic logging",
+    "section": "Additional Information",
+    "text": "Additional Information\nThe image below shows the logstream for a web API where only Critical, Warning and Information and levels are enabled.\nWhile the application is running the streaming log shows only limited (or no) information about the application execution flow.\n\n\n\nalt text\n\n\nIn case we need to troubleshoot a specific application call flow, it is possible to reporduce the call specifying different log levels for some categories: \nThis will result in the full application flow being shown for the specific call: \n\nthis way, every call application flow can be easily isolated and analized on a live server, that is processing other calls at the same time.",
     "crumbs": [
       "Home",
       "Concepts",
-      "Use dynamic configuration"
+      "Use dynamic logging"
+    ]
+  },
+  {
+    "objectID": "src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html#howto-enable-dynamic-loggging",
+    "href": "src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html#howto-enable-dynamic-loggging",
+    "title": "Use dynamic logging",
+    "section": "HowTo Enable Dynamic Loggging",
+    "text": "HowTo Enable Dynamic Loggging\nDynamic logging can be enabled adding the following stagement: services.AddDynamicLogLevel&lt;DefaultDynamicLogLevelInjector&gt;(); to the ConfigureServices methods, in the application startup sequence.\nThe image below shows the startup sequence of the SampleWebApi project, within diginsight telemetry_samples:",
+    "crumbs": [
+      "Home",
+      "Concepts",
+      "Use dynamic logging"
     ]
   },
   {

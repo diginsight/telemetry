@@ -77,7 +77,7 @@ Example code used in the articles is also available in the [telemetry_samples](h
 
 >- [Getting Started](<src/docs/00.01 - Getting Started.md>): explores __basic steps we can follow to integrate diginsight telemetry__<br>
 >- [Observability Concepts](<src/docs/01. Concepts/00.01 - Observability Concepts.md>): Explores basic concepts for __application observability and Opentelemetry__.<br>
->- [HowTo: configure diginsight telemetry to the local text based streams](<src/docs/01. Concepts/12.00 - Configure diginsight telemetry to the local text based streams.md>)<br>
+>- [HowTo: configure diginsight telemetry to the local text based streams](<src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.md>)<br>
 >Explores how we configure diginsight telemetry to the __local analysis tools__.<br>
 >- [HowTo: use dynamic logging to manage loglevel dynamically, at runtime](<src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.md>)<br>
 >Explores how we can troubleshoot applications by means of __dynamic logging__.<br>
