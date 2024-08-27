@@ -12,7 +12,7 @@ website:
   back-to-top-navigation: true
   reader-mode: true
   favicon: diginsight.jpg
-  search: false
+  search: true
   open-graph: true
   image: diginsight.jpg
   announcement: 
