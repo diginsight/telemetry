@@ -11,9 +11,16 @@ website:
   title: "telemetry"
   back-to-top-navigation: true
   reader-mode: true
-  favicon: lightbulb
+  favicon: diginsight.jpg
   search: false
-    # location: navbar
+  open-graph: true
+  image: diginsight.jpg
+  announcement: 
+    icon: info-circle
+    dismissable: true
+    content: "**Alert** - Diginsight v3 is now available"
+    type: primary
+    position: below-navbar    # location: navbar
     # type: overlay
     # keyboard-shortcut: ["?", "H"]
     # logo: bi-lightbulb diginsight.ico
