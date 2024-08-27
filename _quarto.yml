@@ -30,7 +30,12 @@ website:
       - text: "Advanced Articles"
         href: src/docs/02. Advanced/Advanced Concepts.qmd
       - text: "About"
-        href: about.qmd
+        menu:
+           - text: About
+             href:  about.qmd
+           - text: License
+             href:  src/docs/LICENSE.md
+        # href: about.qmd
     tools:
        # - icon: twitter
        #   href: https://twitter.com
@@ -61,6 +66,9 @@ website:
     - text: "---"
     - section: Other
       contents: "src/docs/04. Other/*"
+    # - text: "---"
+    # - section: About
+    #   contents: "src/docs/05. About/*"
     tools:
     # - icon: twitter
     #   href: https://twitter.com
