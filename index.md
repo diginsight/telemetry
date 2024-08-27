@@ -24,7 +24,7 @@ The following image shows the same call on the __Azure Monitor Transaction Detai
 ![Alt text](<src/docs/000.02 Full call on azmon transaction.png>)
 
 
-## Observability on live environments
+# Observability on live environments
 Diginsight uses __dynamic logging__ to support __full observability on live environments__.<br>
 Live environments logging level is normally limited to __Warning__ or __Information__ levels to limit telemetry volumes produced by the applications.<br>
 With __dynamic logging__ Log level can be raied to debug or trace __for a single call__, for example, by means of the __Log-Level http headers__.

@@ -309,10 +309,8 @@ ul.task-list li input[type="checkbox"] {
    
   <ul>
   <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
-  <li><a href="#additional-information" id="toc-additional-information" class="nav-link" data-scroll-target="#additional-information">Additional Information</a>
-  <ul class="collapse">
+  <li><a href="#additional-information" id="toc-additional-information" class="nav-link" data-scroll-target="#additional-information">Additional Information</a></li>
   <li><a href="#observability-on-live-environments" id="toc-observability-on-live-environments" class="nav-link" data-scroll-target="#observability-on-live-environments">Observability on live environments</a></li>
-  </ul></li>
   <li><a href="#example-analysis" id="toc-example-analysis" class="nav-link" data-scroll-target="#example-analysis">Example analysis</a></li>
   <li><a href="#learn-more" id="toc-learn-more" class="nav-link" data-scroll-target="#learn-more">Learn more</a></li>
   <li><a href="#previous-versions" id="toc-previous-versions" class="nav-link" data-scroll-target="#previous-versions">Previous versions</a></li>
@@ -349,8 +347,9 @@ ul.task-list li input[type="checkbox"] {
 </blockquote>
 <p>The image below shows the text based stream associated to to a Web API call. <img src="src/docs/000.01 Full call on log4net.png" class="img-fluid" alt="Alt text"></p>
 <p>The following image shows the same call on the <strong>Azure Monitor Transaction Detail</strong> where the call structure is shown as a hierarchy of <strong>activities</strong> (also called <strong>spans</strong>) and <strong>trace details</strong>: <img src="src/docs/000.02 Full call on azmon transaction.png" class="img-fluid" alt="Alt text"></p>
-<section id="observability-on-live-environments" class="level2">
-<h2 class="anchored" data-anchor-id="observability-on-live-environments">Observability on live environments</h2>
+</section>
+<section id="observability-on-live-environments" class="level1">
+<h1>Observability on live environments</h1>
 <p>Diginsight uses <strong>dynamic logging</strong> to support <strong>full observability on live environments</strong>.<br> Live environments logging level is normally limited to <strong>Warning</strong> or <strong>Information</strong> levels to limit telemetry volumes produced by the applications.<br> With <strong>dynamic logging</strong> Log level can be raied to debug or trace <strong>for a single call</strong>, for example, by means of the <strong>Log-Level http headers</strong>.</p>
 <p>The image below shows a <strong>call to a live environment</strong> where the log level is set to Debug or Trace for 2 categories: <img src="src/docs/000.021a live environment request with loglevel debug.png" class="img-fluid" alt="alt text"></p>
 <p>The image below shows the <strong>live environment AKS console</strong> where <strong>our call is traced with full datail</strong>, <strong>while other calls are being processed with limited Log level</strong>. <img src="src/docs/000.021b live environment request with loglevel debug.png" class="img-fluid" alt="alt text"></p>
@@ -359,7 +358,6 @@ ul.task-list li input[type="checkbox"] {
 <blockquote class="blockquote">
 <p><a href="./src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.html">HowTo: Use diginsight telemetry with no impact on Application performance an telemetry cost</a><br> Explores how diginsight telemetry can be used without impact on <strong>application performance</strong> and <strong>telemetry cost</strong>.<br></p>
 </blockquote>
-</section>
 </section>
 <section id="example-analysis" class="level1">
 <h1>Example analysis</h1>
