@@ -8,7 +8,7 @@ project:
   - "!ignore-dir/"
 
 website:
-  title: "telemetry"
+  title: '<i class="bi bi-lightbulb" style="vertical-align: middle;"></i> telemetry'
   back-to-top-navigation: true
   reader-mode: true
   favicon: diginsight.jpg
