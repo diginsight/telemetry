@@ -10,10 +10,10 @@ __Diginsight telemetry__ targets __all dotnet framework versions__ starting from
 <br><br>
 
 # Additional Information 
-Diginsight telemetry is __readable__, __consistent__ and __efficient__:
-- __readable__: telemetry is __easily readable__ on `local troubleshooting tools`, `live server consoles` and `remote analysis tools` such as the Azure monitor. The generated application flow is __consistent with application code__ so that problems understanding is much simplified.
-- __consistent__: the application flow is __rendered consistently__ on `local troubleshooting tools`, where maximun flow detail is available, and to the `remote analysis tools` such as the Azure monitor, where metrics and data from past executions can be easily compared.
-- __efficient__: application flow is generated with fully optimized techniques (such as dynamic compilation). Also, the full application flow observability can be __enabled dynamically__ and __only on the specific executions__ that are under analysis. this ensures that diginsight can be leveraged with no pratical impact on application performance.
+Diginsight telemetry is __readable__, __consistent__ and __efficient__:<br>
+- __readable__: telemetry is __easily readable__ on `local troubleshooting tools`, `live server consoles` and `remote analysis tools` such as the Azure monitor. The generated application flow is __consistent with application code__ so that problems understanding is much simplified.<br>
+- __consistent__: the application flow is __rendered consistently__ on `local troubleshooting tools`, where maximun flow detail is available, and to the `remote analysis tools` such as the Azure monitor, where metrics and data from past executions can be easily compared.<br>
+- __efficient__: application flow is generated with fully optimized techniques (such as dynamic compilation). Also, the full application flow observability can be __enabled dynamically__ and __only on the specific executions__ that are under analysis. this ensures that diginsight can be leveraged with no pratical impact on application performance.<br>
 
 
 The image below shows the text based stream associated to to a Web API call.
@@ -42,7 +42,7 @@ The following image shows the __Azure Monitor Metrics__ dashboard where method i
  __Intelligent sampling__, __dynamic compilation__, __automatic truncation__ and other strategies are used to __maximize application efficiency__ and __minimize telemetry cost__<br>For these reasons __Local analysis__ and __analysis on the remote tools__ can be supported __without compromises on performance__ and  __without compromises on cost of telemetry__ in __test__ and __production__ environments.<br><br>
 ![alt text](<src/docs/001.03d NoPerformanceImpact.png>)<br>
 
->[HowTo: Use diginsight telemetry with no impact on Application performance an telemetry cost](<src/docs/articles/16. maximize application performance and minimize telemetry cost with diginsight/maximize application performance and minimize telemetry cost with diginsight.md>)<br>
+>[HowTo: Use diginsight telemetry with no impact on Application performance an telemetry cost](<src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.md>)<br>
 >Explores how diginsight telemetry can be used without impact on __application performance__ and __telemetry cost__.<br>
 
 
@@ -74,36 +74,36 @@ Also, details are provided to use its relevant features such as __Dynamic config
 Example code used in the articles is also available in the [telemetry_samples](https://github.com/diginsight/telemetry_samples) repository.
 
 
->- [Getting Started](<src/docs/articles/00. GETTING STARTED/GETTING STARTED.md>): explores __basic steps we can follow to integrate diginsight telemetry__<br>
->- [Observability Concepts](<src/docs/articles/00. Observability Concepts/Observability Concepts.md>): Explores basic concepts for __application observability and Opentelemetry__.<br>
->- [HowTo: use dynamic logging to manage loglevel dynamically, at runtime](<src/docs/articles/11. use Dynamic-Logging to manage loglevel dinamically at runtime/Use Dynamic-Logging to manage loglevel dinamically at runtime.md>)<br>
+>- [Getting Started](<src/docs/00.01 - Getting Started.md>): explores __basic steps we can follow to integrate diginsight telemetry__<br>
+>- [Observability Concepts](<src/docs/01. Concepts/00.01 - Observability Concepts.md>): Explores basic concepts for __application observability and Opentelemetry__.<br>
+>- [HowTo: use dynamic logging to manage loglevel dynamically, at runtime](<src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.md>)<br>
 >Explores how we can troubleshoot applications by means of __dynamic logging__.<br>
->- [HowTo: use dynamic configuration to manage configurations and feature flags dynamically, at runtime](<src/docs/articles/11.a use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime/Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.md>)<br>
+>- [HowTo: use dynamic configuration to manage configurations and feature flags dynamically, at runtime](<src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.md>)<br>
 >Explores how we can troubleshoot applications by means of __dynamic configuration__.<br>4
->- [HowTo: configure diginsight telemetry to the local text based streams](<src/docs/articles/12. Configure diginsight telemetry to the local text based streams/Configure diginsight telemetry to the local text based streams.md>)<br>
+>- [HowTo: configure diginsight telemetry to the local text based streams](<src/docs/01. Concepts/12.00 - Configure diginsight telemetry to the local text based streams.md>)<br>
 >Explores how we configure diginsight telemetry to the __local analysis tools__.<br>
->- [HowTo: configure diginsight telemetry to the remote tools](<src/docs/articles/12.a Configure diginsight telemetry to the remote tools/Configure diginsight telemetry to the remote tools.md>)<br>
+>- [HowTo: configure diginsight telemetry to the remote tools](<src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.md>)<br>
 >Explores how we configure diginsight telemetry to the __remote analysis tools__.<br>
->- [HowTo: maximize application performance and minimize telemetry cost with diginsight](<src/docs/articles/16. maximize application performance and minimize telemetry cost with diginsight/maximize application performance and minimize telemetry cost with diginsight.md>)<br>
+>- [HowTo: maximize application performance and minimize telemetry cost with diginsight](<src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.md>)<br>
 >Explores diginsight telemetry can be used without impact on __application performance__ and __telemetry cost__.<br>
 
 Advanced topics
->- [HowTo: customize entities rendering on diginsight log streams](<src/docs/articles/13. Customize entities rendering on diginsight log streams/Customize entities rendering on diginsight log streams.md>).
->- [HowTo: customize metrics sent to the remote tools](<src/docs/articles/14. Customize metrics sent to the remote tools/Customize metrics sent to the remote tools.md>).
->- [HowTo: customize diginsight log streams row content](<src/docs/articles/15. Customize diginsight log streams row content/Customize diginsight log streams row content.md>).
->- [HowTo: troubleshoot the startup sequence](<src/docs/articles/17. troubleshoot the startup sequence/troubleshoot the startup sequence.md>).
->- [HowTo: use class aware configurations to support comonent level or class level configurations](<src/docs/articles/17. use class aware configurations to support comonent level or class level configurations/use class aware configurations to support comonent level or class level configurations.md>).
+>- [HowTo: customize entities rendering on diginsight log streams](<src/docs/02. Advanced/13.00 - Customize entities rendering on diginsight log streams.md>).
+>- [HowTo: customize metrics sent to the remote tools](<src/docs/02. Advanced/14.00 - Customize metrics sent to the remote tools.md>).
+>- [HowTo: customize diginsight log streams row content](<src/docs/02. Advanced/15.00 - Customize diginsight log streams row content.md>).
+>- [HowTo: troubleshoot the startup sequence](<src/docs/02. Advanced/17.00 - Troubleshoot the startup sequence.md>).
+>- [HowTo: use class aware configurations to support comonent level or class level configurations](<src/docs/02. Advanced/18.00 - HowTo - Use class aware configurations to support comonent level or class level configurations.md>).
 
 
 
 # Previous versions
 > __diginsight v3 is now available__<br>
 > the following article describes improvements of diginsight v3 over the previous version.
-[Introduction to Diginsight v3](<src/docs/articles/10. Introduction to Diginsight v3/Introduction to Diginsight v3.md>).<br>
+[Introduction to Diginsight v3](<src/docs/03. Diginsightv2/10.01 - Introduction to Diginsight v3.md>).<br>
 > Features such as __old frameworks support (eg. .Net Framework 4.5+)__ or __observability for startup and static sections__ may still have limited support on Diginsight v3.<br>
 > In these cases the developer may decide to keep the old model.<br>
 > Diginsight v2 will not be discontinued until feature parity is reached.<br>
-> Documentation about v2 packages is still available here [Diginsight v2 documentation](<src/docs/articles/v2/README.md>).<br>
+> Documentation about v2 packages is still available here [Diginsight v2 documentation](<src/docs/03. Diginsightv2/v2/README.md>).<br>
 
 <br>
 
@@ -116,7 +116,7 @@ Enabling __Opentelemetry__, the same information can be made available to __remo
 # Samples
 You can start using diginsight telemetry by running the samples on the [telemetry_samples](https://github.com/diginsight/telemetry_samples) repository.
 
-Article [HOWTO - Use Diginsight Samples](<src/docs/articles/04. HowTo Use Diginsight Samples/HOWTO - Use Diginsight Samples.md>): explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.
+Article [HOWTO - Use Diginsight Samples](<src/docs/01. Concepts/15.00 - HowTo - Use Diginsight Samples.md>): explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.
 
 ![alt text](<src/docs/004.01a Diginsight samples solution.png>)
 
