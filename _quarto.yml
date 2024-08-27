@@ -32,7 +32,7 @@ website:
       - text: "About"
         menu:
            - text: About
-             href:  about.qmd
+             href:  "src/docs/05. About/about.md"
            - text: License
              href:  src/LICENSE.md
         # href: about.qmd
