@@ -428,7 +428,7 @@
     "href": "src/docs/00.01 - Getting Started.html#steps-to-use-diginsight-v3",
     "title": "Getting Started",
     "section": "Steps to use Diginsight v3",
-    "text": "Steps to use Diginsight v3\nYou can ottain a console log or file log with diginsight by means of the following steps. The code snippets below are available as working samples within the telemetry_samples repository.\nArticle HOWTO - Use Diginsight Samples: explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.",
+    "text": "Steps to use Diginsight v3\nYou can obtain a console log or file log with diginsight by means of the following steps. The code snippets below are available as working samples within the telemetry_samples repository.\nArticle HOWTO - Use Diginsight Samples: explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.",
     "crumbs": [
       "Home",
       "Getting Started"
