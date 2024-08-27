@@ -1,0 +1,919 @@
+[
+  {
+    "objectID": "src/docs/05. About/about.html",
+    "href": "src/docs/05. About/about.html",
+    "title": "Diginsight",
+    "section": "",
+    "text": "Diginsight is a free opensource project."
+  },
+  {
+    "objectID": "src/docs/05. About/about.html#project-members",
+    "href": "src/docs/05. About/about.html#project-members",
+    "title": "Diginsight",
+    "section": "Project members",
+    "text": "Project members\n\n\n\n\n\n\n\n\n\nFilippo Mineo\nMilan, Italy\n\n\n\nDario Airoldi\nMilan, Italy\n\n\n\nAlessandro Avila\nMilan, Italy"
+  },
+  {
+    "objectID": "src/docs/05. About/about.html#contributors",
+    "href": "src/docs/05. About/about.html#contributors",
+    "title": "Diginsight",
+    "section": "Contributors",
+    "text": "Contributors\nCarlo Bollini | Milan, Italy Chayashree Gholally | Bhangalore, India Alessandro Avila | Milan, Italy"
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/v2/articles/04. HowTo Use Diginsight Samples/HOWTO - Use Diginsight Samples.html",
+    "href": "src/docs/03. Diginsightv2/v2/articles/04. HowTo Use Diginsight Samples/HOWTO - Use Diginsight Samples.html",
+    "title": "INTRODUCTION",
+    "section": "",
+    "text": "INTRODUCTION\nDiginsight telemetry_samples projects are a precious resource to understand how to integrate Diginsight telemetry in our own projects. In particular, sample projects are provided to demonstate use of Diginsight telemetry with different types of .net applications.\nThis article discusses how you can open, build and execute Diginsight telemetry_samples projects.\n\n\nDIGINSIGHT SAMPLES GITHUB PROJECT\nDiginsight telemetry_samples projects are available on the Diginsight GitHub repository.\n\n\nwhen cloning the repositories you will find the following folder structure: \nOpening the Common.Diagnostics.Samples solution you should be able to build and run the samples for Wpf, Aspnet and Blazor technologies Opening the Common.Diagnostics.Samples.Debug solution the samples will be built with project reference to diginsight to allow you easily step into and debug diginsight code.\nNB. Common.Diagnostics.Samples.Debug solution can only be used when both telemetry and telemetry_samples repositories are cloned with their default name, under the same parent folder.\n\n\n\n\n\n\n\nCommon.Diagnostics.Samples.sln solution\nCommon.Diagnostics.Samples.Debug.sln solution\n\n\n\n\n\n\n\n\n\n\n\nContribute\nContribute to the repository with your pull requests.\n\nASP.NET Core\nVisual Studio Code\n\n\n\nLicense\nSee the LICENSE file for license rights and limitations (MIT).\n\n\n\n\n Back to top"
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/v2/articles/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.html",
+    "href": "src/docs/03. Diginsightv2/v2/articles/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.html",
+    "title": "INTRODUCTION",
+    "section": "",
+    "text": "Diginsight brings application behavior observability to the next step. In particular it extends dotnet Ilogger system and tracks methods execution with their nesting, parameters and variables in a very effective and readable way.\nThe following example shows the execution flow of a sample application with the execution of a MainWindow constructor and initialization. \nIn the following paragraphs we’ll understand how this can be obtained without impact on the application performance. Also, you will soon learn that diginsight can be of great help with identifying and reducing high latency flows and redundant flows within the application execution paths. So diginsight can greatly contribute to application performance optimization more than provide a limitation to it.\nWith article: HOWTO - Make your application flow observable.md We’ll explore how we can make our application flow fully observable."
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/v2/articles/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.html#strategy-n1-diginsight-gathers-execution-flow-from-static-variables-and-compiler-generated-information",
+    "href": "src/docs/03. Diginsightv2/v2/articles/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.html#strategy-n1-diginsight-gathers-execution-flow-from-static-variables-and-compiler-generated-information",
+    "title": "INTRODUCTION",
+    "section": "Strategy n°1: diginsight gathers execution flow from static variables and compiler generated information",
+    "text": "Strategy n°1: diginsight gathers execution flow from static variables and compiler generated information\nDiginsight application flow is essentially gathered from static variables and compiler generated information. - method names are obtained by compiler generated attributes - other information such as process, assembly and thread information is taken once and cached during the overall flow execution - variable descriptions are generated by means of ISupportLogString and IProvideLogString interfaces that may produce strings in optimized way, without use of reflection.\nThis ensures that, when application flow rendering is enabled, performance impact is limited to the possible minimum."
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/v2/articles/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.html#strategy-n2-diginsight-doesnt-process-data-that-is-not-really-written",
+    "href": "src/docs/03. Diginsightv2/v2/articles/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.html#strategy-n2-diginsight-doesnt-process-data-that-is-not-really-written",
+    "title": "INTRODUCTION",
+    "section": "Strategy n°2: diginsight doesn’t process data that is not really written",
+    "text": "Strategy n°2: diginsight doesn’t process data that is not really written\nDiginsight gathers information about the application execution without processing it. Pointers to information such as the method name, the class name the parameters list are gatered into a Stack allocated TraceEntry. Only if rendering is enabled for that line information within the trace entry is used to compose the log string.\nThe following snippet provides a simplified version of the TraceEntry structure:\npublic ref struct TraceEntry\n{\n    public string Message { get; set; }\n    [JsonIgnore]\n    public string MessageFormat { get; set; }\n    [JsonIgnore]\n    public object[] MessageArgs { get; set; }\n    [JsonIgnore]\n    public object MessageObject { get; set; }\n    [JsonIgnore]\n    public Func&lt;string&gt; GetMessage { get; set; }\n    public IDictionary&lt;string, object&gt; Properties { get; set; }\n    public string Source { get; set; }\n    public string Category { get; set; }\n    public LogLevel LogLevel { get; set; }\n    public long TraceStartTicks { get; set; }\n    public Exception Exception { get; set; }\n    public int ThreadID { get; set; }\n    public ApartmentState ApartmentState { get; set; }\n    public ICodeSection CodeSectionBase { get; set; }\n    ...\n\n}\nIf rendering for the line is enabled the logstring is created with a single string.format statement, with minimal possible string management, according to the configuration for the log listener. Also, only the TraceEntry properties that are needed to compose the log string are used Properties that are not configured to be included into the output log are not used at all.\nIf rendering for the line is not enabled only the TraceEntry allocation is executed and no string composition or any write operation is processed."
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/v2/articles/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.html#strategy-n3-diginsight-supports-string-interpolation-handlers-and-delegate-overloads",
+    "href": "src/docs/03. Diginsightv2/v2/articles/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.html#strategy-n3-diginsight-supports-string-interpolation-handlers-and-delegate-overloads",
+    "title": "INTRODUCTION",
+    "section": "Strategy n°3: diginsight supports string interpolation handlers and delegate overloads",
+    "text": "Strategy n°3: diginsight supports string interpolation handlers and delegate overloads\nDiginsight supports string interpolation by means of string interpolation handlers. In the example below, the interpolated string is composed within the overloads after evaluating if the Debug LogLevel is enabled.\nscope.LogDebug($\"await app.GetAccountsAsync(); returned {accounts.GetLogString()}\");\nif the Debug LogLevel is not enabled the interpolated string is not constructed and the placeholder (accounts.GetLogString()) is not evaluated at all.\nA similar logic is applied with delegate overloads. In the image below, the BeginMethodScope() parameter list and LogDebug() parameters are received in the form of delegate.   Also in this case, if the Debug LogLevel is not enabled the delegate is not evaluated and the payload allocation and initialization doesn’t happen at all."
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/v2/articles/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.html#strategy-n4-diginsight-reduces-the-log-size-with-default-truncation-for-long-messages-and-payloads",
+    "href": "src/docs/03. Diginsightv2/v2/articles/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.html#strategy-n4-diginsight-reduces-the-log-size-with-default-truncation-for-long-messages-and-payloads",
+    "title": "INTRODUCTION",
+    "section": "Strategy n°4: diginsight reduces the log size with default truncation for long messages and payloads",
+    "text": "Strategy n°4: diginsight reduces the log size with default truncation for long messages and payloads\nWhen producing logs with the application flow, data from variables and parameters can be big. If this happens the log file may become big and difficult to read.   Diginsight prevents this problem applying a default truncation to log strings.\nin particular, truncation happens by means of the following configurations:\n\"MaxMessageLen\" (def. 256): messages are truncated to 256 chars by default\n\"MaxMessageLenInfo\" (def. 512): Information messages are truncated to 512 chars by default\n\"MaxMessageLenWarning\" (def. 1024): Warning messages are truncated to 1024 chars by default\n\"MaxMessageLenError\" (def. -1): Error messages are not truncated by default\nWhen message truncation happens an ellipsis is appended to the end of the string as shown below:   When message truncation happens in trace START lines, truncation is applied to the parameter list and the START symbol is preserved \nIt may happen that log information such as a Request Body or a Response Content are required not to be truncated. The developer may decide to override truncation thresholds by means of the Log***() properties parameter. In the following example log truncation is set for the response content to a 5MB limit.\nTraceLogger.LogDebug($\"Response content  ({(double)rawContent.Length / 1024:#,##0} KB): {rawContent}\", null, new Dictionary&lt;string, object&gt;() { { \"MaxMessageLen\", 5242880 } });"
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/v2/articles/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.html#strategy-n5-diginsight-allows-enabling-logs-dinamically-only-when-needed",
+    "href": "src/docs/03. Diginsightv2/v2/articles/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.html#strategy-n5-diginsight-allows-enabling-logs-dinamically-only-when-needed",
+    "title": "INTRODUCTION",
+    "section": "Strategy n°5: diginsight allows enabling logs dinamically, only when needed",
+    "text": "Strategy n°5: diginsight allows enabling logs dinamically, only when needed\nApplication flow is rendered by default at the Debug level. ILogger standard configuration can be used to specify which modules are expected to produce their logs. \nDiginsight allows cutting the enabled log level by means of a special configuration appSetting (TraceLoggerMinimumLevel) that can be overridden dinamically by the developer or by the tester at the process level or at a single HTTP call level.\nThe configuration file above shows that for our production environment TraceLoggerMinimumLevel is set Error. (so, the application flow will not be rendered by default)\nThe image below shows that calling the server with the HTTP header TraceLoggerMinimumLevel Trace.\n\nthe appsetting is overridden and the log is produced for our specific call  \nin this case readability of the application flow is preserved and troubleshooting of the specific case is made possible.\nFuture library improvements may include automatic activation of application flows that produce errors."
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/10.01 - Introduction to Diginsight v3/Introduction to Diginsight v3.html",
+    "href": "src/docs/03. Diginsightv2/10.01 - Introduction to Diginsight v3/Introduction to Diginsight v3.html",
+    "title": "INTRODUCTION",
+    "section": "",
+    "text": "INTRODUCTION\nDiginsight v3 introcuces the following key changes to diginsight telemetry: - Stronger integration with standard .Net Diagnostics and ILogger API. - Stronger integration with Opentelemetry (Traces. Metrics. logs) and Azure Monitor (Dashboards, Application Map, Transaction details). - Support for distributed tracing by means of W3C headers traceparent, trace-id and span-id. - Higher performance and telemetry volumes optimization. - Automatic (customizable) rendering of method payloads and return values. - Support to dynamic configuration of log levels. - Support to smart sampling to limit telemetry volumes. - TBD: Automatic rendering of outbound calls (http, cosmosdb, … ). - a new Diginsight.SmartCache component is available that leverages diginsight v3.\n\n\n\nStronger Integration with Standard .Net Diagnostics and ILogger API\nAdding .Net instrumentation is a matter of defining System.Diagnostics activity sources, creating activity scopes and logging statements:\nstatic async Task&lt;int&gt; DoSomeWork(string foo, int bar)\n{\n    using var activity = source.StartActivity($\"DoSomeWork({foo}, {bar})\");\n\n    var result1 = await StepOne(); \n    logger.LogDebug($\"await StepOne(); returned {result1}\");\n    \n    var result2 = await StepTwo(); \n    logger.LogDebug($\"await StepTwo(); completed {result2}\");\n\n    var result = result1 + result2;\n    return result;\n}\nwith Diginsight v3 activity scopes can be created with similar notation, without need of manually creating a string with method name and parameters information:\nstatic async Task DoSomeWork(string foo, int bar)\n{\n    using var activity = source.StartMethodActivity(logger, new { foo, bar });\n\n    var result1 = await StepOne(); \n    logger.LogDebug($\"await StepOne(); returned {result1}\");\n    \n    var result2 = await StepTwo(); \n    logger.LogDebug($\"await StepTwo(); completed {result2}\");\n\n    var result = result1 + result2;\n\n    activity.StoreOutput(result);\n    return result;\n}\nthe above code will produce the following output:\ntext based stream log\nData shown on text based readable flow is consistent with the originating code.\n\n\nStronger integration with Opentelemetry (Traces. Metrics. logs) and Azure Monitor (Dashboards, Application Map, Transaction details)\nEnabling Opentelemetry the same information visible on the log files can be made available on remote tools as Traces, Metrics and logs.\nthe following image shows a transaction details with the entire flow of a single call:\ntransaction flow of a single call\nMetrics can be enabled to measure duration of any method call. In the following examle metrics are shown with latencies of methods PlantWidgetController.Get and WidgetDataService.GetDataAsync . \nThe following image shows the application map associated to an application execution where interacting application components are put in evidence:\napplication map diagram\nData shown on remote tools is consistent with data on text based readable log and the originating code.\n\n\nSupports Distributed tracing by means of W3C headers traceparent, trace-id and span-id\nDiginsight takes advantage of W3C Trace Context specifications header traceparent to maintain trace-id and span-id of every single call.\nthe example below shows a call received with traceparent\ntraceparent: 00-8652a752089f33e2659dff28d683a18f-7359b90f4355cfd9-01\ntrace-id:    00-8652a752089f33e2659dff28d683a18f\nspan-id:                                         7359b90f4355cfd9-01\nwhere trace-id and span-id are properly associated to every execution span:\nimage with trace based stream log showing the trace-id and span-id\nthe following image shows the same transaction on azure monitor, that can be queried by means of the same ids:\nimage with trace based stream log showing the trace-id and span-id\n\n\nHigher performance and telemetry volumes optimization\nHigher performance is obtained by means of optimized log strings generation.\nTelemetry volumes optimization is obtained by default, by limiting time and space used to generate every single trace. In case string generation exceedes a configurable latency (in ticks) the log string is truncated and terminated with an ellipsis (…). Also, the log string is truncated and terminated with an ellipsis (…) in case string generation exceedes a configurable space (in Bytes), .\nwhen needed, the developer may require to avoid default string truncation as an example, when logging queries or important payload.\nNOTE: please note that disabling automatic truncation for a line may affect performance in time or space for telemetry\nin case of need, please consider the following __best practices__: \n- big payload should not be logged frequently \n- big payload should be logged at Debug level or higher\nTelemetry volumes optimization can also be obtained applying ‘Smart Sampling’ as shown int the following paragraphs.\n\n\nAutomatic rendering of method payloads and return values.\nDiginsight v3 provides automatic rendering of method payloads and return values by default.\nwhen logging\nstatic async Task DoSomeWork(Identity identity)\n{\n    using (var activity = source.StartMethodActivity(logger, new { identity }));\n\n    var result1 = await StepOne(); \n    logger.LogDebug($\"await StepOne(); returned {result1}\");\n    \n    var result2 = await StepTwo(); \n    logger.LogDebug($\"await StepTwo(); completed {result2}\");\n\n    var result = result1 + result2;\n\n    activity.StoreOutput(result);\n    return result;\n}\nthe impunt payload or the method result properties and type are rendered automatically into the text based log stream.\nThe developer can specify the order to be used when rendering entity properties and property inclusions or exclusions to make entity rendering more readable and meaningful.\n\n\nSupport to dynamic configuration of log levels\nto minimize telemetry volumes, optimize performance and cost telemetry can be configured to be active only for critical and warning levels (optionally, for information level).\nwhen troubleshooting is required calls to an application or API can be issued with headers ‘Dynamic-Configuration’\n\n\n\nAlt text\n\n\n\n\nSupport to smart sampling to limit telemetry volumes.\nSmart sampling can be configured to specify that transactions execution be sent to azure monitor or other remote tools at a configurable percentage.\nWhen configuring Smart sampling a full transaction can be sampled dropped for sending to the remote tools. So consistency and meaning is kept for data sent to the remote tools.\n\n\nContribute\nContribute to the repository with your pull requests.\n\nASP.NET Core\nVisual Studio Code\n\n\n\nLicense\nSee the LICENSE file for license rights and limitations (MIT).\n\n\n\n\n Back to top"
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/10.00 - HOWTO - Use Diginsight v3.html",
+    "href": "src/docs/03. Diginsightv2/10.00 - HOWTO - Use Diginsight v3.html",
+    "title": "INTRODUCTION",
+    "section": "",
+    "text": "INTRODUCTION\nDiginsight v3 introcuces the following key changes to diginsight telemetry&gt; - stronger integration with standard .Net Diagnostics and ILogger API. - stronger integration with Opentelemetry (Traces, Metrics, logs) and Azure Monitor. - performance improvements. - Automatic (customizable) rendering of method payloads and return values. - support to dynamic configuration of log levels. - TBD: Automatic rendering of outbound calls (http, cosmosdb, ….).\n\n\nDIGINSIGHT SAMPLES GITHUB PROJECT\nDiginsight telemetry_samples projects are available on the Diginsight GitHub repository.\n\n\nwhen cloning the repositories you will find the following folder structure: \nOpening the Common.Diagnostics.Samples solution you should be able to build and run the samples for Wpf, Aspnet and Blazor technologies Opening the Common.Diagnostics.Samples.Debug solution the samples will be built with project reference to diginsight to allow you easily step into and debug diginsight code.\nNB. Common.Diagnostics.Samples.Debug solution can only be used when both telemetry and telemetry_samples repositories are cloned with their default name, under the same parent folder.\n\n\n\n\n\n\n\nCommon.Diagnostics.Samples.sln solution\nCommon.Diagnostics.Samples.Debug.sln solution\n\n\n\n\n\n\n\n\n\n\n\nContribute\nContribute to the repository with your pull requests.\n\nASP.NET Core\nVisual Studio Code\n\n\n\nLicense\nSee the LICENSE file for license rights and limitations (MIT).\n\n\n\n\n Back to top"
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.html",
+    "href": "src/docs/03. Diginsightv2/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.html",
+    "title": "INTRODUCTION",
+    "section": "",
+    "text": "Diginsight brings application behavior observability to the next step. In particular it extends dotnet Ilogger system and tracks methods execution with their nesting, parameters and variables in a very effective and readable way.\nThe following example shows the execution flow of a sample application with the execution of a MainWindow constructor and initialization. \nIn the following paragraphs we’ll understand how this can be obtained without impact on the application performance. Also, you will soon learn that diginsight can be of great help with identifying and reducing high latency flows and redundant flows within the application execution paths. So diginsight can greatly contribute to application performance optimization more than provide a limitation to it.\nWith article: HOWTO - Make your application flow observable.md We’ll explore how we can make our application flow fully observable."
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.html#strategy-n1-diginsight-gathers-execution-flow-from-static-variables-and-compiler-generated-information",
+    "href": "src/docs/03. Diginsightv2/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.html#strategy-n1-diginsight-gathers-execution-flow-from-static-variables-and-compiler-generated-information",
+    "title": "INTRODUCTION",
+    "section": "Strategy n°1: diginsight gathers execution flow from static variables and compiler generated information",
+    "text": "Strategy n°1: diginsight gathers execution flow from static variables and compiler generated information\nDiginsight application flow is essentially gathered from static variables and compiler generated information. - method names are obtained by compiler generated attributes - other information such as process, assembly and thread information is taken once and cached during the overall flow execution - variable descriptions are generated by means of ISupportLogString and IProvideLogString interfaces that may produce strings in optimized way, without use of reflection.\nThis ensures that, when application flow rendering is enabled, performance impact is limited to the possible minimum."
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.html#strategy-n2-diginsight-doesnt-process-data-that-is-not-really-written",
+    "href": "src/docs/03. Diginsightv2/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.html#strategy-n2-diginsight-doesnt-process-data-that-is-not-really-written",
+    "title": "INTRODUCTION",
+    "section": "Strategy n°2: diginsight doesn’t process data that is not really written",
+    "text": "Strategy n°2: diginsight doesn’t process data that is not really written\nDiginsight gathers information about the application execution without processing it. Pointers to information such as the method name, the class name the parameters list are gatered into a Stack allocated TraceEntry. Only if rendering is enabled for that line information within the trace entry is used to compose the log string.\nThe following snippet provides a simplified version of the TraceEntry structure:\npublic ref struct TraceEntry\n{\n    public string Message { get; set; }\n    [JsonIgnore]\n    public string MessageFormat { get; set; }\n    [JsonIgnore]\n    public object[] MessageArgs { get; set; }\n    [JsonIgnore]\n    public object MessageObject { get; set; }\n    [JsonIgnore]\n    public Func&lt;string&gt; GetMessage { get; set; }\n    public IDictionary&lt;string, object&gt; Properties { get; set; }\n    public string Source { get; set; }\n    public string Category { get; set; }\n    public LogLevel LogLevel { get; set; }\n    public long TraceStartTicks { get; set; }\n    public Exception Exception { get; set; }\n    public int ThreadID { get; set; }\n    public ApartmentState ApartmentState { get; set; }\n    public ICodeSection CodeSectionBase { get; set; }\n    ...\n\n}\nIf rendering for the line is enabled the logstring is created with a single string.format statement, with minimal possible string management, according to the configuration for the log listener. Also, only the TraceEntry properties that are needed to compose the log string are used Properties that are not configured to be included into the output log are not used at all.\nIf rendering for the line is not enabled only the TraceEntry allocation is executed and no string composition or any write operation is processed."
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.html#strategy-n3-diginsight-supports-string-interpolation-handlers-and-delegate-overloads",
+    "href": "src/docs/03. Diginsightv2/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.html#strategy-n3-diginsight-supports-string-interpolation-handlers-and-delegate-overloads",
+    "title": "INTRODUCTION",
+    "section": "Strategy n°3: diginsight supports string interpolation handlers and delegate overloads",
+    "text": "Strategy n°3: diginsight supports string interpolation handlers and delegate overloads\nDiginsight supports string interpolation by means of string interpolation handlers. In the example below, the interpolated string is composed within the overloads after evaluating if the Debug LogLevel is enabled.\nscope.LogDebug($\"await app.GetAccountsAsync(); returned {accounts.GetLogString()}\");\nif the Debug LogLevel is not enabled the interpolated string is not constructed and the placeholder (accounts.GetLogString()) is not evaluated at all.\nA similar logic is applied with delegate overloads. In the image below, the BeginMethodScope() parameter list and LogDebug() parameters are received in the form of delegate.   Also in this case, if the Debug LogLevel is not enabled the delegate is not evaluated and the payload allocation and initialization doesn’t happen at all."
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.html#strategy-n4-diginsight-reduces-the-log-size-with-default-truncation-for-long-messages-and-payloads",
+    "href": "src/docs/03. Diginsightv2/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.html#strategy-n4-diginsight-reduces-the-log-size-with-default-truncation-for-long-messages-and-payloads",
+    "title": "INTRODUCTION",
+    "section": "Strategy n°4: diginsight reduces the log size with default truncation for long messages and payloads",
+    "text": "Strategy n°4: diginsight reduces the log size with default truncation for long messages and payloads\nWhen producing logs with the application flow, data from variables and parameters can be big. If this happens the log file may become big and difficult to read.   Diginsight prevents this problem applying a default truncation to log strings.\nin particular, truncation happens by means of the following configurations:\n\"MaxMessageLen\" (def. 256): messages are truncated to 256 chars by default\n\"MaxMessageLenInfo\" (def. 512): Information messages are truncated to 512 chars by default\n\"MaxMessageLenWarning\" (def. 1024): Warning messages are truncated to 1024 chars by default\n\"MaxMessageLenError\" (def. -1): Error messages are not truncated by default\nWhen message truncation happens an ellipsis is appended to the end of the string as shown below:   When message truncation happens in trace START lines, truncation is applied to the parameter list and the START symbol is preserved \nIt may happen that log information such as a Request Body or a Response Content are required not to be truncated. The developer may decide to override truncation thresholds by means of the Log***() properties parameter. In the following example log truncation is set for the response content to a 5MB limit.\nTraceLogger.LogDebug($\"Response content  ({(double)rawContent.Length / 1024:#,##0} KB): {rawContent}\", null, new Dictionary&lt;string, object&gt;() { { \"MaxMessageLen\", 5242880 } });"
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.html#strategy-n5-diginsight-allows-enabling-logs-dinamically-only-when-needed",
+    "href": "src/docs/03. Diginsightv2/02. Avoid performance imacts using diginsight telemetry/HOWTO - Avoid performance imacts using diginsight telemetry.html#strategy-n5-diginsight-allows-enabling-logs-dinamically-only-when-needed",
+    "title": "INTRODUCTION",
+    "section": "Strategy n°5: diginsight allows enabling logs dinamically, only when needed",
+    "text": "Strategy n°5: diginsight allows enabling logs dinamically, only when needed\nApplication flow is rendered by default at the Debug level. ILogger standard configuration can be used to specify which modules are expected to produce their logs. \nDiginsight allows cutting the enabled log level by means of a special configuration appSetting (TraceLoggerMinimumLevel) that can be overridden dinamically by the developer or by the tester at the process level or at a single HTTP call level.\nThe configuration file above shows that for our production environment TraceLoggerMinimumLevel is set Error. (so, the application flow will not be rendered by default)\nThe image below shows that calling the server with the HTTP header TraceLoggerMinimumLevel Trace.\n\nthe appsetting is overridden and the log is produced for our specific call  \nin this case readability of the application flow is preserved and troubleshooting of the specific case is made possible.\nFuture library improvements may include automatic activation of application flows that produce errors."
+  },
+  {
+    "objectID": "src/docs/02. Advanced/18.00 - HowTo - Use class aware configurations to support comonent level or class level configurations.html",
+    "href": "src/docs/02. Advanced/18.00 - HowTo - Use class aware configurations to support comonent level or class level configurations.html",
+    "title": "Use ClassAware configurations",
+    "section": "",
+    "text": "Back to top",
+    "crumbs": [
+      "Home",
+      "Advanced Articles",
+      "Use ClassAware configurations"
+    ]
+  },
+  {
+    "objectID": "src/docs/02. Advanced/15.00 - Customize diginsight log streams row content.html",
+    "href": "src/docs/02. Advanced/15.00 - Customize diginsight log streams row content.html",
+    "title": "Customize log stream row content",
+    "section": "",
+    "text": "Back to top",
+    "crumbs": [
+      "Home",
+      "Advanced Articles",
+      "Customize log stream row content"
+    ]
+  },
+  {
+    "objectID": "src/docs/02. Advanced/13.00 - Customize entities rendering on diginsight log streams.html",
+    "href": "src/docs/02. Advanced/13.00 - Customize entities rendering on diginsight log streams.html",
+    "title": "Customize entities rendering",
+    "section": "",
+    "text": "Diginsight v3 provides automatic rendering for entities such as method input payloads or return values.\nEntities rendering is performed automatically for simple types and also for complex types with fields and properties.\nThis article discusses how rendering is handled ensuring limited performance impact and how the developer can customize rendering for its own entities or for entities from other packages.",
+    "crumbs": [
+      "Home",
+      "Advanced Articles",
+      "Customize entities rendering"
+    ]
+  },
+  {
+    "objectID": "src/docs/02. Advanced/13.00 - Customize entities rendering on diginsight log streams.html#howto-customize-entities-rendering-on-diginsight-log-streams",
+    "href": "src/docs/02. Advanced/13.00 - Customize entities rendering on diginsight log streams.html#howto-customize-entities-rendering-on-diginsight-log-streams",
+    "title": "Customize entities rendering",
+    "section": "",
+    "text": "Diginsight v3 provides automatic rendering for entities such as method input payloads or return values.\nEntities rendering is performed automatically for simple types and also for complex types with fields and properties.\nThis article discusses how rendering is handled ensuring limited performance impact and how the developer can customize rendering for its own entities or for entities from other packages.",
+    "crumbs": [
+      "Home",
+      "Advanced Articles",
+      "Customize entities rendering"
+    ]
+  },
+  {
+    "objectID": "src/docs/02. Advanced/13.00 - Customize entities rendering on diginsight log streams.html#additional-information",
+    "href": "src/docs/02. Advanced/13.00 - Customize entities rendering on diginsight log streams.html#additional-information",
+    "title": "Customize entities rendering",
+    "section": "Additional Information",
+    "text": "Additional Information\nFor simple types rendering is performed in automatic and intuitive way. the image below shows log for DoSomeWork, StepOne and StepTwo methods that return integer values.\n\n\n\nalt text\n\n\nFor complex types, by default, entities are rendered with their property values in the order chosen by the compiler.\n\n\n\nalt text\n\n\nThe developer can use attributes LogStringableMember NonLogStringableMember to decide members to be shown with a specific order and members to be excluded from rendering. The image below shows a custom entity where order is defined for members and where non relevant members are excluded by means of the NonLogStringableMember attribute:\n\n\n\nalt text",
+    "crumbs": [
+      "Home",
+      "Advanced Articles",
+      "Customize entities rendering"
+    ]
+  },
+  {
+    "objectID": "src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.html",
+    "href": "src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.html",
+    "title": "Configure the remote tools",
+    "section": "",
+    "text": "Diginsight is a very thin layer built on .Net System.Diagnostics Activity API and ILogger API. In particular, sending .Net System.Diagnostics and ILogger telemetry to remote tools by means of OpenTelemetry and/or Prometheus results in sending the full diginsight application flow to them.\nThis article discusses how Diginsight telemetry can be sento to remote analysis tools such as Azure Monitor or Grafana. Also, the article shows how such telemetry can be easily analyzed on Azure Monitor tools such as the Transaction Search and Transaction Detail, the Azure Monitor Metrics and Logs or Azure Monitor Dashboards.\nThe code snippets below are available as working samples within the telemetry_samples repository.\nArticle HOWTO - Use Diginsight Samples.md: explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.",
+    "crumbs": [
+      "Home",
+      "Advanced Articles",
+      "Configure the remote tools"
+    ]
+  },
+  {
+    "objectID": "src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.html#howto-configure-diginsight-telemetry-to-the-remote-tools",
+    "href": "src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.html#howto-configure-diginsight-telemetry-to-the-remote-tools",
+    "title": "Configure the remote tools",
+    "section": "",
+    "text": "Diginsight is a very thin layer built on .Net System.Diagnostics Activity API and ILogger API. In particular, sending .Net System.Diagnostics and ILogger telemetry to remote tools by means of OpenTelemetry and/or Prometheus results in sending the full diginsight application flow to them.\nThis article discusses how Diginsight telemetry can be sento to remote analysis tools such as Azure Monitor or Grafana. Also, the article shows how such telemetry can be easily analyzed on Azure Monitor tools such as the Transaction Search and Transaction Detail, the Azure Monitor Metrics and Logs or Azure Monitor Dashboards.\nThe code snippets below are available as working samples within the telemetry_samples repository.\nArticle HOWTO - Use Diginsight Samples.md: explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.",
+    "crumbs": [
+      "Home",
+      "Advanced Articles",
+      "Configure the remote tools"
+    ]
+  },
+  {
+    "objectID": "src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.html#step-01---add-a-package-reference-to-the-package-diginsight.core-diginsight.diagnostics-and-diginsight.diagnostics.aspnetcore.opentelemetry",
+    "href": "src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.html#step-01---add-a-package-reference-to-the-package-diginsight.core-diginsight.diagnostics-and-diginsight.diagnostics.aspnetcore.opentelemetry",
+    "title": "Configure the remote tools",
+    "section": "STEP 01 - Add a package reference to the package Diginsight.Core, Diginsight.Diagnostics and Diginsight.Diagnostics.AspNetCore.OpenTelemetry",
+    "text": "STEP 01 - Add a package reference to the package Diginsight.Core, Diginsight.Diagnostics and Diginsight.Diagnostics.AspNetCore.OpenTelemetry\nIn the first step you can just add a diginsight references to your code:",
+    "crumbs": [
+      "Home",
+      "Advanced Articles",
+      "Configure the remote tools"
+    ]
+  },
+  {
+    "objectID": "src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.html#step-02---configure-telemetry-on-the-startup-sequence",
+    "href": "src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.html#step-02---configure-telemetry-on-the-startup-sequence",
+    "title": "Configure the remote tools",
+    "section": "STEP 02 - Configure telemetry on the Startup sequence",
+    "text": "STEP 02 - Configure telemetry on the Startup sequence\nThe SampleWebApi sample shows an example WebApi fully integrated with OpenTelemetry and AzureMonitor.\nThe Program.Main entry point configures the the Startup class with the startup sequence methods and concludes the host build process with method .UseDiginsightServiceProvider().\nThis ensures that the proper activity listeners are installed to generate the application flow.\npublic static void Main(string[] args)\n{\n    IWebHost host = WebHost.CreateDefaultBuilder(args)\n        .AddKeyVault()\n        .UseStartup&lt;Startup&gt;()\n        //.ConfigureServices(s =&gt; s.FlushOnCreateServiceProvider(loggerFactory))\n        .UseDiginsightServiceProvider()\n        .Build();\n\n    //logger.LogDebug(\"Host built\");\n\n    host.Run();\n}",
+    "crumbs": [
+      "Home",
+      "Advanced Articles",
+      "Configure the remote tools"
+    ]
+  },
+  {
+    "objectID": "src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.html#step-03---add-addobservability-to-enable-opentelemetry-and-send-data-to-the-azuremonitor",
+    "href": "src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.html#step-03---add-addobservability-to-enable-opentelemetry-and-send-data-to-the-azuremonitor",
+    "title": "Configure the remote tools",
+    "section": "STEP 03 - add AddObservability to enable OpenTelemetry and send data to the AzureMonitor",
+    "text": "STEP 03 - add AddObservability to enable OpenTelemetry and send data to the AzureMonitor\nAddObservability includes all details to install Opentelemetry stack and activate the connection to AzureMonitor.\npublic void ConfigureServices(IServiceCollection services)\n{\n    services.AddHttpContextAccessor();\n    services.AddObservability(configuration);",
+    "crumbs": [
+      "Home",
+      "Advanced Articles",
+      "Configure the remote tools"
+    ]
+  },
+  {
+    "objectID": "src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.html#step-04-optional---add-adddynamicloglevel-enable-support-for-request-level-dynamic-logging",
+    "href": "src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.html#step-04-optional---add-adddynamicloglevel-enable-support-for-request-level-dynamic-logging",
+    "title": "Configure the remote tools",
+    "section": "STEP 04 (Optional) - add AddDynamicLogLevel enable support for request level dynamic logging",
+    "text": "STEP 04 (Optional) - add AddDynamicLogLevel enable support for request level dynamic logging\nAddDynamicLogLevel enables use of request level dynamic log\npublic void ConfigureServices(IServiceCollection services)\n{\n    services.AddHttpContextAccessor();\n    services.AddObservability(configuration);\n    services.AddDynamicLogLevel&lt;DefaultDynamicLogLevelInjector&gt;();",
+    "crumbs": [
+      "Home",
+      "Advanced Articles",
+      "Configure the remote tools"
+    ]
+  },
+  {
+    "objectID": "src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.html#additional-details",
+    "href": "src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.html#additional-details",
+    "title": "Configure the remote tools",
+    "section": "Additional Details",
+    "text": "Additional Details\nIn this section we discuss the structure of AddObservability method and how it installs the necessary components to connect diginsight Telemetry to the Azure Monitor.\nin the first section - Azure SDK is initialized - OpenTelemetry configuration section is installed - sampling and metric recording are installed\npublic static IServiceCollection AddObservability(this IServiceCollection services, IConfiguration configuration)\n{\n    // this enables Azure SDK libraries to produce telemetry spans\n    AppContext.SetSwitch(\"Azure.Experimental.EnableActivitySource\", true);\n\n    // assigns the application activity source to Diginsight\n    DiginsightDefaults.ActivitySource = Program.ActivitySource;\n\n    // reads and installs OpenTelemetry configuration\n    IConfiguration openTelemetryConfiguration = configuration.GetSection(\"OpenTelemetry\");\n    OpenTelemetryOptions openTelemetryOptions = new();\n    openTelemetryConfiguration.Bind(openTelemetryOptions);\n    services.Configure&lt;OpenTelemetryOptions&gt;(openTelemetryConfiguration);\n    services.PostConfigureFromHttpRequestHeaders&lt;OpenTelemetryOptions&gt;();\n\n    // installs logging sampler to support intelligent sampling\n    services.TryAddSingleton&lt;IActivityLoggingSampler, HttpHeadersActivityLoggingSampler&gt;();\n    services.Decorate&lt;IActivityLoggingSampler, MyActivityLoggingSampler&gt;();\n\n    // installs metrics recording (eg. span_duration metric)\n    services.TryAddSingleton&lt;ISpanDurationMetricRecorderSettings, MySpanDurationMetricRecorderSettings&gt;();\n    services.TryAddEnumerable(\n        ServiceDescriptor.Singleton&lt;IActivityListenerRegistration, MyDurationMetricRecorderRegistration&lt;SpanDurationMetricRecorder&gt;&gt;());\n\n    services.TryAddSingleton&lt;ICustomDurationMetricRecorderSettings, MyCustomDurationMetricRecorderSettings&gt;();\n    services.TryAddEnumerable(\n        ServiceDescriptor.Singleton&lt;IActivityListenerRegistration, MyDurationMetricRecorderRegistration&lt;CustomDurationMetricRecorder&gt;&gt;());\n\n    // ActivitySourceDetectorRegistration ensures activity sources sending telemetry are traced\n    services.TryAddEnumerable(\n        ServiceDescriptor.Singleton&lt;IActivityListenerRegistration, ActivitySourceDetectorRegistration&gt;());\n\nin a second section configures Logging for the local text based Console, Log4Net and AzureMonitor. Also, here Opentelemetry is initialized and the Diginsight:Activities section is read.\nvar azureMonitorConnectionString = configuration[\"ApplicationInsights:ConnectionString\"];\nservices.AddLogging(\n    loggingBuilder =&gt;\n    {\n        loggingBuilder.ClearProviders();\n\n        // enables logging to the console\n        if (configuration.GetValue(\"AppSettings:ConsoleProviderEnabled\", true))\n        {\n            loggingBuilder.AddDiginsightConsole();\n        }\n\n        // enables logging to Log4Net\n        if (configuration.GetValue(\"AppSettings:Log4NetProviderEnabled\", false))\n        {\n            loggingBuilder.AddDiginsightLog4Net(\"log4net.config\");\n        }\n\n        // enables logging to Azure Monitor\n        if (!string.IsNullOrEmpty(azureMonitorConnectionString))\n        {\n            loggingBuilder.AddOpenTelemetry(\n                otlo =&gt; otlo.AddAzureMonitorLogExporter(\n                    exporterOptions =&gt; { exporterOptions.ConnectionString = azureMonitorConnectionString; }\n                )\n            );\n        }\n    }\n);\n\n// reads the `Diginsight:Activities` section\nservices.ConfigureClassAware&lt;DiginsightActivitiesOptions&gt;(configuration.GetSection(\"Diginsight:Activities\"));\nservices.PostConfigureFromHttpRequestHeaders&lt;DiginsightActivitiesOptions&gt;();\n\n// enables OpenTelemetry connection\nvar builder = services.AddDiginsightOpenTelemetry();\nif Metrics are enabled the WithMetrics() section installs metrics from the runtime and from Diginsight Meter.\n        if (openTelemetryOptions.EnableMetrics)\n        {\n            builder.WithMetrics(\n                meterProviderBuilder =&gt;\n                {\n                    meterProviderBuilder\n                        .AddDiginsight()\n                        .AddAspNetCoreInstrumentation()\n                        .AddRuntimeInstrumentation()\n                        .AddHttpClientInstrumentation()\n                        .AddMeter(DiginsightDefaults.Meter.Name)\n                        .AddPrometheusExporter();\n\n                    if (!string.IsNullOrEmpty(azureMonitorConnectionString))\n                    {\n                        meterProviderBuilder.AddAzureMonitorMetricExporter(\n                            exporterOptions =&gt; { exporterOptions.ConnectionString = azureMonitorConnectionString; }\n                        );\n                    }\n                }\n            );\n        }\nif Traces are enabled the WithTracing() section installs the enabled trace sources and trace sampling.\nif (openTelemetryOptions.EnableTraces)\n{\n    builder.WithTracing(\n        tracerProviderBuilder =&gt;\n        {\n            tracerProviderBuilder\n                .AddDiginsight()\n                .AddAspNetCoreInstrumentation()\n                .AddHttpClientInstrumentation()\n                .AddSource(openTelemetryOptions.ActivitySources.ToArray())\n                .AddSource(Program.ActivitySource.Name)\n                .SetErrorStatusOnException()\n                .SetSampler(\n                    static sp =&gt;\n                    {\n                        OpenTelemetryOptions openTelemetryOptions = sp.GetRequiredService&lt;IOptions&lt;OpenTelemetryOptions&gt;&gt;().Value;\n                        Sampler decoratee = new ParentBasedSampler(new TraceIdRatioBasedSampler(openTelemetryOptions.TracingSamplingRatio));\n                        return ActivatorUtilities.CreateInstance&lt;HttpHeadersSampler&gt;(sp, decoratee);\n                    }\n                );\n\n            if (!string.IsNullOrEmpty(azureMonitorConnectionString))\n            {\n                tracerProviderBuilder.AddAzureMonitorTraceExporter(\n                    exporterOptions =&gt; { exporterOptions.ConnectionString = azureMonitorConnectionString; }\n                );\n            }\n        }\n    );\n}",
+    "crumbs": [
+      "Home",
+      "Advanced Articles",
+      "Configure the remote tools"
+    ]
+  },
+  {
+    "objectID": "src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.html#configuration",
+    "href": "src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.html#configuration",
+    "title": "Configure the remote tools",
+    "section": "Configuration",
+    "text": "Configuration\nas with all .net applications logging categories can be enabled by means of the Logging section:\n\"Logging\": {\n    \"LogLevel\": {\n        \"Default\": \"Information\",\n        \"Microsoft\": \"Warning\",\n        \"Microsoft.Hosting.Lifetime\": \"Information\",\n        \"*.IdentityLoggerAdapter\": \"None\",\n        \"*.ServiceBusCacheCompanion\": \"None\"\n    }\n},\nApplicationInsights section includes connection to the Application Insight. In case available, this information can be configured on a Azure Key Vault.\n\"ApplicationInsights\": {\n    \"ConnectionString\": \"\", // Key Vault\n    \"IncludeEventId\": false\n},\nthe OpenTelemetry section includes the enabled activity sources for the remote tools (eg. AzureMonitor).\n\"OpenTelemetry\": {\n    \"EnableMetrics\": true,\n    \"EnableTraces\": true,\n    \"TracingSamplingRatio\": 0.1,\n    \"ActivitySources\": [\n        \"Azure.Cosmos.Operation\",\n        \"Azure.Storage.Blobs.BlobBaseClient\",\n        \"Microsoft.AspNetCore\",\n        \"System.Net.Http\",\n        \"SampleWebApi\"\n        //\"Diginsight.*\",\n        //\"*\"\n    ],\n    \"ExcludedHttpHosts\": [\n        \"login.microsoftonline.com\",\n        \".documents.azure.com\",\n        \".applicationinsights.azure.com\",\n        \".monitor.azure.com\",\n        \".b2clogin.com\"\n    ],\n    \"DurationMetricTags\": [\n        \"widget_template\",\n        \"site_name\"\n    ]\n},\nthe Diginsight section includes the enabled activity sources for logging (eg. Console, Log4Net).\n\"Diginsight\": {\n    \"Activities\": {\n        \"ActivitySources\": [\n        \"Azure.Cosmos.Operation\",\n        \"Azure.Storage.Blobs.BlobBaseClient\",\n        \"Microsoft.AspNetCore\",\n        \"System.Net.Http\",\n        \"SampleWebApi\",\n        //\"Diginsight.*\",\n        \"*\"\n        ],\n        \"LogActivities\": true,\n        \"RecordSpanDurations\": true\n    }\n},\nLogActivities and RecordSpanDurations are class aware settings that can be used to specify which classes are expected to send Span logs and the Span duration metric.\nthe FeatureManagement section includes example feature flags that can be used to reduce logs when not needed.\n\"FeatureManagement\": {\n    \"TraceRequestBody\": false,\n    \"TraceResponseBody\": false\n},",
+    "crumbs": [
+      "Home",
+      "Advanced Articles",
+      "Configure the remote tools"
+    ]
+  },
+  {
+    "objectID": "src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.html",
+    "href": "src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.html",
+    "title": "Use dynamic configuration",
+    "section": "",
+    "text": "Diginsight telemetry supports dynamic configuration to hot switch configuration values, based on http headers. As an example, lets assume that a Web API or Web Application implements a feature flag such as the following:\n\"FeatureFlags\": {\n  \"TraceRequestBody\": false,\n  \"TraceResponseBody\": false\n}\nThe developer can register such a configuration option so that it can be overridden at runtime, for a single call, by means of the Dynamic-Configuration http request header.",
+    "crumbs": [
+      "Home",
+      "Concepts",
+      "Use dynamic configuration"
+    ]
+  },
+  {
+    "objectID": "src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.html#use-dynamic-configuration-to-manage-configurations-and-feature-flags-dynamically-at-runtime",
+    "href": "src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.html#use-dynamic-configuration-to-manage-configurations-and-feature-flags-dynamically-at-runtime",
+    "title": "Use dynamic configuration",
+    "section": "",
+    "text": "Diginsight telemetry supports dynamic configuration to hot switch configuration values, based on http headers. As an example, lets assume that a Web API or Web Application implements a feature flag such as the following:\n\"FeatureFlags\": {\n  \"TraceRequestBody\": false,\n  \"TraceResponseBody\": false\n}\nThe developer can register such a configuration option so that it can be overridden at runtime, for a single call, by means of the Dynamic-Configuration http request header.",
+    "crumbs": [
+      "Home",
+      "Concepts",
+      "Use dynamic configuration"
+    ]
+  },
+  {
+    "objectID": "src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.html#additional-information",
+    "href": "src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.html#additional-information",
+    "title": "Use dynamic configuration",
+    "section": "Additional information",
+    "text": "Additional information\nThe snippet below, shows the FeatureFlags configuration option class of the SampleWebApi project in Diginsight telemetry_samples repository:\npublic class FeatureFlagOptions : IDynamicallyPostConfigurable\n{\n    public bool TraceRequestBody { get; set; }\n    public bool TraceResponseBody { get; set; }\n\n}\nIf the developer registers it with the .PostConfigureClassAwareFromHttpRequestHeaders&lt;FeatureFlagOptions&gt;() method as shown below: \nthan the options will be overridable by means of the Dynamic-Configuration http request header.\nIn such case, when calling the API with Dynamic-Configuration http request header as shown below.\n\n\n\nalt text\n\n\nThe TraceRequestBody and TraceResponseBody configuration options will be overriden from the http request headers.\nThe image below shows the application log where in the first call the options are loaded from the appSettings.json configuration file. in the second call, the same options are overridden by the incoming Dinamic-Configuration headers.\n\n\n\nalt text",
+    "crumbs": [
+      "Home",
+      "Concepts",
+      "Use dynamic configuration"
+    ]
+  },
+  {
+    "objectID": "src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html",
+    "href": "src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html",
+    "title": "Configure the local text based streams",
+    "section": "",
+    "text": "You can ottain a console log or file log with diginsight by means of the steps shown below. The code snippets are available as working samples within the telemetry_samples repository.\nArticle HOWTO - Use Diginsight Samples.md: explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.",
+    "crumbs": [
+      "Home",
+      "Concepts",
+      "Configure the local text based streams"
+    ]
+  },
+  {
+    "objectID": "src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html#howto-configure-diginsight-telemetry-to-the-local-text-based-streams",
+    "href": "src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html#howto-configure-diginsight-telemetry-to-the-local-text-based-streams",
+    "title": "Configure the local text based streams",
+    "section": "",
+    "text": "You can ottain a console log or file log with diginsight by means of the steps shown below. The code snippets are available as working samples within the telemetry_samples repository.\nArticle HOWTO - Use Diginsight Samples.md: explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.",
+    "crumbs": [
+      "Home",
+      "Concepts",
+      "Configure the local text based streams"
+    ]
+  },
+  {
+    "objectID": "src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html#step-01---add-a-package-reference-to-the-package-diginsight.diagnostics-or-diginsight.diagnostics.log4net",
+    "href": "src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html#step-01---add-a-package-reference-to-the-package-diginsight.diagnostics-or-diginsight.diagnostics.log4net",
+    "title": "Configure the local text based streams",
+    "section": "STEP 01 - Add a package reference to the package Diginsight.Diagnostics or Diginsight.Diagnostics.Log4Net",
+    "text": "STEP 01 - Add a package reference to the package Diginsight.Diagnostics or Diginsight.Diagnostics.Log4Net\nIn the first step you can just add a diginsight reference to your code:",
+    "crumbs": [
+      "Home",
+      "Concepts",
+      "Configure the local text based streams"
+    ]
+  },
+  {
+    "objectID": "src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html#step-02---configure-logging-within-the-startup-sequence",
+    "href": "src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html#step-02---configure-logging-within-the-startup-sequence",
+    "title": "Configure the local text based streams",
+    "section": "STEP 02 - Configure logging within the Startup sequence",
+    "text": "STEP 02 - Configure logging within the Startup sequence\nin the second step you can configure the startup sequence to enable diginsight log: \nin this case: - AddDiginsightConsole() is used to enabled log to the application Console. - AddDiginsightLog4Net() is used to enabled file log by means of log4net.\na separate - log4net.config can be used to specify the usual log4net configuration: \nalso, the Diginsight:Activities section can be used to specify enabled ActivitySources and whether Activity logging is enabled.",
+    "crumbs": [
+      "Home",
+      "Concepts",
+      "Configure the local text based streams"
+    ]
+  },
+  {
+    "objectID": "src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html#step-03---add-telemetry-to-code-with-startmethodactivity-and-ilogger-statements",
+    "href": "src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html#step-03---add-telemetry-to-code-with-startmethodactivity-and-ilogger-statements",
+    "title": "Configure the local text based streams",
+    "section": "STEP 03 - Add telemetry to code with StartMethodActivity() and ILogger Statements",
+    "text": "STEP 03 - Add telemetry to code with StartMethodActivity() and ILogger Statements\nwe are now ready to add instrumentation to the code and make the application flow observable:\n[HttpGet(\"dosomework\", Name = \"DoSomeWork\")]\n[ApiVersion(ApiVersions.V_2024_04_26.Name)]\npublic async Task DoSomeWork()\n{\n    using var activity = Program.ActivitySource.StartMethodActivity(logger); \n\n    var result1 = await StepOne();\n    logger.LogDebug(\"await StepOne(); returned {result1}\", result1);\n\n    var result2 = await StepTwo();\n    logger.LogDebug(\"await StepTwo(); completed {result2}\", result2);\n\n    var result = result1 + result2;\n\n    activity.SetOutput(result);\n    return;\n}\nin the snippet above, the DoSomeWork method from Diginsight telemetry_samples repository is shown where: - using var activity = Program.ActivitySource.StartMethodActivity(logger); is added to provide observability of method start and end - logger.LogDebug(\"await StepTwo(); completed {result2}\", result2); are added during the method execution - activity.SetOutput(result); is used at the method end to log the method result",
+    "crumbs": [
+      "Home",
+      "Concepts",
+      "Configure the local text based streams"
+    ]
+  },
+  {
+    "objectID": "src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html#step-04---run-your-code-and-look-at-the-resulting-application-flow",
+    "href": "src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html#step-04---run-your-code-and-look-at-the-resulting-application-flow",
+    "title": "Configure the local text based streams",
+    "section": "STEP 04 - run your code and look at the resulting application flow",
+    "text": "STEP 04 - run your code and look at the resulting application flow\nthe image below shows the application flow generated by DoSomeWork method",
+    "crumbs": [
+      "Home",
+      "Concepts",
+      "Configure the local text based streams"
+    ]
+  },
+  {
+    "objectID": "src/docs/00.01 - Getting Started.html",
+    "href": "src/docs/00.01 - Getting Started.html",
+    "title": "Getting Started",
+    "section": "",
+    "text": "With version 3, diginsight streamlines OpenTelemetry integration embracing standard notation for activity tracing with dotnet System Diagnostic API.\nUsing dotnet System Diagnostic API the following notation can be used to instrument a code span: \nUsing diginsight v3 the same section can be instrumented with the following notation: \nwhere, StartMethodActivity: - gathers automatically the method name, - renders automatically the method payload - writes the Span START and END to the logger variable\nand SetOutput stores the method result for rendering within method END line.",
+    "crumbs": [
+      "Home",
+      "Getting Started"
+    ]
+  },
+  {
+    "objectID": "src/docs/00.01 - Getting Started.html#getting-started-with-diginsight-v3",
+    "href": "src/docs/00.01 - Getting Started.html#getting-started-with-diginsight-v3",
+    "title": "Getting Started",
+    "section": "",
+    "text": "With version 3, diginsight streamlines OpenTelemetry integration embracing standard notation for activity tracing with dotnet System Diagnostic API.\nUsing dotnet System Diagnostic API the following notation can be used to instrument a code span: \nUsing diginsight v3 the same section can be instrumented with the following notation: \nwhere, StartMethodActivity: - gathers automatically the method name, - renders automatically the method payload - writes the Span START and END to the logger variable\nand SetOutput stores the method result for rendering within method END line.",
+    "crumbs": [
+      "Home",
+      "Getting Started"
+    ]
+  },
+  {
+    "objectID": "src/docs/00.01 - Getting Started.html#steps-to-use-diginsight-v3",
+    "href": "src/docs/00.01 - Getting Started.html#steps-to-use-diginsight-v3",
+    "title": "Getting Started",
+    "section": "Steps to use Diginsight v3",
+    "text": "Steps to use Diginsight v3\nYou can obtain a console log or file log with diginsight by means of the following steps. The code snippets below are available as working samples within the telemetry_samples repository.\nArticle HOWTO - Use Diginsight Samples: explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.",
+    "crumbs": [
+      "Home",
+      "Getting Started"
+    ]
+  },
+  {
+    "objectID": "src/docs/00.01 - Getting Started.html#step-01---add-a-package-reference-to-the-package-diginsight.diagnostics-or-diginsight.diagnostics.log4net",
+    "href": "src/docs/00.01 - Getting Started.html#step-01---add-a-package-reference-to-the-package-diginsight.diagnostics-or-diginsight.diagnostics.log4net",
+    "title": "Getting Started",
+    "section": "STEP 01 - Add a package reference to the package Diginsight.Diagnostics or Diginsight.Diagnostics.Log4Net",
+    "text": "STEP 01 - Add a package reference to the package Diginsight.Diagnostics or Diginsight.Diagnostics.Log4Net\n: {#step01 .sidebar=“STEP 01 - Add Package Reference”}\nIn the first step you can just add a diginsight reference to your code:",
+    "crumbs": [
+      "Home",
+      "Getting Started"
+    ]
+  },
+  {
+    "objectID": "src/docs/00.01 - Getting Started.html#step-02---configure-logging-within-the-startup-sequence",
+    "href": "src/docs/00.01 - Getting Started.html#step-02---configure-logging-within-the-startup-sequence",
+    "title": "Getting Started",
+    "section": "STEP 02 - Configure logging within the Startup sequence",
+    "text": "STEP 02 - Configure logging within the Startup sequence\n: {#step01 .sidebar[STEP 02 - Configure logging]}\nin the second step you can configure the startup sequence to enable diginsight log: \nin this case: - AddDiginsightConsole() is used to enabled log to the application Console. - AddDiginsightLog4Net() is used to enabled file log by means of log4net.\na separate - log4net.config can be used to specify the usual log4net configuration: \nalso, the Diginsight:Activities section can be used to specify enabled ActivitySources and whether Activity logging is enabled.",
+    "crumbs": [
+      "Home",
+      "Getting Started"
+    ]
+  },
+  {
+    "objectID": "src/docs/00.01 - Getting Started.html#step-03---add-telemetry-to-code-with-startmethodactivity-and-ilogger-statements",
+    "href": "src/docs/00.01 - Getting Started.html#step-03---add-telemetry-to-code-with-startmethodactivity-and-ilogger-statements",
+    "title": "Getting Started",
+    "section": "STEP 03 - Add telemetry to code with StartMethodActivity() and ILogger Statements",
+    "text": "STEP 03 - Add telemetry to code with StartMethodActivity() and ILogger Statements\n: {#step01 .sidebar[STEP 03 - Add telemetry]}\nwe are now ready to add instrumentation to the code and make the application flow observable: \nPlease, note that in this case the method payload is passed to StartMethodActivity by means of a delegate notation so that the payload class allocation can be avoided when logging or payload rendering is disabled.",
+    "crumbs": [
+      "Home",
+      "Getting Started"
+    ]
+  },
+  {
+    "objectID": "src/docs/00.01 - Getting Started.html#step-04---enable-opentelemetry-and-send-data-to-the-remote-tools",
+    "href": "src/docs/00.01 - Getting Started.html#step-04---enable-opentelemetry-and-send-data-to-the-remote-tools",
+    "title": "Getting Started",
+    "section": "STEP 04 - Enable OpenTelemetry and send data to the remote tools",
+    "text": "STEP 04 - Enable OpenTelemetry and send data to the remote tools\nWith few changes to the startup sequence, telemetry can be sent to the remote tools. Telemetry to the local tools is less expensive, m4ore efficient, well protected and often it is not even persisted. So, telemetry to the local tools can include verbose data with the maximum level of information.\nTelemetry to the remote tools is more expensive (in cost and performance) so it will normally include only critical and warning non verbose information.\nIn our samples we enable openteemetry by means of the AddObservability() extension method that essentially: - Configures Opentelemetry options - Registers Opentelemetry logging provider - Configures tracing to the remote tools - Configures metrics to the remote tools\n\n\n\nalt text\n\n\ndetails about opentelemetry configuration is available here: HowTo: Configure diginsight telemetry to the remote tools.",
+    "crumbs": [
+      "Home",
+      "Getting Started"
+    ]
+  },
+  {
+    "objectID": "src/docs/00.01 - Getting Started.html#build-and-test",
+    "href": "src/docs/00.01 - Getting Started.html#build-and-test",
+    "title": "Getting Started",
+    "section": "Build and Test",
+    "text": "Build and Test\nClone the repository, open and build solution Common.Diagnostics.sln. run EasySample and open the log file in your *** folder.",
+    "crumbs": [
+      "Home",
+      "Getting Started"
+    ]
+  },
+  {
+    "objectID": "src/docs/00.01 - Getting Started.html#contribute",
+    "href": "src/docs/00.01 - Getting Started.html#contribute",
+    "title": "Getting Started",
+    "section": "Contribute",
+    "text": "Contribute\nContribute to the repository with your pull requests.\n\nASP.NET Core\nVisual Studio Code",
+    "crumbs": [
+      "Home",
+      "Getting Started"
+    ]
+  },
+  {
+    "objectID": "src/docs/00.01 - Getting Started.html#license",
+    "href": "src/docs/00.01 - Getting Started.html#license",
+    "title": "Getting Started",
+    "section": "License",
+    "text": "License\nSee the LICENSE file for license rights and limitations (MIT).",
+    "crumbs": [
+      "Home",
+      "Getting Started"
+    ]
+  },
+  {
+    "objectID": "src/LICENSE.html",
+    "href": "src/LICENSE.html",
+    "title": "telemetry",
+    "section": "",
+    "text": "Copyright (c) 2011-2017 GitHub Inc.\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\nTHE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\n\n\n Back to top"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Introduction",
+    "section": "",
+    "text": "Introduction\nDiginsight telemetry is a set .Net packages that that provides automatic observability for dotnet applications. In particular, the full application flow is made available to local text based streams such as traditional file logs, the Console Log or the Azure Streaming Log and also to remote analysis tools such as Azure Monitor and Prometheus/Grafana.\nDiginsight allows observability of the full application lifecycle, including static methods, injection sequences and the application startup and shutdown sequences where configuration problems and much complexity are often hidden.\nDiginsight telemetry is produced by standard ILogger&lt;&gt; and System.Diagnostic activity classes so it integrates (without replacing) other logging systems telemetry. Also, diginsight telemetry fully integrated with Opentelemetry and the W3C Trace Context Specification so traceids are preserved across process invocations of a distributed system.\nDiginsight telemetry targets all dotnet framework versions starting from netstandard2.0.Samples are available on telemetry_samples repository to demonstrate use of telemetry on .net 4.8 up to [blazor webassembly,].net6 and .net8+ assemblies. \n\n\nAdditional Information\nDiginsight telemetry is readable, consistent and efficient:\n\n\nreadable: telemetry is easily readable on local troubleshooting tools, live server consoles and remote analysis tools such as the Azure monitor. The generated application flow is consistent with application code so that problems understanding is much simplified.\nconsistent: the application flow is rendered consistently on local troubleshooting tools, where maximun flow detail is available, and to the remote analysis tools such as the Azure monitor, where metrics and data from past executions can be easily compared.\nefficient: application flow is generated with fully optimized techniques (such as dynamic compilation). Also, the full application flow observability can be enabled dynamically and only on the specific executions that are under analysis. this ensures that diginsight can be leveraged with no pratical impact on application performance.\n\n\nThe image below shows the text based stream associated to to a Web API call. \nThe following image shows the same call on the Azure Monitor Transaction Detail where the call structure is shown as a hierarchy of activities (also called spans) and trace details: \n\n\nObservability on live environments\nDiginsight uses dynamic logging to support full observability on live environments. Live environments logging level is normally limited to Warning or Information levels to limit telemetry volumes produced by the applications. With dynamic logging Log level can be raied to debug or trace for a single call, for example, by means of the Log-Level http headers.\nThe image below shows a call to a live environment where the log level is set to Debug or Trace for 2 categories: \nThe image below shows the live environment AKS console where our call is traced with full datail, while other calls are being processed with limited Log level. \nPerformance information gathered by diginsight can be analyzed in the form of metrics. The following image shows the Azure Monitor Metrics dashboard where method invocations and latencies can be analized in value and frequency: \nIntelligent sampling, dynamic compilation, automatic truncation and other strategies are used to maximize application efficiency and minimize telemetry costFor these reasons Local analysis and analysis on the remote tools can be supported without compromises on performance and without compromises on cost of telemetry in test and production environments. \n\nHowTo: Use diginsight telemetry with no impact on Application performance an telemetry cost Explores how diginsight telemetry can be used without impact on application performance and telemetry cost.\n\n\n\nExample analysis\nThe following image shows a diginsight application flow on a text based stream for DataAnalyticsReportsController.GetDevices method. The flow can be easily obtained from developer machine log file, or from application live console such as Azure app streaming log or a Kubernetes console log: \nStarting from its traceid (42488cedb33da51726293a70c3463c71), the same flow can be found as an Azure Monitor Application transaction: \nfrom the image we can observe that internal component calls are shown into the transaction flow and not just interactions across different components. Also, note that the transaction flow structure is consistent with the transaction flow rendered on the live console log, where more detail is available.\nLatencies for the same function can be analyzed in a chart with the span_duration metric, filtered on DataAnalyticsReportsController.GetDevices method. \nIn facts, the span_duration metric allows analyzing latencies of any method within code. Also, we’ll see that the developer can easily add other metrics and metric tags to split and compare values in different conditions (eg. by site properties, user properties etc).\n\n\nLearn more\nThe following articles provide easy steps to integrate diginsight into our code, how to configure telemetry for the local text based strams and how to configure telemetry for the remote analysis tools. Also, details are provided to use its relevant features such as Dynamic configuration and Dynamic Logging.\nExample code used in the articles is also available in the telemetry_samples repository.\n\n\nGetting Started: explores basic steps we can follow to integrate diginsight telemetry\nObservability Concepts: Explores basic concepts for application observability and Opentelemetry.\nHowTo: configure diginsight telemetry to the local text based streams Explores how we configure diginsight telemetry to the local analysis tools.\nHowTo: use dynamic logging to manage loglevel dynamically, at runtime Explores how we can troubleshoot applications by means of dynamic logging.\nHowTo: use dynamic configuration to manage configurations and feature flags dynamically, at runtime Explores how we can troubleshoot applications by means of dynamic configuration.4\nHowTo: configure diginsight telemetry to the remote tools Explores how we configure diginsight telemetry to the remote analysis tools.\nHowTo: maximize application performance and minimize telemetry cost with diginsight Explores diginsight telemetry can be used without impact on application performance and telemetry cost.\n\n\nAdvanced topics:\n\n\nHowTo: customize entities rendering on diginsight log streams: Explores how diginsight entities rendereing can be fully customized.\nHowTo: customize metrics sent to the remote tools: Explores how custom metrics sent to the remote tools can be integrated and fully customized with tags.\nHowTo: customize diginsight log streams row content: Explores how diginsight row content can be fully customized.\nHowTo: troubleshoot the startup sequence: Explores how full observability can be enabled on static methods and the startup sequence.\nHowTo: use class aware configurations to support comonent level or class level configurations: Explores how class aware configurations can be used to implement feature flags or configurations that can be enabled with class level granularity.\n\n\n\n\nPrevious versions\n\ndiginsight v3 is now available the following article describes improvements of diginsight v3 over the previous version. Introduction to Diginsight v3. Features such as old frameworks support (eg. .Net Framework 4.5+) or observability for startup and static sections may still have limited support on Diginsight v3. In these cases the developer may decide to keep the old model. Diginsight v2 will not be discontinued until feature parity is reached. Documentation about v2 packages is still available here Diginsight v2 documentation.\n\n\n\n\nSummary\ndiginsight telemetry is a set .Net packages that that provides automatic observability for dotnet applications. In particular, the full application flow is made available to local text based streams such as traditional file logs, the Console log or the Azure Streaming log.\nEnabling Opentelemetry, the same information can be made available to remote tools for troubleshooting or performance analysis such as Azure Monitor or Grafana.\n\n\nSamples\nYou can start using diginsight telemetry by running the samples on the telemetry_samples repository.\nArticle HOWTO - Use Diginsight Samples: explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.\n\n\n\nalt text\n\n\n\n\nBuild and Test\nYou can easily test Diginsight integration with OpenTelemetry by means of the EasySampleBlazorv2 project: - Clone diginsight repository - Open and build solution Diginsight.sln. - build the solution\n\n\n\nContribute\nContribute to the repository with your pull requests.\n\nASP.NET Core\nVisual Studio Code\n\n\n\nLicense\nSee the LICENSE file for license rights and limitations (MIT).\n\n\n\n\n Back to top",
+    "crumbs": [
+      "Home"
+    ]
+  },
+  {
+    "objectID": "src/README.Nuget.html",
+    "href": "src/README.Nuget.html",
+    "title": "INTRODUCTION",
+    "section": "",
+    "text": "INTRODUCTION\nDiginsight telemetry is a set .Net packages that that provides automatic observability for dotnet applications. In particular, the full application flow is made available to local text based streams such as traditional file logs, the Console Log or the Azure Streaming Log and also to remote analysis tools such as Azure Monitor and Prometheus/Grafana.\nDiginsight telemetry is produced by standard ILogger&lt;&gt; and System.Diagnostic activity classes so it integrates (without replacing) other logging systems telemetry. Also, diginsight telemetry fully integrated with Opentelemetry and the W3C Trace Context Specification so traceids are preserved across process invocations of a distributed system.\nDiginsight telemetry targets all dotnet framework versions starting from netstandard2.0.Samples are available on telemetry_samples repository to demonstrate use of telemetry on .net 4.8 up to [blazor webassembly,].net6 and .net8+ assemblies. \nArticles: - Diginsight telemetry documentation: explains diginsight telemetry concepts and how it extends ILogger&lt;&gt; and System.Diagnostics API. - HOWTO - Send telemetry to the local text based streams: explores how to send diginsight telemetry to the local text based streams (eg. a local file or a AKS console log). - HOWTO - Send telemetry to the remote analysis tools: explores how to send diginsight telemetry to the remote analysis tools (eg. Azure monitor or Prometheus and Grafana). - HOWTO - Use diginsight telemetry with no impact on Application performance an telemetry cost: explores how we can do this ensuring no impact on application performance.\n\n\n\n\n Back to top"
+  },
+  {
+    "objectID": "src/docs/01. Concepts/00.01 - Observability Concepts.html",
+    "href": "src/docs/01. Concepts/00.01 - Observability Concepts.html",
+    "title": "Observability concepts",
+    "section": "",
+    "text": "Application observability is about aggregating, correlating and analyzing the following key elements:\n\n\nLogs with application execution details and data.\nThe requests and operations structure (sometimes also referred as Activity, Traces or Spans) with the structure of application calls, related to an event or exception condition.\nMetrics: numeric values (such as latencies, payload sizes, frequencies) that can be aggregated and correlated with the operations structure and the logs.\n\n\nThe image below shows examples about the 3 observability elements on Azure Monitor Performance Management (APM) Tools:  \nDiginsight makes observability easy as: &gt;- it integrates the 3 observability elements (Log, Traces, Metrics) into high performance text-based streams such as traditional File logs, the Console log or the Azure Streaming log. &gt;- it publishes the 3 observability elements to OpenTelemetry and allowing application analysis by means of remote APM tools such as Azure Monitor and Grafana.",
+    "crumbs": [
+      "Home",
+      "Concepts",
+      "Observability concepts"
+    ]
+  },
+  {
+    "objectID": "src/docs/01. Concepts/00.01 - Observability Concepts.html#application-observability-concepts",
+    "href": "src/docs/01. Concepts/00.01 - Observability Concepts.html#application-observability-concepts",
+    "title": "Observability concepts",
+    "section": "",
+    "text": "Application observability is about aggregating, correlating and analyzing the following key elements:\n\n\nLogs with application execution details and data.\nThe requests and operations structure (sometimes also referred as Activity, Traces or Spans) with the structure of application calls, related to an event or exception condition.\nMetrics: numeric values (such as latencies, payload sizes, frequencies) that can be aggregated and correlated with the operations structure and the logs.\n\n\nThe image below shows examples about the 3 observability elements on Azure Monitor Performance Management (APM) Tools:  \nDiginsight makes observability easy as: &gt;- it integrates the 3 observability elements (Log, Traces, Metrics) into high performance text-based streams such as traditional File logs, the Console log or the Azure Streaming log. &gt;- it publishes the 3 observability elements to OpenTelemetry and allowing application analysis by means of remote APM tools such as Azure Monitor and Grafana.",
+    "crumbs": [
+      "Home",
+      "Concepts",
+      "Observability concepts"
+    ]
+  },
+  {
+    "objectID": "src/docs/01. Concepts/00.01 - Observability Concepts.html#additional-information",
+    "href": "src/docs/01. Concepts/00.01 - Observability Concepts.html#additional-information",
+    "title": "Observability concepts",
+    "section": "Additional Information",
+    "text": "Additional Information\nApplication flow observability is provided leveraging existing .Net ILogger and System Diagnostics classes so that diginsight telemetry can be mixed and analyzed with other components telemetry, as long as they rely on the same standard framework classes. Observability for remote tools is provided by means of OpenTelemetry so that telemetry data can be targeted to Azure Monitor and also other analysis tools such as Prometheus/Graphana.\nThe following image shows diginsight metrics such as span durations and frequencies on a custom Grafana dashboard receiving data by means of Opentelemetry Prometheus stack.    Diginsight application flow rendering is: - consistent across tools: every information or metric visible on the local text based streams can be published and observed on the remote analysis tools (eg. on Appinsight Transaction detail or Appinsight Metrics). - consistent with code: the application flow is published with information about classes, method names and call nesting so the ‘gap’ from telemetry and code is shortened for application developers and site reliability engineers. \n\nconsistent across applications application flow published in the same way for all applications. so it is easily readable for peopble without background knowledge on the application logic.  \n\nDiginsight log layout and automatic rendering for entities can be fully customized to ensure best readability of the application flow.\nParagraph GETTING STARTED discusses basic steps we can follow to integrate diginsight telemetry.",
+    "crumbs": [
+      "Home",
+      "Concepts",
+      "Observability concepts"
+    ]
+  },
+  {
+    "objectID": "src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html",
+    "href": "src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html",
+    "title": "Use dynamic logging",
+    "section": "",
+    "text": "diginsight telemetry supports dynamic logging to hot switch the minimum log level (e.g. from Information or Warning to Debug or Trace levels) of any log category.\nTo minimize telemetry cost and performance impact, telemetry sent to the remote tools is normally limited to LogLevels Critical, Warning or Information.\nThe snippet below shows a tipical Logging section configuration for a production environment:\n\"Logging\": {\n  \"LogLevel\": {\n    \"Default\": \"Information\",\n    \"Microsoft\": \"Warning\",\n    \"Microsoft.Hosting.Lifetime\": \"Information\"\n  }\n}\nUsing Diginsight telemetry on a Web API or Web Application, the log level for any category can be overridden at runtime, for a single call, by means of the Log-Level http request headers.",
+    "crumbs": [
+      "Home",
+      "Concepts",
+      "Use dynamic logging"
+    ]
+  },
+  {
+    "objectID": "src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html#howto-use-dynamic-logging-to-manage-loglevel-dinamically-at-runtime",
+    "href": "src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html#howto-use-dynamic-logging-to-manage-loglevel-dinamically-at-runtime",
+    "title": "Use dynamic logging",
+    "section": "",
+    "text": "diginsight telemetry supports dynamic logging to hot switch the minimum log level (e.g. from Information or Warning to Debug or Trace levels) of any log category.\nTo minimize telemetry cost and performance impact, telemetry sent to the remote tools is normally limited to LogLevels Critical, Warning or Information.\nThe snippet below shows a tipical Logging section configuration for a production environment:\n\"Logging\": {\n  \"LogLevel\": {\n    \"Default\": \"Information\",\n    \"Microsoft\": \"Warning\",\n    \"Microsoft.Hosting.Lifetime\": \"Information\"\n  }\n}\nUsing Diginsight telemetry on a Web API or Web Application, the log level for any category can be overridden at runtime, for a single call, by means of the Log-Level http request headers.",
+    "crumbs": [
+      "Home",
+      "Concepts",
+      "Use dynamic logging"
+    ]
+  },
+  {
+    "objectID": "src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html#additional-information",
+    "href": "src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html#additional-information",
+    "title": "Use dynamic logging",
+    "section": "Additional Information",
+    "text": "Additional Information\nThe image below shows the logstream for a web API where only Critical, Warning and Information and levels are enabled.\nWhile the application is running the streaming log shows only limited (or no) information about the application execution flow.\n\n\n\nalt text\n\n\nIn case we need to troubleshoot a specific application call flow, it is possible to reporduce the call specifying different log levels for some categories: \nThis will result in the full application flow being shown for the specific call: \n\nthis way, every call application flow can be easily isolated and analized on a live server, that is processing other calls at the same time.",
+    "crumbs": [
+      "Home",
+      "Concepts",
+      "Use dynamic logging"
+    ]
+  },
+  {
+    "objectID": "src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html#howto-enable-dynamic-loggging",
+    "href": "src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html#howto-enable-dynamic-loggging",
+    "title": "Use dynamic logging",
+    "section": "HowTo Enable Dynamic Loggging",
+    "text": "HowTo Enable Dynamic Loggging\nDynamic logging can be enabled adding the following stagement: services.AddDynamicLogLevel&lt;DefaultDynamicLogLevelInjector&gt;(); to the ConfigureServices methods, in the application startup sequence.\nThe image below shows the startup sequence of the SampleWebApi project, within diginsight telemetry_samples:",
+    "crumbs": [
+      "Home",
+      "Concepts",
+      "Use dynamic logging"
+    ]
+  },
+  {
+    "objectID": "src/docs/01. Concepts/15.00 - HowTo - Use Diginsight Samples.html",
+    "href": "src/docs/01. Concepts/15.00 - HowTo - Use Diginsight Samples.html",
+    "title": "Use Diginsight samples",
+    "section": "",
+    "text": "Diginsight telemetry_samples projects are a precious resource to understand how to integrate Diginsight telemetry in our own projects. In particular, sample projects are provided to demonstate use of Diginsight telemetry with different types of .net applications.\nThis article discusses how you can open, build and execute Diginsight telemetry_samples projects.",
+    "crumbs": [
+      "Home",
+      "Concepts",
+      "Use Diginsight samples"
+    ]
+  },
+  {
+    "objectID": "src/docs/01. Concepts/15.00 - HowTo - Use Diginsight Samples.html#introduction",
+    "href": "src/docs/01. Concepts/15.00 - HowTo - Use Diginsight Samples.html#introduction",
+    "title": "Use Diginsight samples",
+    "section": "",
+    "text": "Diginsight telemetry_samples projects are a precious resource to understand how to integrate Diginsight telemetry in our own projects. In particular, sample projects are provided to demonstate use of Diginsight telemetry with different types of .net applications.\nThis article discusses how you can open, build and execute Diginsight telemetry_samples projects.",
+    "crumbs": [
+      "Home",
+      "Concepts",
+      "Use Diginsight samples"
+    ]
+  },
+  {
+    "objectID": "src/docs/01. Concepts/15.00 - HowTo - Use Diginsight Samples.html#diginsight-samples-github-repository",
+    "href": "src/docs/01. Concepts/15.00 - HowTo - Use Diginsight Samples.html#diginsight-samples-github-repository",
+    "title": "Use Diginsight samples",
+    "section": "Diginsight samples github repository",
+    "text": "Diginsight samples github repository\nDiginsight telemetry_samples projects are available on the Diginsight GitHub repository.\n\n\nwhen cloning the repositories you will find the following folder structure: \nOpening the Common.Diagnostics.Samples solution you should be able to build and run the samples for Wpf, Aspnet and Blazor technologies Opening the Common.Diagnostics.Samples.Debug solution the samples will be built with project reference to diginsight to allow you easily step into and debug diginsight code.\nNB. Common.Diagnostics.Samples.Debug solution can only be used when both telemetry and telemetry_samples repositories are cloned with their default name, under the same parent folder.\n\n\n\n\n\n\n\nCommon.Diagnostics.Samples.sln solution\nCommon.Diagnostics.Samples.Debug.sln solution",
+    "crumbs": [
+      "Home",
+      "Concepts",
+      "Use Diginsight samples"
+    ]
+  },
+  {
+    "objectID": "src/docs/01. Concepts/15.00 - HowTo - Use Diginsight Samples.html#contribute",
+    "href": "src/docs/01. Concepts/15.00 - HowTo - Use Diginsight Samples.html#contribute",
+    "title": "Use Diginsight samples",
+    "section": "Contribute",
+    "text": "Contribute\nContribute to the repository with your pull requests.\n\nASP.NET Core\nVisual Studio Code",
+    "crumbs": [
+      "Home",
+      "Concepts",
+      "Use Diginsight samples"
+    ]
+  },
+  {
+    "objectID": "src/docs/01. Concepts/15.00 - HowTo - Use Diginsight Samples.html#license",
+    "href": "src/docs/01. Concepts/15.00 - HowTo - Use Diginsight Samples.html#license",
+    "title": "Use Diginsight samples",
+    "section": "License",
+    "text": "License\nSee the LICENSE file for license rights and limitations (MIT).",
+    "crumbs": [
+      "Home",
+      "Concepts",
+      "Use Diginsight samples"
+    ]
+  },
+  {
+    "objectID": "src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.html",
+    "href": "src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.html",
+    "title": "HowTo: Use diginsight telemetry with no impact on Application performance an telemetry cost",
+    "section": "",
+    "text": "Diginsight brings application behavior observability to the next step. In particular The ‘full application flow’ is made available to local text based streams such as the ‘Console log’ or the ‘Streaming log’. The same information can be made available to ‘remote tools’ for troubleshooting or performance analysis such as ‘Azure Monitor’ or ‘Grafana’.\nThe following example shows the execution flow of a Web API call, . \nIn the following paragraphs we’ll understand how this can be obtained without impact on the application performance. Also, you will soon learn that diginsight can be of great help with identifying and reducing high latency flows and redundant flows within the application execution paths. So diginsight can greatly contribute to application performance optimization more than provide a limitation to it.\n\nWith article: GETTING STARTED We explore how we can make our application flow fully observable.\n\n\n\n\nThe following image defines key drivers used by diginsights to avoid performence impacts:\n\n\n\nalt text\n\n\n\n\nThe following code snippet shows a method instrumented by means of diginsight System.Diagnostics activities:\npublic async Task&lt;IEnumerable&lt;Plant&gt;&gt; GetPlantByIdCachedAsync(Guid id)\n{\n    using var activity = Program.ActivitySource.StartMethodActivity(logger, () =&gt; new { id });\n\n    // Method implementation\n    // ...\n\n    activity?.SetOutput(plants);\n    return plants;\n}\nWhen disabling an activity source, the activities for it are not created and StartMethodActivity returns null. Also, if delegate notation is used to provide the StartMethodActivity payload, in case logging or payload rendering are disabled, the delegate is not used and the payload class is not allocated into the heap.\n In such conditions, diginsight activities are not at all generated or used and do not provide any performance impact to the overall application.\n\n\n\nNeedless to say, when log is disabled, method payloads are not processed and no strings are generated for method spans start and completion.\nAlso intermediate logger.LogXxxx() statements, when using structured logging notation do not involve any string composition.\npublic async Task&lt;IEnumerable&lt;Plant&gt;&gt; GetPlantByIdCachedAsync(Guid id)\n{\n    using var activity = Program.ActivitySource.StartMethodActivity(logger, () =&gt; new { id });\n\n    // Method implementation\n    // ...\n    logger.LogInformation(\"Plant '{Name}' ({Id}) accessed\", plant.Name, plant.Id)\n\n    activity?.SetOutput(plants);\n    return plants;\n}\n\n\n\nDiginsight supports intelligent sampling by means of OpenTelemetry sampling support.\nWith OpenTelemetry, a full execution within a component is identified as a trace. The image below shows an example trace where all rows share the same trace_id.\n\n\n\nalt text\n\n\nWhen an exevution flow is selected for sending to the remote tools, all the rows within the flow are sent. When an exevution flow is omitted, all the rows within the flow are omitted. This way. consistency and readability of data sent to the remote tools is ensured. Also, data sent to the remote tools can be limited in size, as well as its cost and performance impact.\nThe image below shows an end to end transation detail sent to the Azure Monitor: all the transaction flow is sent, regardless of the sampling ratio configured for the application. \nThe configuration section below, specifies a \"TracingSamplingRatio\": 0.1. In such case, only one execution flow should be sent to the remote tools, out of 10.\n  \"OpenTelemetry\": {\n    \"EnableMetrics\": true,\n    \"EnableTraces\": true,\n    \"TracingSamplingRatio\": 0.1,\n    \"ActivitySources\": [\n      \"Azure.Cosmos.Operation\",\n      \"Azure.Storage.Blobs.BlobBaseClient\",\n      \"Microsoft.AspNetCore\",\n      \"Diginsight.*\",\n      \"ABB.*\"\n    ],\n    \"ExcludedHttpHosts\": [\n      \"login.microsoftonline.com\",\n      \".documents.azure.com\",\n      \".applicationinsights.azure.com\",\n      \".monitor.azure.com\",\n      \".b2clogin.com\"\n    ],\n    \"DurationMetricTags\": [\n      \"widget_template\",\n      \"site_name\"\n    ]\n  },\nOn a production environment you may choose to keep a default Sampling Ratio from 0.1 to 0.4 to ensure minimal telemetry volumes and cost still allowing systems behaviours analysis (eg. average Latencies, metrics dashboards etc). Dynamic Logging and Dynamic configuration can be used to act on this parameter, for limited intervals or for specific execution flows, without need of application restart. This will ensure Full troubleshooting support.\n\nit is perfectly feasible to operate on a production environment keeping telemetry cost below a threshold (eg. in our case we work at about 5%) of the overall infrastructure cost, still ensuring full observability for troubleshooting of production issues.\n\n\n\n\nData sent to the remote tools can be configured by means of the OpenTelemetry section:\n\"OpenTelemetry\": {\n    \"EnableMetrics\": true,\n    \"EnableTraces\": true,\n    \"TracingSamplingRatio\": 0.1,\n    \"ActivitySources\": [\n        \"Azure.Cosmos.Operation\",\n        \"Azure.Storage.Blobs.BlobBaseClient\",\n        \"Microsoft.AspNetCore\",\n        \"Diginsight.*\",\n        \"ABB.*\"\n    ]\n},\n\nEnableMetrics (def. true): specifies whether metrics are sent to the remote tools\nEnableTraces (def. true): specifies whether traces are sent to the remote tools\nTracingSamplingRatio (def. 1): specifies the sampling ratio for data sent to the remote tools.\nActivitySources: identifies the activity sources enabled for sending data to the remote tools.\n\n\n\n\nWith OpenTelemetry, every execution flow (trace) can be composed of multiple spans. Diginsight gathers automatically few simple metrics such as the diginsight.span_duration that describes every single method latency.\nThe local troubleshooting tools show the diginsight.span_duration metric at any span completion row: \nDiginsights can be configured to send the span_duration metric to the remote tools. The following charts show diginsight span_duration metric for a few methods on an Azure Monitor dashboard: \nRecordSpanDurations class aware option can be used to specify which span_duration metrics should be sent to the remmote tools. In particular, the RecordSpanDurations flag can be set at namespace or class granularity level. As an example, the configuration snippet below specifies that RecordSpanDurations flag is enabled only for Microsoft and Diginsight namespaces:\n\"Diginsight\": {\n    \"Activities\": {\n        \"RecordSpanDurations\": false,\n        \"RecordSpanDurations@Microsoft.*\": true,\n        \"RecordSpanDurations@Diginsight.*\": true\n    }\n}\n\n\n\nWith diginsight, you can safely send sampled telemetry to the remote troubleshooting tools. This allows capturing application behaviors and trends. Also, logging to the local troubleshooting tools can normally be kept at Warning or Information level. This way, only limited information is sent to the remote tools and also, limited information is written to the local troubleshooting tools.\nThe image below shows a normal configuration for a runtime environment where only Information or warning level is enabled for few logging categories: \nThe image below shows an application streaming log where only limited information is written about exceptional conditions: \nIn case specific troubleshooting is needed for an application behaviour you can use dynamic logging to elevate application logging level for any logging category.\nThe image shows an example call to the server where LogLevel is elevated to Trace: \nThis will result in the full application flow being shown for the specific call: \nThis way, every call application flow can be easily isolated and analized on a live server, that is processing other calls at the same time.\n\n\n\n\nAdditional information is available in the following articles:\n\n\nGETTING STARTED Explores how we can make our application flow fully observable.\nHowTo: Use dynamic logging to manage loglevel dinamically, at runtime  Explores how we can troubleshoot applications by means of dynamic logging.\nHowTo: Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime Explores how we can troubleshoot applications by means of dynamic configuration.\nHowTo: Configure diginsight telemetry to the local text based streams Explores how we configure diginsight telemetry to the local analysis tools.\nHowTo: Configure diginsight telemetry to the remote tools Explore how we configure diginsight telemetry to the remote analysis tools.\n\n\n\n\n\nClone the repository, open and build solution Diginsight.sln. run EasySample and open the log file in your *** folder.\n\n\n\nContribute to the repository with your pull requests.\n\nASP.NET Core\nVisual Studio Code\n\n\n\n\nSee the LICENSE file for license rights and limitations (MIT).",
+    "crumbs": [
+      "Home",
+      "Advanced Articles",
+      "HowTo: Use diginsight telemetry with no impact on Application performance an telemetry cost"
+    ]
+  },
+  {
+    "objectID": "src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.html#introduction",
+    "href": "src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.html#introduction",
+    "title": "HowTo: Use diginsight telemetry with no impact on Application performance an telemetry cost",
+    "section": "",
+    "text": "Diginsight brings application behavior observability to the next step. In particular The ‘full application flow’ is made available to local text based streams such as the ‘Console log’ or the ‘Streaming log’. The same information can be made available to ‘remote tools’ for troubleshooting or performance analysis such as ‘Azure Monitor’ or ‘Grafana’.\nThe following example shows the execution flow of a Web API call, . \nIn the following paragraphs we’ll understand how this can be obtained without impact on the application performance. Also, you will soon learn that diginsight can be of great help with identifying and reducing high latency flows and redundant flows within the application execution paths. So diginsight can greatly contribute to application performance optimization more than provide a limitation to it.\n\nWith article: GETTING STARTED We explore how we can make our application flow fully observable.",
+    "crumbs": [
+      "Home",
+      "Advanced Articles",
+      "HowTo: Use diginsight telemetry with no impact on Application performance an telemetry cost"
+    ]
+  },
+  {
+    "objectID": "src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.html#performance-considerations",
+    "href": "src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.html#performance-considerations",
+    "title": "HowTo: Use diginsight telemetry with no impact on Application performance an telemetry cost",
+    "section": "",
+    "text": "The following image defines key drivers used by diginsights to avoid performence impacts:\n\n\n\nalt text\n\n\n\n\nThe following code snippet shows a method instrumented by means of diginsight System.Diagnostics activities:\npublic async Task&lt;IEnumerable&lt;Plant&gt;&gt; GetPlantByIdCachedAsync(Guid id)\n{\n    using var activity = Program.ActivitySource.StartMethodActivity(logger, () =&gt; new { id });\n\n    // Method implementation\n    // ...\n\n    activity?.SetOutput(plants);\n    return plants;\n}\nWhen disabling an activity source, the activities for it are not created and StartMethodActivity returns null. Also, if delegate notation is used to provide the StartMethodActivity payload, in case logging or payload rendering are disabled, the delegate is not used and the payload class is not allocated into the heap.\n In such conditions, diginsight activities are not at all generated or used and do not provide any performance impact to the overall application.\n\n\n\nNeedless to say, when log is disabled, method payloads are not processed and no strings are generated for method spans start and completion.\nAlso intermediate logger.LogXxxx() statements, when using structured logging notation do not involve any string composition.\npublic async Task&lt;IEnumerable&lt;Plant&gt;&gt; GetPlantByIdCachedAsync(Guid id)\n{\n    using var activity = Program.ActivitySource.StartMethodActivity(logger, () =&gt; new { id });\n\n    // Method implementation\n    // ...\n    logger.LogInformation(\"Plant '{Name}' ({Id}) accessed\", plant.Name, plant.Id)\n\n    activity?.SetOutput(plants);\n    return plants;\n}\n\n\n\nDiginsight supports intelligent sampling by means of OpenTelemetry sampling support.\nWith OpenTelemetry, a full execution within a component is identified as a trace. The image below shows an example trace where all rows share the same trace_id.\n\n\n\nalt text\n\n\nWhen an exevution flow is selected for sending to the remote tools, all the rows within the flow are sent. When an exevution flow is omitted, all the rows within the flow are omitted. This way. consistency and readability of data sent to the remote tools is ensured. Also, data sent to the remote tools can be limited in size, as well as its cost and performance impact.\nThe image below shows an end to end transation detail sent to the Azure Monitor: all the transaction flow is sent, regardless of the sampling ratio configured for the application. \nThe configuration section below, specifies a \"TracingSamplingRatio\": 0.1. In such case, only one execution flow should be sent to the remote tools, out of 10.\n  \"OpenTelemetry\": {\n    \"EnableMetrics\": true,\n    \"EnableTraces\": true,\n    \"TracingSamplingRatio\": 0.1,\n    \"ActivitySources\": [\n      \"Azure.Cosmos.Operation\",\n      \"Azure.Storage.Blobs.BlobBaseClient\",\n      \"Microsoft.AspNetCore\",\n      \"Diginsight.*\",\n      \"ABB.*\"\n    ],\n    \"ExcludedHttpHosts\": [\n      \"login.microsoftonline.com\",\n      \".documents.azure.com\",\n      \".applicationinsights.azure.com\",\n      \".monitor.azure.com\",\n      \".b2clogin.com\"\n    ],\n    \"DurationMetricTags\": [\n      \"widget_template\",\n      \"site_name\"\n    ]\n  },\nOn a production environment you may choose to keep a default Sampling Ratio from 0.1 to 0.4 to ensure minimal telemetry volumes and cost still allowing systems behaviours analysis (eg. average Latencies, metrics dashboards etc). Dynamic Logging and Dynamic configuration can be used to act on this parameter, for limited intervals or for specific execution flows, without need of application restart. This will ensure Full troubleshooting support.\n\nit is perfectly feasible to operate on a production environment keeping telemetry cost below a threshold (eg. in our case we work at about 5%) of the overall infrastructure cost, still ensuring full observability for troubleshooting of production issues.\n\n\n\n\nData sent to the remote tools can be configured by means of the OpenTelemetry section:\n\"OpenTelemetry\": {\n    \"EnableMetrics\": true,\n    \"EnableTraces\": true,\n    \"TracingSamplingRatio\": 0.1,\n    \"ActivitySources\": [\n        \"Azure.Cosmos.Operation\",\n        \"Azure.Storage.Blobs.BlobBaseClient\",\n        \"Microsoft.AspNetCore\",\n        \"Diginsight.*\",\n        \"ABB.*\"\n    ]\n},\n\nEnableMetrics (def. true): specifies whether metrics are sent to the remote tools\nEnableTraces (def. true): specifies whether traces are sent to the remote tools\nTracingSamplingRatio (def. 1): specifies the sampling ratio for data sent to the remote tools.\nActivitySources: identifies the activity sources enabled for sending data to the remote tools.\n\n\n\n\nWith OpenTelemetry, every execution flow (trace) can be composed of multiple spans. Diginsight gathers automatically few simple metrics such as the diginsight.span_duration that describes every single method latency.\nThe local troubleshooting tools show the diginsight.span_duration metric at any span completion row: \nDiginsights can be configured to send the span_duration metric to the remote tools. The following charts show diginsight span_duration metric for a few methods on an Azure Monitor dashboard: \nRecordSpanDurations class aware option can be used to specify which span_duration metrics should be sent to the remmote tools. In particular, the RecordSpanDurations flag can be set at namespace or class granularity level. As an example, the configuration snippet below specifies that RecordSpanDurations flag is enabled only for Microsoft and Diginsight namespaces:\n\"Diginsight\": {\n    \"Activities\": {\n        \"RecordSpanDurations\": false,\n        \"RecordSpanDurations@Microsoft.*\": true,\n        \"RecordSpanDurations@Diginsight.*\": true\n    }\n}\n\n\n\nWith diginsight, you can safely send sampled telemetry to the remote troubleshooting tools. This allows capturing application behaviors and trends. Also, logging to the local troubleshooting tools can normally be kept at Warning or Information level. This way, only limited information is sent to the remote tools and also, limited information is written to the local troubleshooting tools.\nThe image below shows a normal configuration for a runtime environment where only Information or warning level is enabled for few logging categories: \nThe image below shows an application streaming log where only limited information is written about exceptional conditions: \nIn case specific troubleshooting is needed for an application behaviour you can use dynamic logging to elevate application logging level for any logging category.\nThe image shows an example call to the server where LogLevel is elevated to Trace: \nThis will result in the full application flow being shown for the specific call: \nThis way, every call application flow can be easily isolated and analized on a live server, that is processing other calls at the same time.",
+    "crumbs": [
+      "Home",
+      "Advanced Articles",
+      "HowTo: Use diginsight telemetry with no impact on Application performance an telemetry cost"
+    ]
+  },
+  {
+    "objectID": "src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.html#additional-information",
+    "href": "src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.html#additional-information",
+    "title": "HowTo: Use diginsight telemetry with no impact on Application performance an telemetry cost",
+    "section": "",
+    "text": "Additional information is available in the following articles:\n\n\nGETTING STARTED Explores how we can make our application flow fully observable.\nHowTo: Use dynamic logging to manage loglevel dinamically, at runtime  Explores how we can troubleshoot applications by means of dynamic logging.\nHowTo: Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime Explores how we can troubleshoot applications by means of dynamic configuration.\nHowTo: Configure diginsight telemetry to the local text based streams Explores how we configure diginsight telemetry to the local analysis tools.\nHowTo: Configure diginsight telemetry to the remote tools Explore how we configure diginsight telemetry to the remote analysis tools.",
+    "crumbs": [
+      "Home",
+      "Advanced Articles",
+      "HowTo: Use diginsight telemetry with no impact on Application performance an telemetry cost"
+    ]
+  },
+  {
+    "objectID": "src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.html#build-and-test",
+    "href": "src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.html#build-and-test",
+    "title": "HowTo: Use diginsight telemetry with no impact on Application performance an telemetry cost",
+    "section": "",
+    "text": "Clone the repository, open and build solution Diginsight.sln. run EasySample and open the log file in your *** folder.",
+    "crumbs": [
+      "Home",
+      "Advanced Articles",
+      "HowTo: Use diginsight telemetry with no impact on Application performance an telemetry cost"
+    ]
+  },
+  {
+    "objectID": "src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.html#contribute",
+    "href": "src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.html#contribute",
+    "title": "HowTo: Use diginsight telemetry with no impact on Application performance an telemetry cost",
+    "section": "",
+    "text": "Contribute to the repository with your pull requests.\n\nASP.NET Core\nVisual Studio Code",
+    "crumbs": [
+      "Home",
+      "Advanced Articles",
+      "HowTo: Use diginsight telemetry with no impact on Application performance an telemetry cost"
+    ]
+  },
+  {
+    "objectID": "src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.html#license",
+    "href": "src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.html#license",
+    "title": "HowTo: Use diginsight telemetry with no impact on Application performance an telemetry cost",
+    "section": "",
+    "text": "See the LICENSE file for license rights and limitations (MIT).",
+    "crumbs": [
+      "Home",
+      "Advanced Articles",
+      "HowTo: Use diginsight telemetry with no impact on Application performance an telemetry cost"
+    ]
+  },
+  {
+    "objectID": "src/docs/02. Advanced/14.00 - Customize metrics sent to the remote tools.html",
+    "href": "src/docs/02. Advanced/14.00 - Customize metrics sent to the remote tools.html",
+    "title": "Customize metrics sent to the remote tools",
+    "section": "",
+    "text": "INTRODUCTION\ndiginsight telemetry is a set .Net packages that that provides automatic observability for dotnet applications. In particular, the full application flow is made available to local text based streams such as traditional file logs, the Console log or the Azure Streaming log.\n\n\n\n\n Back to top",
+    "crumbs": [
+      "Home",
+      "Advanced Articles",
+      "Customize metrics sent to the remote tools"
+    ]
+  },
+  {
+    "objectID": "src/docs/02. Advanced/17.00 - Troubleshoot the startup sequence.html",
+    "href": "src/docs/02. Advanced/17.00 - Troubleshoot the startup sequence.html",
+    "title": "Throubleshoot the startup sequence",
+    "section": "",
+    "text": "The most tricky or the most critical bugs are often hidden in the application startup sequence or application static methods. As an example, startup configurations such as connection string or resources access keys may be wrong or missing. Also, static contructors within the application or its dependencies may hide tricky bugs that are difficult to troubleshoot.\nThose places are usually difficult to troubleshoot as telemetry may be not active when they are executed.\nDiginsight telemetry enables full observability also for these parts by means of the DeferredLoggerFactory that provides recording the application flow until the telemetry infrastructure is set up.\nUpon setup completion, telemetry recording is flushed right before the standard telemetry flow gathering so that any configuration problem or error can be made visible.\nThe code snippets below are available as working samples within the telemetry_samples repository.\nIn particular the steps shown below explain how the startup sequence can be made observable on the SampleWebApi within the telemetry_samples repository.\n\n\n\nalt text",
+    "crumbs": [
+      "Home",
+      "Advanced Articles",
+      "Throubleshoot the startup sequence"
+    ]
+  },
+  {
+    "objectID": "src/docs/02. Advanced/17.00 - Troubleshoot the startup sequence.html#introduction",
+    "href": "src/docs/02. Advanced/17.00 - Troubleshoot the startup sequence.html#introduction",
+    "title": "Throubleshoot the startup sequence",
+    "section": "",
+    "text": "The most tricky or the most critical bugs are often hidden in the application startup sequence or application static methods. As an example, startup configurations such as connection string or resources access keys may be wrong or missing. Also, static contructors within the application or its dependencies may hide tricky bugs that are difficult to troubleshoot.\nThose places are usually difficult to troubleshoot as telemetry may be not active when they are executed.\nDiginsight telemetry enables full observability also for these parts by means of the DeferredLoggerFactory that provides recording the application flow until the telemetry infrastructure is set up.\nUpon setup completion, telemetry recording is flushed right before the standard telemetry flow gathering so that any configuration problem or error can be made visible.\nThe code snippets below are available as working samples within the telemetry_samples repository.\nIn particular the steps shown below explain how the startup sequence can be made observable on the SampleWebApi within the telemetry_samples repository.\n\n\n\nalt text",
+    "crumbs": [
+      "Home",
+      "Advanced Articles",
+      "Throubleshoot the startup sequence"
+    ]
+  },
+  {
+    "objectID": "src/docs/02. Advanced/17.00 - Troubleshoot the startup sequence.html#how-to-make-the-startup-sequence-observable",
+    "href": "src/docs/02. Advanced/17.00 - Troubleshoot the startup sequence.html#how-to-make-the-startup-sequence-observable",
+    "title": "Throubleshoot the startup sequence",
+    "section": "How to make the startup sequence observable",
+    "text": "How to make the startup sequence observable\nThe following code snippet shows the startup method of the SampleWebApi project:\npublic static IDeferredLoggerFactory DeferredLoggerFactory;\ninternal static readonly ActivitySource ActivitySource = new(typeof(Program).Namespace ?? typeof(Program).Name!);\n\npublic static void Main(string[] args)\n{\n    DiginsightActivitiesOptions activitiesOptions = new() { LogActivities = true };\n    DeferredLoggerFactory = new DeferredLoggerFactory(activitiesOptions: activitiesOptions);\n    var logger = DeferredLoggerFactory.CreateLogger&lt;Program&gt;();\n\n    ActivitySource activitySource = new(typeof(Program).Namespace!);\n    DeferredLoggerFactory.ActivitySources.Add(activitySource);\n    DiginsightDefaults.ActivitySource = activitySource;\n\n    IWebHost host;\n    using (var activity = DiginsightDefaults.ActivitySource.StartMethodActivity(logger, new { args }))\n    {\n        host = WebHost.CreateDefaultBuilder(args)\n            .ConfigureAppConfiguration2()\n            .UseStartup&lt;Startup&gt;()\n            .ConfigureServices(services =&gt;\n            {\n                var logger = DeferredLoggerFactory.CreateLogger&lt;Startup&gt;();\n                using var innerActivity = ActivitySource.StartRichActivity(logger, \"ConfigureServicesCallback\", new { services });\n\n                services.TryAddSingleton(DeferredLoggerFactory);\n            })\n            .UseDiginsightServiceProvider()\n            .Build();\n\n        logger.LogDebug(\"Host built\");\n    }\n\n    host.Run();\n}\na IDeferredLoggerFactory and an ILogger instance are created at startup, immediatly after application start:\nDiginsightActivitiesOptions activitiesOptions = new() { LogActivities = true };\nDeferredLoggerFactory = new DeferredLoggerFactory(activitiesOptions: activitiesOptions);\nvar logger = DeferredLoggerFactory.CreateLogger&lt;Program&gt;();\nDotnet logging is not configured or activated already, however logger instance is recording all activities START, END and all explicit logging operations.\nPlease, note that the logger factory is passed the activitySources that are used so that it can register as a listener to them.\nDeferredLoggerFactory.ActivitySources.Add(activitySource);\nthe Startup ConfigureServices method registers observability with AddObservability() method. Also, it registers recorded telemetry flush with FlushOnCreateServiceProvider().\npublic void ConfigureServices(IServiceCollection services)\n{\n    services.AddHttpContextAccessor();\n    services.AddObservability(configuration);\n    services.AddDynamicLogLevel&lt;DefaultDynamicLogLevelInjector&gt;();\n    services.FlushOnCreateServiceProvider(deferredLoggerFactory);\nAfter services configuration, right before the host build, the telemetry and logging will be configured and activated. The UseDiginsightServiceProvider() call will run the registered telemetry Flush() and all the deferred logs will be flushed to the telemetry targets.\n\n\n\nalt text\n\n\nApi startup will then show all logs recorded during startup:\n\n\n\nalt text",
+    "crumbs": [
+      "Home",
+      "Advanced Articles",
+      "Throubleshoot the startup sequence"
+    ]
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/01.00 HOWTO - Make your application flow observable.html",
+    "href": "src/docs/03. Diginsightv2/01.00 HOWTO - Make your application flow observable.html",
+    "title": "Make your application observable",
+    "section": "",
+    "text": "Common.Diagnostics makes the application flow fully observable, still without compromises on performance.  This makes troubleshooting easier! Also, reverse enrineering is made easier, when changing or migrating applications and documentation is not available about the application behaviour.   In this article we’ll explore how we can make our application flow fully observable.  With article: HOWTO - Avoid performance impacts using diginsight telemetry.md we’ll go deep into diginsight strategies and best practices to avoid impacts on the application performance."
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/01.00 HOWTO - Make your application flow observable.html#introduction",
+    "href": "src/docs/03. Diginsightv2/01.00 HOWTO - Make your application flow observable.html#introduction",
+    "title": "Make your application observable",
+    "section": "",
+    "text": "Common.Diagnostics makes the application flow fully observable, still without compromises on performance.  This makes troubleshooting easier! Also, reverse enrineering is made easier, when changing or migrating applications and documentation is not available about the application behaviour.   In this article we’ll explore how we can make our application flow fully observable.  With article: HOWTO - Avoid performance impacts using diginsight telemetry.md we’ll go deep into diginsight strategies and best practices to avoid impacts on the application performance."
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/01.00 HOWTO - Make your application flow observable.html#log-methods-execution",
+    "href": "src/docs/03. Diginsightv2/01.00 HOWTO - Make your application flow observable.html#log-methods-execution",
+    "title": "Make your application observable",
+    "section": "Log methods execution",
+    "text": "Log methods execution\nSimple using statements can be used to define Method or Named scopes. Exposing a method execution to diginsight is as simple as shown below:\nprivate async Task ctlMain_InitializedAsync(object sender, EventArgs e)\n{\n    using var scope = logger.BeginMethodScope(new { sender, e }); \n    // scope variable writes method START and END and keeps track of nesting level\n\n    try\n    {\n        var tenantId = default(string);\n        var clientId = default(string);\nBeginMethodScope() extension method ensures that method name, class name and other useful information about the execution flow are gathered and used upon need.  The above statement produces the following application log flow where ctlMain_InitializedAsync is made evident: \nSimilar code can be used to expose a named scope within an existing method:\nprivate void SaveExecuted(object sender, ExecutedRoutedEventArgs e)\n{\n    using var scope = logger.BeginMethodScope();\n\n    var inputBox = new InputBoxControl()\n    {\n        Title = \"Save configuration...\",\n        Label = \"Choose a configuration name:\",\n        Text = \"Samplename\"\n    };\n\n    inputBox.OnOK += (sender, e) =&gt;\n    {\n        using var scope = logger.BeginNamedScope(\"OnOK\");\n        // named scope 'OnOK' is defined here\n\n        ...\n    };\nBeginNamedScope() applies name ‘OnOK’ to the code section enclosed by the using statement.  The above statement produces the following application log flow: \nIn this flow it OnOK code section is shown as a part (or as en extension) of method SaveExecuted."
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/01.00 HOWTO - Make your application flow observable.html#use-iloggerprovider-where-ilogger-class-is-not-available",
+    "href": "src/docs/03. Diginsightv2/01.00 HOWTO - Make your application flow observable.html#use-iloggerprovider-where-ilogger-class-is-not-available",
+    "title": "Make your application observable",
+    "section": "Use ILoggerProvider where ILogger class is not available",
+    "text": "Use ILoggerProvider where ILogger class is not available\nWhen ILogger logger member is not available we can use static methods instead of ILogger extension methods.\nThe above method scope example can be defined with the following syntax:\nprivate async Task ctlMain_InitializedAsync(object sender, EventArgs e)\n{\n    using var scope = TraceLogger.BeginMethodScope(T, new { sender, e });\n    // scope variable writes method START and END and keeps track of nesting level\n\n    try\n    {\n        var tenantId = default(string);\n        var clientId = default(string);\nThe above named scope example can be defined with the following syntax:\nprivate void SaveExecuted(object sender, ExecutedRoutedEventArgs e)\n{\n    using var scope = TraceLogger.BeginMethodScope(T);\n\n    var inputBox = new InputBoxControl()\n    {\n        Title = \"Save configuration...\",\n        Label = \"Choose a configuration name:\",\n        Text = \"Samplename\"\n    };\n\n    inputBox.OnOK += (sender, e) =&gt;\n    {\n        using var scope = TraceLogger.BeginNamedScope(T, \"OnOK\");\n        // named scope 'OnOK' is defined here\n\n        ...\n    };"
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/01.00 HOWTO - Make your application flow observable.html#log-parameter-values",
+    "href": "src/docs/03. Diginsightv2/01.00 HOWTO - Make your application flow observable.html#log-parameter-values",
+    "title": "Make your application observable",
+    "section": "Log Parameter values",
+    "text": "Log Parameter values\nParameter values can be logged together with their names with the following syntax:\npublic async Task&lt;UserProfileResponse&gt; FindUserByEmailAddressAsync(string emailAddress, CacheContext cacheContext = null)\n{\n    using var scope = logger.BeginMethodScope(new { emailAddress, cacheContext = cacheContext?.GetLogString() });\n    // emailAddress and cacheContext parameters are logged with the above Method scope\n\n    try\n    {\n        return await userProfileClient.FindUserByEmailAddressAsync(emailAddress, cacheContext);\n    }\n    catch (ApplicationException ape)\n    {\n        logger.LogException(ape);\n        throw;\n    }\n}\nin this case method FindUserByEmailAddressAsync is logged together with its parameter names and parameter values. Parameter names and values are shown inline within the method START line, as shown below: \nFor Simple types such as strings, numeric etc values are shown properly. For complex types GetLogString() extension method can be used.\nIn the provided example, GetLogString() produces the following description for the cacheContext parameter:\ncacheContext:{CacheContext:{Enabled:True,MaxAge:600}}\nSuch descriptions can be provided by the object itself, by means of ISupportLogString interface or by the outer application, by means of IProvideLogString interface.\nThe following code snippet shows a class providing its log string by means of ISupportLogString interface:\npublic class CacheContext : ICacheContext, ISupportLogString\n{\n    public bool Enabled { get; set; }\n    public int? MaxAge { get; set; }\n    public int? AbsoluteExpiration { get; set; }\n    public int? SlidingExpiration { get; set; }\n    public Type InterfaceType { get; set ; }\n\n    public string ToLogString()\n    {\n        var logString = $\"{{{nameof(CacheContext)}:{{Enabled:{this.Enabled},MaxAge:{this.MaxAge},AbsoluteExpiration:{this.AbsoluteExpiration},SlidingExpiration:{this.SlidingExpiration}}}\";\n        return logString;\n    }\n}\nThe following code snippet shows an application providing log strings for external classes by means of IProvideLogString interface\npublic partial class App : Application, IProvideLogString\n    {\n        static Type T = typeof(App);\n\n        public App()\n        {\n            using (var sec = TraceManager.GetCodeSection(T))\n            {\n                LogStringExtensions.RegisterLogstringProvider(this);\n                // RegisterLogstringProvider register a provider implementing IProvideLogString interface\n            }\n        }\n\n        public string ToLogString(object t, HandledEventArgs arg)\n        {\n            // ToLogString implementation provides LogString implementation for incomin object instances \n            switch (t)\n            {\n                case Window w: arg.Handled = true; return ToLogStringInternal(w);\n                default:\n                    break;\n            }\n            return null;\n        }\n        public static string ToLogStringInternal(Window pthis)\n        {\n            // in this case, a LogString is provided for System Window objects\n            string logString = $\"{{Window:{{Name:{pthis.Name},ActualHeight:{pthis.ActualHeight},ActualWidth:{pthis.ActualWidth},AllowsTransparency:{pthis.AllowsTransparency},Background:{pthis.Background},Width:{pthis.Width},Height:{pthis.Height}}}}}\";\n            return logString;\n        }\n ## Log messages and variables\nMessages and variables can be logged with their severity within any method or a named scope.\nWe can use the scope variable to add trace messages to the method scope or the named scope\n    // log statements within a scope\n    - scope.LogTrace(\"this is a Trace trace\");\n    - scope.LogDebug(\"this is a Debug trace\");\n    - scope.LogInformation(\"this is a Information trace\");\n    - scope.LogWarning(\"this is a Warning trace\");\n    - scope.LogError(\"this is a error trace\");\n    - scope.LogCritical(\"this is a critical trace\");\n    - scope.LogException(ex);\nWe can use standard ILogger statements or TraceLogger static methods to add trace messages to the application flow when a scope variable instance is not available.\n    // standard Ilogger statements:\n    - _logger.LogTrace(\"this is a Trace trace\");\n    - _logger.LogDebug(\"this is a Debug trace\");\n    - _logger.LogInformation(\"this is a Information trace\");\n    - _logger.LogWarning(\"this is a Warning trace\");\n    - _logger.LogError(\"this is a error trace\");\n    - _logger.LogCritical(\"this is a critical trace\");\n    - _logger.LogException(ex);\n\n    // log statements with TraceLogger static methods:\n    - TraceLogger.LogTrace(\"this is a Trace trace\");\n    - TraceLogger.LogDebug(\"this is a Debug trace\");\n    - TraceLogger.LogInformation(\"this is a Information trace\");\n    - TraceLogger.LogWarning(\"this is a Warning trace\");\n    - TraceLogger.LogError(\"this is a error trace\");\n    - TraceLogger.LogCritical(\"this is a critical trace\");\n    - TraceLogger.LogException(ex);\nIn this case log traces are added to the inner most scope, for the current thread. In the latter options, we cannot be sure that the trace is performed in the same method where the scope variable is defined; for this reason, output messages are prefixed with a leading ellipsis as shown below: \nVariables with their names can be logged with the following syntax:\n    // log statements within a scope\n    - scope.LogDebug(new { this.Identity, tenantId, clientId, clientSecret, keyVaultAddress });\n\n    // standard Ilogger statements:\n    - _logger.LogDebug(new { this.Identity, tenantId, clientId, clientSecret, keyVaultAddress });\n\n    // log statements with TraceLogger static methods:\n    - TraceLogger.LogDebug(new { this.Identity, tenantId, clientId, clientSecret, keyVaultAddress });\nIn this cases the veriables are rendered with their names, in the same way this happens when logging method parameters.\n\nPlease note that variable names and values are taken directly by the LogDebug() payload object and the developer doesn’t need to compose a string with them and keep it up to date."
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/01.00 HOWTO - Make your application flow observable.html#log-the-startup-sequence-and-any-relevant-application-flow-detail",
+    "href": "src/docs/03. Diginsightv2/01.00 HOWTO - Make your application flow observable.html#log-the-startup-sequence-and-any-relevant-application-flow-detail",
+    "title": "Make your application observable",
+    "section": "Log the startup sequence and any relevant application flow detail",
+    "text": "Log the startup sequence and any relevant application flow detail\n\nLog the startup Sequence\nThe startup sequence of aspnet applications often hides complex logic that is very difficult to troubleshoot.  Diginsight reproduces the application flow since the Program.Main application start. Where dependency injection ILogger variables are not available, you can define method scopes and named scopes by means of the static TraceLogger overloads (see examples above).\nThe following image shows the application flow of an aspnet core application startup sequence, including the CreateHostBuilder method and its callbacks ConfigureAppConfiguration and ConfigureServices\n\nMany complex details such as configuration errors and connection failures are often hidden here and troubleshooting for these phases can be very complex. Diginsight shows any detail here so that any later application failure can be more easily and quickly understood."
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/01.00 HOWTO - Make your application flow observable.html#use-diginsight-to-observe-application-behaviours",
+    "href": "src/docs/03. Diginsightv2/01.00 HOWTO - Make your application flow observable.html#use-diginsight-to-observe-application-behaviours",
+    "title": "Make your application observable",
+    "section": "Use diginsight to observe application behaviours",
+    "text": "Use diginsight to observe application behaviours\nMany details can be observed from diginsight application flow. A few example below: 1. it is easy to understand if the application is executing redundant calls or within the overall application flow 2. it is easy to understand if a particular internal call is producing a relevant latency. 3. it is easy to understand if a call to an external method is involving a big payload size\nThe image below shows a call to method FindUserByEmailAddressAsync with a latency of 50 seconds: this makes evident that the invoked service has problem to be understood.\n\nThe example below shows a call is shown where the returned payload is higher than 1MB:  if the method is invoked frequently, this may cause a scalability problem."
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/01.00 HOWTO - Make your application flow observable.html#build-and-test",
+    "href": "src/docs/03. Diginsightv2/01.00 HOWTO - Make your application flow observable.html#build-and-test",
+    "title": "Make your application observable",
+    "section": "Build and Test",
+    "text": "Build and Test\nClone the repository, open and build solution Common.Diagnostics.sln. run EasySample and open the log file in your *** folder."
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/01.00 HOWTO - Make your application flow observable.html#contribute",
+    "href": "src/docs/03. Diginsightv2/01.00 HOWTO - Make your application flow observable.html#contribute",
+    "title": "Make your application observable",
+    "section": "Contribute",
+    "text": "Contribute\nContribute to the repository with your pull requests.\n\nASP.NET Core\nVisual Studio Code"
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/01.00 HOWTO - Make your application flow observable.html#license",
+    "href": "src/docs/03. Diginsightv2/01.00 HOWTO - Make your application flow observable.html#license",
+    "title": "Make your application observable",
+    "section": "License",
+    "text": "License\nSee the LICENSE file for license rights and limitations (MIT)."
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/10. HowTo Use Diginsight v3/HOWTO - Use Diginsight v3.html",
+    "href": "src/docs/03. Diginsightv2/10. HowTo Use Diginsight v3/HOWTO - Use Diginsight v3.html",
+    "title": "INTRODUCTION",
+    "section": "",
+    "text": "INTRODUCTION\nDiginsight v3 introcuces the following key changes to diginsight telemetry&gt; - stronger integration with standard .Net Diagnostics and ILogger API. - stronger integration with Opentelemetry (Traces, Metrics, logs) and Azure Monitor. - performance improvements. - Automatic (customizable) rendering of method payloads and return values. - support to dynamic configuration of log levels. - TBD: Automatic rendering of outbound calls (http, cosmosdb, ….).\n\n\nDIGINSIGHT SAMPLES GITHUB PROJECT\nDiginsight telemetry_samples projects are available on the Diginsight GitHub repository.\n\n\nwhen cloning the repositories you will find the following folder structure: \nOpening the Common.Diagnostics.Samples solution you should be able to build and run the samples for Wpf, Aspnet and Blazor technologies Opening the Common.Diagnostics.Samples.Debug solution the samples will be built with project reference to diginsight to allow you easily step into and debug diginsight code.\nNB. Common.Diagnostics.Samples.Debug solution can only be used when both telemetry and telemetry_samples repositories are cloned with their default name, under the same parent folder.\n\n\n\n\n\n\n\nCommon.Diagnostics.Samples.sln solution\nCommon.Diagnostics.Samples.Debug.sln solution\n\n\n\n\n\n\n\n\n\n\n\nContribute\nContribute to the repository with your pull requests.\n\nASP.NET Core\nVisual Studio Code\n\n\n\nLicense\nSee the LICENSE file for license rights and limitations (MIT).\n\n\n\n\n Back to top"
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/10.01 - Introduction to Diginsight v3.html",
+    "href": "src/docs/03. Diginsightv2/10.01 - Introduction to Diginsight v3.html",
+    "title": "INTRODUCTION",
+    "section": "",
+    "text": "INTRODUCTION\nDiginsight v3 introcuces the following key changes to diginsight telemetry: - Stronger integration with standard .Net Diagnostics and ILogger API. - Stronger integration with Opentelemetry (Traces. Metrics. logs) and Azure Monitor (Dashboards, Application Map, Transaction details). - Support for distributed tracing by means of W3C headers traceparent, trace-id and span-id. - Higher performance and telemetry volumes optimization. - Automatic (customizable) rendering of method payloads and return values. - Support to dynamic configuration of log levels. - Support to smart sampling to limit telemetry volumes. - TBD: Automatic rendering of outbound calls (http, cosmosdb, … ). - a new Diginsight.SmartCache component is available that leverages diginsight v3.\n\n\n\nStronger Integration with Standard .Net Diagnostics and ILogger API\nAdding .Net instrumentation is a matter of defining System.Diagnostics activity sources, creating activity scopes and logging statements:\nstatic async Task&lt;int&gt; DoSomeWork(string foo, int bar)\n{\n    using var activity = source.StartActivity($\"DoSomeWork({foo}, {bar})\");\n\n    var result1 = await StepOne(); \n    logger.LogDebug($\"await StepOne(); returned {result1}\");\n    \n    var result2 = await StepTwo(); \n    logger.LogDebug($\"await StepTwo(); completed {result2}\");\n\n    var result = result1 + result2;\n    return result;\n}\nwith Diginsight v3 activity scopes can be created with similar notation, without need of manually creating a string with method name and parameters information:\nstatic async Task DoSomeWork(string foo, int bar)\n{\n    using var activity = source.StartMethodActivity(logger, new { foo, bar });\n\n    var result1 = await StepOne(); \n    logger.LogDebug($\"await StepOne(); returned {result1}\");\n    \n    var result2 = await StepTwo(); \n    logger.LogDebug($\"await StepTwo(); completed {result2}\");\n\n    var result = result1 + result2;\n\n    activity.StoreOutput(result);\n    return result;\n}\nthe above code will produce the following output:\ntext based stream log\nData shown on text based readable flow is consistent with the originating code.\n\n\nStronger integration with Opentelemetry (Traces. Metrics. logs) and Azure Monitor (Dashboards, Application Map, Transaction details)\nEnabling Opentelemetry the same information visible on the log files can be made available on remote tools as Traces, Metrics and logs.\nthe following image shows a transaction details with the entire flow of a single call:\ntransaction flow of a single call\nMetrics can be enabled to measure duration of any method call. In the following examle metrics are shown with latencies of methods PlantWidgetController.Get and WidgetDataService.GetDataAsync . \nThe following image shows the application map associated to an application execution where interacting application components are put in evidence:\napplication map diagram\nData shown on remote tools is consistent with data on text based readable log and the originating code.\n\n\nSupports Distributed tracing by means of W3C headers traceparent, trace-id and span-id\nDiginsight takes advantage of W3C Trace Context specifications header traceparent to maintain trace-id and span-id of every single call.\nthe example below shows a call received with traceparent\ntraceparent: 00-8652a752089f33e2659dff28d683a18f-7359b90f4355cfd9-01\ntrace-id:    00-8652a752089f33e2659dff28d683a18f\nspan-id:                                         7359b90f4355cfd9-01\nwhere trace-id and span-id are properly associated to every execution span:\nimage with trace based stream log showing the trace-id and span-id\nthe following image shows the same transaction on azure monitor, that can be queried by means of the same ids:\nimage with trace based stream log showing the trace-id and span-id\n\n\nHigher performance and telemetry volumes optimization\nHigher performance is obtained by means of optimized log strings generation.\nTelemetry volumes optimization is obtained by default, by limiting time and space used to generate every single trace. In case string generation exceedes a configurable latency (in ticks) the log string is truncated and terminated with an ellipsis (…). Also, the log string is truncated and terminated with an ellipsis (…) in case string generation exceedes a configurable space (in Bytes), .\nwhen needed, the developer may require to avoid default string truncation as an example, when logging queries or important payload.\nNOTE: please note that disabling automatic truncation for a line may affect performance in time or space for telemetry\nin case of need, please consider the following __best practices__: \n- big payload should not be logged frequently \n- big payload should be logged at Debug level or higher\nTelemetry volumes optimization can also be obtained applying ‘Smart Sampling’ as shown int the following paragraphs.\n\n\nAutomatic rendering of method payloads and return values.\nDiginsight v3 provides automatic rendering of method payloads and return values by default.\nwhen logging\nstatic async Task DoSomeWork(Identity identity)\n{\n    using (var activity = source.StartMethodActivity(logger, new { identity }));\n\n    var result1 = await StepOne(); \n    logger.LogDebug($\"await StepOne(); returned {result1}\");\n    \n    var result2 = await StepTwo(); \n    logger.LogDebug($\"await StepTwo(); completed {result2}\");\n\n    var result = result1 + result2;\n\n    activity.StoreOutput(result);\n    return result;\n}\nthe impunt payload or the method result properties and type are rendered automatically into the text based log stream.\nThe developer can specify the order to be used when rendering entity properties and property inclusions or exclusions to make entity rendering more readable and meaningful.\n\n\nSupport to dynamic configuration of log levels\nto minimize telemetry volumes, optimize performance and cost telemetry can be configured to be active only for critical and warning levels (optionally, for information level).\nwhen troubleshooting is required calls to an application or API can be issued with headers ‘Dynamic-Configuration’\n\n\n\nAlt text\n\n\n\n\nSupport to smart sampling to limit telemetry volumes.\nSmart sampling can be configured to specify that transactions execution be sent to azure monitor or other remote tools at a configurable percentage.\nWhen configuring Smart sampling a full transaction can be sampled dropped for sending to the remote tools. So consistency and meaning is kept for data sent to the remote tools.\n\n\nContribute\nContribute to the repository with your pull requests.\n\nASP.NET Core\nVisual Studio Code\n\n\n\nLicense\nSee the LICENSE file for license rights and limitations (MIT).\n\n\n\n\n Back to top"
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/v2/articles/01. Make your application flow observable/HOWTO - Make your application flow observable.html",
+    "href": "src/docs/03. Diginsightv2/v2/articles/01. Make your application flow observable/HOWTO - Make your application flow observable.html",
+    "title": "INTRODUCTION",
+    "section": "",
+    "text": "Common.Diagnostics makes the application flow fully observable, still without compromises on performance.  This makes troubleshooting easier! Also, reverse enrineering is made easier, when changing or migrating applications and documentation is not available about the application behaviour.   In this article we’ll explore how we can make our application flow fully observable.  With article: HOWTO - Avoid performance impacts using diginsight telemetry.md we’ll go deep into diginsight strategies and best practices to avoid impacts on the application performance."
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/v2/articles/01. Make your application flow observable/HOWTO - Make your application flow observable.html#log-the-startup-sequence",
+    "href": "src/docs/03. Diginsightv2/v2/articles/01. Make your application flow observable/HOWTO - Make your application flow observable.html#log-the-startup-sequence",
+    "title": "INTRODUCTION",
+    "section": "Log the startup Sequence",
+    "text": "Log the startup Sequence\nThe startup sequence of aspnet applications often hides complex logic that is very difficult to troubleshoot.  Diginsight reproduces the application flow since the Program.Main application start. Where dependency injection ILogger variables are not available, you can define method scopes and named scopes by means of the static TraceLogger overloads (see examples above).\nThe following image shows the application flow of an aspnet core application startup sequence, including the CreateHostBuilder method and its callbacks ConfigureAppConfiguration and ConfigureServices\n\nMany complex details such as configuration errors and connection failures are often hidden here and troubleshooting for these phases can be very complex. Diginsight shows any detail here so that any later application failure can be more easily and quickly understood."
+  },
+  {
+    "objectID": "src/docs/03. Diginsightv2/v2/articles/03. Integrate the application flow with Azure Monitor and Grafana/HOWTO - Integrate the application flow with Azure Monitor and Grafana.html",
+    "href": "src/docs/03. Diginsightv2/v2/articles/03. Integrate the application flow with Azure Monitor and Grafana/HOWTO - Integrate the application flow with Azure Monitor and Grafana.html",
+    "title": "INTRODUCTION",
+    "section": "",
+    "text": "INTRODUCTION\nApplication observability is about aggregating, correlating and analyzing the following key elements: - Logs with application execution details and data. - The requests and operations structure (sometimes also referred as Activity, Traces or Spans) with the structure of application calls, related to an event or exception condition. - Metrics: numeric values (such as latencies, payload sizes, frequencies) that can be aggregated and correlated with the operations structure and the logs.\nThe image below shows examples about the 3 observability elements on Azure Monitor Performance Management (APM) Tools:  \nApplication observability is evolving with the introduction of Open Telemetry. Microsoft technologies for observability such as Azure Monitor and Application Insights are embracing Open Telemetry as the future for instrumentation. OpenTelemetry + Azure Monitor blog post   For this reason, connecting diginsight to OpenTelemetry allows reaching Azure Monitor components and standard Open Telemetry targets such as Azure Grafana and Grafana custom implementations (eg. on Kubernetes).  In the following paragraphs we’ll explore how to integrate diginsight with OpenTelemetry and how we can use grafana and Azure monitor components to analize our application behaviour.\n\n\nINTEGRATE DIGINSIGHT TO OPENTELEMETRY\n\nIn your ConfigureServices method add the AddObservability() method as shown below \npublic void ConfigureServices(IServiceCollection services)\n{\n    using var scope = _logger.BeginMethodScope(new { services });\n\n    services.TryAddSingleton&lt;IHttpContextAccessor, HttpContextAccessor&gt;();\n    services.AddSingleton&lt;IParallelService, ParallelService&gt;();\n    services.AddClassConfiguration();\n    services.AddObservability(Configuration); \n\n    services.AddControllersWithViews();\n    services.AddRazorPages(); \n}\nthen, implement the AddObservability() extension method as shown below: ```c# public static IServiceCollection AddObservability(this IServiceCollection services, IConfiguration configuration) { var cloudRoleName = typeof(Program).Assembly.GetName().Name; var cloudRoleNamespace = typeof(Program).Assembly.GetName().FullName; var cloudRoleInstance = typeof(Program).Assembly.GetName().FullName; var aiConnectionString = configuration[“ApplicationInsights:ConnectionString”];\n var resourceAttributes = new Dictionary&lt;string, object&gt; {\n         { \"service.name\", cloudRoleName },\n         { \"service.namespace\", cloudRoleNamespace },\n         { \"service.instance.id\", cloudRoleInstance }};\n\n ObservabilityDefaults.ActivitySource = TraceLogger.ActivitySource;\n ObservabilityDefaults.Meter = EasySampleMetrics.Instance.Meter; \n\n var builder = services.AddOpenTelemetry();\n builder = builder.WithTracing(builder =&gt;\n {\n     builder.ConfigureResource(resourceBuilder =&gt; resourceBuilder.AddAttributes(resourceAttributes));\n\n     builder.AddProcessor&lt;DurationMetricProcessor&gt;();\n     builder.AddAspNetCoreInstrumentation();\n     builder.AddHttpClientInstrumentation();\n     builder.AddConsoleExporter(options =&gt; options.Targets = ConsoleExporterOutputTargets.Debug);\n     builder.AddAzureMonitorTraceExporter();\n\n     builder.AddSource(\"Azure.*\");\n     builder.AddSource(TraceLogger.ActivitySource.Name);\n });\n\n builder = builder.WithMetrics(builder =&gt;\n {\n     builder.AddHttpClientInstrumentation();\n     builder.AddConsoleExporter();\n     builder.AddPrometheusExporter();\n\n     builder.AddMetrics&lt;EasySampleMetrics&gt;();\n     builder.AddMeter(EasySampleMetrics.StaticObservabilityName);\n\n     builder.AddAzureMonitorMetricExporter();\n     builder.ConfigureResource(resourceBuilder =&gt; resourceBuilder.AddAttributes(resourceAttributes));\n });\n\n builder = builder.ConfigureResource(builder =&gt; builder.AddService(serviceName: cloudRoleName));\n\n builder = builder.UseAzureMonitor(options =&gt;\n {\n     options.ConnectionString = aiConnectionString;\n });\n\n return services;\n} ```\n\nwhere in this code: - services.AddOpenTelemetry(); is initializing OpenTelemetry and returning a builder object that you can use to further configure telemetry processors, exporters, and instrumentation. - builder.WithTracing(); configures tracing for OpenTelemetry : - builder.ConfigureResource(builder =&gt; builder.AddAttributes(resourceAttributes));: configures the resource attributes such as the “module names” that are shown on the application map. - builder.AddProcessor(); adds a processor to the tracing pipeline to publish methods duration as metrics. - builder.AddAspNetCoreInstrumentation(); and builder.AddHttpClientInstrumentation();: add instrumentation for ASP.NET Core and HttpClient. - builder.AddConsoleExporter(options =&gt; options.Targets = ConsoleExporterOutputTargets.Debug);: This line is adding a console exporter with the target set to debug. Exporters send the telemetry data to a backend or destination. - builder.AddAzureMonitorTraceExporter();: adds the Azure Monitor exporter that sends methods (also Activities or Spans) information to AzureMonitor. - __builder.AddSource(“Azure.*“); and builder.AddSource(TraceLogger.ActivitySource.Name);__: add sources of telemetry data, by default, Diginsight use TraceLogger.ActivitySource to send telemetry data to AzureMonitor. ```c# builder = builder.WithTracing(builder =&gt; { builder.ConfigureResource(resourceBuilder =&gt; resourceBuilder.AddAttributes(resourceAttributes));\n        builder.AddProcessor&lt;ObservabilityLogProcessor&gt;();\n        builder.AddProcessor&lt;DurationMetricProcessor&gt;();\n        builder.AddAspNetCoreInstrumentation();\n        builder.AddHttpClientInstrumentation();\n        builder.AddConsoleExporter(options =&gt; options.Targets = ConsoleExporterOutputTargets.Debug);\n        builder.AddAzureMonitorTraceExporter();\n\n        builder.AddSource(\"Azure.*\");\n        builder.AddSource(TraceLogger.ActivitySource.Name);\n    });\n    ```\n\nbuilder.WithMetrics(); configures metrics for OpenTelemetry :\n\nbuilder.AddMetrics();: adds a custom metrics class EasySampleMetrics. that is used to send span_durations to OpenTelemetry.\nbuilder.AddMeter(EasySampleMetrics.StaticObservabilityName);: adds a meter with the name “EasySampleBlazorv2.Server”.\nbuilder.AddAzureMonitorMetricExporter();: adds the Azure Monitor exporter that sends metrics information to AzureMonitor.\nbuilder.ConfigureResource(builder =&gt; builder.AddAttributes(resourceAttributes));: configures the resource attributes for the metrics such as the module name that is sending the metrics.\n\nbuilder.ConfigureResource(b =&gt; b.AddService(serviceName: cloudRoleName)); configures the entity that is producing the telemetry data, in this case the service name is the assembly name.\nbuilder.UseAzureMonitor(options =&gt; {...}) connects the application to the Azure Monitor by means of the Azure Monitor Application Insight Connection String.\n\n\n\nANALYZE TELEMETRY FROM AZURE MONITOR\nDiginsight sends methods durations to Azure Monitor as the span_duration metric where the method name is set in the span_name dimension. you have fine grane control on which methods and which method letencies are sent by means of the PublishMetrics and PublishFlow configurations.\nThese settings are set to false, by default. you can enable them in the appsettings.json for all classes, or at any specific class level as shown below:\n\"AppSettings\": {\n    \"PublishMetrics\": false,\n    \"PublishFlow\": false,\n    \"PlantWidgetController.PublishMetrics\": true, // sets PublishMetrics to true for class PlantWidgetController\n    \"PlantWidgetController.PublishFlow\": true, // sets PublishFlow to true for class PlantWidgetController\n    \"WidgetDataService.PublishMetrics\": true,\n    \"WidgetDataService.PublishFlow\": true,\n    \"WidgetDataService.GetWidget.PublishMetrics\": true\n}\nIn the following image we see how to create a chart with the average span_duration of method PlantWidgetController.Get. \nthe same latencies can be analyzed in the following logs query of the everage latencies summarised bt : \nWhen analyzing exceptions on the Applicaiton Insights Application map the activities flow leading to the exception also shows the methods names that were published to OpenTelemetry.\n\n\n\nAlt text\n\n\nthe same latencies can be shown on a grafana dashboard (or Managed Grafana dashboard on Azure)  \n\n\nBuild and Test\nYou can easily test Diginsight integration with OpenTelemetry by means of the EasySampleBlazorv2 project: - Clone diginsight repository - Open and build solution Common.Diagnostics.sln. - Set the EasySampleBlazorv2.Server as startup project - add the connection string to your Application Insights resource in the project secrets.json file \nrun EasySampleBlazorv2.Server and open the log file in your *** folder.\n\n\nContribute\nContribute to the repository with your pull requests.\n\nASP.NET Core\nVisual Studio Code\n\n\n\nLicense\nSee the LICENSE file for license rights and limitations (MIT).\n\n\n\n\n Back to top"
+  },
+  {
+    "objectID": "src/docs/04. Other/03.01 - HOWTO - Integrate the application flow with Azure Monitor and Grafana.html",
+    "href": "src/docs/04. Other/03.01 - HOWTO - Integrate the application flow with Azure Monitor and Grafana.html",
+    "title": "Integrate the application flow with Azure Monitor and Grafana",
+    "section": "",
+    "text": "Introduction\nApplication observability is about aggregating, correlating and analyzing the following key elements: - Logs with application execution details and data. - The requests and operations structure (sometimes also referred as Activity, Traces or Spans) with the structure of application calls, related to an event or exception condition. - Metrics: numeric values (such as latencies, payload sizes, frequencies) that can be aggregated and correlated with the operations structure and the logs.\nThe image below shows examples about the 3 observability elements on Azure Monitor Performance Management (APM) Tools:  \nApplication observability is evolving with the introduction of Open Telemetry. Microsoft technologies for observability such as Azure Monitor and Application Insights are embracing Open Telemetry as the future for instrumentation. OpenTelemetry + Azure Monitor blog post   For this reason, connecting diginsight to OpenTelemetry allows reaching Azure Monitor components and standard Open Telemetry targets such as Azure Grafana and Grafana custom implementations (eg. on Kubernetes).  In the following paragraphs we’ll explore how to integrate diginsight with OpenTelemetry and how we can use grafana and Azure monitor components to analize our application behaviour.\n\n\nINTEGRATE DIGINSIGHT TO OPENTELEMETRY\n\nIn your ConfigureServices method add the AddObservability() method as shown below \npublic void ConfigureServices(IServiceCollection services)\n{\n    using var scope = _logger.BeginMethodScope(new { services });\n\n    services.TryAddSingleton&lt;IHttpContextAccessor, HttpContextAccessor&gt;();\n    services.AddSingleton&lt;IParallelService, ParallelService&gt;();\n    services.AddClassConfiguration();\n    services.AddObservability(Configuration); \n\n    services.AddControllersWithViews();\n    services.AddRazorPages(); \n}\nthen, implement the AddObservability() extension method as shown below: ```c# public static IServiceCollection AddObservability(this IServiceCollection services, IConfiguration configuration) { var cloudRoleName = typeof(Program).Assembly.GetName().Name; var cloudRoleNamespace = typeof(Program).Assembly.GetName().FullName; var cloudRoleInstance = typeof(Program).Assembly.GetName().FullName; var aiConnectionString = configuration[“ApplicationInsights:ConnectionString”];\n var resourceAttributes = new Dictionary&lt;string, object&gt; {\n         { \"service.name\", cloudRoleName },\n         { \"service.namespace\", cloudRoleNamespace },\n         { \"service.instance.id\", cloudRoleInstance }};\n\n ObservabilityDefaults.ActivitySource = TraceLogger.ActivitySource;\n ObservabilityDefaults.Meter = EasySampleMetrics.Instance.Meter; \n\n var builder = services.AddOpenTelemetry();\n builder = builder.WithTracing(builder =&gt;\n {\n     builder.ConfigureResource(resourceBuilder =&gt; resourceBuilder.AddAttributes(resourceAttributes));\n\n     builder.AddProcessor&lt;DurationMetricProcessor&gt;();\n     builder.AddAspNetCoreInstrumentation();\n     builder.AddHttpClientInstrumentation();\n     builder.AddConsoleExporter(options =&gt; options.Targets = ConsoleExporterOutputTargets.Debug);\n     builder.AddAzureMonitorTraceExporter();\n\n     builder.AddSource(\"Azure.*\");\n     builder.AddSource(TraceLogger.ActivitySource.Name);\n });\n\n builder = builder.WithMetrics(builder =&gt;\n {\n     builder.AddHttpClientInstrumentation();\n     builder.AddConsoleExporter();\n     builder.AddPrometheusExporter();\n\n     builder.AddMetrics&lt;EasySampleMetrics&gt;();\n     builder.AddMeter(EasySampleMetrics.StaticObservabilityName);\n\n     builder.AddAzureMonitorMetricExporter();\n     builder.ConfigureResource(resourceBuilder =&gt; resourceBuilder.AddAttributes(resourceAttributes));\n });\n\n builder = builder.ConfigureResource(builder =&gt; builder.AddService(serviceName: cloudRoleName));\n\n builder = builder.UseAzureMonitor(options =&gt;\n {\n     options.ConnectionString = aiConnectionString;\n });\n\n return services;\n} ```\n\nwhere in this code: - services.AddOpenTelemetry(); is initializing OpenTelemetry and returning a builder object that you can use to further configure telemetry processors, exporters, and instrumentation. - builder.WithTracing(); configures tracing for OpenTelemetry : - builder.ConfigureResource(builder =&gt; builder.AddAttributes(resourceAttributes));: configures the resource attributes such as the “module names” that are shown on the application map. - builder.AddProcessor(); adds a processor to the tracing pipeline to publish methods duration as metrics. - builder.AddAspNetCoreInstrumentation(); and builder.AddHttpClientInstrumentation();: add instrumentation for ASP.NET Core and HttpClient. - builder.AddConsoleExporter(options =&gt; options.Targets = ConsoleExporterOutputTargets.Debug);: This line is adding a console exporter with the target set to debug. Exporters send the telemetry data to a backend or destination. - builder.AddAzureMonitorTraceExporter();: adds the Azure Monitor exporter that sends methods (also Activities or Spans) information to AzureMonitor. - __builder.AddSource(“Azure.*“); and builder.AddSource(TraceLogger.ActivitySource.Name);__: add sources of telemetry data, by default, Diginsight use TraceLogger.ActivitySource to send telemetry data to AzureMonitor. ```c# builder = builder.WithTracing(builder =&gt; { builder.ConfigureResource(resourceBuilder =&gt; resourceBuilder.AddAttributes(resourceAttributes));\n        builder.AddProcessor&lt;ObservabilityLogProcessor&gt;();\n        builder.AddProcessor&lt;DurationMetricProcessor&gt;();\n        builder.AddAspNetCoreInstrumentation();\n        builder.AddHttpClientInstrumentation();\n        builder.AddConsoleExporter(options =&gt; options.Targets = ConsoleExporterOutputTargets.Debug);\n        builder.AddAzureMonitorTraceExporter();\n\n        builder.AddSource(\"Azure.*\");\n        builder.AddSource(TraceLogger.ActivitySource.Name);\n    });\n    ```\n\nbuilder.WithMetrics(); configures metrics for OpenTelemetry :\n\nbuilder.AddMetrics();: adds a custom metrics class EasySampleMetrics. that is used to send span_durations to OpenTelemetry.\nbuilder.AddMeter(EasySampleMetrics.StaticObservabilityName);: adds a meter with the name “EasySampleBlazorv2.Server”.\nbuilder.AddAzureMonitorMetricExporter();: adds the Azure Monitor exporter that sends metrics information to AzureMonitor.\nbuilder.ConfigureResource(builder =&gt; builder.AddAttributes(resourceAttributes));: configures the resource attributes for the metrics such as the module name that is sending the metrics.\n\nbuilder.ConfigureResource(b =&gt; b.AddService(serviceName: cloudRoleName)); configures the entity that is producing the telemetry data, in this case the service name is the assembly name.\nbuilder.UseAzureMonitor(options =&gt; {...}) connects the application to the Azure Monitor by means of the Azure Monitor Application Insight Connection String.\n\n\n\nANALYZE TELEMETRY FROM AZURE MONITOR\nDiginsight sends methods durations to Azure Monitor as the span_duration metric where the method name is set in the span_name dimension. you have fine grane control on which methods and which method letencies are sent by means of the PublishMetrics and PublishFlow configurations.\nThese settings are set to false, by default. you can enable them in the appsettings.json for all classes, or at any specific class level as shown below:\n\"AppSettings\": {\n    \"PublishMetrics\": false,\n    \"PublishFlow\": false,\n    \"PlantWidgetController.PublishMetrics\": true, // sets PublishMetrics to true for class PlantWidgetController\n    \"PlantWidgetController.PublishFlow\": true, // sets PublishFlow to true for class PlantWidgetController\n    \"WidgetDataService.PublishMetrics\": true,\n    \"WidgetDataService.PublishFlow\": true,\n    \"WidgetDataService.GetWidget.PublishMetrics\": true\n}\nIn the following image we see how to create a chart with the average span_duration of method PlantWidgetController.Get. \nthe same latencies can be analyzed in the following logs query of the everage latencies summarised bt : \nWhen analyzing exceptions on the Applicaiton Insights Application map the activities flow leading to the exception also shows the methods names that were published to OpenTelemetry.\n\n\n\nAlt text\n\n\nthe same latencies can be shown on a grafana dashboard (or Managed Grafana dashboard on Azure)  \n\n\nBuild and Test\nYou can easily test Diginsight integration with OpenTelemetry by means of the EasySampleBlazorv2 project: - Clone diginsight repository - Open and build solution Common.Diagnostics.sln. - Set the EasySampleBlazorv2.Server as startup project - add the connection string to your Application Insights resource in the project secrets.json file \nrun EasySampleBlazorv2.Server and open the log file in your *** folder.\n\n\nContribute\nContribute to the repository with your pull requests.\n\nASP.NET Core\nVisual Studio Code\n\n\n\nLicense\nSee the LICENSE file for license rights and limitations (MIT).\n\n\n\n\n Back to top",
+    "crumbs": [
+      "Home",
+      "Other",
+      "Integrate the application flow with Azure Monitor and Grafana"
+    ]
+  }
+]

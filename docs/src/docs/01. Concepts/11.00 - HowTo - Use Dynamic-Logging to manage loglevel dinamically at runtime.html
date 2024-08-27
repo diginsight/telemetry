@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Configure the local text based streams – telemetry</title>
+<title>Use dynamic logging – telemetry</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -88,7 +88,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <link rel="stylesheet" href="../../../styles.css">
-<meta property="og:title" content="Configure the local text based streams – telemetry">
+<meta property="og:title" content="Use dynamic logging – telemetry">
 <meta property="og:description" content="">
 <meta property="og:image" content="diginsight.jpg">
 <meta property="og:site_name" content="telemetry">
@@ -173,7 +173,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../src/docs/01. Concepts/00.01 - Observability Concepts.html">Concepts</a></li><li class="breadcrumb-item"><a href="../../../src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html">Configure the local text based streams</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../src/docs/01. Concepts/00.01 - Observability Concepts.html">Concepts</a></li><li class="breadcrumb-item"><a href="../../../src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html">Use dynamic logging</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -236,13 +236,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html" class="sidebar-item-text sidebar-link active">
+  <a href="../../../src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Configure the local text based streams</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Use dynamic logging</span></a>
   </div>
 </li>
@@ -342,20 +342,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#howto-configure-diginsight-telemetry-to-the-local-text-based-streams" id="toc-howto-configure-diginsight-telemetry-to-the-local-text-based-streams" class="nav-link active" data-scroll-target="#howto-configure-diginsight-telemetry-to-the-local-text-based-streams">HowTo: Configure diginsight telemetry to the local text based streams</a></li>
-  <li><a href="#step-01---add-a-package-reference-to-the-package-diginsight.diagnostics-or-diginsight.diagnostics.log4net" id="toc-step-01---add-a-package-reference-to-the-package-diginsight.diagnostics-or-diginsight.diagnostics.log4net" class="nav-link" data-scroll-target="#step-01---add-a-package-reference-to-the-package-diginsight.diagnostics-or-diginsight.diagnostics.log4net">STEP 01 - Add a package reference to the package <code>Diginsight.Diagnostics</code> or <code>Diginsight.Diagnostics.Log4Net</code></a></li>
-  <li><a href="#step-02---configure-logging-within-the-startup-sequence" id="toc-step-02---configure-logging-within-the-startup-sequence" class="nav-link" data-scroll-target="#step-02---configure-logging-within-the-startup-sequence">STEP 02 - Configure logging within the Startup sequence</a></li>
-  <li><a href="#step-03---add-telemetry-to-code-with-startmethodactivity-and-ilogger-statements" id="toc-step-03---add-telemetry-to-code-with-startmethodactivity-and-ilogger-statements" class="nav-link" data-scroll-target="#step-03---add-telemetry-to-code-with-startmethodactivity-and-ilogger-statements">STEP 03 - Add telemetry to code with <code>StartMethodActivity()</code> and <code>ILogger</code> Statements</a></li>
-  <li><a href="#step-04---run-your-code-and-look-at-the-resulting-application-flow" id="toc-step-04---run-your-code-and-look-at-the-resulting-application-flow" class="nav-link" data-scroll-target="#step-04---run-your-code-and-look-at-the-resulting-application-flow">STEP 04 - run your code and look at the resulting application flow</a></li>
+  <li><a href="#howto-use-dynamic-logging-to-manage-loglevel-dinamically-at-runtime" id="toc-howto-use-dynamic-logging-to-manage-loglevel-dinamically-at-runtime" class="nav-link active" data-scroll-target="#howto-use-dynamic-logging-to-manage-loglevel-dinamically-at-runtime">HowTo: Use dynamic logging to manage loglevel dinamically, at runtime</a></li>
+  <li><a href="#additional-information" id="toc-additional-information" class="nav-link" data-scroll-target="#additional-information">Additional Information</a></li>
+  <li><a href="#howto-enable-dynamic-loggging" id="toc-howto-enable-dynamic-loggging" class="nav-link" data-scroll-target="#howto-enable-dynamic-loggging">HowTo Enable Dynamic Loggging</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../src/docs/01. Concepts/00.01 - Observability Concepts.html">Concepts</a></li><li class="breadcrumb-item"><a href="../../../src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html">Configure the local text based streams</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../src/docs/01. Concepts/00.01 - Observability Concepts.html">Concepts</a></li><li class="breadcrumb-item"><a href="../../../src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html">Use dynamic logging</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Configure the local text based streams</h1>
+<h1 class="title">Use dynamic logging</h1>
 </div>
 
 
@@ -372,47 +370,40 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="howto-configure-diginsight-telemetry-to-the-local-text-based-streams" class="level2">
-<h2 class="anchored" data-anchor-id="howto-configure-diginsight-telemetry-to-the-local-text-based-streams">HowTo: Configure diginsight telemetry to the local text based streams</h2>
-<p>You can ottain a <strong>console log</strong> or <strong>file log</strong> with diginsight by means of the steps shown below.<br> The code snippets are available as working samples within the <a href="https://github.com/diginsight/telemetry_samples">telemetry_samples</a> repository.</p>
-<p>Article <a href="../../../src/docs/01. Concepts/15.00 - HowTo - Use Diginsight Samples.html">HOWTO - Use Diginsight Samples.md</a>: explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.</p>
+<section id="howto-use-dynamic-logging-to-manage-loglevel-dinamically-at-runtime" class="level2">
+<h2 class="anchored" data-anchor-id="howto-use-dynamic-logging-to-manage-loglevel-dinamically-at-runtime">HowTo: Use dynamic logging to manage loglevel dinamically, at runtime</h2>
+<p><strong>diginsight telemetry</strong> supports <strong>dynamic logging</strong> to hot switch the minimum log level (e.g.&nbsp;from Information or Warning to Debug or Trace levels) of any log category.<br></p>
+<p>To minimize telemetry cost and performance impact, telemetry sent to the remote tools is normally limited to LogLevels <strong>Critical</strong>, <strong>Warning</strong> or <strong>Information</strong>.<br></p>
+<p>The snippet below shows a tipical Logging section configuration for a production environment:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="er">"Logging":</span> <span class="fu">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"LogLevel"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"Default"</span><span class="fu">:</span> <span class="st">"Information"</span><span class="fu">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"Microsoft"</span><span class="fu">:</span> <span class="st">"Warning"</span><span class="fu">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"Microsoft.Hosting.Lifetime"</span><span class="fu">:</span> <span class="st">"Information"</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Using Diginsight telemetry</strong> on a Web API or Web Application, the <strong>log level</strong> for any category <strong>can be overridden at runtime, for a single call, by means of the <code>Log-Level</code> http request headers</strong>.</p>
 </section>
-<section id="step-01---add-a-package-reference-to-the-package-diginsight.diagnostics-or-diginsight.diagnostics.log4net" class="level2">
-<h2 class="anchored" data-anchor-id="step-01---add-a-package-reference-to-the-package-diginsight.diagnostics-or-diginsight.diagnostics.log4net">STEP 01 - Add a package reference to the package <code>Diginsight.Diagnostics</code> or <code>Diginsight.Diagnostics.Log4Net</code></h2>
-<p>In the first step you can just add a diginsight reference to your code:<br> <img src="01.00 - Configure diginsight telemetry to the local text based streams/004.01 STEP1 - add reference.png" class="img-fluid" alt="Alt text"></p>
+<section id="additional-information" class="level2">
+<h2 class="anchored" data-anchor-id="additional-information">Additional Information</h2>
+<p>The image below shows the logstream for a web API where only <strong>Critical</strong>, <strong>Warning</strong> and <strong>Information</strong> and levels are enabled.</p>
+<p>While the application is running the streaming log shows only <strong>limited (or no) information about the application execution flow</strong>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="11. HowTo Use Dynamic-Logging/001.01a default application streaming log.png" class="img-fluid figure-img"></p>
+<figcaption>alt text</figcaption>
+</figure>
+</div>
+<p>In case we need to troubleshoot a specific application call flow, it is possible to reporduce the call specifying <strong>different log levels for some categories</strong>: <img src="11. HowTo Use Dynamic-Logging/001.02 Postman call with overloaded log levels.png" class="img-fluid" alt="alt text"></p>
+<p><strong>This will result in the full application flow being shown</strong> for the specific call: <img src="11. HowTo Use Dynamic-Logging/001.03 Call application flow obtained with Dynamic Logging.png" class="img-fluid" alt="alt text"></p>
+<blockquote class="blockquote">
+<p>this way, every call application flow can be easily <strong>isolated</strong> and <strong>analized</strong> on a live server, that is processing other calls at the same time.</p>
+</blockquote>
 </section>
-<section id="step-02---configure-logging-within-the-startup-sequence" class="level2">
-<h2 class="anchored" data-anchor-id="step-02---configure-logging-within-the-startup-sequence">STEP 02 - Configure logging within the Startup sequence</h2>
-<p>in the second step you can configure the startup sequence to enable diginsight log: <img src="01.00 - Configure diginsight telemetry to the local text based streams/004.02b STEP - configure logging.png" class="img-fluid" alt="alt text"></p>
-<p>in this case: - <strong>AddDiginsightConsole()</strong> is used to enabled log to the application Console. - <strong>AddDiginsightLog4Net()</strong> is used to enabled file log by means of log4net.</p>
-<p>a separate - <strong>log4net.config</strong> can be used to specify the usual log4net configuration: <img src="01.00 - Configure diginsight telemetry to the local text based streams/004.03 Log4Net configuration file.png" class="img-fluid" alt="alt text"></p>
-<p>also, the <strong>Diginsight:Activities</strong> section can be used to specify <strong>enabled ActivitySources</strong> and whether <strong>Activity logging</strong> is enabled. <br> <img src="01.00 - Configure diginsight telemetry to the local text based streams/004.04 DiginsightActivities configuration.png" class="img-fluid" alt="alt text"></p>
-</section>
-<section id="step-03---add-telemetry-to-code-with-startmethodactivity-and-ilogger-statements" class="level2">
-<h2 class="anchored" data-anchor-id="step-03---add-telemetry-to-code-with-startmethodactivity-and-ilogger-statements">STEP 03 - Add telemetry to code with <code>StartMethodActivity()</code> and <code>ILogger</code> Statements</h2>
-<p>we are now ready to add instrumentation to the code and make the application flow observable:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode c# code-with-copy"><code class="sourceCode cs"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">[</span><span class="fu">HttpGet</span><span class="op">(</span><span class="st">"dosomework"</span><span class="op">,</span> Name <span class="op">=</span> <span class="st">"DoSomeWork"</span><span class="op">)]</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="op">[</span><span class="fu">ApiVersion</span><span class="op">(</span>ApiVersions<span class="op">.</span><span class="fu">V_2024_04_26</span><span class="op">.</span><span class="fu">Name</span><span class="op">)]</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> async Task <span class="fu">DoSomeWork</span><span class="op">()</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> <span class="dt">var</span> activity <span class="op">=</span> Program<span class="op">.</span><span class="fu">ActivitySource</span><span class="op">.</span><span class="fu">StartMethodActivity</span><span class="op">(</span>logger<span class="op">);</span> </span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> result1 <span class="op">=</span> await <span class="fu">StepOne</span><span class="op">();</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    logger<span class="op">.</span><span class="fu">LogDebug</span><span class="op">(</span><span class="st">"await StepOne(); returned {result1}"</span><span class="op">,</span> result1<span class="op">);</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> result2 <span class="op">=</span> await <span class="fu">StepTwo</span><span class="op">();</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    logger<span class="op">.</span><span class="fu">LogDebug</span><span class="op">(</span><span class="st">"await StepTwo(); completed {result2}"</span><span class="op">,</span> result2<span class="op">);</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> result <span class="op">=</span> result1 <span class="op">+</span> result2<span class="op">;</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    activity<span class="op">.</span><span class="fu">SetOutput</span><span class="op">(</span>result<span class="op">);</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">return</span><span class="op">;</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>in the snippet above, the DoSomeWork method from Diginsight telemetry_samples repository is shown where: - <code>using var activity = Program.ActivitySource.StartMethodActivity(logger);</code> is added to provide observability of method start and end - <code>logger.LogDebug("await StepTwo(); completed {result2}", result2);</code> are added during the method execution - <code>activity.SetOutput(result);</code> is used at the method end to log the method result</p>
-</section>
-<section id="step-04---run-your-code-and-look-at-the-resulting-application-flow" class="level2">
-<h2 class="anchored" data-anchor-id="step-04---run-your-code-and-look-at-the-resulting-application-flow">STEP 04 - run your code and look at the resulting application flow</h2>
-<p>the image below shows the application flow generated by DoSomeWork method <img src="01.00 - Configure diginsight telemetry to the local text based streams/004.06 View application flow.png" class="img-fluid" alt="alt text"></p>
+<section id="howto-enable-dynamic-loggging" class="level2">
+<h2 class="anchored" data-anchor-id="howto-enable-dynamic-loggging">HowTo Enable Dynamic Loggging</h2>
+<p>Dynamic logging can be enabled adding the following stagement:<br> <code>services.AddDynamicLogLevel&lt;DefaultDynamicLogLevelInjector&gt;();</code> to the <code>ConfigureServices</code> methods, in the <strong>application startup sequence</strong>.</p>
+<p>The image below shows the startup sequence of the <code>SampleWebApi</code> project, within diginsight telemetry_samples: <img src="11. HowTo Use Dynamic-Logging/002.01 SampleWebApi startup sequence.png" class="img-fluid" alt="alt text"></p>
 
 
 </section>

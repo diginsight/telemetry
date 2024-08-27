@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Getting Started – telemetry</title>
+<title>Throubleshoot the startup sequence – telemetry</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,22 +20,56 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
-<link href="../../diginsight.jpg" rel="icon" type="image/jpeg">
-<script src="../../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../../site_libs/quarto-html/quarto.js"></script>
-<script src="../../site_libs/quarto-html/popper.min.js"></script>
-<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<link href="../../../diginsight.jpg" rel="icon" type="image/jpeg">
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "language": {
     "search-no-results-text": "No results",
@@ -53,8 +87,8 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
-<link rel="stylesheet" href="../../styles.css">
-<meta property="og:title" content="Getting Started – telemetry">
+<link rel="stylesheet" href="../../../styles.css">
+<meta property="og:title" content="Throubleshoot the startup sequence – telemetry">
 <meta property="og:description" content="">
 <meta property="og:image" content="diginsight.jpg">
 <meta property="og:site_name" content="telemetry">
@@ -67,7 +101,7 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="../../index.html">
+    <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">telemetry</span>
     </a>
   </div>
@@ -77,15 +111,15 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="../../index.html" aria-current="page"> 
+    <a class="nav-link active" href="../../../index.html" aria-current="page"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../src/docs/01. Concepts/00.01 - Observability Concepts.html"> 
+    <a class="nav-link" href="../../../src/docs/01. Concepts/00.01 - Observability Concepts.html"> 
 <span class="menu-text">Concepts</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.html"> 
+    <a class="nav-link" href="../../../src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.html"> 
 <span class="menu-text">Advanced articles</span></a>
   </li>  
   <li class="nav-item dropdown ">
@@ -94,11 +128,11 @@ ul.task-list li input[type="checkbox"] {
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-about">    
         <li>
-    <a class="dropdown-item" href="../../src/docs/05. About/about.html">
+    <a class="dropdown-item" href="../../../src/docs/05. About/about.html">
  <span class="dropdown-text">About</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../../src/LICENSE.html">
+    <a class="dropdown-item" href="../../../src/LICENSE.html">
  <span class="dropdown-text">License</span></a>
   </li>  
     </ul>
@@ -139,7 +173,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../src/docs/00.01 - Getting Started.html">Getting Started</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.html">Advanced Articles</a></li><li class="breadcrumb-item"><a href="../../../src/docs/02. Advanced/17.00 - Troubleshoot the startup sequence.html">Throubleshoot the startup sequence</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -173,14 +207,14 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../index.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Home</span></a>
   </div>
 </li>
         <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../src/docs/00.01 - Getting Started.html" class="sidebar-item-text sidebar-link active">
+  <a href="../../../src/docs/00.01 - Getting Started.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Getting Started</span></a>
   </div>
 </li>
@@ -196,31 +230,31 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../src/docs/01. Concepts/00.01 - Observability Concepts.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../src/docs/01. Concepts/00.01 - Observability Concepts.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Observability concepts</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Configure the local text based streams</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Use dynamic logging</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Use dynamic configuration</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../src/docs/01. Concepts/15.00 - HowTo - Use Diginsight Samples.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../src/docs/01. Concepts/15.00 - HowTo - Use Diginsight Samples.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Use Diginsight samples</span></a>
   </div>
 </li>
@@ -238,43 +272,43 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Configure the remote tools</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">HowTo: Use diginsight telemetry with no impact on Application performance an telemetry cost</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../src/docs/02. Advanced/13.00 - Customize entities rendering on diginsight log streams.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../src/docs/02. Advanced/13.00 - Customize entities rendering on diginsight log streams.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Customize entities rendering</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../src/docs/02. Advanced/14.00 - Customize metrics sent to the remote tools.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../src/docs/02. Advanced/14.00 - Customize metrics sent to the remote tools.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Customize metrics sent to the remote tools</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../src/docs/02. Advanced/15.00 - Customize diginsight log streams row content.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../src/docs/02. Advanced/15.00 - Customize diginsight log streams row content.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Customize log stream row content</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../src/docs/02. Advanced/17.00 - Troubleshoot the startup sequence.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../src/docs/02. Advanced/17.00 - Troubleshoot the startup sequence.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Throubleshoot the startup sequence</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../src/docs/02. Advanced/18.00 - HowTo - Use class aware configurations to support comonent level or class level configurations.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../src/docs/02. Advanced/18.00 - HowTo - Use class aware configurations to support comonent level or class level configurations.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Use ClassAware configurations</span></a>
   </div>
 </li>
@@ -292,7 +326,7 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../src/docs/04. Other/03.01 - HOWTO - Integrate the application flow with Azure Monitor and Grafana.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../src/docs/04. Other/03.01 - HOWTO - Integrate the application flow with Azure Monitor and Grafana.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Integrate the application flow with Azure Monitor and Grafana</span></a>
   </div>
 </li>
@@ -308,24 +342,17 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#getting-started-with-diginsight-v3" id="toc-getting-started-with-diginsight-v3" class="nav-link active" data-scroll-target="#getting-started-with-diginsight-v3">Getting Started with Diginsight v3</a></li>
-  <li><a href="#steps-to-use-diginsight-v3" id="toc-steps-to-use-diginsight-v3" class="nav-link" data-scroll-target="#steps-to-use-diginsight-v3">Steps to use Diginsight v3</a></li>
-  <li><a href="#step-01---add-a-package-reference-to-the-package-diginsight.diagnostics-or-diginsight.diagnostics.log4net" id="toc-step-01---add-a-package-reference-to-the-package-diginsight.diagnostics-or-diginsight.diagnostics.log4net" class="nav-link" data-scroll-target="#step-01---add-a-package-reference-to-the-package-diginsight.diagnostics-or-diginsight.diagnostics.log4net">STEP 01 - Add a package reference to the package <code>Diginsight.Diagnostics</code> or <code>Diginsight.Diagnostics.Log4Net</code></a></li>
-  <li><a href="#step-02---configure-logging-within-the-startup-sequence" id="toc-step-02---configure-logging-within-the-startup-sequence" class="nav-link" data-scroll-target="#step-02---configure-logging-within-the-startup-sequence">STEP 02 - Configure logging within the Startup sequence</a></li>
-  <li><a href="#step-03---add-telemetry-to-code-with-startmethodactivity-and-ilogger-statements" id="toc-step-03---add-telemetry-to-code-with-startmethodactivity-and-ilogger-statements" class="nav-link" data-scroll-target="#step-03---add-telemetry-to-code-with-startmethodactivity-and-ilogger-statements">STEP 03 - Add telemetry to code with <code>StartMethodActivity()</code> and <code>ILogger</code> Statements</a></li>
-  <li><a href="#step-04---enable-opentelemetry-and-send-data-to-the-remote-tools" id="toc-step-04---enable-opentelemetry-and-send-data-to-the-remote-tools" class="nav-link" data-scroll-target="#step-04---enable-opentelemetry-and-send-data-to-the-remote-tools">STEP 04 - Enable OpenTelemetry and send data to the remote tools</a></li>
-  <li><a href="#build-and-test" id="toc-build-and-test" class="nav-link" data-scroll-target="#build-and-test">Build and Test</a></li>
-  <li><a href="#contribute" id="toc-contribute" class="nav-link" data-scroll-target="#contribute">Contribute</a></li>
-  <li><a href="#license" id="toc-license" class="nav-link" data-scroll-target="#license">License</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#how-to-make-the-startup-sequence-observable" id="toc-how-to-make-the-startup-sequence-observable" class="nav-link" data-scroll-target="#how-to-make-the-startup-sequence-observable">How to make the startup sequence observable</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.html">Advanced Articles</a></li><li class="breadcrumb-item"><a href="../../../src/docs/02. Advanced/17.00 - Troubleshoot the startup sequence.html">Throubleshoot the startup sequence</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Getting Started</h1>
+<h1 class="title">Throubleshoot the startup sequence</h1>
 </div>
 
 
@@ -342,66 +369,86 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="getting-started-with-diginsight-v3" class="level2">
-<h2 class="anchored" data-anchor-id="getting-started-with-diginsight-v3">Getting Started with Diginsight v3</h2>
-<p>With <strong>version 3</strong>, diginsight streamlines <strong>OpenTelemetry integration</strong> embracing standard notation for activity tracing with <strong>dotnet System Diagnostic API</strong>.</p>
-<p>Using <strong>dotnet System Diagnostic API</strong> the following notation can be used to instrument a code span: <img src="00. GETTING STARTED/003.00 Code span with Opentelemetry.png" class="img-fluid" alt="alt text"></p>
-<p>Using <strong>diginsight v3</strong> the same section can be instrumented with the following notation: <img src="00. GETTING STARTED/003.01 Code span with diginsight.png" class="img-fluid" alt="alt text"></p>
-<p>where, <code>StartMethodActivity</code>: - gathers automatically the method name, - renders automatically the method payload - writes the Span START and END to the logger variable</p>
-<p>and <code>SetOutput</code> stores the method <code>result</code> for rendering within method END line.</p>
-</section>
-<section id="steps-to-use-diginsight-v3" class="level2">
-<h2 class="anchored" data-anchor-id="steps-to-use-diginsight-v3">Steps to use Diginsight v3</h2>
-<p>You can obtain a <strong>console log</strong> or <strong>file log</strong> with diginsight by means of the following steps.<br> The code snippets below are available as working samples within the <a href="https://github.com/diginsight/telemetry_samples">telemetry_samples</a> repository.</p>
-<p>Article <a href="../../src/docs/01. Concepts/15.00 - HowTo - Use Diginsight Samples.html">HOWTO - Use Diginsight Samples</a>: explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.</p>
-</section>
-<section id="step-01---add-a-package-reference-to-the-package-diginsight.diagnostics-or-diginsight.diagnostics.log4net" class="level2">
-<h2 class="anchored" data-anchor-id="step-01---add-a-package-reference-to-the-package-diginsight.diagnostics-or-diginsight.diagnostics.log4net">STEP 01 - Add a package reference to the package <code>Diginsight.Diagnostics</code> or <code>Diginsight.Diagnostics.Log4Net</code></h2>
-<p>: {#step01 .sidebar=“STEP 01 - Add Package Reference”}</p>
-<p>In the first step you can just add a diginsight reference to your code:<br> <img src="00. GETTING STARTED/004.01 STEP1 - add reference.png" class="img-fluid" alt="Alt text"></p>
-</section>
-<section id="step-02---configure-logging-within-the-startup-sequence" class="level2">
-<h2 class="anchored" data-anchor-id="step-02---configure-logging-within-the-startup-sequence">STEP 02 - Configure logging within the Startup sequence</h2>
-<p>: {#step01 .sidebar[STEP 02 - Configure logging]}</p>
-<p>in the second step you can configure the startup sequence to enable diginsight log: <img src="00. GETTING STARTED/004.02b STEP - configure logging.png" class="img-fluid" alt="alt text"></p>
-<p>in this case: - <strong>AddDiginsightConsole()</strong> is used to enabled log to the application Console. - <strong>AddDiginsightLog4Net()</strong> is used to enabled file log by means of log4net.</p>
-<p>a separate - <strong>log4net.config</strong> can be used to specify the usual log4net configuration: <img src="00. GETTING STARTED/004.03 Log4Net configuration file.png" class="img-fluid" alt="alt text"></p>
-<p>also, the <strong>Diginsight:Activities</strong> section can be used to specify <strong>enabled ActivitySources</strong> and whether <strong>Activity logging</strong> is enabled. <br> <img src="00. GETTING STARTED/004.04 DiginsightActivities configuration.png" class="img-fluid" alt="alt text"></p>
-</section>
-<section id="step-03---add-telemetry-to-code-with-startmethodactivity-and-ilogger-statements" class="level2">
-<h2 class="anchored" data-anchor-id="step-03---add-telemetry-to-code-with-startmethodactivity-and-ilogger-statements">STEP 03 - Add telemetry to code with <code>StartMethodActivity()</code> and <code>ILogger</code> Statements</h2>
-<p>: {#step01 .sidebar[STEP 03 - Add telemetry]}</p>
-<p>we are now ready to add instrumentation to the code and make the application flow observable: <img src="00. GETTING STARTED/003.01a Code span with diginsight.png" class="img-fluid" alt="alt text"></p>
-<p>Please, note that in this case the method payload is passed to <code>StartMethodActivity</code> by means of a <strong>delegate notation</strong> so that the payload class allocation can be avoided when <strong>logging</strong> or <strong>payload rendering</strong> is disabled.</p>
-</section>
-<section id="step-04---enable-opentelemetry-and-send-data-to-the-remote-tools" class="level2">
-<h2 class="anchored" data-anchor-id="step-04---enable-opentelemetry-and-send-data-to-the-remote-tools">STEP 04 - Enable OpenTelemetry and send data to the remote tools</h2>
-<p>With few changes to the startup sequence, <strong>telemetry can be sent to the remote tools</strong>. Telemetry to the local tools is less expensive, m4ore efficient, well protected and often it is not even persisted. So, telemetry to the local tools can include verbose data with the maximum level of information.<br></p>
-<p>Telemetry to the remote tools is more expensive (in cost and performance) so it will normally include only critical and warning non verbose information.</p>
-<p>In our samples we enable openteemetry by means of the <strong>AddObservability()</strong> extension method that essentially: - Configures <strong>Opentelemetry options</strong> - Registers <strong>Opentelemetry logging provider</strong> - Configures <strong>tracing to the remote tools</strong> - Configures <strong>metrics to the remote tools</strong></p>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>The <strong>most tricky</strong> or the <strong>most critical</strong> <strong>bugs</strong> are often hidden in the <strong>application startup sequence</strong> or <strong>application static methods</strong>.<br> As an example, startup configurations such as <strong>connection string</strong> or <strong>resources access keys</strong> may be wrong or missing.<br> Also, <strong>static contructors</strong> within the application or its dependencies may hide tricky bugs that are difficult to troubleshoot.</p>
+<p>Those places are usually <strong>difficult to troubleshoot</strong> as telemetry may be not active when they are executed.</p>
+<p>Diginsight telemetry enables <strong>full observability also for these parts</strong> by means of the <code>DeferredLoggerFactory</code> that provides <strong>recording the application flow</strong> until the telemetry infrastructure is set up.</p>
+<p>Upon setup completion, telemetry recording is flushed right before the standard telemetry flow gathering so that any configuration problem or error can be made visible.</p>
+<p>The code snippets below are available as working samples within the <strong>telemetry_samples</strong> repository.</p>
+<p>In particular the steps shown below explain how the startup sequence can be made observable on the <code>SampleWebApi</code> within the <code>telemetry_samples</code> repository.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="00. GETTING STARTED/004.00 AddObservability Extension method.png" class="img-fluid figure-img"></p>
+<p><img src="17.00/000.01 - telemetry_samples repository.png" class="img-fluid figure-img"></p>
 <figcaption>alt text</figcaption>
 </figure>
 </div>
-<p>details about opentelemetry configuration is available here: <a href="../../src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.html">HowTo: Configure diginsight telemetry to the remote tools</a>.<br></p>
 </section>
-<section id="build-and-test" class="level2">
-<h2 class="anchored" data-anchor-id="build-and-test">Build and Test</h2>
-<p>Clone the repository, open and build solution Common.Diagnostics.sln. run EasySample and open the log file in your *** folder.</p>
-</section>
-<section id="contribute" class="level2">
-<h2 class="anchored" data-anchor-id="contribute">Contribute</h2>
-<p>Contribute to the repository with your pull requests.</p>
-<ul>
-<li><a href="https://github.com/aspnet/Home">ASP.NET Core</a></li>
-<li><a href="https://github.com/Microsoft/vscode">Visual Studio Code</a></li>
-</ul>
-</section>
-<section id="license" class="level2">
-<h2 class="anchored" data-anchor-id="license">License</h2>
-<p>See the <a href="../../src/LICENSE.html">LICENSE</a> file for license rights and limitations (MIT).</p>
+<section id="how-to-make-the-startup-sequence-observable" class="level2">
+<h2 class="anchored" data-anchor-id="how-to-make-the-startup-sequence-observable">How to make the startup sequence observable</h2>
+<p>The following code snippet shows the startup method of the <code>SampleWebApi</code> project:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c# code-with-copy"><code class="sourceCode cs"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">static</span> IDeferredLoggerFactory DeferredLoggerFactory<span class="op">;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">internal</span> <span class="kw">static</span> <span class="kw">readonly</span> ActivitySource ActivitySource <span class="op">=</span> <span class="kw">new</span><span class="op">(</span><span class="kw">typeof</span><span class="op">(</span>Program<span class="op">).</span><span class="fu">Namespace</span> <span class="op">??</span> <span class="kw">typeof</span><span class="op">(</span>Program<span class="op">).</span><span class="fu">Name</span><span class="op">!);</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">static</span> <span class="dt">void</span> <span class="fu">Main</span><span class="op">(</span><span class="dt">string</span><span class="op">[]</span> args<span class="op">)</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    DiginsightActivitiesOptions activitiesOptions <span class="op">=</span> <span class="kw">new</span><span class="op">()</span> <span class="op">{</span> LogActivities <span class="op">=</span> <span class="kw">true</span> <span class="op">};</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    DeferredLoggerFactory <span class="op">=</span> <span class="kw">new</span> <span class="fu">DeferredLoggerFactory</span><span class="op">(</span>activitiesOptions<span class="op">:</span> activitiesOptions<span class="op">);</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> logger <span class="op">=</span> DeferredLoggerFactory<span class="op">.</span><span class="fu">CreateLogger</span><span class="op">&lt;</span>Program<span class="op">&gt;();</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    ActivitySource activitySource <span class="op">=</span> <span class="kw">new</span><span class="op">(</span><span class="kw">typeof</span><span class="op">(</span>Program<span class="op">).</span><span class="fu">Namespace</span><span class="op">!);</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    DeferredLoggerFactory<span class="op">.</span><span class="fu">ActivitySources</span><span class="op">.</span><span class="fu">Add</span><span class="op">(</span>activitySource<span class="op">);</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    DiginsightDefaults<span class="op">.</span><span class="fu">ActivitySource</span> <span class="op">=</span> activitySource<span class="op">;</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    IWebHost host<span class="op">;</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> <span class="op">(</span><span class="dt">var</span> activity <span class="op">=</span> DiginsightDefaults<span class="op">.</span><span class="fu">ActivitySource</span><span class="op">.</span><span class="fu">StartMethodActivity</span><span class="op">(</span>logger<span class="op">,</span> <span class="kw">new</span> <span class="op">{</span> args <span class="op">}))</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        host <span class="op">=</span> WebHost<span class="op">.</span><span class="fu">CreateDefaultBuilder</span><span class="op">(</span>args<span class="op">)</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">ConfigureAppConfiguration2</span><span class="op">()</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">UseStartup</span><span class="op">&lt;</span>Startup<span class="op">&gt;()</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">ConfigureServices</span><span class="op">(</span>services <span class="op">=&gt;</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>            <span class="op">{</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>                <span class="dt">var</span> logger <span class="op">=</span> DeferredLoggerFactory<span class="op">.</span><span class="fu">CreateLogger</span><span class="op">&lt;</span>Startup<span class="op">&gt;();</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>                <span class="kw">using</span> <span class="dt">var</span> innerActivity <span class="op">=</span> ActivitySource<span class="op">.</span><span class="fu">StartRichActivity</span><span class="op">(</span>logger<span class="op">,</span> <span class="st">"ConfigureServicesCallback"</span><span class="op">,</span> <span class="kw">new</span> <span class="op">{</span> services <span class="op">});</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>                services<span class="op">.</span><span class="fu">TryAddSingleton</span><span class="op">(</span>DeferredLoggerFactory<span class="op">);</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>            <span class="op">})</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">UseDiginsightServiceProvider</span><span class="op">()</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">Build</span><span class="op">();</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>        logger<span class="op">.</span><span class="fu">LogDebug</span><span class="op">(</span><span class="st">"Host built"</span><span class="op">);</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    host<span class="op">.</span><span class="fu">Run</span><span class="op">();</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>a <code>IDeferredLoggerFactory</code> and an ILogger instance are created at startup, <strong>immediatly after application start</strong>:</p>
+<pre><code>DiginsightActivitiesOptions activitiesOptions = new() { LogActivities = true };
+DeferredLoggerFactory = new DeferredLoggerFactory(activitiesOptions: activitiesOptions);
+var logger = DeferredLoggerFactory.CreateLogger&lt;Program&gt;();</code></pre>
+<p><strong>Dotnet logging is not configured or activated already</strong>, however <strong>logger instance is recording</strong> all activities START, END and all explicit logging operations.</p>
+<p>Please, note that the logger factory is passed the <code>activitySources</code> that are used so that it can register as a listener to them.</p>
+<pre><code>DeferredLoggerFactory.ActivitySources.Add(activitySource);</code></pre>
+<p>the <code>Startup</code> <code>ConfigureServices</code> method <strong>registers observability</strong> with <code>AddObservability()</code> method.<br> Also, it <strong>registers recorded telemetry flush</strong> with <code>FlushOnCreateServiceProvider()</code>.</p>
+<pre><code>public void ConfigureServices(IServiceCollection services)
+{
+    services.AddHttpContextAccessor();
+    services.AddObservability(configuration);
+    services.AddDynamicLogLevel&lt;DefaultDynamicLogLevelInjector&gt;();
+    services.FlushOnCreateServiceProvider(deferredLoggerFactory);</code></pre>
+<p>After services configuration, right <strong>before the host build</strong>, the telemetry and logging will be configured and activated. The <code>UseDiginsightServiceProvider()</code> call will run the registered telemetry <strong>Flush()</strong> and all the deferred logs will be flushed to the telemetry targets.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="17.00/001.01 - UseDiginsightProvider call.png" class="img-fluid figure-img"></p>
+<figcaption>alt text</figcaption>
+</figure>
+</div>
+<p>Api startup <strong>will then show all logs recorded during startup</strong>:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="17.00/002.01 resulting startup log.png" class="img-fluid figure-img"></p>
+<figcaption>alt text</figcaption>
+</figure>
+</div>
 
 
 </section>
