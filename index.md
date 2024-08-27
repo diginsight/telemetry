@@ -31,7 +31,7 @@ The image below shows a __call to a live environment__ where the log level is se
 ![alt text](<src/docs/000.021a live environment request with loglevel debug.png>)
 
 The image below shows the __live environment AKS console__ where __our call is traced with full datail__, __while other calls are being processed with limited Log level__.
-![alt text](<src/docs/000.021b live environment request with loglevel debug.png>)
+![alt text](<src/docs/000.021b live environment request with loglevel debug.png>) 
 
 
 Performance information gathered by __diginsight__ can be analyzed in the form of __metrics__.<br>
