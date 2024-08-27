@@ -500,6 +500,13 @@
     ]
   },
   {
+    "objectID": "src/LICENSE.html",
+    "href": "src/LICENSE.html",
+    "title": "telemetry",
+    "section": "",
+    "text": "Copyright (c) 2011-2017 GitHub Inc.\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\nTHE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\n\n\n Back to top"
+  },
+  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Introduction",
@@ -520,18 +527,18 @@
     ]
   },
   {
-    "objectID": "src/LICENSE.html",
-    "href": "src/LICENSE.html",
-    "title": "telemetry",
+    "objectID": "src/README.Nuget.html",
+    "href": "src/README.Nuget.html",
+    "title": "INTRODUCTION",
     "section": "",
-    "text": "Copyright (c) 2011-2017 GitHub Inc.\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\nTHE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\n\n\n Back to top"
+    "text": "INTRODUCTION\nDiginsight telemetry is a set .Net packages that that provides automatic observability for dotnet applications. In particular, the full application flow is made available to local text based streams such as traditional file logs, the Console Log or the Azure Streaming Log and also to remote analysis tools such as Azure Monitor and Prometheus/Grafana.\nDiginsight telemetry is produced by standard ILogger&lt;&gt; and System.Diagnostic activity classes so it integrates (without replacing) other logging systems telemetry. Also, diginsight telemetry fully integrated with Opentelemetry and the W3C Trace Context Specification so traceids are preserved across process invocations of a distributed system.\nDiginsight telemetry targets all dotnet framework versions starting from netstandard2.0.Samples are available on telemetry_samples repository to demonstrate use of telemetry on .net 4.8 up to [blazor webassembly,].net6 and .net8+ assemblies. \nArticles: - Diginsight telemetry documentation: explains diginsight telemetry concepts and how it extends ILogger&lt;&gt; and System.Diagnostics API. - HOWTO - Send telemetry to the local text based streams: explores how to send diginsight telemetry to the local text based streams (eg. a local file or a AKS console log). - HOWTO - Send telemetry to the remote analysis tools: explores how to send diginsight telemetry to the remote analysis tools (eg. Azure monitor or Prometheus and Grafana). - HOWTO - Use diginsight telemetry with no impact on Application performance an telemetry cost: explores how we can do this ensuring no impact on application performance.\n\n\n\n\n Back to top"
   },
   {
     "objectID": "src/docs/01. Concepts/00.01 - Observability Concepts.html",
     "href": "src/docs/01. Concepts/00.01 - Observability Concepts.html",
     "title": "Observability concepts",
     "section": "",
-    "text": "Application observability is about aggregating, correlating and analyzing the following key elements: &gt;- Logs with application execution details and data. &gt;- The requests and operations structure (sometimes also referred as Activity, Traces or Spans) with the structure of application calls, related to an event or exception condition. &gt;- Metrics: numeric values (such as latencies, payload sizes, frequencies) that can be aggregated and correlated with the operations structure and the logs.\nThe image below shows examples about the 3 observability elements on Azure Monitor Performance Management (APM) Tools: \nDiginsight makes observability easy as: &gt;- it integrates the 3 observability elements (Log, Traces, Metrics) into high performance text-based streams such as traditional File logs, the Console log or the Azure Streaming log. &gt;- it publishes the 3 observability elements to OpenTelemetry and allowing application analysis by means of remote APM tools such as Azure Monitor and Grafana.",
+    "text": "Application observability is about aggregating, correlating and analyzing the following key elements:\n\n\nLogs with application execution details and data.\nThe requests and operations structure (sometimes also referred as Activity, Traces or Spans) with the structure of application calls, related to an event or exception condition.\nMetrics: numeric values (such as latencies, payload sizes, frequencies) that can be aggregated and correlated with the operations structure and the logs.\n\n\nThe image below shows examples about the 3 observability elements on Azure Monitor Performance Management (APM) Tools:  \nDiginsight makes observability easy as: &gt;- it integrates the 3 observability elements (Log, Traces, Metrics) into high performance text-based streams such as traditional File logs, the Console log or the Azure Streaming log. &gt;- it publishes the 3 observability elements to OpenTelemetry and allowing application analysis by means of remote APM tools such as Azure Monitor and Grafana.",
     "crumbs": [
       "Home",
       "Concepts",
@@ -543,7 +550,7 @@
     "href": "src/docs/01. Concepts/00.01 - Observability Concepts.html#application-observability-concepts",
     "title": "Observability concepts",
     "section": "",
-    "text": "Application observability is about aggregating, correlating and analyzing the following key elements: &gt;- Logs with application execution details and data. &gt;- The requests and operations structure (sometimes also referred as Activity, Traces or Spans) with the structure of application calls, related to an event or exception condition. &gt;- Metrics: numeric values (such as latencies, payload sizes, frequencies) that can be aggregated and correlated with the operations structure and the logs.\nThe image below shows examples about the 3 observability elements on Azure Monitor Performance Management (APM) Tools: \nDiginsight makes observability easy as: &gt;- it integrates the 3 observability elements (Log, Traces, Metrics) into high performance text-based streams such as traditional File logs, the Console log or the Azure Streaming log. &gt;- it publishes the 3 observability elements to OpenTelemetry and allowing application analysis by means of remote APM tools such as Azure Monitor and Grafana.",
+    "text": "Application observability is about aggregating, correlating and analyzing the following key elements:\n\n\nLogs with application execution details and data.\nThe requests and operations structure (sometimes also referred as Activity, Traces or Spans) with the structure of application calls, related to an event or exception condition.\nMetrics: numeric values (such as latencies, payload sizes, frequencies) that can be aggregated and correlated with the operations structure and the logs.\n\n\nThe image below shows examples about the 3 observability elements on Azure Monitor Performance Management (APM) Tools:  \nDiginsight makes observability easy as: &gt;- it integrates the 3 observability elements (Log, Traces, Metrics) into high performance text-based streams such as traditional File logs, the Console log or the Azure Streaming log. &gt;- it publishes the 3 observability elements to OpenTelemetry and allowing application analysis by means of remote APM tools such as Azure Monitor and Grafana.",
     "crumbs": [
       "Home",
       "Concepts",
