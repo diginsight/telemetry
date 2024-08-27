@@ -26,9 +26,9 @@ website:
       - text: "Home"
         href: index.md
       - text: "Concepts"
-        href: src/docs/01. Concepts/concepts.qmd
+        href: src/docs/01. Concepts/00.01 - Observability Concepts.md
       - text: "Advanced Articles"
-        href: src/docs/02. Advanced/Advanced Concepts.qmd
+        href: src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.md
       - text: "About"
         menu:
            - text: About
