@@ -134,7 +134,6 @@ You can easily test Diginsight integration with OpenTelemetry by means of the Ea
 - build the solution
 
 
-
 <br><br>
 
 # Contribute
