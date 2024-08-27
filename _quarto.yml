@@ -34,7 +34,7 @@ website:
            - text: About
              href:  about.qmd
            - text: License
-             href:  src/docs/LICENSE.md
+             href:  src/LICENSE.md
         # href: about.qmd
     tools:
        # - icon: twitter
