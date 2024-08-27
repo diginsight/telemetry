@@ -25,5 +25,5 @@ Diginsight is a free opensource project.
 ## Contributors
 
 Carlo Bollini | Milan, Italy<br>
-Chayashree Gholally | Bhangalore, India<br>
+Chayashree Gollahalli | Bhangalore, India<br>
 Alessandro Avila | Milan, Italy<br>
