@@ -77,12 +77,12 @@ Example code used in the articles is also available in the [telemetry_samples](h
 
 >- [Getting Started](<src/docs/00.01 - Getting Started.md>): explores __basic steps we can follow to integrate diginsight telemetry__<br>
 >- [Observability Concepts](<src/docs/01. Concepts/00.01 - Observability Concepts.md>): Explores basic concepts for __application observability and Opentelemetry__.<br>
+>- [HowTo: configure diginsight telemetry to the local text based streams](<src/docs/01. Concepts/12.00 - Configure diginsight telemetry to the local text based streams.md>)<br>
+>Explores how we configure diginsight telemetry to the __local analysis tools__.<br>
 >- [HowTo: use dynamic logging to manage loglevel dynamically, at runtime](<src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.md>)<br>
 >Explores how we can troubleshoot applications by means of __dynamic logging__.<br>
 >- [HowTo: use dynamic configuration to manage configurations and feature flags dynamically, at runtime](<src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.md>)<br>
 >Explores how we can troubleshoot applications by means of __dynamic configuration__.<br>4
->- [HowTo: configure diginsight telemetry to the local text based streams](<src/docs/01. Concepts/12.00 - Configure diginsight telemetry to the local text based streams.md>)<br>
->Explores how we configure diginsight telemetry to the __local analysis tools__.<br>
 >- [HowTo: configure diginsight telemetry to the remote tools](<src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.md>)<br>
 >Explores how we configure diginsight telemetry to the __remote analysis tools__.<br>
 >- [HowTo: maximize application performance and minimize telemetry cost with diginsight](<src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.md>)<br>
@@ -90,11 +90,16 @@ Example code used in the articles is also available in the [telemetry_samples](h
 
 Advanced topics:
 
->- [HowTo: customize entities rendering on diginsight log streams](<src/docs/02. Advanced/13.00 - Customize entities rendering on diginsight log streams.md>).
->- [HowTo: customize metrics sent to the remote tools](<src/docs/02. Advanced/14.00 - Customize metrics sent to the remote tools.md>).
->- [HowTo: customize diginsight log streams row content](<src/docs/02. Advanced/15.00 - Customize diginsight log streams row content.md>).
->- [HowTo: troubleshoot the startup sequence](<src/docs/02. Advanced/17.00 - Troubleshoot the startup sequence.md>).
->- [HowTo: use class aware configurations to support comonent level or class level configurations](<src/docs/02. Advanced/18.00 - HowTo - Use class aware configurations to support comonent level or class level configurations.md>).
+>- [HowTo: customize entities rendering on diginsight log streams](<src/docs/02. Advanced/13.00 - Customize entities rendering on diginsight log streams.md>):
+>Explores how diginsight entities rendereing can be fully customized.<br>
+>- [HowTo: customize metrics sent to the remote tools](<src/docs/02. Advanced/14.00 - Customize metrics sent to the remote tools.md>):
+>Explores how custom metrics sent to the remote tools can be integrated and fully customized with tags.<br>
+>- [HowTo: customize diginsight log streams row content](<src/docs/02. Advanced/15.00 - Customize diginsight log streams row content.md>):
+>Explores how diginsight row content can be fully customized.<br>
+>- [HowTo: troubleshoot the startup sequence](<src/docs/02. Advanced/17.00 - Troubleshoot the startup sequence.md>):
+>Explores how full observability can be enabled on static methods and the startup sequence.<br>
+>- [HowTo: use class aware configurations to support comonent level or class level configurations](<src/docs/02. Advanced/18.00 - HowTo - Use class aware configurations to support comonent level or class level configurations.md>):
+>Explores how class aware configurations can be used to implement feature flags or configurations that can be enabled with class level granularity.<br>
 
 
 

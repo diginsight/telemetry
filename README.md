@@ -11,9 +11,10 @@ __Diginsight telemetry__ targets __all dotnet framework versions__ starting from
 
 # Additional Information 
 Diginsight telemetry is __readable__, __consistent__ and __efficient__:<br>
-- __readable__: telemetry is __easily readable__ on `local troubleshooting tools`, `live server consoles` and `remote analysis tools` such as the Azure monitor. The generated application flow is __consistent with application code__ so that problems understanding is much simplified.<br>
-- __consistent__: the application flow is __rendered consistently__ on `local troubleshooting tools`, where maximun flow detail is available, and to the `remote analysis tools` such as the Azure monitor, where metrics and data from past executions can be easily compared.<br>
-- __efficient__: application flow is generated with fully optimized techniques (such as dynamic compilation). Also, the full application flow observability can be __enabled dynamically__ and __only on the specific executions__ that are under analysis. this ensures that diginsight can be leveraged with no pratical impact on application performance.<br>
+
+>- __readable__: telemetry is __easily readable__ on `local troubleshooting tools`, `live server consoles` and `remote analysis tools` such as the Azure monitor. The generated application flow is __consistent with application code__ so that problems understanding is much simplified.<br>
+>- __consistent__: the application flow is __rendered consistently__ on `local troubleshooting tools`, where maximun flow detail is available, and to the `remote analysis tools` such as the Azure monitor, where metrics and data from past executions can be easily compared.<br>
+>- __efficient__: application flow is generated with fully optimized techniques (such as dynamic compilation). Also, the full application flow observability can be __enabled dynamically__ and __only on the specific executions__ that are under analysis. this ensures that diginsight can be leveraged with no pratical impact on application performance.<br>
 
 
 The image below shows the text based stream associated to to a Web API call.
@@ -31,7 +32,7 @@ The image below shows a __call to a live environment__ where the log level is se
 ![alt text](<src/docs/000.021a live environment request with loglevel debug.png>)
 
 The image below shows the __live environment AKS console__ where __our call is traced with full datail__, __while other calls are being processed with limited Log level__.
-![alt text](<src/docs/000.021b live environment request with loglevel debug.png>)
+![alt text](<src/docs/000.021b live environment request with loglevel debug.png>) 
 
 
 Performance information gathered by __diginsight__ can be analyzed in the form of __metrics__.<br>
@@ -76,23 +77,29 @@ Example code used in the articles is also available in the [telemetry_samples](h
 
 >- [Getting Started](<src/docs/00.01 - Getting Started.md>): explores __basic steps we can follow to integrate diginsight telemetry__<br>
 >- [Observability Concepts](<src/docs/01. Concepts/00.01 - Observability Concepts.md>): Explores basic concepts for __application observability and Opentelemetry__.<br>
+>- [HowTo: configure diginsight telemetry to the local text based streams](<src/docs/01. Concepts/12.00 - Configure diginsight telemetry to the local text based streams.md>)<br>
+>Explores how we configure diginsight telemetry to the __local analysis tools__.<br>
 >- [HowTo: use dynamic logging to manage loglevel dynamically, at runtime](<src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.md>)<br>
 >Explores how we can troubleshoot applications by means of __dynamic logging__.<br>
 >- [HowTo: use dynamic configuration to manage configurations and feature flags dynamically, at runtime](<src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.md>)<br>
 >Explores how we can troubleshoot applications by means of __dynamic configuration__.<br>4
->- [HowTo: configure diginsight telemetry to the local text based streams](<src/docs/01. Concepts/12.00 - Configure diginsight telemetry to the local text based streams.md>)<br>
->Explores how we configure diginsight telemetry to the __local analysis tools__.<br>
 >- [HowTo: configure diginsight telemetry to the remote tools](<src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.md>)<br>
 >Explores how we configure diginsight telemetry to the __remote analysis tools__.<br>
 >- [HowTo: maximize application performance and minimize telemetry cost with diginsight](<src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.md>)<br>
 >Explores diginsight telemetry can be used without impact on __application performance__ and __telemetry cost__.<br>
 
-Advanced topics
->- [HowTo: customize entities rendering on diginsight log streams](<src/docs/02. Advanced/13.00 - Customize entities rendering on diginsight log streams.md>).
->- [HowTo: customize metrics sent to the remote tools](<src/docs/02. Advanced/14.00 - Customize metrics sent to the remote tools.md>).
->- [HowTo: customize diginsight log streams row content](<src/docs/02. Advanced/15.00 - Customize diginsight log streams row content.md>).
->- [HowTo: troubleshoot the startup sequence](<src/docs/02. Advanced/17.00 - Troubleshoot the startup sequence.md>).
->- [HowTo: use class aware configurations to support comonent level or class level configurations](<src/docs/02. Advanced/18.00 - HowTo - Use class aware configurations to support comonent level or class level configurations.md>).
+Advanced topics:
+
+>- [HowTo: customize entities rendering on diginsight log streams](<src/docs/02. Advanced/13.00 - Customize entities rendering on diginsight log streams.md>):
+>Explores how diginsight entities rendereing can be fully customized.<br>
+>- [HowTo: customize metrics sent to the remote tools](<src/docs/02. Advanced/14.00 - Customize metrics sent to the remote tools.md>):
+>Explores how custom metrics sent to the remote tools can be integrated and fully customized with tags.<br>
+>- [HowTo: customize diginsight log streams row content](<src/docs/02. Advanced/15.00 - Customize diginsight log streams row content.md>):
+>Explores how diginsight row content can be fully customized.<br>
+>- [HowTo: troubleshoot the startup sequence](<src/docs/02. Advanced/17.00 - Troubleshoot the startup sequence.md>):
+>Explores how full observability can be enabled on static methods and the startup sequence.<br>
+>- [HowTo: use class aware configurations to support comonent level or class level configurations](<src/docs/02. Advanced/18.00 - HowTo - Use class aware configurations to support comonent level or class level configurations.md>):
+>Explores how class aware configurations can be used to implement feature flags or configurations that can be enabled with class level granularity.<br>
 
 
 
