@@ -1,5 +1,5 @@
 # Introduction 
-__Diginsight telemetry__ is a set .Net packages that that provides __automatic__ __observability__ for dotnet applications.<br> 
+__Diginsight telemetry__ provides __automatic__ __observability__ for dotnet applications.<br> 
 In particular, __the full application flow__ is made available to __local text based streams__ such as __traditional file logs__, the __Console Log__ or the __Azure Streaming Log__ and also to remote analysis tools such as __Azure Monitor__ and __Prometheus__/__Grafana__.
 
 Diginsight allows __observability__ of the __full application lifecycle__, including __static methods__, __injection sequences__ and the __application startup__ and __shutdown sequences__ where configuration problems and much complexity are often hidden.
@@ -24,6 +24,7 @@ The following image shows the same call on the __Azure Monitor Transaction Detai
 ![Alt text](<src/docs/000.02 Full call on azmon transaction.png>)
 
 
+# Observability on live environments
 Diginsight uses __dynamic logging__ to support __full observability on live environments__.<br>
 Live environments logging level is normally limited to __Warning__ or __Information__ levels to limit telemetry volumes produced by the applications.<br>
 With __dynamic logging__ Log level can be raied to debug or trace __for a single call__, for example, by means of the __Log-Level http headers__.
@@ -34,11 +35,9 @@ The image below shows a __call to a live environment__ where the log level is se
 The image below shows the __live environment AKS console__ where __our call is traced with full datail__, __while other calls are being processed with limited Log level__.
 ![alt text](<src/docs/000.021b live environment request with loglevel debug.png>) 
 
-
 Performance information gathered by __diginsight__ can be analyzed in the form of __metrics__.<br>
 The following image shows the __Azure Monitor Metrics__ dashboard where method invocations and latencies can be analized in __value__ and __frequency__:
 ![Alt text](<src/docs/000.03 span_duration azmon metrics.png>)<br><br>
-
 
  __Intelligent sampling__, __dynamic compilation__, __automatic truncation__ and other strategies are used to __maximize application efficiency__ and __minimize telemetry cost__<br>For these reasons __Local analysis__ and __analysis on the remote tools__ can be supported __without compromises on performance__ and  __without compromises on cost of telemetry__ in __test__ and __production__ environments.<br><br>
 ![alt text](<src/docs/001.03d NoPerformanceImpact.png>)<br>
@@ -132,6 +131,7 @@ You can easily test Diginsight integration with OpenTelemetry by means of the Ea
 - Clone diginsight repository
 - Open and build solution Diginsight.sln. 
 - build the solution
+
 
 
 <br><br>

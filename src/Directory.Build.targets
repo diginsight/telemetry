@@ -10,7 +10,7 @@
     <Product>Diginsight</Product>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReadmeFile>README.Nuget.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/diginsight/telemetry</PackageProjectUrl>
     <PackageTags>diginsight</PackageTags>
     <!-- TODO <Description> in each csproj -->
