@@ -48,7 +48,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(IsPackable)' != 'false'">
-    <None Include="$(MSBuildThisFileDirectory)README.md">
+    <None Include="$(MSBuildThisFileDirectory)README.Nuget.md">
       <Visible>false</Visible>
       <Pack>True</Pack>
       <PackagePath></PackagePath>
