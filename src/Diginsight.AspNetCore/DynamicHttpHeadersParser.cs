@@ -8,7 +8,7 @@ namespace Diginsight.AspNetCore;
 public static class DynamicHttpHeadersParser
 {
     private static readonly Regex ConfigurationSpecRegex = new ("^([^= ]+?)(?: *= *([^ ]*))?$");
-    private static readonly Regex LogLevelSpecRegex = new ("^([^= ]+?) *= *([a-z]+?)(?: *; *p *= *([^ ]+?))?$", RegexOptions.IgnoreCase);
+    private static readonly Regex LogLevelSpecRegex = new ("^([^= ]+?) *=(?: *([a-z]+?))?(?: *; *p *= *([^ ]+?))?$", RegexOptions.IgnoreCase);
 
     public static IEnumerable<KeyValuePair<string, string?>> ParseConfiguration(IEnumerable<string> rawSpecs, bool allowUnset)
     {
@@ -27,7 +27,7 @@ public static class DynamicHttpHeadersParser
         }
     }
 
-    public static bool ParseLogLevel(IEnumerable<string> rawSpecs, LoggerFilterOptions loggerFilterOptions, bool allowMinLevel)
+    public static bool UpdateLogLevel(IEnumerable<string> rawSpecs, LoggerFilterOptions loggerFilterOptions, bool allowMinLevel)
     {
         IList<LoggerFilterRule> rules = loggerFilterOptions.Rules;
         bool any = false;
@@ -41,8 +41,22 @@ public static class DynamicHttpHeadersParser
                 continue;
             }
 
-            if (LogLevelSpecRegex.Match(rawSpec) is not { Success: true } match ||
-                !Enum.TryParse(match.Groups[2].Value, true, out LogLevel logLevel))
+            if (LogLevelSpecRegex.Match(rawSpec) is not { Success: true } match)
+            {
+                continue;
+            }
+
+            LogLevel? finalLogLevel;
+            Group logLevelGroup = match.Groups[2];
+            if (!logLevelGroup.Success)
+            {
+                finalLogLevel = null;
+            }
+            else if (Enum.TryParse(logLevelGroup.Value, true, out LogLevel logLevel))
+            {
+                finalLogLevel = logLevel;
+            }
+            else
             {
                 continue;
             }
@@ -52,17 +66,23 @@ public static class DynamicHttpHeadersParser
 
             string? category = Collapse(match.Groups[1].Value);
             string? provider = match.Groups[3] is { Success: true } providerGroup ? providerGroup.Value : null;
-            SetRule(category, provider, logLevel);
+
+            SetRule(category, provider, finalLogLevel);
 
             [SuppressMessage("ReSharper", "VariableHidesOuterVariable")]
-            void SetRule(string? category, string? provider, LogLevel logLevel)
+            void SetRule(string? category, string? provider, LogLevel? logLevel)
             {
                 any = true;
 
-                int index = rules.FirstIndexWhere(x => string.Equals(x.CategoryName, category, StringComparison.OrdinalIgnoreCase) && x.ProviderName == provider);
-                if (index >= 0)
+                IEnumerable<int> indexes = rules
+                    .IndexesWhere(x => string.Equals(x.CategoryName, category, StringComparison.OrdinalIgnoreCase) && x.ProviderName == provider)
+                    .ToArray();
+                if (indexes.Any())
                 {
-                    rules[index] = new LoggerFilterRule(provider, category, logLevel, null);
+                    foreach (int index in indexes)
+                    {
+                        rules[index] = new LoggerFilterRule(provider, category, logLevel, null);
+                    }
                 }
                 else
                 {
