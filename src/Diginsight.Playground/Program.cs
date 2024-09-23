@@ -37,7 +37,7 @@ internal class Program : BackgroundService
         };
 
         IDeferredLoggerFactory loggerFactory = new DeferredLoggerFactory(activitiesOptions: diginsightActivitiesOptions);
-        loggerFactory.ActivitySources.Add(ActivitySource);
+        loggerFactory.ActivitySourceFilter = static x => x == ActivitySource;
         ILogger logger = loggerFactory.CreateLogger<Program>();
 
         IHost host;

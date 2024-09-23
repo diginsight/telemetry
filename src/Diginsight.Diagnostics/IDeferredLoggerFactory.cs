@@ -5,7 +5,7 @@ namespace Diginsight.Diagnostics;
 
 public interface IDeferredLoggerFactory : ILoggerFactory
 {
-    ISet<ActivitySource> ActivitySources { get; }
+    Func<ActivitySource, bool>? ActivitySourceFilter { get; set; }
 
     void FlushTo(ILoggerFactory target, bool throwOnFlushed = true);
 }

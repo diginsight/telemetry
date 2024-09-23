@@ -19,7 +19,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
     private ActivityListener? activityListener;
     private ILoggerFactory? target;
 
-    public ISet<ActivitySource> ActivitySources { get; } = new HashSet<ActivitySource>();
+    public Func<ActivitySource, bool>? ActivitySourceFilter { get; set; }
 
     public DeferredLoggerFactory(
         TimeProvider? timeProvider = null,
@@ -51,9 +51,12 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
             this.decoratee = decoratee;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool IsIncluded(ActivitySource activitySource) => owner.ActivitySourceFilter?.Invoke(activitySource) ?? true;
+
         void IActivityListenerLogic.ActivityStarted(Activity activity)
         {
-            if (!owner.ActivitySources.Contains(activity.Source) || owner.target is not null)
+            if (!IsIncluded(activity.Source) || owner.target is not null)
                 return;
 
             lock (owner.lockObj)
@@ -67,7 +70,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
 
         void IActivityListenerLogic.ActivityStopped(Activity activity)
         {
-            if (!owner.ActivitySources.Contains(activity.Source) || owner.target is not null)
+            if (!IsIncluded(activity.Source) || owner.target is not null)
                 return;
 
             lock (owner.lockObj)
@@ -81,7 +84,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
 
         ActivitySamplingResult IActivityListenerLogic.Sample(ref ActivityCreationOptions<ActivityContext> creationOptions)
         {
-            if (!owner.ActivitySources.Contains(creationOptions.Source) || owner.target is not null)
+            if (!IsIncluded(creationOptions.Source) || owner.target is not null)
                 return ActivitySamplingResult.None;
 
             lock (owner.lockObj)
