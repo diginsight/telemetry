@@ -32,7 +32,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
 
         ActivityLifecycleLogEmitter emitter = new (
             this,
-            appendingContextFactory ?? AppendingContextFactoryBuilder.DefaultFactory,
+            appendingContextFactory ?? new AppendingContextFactoryBuilder().WithLoggerFactory(this).Build(),
             new FixedClassAwareOptionsMonitor(activitiesOptions ?? new DiginsightActivitiesOptions()),
             activityLoggingSampler
         );

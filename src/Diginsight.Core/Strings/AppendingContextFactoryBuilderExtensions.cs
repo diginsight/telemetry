@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -61,6 +63,15 @@ public static class AppendingContextFactoryBuilderExtensions
         where T : ILogStringProvider
     {
         return builder.RegisterProvider(typeof(T), priority);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static AppendingContextFactoryBuilder WithLoggerFactory(
+        this AppendingContextFactoryBuilder builder, ILoggerFactory loggerFactory
+    )
+    {
+        builder.Services.TryAddSingleton(loggerFactory);
+        return builder;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
