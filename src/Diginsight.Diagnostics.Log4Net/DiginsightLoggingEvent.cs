@@ -13,13 +13,16 @@ internal sealed class DiginsightLoggingEvent : LoggingEvent
 
     public Activity? Activity { get; }
 
+    public Func<int, int>? SealMaxMessageLength { get; }
+
     public DiginsightLoggingEvent(
         IServiceProvider serviceProvider,
         LoggingEvent wrapped,
         bool isActivity,
         TimeSpan? duration,
         DateTimeOffset timestamp,
-        Activity? activity
+        Activity? activity,
+        Func<int, int>? sealMaxMessageLength
     )
         : base(TransformLoggingEventData(wrapped, timestamp))
     {
@@ -27,6 +30,7 @@ internal sealed class DiginsightLoggingEvent : LoggingEvent
         IsActivity = isActivity;
         Duration = duration;
         Activity = activity;
+        SealMaxMessageLength = sealMaxMessageLength;
     }
 
     private static LoggingEventData TransformLoggingEventData(LoggingEvent loggingEvent, DateTimeOffset timestamp)

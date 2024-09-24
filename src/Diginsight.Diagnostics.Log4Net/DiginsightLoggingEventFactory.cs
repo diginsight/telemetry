@@ -33,7 +33,12 @@ internal sealed class DiginsightLoggingEventFactory : ILog4NetLoggingEventFactor
         {
             object? state = messageCandidate.State;
             DiginsightTextWriter.ExpandState(
-                ref state, out bool isActivity, out TimeSpan? duration, out DateTimeOffset? maybeTimestamp, out Activity? activity
+                ref state,
+                out bool isActivity,
+                out TimeSpan? duration,
+                out DateTimeOffset? maybeTimestamp,
+                out Activity? activity,
+                out Func<int, int>? sealMaxMessageLength
             );
 
             LoggingEvent? loggingEvent = decoratee.CreateLoggingEvent(messageCandidate, logger, options, scopeProvider);
@@ -48,7 +53,8 @@ internal sealed class DiginsightLoggingEventFactory : ILog4NetLoggingEventFactor
                 isActivity,
                 duration,
                 maybeTimestamp ?? timeProvider.GetUtcNow(),
-                activity ?? Activity.Current
+                activity ?? Activity.Current,
+                sealMaxMessageLength
             );
         }
         catch (Exception)

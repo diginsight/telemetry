@@ -34,34 +34,25 @@ public static class DiginsightTextWriter
     }
 
     public static void ExpandState(
-        ref object? state, out bool isActivity, out TimeSpan? duration, out DateTimeOffset? maybeTimestamp, out Activity? activity
+        ref object? state,
+        out bool isActivity,
+        out TimeSpan? duration,
+        out DateTimeOffset? maybeTimestamp,
+        out Activity? activity,
+        out Func<int, int>? sealMaxMessageLength
     )
     {
-        isActivity = false;
-        duration = null;
-        maybeTimestamp = null;
-        activity = null;
+        LogMetadataCarrier.ExtractMetadata(ref state, out IEnumerable<ILogMetadata> metadataCollection);
 
-        while (true)
-        {
-            if (state is ActivityLifecycleLogEmitter.IActivityMark activityMark)
-            {
-                state = activityMark.State;
-                isActivity = true;
-                duration = activityMark.Duration;
-                activity ??= activityMark.Activity;
-            }
-            else if (state is DeferredLoggerFactory.IDeferred timestamped)
-            {
-                state = timestamped.State;
-                maybeTimestamp = timestamped.Timestamp;
-                activity = timestamped.Activity;
-            }
-            else
-            {
-                break;
-            }
-        }
+        ActivityLifecycleLogEmitter.ILogMetadata? activityMetadata = metadataCollection.OfType<ActivityLifecycleLogEmitter.ILogMetadata>().FirstOrDefault();
+        DeferredLoggerFactory.ILogMetadata? deferredMetadata = metadataCollection.OfType<DeferredLoggerFactory.ILogMetadata>().FirstOrDefault();
+        TextWriterLogMetadata? writerMetadata = metadataCollection.OfType<TextWriterLogMetadata>().FirstOrDefault();
+
+        isActivity = activityMetadata is not null;
+        duration = activityMetadata?.Duration;
+        maybeTimestamp = deferredMetadata?.Timestamp;
+        activity = deferredMetadata?.Activity ?? activityMetadata?.Activity;
+        sealMaxMessageLength = writerMetadata?.SealMaxMessageLength;
     }
 
     public static void Write(
@@ -74,7 +65,8 @@ public static class DiginsightTextWriter
         Exception? exception,
         bool isActivity,
         TimeSpan? duration,
-        LineDescriptor lineDescriptor
+        LineDescriptor lineDescriptor,
+        Func<int, int>? sealMaxMessageLength
     )
     {
         if (DisplayTiming)
@@ -97,13 +89,39 @@ public static class DiginsightTextWriter
             }
 
             using StringWriter stringWriter = new ();
-            Write(stringWriter, timestamp, activity, logLevel, category, message, exception, isActivity, duration, lineDescriptor, out double timing);
+            Write(
+                stringWriter,
+                timestamp,
+                activity,
+                logLevel,
+                category,
+                message,
+                exception,
+                isActivity,
+                duration,
+                lineDescriptor,
+                sealMaxMessageLength,
+                out double timing
+            );
 
             textWriter.Write("{0,5}µ {1}", ((long)timing).ToString(CultureInfo.InvariantCulture), stringWriter);
         }
         else
         {
-            Write(textWriter, timestamp, activity, logLevel, category, message, exception, isActivity, duration, lineDescriptor, out _);
+            Write(
+                textWriter,
+                timestamp,
+                activity,
+                logLevel,
+                category,
+                message,
+                exception,
+                isActivity,
+                duration,
+                lineDescriptor,
+                sealMaxMessageLength,
+                out _
+            );
         }
     }
 
@@ -118,6 +136,7 @@ public static class DiginsightTextWriter
         bool isActivity,
         TimeSpan? duration,
         LineDescriptor lineDescriptor,
+        Func<int, int>? sealMaxMessageLength,
         out double timing
     )
     {
@@ -190,7 +209,12 @@ public static class DiginsightTextWriter
                 }
             }
 
-            IMessageLineResizer resizer = GetResizer(lineDescriptor.MaxMessageLength, lineDescriptor.MaxLineLength, indentationLength, prefixLength);
+            IMessageLineResizer resizer = GetResizer(
+                sealMaxMessageLength?.Invoke(lineDescriptor.MaxMessageLength) ?? lineDescriptor.MaxMessageLength,
+                lineDescriptor.MaxLineLength,
+                indentationLength,
+                prefixLength
+            );
 
             bool first = true;
             foreach (string line in resizer.Resize(fullMessage.Split(newLine)))

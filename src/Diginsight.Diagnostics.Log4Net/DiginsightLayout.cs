@@ -43,7 +43,8 @@ public sealed class DiginsightLayout : ILayout
                 loggingEvent.ExceptionObject,
                 myLoggingEvent.IsActivity,
                 myLoggingEvent.Duration,
-                lineDescriptor
+                lineDescriptor,
+                myLoggingEvent.SealMaxMessageLength
             );
         }
         catch (Exception exception)

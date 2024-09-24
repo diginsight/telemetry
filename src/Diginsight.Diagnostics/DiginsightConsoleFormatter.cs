@@ -37,7 +37,12 @@ internal sealed class DiginsightConsoleFormatter : ConsoleFormatter
         {
             object? state = logEntry.State;
             DiginsightTextWriter.ExpandState(
-                ref state, out bool isActivity, out TimeSpan? duration, out DateTimeOffset? maybeTimestamp, out Activity? activity
+                ref state,
+                out bool isActivity,
+                out TimeSpan? duration,
+                out DateTimeOffset? maybeTimestamp,
+                out Activity? activity,
+                out Func<int, int>? sealMaxMessageLength
             );
 
             DateTimeOffset finalTimestamp = maybeTimestamp ?? timeProvider.GetUtcNow();
@@ -67,7 +72,8 @@ internal sealed class DiginsightConsoleFormatter : ConsoleFormatter
                 logEntry.Exception,
                 isActivity,
                 duration,
-                lineDescriptorProvider.GetLineDescriptor(width)
+                lineDescriptorProvider.GetLineDescriptor(width),
+                sealMaxMessageLength
             );
         }
         catch (Exception exception)

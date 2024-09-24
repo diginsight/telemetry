@@ -10,8 +10,7 @@ internal sealed class LoggerFactorySetter : ILoggerFactorySetter
 
     public IEnumerable<ILoggerProvider> LoggerProviders => loggerProviders;
 
-    private bool IsRoot => asyncLocal.Value is null;
-    private ILoggerFactory Underying => asyncLocal.Value ?? decoratee;
+    private (ILoggerFactory Factory, bool IsRoot) Underlying => asyncLocal.Value is { } factory ? (factory, false) : (decoratee, true);
 
     public LoggerFactorySetter(
         ILoggerFactory decoratee,
@@ -33,8 +32,9 @@ internal sealed class LoggerFactorySetter : ILoggerFactorySetter
 
     void ILoggerFactory.AddProvider(ILoggerProvider provider)
     {
-        Underying.AddProvider(provider);
-        if (IsRoot)
+        (ILoggerFactory factory, bool isRoot) = Underlying;
+        factory.AddProvider(provider);
+        if (isRoot)
         {
             loggerProviders.Add(provider);
         }
@@ -42,7 +42,7 @@ internal sealed class LoggerFactorySetter : ILoggerFactorySetter
 
     void IDisposable.Dispose()
     {
-        if (IsRoot)
+        if (Underlying.IsRoot)
         {
             decoratee.Dispose();
         }
@@ -71,13 +71,13 @@ internal sealed class LoggerFactorySetter : ILoggerFactorySetter
         {
             get
             {
+                ILogger logger;
+                ILoggerFactory factory = setter.Underlying.Factory;
+
                 lock (@lock)
                 {
-                    ILogger logger;
-
-                    if (current?.Factory != setter.Underying)
+                    if (current?.Factory != factory)
                     {
-                        ILoggerFactory factory = setter.Underying;
                         logger = factory.CreateLogger(categoryName);
                         current = (logger, factory);
                     }
@@ -85,9 +85,9 @@ internal sealed class LoggerFactorySetter : ILoggerFactorySetter
                     {
                         logger = current.Value.Logger;
                     }
-
-                    return logger;
                 }
+
+                return logger;
             }
         }
 
