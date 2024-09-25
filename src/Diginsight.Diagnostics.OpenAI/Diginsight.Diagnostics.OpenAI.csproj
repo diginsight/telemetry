@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0</TargetFrameworks>
+    <Title>Diginsight Diagnostics OpenAI extensions</Title>
+    <RootNamespace>Diginsight.Diagnostics</RootNamespace>
+    <PackageIcon>Diginsight.Diagnostics.png</PackageIcon>
+    <PackageTags>$(PackageTags);diagnostics;openai</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Diginsight.Diagnostics\Diginsight.Diagnostics.csproj" />
+  </ItemGroup>
+
+</Project>

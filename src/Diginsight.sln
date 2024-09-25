@@ -34,6 +34,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Diagnostics.Open
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Diagnostics.AspNetCore.OpenTelemetry", "Diginsight.Diagnostics.AspNetCore.OpenTelemetry\Diginsight.Diagnostics.AspNetCore.OpenTelemetry.csproj", "{6BA59D4F-F409-4E06-8C37-D7AA52020284}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Diagnostics.OpenAI", "Diginsight.Diagnostics.OpenAI\Diginsight.Diagnostics.OpenAI.csproj", "{ABC60C46-8873-4D2C-B46A-FFE748E2548B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -76,6 +78,10 @@ Global
 		{6BA59D4F-F409-4E06-8C37-D7AA52020284}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6BA59D4F-F409-4E06-8C37-D7AA52020284}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6BA59D4F-F409-4E06-8C37-D7AA52020284}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABC60C46-8873-4D2C-B46A-FFE748E2548B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABC60C46-8873-4D2C-B46A-FFE748E2548B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABC60C46-8873-4D2C-B46A-FFE748E2548B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABC60C46-8873-4D2C-B46A-FFE748E2548B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -90,6 +96,7 @@ Global
 		{5E953F66-49B0-4ED3-A601-1FEA58E5EF5B} = {7552A1D3-57F4-4B62-BE71-F4394846CDE9}
 		{8274B54E-F9A0-4FBC-9A4A-089FE35EA927} = {D942D960-B46D-46EF-827C-73F57E91313F}
 		{6BA59D4F-F409-4E06-8C37-D7AA52020284} = {D942D960-B46D-46EF-827C-73F57E91313F}
+		{ABC60C46-8873-4D2C-B46A-FFE748E2548B} = {D942D960-B46D-46EF-827C-73F57E91313F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1F6C1DEF-2C8A-453A-8974-3571C0B84B89}
