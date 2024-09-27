@@ -1,11 +1,8 @@
-﻿using System.ComponentModel;
-
+﻿#if !(NET || NETSTANDARD2_1_OR_GREATER)
 namespace System;
 
-[EditorBrowsable(EditorBrowsableState.Never)]
-public static class Extensions
+public static partial class Extensions
 {
-#if !(NET || NETSTANDARD2_1_OR_GREATER)
     public static void Deconstruct<TKey, TValue>(this KeyValuePair<TKey, TValue> kvp, out TKey key, out TValue value)
     {
         key = kvp.Key;
@@ -23,5 +20,5 @@ public static class Extensions
     {
         return dictionary.TryGetValue(key, out TValue obj) ? obj : defaultValue;
     }
-#endif
 }
+#endif

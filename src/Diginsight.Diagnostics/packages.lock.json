@@ -757,6 +757,12 @@
           "Microsoft.SourceLink.Common": "8.0.0"
         }
       },
+      "Pastel": {
+        "type": "Direct",
+        "requested": "[5.*, )",
+        "resolved": "5.1.0",
+        "contentHash": "jQ0fTkHZvgQsmbr5qU0IdCP1PWuUfmEmekIsTwysWK/iIwmT9Mbm0x5GpjYSTEwHTNVEpjYhBhyKVdzESgRCpg=="
+      },
       "System.Text.Json": {
         "type": "Direct",
         "requested": "[8.*, )",
@@ -1054,6 +1060,12 @@
           "Microsoft.SourceLink.Common": "8.0.0"
         }
       },
+      "Pastel": {
+        "type": "Direct",
+        "requested": "[5.*, )",
+        "resolved": "5.1.0",
+        "contentHash": "jQ0fTkHZvgQsmbr5qU0IdCP1PWuUfmEmekIsTwysWK/iIwmT9Mbm0x5GpjYSTEwHTNVEpjYhBhyKVdzESgRCpg=="
+      },
       "System.Text.Json": {
         "type": "Direct",
         "requested": "[8.*, )",
@@ -1340,6 +1352,12 @@
           "Microsoft.Build.Tasks.Git": "8.0.0",
           "Microsoft.SourceLink.Common": "8.0.0"
         }
+      },
+      "Pastel": {
+        "type": "Direct",
+        "requested": "[5.*, )",
+        "resolved": "5.1.0",
+        "contentHash": "jQ0fTkHZvgQsmbr5qU0IdCP1PWuUfmEmekIsTwysWK/iIwmT9Mbm0x5GpjYSTEwHTNVEpjYhBhyKVdzESgRCpg=="
       },
       "System.Text.Json": {
         "type": "Direct",

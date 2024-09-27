@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using Pastel;
+using System.Text;
 
 namespace Diginsight.Diagnostics.TextWriting;
 
@@ -15,37 +16,41 @@ public sealed class CategoryToken : ILineToken
 
     private sealed class Appender : IPrefixTokenAppender
     {
-        private readonly int length;
+        private readonly int desiredLength;
 
-        public Appender(int? length)
+        public Appender(int? desiredLength)
         {
-            this.length = length ?? 40;
+            this.desiredLength = desiredLength ?? 40;
         }
 
-        public void Append(StringBuilder sb, in LinePrefixData linePrefixData) => Append(sb, linePrefixData.Category);
-
-        private void Append(StringBuilder sb, string category)
+        public void Append(StringBuilder sb, ref int length, in LinePrefixData linePrefixData, bool useColor)
         {
-            if (length < 2)
+            Append(sb, linePrefixData.Category, useColor);
+            length += desiredLength;
+        }
+
+        private void Append(StringBuilder sb, string category, bool useColor)
+        {
+            if (desiredLength < 2)
             {
                 throw new InvalidOperationException("Length must be greater than or equal to 2");
             }
 
             string finalCategory;
-            if (category.Length < length)
+            if (category.Length < desiredLength)
             {
-                finalCategory = category.PadRight(length);
+                finalCategory = category.PadRight(desiredLength);
             }
-            else if (category.Length > length)
+            else if (category.Length > desiredLength)
             {
-                finalCategory = $"…{category[^(length - 1)..]}";
+                finalCategory = $"…{category[^(desiredLength - 1)..]}";
             }
             else
             {
                 finalCategory = category;
             }
 
-            sb.Append(finalCategory);
+            sb.Append(useColor ? finalCategory.Pastel(ConsoleColor.White) : finalCategory);
         }
     }
 }

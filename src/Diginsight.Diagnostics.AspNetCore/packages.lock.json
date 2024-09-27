@@ -1185,6 +1185,11 @@
         "resolved": "13.0.3",
         "contentHash": "HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ=="
       },
+      "Pastel": {
+        "type": "Transitive",
+        "resolved": "5.1.0",
+        "contentHash": "jQ0fTkHZvgQsmbr5qU0IdCP1PWuUfmEmekIsTwysWK/iIwmT9Mbm0x5GpjYSTEwHTNVEpjYhBhyKVdzESgRCpg=="
+      },
       "Scrutor": {
         "type": "Transitive",
         "resolved": "4.2.2",
@@ -1262,6 +1267,7 @@
           "Diginsight.Core": "[1.0.0, )",
           "Microsoft.Extensions.Diagnostics": "[8.*, )",
           "Microsoft.Extensions.Logging.Console": "[8.*, )",
+          "Pastel": "[5.*, )",
           "System.Text.Json": "[8.*, )"
         }
       },
@@ -1493,6 +1499,11 @@
         "resolved": "13.0.3",
         "contentHash": "HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ=="
       },
+      "Pastel": {
+        "type": "Transitive",
+        "resolved": "5.1.0",
+        "contentHash": "jQ0fTkHZvgQsmbr5qU0IdCP1PWuUfmEmekIsTwysWK/iIwmT9Mbm0x5GpjYSTEwHTNVEpjYhBhyKVdzESgRCpg=="
+      },
       "Scrutor": {
         "type": "Transitive",
         "resolved": "4.2.2",
@@ -1563,6 +1574,7 @@
           "Diginsight.Core": "[1.0.0, )",
           "Microsoft.Extensions.Diagnostics": "[8.*, )",
           "Microsoft.Extensions.Logging.Console": "[8.*, )",
+          "Pastel": "[5.*, )",
           "System.Text.Json": "[8.*, )"
         }
       },
@@ -1781,6 +1793,11 @@
         "resolved": "13.0.3",
         "contentHash": "HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ=="
       },
+      "Pastel": {
+        "type": "Transitive",
+        "resolved": "5.1.0",
+        "contentHash": "jQ0fTkHZvgQsmbr5qU0IdCP1PWuUfmEmekIsTwysWK/iIwmT9Mbm0x5GpjYSTEwHTNVEpjYhBhyKVdzESgRCpg=="
+      },
       "Scrutor": {
         "type": "Transitive",
         "resolved": "4.2.2",
@@ -1851,6 +1868,7 @@
           "Diginsight.Core": "[1.0.0, )",
           "Microsoft.Extensions.Diagnostics": "[8.*, )",
           "Microsoft.Extensions.Logging.Console": "[8.*, )",
+          "Pastel": "[5.*, )",
           "System.Text.Json": "[8.*, )"
         }
       },

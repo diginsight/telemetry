@@ -308,20 +308,22 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
     private sealed class ActivityLogger : ILogger
     {
         private readonly ILogger decoratee;
-        private readonly ILogMetadata metadata;
+        private readonly ILogger decorateeWithMetadata;
 
         public ActivityLogger(ILogger decoratee, Activity activity)
         {
-            this.decoratee = decoratee;
             TimeSpan? duration = activity.IsStopped ? activity.Duration : null;
-            metadata = new LogMetadata(duration, activity);
+            Diginsight.ILogMetadata metadata = new LogMetadata(duration, activity);
+
+            this.decoratee = decoratee;
+            decorateeWithMetadata = decoratee.WithMetadata(metadata);
         }
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
         {
             using (SuppressInstrumentationScope.Begin())
             {
-                decoratee.WithMetadata(metadata).Log(logLevel, eventId, state, exception, formatter);
+                decorateeWithMetadata.Log(logLevel, eventId, state, exception, formatter);
             }
         }
 

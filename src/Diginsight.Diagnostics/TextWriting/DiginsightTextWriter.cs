@@ -1,8 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
+using Pastel;
 using System.Collections;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Metrics;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Diginsight.Diagnostics.TextWriting;
@@ -39,7 +42,7 @@ public static class DiginsightTextWriter
         out TimeSpan? duration,
         out DateTimeOffset? maybeTimestamp,
         out Activity? activity,
-        out Func<int, int>? sealMaxMessageLength
+        out Func<LineDescriptor, LineDescriptor>? sealLineDescriptor
     )
     {
         LogMetadataCarrier.ExtractMetadata(ref state, out IEnumerable<ILogMetadata> metadataCollection);
@@ -52,11 +55,12 @@ public static class DiginsightTextWriter
         duration = activityMetadata?.Duration;
         maybeTimestamp = deferredMetadata?.Timestamp;
         activity = deferredMetadata?.Activity ?? activityMetadata?.Activity;
-        sealMaxMessageLength = writerMetadata?.SealMaxMessageLength;
+        sealLineDescriptor = writerMetadata?.SealLineDescriptor;
     }
 
     public static void Write(
         TextWriter textWriter,
+        bool useColor,
         DateTime timestamp,
         Activity? activity,
         LogLevel logLevel,
@@ -66,7 +70,7 @@ public static class DiginsightTextWriter
         bool isActivity,
         TimeSpan? duration,
         LineDescriptor lineDescriptor,
-        Func<int, int>? sealMaxMessageLength
+        Func<LineDescriptor, LineDescriptor>? sealLineDescriptor
     )
     {
         if (DisplayTiming)
@@ -91,6 +95,7 @@ public static class DiginsightTextWriter
             using StringWriter stringWriter = new ();
             Write(
                 stringWriter,
+                useColor,
                 timestamp,
                 activity,
                 logLevel,
@@ -100,7 +105,7 @@ public static class DiginsightTextWriter
                 isActivity,
                 duration,
                 lineDescriptor,
-                sealMaxMessageLength,
+                sealLineDescriptor,
                 out double timing
             );
 
@@ -110,6 +115,7 @@ public static class DiginsightTextWriter
         {
             Write(
                 textWriter,
+                useColor,
                 timestamp,
                 activity,
                 logLevel,
@@ -119,7 +125,7 @@ public static class DiginsightTextWriter
                 isActivity,
                 duration,
                 lineDescriptor,
-                sealMaxMessageLength,
+                sealLineDescriptor,
                 out _
             );
         }
@@ -127,6 +133,7 @@ public static class DiginsightTextWriter
 
     public static void Write(
         TextWriter textWriter,
+        bool useColor,
         DateTime timestamp,
         Activity? activity,
         LogLevel logLevel,
@@ -136,7 +143,7 @@ public static class DiginsightTextWriter
         bool isActivity,
         TimeSpan? duration,
         LineDescriptor lineDescriptor,
-        Func<int, int>? sealMaxMessageLength,
+        Func<LineDescriptor, LineDescriptor>? sealLineDescriptor,
         out double timing
     )
     {
@@ -145,12 +152,16 @@ public static class DiginsightTextWriter
         try
         {
             LinePrefixData linePrefixData = new (timestamp, logLevel, category, isActivity, duration, activity);
+            lineDescriptor = sealLineDescriptor?.Invoke(lineDescriptor) ?? lineDescriptor;
 
             StringBuilder prefixSb = new ();
+            int prefixLength = 0;
             foreach (IPrefixTokenAppender appender in lineDescriptor.Appenders)
             {
-                appender.Append(prefixSb, linePrefixData);
+                appender.Append(prefixSb, ref prefixLength, linePrefixData, useColor);
+
                 prefixSb.Append(' ');
+                prefixLength++;
             }
 
             int depth = linePrefixData.Activity.GetDepth().Local;
@@ -160,19 +171,27 @@ public static class DiginsightTextWriter
                 : maxIndentedDepth * 2;
 
             prefixSb.Append(new string(' ', indentationLength));
+            prefixLength += indentationLength;
 
             string actualPrefix = prefixSb.ToString();
-            int prefixLength = actualPrefix.Length;
             string blankPrefix = new (' ', prefixLength);
 
-            const char newLine = '\n';
+            const char nlc = '\n';
+            const string nls = "\n";
 
-            StringBuilder fullMessageSb = new (message);
-            if (exception is not null)
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            [return: NotNullIfNotNull(nameof(str))]
+            static string? ReplaceLineEndings(string? str)
             {
-                fullMessageSb.Append(newLine).Append(exception);
+#if NET
+                return str?.ReplaceLineEndings(nls);
+#else
+                return str?.Replace("\r\n", nls).Replace('\r', nlc);
+#endif
             }
-            string fullMessage = fullMessageSb.Replace("\r", "").ToString();
+
+            string finalMessage = ReplaceLineEndings(message);
+            string? finalException = ReplaceLineEndings(exception?.ToString());
 
             static IMessageLineResizer GetResizer(int maxMessage, int maxLine, int indentation, int prefix)
             {
@@ -209,15 +228,10 @@ public static class DiginsightTextWriter
                 }
             }
 
-            IMessageLineResizer resizer = GetResizer(
-                sealMaxMessageLength?.Invoke(lineDescriptor.MaxMessageLength) ?? lineDescriptor.MaxMessageLength,
-                lineDescriptor.MaxLineLength,
-                indentationLength,
-                prefixLength
-            );
+            IMessageLineResizer resizer = GetResizer(lineDescriptor.MaxMessageLength, lineDescriptor.MaxLineLength, indentationLength, prefixLength);
 
             bool first = true;
-            foreach (string line in resizer.Resize(fullMessage.Split(newLine)))
+            foreach (string line in resizer.Resize(finalMessage.Split(nlc)))
             {
                 if (first)
                 {
@@ -228,7 +242,17 @@ public static class DiginsightTextWriter
                 {
                     textWriter.Write(blankPrefix);
                 }
-                textWriter.WriteLine(line);
+
+                textWriter.WriteLine(useColor ? line.Pastel(isActivity ? ConsoleColor.Cyan : ConsoleColor.White) : line);
+            }
+
+            if (finalException is not null)
+            {
+                foreach (string line in resizer.Resize(finalException.Split(nlc)))
+                {
+                    textWriter.Write(blankPrefix);
+                    textWriter.WriteLine(useColor ? line.Pastel(ConsoleColor.DarkRed) : line);
+                }
             }
         }
         finally

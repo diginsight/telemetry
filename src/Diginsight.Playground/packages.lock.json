@@ -42,6 +42,12 @@
           "Microsoft.SourceLink.Common": "8.0.0"
         }
       },
+      "Pastel": {
+        "type": "Direct",
+        "requested": "[5.*, )",
+        "resolved": "5.1.0",
+        "contentHash": "jQ0fTkHZvgQsmbr5qU0IdCP1PWuUfmEmekIsTwysWK/iIwmT9Mbm0x5GpjYSTEwHTNVEpjYhBhyKVdzESgRCpg=="
+      },
       "Microsoft.Build.Tasks.Git": {
         "type": "Transitive",
         "resolved": "8.0.0",
@@ -409,6 +415,7 @@
           "Diginsight.Core": "[1.0.0, )",
           "Microsoft.Extensions.Diagnostics": "[8.*, )",
           "Microsoft.Extensions.Logging.Console": "[8.*, )",
+          "Pastel": "[5.*, )",
           "System.Text.Json": "[8.*, )"
         }
       },

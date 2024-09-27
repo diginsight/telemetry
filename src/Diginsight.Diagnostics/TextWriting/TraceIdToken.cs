@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using Pastel;
+using System.Text;
 
 namespace Diginsight.Diagnostics.TextWriting;
 
@@ -21,9 +22,11 @@ public sealed class TraceIdToken : ILineToken
 
         private Appender() { }
 
-        public void Append(StringBuilder sb, in LinePrefixData linePrefixData)
+        public void Append(StringBuilder sb, ref int length, in LinePrefixData linePrefixData, bool useColor)
         {
-            sb.Append(((linePrefixData.Activity?.TraceId)?.ToString() ?? "").PadLeft(32));
+            string traceId = ((linePrefixData.Activity?.TraceId)?.ToString() ?? "").PadLeft(32);
+            sb.Append(useColor ? traceId.Pastel(ConsoleColor.White) : traceId);
+            length += 32;
         }
     }
 }

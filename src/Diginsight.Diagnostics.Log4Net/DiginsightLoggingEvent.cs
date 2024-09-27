@@ -1,4 +1,5 @@
-﻿using log4net.Core;
+﻿using Diginsight.Diagnostics.TextWriting;
+using log4net.Core;
 using System.Diagnostics;
 
 namespace Diginsight.Diagnostics.Log4Net;
@@ -13,7 +14,7 @@ internal sealed class DiginsightLoggingEvent : LoggingEvent
 
     public Activity? Activity { get; }
 
-    public Func<int, int>? SealMaxMessageLength { get; }
+    public Func<LineDescriptor, LineDescriptor>? SealLineDescriptor { get; }
 
     public DiginsightLoggingEvent(
         IServiceProvider serviceProvider,
@@ -22,7 +23,7 @@ internal sealed class DiginsightLoggingEvent : LoggingEvent
         TimeSpan? duration,
         DateTimeOffset timestamp,
         Activity? activity,
-        Func<int, int>? sealMaxMessageLength
+        Func<LineDescriptor, LineDescriptor>? sealLineDescriptor
     )
         : base(TransformLoggingEventData(wrapped, timestamp))
     {
@@ -30,7 +31,7 @@ internal sealed class DiginsightLoggingEvent : LoggingEvent
         IsActivity = isActivity;
         Duration = duration;
         Activity = activity;
-        SealMaxMessageLength = sealMaxMessageLength;
+        SealLineDescriptor = sealLineDescriptor;
     }
 
     private static LoggingEventData TransformLoggingEventData(LoggingEvent loggingEvent, DateTimeOffset timestamp)

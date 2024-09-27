@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using Pastel;
+using System.Text;
 
 namespace Diginsight.Diagnostics.TextWriting;
 
@@ -21,9 +22,11 @@ public sealed class SpanIdToken : ILineToken
 
         private Appender() { }
 
-        public void Append(StringBuilder sb, in LinePrefixData linePrefixData)
+        public void Append(StringBuilder sb, ref int length, in LinePrefixData linePrefixData, bool useColor)
         {
-            sb.Append(((linePrefixData.Activity?.SpanId)?.ToString() ?? "").PadLeft(16));
+            string spanId = ((linePrefixData.Activity?.SpanId)?.ToString() ?? "").PadLeft(16);
+            sb.Append(useColor ? spanId.Pastel(ConsoleColor.White) : spanId);
+            length += 16;
         }
     }
 }

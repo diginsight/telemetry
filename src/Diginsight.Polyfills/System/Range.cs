@@ -27,11 +27,11 @@ public readonly struct Range : IEquatable<Range>
         return HashCode.Combine(Start.GetHashCode(), End.GetHashCode());
     }
 
-    public static Range StartAt(Index start) => new Range(start, Index.End);
+    public static Range StartAt(Index start) => new (start, Index.End);
 
-    public static Range EndAt(Index end) => new Range(Index.Start, end);
+    public static Range EndAt(Index end) => new (Index.Start, end);
 
-    public static Range All => new Range(Index.Start, Index.End);
+    public static Range All => new (Index.Start, Index.End);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public (int Offset, int Length) GetOffsetAndLength(int length)

@@ -1323,6 +1323,11 @@
           "OpenTelemetry": "1.9.0"
         }
       },
+      "Pastel": {
+        "type": "Transitive",
+        "resolved": "5.1.0",
+        "contentHash": "jQ0fTkHZvgQsmbr5qU0IdCP1PWuUfmEmekIsTwysWK/iIwmT9Mbm0x5GpjYSTEwHTNVEpjYhBhyKVdzESgRCpg=="
+      },
       "Scrutor": {
         "type": "Transitive",
         "resolved": "4.2.2",
@@ -1400,6 +1405,7 @@
           "Diginsight.Core": "[1.0.0, )",
           "Microsoft.Extensions.Diagnostics": "[8.*, )",
           "Microsoft.Extensions.Logging.Console": "[8.*, )",
+          "Pastel": "[5.*, )",
           "System.Text.Json": "[8.*, )"
         }
       },
@@ -1681,6 +1687,11 @@
           "OpenTelemetry": "1.9.0"
         }
       },
+      "Pastel": {
+        "type": "Transitive",
+        "resolved": "5.1.0",
+        "contentHash": "jQ0fTkHZvgQsmbr5qU0IdCP1PWuUfmEmekIsTwysWK/iIwmT9Mbm0x5GpjYSTEwHTNVEpjYhBhyKVdzESgRCpg=="
+      },
       "Scrutor": {
         "type": "Transitive",
         "resolved": "4.2.2",
@@ -1751,6 +1762,7 @@
           "Diginsight.Core": "[1.0.0, )",
           "Microsoft.Extensions.Diagnostics": "[8.*, )",
           "Microsoft.Extensions.Logging.Console": "[8.*, )",
+          "Pastel": "[5.*, )",
           "System.Text.Json": "[8.*, )"
         }
       },
@@ -2019,6 +2031,11 @@
           "OpenTelemetry": "1.9.0"
         }
       },
+      "Pastel": {
+        "type": "Transitive",
+        "resolved": "5.1.0",
+        "contentHash": "jQ0fTkHZvgQsmbr5qU0IdCP1PWuUfmEmekIsTwysWK/iIwmT9Mbm0x5GpjYSTEwHTNVEpjYhBhyKVdzESgRCpg=="
+      },
       "Scrutor": {
         "type": "Transitive",
         "resolved": "4.2.2",
@@ -2089,6 +2106,7 @@
           "Diginsight.Core": "[1.0.0, )",
           "Microsoft.Extensions.Diagnostics": "[8.*, )",
           "Microsoft.Extensions.Logging.Console": "[8.*, )",
+          "Pastel": "[5.*, )",
           "System.Text.Json": "[8.*, )"
         }
       },

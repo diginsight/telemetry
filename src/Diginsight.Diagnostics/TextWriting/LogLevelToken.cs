@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Pastel;
 using System.Diagnostics;
 using System.Text;
 
@@ -24,17 +25,17 @@ public sealed class LogLevelToken : ILineToken
         lineDescriptor.Appenders.Add(Appender.For(length));
     }
 
-    public ILineToken Clone() => new LogLevelToken() { length = length };
+    public ILineToken Clone() => new LogLevelToken() { LengthUnsafe = length };
 
     internal sealed class Appender : IPrefixTokenAppender
     {
         private static readonly Appender?[] Instances = new Appender?[5];
 
-        private readonly int length;
+        private readonly int desiredLength;
 
-        private Appender(int length)
+        private Appender(int desiredLength)
         {
-            this.length = length;
+            this.desiredLength = desiredLength;
         }
 
         internal static Appender For(int? length)
@@ -43,65 +44,69 @@ public sealed class LogLevelToken : ILineToken
             return Instances[finalLength - 1] ??= new Appender(finalLength);
         }
 
-        public void Append(StringBuilder sb, in LinePrefixData linePrefixData) => Append(sb, linePrefixData.LogLevel);
-
-        private void Append(StringBuilder sb, LogLevel logLevel)
+        public void Append(StringBuilder sb, ref int length, in LinePrefixData linePrefixData, bool useColor)
         {
-            string logLevelStr = logLevel switch
+            Append(sb, linePrefixData.LogLevel, useColor);
+            length += desiredLength;
+        }
+
+        private void Append(StringBuilder sb, LogLevel logLevel, bool useColor)
+        {
+            (string logLevelStr, ConsoleColor logLevelColor) = logLevel switch
             {
-                LogLevel.Trace => length switch
+                LogLevel.Trace => (desiredLength switch
                 {
                     1 => "T",
                     2 => "TR",
                     3 => "TRC",
                     4 => "TRCE",
                     _ => "TRACE",
-                },
-                LogLevel.Debug => length switch
+                }, ConsoleColor.Gray),
+                LogLevel.Debug => (desiredLength switch
                 {
                     1 => "D",
                     2 => "DB",
                     3 => "DBG",
                     4 => "DBUG",
                     _ => "DEBUG",
-                },
-                LogLevel.Information => length switch
+                }, ConsoleColor.DarkCyan),
+                LogLevel.Information => (desiredLength switch
                 {
                     1 => "I",
                     2 => "IN",
                     3 => "INF",
                     4 => "INFO",
                     _ => "INFOR",
-                },
-                LogLevel.Warning => length switch
+                }, ConsoleColor.Green),
+                LogLevel.Warning => (desiredLength switch
                 {
                     1 => "W",
                     2 => "WR",
                     3 => "WRN",
                     4 => "WARN",
                     _ => "WARNG",
-                },
-                LogLevel.Error => length switch
+                }, ConsoleColor.Yellow),
+                LogLevel.Error => (desiredLength switch
                 {
                     1 => "E",
                     2 => "ER",
                     3 => "ERR",
                     4 => "EROR",
                     _ => "ERROR",
-                },
-                LogLevel.Critical => length switch
+                }, ConsoleColor.Red),
+                LogLevel.Critical => (desiredLength switch
                 {
                     1 => "C",
                     2 => "CR",
                     3 => "CRT",
                     4 => "CRTC",
                     _ => "CRTCL",
-                },
+                }, ConsoleColor.Magenta),
                 LogLevel.None => throw new InvalidOperationException($"Unexpected {nameof(LogLevel)}"),
                 _ => throw new UnreachableException($"Unrecognized {nameof(LogLevel)}"),
             };
 
-            sb.Append(logLevelStr);
+            sb.Append(useColor ? logLevelStr.Pastel(logLevelColor) : logLevelStr);
         }
     }
 }

@@ -2,5 +2,5 @@
 
 public sealed class TextWriterLogMetadata : ILogMetadata
 {
-    public Func<int, int>? SealMaxMessageLength { get; set; }
+    public Func<LineDescriptor, LineDescriptor>? SealLineDescriptor { get; set; }
 }
