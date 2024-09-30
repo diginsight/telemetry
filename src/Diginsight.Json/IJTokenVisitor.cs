@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 
-namespace Diginsight;
+namespace Diginsight.Json;
 
 public interface IJTokenVisitor<out TResult, in TArg>
 {
