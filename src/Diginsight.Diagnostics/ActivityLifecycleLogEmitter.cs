@@ -1,6 +1,6 @@
 ﻿using Diginsight.Logging;
 using Diginsight.Options;
-using Diginsight.Strings;
+using Diginsight.Stringify;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Diagnostics;
@@ -24,7 +24,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         typeof(ActivityLifecycleLogEmitter).GetMethod(nameof(ExtractLoggablesFromKvps), BindingFlags.NonPublic | BindingFlags.Instance)!;
 
     private readonly ILoggerFactory loggerFactory;
-    private readonly IAppendingContextFactory appendingContextFactory;
+    private readonly IStringifyContextFactory stringifyContextFactory;
     private readonly IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor;
     private readonly IActivityLoggingSampler? activityLoggingSampler;
     private readonly ILogger fallbackLogger;
@@ -32,13 +32,13 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
 
     public ActivityLifecycleLogEmitter(
         ILoggerFactory loggerFactory,
-        IAppendingContextFactory appendingContextFactory,
+        IStringifyContextFactory stringifyContextFactory,
         IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor,
         IActivityLoggingSampler? activityLoggingSampler = null
     )
     {
         this.loggerFactory = loggerFactory;
-        this.appendingContextFactory = appendingContextFactory;
+        this.stringifyContextFactory = stringifyContextFactory;
         this.activitiesOptionsMonitor = activitiesOptionsMonitor;
         this.activityLoggingSampler = activityLoggingSampler;
         fallbackLogger = loggerFactory.CreateLogger($"{typeof(ActivityLifecycleLogEmitter).Namespace!}.$Activity");
@@ -167,7 +167,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
                         throw new InvalidOperationException("Invalid output in activity");
                 }
 
-                string outputAsString0 = appendingContextFactory.MakeLogString(output);
+                string outputAsString0 = stringifyContextFactory.Stringify(output);
 
                 activity.SetTag("output", outputAsString0);
 
@@ -243,7 +243,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         }
 
         return dict is not null
-            ? (dict, string.Join(LogStringTokens.Separator2, dict.Select(static x => $"{x.Key}{LogStringTokens.Value}{x.Value}")))
+            ? (dict, string.Join(StringifyTokens.Separator2, dict.Select(static x => $"{x.Key}{StringifyTokens.Value}{x.Value}")))
             : null;
     }
 
@@ -258,7 +258,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
 
     private IReadOnlyDictionary<string, string> ExtractLoggablesFromKvps<TValue>(IEnumerable<KeyValuePair<string, TValue>> kvps)
     {
-        return kvps.ToDictionary(static x => x.Key, x => appendingContextFactory.MakeLogString(x.Value));
+        return kvps.ToDictionary(static x => x.Key, x => stringifyContextFactory.Stringify(x.Value));
     }
 
     private void ExtractLoggingInfo(

@@ -1,6 +1,6 @@
 ﻿using Diginsight.Logging;
 using Diginsight.Options;
-using Diginsight.Strings;
+using Diginsight.Stringify;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -376,12 +376,12 @@ public static class DependencyInjectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddLogStrings(this IServiceCollection services)
+    public static IServiceCollection AddStringify(this IServiceCollection services)
     {
         services.AddOptions();
-        services.TryAddSingleton<IAppendingContextFactory, AppendingContextFactory>();
-        services.TryAddSingleton<IMemberInfoLogStringProvider, MemberInfoLogStringProvider>();
-        services.TryAddSingleton<IReflectionLogStringHelper, ReflectionLogStringHelper>();
+        services.TryAddSingleton<IStringifyContextFactory, StringifyContextFactory>();
+        services.TryAddSingleton<IMemberInfoStringifier, MemberInfoStringifier>();
+        services.TryAddSingleton<IReflectionStringifyHelper, ReflectionStringifyHelper>();
 
         return services;
     }

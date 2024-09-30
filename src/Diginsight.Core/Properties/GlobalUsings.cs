@@ -1,1 +1,1 @@
-﻿global using LogStringAppender = System.Action<object, Diginsight.Strings.AppendingContext>;
+﻿global using StringifyAppender = System.Action<object, Diginsight.Stringify.StringifyContext>;

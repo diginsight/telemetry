@@ -1,11 +1,11 @@
-﻿using Diginsight.Strings;
+﻿using Diginsight.Stringify;
 using System.ComponentModel;
 
 namespace Diginsight;
 
 [TypeConverter(typeof(ExpirationConverter))]
 public readonly struct Expiration
-    : ILogStringable
+    : IStringifiable
         , IComparable<Expiration>
         , IEquatable<Expiration>
 #if NET
@@ -30,8 +30,8 @@ public readonly struct Expiration
 
     public bool IsNever { get; }
 
-    bool ILogStringable.IsDeep => false;
-    object? ILogStringable.Subject => null;
+    bool IStringifiable.IsDeep => false;
+    object? IStringifiable.Subject => null;
 
     public Expiration(TimeSpan value)
         : this(value, false) { }
@@ -47,15 +47,15 @@ public readonly struct Expiration
         IsNever = isNever;
     }
 
-    void ILogStringable.AppendTo(AppendingContext appendingContext)
+    void IStringifiable.AppendTo(StringifyContext stringifyContext)
     {
         if (IsNever)
         {
-            appendingContext.AppendDirect($"{LogStringTokens.LiteralBegin}Never{LogStringTokens.LiteralEnd}");
+            stringifyContext.AppendDirect($"{StringifyTokens.LiteralBegin}Never{StringifyTokens.LiteralEnd}");
         }
         else
         {
-            appendingContext.ComposeAndAppend(underlying);
+            stringifyContext.ComposeAndAppend(underlying);
         }
     }
 

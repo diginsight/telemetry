@@ -1,5 +1,5 @@
 ﻿using Diginsight.Runtime;
-using Diginsight.Strings;
+using Diginsight.Stringify;
 #if NET
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -28,8 +28,8 @@ public static class ModuleInitializer
 
         RuntimeUtils.HeuristicSizeProviders.Add(JTokenHeuristicSizeProvider.Instance);
 
-        LogStringOverallConfiguration.GlobalCustomRegistrations.Add(
-            new LogStringProviderRegistration(typeof(JTokenLogStringProvider), int.MaxValue)
+        StringifyOverallConfiguration.GlobalCustomRegistrations.Add(
+            new StringifierRegistration(typeof(JTokenStringifier), int.MaxValue)
         );
     }
 }

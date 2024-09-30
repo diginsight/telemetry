@@ -71,7 +71,7 @@ public static class DependencyInjectionExtensions
         IServiceCollection services = loggingBuilder.Services;
 
         services
-            .AddLogStrings()
+            .AddStringify()
             .AddClassAwareOptions()
             .AddActivityListenersAdder();
 
