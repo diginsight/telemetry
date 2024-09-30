@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics.Metrics;
 
 namespace Diginsight.Diagnostics;
@@ -47,3 +48,15 @@ public class RecordingLoggerProvider : ILoggerProvider
         ;
     }
 }
+
+public static class RecordingLoggerExtensions {
+    public static ILoggingBuilder AddDiginsightRuntimeAnalysis(this ILoggingBuilder builder, ILoggerProvider logProvider, IConfiguration config = null, string configurationPrefix = null) // , IServiceProvider serviceProvider
+    {
+
+        var recordingLogProvider = new RecordingLoggerProvider();
+
+        builder.AddProvider(recordingLogProvider);
+        return builder;
+    }
+}
+
