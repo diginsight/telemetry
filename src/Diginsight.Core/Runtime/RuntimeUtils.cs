@@ -13,7 +13,13 @@ public static class RuntimeUtils
     private static readonly IDictionary<MethodBase, Type> CallerTypeCache = new Dictionary<MethodBase, Type>();
     private static readonly IDictionary<MethodBase, (string, string?)> CallerNameCache = new Dictionary<MethodBase, (string, string?)>();
 
-    public static readonly IList<IHeuristicSizeProvider> HeuristicSizeProviders = new List<IHeuristicSizeProvider>();
+    /// <summary>
+    ///     Gets the list of heuristic size providers.
+    /// </summary>
+    /// <remarks>
+    ///     Developers can add custom heuristic size providers to this list to provide custom size calculation logic for specific types.
+    /// </remarks>
+    public static IList<IHeuristicSizeProvider> HeuristicSizeProviders { get; } = new List<IHeuristicSizeProvider>();
 
     private static MethodBase FindMethod(int skipMethods)
     {
@@ -31,6 +37,12 @@ public static class RuntimeUtils
         return new StackFrame(skipFrames).GetMethod()!;
     }
 
+    /// <summary>
+    ///     Gets the <see cref="Type" /> which declares the <paramref name="stackDepth" />-th caller method.
+    /// </summary>
+    /// <param name="stackDepth">The depth in the call stack to look for the caller method.</param>
+    /// <returns>The <see cref="Type" /> that declares the caller method.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="stackDepth" /> is negative.</exception>
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static Type GetCallerType(int stackDepth = 1)
     {
@@ -73,6 +85,12 @@ public static class RuntimeUtils
         }
     }
 
+    /// <summary>
+    ///     Gets the name of the <paramref name="stackDepth" />-th caller method.
+    /// </summary>
+    /// <param name="stackDepth">The depth in the call stack to look for the caller method.</param>
+    /// <returns>A tuple containing the member name and local function name (if any) of the caller method.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="stackDepth" /> is negative.</exception>
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static (string Member, string? LocalFunction) GetCallerName(int stackDepth = 1)
     {
@@ -113,9 +131,9 @@ public static class RuntimeUtils
 
                     int closeAngleIndex = span.IndexOf('>');
 #if NET || NETSTANDARD2_1_OR_GREATER
-                    memberName = new string(span[(span.LastIndexOf('<') + 1) ..closeAngleIndex]);
+                    memberName = new string(span[(span.LastIndexOf('<') + 1)..closeAngleIndex]);
 #else
-                    memberName = new string(span[(span.LastIndexOf('<') + 1) ..closeAngleIndex].ToArray());
+                                        memberName = new string(span[(span.LastIndexOf('<') + 1) ..closeAngleIndex].ToArray());
 #endif
 
                     span = span[(closeAngleIndex + 1)..];
@@ -130,7 +148,7 @@ public static class RuntimeUtils
 #if NET || NETSTANDARD2_1_OR_GREATER
                             localFunctionName = new string(span);
 #else
-                            localFunctionName = new string(span.ToArray());
+                                                localFunctionName = new string(span.ToArray());
 #endif
                             break;
 
@@ -145,6 +163,13 @@ public static class RuntimeUtils
         }
     }
 
+    /// <summary>
+    ///     Gets the size of an object heuristically.
+    /// </summary>
+    /// <param name="obj">The object to calculate the size of.</param>
+    /// <param name="depthLimit">The recursion depth limit for size calculation.</param>
+    /// <returns>The size of the object in bytes.</returns>
+    /// <exception cref="Exception">Thrown when an error occurs during size calculation.</exception>
     public static long GetSizeHeuristically(this object? obj, int depthLimit = 25)
     {
         (long size, Exception? exception) = SizeCalculator.Get(obj, depthLimit);
@@ -263,7 +288,6 @@ public static class RuntimeUtils
                     {
                         return new HeuristicSizeResult(IntPtr.Size, true);
                     }
-
 
                     if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Lazy<>))
                     {
@@ -419,11 +443,11 @@ public static class RuntimeUtils
 #if NET || NETSTANDARD2_1_OR_GREATER
                 return !(bool)IsReferenceOrContainsReferencesMethod.MakeGenericMethod(type).Invoke(null, [ ])!;
 #else
-                if (type.IsPrimitive || type.IsEnum || type.IsPointer)
-                    return true;
-                if (!type.IsValueType)
-                    return false;
-                return type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).All(static f => IsUnmanaged(f.FieldType));
+                                    if (type.IsPrimitive || type.IsEnum || type.IsPointer)
+                                        return true;
+                                    if (!type.IsValueType)
+                                        return false;
+                                    return type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).All(static f => IsUnmanaged(f.FieldType));
 #endif
             }
         }
