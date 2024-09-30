@@ -36,6 +36,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Diagnostics.AspN
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Json", "Diginsight.Json\Diginsight.Json.csproj", "{A3AF9858-7A33-4E83-8CFD-7392864ACAF8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Diginsight.Stringify", "Diginsight.Stringify\Diginsight.Stringify.csproj", "{9EDB2ACE-D438-4B76-82EC-19E8AD002B50}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -82,6 +84,10 @@ Global
 		{A3AF9858-7A33-4E83-8CFD-7392864ACAF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3AF9858-7A33-4E83-8CFD-7392864ACAF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3AF9858-7A33-4E83-8CFD-7392864ACAF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EDB2ACE-D438-4B76-82EC-19E8AD002B50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EDB2ACE-D438-4B76-82EC-19E8AD002B50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EDB2ACE-D438-4B76-82EC-19E8AD002B50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EDB2ACE-D438-4B76-82EC-19E8AD002B50}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -97,6 +103,7 @@ Global
 		{8274B54E-F9A0-4FBC-9A4A-089FE35EA927} = {D942D960-B46D-46EF-827C-73F57E91313F}
 		{6BA59D4F-F409-4E06-8C37-D7AA52020284} = {D942D960-B46D-46EF-827C-73F57E91313F}
 		{A3AF9858-7A33-4E83-8CFD-7392864ACAF8} = {7552A1D3-57F4-4B62-BE71-F4394846CDE9}
+		{9EDB2ACE-D438-4B76-82EC-19E8AD002B50} = {7552A1D3-57F4-4B62-BE71-F4394846CDE9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1F6C1DEF-2C8A-453A-8974-3571C0B84B89}

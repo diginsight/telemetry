@@ -2,18 +2,19 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0</TargetFrameworks>
-    <Title>Diginsight JSON extensions</Title>
+    <Title>Diginsight Stringify</Title>
     <PackageIcon>Diginsight.Core.png</PackageIcon>
-    <PackageTags>$(PackageTags);json</PackageTags>
+    <PackageTags>$(PackageTags);stringify</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.*" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.*">
+      <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Diginsight.Core\Diginsight.Core.csproj" />
-    <ProjectReference Include="..\Diginsight.Stringify\Diginsight.Stringify.csproj" />
   </ItemGroup>
 
 </Project>

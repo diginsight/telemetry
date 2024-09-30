@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Diginsight.Core\Diginsight.Core.csproj" />
+    <ProjectReference Include="..\Diginsight.Stringify\Diginsight.Stringify.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,6 +1,4 @@
-﻿using Diginsight.Logging;
-
-namespace Diginsight.Stringify;
+﻿namespace Diginsight.Stringify;
 
 public sealed class StringifyTypeContractAccessor : IStringifyTypeContractAccessor
 {

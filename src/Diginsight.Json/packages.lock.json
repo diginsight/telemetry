@@ -303,7 +303,6 @@
         "type": "Project",
         "dependencies": {
           "Diginsight.Polyfills": "[1.0.0, )",
-          "Microsoft.Extensions.Caching.Memory": "[8.*, )",
           "Microsoft.Extensions.Configuration": "[8.*, )",
           "Microsoft.Extensions.Configuration.Binder": "[8.*, )",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.*, )",
@@ -319,6 +318,13 @@
           "Microsoft.Bcl.HashCode": "[1.*, )",
           "Microsoft.Bcl.TimeProvider": "[8.*, )",
           "System.Collections.Immutable": "[8.*, )"
+        }
+      },
+      "diginsight.stringify": {
+        "type": "Project",
+        "dependencies": {
+          "Diginsight.Core": "[1.0.0, )",
+          "Microsoft.Extensions.Caching.Memory": "[8.*, )"
         }
       }
     },
@@ -589,7 +595,6 @@
         "type": "Project",
         "dependencies": {
           "Diginsight.Polyfills": "[1.0.0, )",
-          "Microsoft.Extensions.Caching.Memory": "[8.*, )",
           "Microsoft.Extensions.Configuration": "[8.*, )",
           "Microsoft.Extensions.Configuration.Binder": "[8.*, )",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.*, )",
@@ -603,6 +608,13 @@
         "dependencies": {
           "Microsoft.Bcl.TimeProvider": "[8.*, )",
           "System.Collections.Immutable": "[8.*, )"
+        }
+      },
+      "diginsight.stringify": {
+        "type": "Project",
+        "dependencies": {
+          "Diginsight.Core": "[1.0.0, )",
+          "Microsoft.Extensions.Caching.Memory": "[8.*, )"
         }
       }
     },
@@ -834,7 +846,6 @@
         "type": "Project",
         "dependencies": {
           "Diginsight.Polyfills": "[1.0.0, )",
-          "Microsoft.Extensions.Caching.Memory": "[8.*, )",
           "Microsoft.Extensions.Configuration": "[8.*, )",
           "Microsoft.Extensions.Configuration.Binder": "[8.*, )",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.*, )",
@@ -847,6 +858,13 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.Bcl.TimeProvider": "[8.*, )"
+        }
+      },
+      "diginsight.stringify": {
+        "type": "Project",
+        "dependencies": {
+          "Diginsight.Core": "[1.0.0, )",
+          "Microsoft.Extensions.Caching.Memory": "[8.*, )"
         }
       }
     },
@@ -1072,7 +1090,6 @@
         "type": "Project",
         "dependencies": {
           "Diginsight.Polyfills": "[1.0.0, )",
-          "Microsoft.Extensions.Caching.Memory": "[8.*, )",
           "Microsoft.Extensions.Configuration": "[8.*, )",
           "Microsoft.Extensions.Configuration.Binder": "[8.*, )",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.*, )",
@@ -1085,6 +1102,13 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.Bcl.TimeProvider": "[8.*, )"
+        }
+      },
+      "diginsight.stringify": {
+        "type": "Project",
+        "dependencies": {
+          "Diginsight.Core": "[1.0.0, )",
+          "Microsoft.Extensions.Caching.Memory": "[8.*, )"
         }
       }
     },
@@ -1297,7 +1321,6 @@
         "type": "Project",
         "dependencies": {
           "Diginsight.Polyfills": "[1.0.0, )",
-          "Microsoft.Extensions.Caching.Memory": "[8.*, )",
           "Microsoft.Extensions.Configuration": "[8.*, )",
           "Microsoft.Extensions.Configuration.Binder": "[8.*, )",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.*, )",
@@ -1308,6 +1331,13 @@
       },
       "diginsight.polyfills": {
         "type": "Project"
+      },
+      "diginsight.stringify": {
+        "type": "Project",
+        "dependencies": {
+          "Diginsight.Core": "[1.0.0, )",
+          "Microsoft.Extensions.Caching.Memory": "[8.*, )"
+        }
       }
     }
   }

@@ -55,6 +55,9 @@ internal sealed class BasicStringifier : IStringifier
 
             case Delegate del:
                 return new StringifiableDelegate(del, this);
+
+            case Expiration expiration:
+                return new StringifiableExpiration(expiration);
         }
 
         Type type = obj.GetType();
@@ -157,6 +160,31 @@ internal sealed class BasicStringifier : IStringifier
             owner.memberInfoStringifier.Append(del.Method.GetParameters(), stringifyContext);
             stringifyContext.AppendDirect(':');
             owner.memberInfoStringifier.Append(del.Method.ReturnType, stringifyContext);
+        }
+    }
+
+    private sealed class StringifiableExpiration : IStringifiable
+    {
+        private readonly Expiration expiration;
+
+        bool IStringifiable.IsDeep => false;
+        object? IStringifiable.Subject => null;
+
+        public StringifiableExpiration(Expiration expiration)
+        {
+            this.expiration = expiration;
+        }
+
+        public void AppendTo(StringifyContext stringifyContext)
+        {
+            if (expiration.IsNever)
+            {
+                stringifyContext.AppendDirect($"{StringifyTokens.LiteralBegin}{Expiration.NeverString}{StringifyTokens.LiteralEnd}");
+            }
+            else
+            {
+                stringifyContext.ComposeAndAppend(expiration.Value);
+            }
         }
     }
 

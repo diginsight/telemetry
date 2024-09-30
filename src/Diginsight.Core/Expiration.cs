@@ -1,12 +1,10 @@
-﻿using Diginsight.Stringify;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 
 namespace Diginsight;
 
 [TypeConverter(typeof(ExpirationConverter))]
 public readonly struct Expiration
-    : IStringifiable
-        , IComparable<Expiration>
+    : IComparable<Expiration>
         , IEquatable<Expiration>
 #if NET
         , ISpanFormattable
@@ -20,7 +18,8 @@ public readonly struct Expiration
         , ISpanParsable<Expiration>
 #endif
 {
-    private const string NeverString = "Never";
+    public const string NeverString = "Never";
+
     public static readonly Expiration Zero = default;
     public static readonly Expiration Never = new (default, true);
 
@@ -29,9 +28,6 @@ public readonly struct Expiration
     public TimeSpan Value => IsNever ? throw new InvalidOperationException("No expiration") : underlying;
 
     public bool IsNever { get; }
-
-    bool IStringifiable.IsDeep => false;
-    object? IStringifiable.Subject => null;
 
     public Expiration(TimeSpan value)
         : this(value, false) { }
@@ -45,18 +41,6 @@ public readonly struct Expiration
 
         underlying = value;
         IsNever = isNever;
-    }
-
-    void IStringifiable.AppendTo(StringifyContext stringifyContext)
-    {
-        if (IsNever)
-        {
-            stringifyContext.AppendDirect($"{StringifyTokens.LiteralBegin}Never{StringifyTokens.LiteralEnd}");
-        }
-        else
-        {
-            stringifyContext.ComposeAndAppend(underlying);
-        }
     }
 
     public override bool Equals(object? obj) => obj is Expiration other && Equals(other);

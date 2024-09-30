@@ -394,7 +394,6 @@
         "type": "Project",
         "dependencies": {
           "Diginsight.Polyfills": "[1.0.0, )",
-          "Microsoft.Extensions.Caching.Memory": "[8.*, )",
           "Microsoft.Extensions.Configuration": "[8.*, )",
           "Microsoft.Extensions.Configuration.Binder": "[8.*, )",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.*, )",
@@ -406,7 +405,7 @@
       "diginsight.diagnostics": {
         "type": "Project",
         "dependencies": {
-          "Diginsight.Core": "[1.0.0, )",
+          "Diginsight.Stringify": "[1.0.0, )",
           "Microsoft.Extensions.Diagnostics": "[8.*, )",
           "Microsoft.Extensions.Logging.Console": "[8.*, )",
           "Pastel": "[5.*, )",
@@ -415,6 +414,13 @@
       },
       "diginsight.polyfills": {
         "type": "Project"
+      },
+      "diginsight.stringify": {
+        "type": "Project",
+        "dependencies": {
+          "Diginsight.Core": "[1.0.0, )",
+          "Microsoft.Extensions.Caching.Memory": "[8.*, )"
+        }
       }
     }
   }

@@ -1,6 +1,4 @@
-﻿using Diginsight.Logging;
-
-namespace Diginsight.Stringify;
+﻿namespace Diginsight.Stringify;
 
 internal sealed class ForbiddenStringifier : IStringifier
 {
