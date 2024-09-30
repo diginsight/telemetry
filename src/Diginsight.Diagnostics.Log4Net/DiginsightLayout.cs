@@ -35,6 +35,7 @@ public sealed class DiginsightLayout : ILayout
 
             DiginsightTextWriter.Write(
                 writer,
+                false,
                 UseUtcTimestamp ? loggingEvent.TimeStampUtc : loggingEvent.TimeStamp,
                 myLoggingEvent.Activity,
                 TranslateLogLevel(loggingEvent.Level),
@@ -43,7 +44,8 @@ public sealed class DiginsightLayout : ILayout
                 loggingEvent.ExceptionObject,
                 myLoggingEvent.IsActivity,
                 myLoggingEvent.Duration,
-                lineDescriptor
+                lineDescriptor,
+                myLoggingEvent.SealLineDescriptor
             );
         }
         catch (Exception exception)

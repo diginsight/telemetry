@@ -78,9 +78,18 @@ public sealed class DefaultDynamicLogLevelInjector : IDynamicLogLevelInjector
         };
 
         IList<LoggerFilterRule> newRules = newLoggerFilterOptions.Rules;
-        newLoggerFilterOptions.Rules.AddRange(oldLoggerFilterOptions.Rules);
+        newRules.AddRange(oldLoggerFilterOptions.Rules);
 
-        bool any = DynamicHttpHeadersParser.ParseLogLevel(context.Request.Headers[HeaderName].NormalizeHttpHeaderValue(), newLoggerFilterOptions, true);
+        bool any = DynamicHttpHeadersParser.UpdateLogLevel(context.Request.Headers[HeaderName].NormalizeHttpHeaderValue(), newLoggerFilterOptions, true);
+
+        for (int i = 0; i < newRules.Count; i++)
+        {
+            if (newRules[i].LogLevel is not null)
+                continue;
+
+            newRules.RemoveAt(i);
+            i--;
+        }
 
         if (hostEnvironment.IsDevelopment())
         {

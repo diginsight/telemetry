@@ -31,8 +31,10 @@ public sealed class DepthToken : ILineToken
             this.modes = modes != 0 ? modes : DepthTokenModes.Local;
         }
 
-        public void Append(StringBuilder sb, in LinePrefixData linePrefixData)
+        public void Append(StringBuilder sb, ref int length, in LinePrefixData linePrefixData, bool useColor)
         {
+            int previousLength = sb.Length;
+
             ActivityDepth depth = linePrefixData.Activity.GetDepth();
 
             bool first = true;
@@ -74,6 +76,8 @@ public sealed class DepthToken : ILineToken
                 sb.AppendFormat("{0,2}", depth.Cumulated);
 #endif
             }
+
+            length += sb.Length - previousLength;
         }
     }
 }

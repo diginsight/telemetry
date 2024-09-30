@@ -21,9 +21,14 @@ public sealed class DeltaToken : ILineToken
 
         private Appender() { }
 
-        public override void Append(StringBuilder sb, in LinePrefixData linePrefixData)
+        public override void Append(StringBuilder sb, ref int length, in LinePrefixData linePrefixData, bool useColor)
         {
-            Append(sb, linePrefixData.LastWasStart ? null : (linePrefixData.Timestamp - linePrefixData.PrevTimestamp)?.TotalMilliseconds);
+            Append(
+                sb,
+                ref length,
+                linePrefixData.LastWasStart ? null : (linePrefixData.Timestamp - linePrefixData.PrevTimestamp)?.TotalMilliseconds,
+                useColor
+            );
         }
     }
 }

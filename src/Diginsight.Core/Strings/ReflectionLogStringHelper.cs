@@ -9,20 +9,29 @@ namespace Diginsight.Strings;
 internal sealed class ReflectionLogStringHelper : IReflectionLogStringHelper
 {
     private readonly IServiceProvider serviceProvider;
-    private readonly ILogger logger;
+    private readonly ILogger? logger;
     private readonly IAppendingContextFactory? appendingContextFactory;
     private readonly IDictionary<Type, IEnumerable<LogStringAppender>> appendersCache = new Dictionary<Type, IEnumerable<LogStringAppender>>();
     private readonly IDictionary<Type, ILogStringProvider> customProvidersCache = new Dictionary<Type, ILogStringProvider>();
 
     public ReflectionLogStringHelper(
         IServiceProvider serviceProvider,
-        ILogger<ReflectionLogStringHelper> logger,
-        IAppendingContextFactory? appendingContextFactory
+        ILoggerFactory? loggerFactory = null,
+        IAppendingContextFactory? appendingContextFactory = null
     )
     {
         this.serviceProvider = serviceProvider;
-        this.logger = logger;
-        this.appendingContextFactory = appendingContextFactory;
+
+        if (loggerFactory is not null && appendingContextFactory is not null)
+        {
+            logger = loggerFactory.CreateLogger<ReflectionLogStringHelper>();
+            this.appendingContextFactory = appendingContextFactory;
+        }
+        else
+        {
+            logger = null;
+            this.appendingContextFactory = null;
+        }
     }
 
     public IEnumerable<LogStringAppender> GetCachedAppenders(Type type, Func<Type, LogStringAppender[]> makeAppenders)
@@ -57,6 +66,11 @@ internal sealed class ReflectionLogStringHelper : IReflectionLogStringHelper
 
     public void LogAppenderExpression(MemberInfo member, string outputName, (Type, object[])? providerInfo, Expression<LogStringAppender> appenderExpr)
     {
+        if (logger is null)
+        {
+            return;
+        }
+
         if (providerInfo is var (providerType, _))
         {
             logger.LogTrace(

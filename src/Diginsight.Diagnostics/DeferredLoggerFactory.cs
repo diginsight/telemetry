@@ -2,7 +2,6 @@
 using Diginsight.Strings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -19,7 +18,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
     private ActivityListener? activityListener;
     private ILoggerFactory? target;
 
-    public ISet<ActivitySource> ActivitySources { get; } = new HashSet<ActivitySource>();
+    public Func<ActivitySource, bool>? ActivitySourceFilter { get; set; }
 
     public DeferredLoggerFactory(
         TimeProvider? timeProvider = null,
@@ -32,7 +31,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
 
         ActivityLifecycleLogEmitter emitter = new (
             this,
-            appendingContextFactory ?? AppendingContextFactoryBuilder.DefaultFactory,
+            appendingContextFactory ?? new AppendingContextFactoryBuilder().WithLoggerFactory(this).Build(),
             new FixedClassAwareOptionsMonitor(activitiesOptions ?? new DiginsightActivitiesOptions()),
             activityLoggingSampler
         );
@@ -51,9 +50,12 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
             this.decoratee = decoratee;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool IsIncluded(ActivitySource activitySource) => owner.ActivitySourceFilter?.Invoke(activitySource) ?? true;
+
         void IActivityListenerLogic.ActivityStarted(Activity activity)
         {
-            if (!owner.ActivitySources.Contains(activity.Source) || owner.target is not null)
+            if (!IsIncluded(activity.Source) || owner.target is not null)
                 return;
 
             lock (owner.lockObj)
@@ -67,7 +69,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
 
         void IActivityListenerLogic.ActivityStopped(Activity activity)
         {
-            if (!owner.ActivitySources.Contains(activity.Source) || owner.target is not null)
+            if (!IsIncluded(activity.Source) || owner.target is not null)
                 return;
 
             lock (owner.lockObj)
@@ -81,7 +83,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
 
         ActivitySamplingResult IActivityListenerLogic.Sample(ref ActivityCreationOptions<ActivityContext> creationOptions)
         {
-            if (!owner.ActivitySources.Contains(creationOptions.Source) || owner.target is not null)
+            if (!IsIncluded(creationOptions.Source) || owner.target is not null)
                 return ActivitySamplingResult.None;
 
             lock (owner.lockObj)
@@ -262,13 +264,12 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
     private sealed class DeferredLogOperation<TState> : DeferredOperation
     {
         private readonly string category;
-        private readonly DateTimeOffset timestamp;
-        private readonly Activity? activity;
         private readonly LogLevel logLevel;
         private readonly EventId eventId;
         private readonly TState state;
         private readonly Exception? exception;
         private readonly Func<TState, Exception?, string> formatter;
+        private readonly ILogMetadata metadata;
 
         public DeferredLogOperation(
             string category,
@@ -282,83 +283,36 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
         )
         {
             this.category = category;
-            this.timestamp = timestamp;
-            this.activity = activity;
             this.logLevel = logLevel;
             this.eventId = eventId;
             this.state = state;
             this.exception = exception;
             this.formatter = formatter;
+            metadata = new LogMetadata(timestamp, activity);
         }
 
         public override void FlushTo(ILoggerFactory target)
         {
-            target
-                .CreateLogger(category)
-                .Log(
-                    logLevel,
-                    eventId,
-                    Deferred<TState>.For(state, timestamp, activity),
-                    exception,
-                    (s, e) => formatter(s.State, e)
-                );
+            target.CreateLogger(category).WithMetadata(metadata).Log(logLevel, eventId, state, exception, formatter);
         }
     }
 
-    public interface IDeferred
+    public interface ILogMetadata : Diginsight.ILogMetadata
     {
-        object? State { get; }
         DateTimeOffset Timestamp { get; }
         Activity? Activity { get; }
     }
 
-    public interface IDeferred<out TState> : IDeferred
+    private sealed class LogMetadata : ILogMetadata
     {
-        new TState State { get; }
-
-#if NET || NETSTANDARD2_1_OR_GREATER
-        object? IDeferred.State => State;
-#endif
-    }
-
-    private class Deferred<TState> : IDeferred<TState>
-    {
-        public TState State { get; }
         public DateTimeOffset Timestamp { get; }
         public Activity? Activity { get; }
 
-#if !(NET || NETSTANDARD2_1_OR_GREATER)
-        object? IDeferred.State => State;
-#endif
-
-        public Deferred(TState state, DateTimeOffset timestamp, Activity? activity)
+        public LogMetadata(DateTimeOffset timestamp, Activity? activity)
         {
-            State = state;
             Timestamp = timestamp;
             Activity = activity;
         }
-
-        public static IDeferred<TState> For(TState state, DateTimeOffset timestamp, Activity? activity)
-        {
-            return state is Tags kvps
-                ? new TagsDeferred<TState>(state, kvps, timestamp, activity)
-                : new Deferred<TState>(state, timestamp, activity);
-        }
-    }
-
-    private sealed class TagsDeferred<TState> : Deferred<TState>, Tags
-    {
-        private readonly Tags kvps;
-
-        public TagsDeferred(TState state, Tags kvps, DateTimeOffset timestamp, Activity? activity)
-            : base(state, timestamp, activity)
-        {
-            this.kvps = kvps;
-        }
-
-        public IEnumerator<Tag> GetEnumerator() => kvps.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
     private sealed class DeferredBeginScopeOperation<TState> : DeferredOperation

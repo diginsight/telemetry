@@ -21,6 +21,9 @@ public sealed class DurationToken : ILineToken
 
         private Appender() { }
 
-        public override void Append(StringBuilder sb, in LinePrefixData linePrefixData) => Append(sb, linePrefixData.Duration);
+        public override void Append(StringBuilder sb, ref int length, in LinePrefixData linePrefixData, bool useColor)
+        {
+            Append(sb, ref length, linePrefixData.Duration, useColor);
+        }
     }
 }

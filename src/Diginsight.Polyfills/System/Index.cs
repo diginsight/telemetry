@@ -19,9 +19,9 @@ public readonly struct Index : IEquatable<Index>
         this.value = value;
     }
 
-    public static Index Start => new Index(0);
+    public static Index Start => new (0);
 
-    public static Index End => new Index(~0);
+    public static Index End => new (~0);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Index FromStart(int value)

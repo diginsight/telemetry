@@ -178,19 +178,11 @@ public static class ServiceCollectionExtensions
     {
         static Task ApplyVolatileConfigurationAsync(HttpContext httpContext)
         {
-            IServiceProvider serviceProvider = httpContext.RequestServices;
-            IVolatileConfigurationStorageProvider storageProvider = serviceProvider.GetRequiredService<IVolatileConfigurationStorageProvider>();
-
             string method = httpContext.Request.Method;
             bool delete = method == HttpMethods.Delete;
             bool overwrite = method != HttpMethods.Patch;
 
-            foreach (IAspNetCoreVolatileConfigurationLoader loader in serviceProvider.GetServices<IAspNetCoreVolatileConfigurationLoader>())
-            {
-                IVolatileConfigurationStorage storage = storageProvider.Get(loader.StorageName);
-                IEnumerable<KeyValuePair<string, string?>> entries = delete ? [ ] : loader.Load(httpContext);
-                storage.Apply(entries, overwrite);
-            }
+            AspNetCoreVolatileConfiguration.Apply(httpContext, delete, overwrite);
 
             httpContext.Response.StatusCode = StatusCodes.Status204NoContent;
             return Task.CompletedTask;

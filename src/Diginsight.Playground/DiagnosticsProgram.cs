@@ -37,7 +37,7 @@ internal sealed class DiagnosticsProgram : BackgroundService
         };
 
         IDeferredLoggerFactory loggerFactory = new DeferredLoggerFactory(activitiesOptions: diginsightActivitiesOptions);
-        loggerFactory.ActivitySources.Add(ActivitySource);
+        loggerFactory.ActivitySourceFilter = static x => x == ActivitySource;
         ILogger logger = loggerFactory.CreateLogger<DiagnosticsProgram>();
 
         IHost host;
@@ -117,6 +117,7 @@ internal sealed class DiagnosticsProgram : BackgroundService
                 using (ActivitySource.StartRichActivity(logger, "ThirdDeep"))
                 {
                     logger.LogWarning($"baz {409:x} {{pluto}}");
+                    Thread.Sleep(1000);
                 }
 
                 activity.SetOutput(Math.PI);
@@ -127,6 +128,15 @@ internal sealed class DiagnosticsProgram : BackgroundService
             {
                 logger.LogWarning($"quux {2023:x} {{topolino}}");
                 activity.SetNamedOutputs(new Dictionary<string, int>() { ["day"] = 10, ["month"] = 11, ["year"] = 2023 });
+            }
+
+            try
+            {
+                throw new ApplicationException("Kaboom!");
+            }
+            catch (Exception exception)
+            {
+                logger.LogError(exception, "explosion");
             }
 
             applicationLifetime.StopApplication();
@@ -155,9 +165,10 @@ internal sealed class DiagnosticsProgram : BackgroundService
 
             private Appender() { }
 
-            public void Append(StringBuilder sb, in LinePrefixData linePrefixData)
+            public void Append(StringBuilder sb, ref int length, in LinePrefixData linePrefixData, bool useColor)
             {
                 sb.Append($"{Process.GetCurrentProcess().Id,5}");
+                length += 5;
             }
         }
     }

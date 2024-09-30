@@ -2,7 +2,6 @@
 using Diginsight.Strings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -309,27 +308,22 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
     private sealed class ActivityLogger : ILogger
     {
         private readonly ILogger decoratee;
-        private readonly Activity activity;
-        private readonly TimeSpan? duration;
+        private readonly ILogger decorateeWithMetadata;
 
         public ActivityLogger(ILogger decoratee, Activity activity)
         {
+            TimeSpan? duration = activity.IsStopped ? activity.Duration : null;
+            Diginsight.ILogMetadata metadata = new LogMetadata(duration, activity);
+
             this.decoratee = decoratee;
-            this.activity = activity;
-            duration = activity.IsStopped ? activity.Duration : null;
+            decorateeWithMetadata = decoratee.WithMetadata(metadata);
         }
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
         {
             using (SuppressInstrumentationScope.Begin())
             {
-                decoratee.Log(
-                    logLevel,
-                    eventId,
-                    ActivityMark<TState>.For(state, duration, activity),
-                    exception,
-                    (s, e) => formatter(s.State, e)
-                );
+                decorateeWithMetadata.Log(logLevel, eventId, state, exception, formatter);
             }
         }
 
@@ -350,59 +344,21 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         }
     }
 
-    public interface IActivityMark
+    public interface ILogMetadata : Diginsight.ILogMetadata
     {
-        object? State { get; }
         TimeSpan? Duration { get; }
         Activity Activity { get; }
     }
 
-    public interface IActivityMark<out TState> : IActivityMark
+    private sealed class LogMetadata : ILogMetadata
     {
-        new TState State { get; }
-
-#if NET || NETSTANDARD2_1_OR_GREATER
-        object? IActivityMark.State => State;
-#endif
-    }
-
-    private class ActivityMark<TState> : IActivityMark<TState>
-    {
-        public TState State { get; }
         public TimeSpan? Duration { get; }
         public Activity Activity { get; }
 
-#if !(NET || NETSTANDARD2_1_OR_GREATER)
-        object? IActivityMark.State => State;
-#endif
-
-        public ActivityMark(TState state, TimeSpan? duration, Activity activity)
+        public LogMetadata(TimeSpan? duration, Activity activity)
         {
-            State = state;
             Duration = duration;
             Activity = activity;
         }
-
-        public static IActivityMark<TState> For(TState state, TimeSpan? duration, Activity activity)
-        {
-            return state is Tags kvps
-                ? new TagsActivityMark<TState>(state, kvps, duration, activity)
-                : new ActivityMark<TState>(state, duration, activity);
-        }
-    }
-
-    private sealed class TagsActivityMark<TState> : ActivityMark<TState>, Tags
-    {
-        private readonly Tags kvps;
-
-        public TagsActivityMark(TState state, Tags kvps, TimeSpan? duration, Activity activity)
-            : base(state, duration, activity)
-        {
-            this.kvps = kvps;
-        }
-
-        public IEnumerator<Tag> GetEnumerator() => kvps.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
