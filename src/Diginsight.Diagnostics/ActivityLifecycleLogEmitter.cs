@@ -1,4 +1,5 @@
-﻿using Diginsight.CAOptions;
+﻿using Diginsight.Logging;
+using Diginsight.Options;
 using Diginsight.Strings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -313,7 +314,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         public ActivityLogger(ILogger decoratee, Activity activity)
         {
             TimeSpan? duration = activity.IsStopped ? activity.Duration : null;
-            Diginsight.ILogMetadata metadata = new LogMetadata(duration, activity);
+            Logging.ILogMetadata metadata = new LogMetadata(duration, activity);
 
             this.decoratee = decoratee;
             decorateeWithMetadata = decoratee.WithMetadata(metadata);
@@ -344,7 +345,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         }
     }
 
-    public interface ILogMetadata : Diginsight.ILogMetadata
+    public interface ILogMetadata : Logging.ILogMetadata
     {
         TimeSpan? Duration { get; }
         Activity Activity { get; }

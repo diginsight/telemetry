@@ -1,4 +1,6 @@
-﻿namespace Diginsight.Strings;
+﻿using Diginsight.Logging;
+
+namespace Diginsight.Strings;
 
 public sealed class LogStringTypeContractAccessor : ILogStringTypeContractAccessor
 {

@@ -1,4 +1,5 @@
-﻿using Diginsight.CAOptions;
+﻿using Diginsight.Logging;
+using Diginsight.Options;
 using Diginsight.Strings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -297,7 +298,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
         }
     }
 
-    public interface ILogMetadata : Diginsight.ILogMetadata
+    public interface ILogMetadata : Logging.ILogMetadata
     {
         DateTimeOffset Timestamp { get; }
         Activity? Activity { get; }

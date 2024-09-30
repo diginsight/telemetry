@@ -1,4 +1,6 @@
-﻿namespace Diginsight.Diagnostics.TextWriting;
+﻿using Diginsight.Logging;
+
+namespace Diginsight.Diagnostics.TextWriting;
 
 public sealed class TextWriterLogMetadata : ILogMetadata
 {

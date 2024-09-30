@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using Diginsight.Logging;
+using System.Reflection;
 
 namespace Diginsight.Strings;
 

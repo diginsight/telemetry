@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Diginsight.Logging;
+using Microsoft.Extensions.Logging;
 using Pastel;
 using System.Collections;
 using System.Diagnostics;

@@ -11,8 +11,8 @@ internal sealed class AppendingContextFactory : IAppendingContextFactory
     private readonly IServiceProvider serviceProvider;
     private readonly ILogStringOverallConfiguration overallConfiguration;
 
-    private IEnumerable<ILogStringProvider> LogStringProviders => overallConfiguration.Registrations
-        .Select(static x => x ?? throw new ArgumentNullException($"item in {nameof(ILogStringOverallConfiguration)}.{nameof(ILogStringOverallConfiguration.Registrations)}", (Exception?)null))
+    private IEnumerable<ILogStringProvider> LogStringProviders => LogStringOverallConfiguration.GetEffectiveRegistrations(overallConfiguration)
+        .Select(static x => x ?? throw new ArgumentNullException($"Item in {nameof(ILogStringOverallConfiguration)}.{nameof(ILogStringOverallConfiguration.CustomRegistrations)}", (Exception?)null))
         .OrderByDescending(static x => x.Priority)
         .Select(x => (ILogStringProvider)ActivatorUtilities.GetServiceOrCreateInstance(serviceProvider, x.Type));
 

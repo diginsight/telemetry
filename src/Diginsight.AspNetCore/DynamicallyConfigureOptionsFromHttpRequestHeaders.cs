@@ -1,9 +1,10 @@
-﻿using Diginsight.CAOptions;
+﻿using Diginsight.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
+using MseOptions = Microsoft.Extensions.Options.Options;
 
 namespace Diginsight.AspNetCore;
 
@@ -26,17 +27,17 @@ public class DynamicallyConfigureOptionsFromHttpRequestHeaders<TOptions> : IConf
 
     public void Configure(TOptions options)
     {
-        ConfigureCore(Options.DefaultName, options);
+        ConfigureCore(MseOptions.DefaultName, options);
     }
 
     public void Configure([SuppressMessage("ReSharper", "ParameterHidesMember")] string? name, TOptions options)
     {
-        ConfigureCore(name ?? Options.DefaultName, options);
+        ConfigureCore(name ?? MseOptions.DefaultName, options);
     }
 
     public void PostConfigure([SuppressMessage("ReSharper", "ParameterHidesMember")] string? name, TOptions options)
     {
-        ConfigureCore(name ?? Options.DefaultName, options);
+        ConfigureCore(name ?? MseOptions.DefaultName, options);
     }
 
     protected void ConfigureCore(

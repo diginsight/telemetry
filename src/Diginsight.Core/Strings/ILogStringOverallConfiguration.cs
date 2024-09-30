@@ -2,7 +2,7 @@
 
 public interface ILogStringOverallConfiguration : ILogStringVariableConfiguration
 {
-    IEnumerable<LogStringProviderRegistration> Registrations { get; }
+    IEnumerable<LogStringProviderRegistration> CustomRegistrations { get; }
     Expiration MaxTime { get; }
     LogThreshold MaxTotalLength { get; }
     bool ShortenKnownTypes { get; }

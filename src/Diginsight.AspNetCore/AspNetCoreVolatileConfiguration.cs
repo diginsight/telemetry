@@ -1,4 +1,4 @@
-﻿using Diginsight.CAOptions;
+﻿using Diginsight.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 

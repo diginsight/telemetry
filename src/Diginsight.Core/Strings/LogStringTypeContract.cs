@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using Diginsight.Logging;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
 

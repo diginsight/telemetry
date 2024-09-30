@@ -1,4 +1,4 @@
-﻿using Diginsight.CAOptions;
+﻿using Diginsight.Options;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;

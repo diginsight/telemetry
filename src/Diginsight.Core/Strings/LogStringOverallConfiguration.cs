@@ -5,12 +5,15 @@ namespace Diginsight.Strings;
 public sealed class LogStringOverallConfiguration : ILogStringOverallConfiguration
 {
     private static readonly LogStringProviderRegistration[] FixedRegistrations;
-    private static readonly Type[] FixedRegistrationTypes;
     private static readonly int MaxCustomRegistrationPriority;
+
+    public static IList<LogStringProviderRegistration> GlobalCustomRegistrations { get; } = new List<LogStringProviderRegistration>();
 
     private LogThreshold maxTotalLength = 300;
 
     public IList<LogStringProviderRegistration> CustomRegistrations { get; } = new List<LogStringProviderRegistration>();
+
+    IEnumerable<LogStringProviderRegistration> ILogStringOverallConfiguration.CustomRegistrations => CustomRegistrations;
 
     public LogThreshold MaxStringLength { get; set; } = 50;
 
@@ -59,35 +62,29 @@ public sealed class LogStringOverallConfiguration : ILogStringOverallConfigurati
             new LogStringProviderRegistration(typeof(PrimitiveLogStringProvider), int.MaxValue - 1),
             new LogStringProviderRegistration(typeof(BasicLogStringProvider), int.MaxValue - 2),
             new LogStringProviderRegistration(typeof(IMemberInfoLogStringProvider), int.MaxValue - 3),
-            new LogStringProviderRegistration(typeof(AnonymousLogStringProvider), int.MaxValue - 4),
-            new LogStringProviderRegistration(typeof(JTokenLogStringProvider), minFixedRegistrationPriority = int.MaxValue - 5),
+            new LogStringProviderRegistration(typeof(AnonymousLogStringProvider), minFixedRegistrationPriority = int.MaxValue - 4),
             new LogStringProviderRegistration(typeof(CollectionsLogStringProvider), int.MinValue + 1),
             new LogStringProviderRegistration(typeof(MemberwiseLogStringProvider), int.MinValue),
         ];
-        FixedRegistrationTypes = FixedRegistrations.Select(static x => x.Type).ToArray();
         MaxCustomRegistrationPriority = minFixedRegistrationPriority - 1;
     }
 
-    public IEnumerable<LogStringProviderRegistration> Registrations => CustomRegistrations
-        .Select(static x => x.Priority > MaxCustomRegistrationPriority ? new LogStringProviderRegistration(x.Type, MaxCustomRegistrationPriority) : x)
-        .Concat(FixedRegistrations)
+    public static IEnumerable<LogStringProviderRegistration> GetEffectiveRegistrations(ILogStringOverallConfiguration configuration)
+    {
+        return configuration.CustomRegistrations.Concat(GlobalCustomRegistrations)
+            .Select(static x => x.Priority > MaxCustomRegistrationPriority ? new LogStringProviderRegistration(x.Type, MaxCustomRegistrationPriority) : x)
+            .Concat(FixedRegistrations)
 #if NET
-        .DistinctBy(static x => x.Type);
+            .DistinctBy(static x => x.Type);
 #else
-        .GroupBy(static x => x.Type, static (_, xs) => xs.First());
+            .GroupBy(static x => x.Type, static (_, xs) => xs.First());
 #endif
+    }
 
     public void ResetFrom(ILogStringOverallConfiguration source)
     {
         CustomRegistrations.Clear();
-        CustomRegistrations.AddRange(
-            source.Registrations
-#if NET
-                .ExceptBy(FixedRegistrationTypes, static x => x.Type)
-#else
-                .Where(static x => !FixedRegistrationTypes.Contains(x.Type))
-#endif
-        );
+        CustomRegistrations.AddRange(source.CustomRegistrations);
 
         MaxStringLength = source.MaxStringLength;
         MaxCollectionItemCount = source.MaxCollectionItemCount;
