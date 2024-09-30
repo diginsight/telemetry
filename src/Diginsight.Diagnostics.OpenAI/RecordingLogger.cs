@@ -50,9 +50,8 @@ public class RecordingLoggerProvider : ILoggerProvider
 }
 
 public static class RecordingLoggerExtensions {
-    public static ILoggingBuilder AddDiginsightRuntimeAnalysis(this ILoggingBuilder builder, ILoggerProvider logProvider, IConfiguration config = null, string configurationPrefix = null) // , IServiceProvider serviceProvider
+    public static ILoggingBuilder AddDiginsightRuntimeAnalysis(this ILoggingBuilder builder, ILoggerProvider logProvider, IConfiguration? config = null, string? configurationPrefix = null) // , IServiceProvider serviceProvider
     {
-
         var recordingLogProvider = new RecordingLoggerProvider();
 
         builder.AddProvider(recordingLogProvider);
