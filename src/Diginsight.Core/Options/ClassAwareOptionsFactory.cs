@@ -2,6 +2,10 @@
 
 namespace Diginsight.Options;
 
+/// <summary>
+///     Default implementation of the <see cref="IClassAwareOptionsFactory{TOptions}" /> interface.
+/// </summary>
+/// <typeparam name="TOptions">The type of options to cache.</typeparam>
 public sealed class ClassAwareOptionsFactory<TOptions> : IClassAwareOptionsFactory<TOptions>
     where TOptions : class
 {
@@ -12,6 +16,15 @@ public sealed class ClassAwareOptionsFactory<TOptions> : IClassAwareOptionsFacto
     private readonly IValidateOptions<TOptions>[] validators;
     private readonly IValidateClassAwareOptions<TOptions>[] classAwareValidators;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="ClassAwareOptionsFactory{TOptions}" /> class.
+    /// </summary>
+    /// <param name="configurators">The configurators to configure options instances.</param>
+    /// <param name="classAwareConfigurators">The class-aware configurators to configure options instances.</param>
+    /// <param name="postConfigurators">The post-configurators to post-configure options instances.</param>
+    /// <param name="classAwarePostConfigurators">The class-aware post-configurators to post-configure options instances.</param>
+    /// <param name="validators">The validators to validate options instances.</param>
+    /// <param name="classAwareValidators">The class-aware validators to validate options instances.</param>
     public ClassAwareOptionsFactory(
         IEnumerable<IConfigureOptions<TOptions>> configurators,
         IEnumerable<IConfigureClassAwareOptions<TOptions>> classAwareConfigurators,
@@ -29,6 +42,7 @@ public sealed class ClassAwareOptionsFactory<TOptions> : IClassAwareOptionsFacto
         this.classAwareValidators = classAwareValidators.ToArray();
     }
 
+    /// <inheritdoc />
     public TOptions Create(string name, Type @class)
     {
         TOptions options = Activator.CreateInstance<TOptions>();

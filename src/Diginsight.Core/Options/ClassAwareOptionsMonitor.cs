@@ -5,6 +5,10 @@ using Microsoft.Extensions.Options;
 
 namespace Diginsight.Options;
 
+/// <summary>
+///     Default implementation of the <see cref="IClassAwareOptionsMonitor{TOptions}" /> interface.
+/// </summary>
+/// <typeparam name="TOptions">The type of options to cache.</typeparam>
 public sealed class ClassAwareOptionsMonitor<TOptions> : IClassAwareOptionsMonitor<TOptions>, IDisposable
     where TOptions : class
 {
@@ -18,6 +22,12 @@ public sealed class ClassAwareOptionsMonitor<TOptions> : IClassAwareOptionsMonit
     TOptions IOptionsMonitor<TOptions>.CurrentValue => Get(null, null);
 #endif
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="ClassAwareOptionsMonitor{TOptions}" /> class.
+    /// </summary>
+    /// <param name="factory">The factory to create options instances.</param>
+    /// <param name="cache">The cache to store options instances.</param>
+    /// <param name="sources">The sources for change tokens to monitor options changes.</param>
     public ClassAwareOptionsMonitor(
         IClassAwareOptionsFactory<TOptions> factory,
         IClassAwareOptionsCache<TOptions> cache,
@@ -56,6 +66,7 @@ public sealed class ClassAwareOptionsMonitor<TOptions> : IClassAwareOptionsMonit
         }
     }
 
+    /// <inheritdoc />
     public TOptions Get(string? name, Type? @class)
     {
         return cache.GetOrAdd(
@@ -70,9 +81,10 @@ public sealed class ClassAwareOptionsMonitor<TOptions> : IClassAwareOptionsMonit
     TOptions IOptionsMonitor<TOptions>.Get(string? name) => Get(name, null);
 #endif
 
+    /// <inheritdoc />
     public IDisposable OnChange(Action<TOptions, string, Type> listener)
     {
-        ChangeTrackerDisposable changeTrackerDisposable = new(this, listener);
+        ChangeTrackerDisposable changeTrackerDisposable = new (this, listener);
         Change += changeTrackerDisposable.OnChange;
         return changeTrackerDisposable;
     }
@@ -84,6 +96,7 @@ public sealed class ClassAwareOptionsMonitor<TOptions> : IClassAwareOptionsMonit
     }
 #endif
 
+    /// <inheritdoc />
     public void Dispose()
     {
         foreach (IDisposable registration in changeRegistrations)
