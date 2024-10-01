@@ -5,6 +5,7 @@
     <Title>Diginsight Polyfills</Title>
     <RootNamespace></RootNamespace>
     <PackageIcon>Diginsight.Core.png</PackageIcon>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
