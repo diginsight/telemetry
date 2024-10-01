@@ -27,11 +27,11 @@ internal sealed class MessageTokenParser : ILineTokenParser
             {
 #if NET || NETSTANDARD2_1_OR_GREATER
                 // ReSharper disable once InlineTemporaryVariable
-                ReadOnlySpan<char> src = tokenDetailSpan;
+                ReadOnlySpan<char> src1 = tokenDetailSpan;
 #else
-                string src = tokenDetailSpan.ToString();
+                string src1 = tokenDetailSpan.ToString();
 #endif
-                maxMessageLength = int.TryParse(src, out int tmp) ? tmp : throw new FormatException("Expected integer");
+                maxMessageLength = int.TryParse(src1, out int tmp) ? tmp : throw new FormatException("Expected integer");
                 maxLineLength = null;
             }
             else

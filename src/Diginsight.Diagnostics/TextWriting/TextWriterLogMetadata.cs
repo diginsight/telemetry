@@ -1,6 +1,8 @@
-﻿namespace Diginsight.Diagnostics.TextWriting;
+﻿using Diginsight.Logging;
+
+namespace Diginsight.Diagnostics.TextWriting;
 
 public sealed class TextWriterLogMetadata : ILogMetadata
 {
-    public Func<int, int>? SealMaxMessageLength { get; set; }
+    public Func<LineDescriptor, LineDescriptor>? SealLineDescriptor { get; set; }
 }

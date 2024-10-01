@@ -1,13 +1,14 @@
-﻿using System.Globalization;
+﻿using Pastel;
+using System.Globalization;
 using System.Text;
 
 namespace Diginsight.Diagnostics.TextWriting;
 
 public abstract class MsecAppender : IPrefixTokenAppender
 {
-    public abstract void Append(StringBuilder sb, in LinePrefixData linePrefixData);
+    public abstract void Append(StringBuilder sb, ref int length, in LinePrefixData linePrefixData, bool useColor);
 
-    protected static void Append(StringBuilder sb, double? msec)
+    protected static void Append(StringBuilder sb, ref int length, double? msec, bool useColor)
     {
         string str = msec switch
         {
@@ -18,6 +19,12 @@ public abstract class MsecAppender : IPrefixTokenAppender
             _ => string.Format(CultureInfo.InvariantCulture, "{0:0}s", msec.Value / 1000),
         };
 
-        sb.Append(str.PadLeft(5));
+        string coloredStr = useColor && msec >= 1000 ? str.Pastel(ConsoleColor.Black).PastelBg(ConsoleColor.DarkGray) : str;
+
+        int remainingLength = 5 - str.Length;
+        string finalStr = remainingLength > 0 ? coloredStr.PadLeft(remainingLength + coloredStr.Length) : coloredStr;
+
+        length += Math.Max(str.Length, 5);
+        sb.Append(finalStr);
     }
 }

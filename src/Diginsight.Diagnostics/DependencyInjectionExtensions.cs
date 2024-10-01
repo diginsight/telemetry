@@ -1,4 +1,5 @@
-﻿using Diginsight.CAOptions;
+﻿using Diginsight.Options;
+using Diginsight.Stringify;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
@@ -71,7 +72,7 @@ public static class DependencyInjectionExtensions
         IServiceCollection services = loggingBuilder.Services;
 
         services
-            .AddLogStrings()
+            .AddStringify()
             .AddClassAwareOptions()
             .AddActivityListenersAdder();
 

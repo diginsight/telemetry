@@ -6,7 +6,9 @@ public interface IDiginsightConsoleFormatterOptions
     bool UseUtcTimestamp { get; }
 
     string? Pattern { get; }
-    IReadOnlyDictionary<string, string?> Patterns { get; }
+    IReadOnlyDictionary<int, string?> Patterns { get; }
 
     int TotalWidth { get; }
+
+    bool UseColor { get; }
 }

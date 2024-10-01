@@ -40,7 +40,7 @@ public sealed class TimestampToken : ILineToken
         lineDescriptor.Appenders.Add(new Appender(Format, Culture));
     }
 
-    public ILineToken Clone() => new TimestampToken() { format = format, Culture = Culture };
+    public ILineToken Clone() => new TimestampToken() { FormatUnsafe = format, Culture = Culture };
 
     private sealed class Appender : IPrefixTokenAppender
     {
@@ -66,9 +66,11 @@ public sealed class TimestampToken : ILineToken
             this.culture = culture ?? CultureInfo.InvariantCulture;
         }
 
-        public void Append(StringBuilder sb, in LinePrefixData linePrefixData)
+        public void Append(StringBuilder sb, ref int length, in LinePrefixData linePrefixData, bool useColor)
         {
+            int previousLength = sb.Length;
             sb.AppendFormat(culture, format, linePrefixData.Timestamp);
+            length += sb.Length - previousLength;
         }
     }
 }

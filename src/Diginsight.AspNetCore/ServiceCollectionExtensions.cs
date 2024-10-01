@@ -1,4 +1,4 @@
-﻿using Diginsight.CAOptions;
+﻿using Diginsight.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using MseOptions = Microsoft.Extensions.Options.Options;
 #if NET
 using Microsoft.AspNetCore.Builder;
 #endif
@@ -20,7 +21,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection DynamicallyConfigureFromHttpRequestHeaders<TOptions>(this IServiceCollection services)
         where TOptions: class, IDynamicallyConfigurable
     {
-        return services.DynamicallyConfigureFromHttpRequestHeaders<TOptions>(Options.DefaultName);
+        return services.DynamicallyConfigureFromHttpRequestHeaders<TOptions>(MseOptions.DefaultName);
     }
 
     public static IServiceCollection DynamicallyConfigureFromHttpRequestHeaders<TOptions>(this IServiceCollection services, string name)
@@ -49,7 +50,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection DynamicallyConfigureClassAwareFromHttpRequestHeaders<TOptions>(this IServiceCollection services)
         where TOptions: class, IDynamicallyConfigurable
     {
-        return services.DynamicallyConfigureClassAwareFromHttpRequestHeaders<TOptions>(Options.DefaultName);
+        return services.DynamicallyConfigureClassAwareFromHttpRequestHeaders<TOptions>(MseOptions.DefaultName);
     }
 
     public static IServiceCollection DynamicallyConfigureClassAwareFromHttpRequestHeaders<TOptions>(this IServiceCollection services, string name)
@@ -71,7 +72,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection DynamicallyPostConfigureFromHttpRequestHeaders<TOptions>(this IServiceCollection services)
         where TOptions: class, IDynamicallyConfigurable
     {
-        return services.DynamicallyPostConfigureFromHttpRequestHeaders<TOptions>(Options.DefaultName);
+        return services.DynamicallyPostConfigureFromHttpRequestHeaders<TOptions>(MseOptions.DefaultName);
     }
 
     public static IServiceCollection DynamicallyPostConfigureFromHttpRequestHeaders<TOptions>(this IServiceCollection services, string name)
@@ -100,7 +101,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection DynamicallyPostConfigureClassAwareFromHttpRequestHeaders<TOptions>(this IServiceCollection services)
         where TOptions: class, IDynamicallyConfigurable
     {
-        return services.DynamicallyPostConfigureClassAwareFromHttpRequestHeaders<TOptions>(Options.DefaultName);
+        return services.DynamicallyPostConfigureClassAwareFromHttpRequestHeaders<TOptions>(MseOptions.DefaultName);
     }
 
     public static IServiceCollection DynamicallyPostConfigureClassAwareFromHttpRequestHeaders<TOptions>(this IServiceCollection services, string name)

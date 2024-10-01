@@ -1,5 +1,6 @@
-﻿using Diginsight.CAOptions;
-using Diginsight.Strings;
+﻿using Diginsight.Logging;
+using Diginsight.Options;
+using Diginsight.Stringify;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
@@ -22,7 +23,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
 
     public DeferredLoggerFactory(
         TimeProvider? timeProvider = null,
-        IAppendingContextFactory? appendingContextFactory = null,
+        IStringifyContextFactory? stringifyContextFactory = null,
         DiginsightActivitiesOptions? activitiesOptions = null,
         IActivityLoggingSampler? activityLoggingSampler = null
     )
@@ -31,7 +32,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
 
         ActivityLifecycleLogEmitter emitter = new (
             this,
-            appendingContextFactory ?? new AppendingContextFactoryBuilder().WithLoggerFactory(this).Build(),
+            stringifyContextFactory ?? new StringifyContextFactoryBuilder().WithLoggerFactory(this).Build(),
             new FixedClassAwareOptionsMonitor(activitiesOptions ?? new DiginsightActivitiesOptions()),
             activityLoggingSampler
         );
@@ -297,7 +298,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
         }
     }
 
-    public interface ILogMetadata : Diginsight.ILogMetadata
+    public interface ILogMetadata : Logging.ILogMetadata
     {
         DateTimeOffset Timestamp { get; }
         Activity? Activity { get; }

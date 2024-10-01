@@ -38,7 +38,7 @@ internal sealed class ConsoleLineDescriptorProvider : IConsoleLineDescriptorProv
             LineDescriptor MakeLineDescriptor()
             {
                 string? pattern = formatterOptions.Pattern;
-                IReadOnlyDictionary<string, string?> patterns = formatterOptions.Patterns;
+                IReadOnlyDictionary<int, string?> patterns = formatterOptions.Patterns;
 
                 if (lineTokensCache is null)
                 {
@@ -48,8 +48,8 @@ internal sealed class ConsoleLineDescriptorProvider : IConsoleLineDescriptorProv
                         (null, > 0) => patterns
                             .Where(static x => x.Value is not null)
                             .Select(static x => x.Key)
-                            .Select(static x => int.TryParse(x, out int n) && n > 0 ? n : throw new InvalidOperationException("Pattern keys must be positive integers"))
-                            .ToDictionary(static n => n, static _ => (IEnumerable<ILineToken>?)null),
+                            .Select(static n => n > 0 ? n : throw new InvalidOperationException("Pattern keys must be positive integers"))
+                            .ToDictionary(static n => n, static IEnumerable<ILineToken>? (_) => null),
                         _ => new Dictionary<int, IEnumerable<ILineToken>?>() { [1] = null },
                     };
 
@@ -64,7 +64,7 @@ internal sealed class ConsoleLineDescriptorProvider : IConsoleLineDescriptorProv
 
                 if (lineTokensCache[targetWidth] is not { } lineTokens)
                 {
-                    string? selectedPattern = patterns.Any() ? patterns[targetWidth.ToStringInvariant()].HardTrim() : pattern;
+                    string? selectedPattern = patterns.Any() ? patterns[targetWidth].HardTrim() : pattern;
                     lineTokensCache[targetWidth] = lineTokens = LineDescriptor.Parse(selectedPattern, customLineTokenParsers);
                 }
 

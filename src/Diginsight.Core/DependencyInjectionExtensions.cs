@@ -1,5 +1,5 @@
-﻿using Diginsight.CAOptions;
-using Diginsight.Strings;
+﻿using Diginsight.Logging;
+using Diginsight.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using MseOptions = Microsoft.Extensions.Options.Options;
 
 namespace Diginsight;
 
@@ -34,6 +35,7 @@ public static class DependencyInjectionExtensions
         where TOptions : class, IDynamicallyConfigurable
     {
         services.AddOptions();
+
         if (!services.Any(static x => x.ServiceType == typeof(IOptionsMonitorCache<TOptions>)))
         {
             ServiceDescriptor cacheDescriptor = services.First(static x => x.ServiceType == typeof(IOptionsMonitorCache<>));
@@ -84,13 +86,13 @@ public static class DependencyInjectionExtensions
 
         public TOptions GetOrAdd(string? name, Func<TOptions> createOptions)
         {
-            name ??= Options.DefaultName;
+            name ??= MseOptions.DefaultName;
             return IsDynamic(name) ? createOptions() : decoratee.GetOrAdd(name, createOptions);
         }
 
         public bool TryAdd(string? name, TOptions options)
         {
-            name ??= Options.DefaultName;
+            name ??= MseOptions.DefaultName;
             return IsDynamic(name) ? throw new ArgumentException("Dynamic option cannot be cached") : decoratee.TryAdd(name, options);
         }
 
@@ -182,7 +184,7 @@ public static class DependencyInjectionExtensions
     )
         where TOptions : class
     {
-        return services.ConfigureClassAware<TOptions>(Options.DefaultName, configuration, sectionKey, configureBinder);
+        return services.ConfigureClassAware<TOptions>(MseOptions.DefaultName, configuration, sectionKey, configureBinder);
     }
 
     public static IServiceCollection ConfigureClassAware<TOptions>(
@@ -200,6 +202,51 @@ public static class DependencyInjectionExtensions
         return services;
     }
 
+    public static IServiceCollection ConfigureClassAwareOptions<TOptions>(this IServiceCollection services)
+        where TOptions : class
+    {
+        return services.ConfigureClassAwareOptions(typeof(TOptions));
+    }
+
+    public static IServiceCollection ConfigureClassAwareOptions(this IServiceCollection services, Type type)
+    {
+        return services
+            .ConfigureOptions(type)
+            .ConfigureClassAwareOptions(type, t => ServiceDescriptor.Transient(t, type));
+    }
+
+    public static IServiceCollection ConfigureClassAwareOptions(this IServiceCollection services, object instance)
+    {
+        return services
+            .ConfigureOptions(instance)
+            .ConfigureClassAwareOptions(instance.GetType(), t => ServiceDescriptor.Singleton(t, instance));
+    }
+
+    private static IServiceCollection ConfigureClassAwareOptions(
+        this IServiceCollection services, Type type, Func<Type, ServiceDescriptor> makeDescriptor
+    )
+    {
+        services.AddClassAwareOptions();
+
+        foreach (Type ifc in type.GetInterfaces())
+        {
+            if (!ifc.IsGenericType)
+            {
+                continue;
+            }
+
+            Type ifcDefinition = ifc.GetGenericTypeDefinition();
+            if (ifcDefinition == typeof(IConfigureClassAwareOptions<>) ||
+                ifcDefinition == typeof(IPostConfigureClassAwareOptions<>) ||
+                ifcDefinition == typeof(IValidateClassAwareOptions<>))
+            {
+                services.Add(makeDescriptor(ifc));
+            }
+        }
+
+        return services;
+    }
+
     public static IServiceCollection AddVolatileConfiguration(this IServiceCollection services)
     {
         services.TryAddSingleton<IVolatileConfigurationStorageProvider, VolatileConfigurationStorageProvider>();
@@ -210,7 +257,7 @@ public static class DependencyInjectionExtensions
     public static IServiceCollection VolatilelyConfigure<TOptions>(this IServiceCollection services)
         where TOptions: class, IVolatilelyConfigurable
     {
-        return services.VolatilelyConfigure<TOptions>(Options.DefaultName);
+        return services.VolatilelyConfigure<TOptions>(MseOptions.DefaultName);
     }
 
     public static IServiceCollection VolatilelyConfigure<TOptions>(this IServiceCollection services, string name)
@@ -241,7 +288,7 @@ public static class DependencyInjectionExtensions
     public static IServiceCollection VolatilelyConfigureClassAware<TOptions>(this IServiceCollection services)
         where TOptions: class, IVolatilelyConfigurable
     {
-        return services.VolatilelyConfigureClassAware<TOptions>(Options.DefaultName);
+        return services.VolatilelyConfigureClassAware<TOptions>(MseOptions.DefaultName);
     }
 
     public static IServiceCollection VolatilelyConfigureClassAware<TOptions>(this IServiceCollection services, string name)
@@ -271,7 +318,7 @@ public static class DependencyInjectionExtensions
     public static IServiceCollection VolatilelyPostConfigure<TOptions>(this IServiceCollection services)
         where TOptions: class, IVolatilelyConfigurable
     {
-        return services.VolatilelyPostConfigure<TOptions>(Options.DefaultName);
+        return services.VolatilelyPostConfigure<TOptions>(MseOptions.DefaultName);
     }
 
     public static IServiceCollection VolatilelyPostConfigure<TOptions>(this IServiceCollection services, string name)
@@ -302,7 +349,7 @@ public static class DependencyInjectionExtensions
     public static IServiceCollection VolatilelyPostConfigureClassAware<TOptions>(this IServiceCollection services)
         where TOptions: class, IVolatilelyConfigurable
     {
-        return services.VolatilelyPostConfigureClassAware<TOptions>(Options.DefaultName);
+        return services.VolatilelyPostConfigureClassAware<TOptions>(MseOptions.DefaultName);
     }
 
     public static IServiceCollection VolatilelyPostConfigureClassAware<TOptions>(this IServiceCollection services, string name)
@@ -324,16 +371,6 @@ public static class DependencyInjectionExtensions
                 static sp => sp.GetRequiredService<VolatilelyConfigureClassAwareOptions<TOptions>>()
             )
         );
-
-        return services;
-    }
-
-    public static IServiceCollection AddLogStrings(this IServiceCollection services)
-    {
-        services.AddOptions();
-        services.TryAddSingleton<IAppendingContextFactory, AppendingContextFactory>();
-        services.TryAddSingleton<IMemberInfoLogStringProvider, MemberInfoLogStringProvider>();
-        services.TryAddSingleton<IReflectionLogStringHelper, ReflectionLogStringHelper>();
 
         return services;
     }

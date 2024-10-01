@@ -42,6 +42,12 @@
           "Microsoft.SourceLink.Common": "8.0.0"
         }
       },
+      "Pastel": {
+        "type": "Direct",
+        "requested": "[5.*, )",
+        "resolved": "5.1.0",
+        "contentHash": "jQ0fTkHZvgQsmbr5qU0IdCP1PWuUfmEmekIsTwysWK/iIwmT9Mbm0x5GpjYSTEwHTNVEpjYhBhyKVdzESgRCpg=="
+      },
       "Microsoft.Build.Tasks.Git": {
         "type": "Transitive",
         "resolved": "8.0.0",
@@ -337,11 +343,6 @@
         "resolved": "8.0.0",
         "contentHash": "dk9JPxTCIevS75HyEQ0E4OVAFhB2N+V9ShCXf8Q6FkUQZDkgLI12y679Nym1YqsiSysuQskT7Z+6nUf3yab6Vw=="
       },
-      "Newtonsoft.Json": {
-        "type": "Transitive",
-        "resolved": "13.0.3",
-        "contentHash": "HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ=="
-      },
       "Scrutor": {
         "type": "Transitive",
         "resolved": "4.2.2",
@@ -393,27 +394,33 @@
         "type": "Project",
         "dependencies": {
           "Diginsight.Polyfills": "[1.0.0, )",
-          "Microsoft.Extensions.Caching.Memory": "[8.*, )",
           "Microsoft.Extensions.Configuration": "[8.*, )",
           "Microsoft.Extensions.Configuration.Binder": "[8.*, )",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.*, )",
           "Microsoft.Extensions.Hosting.Abstractions": "[8.*, )",
           "Microsoft.Extensions.Logging": "[8.*, )",
-          "Newtonsoft.Json": "[13.*, )",
           "Scrutor": "[4.*, )"
         }
       },
       "diginsight.diagnostics": {
         "type": "Project",
         "dependencies": {
-          "Diginsight.Core": "[1.0.0, )",
+          "Diginsight.Stringify": "[1.0.0, )",
           "Microsoft.Extensions.Diagnostics": "[8.*, )",
           "Microsoft.Extensions.Logging.Console": "[8.*, )",
+          "Pastel": "[5.*, )",
           "System.Text.Json": "[8.*, )"
         }
       },
       "diginsight.polyfills": {
         "type": "Project"
+      },
+      "diginsight.stringify": {
+        "type": "Project",
+        "dependencies": {
+          "Diginsight.Core": "[1.0.0, )",
+          "Microsoft.Extensions.Caching.Memory": "[8.*, )"
+        }
       }
     }
   }

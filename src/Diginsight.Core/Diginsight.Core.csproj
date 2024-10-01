@@ -9,15 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.*">
-      <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
-    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.*" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.*" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.*" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.*" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.*" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.*" />
     <PackageReference Include="Scrutor" Version="4.*">
       <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
     </PackageReference>
@@ -32,11 +28,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="CAOptions\PostConfigureClassAwareOptions.tt">
+    <None Update="Options\ValidateClassAwareOptions.tt">
+      <LastGenOutput>ValidateClassAwareOptions.g.cs</LastGenOutput>
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </None>
+    <None Update="Options\PostConfigureClassAwareOptions.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>PostConfigureClassAwareOptions.g.cs</LastGenOutput>
     </None>
-    <None Update="CAOptions\ConfigureClassAwareOptions.tt">
+    <None Update="Options\ConfigureClassAwareOptions.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>ConfigureClassAwareOptions.g.cs</LastGenOutput>
     </None>
@@ -47,12 +47,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="CAOptions\ConfigureClassAwareOptions.g.cs">
+    <Compile Update="Options\ValidateClassAwareOptions.g.cs">
+      <DependentUpon>ValidateClassAwareOptions.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="Options\ConfigureClassAwareOptions.g.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>ConfigureClassAwareOptions.tt</DependentUpon>
     </Compile>
-    <Compile Update="CAOptions\PostConfigureClassAwareOptions.g.cs">
+    <Compile Update="Options\PostConfigureClassAwareOptions.g.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>PostConfigureClassAwareOptions.tt</DependentUpon>

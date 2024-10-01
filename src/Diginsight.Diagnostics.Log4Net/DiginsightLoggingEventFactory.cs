@@ -38,7 +38,7 @@ internal sealed class DiginsightLoggingEventFactory : ILog4NetLoggingEventFactor
                 out TimeSpan? duration,
                 out DateTimeOffset? maybeTimestamp,
                 out Activity? activity,
-                out Func<int, int>? sealMaxMessageLength
+                out Func<LineDescriptor, LineDescriptor>? sealLineDescriptor
             );
 
             LoggingEvent? loggingEvent = decoratee.CreateLoggingEvent(messageCandidate, logger, options, scopeProvider);
@@ -54,7 +54,7 @@ internal sealed class DiginsightLoggingEventFactory : ILog4NetLoggingEventFactor
                 duration,
                 maybeTimestamp ?? timeProvider.GetUtcNow(),
                 activity ?? Activity.Current,
-                sealMaxMessageLength
+                sealLineDescriptor
             );
         }
         catch (Exception)

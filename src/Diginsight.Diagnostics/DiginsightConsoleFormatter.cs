@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Console;
 using Microsoft.Extensions.Options;
+using Pastel;
 using System.Diagnostics;
 
 namespace Diginsight.Diagnostics;
@@ -14,6 +15,11 @@ internal sealed class DiginsightConsoleFormatter : ConsoleFormatter
     private readonly IConsoleLineDescriptorProvider lineDescriptorProvider;
     private readonly IDiginsightConsoleFormatterOptions formatterOptions;
     private readonly TimeProvider timeProvider;
+
+    static DiginsightConsoleFormatter()
+    {
+        ConsoleExtensions.Enable();
+    }
 
     public DiginsightConsoleFormatter(
         IConsoleLineDescriptorProvider lineDescriptorProvider,
@@ -42,7 +48,7 @@ internal sealed class DiginsightConsoleFormatter : ConsoleFormatter
                 out TimeSpan? duration,
                 out DateTimeOffset? maybeTimestamp,
                 out Activity? activity,
-                out Func<int, int>? sealMaxMessageLength
+                out Func<LineDescriptor, LineDescriptor>? sealLineDescriptor
             );
 
             DateTimeOffset finalTimestamp = maybeTimestamp ?? timeProvider.GetUtcNow();
@@ -64,6 +70,7 @@ internal sealed class DiginsightConsoleFormatter : ConsoleFormatter
 
             DiginsightTextWriter.Write(
                 textWriter,
+                formatterOptions.UseColor,
                 formatterOptions.UseUtcTimestamp ? finalTimestamp.UtcDateTime : finalTimestamp.LocalDateTime,
                 activity ?? Activity.Current,
                 logEntry.LogLevel,
@@ -73,12 +80,15 @@ internal sealed class DiginsightConsoleFormatter : ConsoleFormatter
                 isActivity,
                 duration,
                 lineDescriptorProvider.GetLineDescriptor(width),
-                sealMaxMessageLength
+                sealLineDescriptor
             );
         }
         catch (Exception exception)
         {
-            textWriter.WriteLine($"### {exception.GetType().Name} {exception.Message} ###");
+            string exceptionText = $"### {exception.GetType().Name} {exception.Message} ###";
+            textWriter.WriteLine(
+                formatterOptions.UseColor ? exceptionText.Pastel(ConsoleColor.DarkMagenta) : exceptionText
+            );
         }
     }
 }

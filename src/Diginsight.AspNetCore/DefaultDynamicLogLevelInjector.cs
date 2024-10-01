@@ -29,7 +29,7 @@ namespace Diginsight.AspNetCore;
 ///         </list>
 ///         where <i>category</i>, <i>level</i> and <i>provider</i> have the usual format and meaning.<br />
 ///         Invalid entries are ignored.<br />
-///         If there are no valid entries, <see cref="TryCreateLoggerFactory" /> returns <see langword="null" />.
+///         If there are no valid entries, <see cref="TryCreateLoggerFactory" /> returns <c>null</c>.
 ///     </para>
 /// </remarks>
 public sealed class DefaultDynamicLogLevelInjector : IDynamicLogLevelInjector
