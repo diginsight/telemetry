@@ -34,7 +34,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Diagnostics.Open
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Diagnostics.AspNetCore.OpenTelemetry", "Diginsight.Diagnostics.AspNetCore.OpenTelemetry\Diginsight.Diagnostics.AspNetCore.OpenTelemetry.csproj", "{6BA59D4F-F409-4E06-8C37-D7AA52020284}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Diagnostics.Copilot", "Diginsight.Diagnostics.Copilot\Diginsight.Diagnostics.Copilot.csproj", "{B088FB3D-D753-47BF-A7AE-B541D8244562}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Diagnostics.AiAnalysis", "Diginsight.Diagnostics.AiAnalysis\Diginsight.Diagnostics.AiAnalysis.csproj", "{B088FB3D-D753-47BF-A7AE-B541D8244562}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Json", "Diginsight.Json\Diginsight.Json.csproj", "{A3AF9858-7A33-4E83-8CFD-7392864ACAF8}"
 EndProject

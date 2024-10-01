@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0</TargetFrameworks>
+    <Title>Diginsight Diagnostics AI-based Analysis</Title>
+    <RootNamespace>Diginsight.Diagnostics.AiAnalysis</RootNamespace>
+    <PackageIcon>Diginsight.Diagnostics.png</PackageIcon>
+    <PackageTags>$(PackageTags);diagnostics;openai;ai;analysis</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Diginsight.Diagnostics\Diginsight.Diagnostics.csproj" />
+  </ItemGroup>
+
+</Project>
