@@ -2,23 +2,43 @@
 
 namespace Diginsight;
 
+/// <summary>
+///     Abstract class for decorating a <see cref="DistributedContextPropagator"/> with logic
+///     to transport distributed context information in non-baggage item.
+/// </summary>
+/// <remarks>
+///     Implementors must override <see cref="SetCurrentNonBaggage"/> and <see cref="GetCurrentNonBaggage"/>
+///     to store and retrieve non-baggage items in the current context (for example, in a Web API, the HTTP context).
+/// </remarks>
 public abstract class DiginsightPropagator : DistributedContextPropagator
 {
     private readonly IDiginsightDistributedContextOptions distributedContextOptions;
 
+    /// <summary>
+    ///     Gets the decoratee propagator.
+    /// </summary>
     protected DistributedContextPropagator Decoratee { get; }
 
-    public override IReadOnlyCollection<string> Fields => Decoratee.Fields;
+    /// <inheritdoc />
+    public override IReadOnlyCollection<string> Fields { get; }
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="DiginsightPropagator" /> class.
+    /// </summary>
+    /// <param name="decoratee">The decoratee propagator.</param>
+    /// <param name="distributedContextOptions">The distributed context options.</param>
     protected DiginsightPropagator(
         DistributedContextPropagator decoratee,
         IDiginsightDistributedContextOptions distributedContextOptions
     )
     {
-        Decoratee = decoratee;
         this.distributedContextOptions = distributedContextOptions;
+
+        Decoratee = decoratee;
+        Fields = [ .. decoratee.Fields, .. distributedContextOptions.NonBaggageKeys ];
     }
 
+    /// <inheritdoc />
     public override IEnumerable<KeyValuePair<string, string?>>? ExtractBaggage(object? carrier, PropagatorGetterCallback? getter)
     {
         if (carrier is not null && getter is not null)
@@ -38,13 +58,19 @@ public abstract class DiginsightPropagator : DistributedContextPropagator
         return Decoratee.ExtractBaggage(carrier, getter);
     }
 
+    /// <inheritdoc />
     public override void ExtractTraceIdAndState(object? carrier, PropagatorGetterCallback? getter, out string? traceId, out string? traceState)
     {
         Decoratee.ExtractTraceIdAndState(carrier, getter, out traceId, out traceState);
     }
 
+    /// <summary>
+    ///     Sets the current non-baggage items.
+    /// </summary>
+    /// <param name="nonBaggage">The non-baggage items extracted from the carrier.</param>
     protected abstract void SetCurrentNonBaggage(IEnumerable<KeyValuePair<string, IEnumerable<string>>> nonBaggage);
 
+    /// <inheritdoc />
     public override void Inject(Activity? activity, object? carrier, PropagatorSetterCallback? setter)
     {
         Decoratee.Inject(activity, carrier, setter);
@@ -57,10 +83,14 @@ public abstract class DiginsightPropagator : DistributedContextPropagator
 #if NET || NETSTANDARD2_1_OR_GREATER
             setter(carrier, key, string.Join(',', values));
 #else
-            setter(carrier, key, string.Join(",", values));
+                    setter(carrier, key, string.Join(",", values));
 #endif
         }
     }
 
+    /// <summary>
+    ///     Gets the current non-baggage items.
+    /// </summary>
+    /// <returns>The current non-baggage items.</returns>
     protected abstract IEnumerable<KeyValuePair<string, IEnumerable<string>>>? GetCurrentNonBaggage();
 }

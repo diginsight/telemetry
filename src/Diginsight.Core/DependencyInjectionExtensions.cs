@@ -12,9 +12,18 @@ using MseOptions = Microsoft.Extensions.Options.Options;
 
 namespace Diginsight;
 
+/// <summary>
+///     Provides extension methods for dependency injection and configuration services.
+/// </summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class DependencyInjectionExtensions
 {
+    /// <summary>
+    ///     Configures the <see cref="IHostBuilder" /> to use the Diginsight service provider.
+    /// </summary>
+    /// <param name="hostBuilder">The host builder.</param>
+    /// <param name="configureOptions">The action to configure <see cref="ServiceProviderOptions" />.</param>
+    /// <returns>The host builder, for chaining.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IHostBuilder UseDiginsightServiceProvider(
         this IHostBuilder hostBuilder,
@@ -31,6 +40,13 @@ public static class DependencyInjectionExtensions
         );
     }
 
+    /// <summary>
+    ///     Flags the specified options type as dynamic, in order to prevent caching.
+    /// </summary>
+    /// <typeparam name="TOptions">The type of options.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <param name="name">The name of the options instance.</param>
+    /// <returns>The service collection, for chaining.</returns>
     public static IServiceCollection FlagAsDynamic<TOptions>(this IServiceCollection services, string? name)
         where TOptions : class, IDynamicallyConfigurable
     {
@@ -101,6 +117,11 @@ public static class DependencyInjectionExtensions
         public void Clear() => decoratee.Clear();
     }
 
+    /// <summary>
+    ///     Adds class-aware options services to the service collection.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection, for chaining.</returns>
     public static IServiceCollection AddClassAwareOptions(this IServiceCollection services)
     {
         services.AddOptions();
@@ -179,6 +200,15 @@ public static class DependencyInjectionExtensions
         public TOptions Create(string name) => underlying.Create(name);
     }
 
+    /// <summary>
+    ///     Configures class-aware options from the specified <see cref="IConfiguration"/>.
+    /// </summary>
+    /// <typeparam name="TOptions">The type of options.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The configuration.</param>
+    /// <param name="sectionKey">The section key in the configuration, or <c>null</c> to read from the object itself.</param>
+    /// <param name="configureBinder">The action to configure <see cref="BinderOptions"/>.</param>
+    /// <returns>The service collection, for chaining.</returns>
     public static IServiceCollection ConfigureClassAware<TOptions>(
         this IServiceCollection services, IConfiguration configuration, string? sectionKey = null, Action<BinderOptions>? configureBinder = null
     )
@@ -187,6 +217,16 @@ public static class DependencyInjectionExtensions
         return services.ConfigureClassAware<TOptions>(MseOptions.DefaultName, configuration, sectionKey, configureBinder);
     }
 
+    /// <summary>
+    ///     Configures named class-aware options from the specified <see cref="IConfiguration"/>.
+    /// </summary>
+    /// <typeparam name="TOptions">The type of options.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <param name="name">The name of the options instance.</param>
+    /// <param name="configuration">The configuration.</param>
+    /// <param name="sectionKey">The section key in the configuration, or <c>null</c> to read from the object itself.</param>
+    /// <param name="configureBinder">The action to configure <see cref="BinderOptions"/>.</param>
+    /// <returns>The service collection, for chaining.</returns>
     public static IServiceCollection ConfigureClassAware<TOptions>(
         this IServiceCollection services, string name, IConfiguration configuration, string? sectionKey = null, Action<BinderOptions>? configureBinder = null
     )
@@ -202,12 +242,24 @@ public static class DependencyInjectionExtensions
         return services;
     }
 
+    /// <summary>
+    ///     Configures class-aware options from the specified type.
+    /// </summary>
+    /// <typeparam name="TOptions">The type of options.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection, for chaining.</returns>
     public static IServiceCollection ConfigureClassAwareOptions<TOptions>(this IServiceCollection services)
         where TOptions : class
     {
         return services.ConfigureClassAwareOptions(typeof(TOptions));
     }
 
+    /// <summary>
+    ///     Configures class-aware options from the specified type.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="type">The type to configure.</param>
+    /// <returns>The service collection, for chaining.</returns>
     public static IServiceCollection ConfigureClassAwareOptions(this IServiceCollection services, Type type)
     {
         return services
@@ -215,6 +267,12 @@ public static class DependencyInjectionExtensions
             .ConfigureClassAwareOptions(type, t => ServiceDescriptor.Transient(t, type));
     }
 
+    /// <summary>
+    ///     Configures class-aware options from the specified instance.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="instance">The instance to configure.</param>
+    /// <returns>The service collection, for chaining.</returns>
     public static IServiceCollection ConfigureClassAwareOptions(this IServiceCollection services, object instance)
     {
         return services
@@ -247,21 +305,39 @@ public static class DependencyInjectionExtensions
         return services;
     }
 
+    /// <summary>
+    ///     Adds volatile configuration services to the service collection.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection, for chaining.</returns>
     public static IServiceCollection AddVolatileConfiguration(this IServiceCollection services)
     {
         services.TryAddSingleton<IVolatileConfigurationStorageProvider, VolatileConfigurationStorageProvider>();
         return services;
     }
 
+    /// <summary>
+    ///     Enables the specified options type for volatile configuration.
+    /// </summary>
+    /// <typeparam name="TOptions">The type of options.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection, for chaining.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IServiceCollection VolatilelyConfigure<TOptions>(this IServiceCollection services)
-        where TOptions: class, IVolatilelyConfigurable
+        where TOptions : class, IVolatilelyConfigurable
     {
         return services.VolatilelyConfigure<TOptions>(MseOptions.DefaultName);
     }
 
+    /// <summary>
+    ///     Enables the specified options type for named volatile configuration.
+    /// </summary>
+    /// <typeparam name="TOptions">The type of options.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <param name="name">The name of the options instance.</param>
+    /// <returns>The service collection, for chaining.</returns>
     public static IServiceCollection VolatilelyConfigure<TOptions>(this IServiceCollection services, string name)
-        where TOptions: class, IVolatilelyConfigurable
+        where TOptions : class, IVolatilelyConfigurable
     {
         services
             .AddOptions()
@@ -284,15 +360,28 @@ public static class DependencyInjectionExtensions
         return services;
     }
 
+    /// <summary>
+    ///     Enables the specified options type for class-aware volatile configuration.
+    /// </summary>
+    /// <typeparam name="TOptions">The type of options.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection, for chaining.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IServiceCollection VolatilelyConfigureClassAware<TOptions>(this IServiceCollection services)
-        where TOptions: class, IVolatilelyConfigurable
+        where TOptions : class, IVolatilelyConfigurable
     {
         return services.VolatilelyConfigureClassAware<TOptions>(MseOptions.DefaultName);
     }
 
+    /// <summary>
+    ///     Enables the specified options type for named class-aware volatile configuration.
+    /// </summary>
+    /// <typeparam name="TOptions">The type of options.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <param name="name">The name of the options instance.</param>
+    /// <returns>The service collection, for chaining.</returns>
     public static IServiceCollection VolatilelyConfigureClassAware<TOptions>(this IServiceCollection services, string name)
-        where TOptions: class, IVolatilelyConfigurable
+        where TOptions : class, IVolatilelyConfigurable
     {
         services.AddClassAwareOptions();
         services.VolatilelyConfigure<TOptions>(name);
@@ -314,15 +403,28 @@ public static class DependencyInjectionExtensions
         return services;
     }
 
+    /// <summary>
+    ///     Enables the specified options type for volatile post-configuration.
+    /// </summary>
+    /// <typeparam name="TOptions">The type of options.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection, for chaining.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IServiceCollection VolatilelyPostConfigure<TOptions>(this IServiceCollection services)
-        where TOptions: class, IVolatilelyConfigurable
+        where TOptions : class, IVolatilelyConfigurable
     {
         return services.VolatilelyPostConfigure<TOptions>(MseOptions.DefaultName);
     }
 
+    /// <summary>
+    ///     Enables the specified options type for named volatile post-configuration.
+    /// </summary>
+    /// <typeparam name="TOptions">The type of options.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <param name="name">The name of the options instance.</param>
+    /// <returns>The service collection, for chaining.</returns>
     public static IServiceCollection VolatilelyPostConfigure<TOptions>(this IServiceCollection services, string name)
-        where TOptions: class, IVolatilelyConfigurable
+        where TOptions : class, IVolatilelyConfigurable
     {
         services
             .AddOptions()
@@ -345,15 +447,28 @@ public static class DependencyInjectionExtensions
         return services;
     }
 
+    /// <summary>
+    ///     Enables the specified options type for class-aware volatile post-configuration.
+    /// </summary>
+    /// <typeparam name="TOptions">The type of options.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection, for chaining.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IServiceCollection VolatilelyPostConfigureClassAware<TOptions>(this IServiceCollection services)
-        where TOptions: class, IVolatilelyConfigurable
+        where TOptions : class, IVolatilelyConfigurable
     {
         return services.VolatilelyPostConfigureClassAware<TOptions>(MseOptions.DefaultName);
     }
 
+    /// <summary>
+    ///     Enables the specified options type for class-aware volatile named post-configuration.
+    /// </summary>
+    /// <typeparam name="TOptions">The type of options.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <param name="name">The name of the options instance.</param>
+    /// <returns>The service collection, for chaining.</returns>
     public static IServiceCollection VolatilelyPostConfigureClassAware<TOptions>(this IServiceCollection services, string name)
-        where TOptions: class, IVolatilelyConfigurable
+        where TOptions : class, IVolatilelyConfigurable
     {
         services.AddClassAwareOptions();
         services.VolatilelyPostConfigure<TOptions>(name);
@@ -375,6 +490,11 @@ public static class DependencyInjectionExtensions
         return services;
     }
 
+    /// <summary>
+    ///     Adds the <see cref="ILoggerFactorySetter"/> to the service collection.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection, for chaining.</returns>
     public static IServiceCollection AddLoggerFactorySetter(this IServiceCollection services)
     {
         if (services.Any(static x => x.ServiceType == typeof(ILoggerFactorySetter)))

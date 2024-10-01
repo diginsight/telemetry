@@ -26,7 +26,7 @@ public class FilteredConfiguration : IFilteredConfiguration
         this.partialVirtualPath = partialVirtualPath;
     }
 
-    public static IConfiguration For(IConfiguration configuration, Type? @class)
+    public static IFilteredConfiguration For(IConfiguration configuration, Type? @class)
     {
         @class ??= ClassAwareOptions.NoClass;
         return configuration switch
@@ -40,8 +40,9 @@ public class FilteredConfiguration : IFilteredConfiguration
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IConfiguration ForNoClass(IConfiguration configuration) => For(configuration, null);
+    public static IFilteredConfiguration ForNoClass(IConfiguration configuration) => For(configuration, null);
 
+    /// <inheritdoc />
     public IConfigurationSection GetSection(string key)
     {
         string[] segments = key
@@ -59,6 +60,7 @@ public class FilteredConfiguration : IFilteredConfiguration
             ?? new FilteredConfigurationSection(underlying.GetSection(key), Class, partialVirtualPath + key);
     }
 
+    /// <inheritdoc />
     public IEnumerable<IConfigurationSection> GetChildren()
     {
         return CoreGetChildren().ToArray();
@@ -112,5 +114,6 @@ public class FilteredConfiguration : IFilteredConfiguration
             .OfType<FilteredConfigurationSection>();
     }
 
+    /// <inheritdoc />
     public IChangeToken GetReloadToken() => underlying.GetReloadToken();
 }
