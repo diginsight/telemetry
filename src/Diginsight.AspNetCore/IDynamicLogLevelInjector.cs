@@ -13,6 +13,6 @@ public interface IDynamicLogLevelInjector
     /// </summary>
     /// <param name="context">The current HTTP context.</param>
     /// <param name="loggerProviders">The current logger providers.</param>
-    /// <returns>A new logger factory, or <see langword="null" /> if the HTTP context contains no log level specification.</returns>
+    /// <returns>A new logger factory, or <c>null</c> if the HTTP context contains no log level specification.</returns>
     ILoggerFactory? TryCreateLoggerFactory(HttpContext context, IEnumerable<ILoggerProvider> loggerProviders);
 }
