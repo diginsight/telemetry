@@ -36,7 +36,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Diagnostics.AspN
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Json", "Diginsight.Json\Diginsight.Json.csproj", "{A3AF9858-7A33-4E83-8CFD-7392864ACAF8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Diginsight.Stringify", "Diginsight.Stringify\Diginsight.Stringify.csproj", "{9EDB2ACE-D438-4B76-82EC-19E8AD002B50}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Stringify", "Diginsight.Stringify\Diginsight.Stringify.csproj", "{9EDB2ACE-D438-4B76-82EC-19E8AD002B50}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
