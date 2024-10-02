@@ -4,6 +4,10 @@ using Microsoft.Extensions.Options;
 
 namespace Diginsight.Options;
 
+/// <summary>
+///     Default implementation of the <see cref="IClassAwareOptionsSnapshot{TOptions}" /> interface.
+/// </summary>
+/// <typeparam name="TOptions">The type of options to cache.</typeparam>
 public sealed class ClassAwareOptionsManager<TOptions> : IClassAwareOptionsSnapshot<TOptions>
     where TOptions : class
 {
@@ -14,11 +18,16 @@ public sealed class ClassAwareOptionsManager<TOptions> : IClassAwareOptionsSnaps
     TOptions IOptions<TOptions>.Value => Get(null, null);
 #endif
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="ClassAwareOptionsManager{TOptions}" /> class.
+    /// </summary>
+    /// <param name="factory">The factory to create option instances.</param>
     public ClassAwareOptionsManager(IClassAwareOptionsFactory<TOptions> factory)
     {
         this.factory = factory;
     }
 
+    /// <inheritdoc />
     public TOptions Get(string? name, Type? @class)
     {
         name ??= Microsoft.Extensions.Options.Options.DefaultName;

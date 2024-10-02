@@ -12,6 +12,7 @@
     <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">
       <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.*" />
       </ItemGroup>
     </When>
     <Otherwise>

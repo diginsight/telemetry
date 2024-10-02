@@ -132,7 +132,7 @@ public static class DependencyInjectionExtensions
         services.TryAddTransient(typeof(IClassAwareOptionsFactory<>), typeof(ClassAwareOptionsFactory<>));
         services.TryAddSingleton(typeof(IClassAwareOptionsCache<>), typeof(ClassAwareOptionsCache<>));
 
-        if (ClassAwareOptions.OverrideClassAgnosticOptions)
+        if (ClassAwareOptions.ReplaceClassAgnosticOptions)
         {
             services.Replace(ServiceDescriptor.Singleton(typeof(IOptions<>), typeof(ProxyClassAwareOptions<>)));
             services.Replace(ServiceDescriptor.Scoped(typeof(IOptionsSnapshot<>), typeof(ProxyClassAwareOptionsSnapshot<>)));

@@ -9,8 +9,28 @@ namespace Diginsight.Options;
 <#
     for (int componentCount = 0; componentCount <= 5; componentCount++)
     {
+        static string Ordinal(string x) => x + x switch
+        {
+            "1" => "st",
+            "2" => "nd",
+            "3" => "rd",
+            _ => "th",
+        };
+
         string[] range = Enumerable.Range(1, componentCount).Select(static x => x.ToString(CultureInfo.InvariantCulture)).ToArray();
         string tdeps = string.Join("", range.Select(static x => $", TDep{x}"));
+#>
+/// <summary>
+///     Provides post-configuration for options of type <typeparamref name="TOptions"/><#= componentCount switch { 0 => "", 1 => " with 1 dependency", _ => $" with {componentCount} dependencies"} #>.
+/// </summary>
+/// <typeparam name="TOptions">The type of options being post-configured.</typeparam>
+<#
+        foreach (string x in range)
+        {
+#>
+/// <typeparam name="TDep<#= x #>">The type of the <#= Ordinal(x) #> dependency required for post-configuration.</typeparam>
+<#
+        }
 #>
 public class PostConfigureClassAwareOptions<TOptions<#= tdeps #>> : IPostConfigureClassAwareOptions<TOptions>
     where TOptions : class
@@ -23,19 +43,41 @@ public class PostConfigureClassAwareOptions<TOptions<#= tdeps #>> : IPostConfigu
         }
 #>
 {
+    /// <summary>
+    ///     Gets the name of the options instance being post-configured.
+    /// </summary>
     public string? Name { get; }
 
 <#
         foreach (string x in range)
         {
 #>
+    /// <summary>
+    ///     Gets the <#= Ordinal(x) #> dependency required for post-configuration.
+    /// </summary>
     public TDep<#= x #> Dependency<#= x #> { get; }
 
 <#
         }
 #>
+    /// <summary>
+    ///     Gets the action to be performed for post-configuration.
+    /// </summary>
     public Action<Type, TOptions<#= tdeps #>> Action { get; }
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="PostConfigureClassAwareOptions{TOptions<#= tdeps #>}"/> class.
+    /// </summary>
+    /// <param name="name">The name of the options instance being post-configured.</param>
+<#
+        foreach (string x in range)
+        {
+#>
+    /// <param name="dependency<#= x #>">The <#= Ordinal(x) #> dependency required for post-configuration.</param>
+<#
+        }
+#>
+    /// <param name="action">The action to be performed for post-configuration.</param>
     public PostConfigureClassAwareOptions(
         string? name,
 <#
@@ -61,6 +103,7 @@ public class PostConfigureClassAwareOptions<TOptions<#= tdeps #>> : IPostConfigu
         Action = action;
     }
 
+    /// <inheritdoc />
     public virtual void PostConfigure(string name, Type @class, TOptions options)
     {
         if (options is null)
