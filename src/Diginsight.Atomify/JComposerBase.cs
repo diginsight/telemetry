@@ -1,5 +1,5 @@
-﻿#if EXPERIMENT_DECOMPOSING
-namespace Diginsight.Decomposing;
+﻿#if EXPERIMENT_ATOMIFY
+namespace Diginsight.Atomify;
 
 public abstract class JComposerBase : IJComposer
 {

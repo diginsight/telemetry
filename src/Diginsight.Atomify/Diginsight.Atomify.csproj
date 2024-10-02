@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <_IsEnabled Condition="$([System.Text.RegularExpressions.Regex]::IsMatch($(DefineConstants), '(?s)^(?:|.*;)\s*EXPERIMENT_ATOMIFY\s*(?:|;.*)$'))">true</_IsEnabled>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0</TargetFrameworks>
+    <Title>Diginsight Atomify</Title>
+    <PackageIcon>Diginsight.Core.png</PackageIcon>
+    <PackageTags>$(PackageTags);atomify</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <IsPackable Condition="'$(_IsEnabled)' != 'true'">false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="8.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Diginsight.Json\Diginsight.Json.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,13 +1,13 @@
-﻿#if EXPERIMENT_DECOMPOSING
-using System.Text.Json;
+﻿using Newtonsoft.Json;
 
-namespace Diginsight.Decomposing;
+#if EXPERIMENT_ATOMIFY
+namespace Diginsight.Atomify;
 
-public sealed class SystemJObjectComposer : JComposerBase, IJObjectComposer
+public sealed class NewtonsoftJObjectComposer : JComposerBase, IJObjectComposer
 {
-    private readonly Utf8JsonWriter writer;
+    private readonly JsonWriter writer;
 
-    public SystemJObjectComposer(Utf8JsonWriter writer)
+    public NewtonsoftJObjectComposer(JsonWriter writer)
     {
         this.writer = writer;
         writer.WriteStartObject();
@@ -17,7 +17,7 @@ public sealed class SystemJObjectComposer : JComposerBase, IJObjectComposer
     {
         writer.WritePropertyName(name);
 
-        IJTokenComposer inner = new SystemJTokenComposer(writer);
+        IJTokenComposer inner = new NewtonsoftJTokenComposer(writer);
         makeValue(inner);
         if (!inner.IsUsed)
         {

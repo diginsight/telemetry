@@ -1,7 +1,7 @@
-﻿#if EXPERIMENT_DECOMPOSING
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
-namespace Diginsight.Decomposing;
+#if EXPERIMENT_ATOMIFY
+namespace Diginsight.Atomify;
 
 public sealed class NewtonsoftJTokenComposer : JComposerBase, IJTokenComposer
 {

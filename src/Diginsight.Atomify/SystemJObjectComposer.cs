@@ -1,20 +1,22 @@
-﻿#if EXPERIMENT_DECOMPOSING
+﻿#if EXPERIMENT_ATOMIFY
 using System.Text.Json;
 
-namespace Diginsight.Decomposing;
+namespace Diginsight.Atomify;
 
-public sealed class SystemJArrayComposer : JComposerBase, IJArrayComposer
+public sealed class SystemJObjectComposer : JComposerBase, IJObjectComposer
 {
     private readonly Utf8JsonWriter writer;
 
-    public SystemJArrayComposer(Utf8JsonWriter writer)
+    public SystemJObjectComposer(Utf8JsonWriter writer)
     {
         this.writer = writer;
-        writer.WriteStartArray();
+        writer.WriteStartObject();
     }
 
-    public IJArrayComposer Item(Action<IJTokenComposer> makeValue)
+    public IJObjectComposer Property(string name, Action<IJTokenComposer> makeValue)
     {
+        writer.WritePropertyName(name);
+
         IJTokenComposer inner = new SystemJTokenComposer(writer);
         makeValue(inner);
         if (!inner.IsUsed)
@@ -28,7 +30,7 @@ public sealed class SystemJArrayComposer : JComposerBase, IJArrayComposer
     public void End()
     {
         SetUsed();
-        writer.WriteEndArray();
+        writer.WriteEndObject();
     }
 }
 #endif

@@ -1,7 +1,7 @@
-﻿#if EXPERIMENT_DECOMPOSING
+﻿#if EXPERIMENT_ATOMIFY
 using Newtonsoft.Json;
 
-namespace Diginsight.Decomposing;
+namespace Diginsight.Atomify;
 
 public sealed class NewtonsoftJArrayComposer : JComposerBase, IJArrayComposer
 {
