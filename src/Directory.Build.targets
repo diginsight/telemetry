@@ -10,7 +10,7 @@
     <Product>Diginsight</Product>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-    <PackageReadmeFile>README.Nuget.md</PackageReadmeFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/diginsight/telemetry</PackageProjectUrl>
     <PackageTags>diginsight</PackageTags>
     <!-- TODO <Description> in each csproj -->
@@ -48,7 +48,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(IsPackable)' != 'false'">
-    <None Include="$(MSBuildThisFileDirectory)README.Nuget.md">
+    <None Include="$(MSBuildThisFileDirectory)README.md">
       <Visible>false</Visible>
       <Pack>True</Pack>
       <PackagePath></PackagePath>
