@@ -83,7 +83,7 @@ public abstract class DiginsightPropagator : DistributedContextPropagator
 #if NET || NETSTANDARD2_1_OR_GREATER
             setter(carrier, key, string.Join(',', values));
 #else
-                    setter(carrier, key, string.Join(",", values));
+            setter(carrier, key, string.Join(",", values));
 #endif
         }
     }

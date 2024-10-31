@@ -30,7 +30,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.*" />
-    <PackageReference Include="Scrutor" Version="4.*">
+    <PackageReference Include="Scrutor" Version="5.*">
       <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
     </PackageReference>
   </ItemGroup>

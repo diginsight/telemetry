@@ -50,7 +50,7 @@ public sealed class ClassAwareOptionsCache<TOptions> : IClassAwareOptionsCache<T
                 new Lazy<TOptions>(() => a(k.Name, k.Class)),
             create
 #else
-               k => new Lazy<TOptions>(() => create(k.Name, k.Class))
+            k => new Lazy<TOptions>(() => create(k.Name, k.Class))
 #endif
         ).Value;
     }
@@ -70,7 +70,7 @@ public sealed class ClassAwareOptionsCache<TOptions> : IClassAwareOptionsCache<T
                 new Lazy<TOptions>(() => a.Create(k.Name, k.Class, a.Arg)),
             (create, creatorArg)
 #else
-               k => new Lazy<TOptions>(() => create(k.Name, k.Class, creatorArg))
+            k => new Lazy<TOptions>(() => create(k.Name, k.Class, creatorArg))
 #endif
         ).Value;
     }
@@ -96,7 +96,7 @@ public sealed class ClassAwareOptionsCache<TOptions> : IClassAwareOptionsCache<T
 #if NET || NETSTANDARD2_1_OR_GREATER
             new Lazy<TOptions>(options)
 #else
-               new Lazy<TOptions>(() => options)
+            new Lazy<TOptions>(() => options)
 #endif
         );
     }

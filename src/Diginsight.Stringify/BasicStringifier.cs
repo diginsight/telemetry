@@ -1,6 +1,8 @@
-﻿using System.Runtime.CompilerServices;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
+#if NET || NETSTANDARD2_1_OR_GREATER
+using System.Runtime.CompilerServices;
+#endif
 
 namespace Diginsight.Stringify;
 

@@ -1,6 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿#if EXPERIMENT_ATOMIFY
+using Newtonsoft.Json;
 
-#if EXPERIMENT_ATOMIFY
 namespace Diginsight.Atomify;
 
 public sealed class NewtonsoftJObjectComposer : JComposerBase, IJObjectComposer

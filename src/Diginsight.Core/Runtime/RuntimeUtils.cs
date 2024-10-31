@@ -66,7 +66,7 @@ public static class RuntimeUtils
             static Type CoreGet(MethodBase method)
             {
                 Type innerDeclaringType = method.DeclaringType!;
-                bool isGenerated = Enumerable.Contains(innerDeclaringType.FullName!, '<') || Enumerable.Contains(method.Name, '<');
+                bool isGenerated = innerDeclaringType.FullName!.Contains('<') || method.Name.Contains('<');
 
                 Type declaringType = innerDeclaringType;
                 if (isGenerated &&
@@ -115,7 +115,7 @@ public static class RuntimeUtils
             {
                 Type innerDeclaringType = method.DeclaringType!;
                 string methodName = method.Name;
-                bool isGenerated = Enumerable.Contains(innerDeclaringType.FullName!, '<') || Enumerable.Contains(methodName, '<');
+                bool isGenerated = innerDeclaringType.FullName!.Contains('<') || methodName.Contains('<');
 
                 string memberName;
                 string? localFunctionName;
@@ -133,7 +133,7 @@ public static class RuntimeUtils
 #if NET || NETSTANDARD2_1_OR_GREATER
                     memberName = new string(span[(span.LastIndexOf('<') + 1)..closeAngleIndex]);
 #else
-                                        memberName = new string(span[(span.LastIndexOf('<') + 1) ..closeAngleIndex].ToArray());
+                    memberName = new string(span[(span.LastIndexOf('<') + 1) ..closeAngleIndex].ToArray());
 #endif
 
                     span = span[(closeAngleIndex + 1)..];
@@ -148,7 +148,7 @@ public static class RuntimeUtils
 #if NET || NETSTANDARD2_1_OR_GREATER
                             localFunctionName = new string(span);
 #else
-                                                localFunctionName = new string(span.ToArray());
+                            localFunctionName = new string(span.ToArray());
 #endif
                             break;
 
@@ -443,11 +443,11 @@ public static class RuntimeUtils
 #if NET || NETSTANDARD2_1_OR_GREATER
                 return !(bool)IsReferenceOrContainsReferencesMethod.MakeGenericMethod(type).Invoke(null, [ ])!;
 #else
-                                    if (type.IsPrimitive || type.IsEnum || type.IsPointer)
-                                        return true;
-                                    if (!type.IsValueType)
-                                        return false;
-                                    return type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).All(static f => IsUnmanaged(f.FieldType));
+                if (type.IsPrimitive || type.IsEnum || type.IsPointer)
+                    return true;
+                if (!type.IsValueType)
+                    return false;
+                return type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).All(static f => IsUnmanaged(f.FieldType));
 #endif
             }
         }

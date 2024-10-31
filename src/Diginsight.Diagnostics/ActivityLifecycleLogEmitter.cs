@@ -336,10 +336,21 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
 
         private static class SuppressInstrumentationScope
         {
-            private static readonly Func<bool, IDisposable>? BeginCore =
-                (Func<bool, IDisposable>?)Type.GetType("OpenTelemetry.SuppressInstrumentationScope, OpenTelemetry, Version=1.0.0.0, Culture=neutral, PublicKeyToken=7bd6737fe5b67e3c")
-                    ?.GetMethod("Begin", BindingFlags.Public | BindingFlags.Static)
-                    ?.CreateDelegate(typeof(Func<bool, IDisposable>), null);
+            static SuppressInstrumentationScope()
+            {
+                try
+                {
+                    BeginCore = (Func<bool, IDisposable>?)Type.GetType("OpenTelemetry.SuppressInstrumentationScope, OpenTelemetry, Version=1.0.0.0, Culture=neutral, PublicKeyToken=7bd6737fe5b67e3c")
+                        ?.GetMethod("Begin", BindingFlags.Public | BindingFlags.Static)
+                        ?.CreateDelegate(typeof(Func<bool, IDisposable>), null);
+                }
+                catch (Exception )
+                {
+                    BeginCore = null;
+                }
+            }
+
+            private static readonly Func<bool, IDisposable>? BeginCore;
 
             public static IDisposable? Begin() => BeginCore?.Invoke(true);
         }

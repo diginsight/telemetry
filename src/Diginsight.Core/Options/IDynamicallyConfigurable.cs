@@ -71,6 +71,6 @@ public interface IDynamicallyConfigurable
 #if NET || NETSTANDARD2_1_OR_GREATER
         => this;
 #else
-            ;
+        ;
 #endif
 }

@@ -69,8 +69,3 @@ public class DynamicallyConfigureOptionsFromHttpRequestHeaders<TOptions> : IConf
         configuration.Bind(options.MakeFiller());
     }
 }
-
-file static class Statics
-{
-    internal static readonly Regex SpecRegex = new ("^([^=]+?)=(.*)$");
-}
