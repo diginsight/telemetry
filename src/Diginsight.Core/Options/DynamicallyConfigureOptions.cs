@@ -1,28 +1,23 @@
-﻿using Diginsight.Options;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
 using MseOptions = Microsoft.Extensions.Options.Options;
 
-namespace Diginsight.AspNetCore;
+namespace Diginsight.Options;
 
-public class DynamicallyConfigureOptionsFromHttpRequestHeaders<TOptions> : IConfigureNamedOptions<TOptions>, IPostConfigureOptions<TOptions>
+public class DynamicallyConfigureOptions<TOptions> : IConfigureNamedOptions<TOptions>, IPostConfigureOptions<TOptions>
     where TOptions : class, IDynamicallyConfigurable
 {
-    internal const string HeaderName = "Dynamic-Configuration";
-
     private readonly string? name;
-    private readonly IHttpContextAccessor httpContextAccessor;
+    private readonly IDynamicConfigurationLoader? dynamicConfigurationloader;
 
-    public DynamicallyConfigureOptionsFromHttpRequestHeaders(
+    public DynamicallyConfigureOptions(
         string? name,
-        IHttpContextAccessor httpContextAccessor
+        IDynamicConfigurationLoader? dynamicConfigurationloader = null
     )
     {
-        this.httpContextAccessor = httpContextAccessor;
         this.name = name;
+        this.dynamicConfigurationloader = dynamicConfigurationloader;
     }
 
     public void Configure(TOptions options)
@@ -46,20 +41,17 @@ public class DynamicallyConfigureOptionsFromHttpRequestHeaders<TOptions> : IConf
         Func<IConfiguration, IConfiguration>? enrichConfiguration = null
     )
     {
-        if (this.name is not null && !string.Equals(this.name, name, StringComparison.Ordinal))
-            return;
-
-        if (httpContextAccessor.HttpContext is not { } httpContext)
+        if (dynamicConfigurationloader is null ||
+            (this.name is not null && !string.Equals(this.name, name, StringComparison.Ordinal)))
         {
             return;
         }
 
-        KeyValuePair<string, string?>[] specs = DynamicHttpHeadersParser
-            .ParseConfiguration(httpContext.Request.Headers[HeaderName].NormalizeHttpHeaderValue(), false)
-            .ToArray();
-
-        if (!(specs.Length > 0))
+        IEnumerable<KeyValuePair<string, string?>> specs = dynamicConfigurationloader.Load();
+        if (!specs.Any())
+        {
             return;
+        }
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(specs).Build();
         if (enrichConfiguration is not null)

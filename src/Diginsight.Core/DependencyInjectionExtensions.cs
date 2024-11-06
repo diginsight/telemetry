@@ -343,21 +343,27 @@ public static class DependencyInjectionExtensions
             .AddOptions()
             .AddVolatileConfiguration();
 
-        services.TryAddSingleton(
-            sp => ActivatorUtilities.CreateInstance<VolatilelyConfigureOptions<TOptions>>(sp, name)
+        object nonce = new VolatilelyConfigureNonce();
+        services.TryAddKeyedSingleton(
+            nonce, (sp, _) => ActivatorUtilities.CreateInstance<VolatilelyConfigureOptions<TOptions>>(sp, name)
         );
         services.TryAddEnumerable(
             ServiceDescriptor.Singleton<IConfigureOptions<TOptions>, VolatilelyConfigureOptions<TOptions>>(
-                static sp => sp.GetRequiredService<VolatilelyConfigureOptions<TOptions>>()
+                sp => sp.GetRequiredKeyedService<VolatilelyConfigureOptions<TOptions>>(nonce)
             )
         );
         services.TryAddEnumerable(
             ServiceDescriptor.Singleton<IOptionsChangeTokenSource<TOptions>, VolatilelyConfigureOptions<TOptions>>(
-                static sp => sp.GetRequiredService<VolatilelyConfigureOptions<TOptions>>()
+                sp => sp.GetRequiredKeyedService<VolatilelyConfigureOptions<TOptions>>(nonce)
             )
         );
 
         return services;
+    }
+
+    private sealed record VolatilelyConfigureNonce
+    {
+        public Guid Id { get; } = Guid.NewGuid();
     }
 
     /// <summary>
@@ -386,21 +392,27 @@ public static class DependencyInjectionExtensions
         services.AddClassAwareOptions();
         services.VolatilelyConfigure<TOptions>(name);
 
-        services.TryAddSingleton(
-            sp => ActivatorUtilities.CreateInstance<VolatilelyConfigureClassAwareOptions<TOptions>>(sp, name)
+        object nonce = new VolatilelyConfigureClassAwareNonce();
+        services.TryAddKeyedSingleton(
+            nonce, (sp, _) => ActivatorUtilities.CreateInstance<VolatilelyConfigureClassAwareOptions<TOptions>>(sp, name)
         );
         services.TryAddEnumerable(
             ServiceDescriptor.Singleton<IConfigureClassAwareOptions<TOptions>, VolatilelyConfigureClassAwareOptions<TOptions>>(
-                static sp => sp.GetRequiredService<VolatilelyConfigureClassAwareOptions<TOptions>>()
+                sp => sp.GetRequiredKeyedService<VolatilelyConfigureClassAwareOptions<TOptions>>(nonce)
             )
         );
         services.TryAddEnumerable(
             ServiceDescriptor.Singleton<IClassAwareOptionsChangeTokenSource<TOptions>, VolatilelyConfigureClassAwareOptions<TOptions>>(
-                static sp => sp.GetRequiredService<VolatilelyConfigureClassAwareOptions<TOptions>>()
+                sp => sp.GetRequiredKeyedService<VolatilelyConfigureClassAwareOptions<TOptions>>(nonce)
             )
         );
 
         return services;
+    }
+
+    private sealed record VolatilelyConfigureClassAwareNonce
+    {
+        public Guid Id { get; } = Guid.NewGuid();
     }
 
     /// <summary>
@@ -430,21 +442,27 @@ public static class DependencyInjectionExtensions
             .AddOptions()
             .AddVolatileConfiguration();
 
-        services.TryAddSingleton(
-            sp => ActivatorUtilities.CreateInstance<VolatilelyConfigureOptions<TOptions>>(sp, name)
+        object nonce = new VolatilelyPostConfigureNonce();
+        services.TryAddKeyedSingleton(
+            nonce, (sp, _) => ActivatorUtilities.CreateInstance<VolatilelyConfigureOptions<TOptions>>(sp, name)
         );
         services.TryAddEnumerable(
             ServiceDescriptor.Singleton<IPostConfigureOptions<TOptions>, VolatilelyConfigureOptions<TOptions>>(
-                static sp => sp.GetRequiredService<VolatilelyConfigureOptions<TOptions>>()
+                sp => sp.GetRequiredKeyedService<VolatilelyConfigureOptions<TOptions>>(nonce)
             )
         );
         services.TryAddEnumerable(
             ServiceDescriptor.Singleton<IOptionsChangeTokenSource<TOptions>, VolatilelyConfigureOptions<TOptions>>(
-                static sp => sp.GetRequiredService<VolatilelyConfigureOptions<TOptions>>()
+                sp => sp.GetRequiredKeyedService<VolatilelyConfigureOptions<TOptions>>(nonce)
             )
         );
 
         return services;
+    }
+
+    private sealed record VolatilelyPostConfigureNonce
+    {
+        public Guid Id { get; } = Guid.NewGuid();
     }
 
     /// <summary>
@@ -473,17 +491,113 @@ public static class DependencyInjectionExtensions
         services.AddClassAwareOptions();
         services.VolatilelyPostConfigure<TOptions>(name);
 
-        services.TryAddSingleton(
-            sp => ActivatorUtilities.CreateInstance<VolatilelyConfigureClassAwareOptions<TOptions>>(sp, name)
+        object nonce = new VolatilelyPostConfigureClassAwareNonce();
+        services.TryAddKeyedSingleton(
+            nonce, (sp, _) => ActivatorUtilities.CreateInstance<VolatilelyConfigureClassAwareOptions<TOptions>>(sp, name)
         );
         services.TryAddEnumerable(
             ServiceDescriptor.Singleton<IPostConfigureClassAwareOptions<TOptions>, VolatilelyConfigureClassAwareOptions<TOptions>>(
-                static sp => sp.GetRequiredService<VolatilelyConfigureClassAwareOptions<TOptions>>()
+                sp => sp.GetRequiredKeyedService<VolatilelyConfigureClassAwareOptions<TOptions>>(nonce)
             )
         );
         services.TryAddEnumerable(
             ServiceDescriptor.Singleton<IClassAwareOptionsChangeTokenSource<TOptions>, VolatilelyConfigureClassAwareOptions<TOptions>>(
-                static sp => sp.GetRequiredService<VolatilelyConfigureClassAwareOptions<TOptions>>()
+                sp => sp.GetRequiredKeyedService<VolatilelyConfigureClassAwareOptions<TOptions>>(nonce)
+            )
+        );
+
+        return services;
+    }
+
+    private sealed record VolatilelyPostConfigureClassAwareNonce
+    {
+        public Guid Id { get; } = Guid.NewGuid();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IServiceCollection DynamicallyConfigure<TOptions>(this IServiceCollection services)
+        where TOptions: class, IDynamicallyConfigurable
+    {
+        return services.DynamicallyConfigure<TOptions>(MseOptions.DefaultName);
+    }
+
+    public static IServiceCollection DynamicallyConfigure<TOptions>(this IServiceCollection services, string name)
+        where TOptions: class, IDynamicallyConfigurable
+    {
+        services.AddOptions();
+
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IConfigureOptions<TOptions>, DynamicallyConfigureOptions<TOptions>>(
+                sp => ActivatorUtilities.CreateInstance<DynamicallyConfigureOptions<TOptions>>(sp, name)
+            )
+        );
+
+        services.FlagAsDynamic<TOptions>(name);
+
+        return services;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IServiceCollection DynamicallyConfigureClassAware<TOptions>(this IServiceCollection services)
+        where TOptions: class, IDynamicallyConfigurable
+    {
+        return services.DynamicallyConfigureClassAware<TOptions>(MseOptions.DefaultName);
+    }
+
+    public static IServiceCollection DynamicallyConfigureClassAware<TOptions>(this IServiceCollection services, string name)
+        where TOptions: class, IDynamicallyConfigurable
+    {
+        services.AddClassAwareOptions();
+        services.DynamicallyConfigure<TOptions>(name);
+
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IConfigureClassAwareOptions<TOptions>, DynamicallyConfigureClassAwareOptions<TOptions>>(
+                sp => ActivatorUtilities.CreateInstance<DynamicallyConfigureClassAwareOptions<TOptions>>(sp, name)
+            )
+        );
+
+        return services;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IServiceCollection DynamicallyPostConfigure<TOptions>(this IServiceCollection services)
+        where TOptions: class, IDynamicallyConfigurable
+    {
+        return services.DynamicallyPostConfigure<TOptions>(MseOptions.DefaultName);
+    }
+
+    public static IServiceCollection DynamicallyPostConfigure<TOptions>(this IServiceCollection services, string name)
+        where TOptions: class, IDynamicallyConfigurable
+    {
+        services.AddOptions();
+
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IPostConfigureOptions<TOptions>, DynamicallyConfigureOptions<TOptions>>(
+                sp => ActivatorUtilities.CreateInstance<DynamicallyConfigureOptions<TOptions>>(sp, name)
+            )
+        );
+
+        services.FlagAsDynamic<TOptions>(name);
+
+        return services;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IServiceCollection DynamicallyPostConfigureClassAware<TOptions>(this IServiceCollection services)
+        where TOptions: class, IDynamicallyConfigurable
+    {
+        return services.DynamicallyPostConfigureClassAware<TOptions>(MseOptions.DefaultName);
+    }
+
+    public static IServiceCollection DynamicallyPostConfigureClassAware<TOptions>(this IServiceCollection services, string name)
+        where TOptions: class, IDynamicallyConfigurable
+    {
+        services.AddClassAwareOptions();
+        services.DynamicallyPostConfigure<TOptions>(name);
+
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IPostConfigureClassAwareOptions<TOptions>, DynamicallyConfigureClassAwareOptions<TOptions>>(
+                sp => ActivatorUtilities.CreateInstance<DynamicallyConfigureClassAwareOptions<TOptions>>(sp, name)
             )
         );
 
