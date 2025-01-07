@@ -1,0 +1,109 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34202.233
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Core", "Diginsight.Core\Diginsight.Core.csproj", "{4D5BAF4B-E1E6-46AB-89F2-596E0CE91A93}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9847A8F9-7A78-43BB-AC45-085AF9AA67AE}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		Directory.Build.props = Directory.Build.props
+		Directory.Build.targets = Directory.Build.targets
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Diagnostics", "Diginsight.Diagnostics\Diginsight.Diagnostics.csproj", "{08D73A2D-4D12-475F-9DFD-2B4B0A6FBC0E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Diagnostics.Log4Net", "Diginsight.Diagnostics.Log4Net\Diginsight.Diagnostics.Log4Net.csproj", "{3E07004C-4CE2-43C6-ADC0-3E44243594F0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.AspNetCore", "Diginsight.AspNetCore\Diginsight.AspNetCore.csproj", "{59C51162-61BD-46E8-996C-8CF2C6336C11}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Diagnostics.AspNetCore", "Diginsight.Diagnostics.AspNetCore\Diginsight.Diagnostics.AspNetCore.csproj", "{DD91DE74-D392-45C2-944B-42A90D3BD29E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Polyfills", "Diginsight.Polyfills\Diginsight.Polyfills.csproj", "{5E953F66-49B0-4ED3-A601-1FEA58E5EF5B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{7552A1D3-57F4-4B62-BE71-F4394846CDE9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Diagnostics", "Diagnostics", "{D942D960-B46D-46EF-827C-73F57E91313F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Diagnostics.OpenTelemetry", "Diginsight.Diagnostics.OpenTelemetry\Diginsight.Diagnostics.OpenTelemetry.csproj", "{8274B54E-F9A0-4FBC-9A4A-089FE35EA927}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Diagnostics.AspNetCore.OpenTelemetry", "Diginsight.Diagnostics.AspNetCore.OpenTelemetry\Diginsight.Diagnostics.AspNetCore.OpenTelemetry.csproj", "{6BA59D4F-F409-4E06-8C37-D7AA52020284}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Json", "Diginsight.Json\Diginsight.Json.csproj", "{A3AF9858-7A33-4E83-8CFD-7392864ACAF8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diginsight.Stringify", "Diginsight.Stringify\Diginsight.Stringify.csproj", "{9EDB2ACE-D438-4B76-82EC-19E8AD002B50}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Diginsight.Atomify", "Diginsight.Atomify\Diginsight.Atomify.csproj", "{F881ADF6-5F73-4004-A5DC-689B4E2829E8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4D5BAF4B-E1E6-46AB-89F2-596E0CE91A93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D5BAF4B-E1E6-46AB-89F2-596E0CE91A93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D5BAF4B-E1E6-46AB-89F2-596E0CE91A93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D5BAF4B-E1E6-46AB-89F2-596E0CE91A93}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08D73A2D-4D12-475F-9DFD-2B4B0A6FBC0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08D73A2D-4D12-475F-9DFD-2B4B0A6FBC0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08D73A2D-4D12-475F-9DFD-2B4B0A6FBC0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08D73A2D-4D12-475F-9DFD-2B4B0A6FBC0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E07004C-4CE2-43C6-ADC0-3E44243594F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E07004C-4CE2-43C6-ADC0-3E44243594F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E07004C-4CE2-43C6-ADC0-3E44243594F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E07004C-4CE2-43C6-ADC0-3E44243594F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59C51162-61BD-46E8-996C-8CF2C6336C11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59C51162-61BD-46E8-996C-8CF2C6336C11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59C51162-61BD-46E8-996C-8CF2C6336C11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59C51162-61BD-46E8-996C-8CF2C6336C11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD91DE74-D392-45C2-944B-42A90D3BD29E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD91DE74-D392-45C2-944B-42A90D3BD29E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD91DE74-D392-45C2-944B-42A90D3BD29E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD91DE74-D392-45C2-944B-42A90D3BD29E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E953F66-49B0-4ED3-A601-1FEA58E5EF5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E953F66-49B0-4ED3-A601-1FEA58E5EF5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E953F66-49B0-4ED3-A601-1FEA58E5EF5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E953F66-49B0-4ED3-A601-1FEA58E5EF5B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8274B54E-F9A0-4FBC-9A4A-089FE35EA927}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8274B54E-F9A0-4FBC-9A4A-089FE35EA927}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8274B54E-F9A0-4FBC-9A4A-089FE35EA927}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8274B54E-F9A0-4FBC-9A4A-089FE35EA927}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6BA59D4F-F409-4E06-8C37-D7AA52020284}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6BA59D4F-F409-4E06-8C37-D7AA52020284}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6BA59D4F-F409-4E06-8C37-D7AA52020284}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6BA59D4F-F409-4E06-8C37-D7AA52020284}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3AF9858-7A33-4E83-8CFD-7392864ACAF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3AF9858-7A33-4E83-8CFD-7392864ACAF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3AF9858-7A33-4E83-8CFD-7392864ACAF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3AF9858-7A33-4E83-8CFD-7392864ACAF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EDB2ACE-D438-4B76-82EC-19E8AD002B50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EDB2ACE-D438-4B76-82EC-19E8AD002B50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EDB2ACE-D438-4B76-82EC-19E8AD002B50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EDB2ACE-D438-4B76-82EC-19E8AD002B50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F881ADF6-5F73-4004-A5DC-689B4E2829E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F881ADF6-5F73-4004-A5DC-689B4E2829E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F881ADF6-5F73-4004-A5DC-689B4E2829E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F881ADF6-5F73-4004-A5DC-689B4E2829E8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4D5BAF4B-E1E6-46AB-89F2-596E0CE91A93} = {7552A1D3-57F4-4B62-BE71-F4394846CDE9}
+		{08D73A2D-4D12-475F-9DFD-2B4B0A6FBC0E} = {D942D960-B46D-46EF-827C-73F57E91313F}
+		{3E07004C-4CE2-43C6-ADC0-3E44243594F0} = {D942D960-B46D-46EF-827C-73F57E91313F}
+		{59C51162-61BD-46E8-996C-8CF2C6336C11} = {7552A1D3-57F4-4B62-BE71-F4394846CDE9}
+		{DD91DE74-D392-45C2-944B-42A90D3BD29E} = {D942D960-B46D-46EF-827C-73F57E91313F}
+		{5E953F66-49B0-4ED3-A601-1FEA58E5EF5B} = {7552A1D3-57F4-4B62-BE71-F4394846CDE9}
+		{8274B54E-F9A0-4FBC-9A4A-089FE35EA927} = {D942D960-B46D-46EF-827C-73F57E91313F}
+		{6BA59D4F-F409-4E06-8C37-D7AA52020284} = {D942D960-B46D-46EF-827C-73F57E91313F}
+		{A3AF9858-7A33-4E83-8CFD-7392864ACAF8} = {7552A1D3-57F4-4B62-BE71-F4394846CDE9}
+		{9EDB2ACE-D438-4B76-82EC-19E8AD002B50} = {7552A1D3-57F4-4B62-BE71-F4394846CDE9}
+		{F881ADF6-5F73-4004-A5DC-689B4E2829E8} = {7552A1D3-57F4-4B62-BE71-F4394846CDE9}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1F6C1DEF-2C8A-453A-8974-3571C0B84B89}
+	EndGlobalSection
+EndGlobal

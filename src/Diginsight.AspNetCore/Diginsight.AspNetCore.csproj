@@ -1,0 +1,60 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
+    <Title>Diginsight ASP.NET Core extensions</Title>
+    <PackageIcon>Diginsight.Core.png</PackageIcon>
+    <PackageTags>$(PackageTags);aspnetcore</PackageTags>
+  </PropertyGroup>
+
+  <Choose>
+    <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">
+
+      <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+      </ItemGroup>
+
+    </When>
+    <Otherwise>
+
+      <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.*">
+          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.*">
+          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.2.*">
+          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+        </PackageReference>
+      </ItemGroup>
+
+    </Otherwise>
+  </Choose>
+
+  <Choose>
+    <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
+
+      <ItemGroup>
+        <PackageReference Include="Scrutor" Version="5.*">
+          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+        </PackageReference>
+      </ItemGroup>
+
+    </When>
+    <Otherwise>
+
+      <ItemGroup>
+        <PackageReference Include="Scrutor" Version="5.0.1">
+          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+        </PackageReference>
+      </ItemGroup>
+
+    </Otherwise>
+  </Choose>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Diginsight.Core\Diginsight.Core.csproj" />
+  </ItemGroup>
+
+</Project>

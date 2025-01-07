@@ -1,0 +1,58 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
+    <Title>Diginsight Diagnostics</Title>
+    <PackageIcon>Diginsight.Diagnostics.png</PackageIcon>
+    <PackageTags>$(PackageTags);diagnostics</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Pastel" Version="5.*" Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">
+      <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <Choose>
+    <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
+
+      <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Diagnostics" Version="9.*" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.*" />
+      </ItemGroup>
+
+    </When>
+    <Otherwise>
+
+      <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Diagnostics" Version="8.*" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.*" />
+      </ItemGroup>
+
+    </Otherwise>
+  </Choose>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Diginsight.Stringify\Diginsight.Stringify.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="LoggerExtensions_Levels.tt">
+      <LastGenOutput>LoggerExtensions_Levels.g.cs</LastGenOutput>
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="LoggerExtensions_Levels.g.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>LoggerExtensions_Levels.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+</Project>

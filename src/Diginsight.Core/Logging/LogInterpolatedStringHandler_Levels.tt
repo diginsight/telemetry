@@ -1,0 +1,62 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="Microsoft.Extensions.Logging.Abstractions" #>
+<#@ assembly name="System.Core" #>
+<#@ output extension=".g.cs" #>
+<#@ import namespace="Microsoft.Extensions.Logging" #>
+<#@ import namespace="System.Linq" #>
+#nullable enable
+#if NET7_0_OR_GREATER
+using Microsoft.Extensions.Logging;
+using System.Runtime.CompilerServices;
+
+namespace Diginsight.Logging;
+
+<#
+    foreach (string logLevel in Enum.GetNames(typeof(LogLevel)).Where(static x => x != LogLevel.None.ToString()))
+    {
+#>
+[InterpolatedStringHandler]
+public readonly struct Log<#= logLevel #>InterpolatedStringHandler
+{
+    private readonly LogInterpolatedStringHandler underlying;
+
+    public Log<#= logLevel #>InterpolatedStringHandler(int literalLength, int formattedCount, ILogger logger, out bool isEnabled)
+    {
+        underlying = new LogInterpolatedStringHandler(literalLength, formattedCount, logger, LogLevel.<#= logLevel #>, out isEnabled);
+    }
+
+    public void AppendLiteral(string value)
+    {
+        underlying.AppendLiteral(value);
+    }
+
+    public void AppendFormatted<T>(T? value)
+    {
+        underlying.AppendFormatted(value);
+    }
+
+    public void AppendFormatted<T>(T? value, int alignment)
+    {
+        underlying.AppendFormatted(value, alignment);
+    }
+
+    public void AppendFormatted<T>(T? value, int alignment, string format)
+    {
+        underlying.AppendFormatted(value, alignment, format);
+    }
+
+    public void AppendFormatted<T>(T? value, string format)
+    {
+        underlying.AppendFormatted(value, format);
+    }
+
+    internal void LogIfEnabled(EventId eventId, Exception? exception)
+    {
+        underlying.LogIfEnabled(eventId, exception);
+    }
+}
+
+<#
+    }
+#>
+#endif

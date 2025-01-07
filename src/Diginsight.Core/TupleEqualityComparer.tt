@@ -1,0 +1,167 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ output extension=".g.cs" #>
+<#@ import namespace="System.Globalization" #>
+<#@ import namespace="System.Linq" #>
+#nullable enable
+namespace Diginsight;
+
+<#
+    for (int componentCount = 1; componentCount <= 14; componentCount++)
+    {
+        static string Ordinal(string x) => x + x switch
+        {
+            "1" => "st",
+            "2" => "nd",
+            "3" => "rd",
+            _ => "th",
+        };
+
+        string[] range = Enumerable.Range(1, componentCount).Select(static x => x.ToString(CultureInfo.InvariantCulture)).ToArray();
+        string ts = string.Join(", ", range.Select(static x => $"T{x}"));
+        string valueTupleType = componentCount == 1 ? $"ValueTuple<{ts}>" : $"({ts})";
+        string tupleType = $"Tuple<{ts}>";
+#>
+/// <summary>
+///     Provides an equality comparer for tuples customizable with individual equality comparers for each component.
+/// </summary>
+<#
+        foreach (string x in range)
+        {
+#>
+/// <typeparam name="T<#= x #>">The type of the <#= Ordinal(x) #> element of the tuple.</typeparam>
+<#
+        }
+#>
+public class TupleEqualityComparer<<#= ts #>>
+    : IEqualityComparer<<#= valueTupleType #>><#
+        if (componentCount < 8)
+        {
+#>, IEqualityComparer<<#= tupleType #>><#
+        }
+#>
+
+{
+<#
+        foreach (string x in range)
+        {
+#>
+    private readonly IEqualityComparer<T<#= x #>> c<#= x #>;
+<#
+        }
+#>
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TupleEqualityComparer{<#= ts #>}"/> class.
+    /// </summary>
+<#
+        foreach (string x in range)
+        {
+#>
+    /// <param name="c<#= x #>">The equality comparer to use for the <#= Ordinal(x) #> element of the tuple.</param>
+<#
+        }
+#>
+    public TupleEqualityComparer(
+        <#= string.Join(",\r\n        ", range.Select(static x => $"IEqualityComparer<T{x}>? c{x} = null")) #>
+    )
+    {
+<#
+        foreach (string x in range)
+        {
+#>
+        this.c<#= x #> = c<#= x #> ?? EqualityComparer<T<#= x #>>.Default;
+<#
+        }
+#>
+    }
+
+    /// <inheritdoc />
+    public bool Equals(<#= valueTupleType #> x, <#= valueTupleType #> y)
+    {
+        return <#= string.Join("\r\n            && ", range.Select(static x => $"c{x}.Equals(x.Item{x}, y.Item{x})")) #>;
+    }
+
+    /// <inheritdoc />
+    public int GetHashCode(<#= valueTupleType #> obj)
+    {
+<#
+        if (componentCount == 1)
+        {
+#>
+        T1 o1 = obj.Item1;
+<#
+        }
+        else
+        {
+#>
+        (<#= string.Join(", ", range.Select(static x => $"T{x} o{x}")) #>) = obj;
+<#
+        }
+#>
+        HashCode hashCode = new();
+<#
+        foreach (string x in range)
+        {
+#>
+        hashCode.Add(o<#= x #>, c<#= x #>);
+<#
+        }
+#>
+        return hashCode.ToHashCode();
+    }
+
+<#
+        if (componentCount < 8)
+        {
+#>
+    /// <inheritdoc />
+    public bool Equals(<#= tupleType #>? x, <#= tupleType #>? y)
+    {
+        if (x is null && y is null)
+        {
+            return true;
+        }
+        if (x is null || y is null)
+        {
+            return false;
+        }
+        return <#= string.Join("\r\n            && ", range.Select(static x => $"c{x}.Equals(x.Item{x}, y.Item{x})")) #>;
+    }
+
+    /// <inheritdoc />
+    public int GetHashCode(<#= tupleType #> obj)
+    {
+<#
+            if (componentCount == 1)
+            {
+#>
+        T1 o1 = obj.Item1;
+<#
+            }
+            else
+            {
+#>
+        (<#= string.Join(", ", range.Select(static x => $"T{x} o{x}")) #>) = obj;
+<#
+            }
+#>
+        HashCode hashCode = new();
+<#
+            foreach (string x in range)
+            {
+#>
+        hashCode.Add(o<#= x #>, c<#= x #>);
+<#
+            }
+#>
+        return hashCode.ToHashCode();
+    }
+<#
+        }
+#>
+}
+
+<#
+    }
+#>

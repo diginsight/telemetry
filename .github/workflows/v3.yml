@@ -1,0 +1,57 @@
+name: Build and Publish 'Diginsight' v3+ NuGet Packages
+
+on:
+  push:
+    tags:
+      - v1*
+      - '!v1.*'
+      - v2*
+      - '!v2.*'
+      - v3*
+      - v4*
+      - v5*
+      - v6*
+      - v7*
+      - v8*
+      - v9*
+
+defaults:
+  run:
+    shell: pwsh
+
+env:
+  SOLUTION_SLN: src/Diginsight.sln
+  DOTNET_NOLOGO: 1
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+jobs:
+  build-and-publish:
+    name: Build and Publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |-
+            6.x
+            7.x
+            8.x
+            9.x
+
+      - name: Restore
+        run: |
+          dotnet restore $env:SOLUTION_SLN -f -v minimal
+
+      - name: Build
+        run: |
+          dotnet build $env:SOLUTION_SLN --no-restore -c Release -v minimal "-p:Version=$("${env:GITHUB_REF_NAME}".Substring(1))"
+
+      - name: Publish NuGet Packages
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY_V3 }}
+        run: |
+          Get-ChildItem Diginsight.*.nupkg -Recurse | ForEach-Object { dotnet nuget push $_.FullName -s https://api.nuget.org/v3/index.json -k $env:NUGET_API_KEY }

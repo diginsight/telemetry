@@ -1,0 +1,112 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
+    <Title>Diginsight Core</Title>
+    <RootNamespace>Diginsight</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PackageIcon>Diginsight.Core.png</PackageIcon>
+  </PropertyGroup>
+
+  <Choose>
+    <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
+
+      <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.*" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.*" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.*" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.*" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="9.*" />
+        <PackageReference Include="Scrutor" Version="5.*">
+          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="System.Text.Json" Version="9.*" />
+      </ItemGroup>
+
+    </When>
+    <Otherwise>
+
+      <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.*" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.*" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.*" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.*" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="8.*" />
+        <PackageReference Include="Scrutor" Version="5.0.1">
+          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="System.Text.Json" Version="8.*" />
+      </ItemGroup>
+
+    </Otherwise>
+  </Choose>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Diginsight.Polyfills\Diginsight.Polyfills.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Logging\LoggerExtensions_Levels.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>LoggerExtensions_Levels.g.cs</LastGenOutput>
+    </None>
+    <None Update="Logging\LogInterpolatedStringHandler_Levels.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>LogInterpolatedStringHandler_Levels.g.cs</LastGenOutput>
+    </None>
+    <None Update="Options\ValidateClassAwareOptions.tt">
+      <LastGenOutput>ValidateClassAwareOptions.g.cs</LastGenOutput>
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </None>
+    <None Update="Options\PostConfigureClassAwareOptions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>PostConfigureClassAwareOptions.g.cs</LastGenOutput>
+    </None>
+    <None Update="Options\ConfigureClassAwareOptions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ConfigureClassAwareOptions.g.cs</LastGenOutput>
+    </None>
+    <None Update="TupleEqualityComparer.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TupleEqualityComparer.g.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Logging\LoggerExtensions_Levels.g.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>LoggerExtensions_Levels.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Logging\LogInterpolatedStringHandler_Levels.g.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>LogInterpolatedStringHandler_Levels.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Options\ValidateClassAwareOptions.g.cs">
+      <DependentUpon>ValidateClassAwareOptions.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="Options\ConfigureClassAwareOptions.g.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ConfigureClassAwareOptions.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Options\PostConfigureClassAwareOptions.g.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PostConfigureClassAwareOptions.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TupleEqualityComparer.g.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TupleEqualityComparer.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+</Project>

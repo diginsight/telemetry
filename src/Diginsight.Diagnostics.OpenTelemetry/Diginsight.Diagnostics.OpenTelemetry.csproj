@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
+    <Title>Diginsight Diagnostics OpenTelemetry extensions</Title>
+    <RootNamespace>Diginsight.Diagnostics</RootNamespace>
+    <PackageIcon>Diginsight.Diagnostics.png</PackageIcon>
+    <PackageTags>$(PackageTags);diagnostics;opentelemetry</PackageTags>
+  </PropertyGroup>
+
+  <Choose>
+    <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
+
+      <ItemGroup>
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.*" />
+      </ItemGroup>
+
+    </When>
+    <Otherwise>
+
+      <ItemGroup>
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.9.*" />
+      </ItemGroup>
+
+    </Otherwise>
+  </Choose>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Diginsight.Diagnostics\Diginsight.Diagnostics.csproj" />
+  </ItemGroup>
+
+</Project>

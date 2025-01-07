@@ -1,0 +1,68 @@
+<Project>
+
+  <PropertyGroup>
+    <IsPackable Condition="'$(IsPackable)' == ''">true</IsPackable>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsPackable)' == 'true'">
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>diginsight</Authors>
+    <Product>Diginsight</Product>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageProjectUrl>https://github.com/diginsight/telemetry</PackageProjectUrl>
+    <PackageTags>diginsight</PackageTags>
+    <!-- TODO <Description> in each csproj -->
+
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)diginsight.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.*" PrivateAssets="all" />
+  </ItemGroup>
+
+  <Choose>
+    <When Condition="'$(GITHUB_ACTIONS)' == 'true'">
+      <PropertyGroup>
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <EnableSourceLink>false</EnableSourceLink>
+        <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+
+  <ItemGroup Condition="Exists('$(MSBuildProjectDirectory)\packages.lock.json')">
+    <Content Remove="packages.lock.json" />
+    <None Remove="packages.lock.json" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(IsPackable)' != 'false'">
+    <None Include="$(MSBuildThisFileDirectory)README.md">
+      <Visible>false</Visible>
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)$(PackageIcon)" Condition="'$(PackageIcon)' != ''">
+      <Visible>false</Visible>
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)LICENSE.md">
+      <Visible>false</Visible>
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>
