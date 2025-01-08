@@ -18,8 +18,17 @@ internal sealed class HttpHeadersSampler : Sampler
 
     public override SamplingResult ShouldSample(in SamplingParameters samplingParameters)
     {
-        return HttpHeadersHelper.ShouldInclude(null, samplingParameters.Name, HeaderName, httpContextAccessor) is { } shouldInclude
-            ? new SamplingResult(shouldInclude)
-            : decoratee.ShouldSample(in samplingParameters);
+        bool? shouldInclude = HttpHeadersHelper.ShouldInclude(null, samplingParameters.Name, HeaderName, httpContextAccessor);
+
+        if (shouldInclude is not null)
+        {
+            var samplingResult = new SamplingResult(shouldInclude.Value);
+            return samplingResult;
+        }
+        else
+        {
+            var shouldSample = decoratee.ShouldSample(in samplingParameters);
+            return shouldSample;
+        }
     }
 }
