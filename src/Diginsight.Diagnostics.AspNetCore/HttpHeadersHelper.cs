@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace Diginsight.Diagnostics.AspNetCore;
