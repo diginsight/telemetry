@@ -30,7 +30,9 @@ public class SpanDurationMetricRecorderRegistration : IActivityListenerRegistrat
             throw new NotSupportedException($"{nameof(SpanDurationMetricRecorderRegistration)} instance was created without {nameof(activitiesOptions)}");
         }
 
-        return ActivityUtils.NameCompliesWithPatterns(activitySource.Name, activitiesOptions.ActivitySources, activitiesOptions.NotActivitySources)
-            ?? true;
+        string activitySourceName = activitySource.Name;
+        return activitiesOptions.ActivitySources
+            .Where(x => ActivityUtils.NameMatchesPattern(activitySourceName, x.Key))
+            .All(static x => x.Value);
     }
 }

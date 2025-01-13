@@ -22,25 +22,7 @@ public static class DependencyInjectionExtensions
     /// Configures the <see cref="IHostBuilder" /> to use the Diginsight service provider.
     /// </summary>
     /// <param name="hostBuilder">The host builder.</param>
-    /// <param name="configureOptions">The action to configure <see cref="ServiceProviderOptions" />.</param>
-    /// <returns>The host builder, for chaining.</returns>
-#if NET9_0_OR_GREATER
-    [OverloadResolutionPriority(-1)]
-#endif
-    [Obsolete("Use the overload with the additional `bool validateInDevelopment` argument instead")]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IHostBuilder UseDiginsightServiceProvider(
-        this IHostBuilder hostBuilder,
-        Action<HostBuilderContext, ServiceProviderOptions>? configureOptions = null
-    )
-    {
-        return hostBuilder.UseDiginsightServiceProvider(false, configureOptions);
-    }
-
-    /// <summary>
-    /// Configures the <see cref="IHostBuilder" /> to use the Diginsight service provider.
-    /// </summary>
-    /// <param name="hostBuilder">The host builder.</param>
+    /// <param name="validateInDevelopment">Indicates whether to validate service scopes in development environment.</param>
     /// <param name="configureOptions">The action to configure <see cref="ServiceProviderOptions" />.</param>
     /// <returns>The host builder, for chaining.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -69,6 +51,7 @@ public static class DependencyInjectionExtensions
     /// Configures the <see cref="IHostApplicationBuilder" /> to use the Diginsight service provider.
     /// </summary>
     /// <param name="hostBuilder">The host application builder.</param>
+    /// <param name="validateInDevelopment">Indicates whether to validate service scopes in development environment.</param>
     /// <param name="configureOptions">The action to configure <see cref="ServiceProviderOptions" />.</param>
     /// <returns>The host application builder, for chaining.</returns>
     public static IHostApplicationBuilder UseDiginsightServiceProvider(

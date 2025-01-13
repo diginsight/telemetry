@@ -10,19 +10,32 @@ public readonly struct ActivityDepth : IFormattable
     public int Layer { get; }
     public int Local { get; }
     public int Cumulated { get; }
+    public int VizLocal { get; }
+    public int VizCumulated { get; }
 
     private ActivityDepth(int layer, int local, int cumulated)
+        : this(layer, local, cumulated, local, cumulated) { }
+
+    private ActivityDepth(int layer, int local, int cumulated, int vizLocal, int vizCumulated)
     {
         Layer = layer;
         Local = local;
         Cumulated = cumulated;
+        VizLocal = vizLocal;
+        VizCumulated = vizCumulated;
     }
 
-    public ActivityDepth MakeChild(bool remote)
+    public ActivityDepth MakeRemoteChild()
     {
-        return remote || Layer == 0
-            ? new ActivityDepth(Layer + 1, 1, Cumulated + 1)
-            : new ActivityDepth(Layer, Local + 1, Cumulated + 1);
+        return new ActivityDepth(Layer + 1, 1, Cumulated + 1, 1, VizCumulated + 1);
+    }
+
+    // TODO Add 'hidden' parameter
+    public ActivityDepth MakeLocalChild()
+    {
+        return Layer == 0
+            ? new ActivityDepth(1, 1, 1)
+            : new ActivityDepth(Layer, Local + 1, Cumulated + 1, VizLocal + 1, VizCumulated + 1);
     }
 
     public static ActivityDepth? FromTraceStateValue(string? traceStateValue)
@@ -45,9 +58,12 @@ public readonly struct ActivityDepth : IFormattable
     {
         return format?.ToUpperInvariant() switch
         {
-            null or "G" or "YL" => string.Format(CultureInfo.InvariantCulture, "{0}.{1}", Layer, Local),
-            "L" => Layer.ToString(CultureInfo.InvariantCulture),
-            "YLC" => string.Format(CultureInfo.InvariantCulture, "{0}.{1}.{2}", Layer, Local, Cumulated),
+            null or "G" or "YL" or "YLV" => string.Format(CultureInfo.InvariantCulture, "{0}.{1}", Layer, VizLocal),
+            "YLA" => string.Format(CultureInfo.InvariantCulture, "{0}.{1}", Layer, Local),
+            "L" or "LV" => VizLocal.ToString(CultureInfo.InvariantCulture),
+            "LA" => Local.ToString(CultureInfo.InvariantCulture),
+            "YLC" or "YLCV" => string.Format(CultureInfo.InvariantCulture, "{0}.{1}.{2}", Layer, VizLocal, VizCumulated),
+            "YLCA" => string.Format(CultureInfo.InvariantCulture, "{0}.{1}.{2}", Layer, Local, Cumulated),
             "T" => string.Format(CultureInfo.InvariantCulture, "{0}_{1}_{2}", Layer, Local, Cumulated),
             _ => throw new FormatException($"The '{format}' format string is not supported."),
         };

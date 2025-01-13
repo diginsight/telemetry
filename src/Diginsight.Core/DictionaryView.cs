@@ -95,7 +95,7 @@ public sealed class DictionaryView<TKeyIn, TValueIn, TKeyOut, TValueOut> : IRead
 
     /// <inheritdoc />
 #if NET
-        public bool TryGetValue(TKeyOut key, [MaybeNullWhen(false)] out TValueOut value)
+    public bool TryGetValue(TKeyOut key, [MaybeNullWhen(false)] out TValueOut value)
 #else
     public bool TryGetValue(TKeyOut key, out TValueOut value)
 #endif
@@ -109,7 +109,7 @@ public sealed class DictionaryView<TKeyIn, TValueIn, TKeyOut, TValueOut> : IRead
         value = result
             ? convertValue(innerValue!)
 #if NET
-                : default;
+            : default;
 #else
             : default!;
 #endif

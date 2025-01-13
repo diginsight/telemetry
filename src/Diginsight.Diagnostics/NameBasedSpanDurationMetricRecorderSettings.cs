@@ -16,9 +16,11 @@ public class NameBasedSpanDurationMetricRecorderSettings : ISpanDurationMetricRe
 
     public virtual bool? ShouldRecord(Activity activity)
     {
-        return ActivityUtils.FullNameCompliesWithPatterns(
-            activity.Source.Name, activity.OperationName, activityNamesOptions.SpanMeasuredActivityNames, activityNamesOptions.NonSpanMeasuredActivityNames
-        );
+        string activitySourceName = activity.Source.Name;
+        string activityName = activity.OperationName;
+        return activityNamesOptions.SpanMeasuredActivityNames
+            .Where(x => ActivityUtils.FullNameMatchesPattern(activitySourceName, activityName, x.Key))
+            .All(static x => x.Value);
     }
 
     public virtual Tags ExtractTags(Activity activity) => [ ];

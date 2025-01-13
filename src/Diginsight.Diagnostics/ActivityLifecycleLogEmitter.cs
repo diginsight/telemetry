@@ -62,7 +62,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
             ExtractLoggingInfo(
                 activity,
                 out bool isStandalone,
-                out bool shouldLog,
+                out LogBehavior behavior,
                 out bool writeActionAsPrefix,
                 out bool disablePayloadRendering,
                 out ILogger textLogger,
@@ -72,7 +72,9 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             string ComposeLogFormat(string format) => writeActionAsPrefix ? $"START {format}" : $"{format} START";
 
-            if (!shouldLog)
+            activity.SetCustomProperty(ActivityCustomPropertyNames.LogBehavior, behavior);
+
+            if (behavior != LogBehavior.Show)
                 return;
 
             activity.SetCustomProperty(ExceptionPointersCustomPropertyName, getExceptionPointers());
@@ -125,7 +127,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
             ExtractLoggingInfo(
                 activity,
                 out bool isStandalone,
-                out bool shouldLog,
+                out LogBehavior behavior,
                 out bool writeActionAsPrefix,
                 out bool disablePayloadRendering,
                 out ILogger textLogger,
@@ -135,7 +137,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             string ComposeLogFormat(string format) => writeActionAsPrefix ? $"END {format}" : $"{format} END";
 
-            if (!shouldLog)
+            if (behavior != LogBehavior.Show)
                 return;
 
             bool IsFaulted()
@@ -264,7 +266,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
     private void ExtractLoggingInfo(
         Activity activity,
         out bool isStandalone,
-        out bool shouldLog,
+        out LogBehavior behavior,
         out bool writeActionAsPrefix,
         out bool disablePayloadRendering,
         out ILogger textLogger,
@@ -290,8 +292,8 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         ILogger MakeInnerLogger() => providedLogger ?? (callerType is not null ? loggerFactory.CreateLogger(callerType) : fallbackLogger);
 
         IDiginsightActivitiesLogOptions activitiesOptions = activitiesOptionsMonitor.Get(callerType);
-        shouldLog = activityLoggingSampler?.ShouldLog(activity) ?? activitiesOptions.LogActivities;
-        textLogger = shouldLog
+        behavior = activityLoggingSampler?.GetLogBehavior(activity) ?? activitiesOptions.LogBehavior;
+        textLogger = behavior == LogBehavior.Show
             ? new ActivityLogger(MakeInnerLogger(), activity)
             : NullLogger.Instance;
 

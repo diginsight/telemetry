@@ -64,7 +64,7 @@ public static class JTokenExtensions
         }
         catch (Exception)
         {
-            obj = default;
+            obj = null;
             return false;
         }
     }

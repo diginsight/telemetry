@@ -17,6 +17,7 @@ public static class DependencyInjectionExtensions
     /// Configures the <see cref="IWebHostBuilder" /> to use the Diginsight service provider.
     /// </summary>
     /// <param name="hostBuilder">The host builder.</param>
+    /// <param name="validateInDevelopment">Indicates whether to validate service scopes in development environment.</param>
     /// <param name="configureOptions">The action to configure <see cref="ServiceProviderOptions" />.</param>
     /// <returns>The host builder, for chaining.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -42,6 +43,7 @@ public static class DependencyInjectionExtensions
     /// Configures the <see cref="WebApplicationBuilder" /> to use the Diginsight service provider.
     /// </summary>
     /// <param name="webAppBuilder">The web application builder.</param>
+    /// <param name="validateInDevelopment">Indicates whether to validate service scopes in development environment.</param>
     /// <param name="configureOptions">The action to configure <see cref="ServiceProviderOptions" />.</param>
     /// <returns>The web application builder, for chaining.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -59,8 +61,12 @@ public static class DependencyInjectionExtensions
     /// Configures the <see cref="WebApplicationBuilder" /> to use the Diginsight service provider.
     /// </summary>
     /// <param name="webAppBuilder">The web application builder.</param>
+    /// <param name="validateInDevelopment">Indicates whether to validate service scopes in development environment.</param>
     /// <param name="configureOptions">The action to configure <see cref="ServiceProviderOptions" />.</param>
     /// <returns>The web application builder, for chaining.</returns>
+#if NET9_0_OR_GREATER
+    [OverloadResolutionPriority(1)]
+#endif
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static WebApplicationBuilder UseDiginsightServiceProvider(
         this WebApplicationBuilder webAppBuilder,

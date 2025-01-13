@@ -59,7 +59,7 @@ public static class DiginsightTextWriter
         sealLineDescriptor = writerMetadata?.SealLineDescriptor;
     }
 
-    public static void Write(
+    public static bool Write(
         TextWriter textWriter,
         bool useColor,
         DateTime timestamp,
@@ -94,27 +94,31 @@ public static class DiginsightTextWriter
             }
 
             using StringWriter stringWriter = new ();
-            Write(
-                stringWriter,
-                useColor,
-                timestamp,
-                activity,
-                logLevel,
-                category,
-                message,
-                exception,
-                isActivity,
-                duration,
-                lineDescriptor,
-                sealLineDescriptor,
-                out double timing
-            );
+            if (!Write(
+                    stringWriter,
+                    useColor,
+                    timestamp,
+                    activity,
+                    logLevel,
+                    category,
+                    message,
+                    exception,
+                    isActivity,
+                    duration,
+                    lineDescriptor,
+                    sealLineDescriptor,
+                    out double timing
+                ))
+            {
+                return false;
+            }
 
             textWriter.Write("{0,5}µ {1}", ((long)timing).ToString(CultureInfo.InvariantCulture), stringWriter);
+            return true;
         }
         else
         {
-            Write(
+            return Write(
                 textWriter,
                 useColor,
                 timestamp,
@@ -132,7 +136,7 @@ public static class DiginsightTextWriter
         }
     }
 
-    public static void Write(
+    public static bool Write(
         TextWriter textWriter,
         bool useColor,
         DateTime timestamp,
@@ -148,6 +152,19 @@ public static class DiginsightTextWriter
         out double timing
     )
     {
+        switch (activity?.GetCustomProperty(ActivityCustomPropertyNames.LogBehavior))
+        {
+            case LogBehavior.Truncate:
+                timing = 0;
+                return false;
+
+            case LogBehavior or null:
+                break;
+
+            default:
+                throw new InvalidOperationException("Invalid log behavior in activity");
+        }
+
         Stopwatch stopwatch = Stopwatch.StartNew();
 
         try
@@ -255,6 +272,8 @@ public static class DiginsightTextWriter
                     textWriter.WriteLine(useColor ? line.Pastel(ConsoleColor.DarkRed) : line);
                 }
             }
+
+            return true;
         }
         finally
         {

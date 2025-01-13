@@ -34,7 +34,7 @@ public readonly struct Expiration
     /// <summary>
     /// Represents a "Never" expiration.
     /// </summary>
-    public static readonly Expiration Never = new (default, true);
+    public static readonly Expiration Never = new (TimeSpan.Zero, true);
 
     private readonly TimeSpan underlying;
 
@@ -72,7 +72,7 @@ public readonly struct Expiration
     public override bool Equals(object? obj) => obj is Expiration other && Equals(other);
 
     /// <inheritdoc />
-    public override int GetHashCode() => IsNever ? HashCode.Combine(true, default(TimeSpan)) : HashCode.Combine(false, underlying);
+    public override int GetHashCode() => IsNever ? HashCode.Combine(true, TimeSpan.Zero) : HashCode.Combine(false, underlying);
 
     /// <inheritdoc />
     public bool Equals(Expiration other)

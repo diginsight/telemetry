@@ -2,6 +2,5 @@
 
 public interface IDiginsightActivitiesOptions
 {
-    IEnumerable<string> ActivitySources { get; }
-    IEnumerable<string> NotActivitySources { get; }
+    IReadOnlyDictionary<string, bool> ActivitySources { get; }
 }

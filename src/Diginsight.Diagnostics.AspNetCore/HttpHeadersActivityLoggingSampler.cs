@@ -14,8 +14,12 @@ public class HttpHeadersActivityLoggingSampler : IActivityLoggingSampler
         this.httpContextAccessor = httpContextAccessor;
     }
 
-    public virtual bool? ShouldLog(Activity activity)
+    public virtual LogBehavior? GetLogBehavior(Activity activity)
     {
-        return HttpHeadersHelper.ShouldInclude(activity.Source.Name, activity.OperationName, HeaderName, httpContextAccessor);
+        return HttpHeadersHelper.GetMatches(activity.Source.Name, activity.OperationName, HeaderName, httpContextAccessor)
+            .Select(static x => x is null ? (true, LogBehavior.Show) : (Enum.TryParse(x, true, out LogBehavior result), result))
+            .Where(static x => x.Item1)
+            .Select(static x => (LogBehavior?)x.Item2)
+            .Max();
     }
 }

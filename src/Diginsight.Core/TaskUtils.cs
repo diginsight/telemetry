@@ -46,7 +46,7 @@ public static class TaskUtils
         int prefetchCount,
         int maxParallelism,
         Expiration? maxDelay,
-        Func<Task, ValueTask<bool>>? isValid = default,
+        Func<Task, ValueTask<bool>>? isValid = null,
         CancellationToken cancellationToken = default
     )
     {
@@ -108,7 +108,7 @@ public static class TaskUtils
         int prefetchCount,
         int maxParallelism,
         Expiration? maxDelay,
-        Func<Task<T>, ValueTask<bool>>? isValid = default,
+        Func<Task<T>, ValueTask<bool>>? isValid = null,
         CancellationToken cancellationToken = default
     )
     {

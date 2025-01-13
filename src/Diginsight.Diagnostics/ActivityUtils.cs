@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
 
@@ -17,7 +16,8 @@ public static class ActivityUtils
             ActivityContext parent = creationOptions.Parent;
             string? rawParentDepth = TraceState.Parse(parent.TraceState).GetValueOrDefault(ActivityDepth.DepthTraceStateKey);
 
-            ActivityDepth depth = (ActivityDepth.FromTraceStateValue(rawParentDepth) ?? default).MakeChild(parent.IsRemote);
+            ActivityDepth parentDepth = ActivityDepth.FromTraceStateValue(rawParentDepth) ?? default;
+            ActivityDepth depth = parent.IsRemote ? parentDepth.MakeRemoteChild() : parentDepth.MakeLocalChild();
             TraceState traceState = TraceState.Parse(creationOptions.TraceState);
             traceState[ActivityDepth.DepthTraceStateKey] = depth.ToTraceStateValue();
 
@@ -48,23 +48,23 @@ public static class ActivityUtils
         };
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool NameMatchesPatterns(string name, IEnumerable<string> namePatterns)
-    {
-        return namePatterns.Any(x => NameMatchesPattern(name, x));
-    }
+    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //public static bool NameMatchesPatterns(string name, IEnumerable<string> namePatterns)
+    //{
+    //    return namePatterns.Any(x => NameMatchesPattern(name, x));
+    //}
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool? NameCompliesWithPatterns(string name, IEnumerable<string> namePatterns, IEnumerable<string> notNamePatterns)
-    {
-        return (namePatterns.Any(), notNamePatterns.Any()) switch
-        {
-            (true, true) => NameMatchesPatterns(name, namePatterns) && !NameMatchesPatterns(name, notNamePatterns),
-            (true, false) => NameMatchesPatterns(name, namePatterns),
-            (false, true) => !NameMatchesPatterns(name, notNamePatterns),
-            (false, false) => null,
-        };
-    }
+    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //public static bool? NameCompliesWithPatterns(string name, IEnumerable<string> namePatterns, IEnumerable<string> notNamePatterns)
+    //{
+    //    return (namePatterns.Any(), notNamePatterns.Any()) switch
+    //    {
+    //        (true, true) => NameMatchesPatterns(name, namePatterns) && !NameMatchesPatterns(name, notNamePatterns),
+    //        (true, false) => NameMatchesPatterns(name, namePatterns),
+    //        (false, true) => !NameMatchesPatterns(name, notNamePatterns),
+    //        (false, false) => null,
+    //    };
+    //}
 
     public static bool FullNameMatchesPattern(string sourceName, string operationName, string fullNamePattern)
     {
@@ -87,33 +87,33 @@ public static class ActivityUtils
         };
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool FullNameMatchesPatterns(string sourceName, string operationName, IEnumerable<string> fullNamePatterns)
-    {
-        return fullNamePatterns.Any(x => FullNameMatchesPattern(sourceName, operationName, x));
-    }
+    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //public static bool FullNameMatchesPatterns(string sourceName, string operationName, IEnumerable<string> fullNamePatterns)
+    //{
+    //    return fullNamePatterns.Any(x => FullNameMatchesPattern(sourceName, operationName, x));
+    //}
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool? FullNameCompliesWithPatterns(
-        string sourceName, string operationName, IEnumerable<string> fullNamePatterns, IEnumerable<string> notFullNamePatterns
-    )
-    {
-        return (fullNamePatterns.Any(), notFullNamePatterns.Any()) switch
-        {
-            (true, true) => FullNameMatchesPatterns(sourceName, operationName, fullNamePatterns)
-                && !FullNameMatchesPatterns(sourceName, operationName, notFullNamePatterns),
-            (true, false) => FullNameMatchesPatterns(sourceName, operationName, fullNamePatterns),
-            (false, true) => !FullNameMatchesPatterns(sourceName, operationName, notFullNamePatterns),
-            (false, false) => null,
-        };
-    }
+    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //public static bool? FullNameCompliesWithPatterns(
+    //    string sourceName, string operationName, IEnumerable<string> fullNamePatterns, IEnumerable<string> notFullNamePatterns
+    //)
+    //{
+    //    return (fullNamePatterns.Any(), notFullNamePatterns.Any()) switch
+    //    {
+    //        (true, true) => FullNameMatchesPatterns(sourceName, operationName, fullNamePatterns)
+    //            && !FullNameMatchesPatterns(sourceName, operationName, notFullNamePatterns),
+    //        (true, false) => FullNameMatchesPatterns(sourceName, operationName, fullNamePatterns),
+    //        (false, true) => !FullNameMatchesPatterns(sourceName, operationName, notFullNamePatterns),
+    //        (false, false) => null,
+    //    };
+    //}
 
-    public static IDisposable? UnsetCurrent()
+    public static IDisposable? WithCurrent(Activity? activity)
     {
-        if (Activity.Current is not { } activity)
+        if (Activity.Current is not { } current)
             return null;
 
-        Activity.Current = null;
-        return new CallbackDisposable(() => { Activity.Current = activity; });
+        Activity.Current = activity;
+        return new CallbackDisposable(() => { Activity.Current = current; });
     }
 }

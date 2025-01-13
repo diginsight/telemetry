@@ -14,10 +14,13 @@ public class NameBasedActivityLoggingSampler : IActivityLoggingSampler
         activityNamesOptions = activitiesOptions.Value.Freeze();
     }
 
-    public virtual bool? ShouldLog(Activity activity)
+    public virtual LogBehavior? GetLogBehavior(Activity activity)
     {
-        return ActivityUtils.FullNameCompliesWithPatterns(
-            activity.Source.Name, activity.OperationName, activityNamesOptions.LoggedActivityNames, activityNamesOptions.NonLoggedActivityNames
-        );
+        string activitySourceName = activity.Source.Name;
+        string activityName = activity.OperationName;
+        return activityNamesOptions.LoggedActivityNames
+            .Where(x => ActivityUtils.FullNameMatchesPattern(activitySourceName, activityName, x.Key))
+            .Select(static x => (LogBehavior?)x.Value)
+            .Max();
     }
 }

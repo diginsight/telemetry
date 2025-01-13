@@ -2,9 +2,7 @@
 
 public interface IDiginsightActivityNamesOptions
 {
-    IEnumerable<string> LoggedActivityNames { get; }
-    IEnumerable<string> NonLoggedActivityNames { get; }
+    IReadOnlyDictionary<string, LogBehavior> LoggedActivityNames { get; }
 
-    IEnumerable<string> SpanMeasuredActivityNames { get; }
-    IEnumerable<string> NonSpanMeasuredActivityNames { get; }
+    IReadOnlyDictionary<string, bool> SpanMeasuredActivityNames { get; }
 }

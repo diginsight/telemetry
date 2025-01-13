@@ -46,7 +46,7 @@ public static class ActivityExtensions
         if (activity.GetCustomProperty(DepthCustomPropertyName) is not ActivityDepth depth)
         {
             depth = ActivityDepth.FromTraceStateValue(TraceState.Parse(activity.TraceStateString).GetValueOrDefault(ActivityDepth.DepthTraceStateKey))
-                ?? GetDepth(activity.Parent).MakeChild(false);
+                ?? GetDepth(activity.Parent).MakeLocalChild();
 
             activity.SetCustomProperty(DepthCustomPropertyName, depth);
         }

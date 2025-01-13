@@ -15,7 +15,7 @@ public sealed class DiginsightActivitiesOptions
 {
     private readonly bool frozen;
 
-    private bool logActivities;
+    private LogBehavior logBehavior = LogBehavior.Hide;
     private LogLevel activityLogLevel = LogLevel.Debug;
     private bool writeActivityActionAsPrefix;
     private bool disablePayloadRendering;
@@ -25,18 +25,14 @@ public sealed class DiginsightActivitiesOptions
     private string? metricUnit;
     private string? metricDescription;
 
-    public ICollection<string> ActivitySources { get; }
+    public IDictionary<string, bool> ActivitySources { get; }
 
-    IEnumerable<string> IDiginsightActivitiesOptions.ActivitySources => ActivitySources;
+    IReadOnlyDictionary<string, bool> IDiginsightActivitiesOptions.ActivitySources => (IReadOnlyDictionary<string, bool>)ActivitySources;
 
-    public ICollection<string> NotActivitySources { get; }
-
-    IEnumerable<string> IDiginsightActivitiesOptions.NotActivitySources => NotActivitySources;
-
-    public bool LogActivities
+    public LogBehavior LogBehavior
     {
-        get => logActivities;
-        set => logActivities = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
+        get => logBehavior;
+        set => logBehavior = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
     }
 
     public LogLevel ActivityLogLevel
@@ -89,65 +85,45 @@ public sealed class DiginsightActivitiesOptions
         set => metricDescription = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
     }
 
-    public ICollection<string> LoggedActivityNames { get; }
+    public IDictionary<string, LogBehavior> LoggedActivityNames { get; }
 
-    IEnumerable<string> IDiginsightActivityNamesOptions.LoggedActivityNames => LoggedActivityNames;
+    IReadOnlyDictionary<string, LogBehavior> IDiginsightActivityNamesOptions.LoggedActivityNames => (IReadOnlyDictionary<string, LogBehavior>)LoggedActivityNames;
 
-    public ICollection<string> NonLoggedActivityNames { get; }
+    public IDictionary<string, bool> SpanMeasuredActivityNames { get; }
 
-    IEnumerable<string> IDiginsightActivityNamesOptions.NonLoggedActivityNames => NonLoggedActivityNames;
-
-    public ICollection<string> SpanMeasuredActivityNames { get; }
-
-    IEnumerable<string> IDiginsightActivityNamesOptions.SpanMeasuredActivityNames => SpanMeasuredActivityNames;
-
-    public ICollection<string> NonSpanMeasuredActivityNames { get; }
-
-    IEnumerable<string> IDiginsightActivityNamesOptions.NonSpanMeasuredActivityNames => NonSpanMeasuredActivityNames;
+    IReadOnlyDictionary<string, bool> IDiginsightActivityNamesOptions.SpanMeasuredActivityNames => (IReadOnlyDictionary<string, bool>)SpanMeasuredActivityNames;
 
     public DiginsightActivitiesOptions()
         : this(
             false,
-            new List<string>(),
-            new List<string>(),
-            new List<string>(),
-            new List<string>(),
-            new List<string>(),
-            new List<string>()
+            new Dictionary<string, bool>(),
+            new Dictionary<string, LogBehavior>(),
+            new Dictionary<string, bool>()
         ) { }
 
     private DiginsightActivitiesOptions(
         bool frozen,
-        ICollection<string> activitySources,
-        ICollection<string> notActivitySources,
-        ICollection<string> loggedActivityNames,
-        ICollection<string> nonLoggedActivityNames,
-        ICollection<string> spanMeasuredActivityNames,
-        ICollection<string> nonSpanMeasuredActivityNames
+        IDictionary<string, bool> activitySources,
+        IDictionary<string, LogBehavior> loggedActivityNames,
+        IDictionary<string, bool> spanMeasuredActivityNames
     )
     {
         this.frozen = frozen;
         ActivitySources = activitySources;
-        NotActivitySources = notActivitySources;
         LoggedActivityNames = loggedActivityNames;
-        NonLoggedActivityNames = nonLoggedActivityNames;
         SpanMeasuredActivityNames = spanMeasuredActivityNames;
-        NonSpanMeasuredActivityNames = nonSpanMeasuredActivityNames;
     }
 
     public DiginsightActivitiesOptions Freeze()
     {
         return new DiginsightActivitiesOptions(
             true,
-            ImmutableArray.CreateRange(ActivitySources.Distinct()),
-            ImmutableArray.CreateRange(NotActivitySources.Distinct()),
-            ImmutableArray.CreateRange(LoggedActivityNames.Distinct()),
-            ImmutableArray.CreateRange(NonLoggedActivityNames.Distinct()),
-            ImmutableArray.CreateRange(SpanMeasuredActivityNames.Distinct()),
-            ImmutableArray.CreateRange(NonSpanMeasuredActivityNames.Distinct())
+            ImmutableDictionary.CreateRange(ActivitySources),
+            ImmutableDictionary.CreateRange(LoggedActivityNames),
+            ImmutableDictionary.CreateRange(SpanMeasuredActivityNames)
         )
         {
-            logActivities = logActivities,
+            logBehavior = logBehavior,
             activityLogLevel = activityLogLevel,
             writeActivityActionAsPrefix = writeActivityActionAsPrefix,
             recordSpanDurations = recordSpanDurations,
@@ -173,10 +149,10 @@ public sealed class DiginsightActivitiesOptions
 
         private readonly DiginsightActivitiesOptions filled;
 
-        public bool LogActivities
+        public LogBehavior LogBehavior
         {
-            get => filled.LogActivities;
-            set => filled.LogActivities = value;
+            get => filled.LogBehavior;
+            set => filled.LogBehavior = value;
         }
 
         public LogLevel ActivityLogLevel
@@ -197,45 +173,27 @@ public sealed class DiginsightActivitiesOptions
             set => filled.RecordSpanDurations = value;
         }
 
-        public string LoggedActivityNames
-        {
-            get => string.Join(" ", filled.LoggedActivityNames);
-            set
-            {
-                filled.LoggedActivityNames.Clear();
-                filled.LoggedActivityNames.AddRange(value.Split(SpaceSeparator, StringSplitOptions.RemoveEmptyEntries));
-            }
-        }
+        // TODO Reimplement LoggedActivityNames
+        //public string LoggedActivityNames
+        //{
+        //    get => string.Join(" ", filled.LoggedActivityNames);
+        //    set
+        //    {
+        //        filled.LoggedActivityNames.Clear();
+        //        filled.LoggedActivityNames.AddRange(value.Split(SpaceSeparator, StringSplitOptions.RemoveEmptyEntries));
+        //    }
+        //}
 
-        public string NonLoggedActivityNames
-        {
-            get => string.Join(" ", filled.NonLoggedActivityNames);
-            set
-            {
-                filled.NonLoggedActivityNames.Clear();
-                filled.NonLoggedActivityNames.AddRange(value.Split(SpaceSeparator, StringSplitOptions.RemoveEmptyEntries));
-            }
-        }
-
-        public string SpanMeasuredActivityNames
-        {
-            get => string.Join(" ", filled.SpanMeasuredActivityNames);
-            set
-            {
-                filled.SpanMeasuredActivityNames.Clear();
-                filled.SpanMeasuredActivityNames.AddRange(value.Split(SpaceSeparator, StringSplitOptions.RemoveEmptyEntries));
-            }
-        }
-
-        public string NonSpanMeasuredActivityNames
-        {
-            get => string.Join(" ", filled.NonSpanMeasuredActivityNames);
-            set
-            {
-                filled.NonSpanMeasuredActivityNames.Clear();
-                filled.NonSpanMeasuredActivityNames.AddRange(value.Split(SpaceSeparator, StringSplitOptions.RemoveEmptyEntries));
-            }
-        }
+        // TODO Reimplement SpanMeasuredActivityNames
+        //public string SpanMeasuredActivityNames
+        //{
+        //    get => string.Join(" ", filled.SpanMeasuredActivityNames);
+        //    set
+        //    {
+        //        filled.SpanMeasuredActivityNames.Clear();
+        //        filled.SpanMeasuredActivityNames.AddRange(value.Split(SpaceSeparator, StringSplitOptions.RemoveEmptyEntries));
+        //    }
+        //}
 
         public Filler(DiginsightActivitiesOptions filled)
         {

@@ -107,8 +107,10 @@ public static class DependencyInjectionExtensions
 
         public bool ShouldListenTo(ActivitySource activitySource)
         {
-            return ActivityUtils.NameCompliesWithPatterns(activitySource.Name, activitiesOptions.ActivitySources, activitiesOptions.NotActivitySources)
-                ?? true;
+            string activitySourceName = activitySource.Name;
+            return activitiesOptions.ActivitySources
+                .Where(x => ActivityUtils.NameMatchesPattern(activitySourceName, x.Key))
+                .All(static x => x.Value);
         }
     }
 
