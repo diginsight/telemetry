@@ -72,7 +72,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             string ComposeLogFormat(string format) => writeActionAsPrefix ? $"START {format}" : $"{format} START";
 
-            activity.SetCustomProperty(ActivityCustomPropertyNames.LogBehavior, behavior);
+            activity.SetLogBehavior(behavior);
 
             if (behavior != LogBehavior.Show)
                 return;
@@ -292,7 +292,9 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         ILogger MakeInnerLogger() => providedLogger ?? (callerType is not null ? loggerFactory.CreateLogger(callerType) : fallbackLogger);
 
         IDiginsightActivitiesLogOptions activitiesOptions = activitiesOptionsMonitor.Get(callerType);
-        behavior = activityLoggingSampler?.GetLogBehavior(activity) ?? activitiesOptions.LogBehavior;
+        LogBehavior candidateBehavior = activityLoggingSampler?.GetLogBehavior(activity) ?? activitiesOptions.LogBehavior;
+        behavior = activity.Parent?.GetLogBehavior() == LogBehavior.Truncate ? LogBehavior.Truncate : candidateBehavior;
+
         textLogger = behavior == LogBehavior.Show
             ? new ActivityLogger(MakeInnerLogger(), activity)
             : NullLogger.Instance;

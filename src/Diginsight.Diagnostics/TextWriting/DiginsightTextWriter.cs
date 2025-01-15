@@ -152,17 +152,10 @@ public static class DiginsightTextWriter
         out double timing
     )
     {
-        switch (activity?.GetCustomProperty(ActivityCustomPropertyNames.LogBehavior))
+        if (activity?.GetLogBehavior() == LogBehavior.Truncate)
         {
-            case LogBehavior.Truncate:
-                timing = 0;
-                return false;
-
-            case LogBehavior or null:
-                break;
-
-            default:
-                throw new InvalidOperationException("Invalid log behavior in activity");
+            timing = 0;
+            return false;
         }
 
         Stopwatch stopwatch = Stopwatch.StartNew();
@@ -182,11 +175,13 @@ public static class DiginsightTextWriter
                 prefixLength++;
             }
 
-            int depth = linePrefixData.Activity.GetDepth().Local;
-            int maxIndentedDepth = lineDescriptor.MaxIndentedDepth;
-            int indentationLength = maxIndentedDepth < 0 || depth <= maxIndentedDepth
-                ? depth * 2 - (linePrefixData.IsActivity ? 1 : 0)
-                : maxIndentedDepth * 2;
+            int indentationLength;
+            {
+                int depth = linePrefixData.Activity.GetDepth().VisualLocal;
+                int maxIndentedDepth = lineDescriptor.MaxIndentedDepth;
+                int finalDepth = maxIndentedDepth < 0 ? depth : Math.Min(depth, maxIndentedDepth);
+                indentationLength = Math.Max(0, finalDepth * 2 - (linePrefixData.IsActivity ? 1 : 0));
+            }
 
             prefixSb.Append(new string(' ', indentationLength));
             prefixLength += indentationLength;

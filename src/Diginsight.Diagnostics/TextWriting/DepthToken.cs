@@ -57,9 +57,9 @@ public sealed class DepthToken : ILineToken
                 first = false;
 
 #if NET
-                sb.Append($"{depth.VizLocal,2}");
+                sb.Append($"{depth.VisualLocal,2}");
 #else
-                sb.AppendFormat("{0,2}", depth.VizLocal);
+                sb.AppendFormat("{0,2}", depth.VisualLocal);
 #endif
             }
 
@@ -71,9 +71,9 @@ public sealed class DepthToken : ILineToken
                 }
 
 #if NET
-                sb.Append($"{depth.VizCumulated,2}");
+                sb.Append($"{depth.VisualCumulated,2}");
 #else
-                sb.AppendFormat("{0,2}", depth.VizCumulated);
+                sb.AppendFormat("{0,2}", depth.VisualCumulated);
 #endif
             }
 

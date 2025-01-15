@@ -14,12 +14,12 @@ public static class ActivityUtils
         Sample = static (ref ActivityCreationOptions<ActivityContext> creationOptions) =>
         {
             ActivityContext parent = creationOptions.Parent;
-            string? rawParentDepth = TraceState.Parse(parent.TraceState).GetValueOrDefault(ActivityDepth.DepthTraceStateKey);
+            string? rawParentDepth = TraceState.Parse(parent.TraceState).GetValueOrDefault(ActivityDepth.TraceStateKey);
 
             ActivityDepth parentDepth = ActivityDepth.FromTraceStateValue(rawParentDepth) ?? default;
             ActivityDepth depth = parent.IsRemote ? parentDepth.MakeRemoteChild() : parentDepth.MakeLocalChild();
             TraceState traceState = TraceState.Parse(creationOptions.TraceState);
-            traceState[ActivityDepth.DepthTraceStateKey] = depth.ToTraceStateValue();
+            traceState[ActivityDepth.TraceStateKey] = depth.ToTraceStateValue();
 
             creationOptions = creationOptions with { TraceState = traceState.ToString() };
             return ActivitySamplingResult.PropagationData;
@@ -48,24 +48,6 @@ public static class ActivityUtils
         };
     }
 
-    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-    //public static bool NameMatchesPatterns(string name, IEnumerable<string> namePatterns)
-    //{
-    //    return namePatterns.Any(x => NameMatchesPattern(name, x));
-    //}
-
-    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-    //public static bool? NameCompliesWithPatterns(string name, IEnumerable<string> namePatterns, IEnumerable<string> notNamePatterns)
-    //{
-    //    return (namePatterns.Any(), notNamePatterns.Any()) switch
-    //    {
-    //        (true, true) => NameMatchesPatterns(name, namePatterns) && !NameMatchesPatterns(name, notNamePatterns),
-    //        (true, false) => NameMatchesPatterns(name, namePatterns),
-    //        (false, true) => !NameMatchesPatterns(name, notNamePatterns),
-    //        (false, false) => null,
-    //    };
-    //}
-
     public static bool FullNameMatchesPattern(string sourceName, string operationName, string fullNamePattern)
     {
 #if NET || NETSTANDARD2_1_OR_GREATER
@@ -86,27 +68,6 @@ public static class ActivityUtils
             _ => throw new ArgumentException("Invalid source+activity name pattern"),
         };
     }
-
-    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-    //public static bool FullNameMatchesPatterns(string sourceName, string operationName, IEnumerable<string> fullNamePatterns)
-    //{
-    //    return fullNamePatterns.Any(x => FullNameMatchesPattern(sourceName, operationName, x));
-    //}
-
-    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-    //public static bool? FullNameCompliesWithPatterns(
-    //    string sourceName, string operationName, IEnumerable<string> fullNamePatterns, IEnumerable<string> notFullNamePatterns
-    //)
-    //{
-    //    return (fullNamePatterns.Any(), notFullNamePatterns.Any()) switch
-    //    {
-    //        (true, true) => FullNameMatchesPatterns(sourceName, operationName, fullNamePatterns)
-    //            && !FullNameMatchesPatterns(sourceName, operationName, notFullNamePatterns),
-    //        (true, false) => FullNameMatchesPatterns(sourceName, operationName, fullNamePatterns),
-    //        (false, true) => !FullNameMatchesPatterns(sourceName, operationName, notFullNamePatterns),
-    //        (false, false) => null,
-    //    };
-    //}
 
     public static IDisposable? WithCurrent(Activity? activity)
     {

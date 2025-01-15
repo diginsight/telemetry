@@ -8,9 +8,13 @@ namespace Diginsight.Diagnostics;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class ActivityExtensions
 {
-    private const string CustomDurationMetricTagsCustomPropertyName = "CustomDurationMetricTags";
-    private const string DepthCustomPropertyName = "Depth";
-    private const string LabelCustomPropertyName = "Label";
+    private static class CustomPropertyNames
+    {
+        public const string CustomDurationMetricTags = nameof(CustomDurationMetricTags);
+        public const string Depth = nameof(Depth);
+        public const string Label = nameof(Label);
+        public const string LogBehavior = nameof(LogBehavior);
+    }
 
     public static void SetOutput(this Activity? activity, object? output)
     {
@@ -43,12 +47,12 @@ public static class ActivityExtensions
             return default;
         }
 
-        if (activity.GetCustomProperty(DepthCustomPropertyName) is not ActivityDepth depth)
+        if (activity.GetCustomProperty(CustomPropertyNames.Depth) is not ActivityDepth depth)
         {
-            depth = ActivityDepth.FromTraceStateValue(TraceState.Parse(activity.TraceStateString).GetValueOrDefault(ActivityDepth.DepthTraceStateKey))
+            depth = ActivityDepth.FromTraceStateValue(TraceState.Parse(activity.TraceStateString).GetValueOrDefault(ActivityDepth.TraceStateKey))
                 ?? GetDepth(activity.Parent).MakeLocalChild();
 
-            activity.SetCustomProperty(DepthCustomPropertyName, depth);
+            activity.SetCustomProperty(CustomPropertyNames.Depth, depth);
         }
 
         return depth;
@@ -71,7 +75,7 @@ public static class ActivityExtensions
             throw new ArgumentNullException(nameof(activity));
         }
 
-        return activity.GetCustomProperty(LabelCustomPropertyName) switch
+        return activity.GetCustomProperty(CustomPropertyNames.Label) switch
         {
             string s => s,
             null => null,
@@ -86,7 +90,7 @@ public static class ActivityExtensions
             throw new ArgumentNullException(nameof(activity));
         }
 
-        activity.SetCustomProperty(LabelCustomPropertyName, label);
+        activity.SetCustomProperty(CustomPropertyNames.Label, label);
     }
 
     public static Activity? FindLabeledParent(this Activity activity, string label)
@@ -130,7 +134,7 @@ public static class ActivityExtensions
         }
 
         activity.SetCustomProperty(ActivityCustomPropertyNames.CustomDurationMetric, metric);
-        activity.SetCustomProperty(CustomDurationMetricTagsCustomPropertyName, tags);
+        activity.SetCustomProperty(CustomPropertyNames.CustomDurationMetricTags, tags);
     }
 
     public static void AddTagsToCustomDurationMetric(this Activity activity, params Tag[] tags)
@@ -153,16 +157,35 @@ public static class ActivityExtensions
             .GroupBy(static x => x.Key, static (_, xs) => xs.First())
 #endif
             .ToArray();
-        activity.SetCustomProperty(CustomDurationMetricTagsCustomPropertyName, allTags);
+        activity.SetCustomProperty(CustomPropertyNames.CustomDurationMetricTags, allTags);
     }
 
     internal static Tag[] GetCustomDurationMetricTags(this Activity activity)
     {
-        return activity.GetCustomProperty(CustomDurationMetricTagsCustomPropertyName) switch
+        return activity.GetCustomProperty(CustomPropertyNames.CustomDurationMetricTags) switch
         {
             Tag[] tags => tags,
             null => [ ],
             _ => throw new InvalidOperationException("Invalid custom duration metric tags in activity"),
         };
+    }
+
+    internal static LogBehavior? GetLogBehavior(this Activity activity)
+    {
+        return activity.GetCustomProperty(CustomPropertyNames.LogBehavior) switch
+        {
+            LogBehavior lb => lb,
+            null => null,
+            _ => throw new InvalidOperationException("Invalid log behavior in activity"),
+        };
+    }
+
+    internal static void SetLogBehavior(this Activity activity, LogBehavior logBehavior)
+    {
+        activity.SetCustomProperty(CustomPropertyNames.LogBehavior, logBehavior);
+        if (logBehavior != LogBehavior.Show)
+        {
+            activity.SetCustomProperty(CustomPropertyNames.Depth, activity.GetDepth().MakeHidden());
+        }
     }
 }
