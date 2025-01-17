@@ -52,10 +52,26 @@ public static class DiginsightTextWriter
         DeferredLoggerFactory.ILogMetadata? deferredMetadata = metadataCollection.OfType<DeferredLoggerFactory.ILogMetadata>().FirstOrDefault();
         TextWriterLogMetadata? writerMetadata = metadataCollection.OfType<TextWriterLogMetadata>().FirstOrDefault();
 
-        isActivity = activityMetadata is not null;
-        duration = activityMetadata?.Duration;
+        activity = deferredMetadata?.Activity;
         maybeTimestamp = deferredMetadata?.Timestamp;
-        activity = deferredMetadata?.Activity ?? activityMetadata?.Activity;
+
+        if (activityMetadata is not null)
+        {
+            isActivity = true;
+            duration = activityMetadata.Duration;
+            activity ??= activityMetadata.Activity;
+
+            bool isStop = activityMetadata.Duration is not null;
+            maybeTimestamp ??= activity
+                    .GetCustomProperty(isStop ? ActivityCustomPropertyNames.EmitStopTimestamp : ActivityCustomPropertyNames.EmitStartTimestamp)
+                as DateTimeOffset?;
+        }
+        else
+        {
+            isActivity = false;
+            duration = null;
+        }
+
         sealLineDescriptor = writerMetadata?.SealLineDescriptor;
     }
 

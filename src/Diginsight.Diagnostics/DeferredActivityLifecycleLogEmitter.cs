@@ -8,6 +8,7 @@ namespace Diginsight.Diagnostics;
 public sealed class DeferredActivityLifecycleLogEmitter
 {
     private readonly DeferredOperationRegistry operationRegistry;
+    private readonly TimeProvider timeProvider;
 #if NET9_0_OR_GREATER
     private readonly Lock @lock = new ();
 #else
@@ -19,10 +20,12 @@ public sealed class DeferredActivityLifecycleLogEmitter
 
     public DeferredActivityLifecycleLogEmitter(
         DeferredOperationRegistry operationRegistry,
-        Func<ActivitySource, bool> shouldListenTo
+        Func<ActivitySource, bool> shouldListenTo,
+        TimeProvider? timeProvider = null
     )
     {
         this.operationRegistry = operationRegistry;
+        this.timeProvider = timeProvider ?? TimeProvider.System;
 
         activityListener = new ActivityListener()
         {
@@ -51,6 +54,7 @@ public sealed class DeferredActivityLifecycleLogEmitter
             }
             else
             {
+                activity.SetCustomProperty(ActivityCustomPropertyNames.EmitStartTimestamp, timeProvider.GetUtcNow());
                 operationRegistry.Enqueue(new DeferredStartOperation(activity));
             }
         }
@@ -73,6 +77,7 @@ public sealed class DeferredActivityLifecycleLogEmitter
             }
             else
             {
+                activity.SetCustomProperty(ActivityCustomPropertyNames.EmitStopTimestamp, timeProvider.GetUtcNow());
                 operationRegistry.Enqueue(new DeferredStopOperation(activity));
             }
         }
