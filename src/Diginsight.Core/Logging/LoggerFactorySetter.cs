@@ -1,7 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-#if !NET9_0_OR_GREATER
-using Lock = object;
-#endif
 
 namespace Diginsight.Logging;
 
@@ -57,7 +54,11 @@ internal sealed class LoggerFactorySetter : ILoggerFactorySetter
     {
         private readonly LoggerFactorySetter setter;
         private readonly string categoryName;
+#if NET9_0_OR_GREATER
         private readonly Lock @lock = new ();
+#else
+        private readonly object @lock = new ();
+#endif
 
         private (ILogger Logger, ILoggerFactory Factory)? current;
 

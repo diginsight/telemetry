@@ -1,8 +1,5 @@
 ﻿using Diginsight.Diagnostics.TextWriting;
 using Microsoft.Extensions.Options;
-#if !NET9_0_OR_GREATER
-using Lock = object;
-#endif
 
 namespace Diginsight.Diagnostics;
 
@@ -11,8 +8,13 @@ internal sealed class ConsoleLineDescriptorProvider : IConsoleLineDescriptorProv
     private readonly IEnumerable<ILineTokenParser> customLineTokenParsers;
     private readonly IDiginsightConsoleFormatterOptions formatterOptions;
 
-    private readonly Lock lockObj = new ();
+#if NET9_0_OR_GREATER
+    private readonly Lock @lock = new ();
+#else
+    private readonly object @lock = new ();
+#endif
     private readonly IDictionary<ValueTuple<int?>, LineDescriptor> descriptorCache = new Dictionary<ValueTuple<int?>, LineDescriptor>();
+
     private IDictionary<int, IEnumerable<ILineToken>?>? lineTokensCache;
 
     public ConsoleLineDescriptorProvider(
@@ -31,7 +33,7 @@ internal sealed class ConsoleLineDescriptorProvider : IConsoleLineDescriptorProv
             width = null;
         }
 
-        lock (lockObj)
+        lock (@lock)
         {
             ValueTuple<int?> descriptorKey = new (width);
             return descriptorCache.TryGetValue(descriptorKey, out LineDescriptor? descriptor)

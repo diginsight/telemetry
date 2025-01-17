@@ -1,50 +1,34 @@
 ﻿using Diginsight.Logging;
-using Diginsight.Options;
-using Diginsight.Stringify;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-#if !NET9_0_OR_GREATER
-using Lock = object;
-#endif
 
 namespace Diginsight.Diagnostics;
 
-public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
+public sealed class DeferredLoggerFactory : ILoggerFactory
 {
+    private readonly DeferredOperationRegistry operationRegistry;
     private readonly TimeProvider timeProvider;
     private readonly Func<ILoggerFactory>? makeEmergencyLoggerFactory;
-    private readonly Lock lockObj = new ();
+#if NET9_0_OR_GREATER
+    private readonly Lock @lock = new ();
+#else
+    private readonly object @lock = new ();
+#endif
     private readonly IDictionary<string, DeferredLogger> loggers = new Dictionary<string, DeferredLogger>(StringComparer.Ordinal);
-    private readonly ConcurrentQueue<DeferredOperation> operations = new ();
 
-    private ActivityListener? activityListener;
     private ILoggerFactory? target;
 
-    public Func<ActivitySource, bool>? ActivitySourceFilter { get; set; }
-
     public DeferredLoggerFactory(
+        DeferredOperationRegistry operationRegistry,
         TimeProvider? timeProvider = null,
-        IStringifyContextFactory? stringifyContextFactory = null,
-        DiginsightActivitiesOptions? activitiesOptions = null,
-        IActivityLoggingSampler? activityLoggingSampler = null,
         Func<ILoggerFactory>? makeEmergencyLoggerFactory = null
     )
     {
         this.timeProvider = timeProvider ?? TimeProvider.System;
+        this.operationRegistry = operationRegistry;
         this.makeEmergencyLoggerFactory = makeEmergencyLoggerFactory;
-
-        ActivityLifecycleLogEmitter emitter = new (
-            this,
-            stringifyContextFactory ?? new StringifyContextFactoryBuilder().WithLoggerFactory(this).Build(),
-            new FixedClassAwareOptionsMonitor(activitiesOptions ?? new DiginsightActivitiesOptions()),
-            activityLoggingSampler
-        );
-        activityListener = new DeferredActivityLifecycleLogEmitter(this, emitter).ToActivityListener(static _ => true);
-        ActivitySource.AddActivityListener(activityListener);
     }
 
     public static ILoggerFactory MakeDefaultEmergencyLoggerFactory(
@@ -63,84 +47,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
         return services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
     }
 
-    private sealed class DeferredActivityLifecycleLogEmitter : IActivityListenerLogic
-    {
-        private readonly DeferredLoggerFactory owner;
-        private readonly IActivityListenerLogic decoratee;
-
-        public DeferredActivityLifecycleLogEmitter(DeferredLoggerFactory owner, IActivityListenerLogic decoratee)
-        {
-            this.owner = owner;
-            this.decoratee = decoratee;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool IsIncluded(ActivitySource activitySource) => owner.ActivitySourceFilter?.Invoke(activitySource) ?? true;
-
-        void IActivityListenerLogic.ActivityStarted(Activity activity)
-        {
-            if (!IsIncluded(activity.Source) || owner.target is not null)
-                return;
-
-            lock (owner.lockObj)
-            {
-                if (owner.target is not null)
-                    return;
-
-                decoratee.ActivityStarted(activity);
-            }
-        }
-
-        void IActivityListenerLogic.ActivityStopped(Activity activity)
-        {
-            if (!IsIncluded(activity.Source) || owner.target is not null)
-                return;
-
-            lock (owner.lockObj)
-            {
-                if (owner.target is not null)
-                    return;
-
-                decoratee.ActivityStopped(activity);
-            }
-        }
-
-        ActivitySamplingResult IActivityListenerLogic.Sample(ref ActivityCreationOptions<ActivityContext> creationOptions)
-        {
-            if (!IsIncluded(creationOptions.Source) || owner.target is not null)
-                return ActivitySamplingResult.None;
-
-            lock (owner.lockObj)
-            {
-                if (owner.target is not null)
-                    return ActivitySamplingResult.None;
-
-                return decoratee.Sample(ref creationOptions);
-            }
-        }
-    }
-
-    private sealed class FixedClassAwareOptionsMonitor : IClassAwareOptionsMonitor<DiginsightActivitiesOptions>
-    {
-        private readonly DiginsightActivitiesOptions underlying;
-
-        DiginsightActivitiesOptions IOptionsMonitor<DiginsightActivitiesOptions>.CurrentValue => underlying;
-
-        public FixedClassAwareOptionsMonitor(DiginsightActivitiesOptions underlying)
-        {
-            this.underlying = underlying;
-        }
-
-        public DiginsightActivitiesOptions Get(string? name, Type? @class) => underlying;
-
-        DiginsightActivitiesOptions IOptionsMonitor<DiginsightActivitiesOptions>.Get(string? name) => underlying;
-
-        public IDisposable? OnChange(Action<DiginsightActivitiesOptions, string, Type> listener) => null;
-
-        IDisposable? IOptionsMonitor<DiginsightActivitiesOptions>.OnChange(Action<DiginsightActivitiesOptions, string?> listener) => null;
-    }
-
-    public ILogger CreateLogger(string categoryName)
+    ILogger ILoggerFactory.CreateLogger(string categoryName)
     {
         // ReSharper disable once LocalVariableHidesMember
         if (this.target is { } target)
@@ -148,7 +55,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
             return target.CreateLogger(categoryName);
         }
 
-        lock (lockObj)
+        lock (@lock)
         {
             if ((target = this.target) is not null)
             {
@@ -161,7 +68,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
         }
     }
 
-    public void AddProvider(ILoggerProvider provider)
+    void ILoggerFactory.AddProvider(ILoggerProvider provider)
     {
         // ReSharper disable once LocalVariableHidesMember
         if (this.target is { } target)
@@ -170,7 +77,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
             return;
         }
 
-        lock (lockObj)
+        lock (@lock)
         {
             if ((target = this.target) is not null)
             {
@@ -184,7 +91,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
     }
 
     // ReSharper disable once ParameterHidesMember
-    public void FlushTo(ILoggerFactory target, bool throwOnFlushed)
+    public void FlushTo(ILoggerFactory target, bool throwOnFlushed = true)
     {
         if (this.target is not null)
         {
@@ -194,7 +101,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
                 return;
         }
 
-        lock (lockObj)
+        lock (@lock)
         {
             if (this.target is not null)
             {
@@ -205,36 +112,29 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
             }
 
             this.target = target;
+
             loggers.Clear();
-            UnregisterActivityListener();
         }
 
-        while (operations.TryDequeue(out DeferredOperation? operation))
-        {
-            operation.FlushTo(target);
-        }
+        operationRegistry.Flush(
+            operation =>
+            {
+                if (operation is not DeferredOperation myOperation)
+                    return false;
+
+                myOperation.PrepareFlushTo(target);
+                return true;
+            }
+        );
     }
 
-    public void Dispose()
+    void IDisposable.Dispose()
     {
-        try
-        {
-            if (makeEmergencyLoggerFactory is null)
-                return;
+        if (makeEmergencyLoggerFactory is null)
+            return;
 
-            using ILoggerFactory emergencyLoggerFactory = makeEmergencyLoggerFactory();
-            FlushTo(emergencyLoggerFactory, false);
-        }
-        finally
-        {
-            UnregisterActivityListener();
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void UnregisterActivityListener()
-    {
-        Interlocked.Exchange(ref activityListener, null)?.Dispose();
+        using ILoggerFactory emergencyLoggerFactory = makeEmergencyLoggerFactory();
+        FlushTo(emergencyLoggerFactory, false);
     }
 
     private sealed class DeferredLogger : ILogger
@@ -258,7 +158,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
                 return;
             }
 
-            lock (owner.lockObj)
+            lock (owner.@lock)
             {
                 if ((target = owner.target) is not null)
                 {
@@ -266,7 +166,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
                 }
                 else
                 {
-                    owner.operations.Enqueue(
+                    owner.operationRegistry.Enqueue(
                         new DeferredLogOperation<TState>(
                             category, GetTimestamp(), Activity.Current, logLevel, eventId, state, exception, formatter
                         )
@@ -283,7 +183,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
                 return target.CreateLogger(category).BeginScope(state);
             }
 
-            lock (owner.lockObj)
+            lock (owner.@lock)
             {
                 if ((target = owner.target) is not null)
                 {
@@ -291,17 +191,31 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
                 }
 
                 StrongBox<IDisposable?> scopeBox = new ();
-                owner.operations.Enqueue(new DeferredBeginScopeOperation<TState>(category, state, scopeBox));
-                return new CallbackDisposable(() => { owner.operations.Enqueue(new DeferredEndScopeOperation(scopeBox)); });
+                DeferredOperationRegistry operationRegistry = owner.operationRegistry;
+
+                operationRegistry.Enqueue(new DeferredBeginScopeOperation<TState>(category, state, scopeBox));
+                return new CallbackDisposable(() => { operationRegistry.Enqueue(new DeferredEndScopeOperation(scopeBox)); });
             }
         }
 
         private DateTimeOffset GetTimestamp() => owner.timeProvider.GetUtcNow();
     }
 
-    private abstract class DeferredOperation
+    private abstract class DeferredOperation : IDeferredOperation
     {
-        public abstract void FlushTo(ILoggerFactory target);
+        private ILoggerFactory? target;
+
+        protected ILoggerFactory Target => target ?? throw new InvalidOperationException("Not flushable yet");
+
+        public bool IsFlushable => target is not null;
+
+        // ReSharper disable once ParameterHidesMember
+        public void PrepareFlushTo(ILoggerFactory target)
+        {
+            this.target = target;
+        }
+
+        public abstract void Flush();
     }
 
     private sealed class DeferredLogOperation<TState> : DeferredOperation
@@ -334,9 +248,9 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
             metadata = new LogMetadata(timestamp, activity);
         }
 
-        public override void FlushTo(ILoggerFactory target)
+        public override void Flush()
         {
-            target.CreateLogger(category).WithMetadata(metadata).Log(logLevel, eventId, state, exception, formatter);
+            Target.CreateLogger(category).WithMetadata(metadata).Log(logLevel, eventId, state, exception, formatter);
         }
     }
 
@@ -376,9 +290,9 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
             this.scopeBox = scopeBox;
         }
 
-        public override void FlushTo(ILoggerFactory target)
+        public override void Flush()
         {
-            scopeBox.Value = target.CreateLogger(category).BeginScope(state);
+            scopeBox.Value = Target.CreateLogger(category).BeginScope(state);
         }
     }
 
@@ -391,7 +305,7 @@ public sealed class DeferredLoggerFactory : IDeferredLoggerFactory
             this.scopeBox = scopeBox;
         }
 
-        public override void FlushTo(ILoggerFactory target)
+        public override void Flush()
         {
             scopeBox.Value?.Dispose();
         }

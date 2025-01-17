@@ -1,5 +1,4 @@
 ﻿using Diginsight.Options;
-using Diginsight.Stringify;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
@@ -15,7 +14,7 @@ namespace Diginsight.Diagnostics;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class DependencyInjectionExtensions
 {
-    public static IServiceCollection FlushOnCreateServiceProvider(this IServiceCollection services, IDeferredLoggerFactory deferredLoggerFactory)
+    public static IServiceCollection FlushOnCreateServiceProvider(this IServiceCollection services, DeferredLoggerFactory deferredLoggerFactory)
     {
         services.AddSingleton<IOnCreateServiceProvider>(sp => ActivatorUtilities.CreateInstance<DeferredLoggerFactoryFlusher>(sp, deferredLoggerFactory));
         return services;
@@ -23,10 +22,10 @@ public static class DependencyInjectionExtensions
 
     private sealed class DeferredLoggerFactoryFlusher : IOnCreateServiceProvider
     {
-        private readonly IDeferredLoggerFactory deferredLoggerFactory;
+        private readonly DeferredLoggerFactory deferredLoggerFactory;
         private readonly ILoggerFactory? loggerFactory;
 
-        public DeferredLoggerFactoryFlusher(IDeferredLoggerFactory deferredLoggerFactory, ILoggerFactory? loggerFactory = null)
+        public DeferredLoggerFactoryFlusher(DeferredLoggerFactory deferredLoggerFactory, ILoggerFactory? loggerFactory = null)
         {
             this.deferredLoggerFactory = deferredLoggerFactory;
             this.loggerFactory = loggerFactory;
@@ -37,6 +36,34 @@ public static class DependencyInjectionExtensions
             if (loggerFactory is not null)
             {
                 deferredLoggerFactory.FlushTo(loggerFactory);
+            }
+        }
+    }
+
+    public static IServiceCollection FlushOnCreateServiceProvider(this IServiceCollection services, DeferredActivityLifecycleLogEmitter deferredEmitter)
+    {
+        services.AddSingleton<IOnCreateServiceProvider>(sp => ActivatorUtilities.CreateInstance<DeferredActivityLifecycleLogEmitterFlusher>(sp, deferredEmitter));
+        return services;
+    }
+
+    private sealed class DeferredActivityLifecycleLogEmitterFlusher : IOnCreateServiceProvider
+    {
+        private readonly DeferredActivityLifecycleLogEmitter deferredEmitter;
+        private readonly ActivityLifecycleLogEmitter? emitter;
+
+        public DeferredActivityLifecycleLogEmitterFlusher(
+            DeferredActivityLifecycleLogEmitter deferredEmitter, ActivityLifecycleLogEmitter? emitter = null
+        )
+        {
+            this.deferredEmitter = deferredEmitter;
+            this.emitter = emitter;
+        }
+
+        public void Run()
+        {
+            if (emitter is not null)
+            {
+                deferredEmitter.FlushTo(emitter);
             }
         }
     }
@@ -72,7 +99,6 @@ public static class DependencyInjectionExtensions
         IServiceCollection services = loggingBuilder.Services;
 
         services
-            .AddStringify()
             .AddClassAwareOptions()
             .AddActivityListenersAdder();
 

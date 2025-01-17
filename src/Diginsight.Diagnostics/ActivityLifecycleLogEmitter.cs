@@ -13,7 +13,12 @@ namespace Diginsight.Diagnostics;
 
 public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
 {
-    private const string ExceptionPointersCustomPropertyName = "ExceptionPointers";
+    private static class CustomPropertyNames
+    {
+        public const string ExceptionPointers = nameof(ExceptionPointers);
+        public const string EmittedStart = nameof(EmittedStart);
+        public const string EmittedStop = nameof(EmittedStop);
+    }
 
     private static readonly EventId StartActivityEventId = new (100, "StartActivity");
     private static readonly EventId StartMethodActivityEventId = new (110, "StartMethodActivity");
@@ -24,22 +29,30 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         typeof(ActivityLifecycleLogEmitter).GetMethod(nameof(ExtractLoggablesFromKvps), BindingFlags.NonPublic | BindingFlags.Instance)!;
 
     private readonly ILoggerFactory loggerFactory;
-    private readonly IStringifyContextFactory stringifyContextFactory;
     private readonly IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor;
+    private IStringifyContextFactory? stringifyContextFactory;
     private readonly IActivityLoggingSampler? activityLoggingSampler;
     private readonly ILogger fallbackLogger;
     private readonly Func<nint> getExceptionPointers;
+#if NET9_0_OR_GREATER
+    private readonly Lock emittedLock = new ();
+#else
+    private readonly object emittedLock = new ();
+#endif
+
+    private IStringifyContextFactory StringifyContextFactory =>
+        stringifyContextFactory ??= new StringifyContextFactoryBuilder().WithLoggerFactory(loggerFactory).Build();
 
     public ActivityLifecycleLogEmitter(
         ILoggerFactory loggerFactory,
-        IStringifyContextFactory stringifyContextFactory,
         IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor,
+        IStringifyContextFactory? stringifyContextFactory = null,
         IActivityLoggingSampler? activityLoggingSampler = null
     )
     {
         this.loggerFactory = loggerFactory;
-        this.stringifyContextFactory = stringifyContextFactory;
         this.activitiesOptionsMonitor = activitiesOptionsMonitor;
+        this.stringifyContextFactory = stringifyContextFactory;
         this.activityLoggingSampler = activityLoggingSampler;
         fallbackLogger = loggerFactory.CreateLogger($"{typeof(ActivityLifecycleLogEmitter).Namespace!}.$Activity");
 
@@ -52,32 +65,66 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
 #endif
     }
 
-    [SuppressMessage("ReSharper", "TemplateIsNotCompileTimeConstantProblem")]
-    void IActivityListenerLogic.ActivityStarted(Activity activity)
+    private bool IsEmitted(Activity activity, bool isStopped)
     {
+        lock (emittedLock)
+        {
+            string customPropertyName = isStopped ? CustomPropertyNames.EmittedStop : CustomPropertyNames.EmittedStart;
+            if (activity.GetCustomProperty(customPropertyName) is not null)
+            {
+                return true;
+            }
+
+            activity.SetCustomProperty(customPropertyName, new object());
+            return false;
+        }
+    }
+
+    [SuppressMessage("ReSharper", "TemplateIsNotCompileTimeConstantProblem")]
+    public void ActivityStarted(Activity activity)
+    {
+        if (IsEmitted(activity, false))
+            return;
+
         string activityName = activity.OperationName;
 
         try
         {
-            ExtractLoggingInfo(
-                activity,
-                out bool isStandalone,
-                out LogBehavior behavior,
-                out bool writeActionAsPrefix,
-                out bool disablePayloadRendering,
-                out ILogger textLogger,
-                out LogLevel logLevel
-            );
+            bool isStandalone;
+            bool writeActionAsPrefix;
+            bool disablePayloadRendering;
+            ILogger textLogger;
+            LogLevel logLevel;
+            {
+                ExtractLoggingInfo1(
+                    activity,
+                    out Type? callerType,
+                    out IDiginsightActivitiesLogOptions activitiesOptions,
+                    out LogBehavior behavior
+                );
+
+                activity.SetLogBehavior(behavior);
+
+                if (behavior != LogBehavior.Show)
+                    return;
+
+                ExtractLoggingInfo2(
+                    activity,
+                    callerType,
+                    activitiesOptions,
+                    behavior,
+                    out isStandalone,
+                    out writeActionAsPrefix,
+                    out disablePayloadRendering,
+                    out textLogger,
+                    out logLevel
+                );
+            }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             string ComposeLogFormat(string format) => writeActionAsPrefix ? $"START {format}" : $"{format} START";
 
-            activity.SetLogBehavior(behavior);
-
-            if (behavior != LogBehavior.Show)
-                return;
-
-            activity.SetCustomProperty(ExceptionPointersCustomPropertyName, getExceptionPointers());
+            activity.SetCustomProperty(CustomPropertyNames.ExceptionPointers, getExceptionPointers());
 
             EventId eventId = isStandalone ? StartActivityEventId : StartMethodActivityEventId;
             if (disablePayloadRendering)
@@ -118,33 +165,52 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
     }
 
     [SuppressMessage("ReSharper", "TemplateIsNotCompileTimeConstantProblem")]
-    void IActivityListenerLogic.ActivityStopped(Activity activity)
+    public void ActivityStopped(Activity activity)
     {
+        if (IsEmitted(activity, true))
+            return;
+
         string activityName = activity.OperationName;
 
         try
         {
-            ExtractLoggingInfo(
-                activity,
-                out bool isStandalone,
-                out LogBehavior behavior,
-                out bool writeActionAsPrefix,
-                out bool disablePayloadRendering,
-                out ILogger textLogger,
-                out LogLevel logLevel
-            );
+            bool isStandalone;
+            bool writeActionAsPrefix;
+            bool disablePayloadRendering;
+            ILogger textLogger;
+            LogLevel logLevel;
+            {
+                ExtractLoggingInfo1(
+                    activity,
+                    out Type? callerType,
+                    out IDiginsightActivitiesLogOptions activitiesOptions,
+                    out LogBehavior behavior
+                );
+
+                if (behavior != LogBehavior.Show)
+                    return;
+
+                ExtractLoggingInfo2(
+                    activity,
+                    callerType,
+                    activitiesOptions,
+                    behavior,
+                    out isStandalone,
+                    out writeActionAsPrefix,
+                    out disablePayloadRendering,
+                    out textLogger,
+                    out logLevel
+                );
+            }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             string ComposeLogFormat(string format) => writeActionAsPrefix ? $"END {format}" : $"{format} END";
-
-            if (behavior != LogBehavior.Show)
-                return;
 
             bool IsFaulted()
             {
                 nint currentExceptionPointers = getExceptionPointers();
                 return currentExceptionPointers != 0
-                    && activity.GetCustomProperty(ExceptionPointersCustomPropertyName) is nint previousExceptionPointers
+                    && activity.GetCustomProperty(CustomPropertyNames.ExceptionPointers) is nint previousExceptionPointers
                     && previousExceptionPointers != currentExceptionPointers;
             }
 
@@ -169,7 +235,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
                         throw new InvalidOperationException("Invalid output in activity");
                 }
 
-                string outputAsString0 = stringifyContextFactory.Stringify(output);
+                string outputAsString0 = StringifyContextFactory.Stringify(output);
 
                 activity.SetTag("output", outputAsString0);
 
@@ -260,13 +326,29 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
 
     private IReadOnlyDictionary<string, string> ExtractLoggablesFromKvps<TValue>(IEnumerable<KeyValuePair<string, TValue>> kvps)
     {
-        return kvps.ToDictionary(static x => x.Key, x => stringifyContextFactory.Stringify(x.Value));
+        return kvps.ToDictionary(static x => x.Key, x => StringifyContextFactory.Stringify(x.Value));
     }
 
-    private void ExtractLoggingInfo(
+    private void ExtractLoggingInfo1(
         Activity activity,
+        out Type? callerType,
+        out IDiginsightActivitiesLogOptions activitiesOptions,
+        out LogBehavior behavior
+    )
+    {
+        callerType = activity.GetCallerType();
+
+        activitiesOptions = activitiesOptionsMonitor.Get(callerType);
+        LogBehavior candidateBehavior = activityLoggingSampler?.GetLogBehavior(activity) ?? activitiesOptions.LogBehavior;
+        behavior = activity.Parent?.GetLogBehavior() == LogBehavior.Truncate ? LogBehavior.Truncate : candidateBehavior;
+    }
+
+    private void ExtractLoggingInfo2(
+        Activity activity,
+        Type? callerType,
+        IDiginsightActivitiesLogOptions activitiesOptions,
+        LogBehavior behavior,
         out bool isStandalone,
-        out LogBehavior behavior,
         out bool writeActionAsPrefix,
         out bool disablePayloadRendering,
         out ILogger textLogger,
@@ -280,8 +362,6 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
             _ => throw new InvalidOperationException("Invalid logger in activity"),
         };
 
-        Type? callerType = activity.GetCallerType();
-
         isStandalone = activity.GetCustomProperty(ActivityCustomPropertyNames.IsStandalone) switch
         {
             bool b => b,
@@ -290,10 +370,6 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         };
 
         ILogger MakeInnerLogger() => providedLogger ?? (callerType is not null ? loggerFactory.CreateLogger(callerType) : fallbackLogger);
-
-        IDiginsightActivitiesLogOptions activitiesOptions = activitiesOptionsMonitor.Get(callerType);
-        LogBehavior candidateBehavior = activityLoggingSampler?.GetLogBehavior(activity) ?? activitiesOptions.LogBehavior;
-        behavior = activity.Parent?.GetLogBehavior() == LogBehavior.Truncate ? LogBehavior.Truncate : candidateBehavior;
 
         textLogger = behavior == LogBehavior.Show
             ? new ActivityLogger(MakeInnerLogger(), activity)
