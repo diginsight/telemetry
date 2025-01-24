@@ -113,6 +113,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
                     callerType,
                     activitiesOptions,
                     behavior,
+                    false,
                     out isStandalone,
                     out writeActionAsPrefix,
                     out disablePayloadRendering,
@@ -195,6 +196,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
                     callerType,
                     activitiesOptions,
                     behavior,
+                    true,
                     out isStandalone,
                     out writeActionAsPrefix,
                     out disablePayloadRendering,
@@ -348,6 +350,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         Type? callerType,
         IDiginsightActivitiesLogOptions activitiesOptions,
         LogBehavior behavior,
+        bool isStop,
         out bool isStandalone,
         out bool writeActionAsPrefix,
         out bool disablePayloadRendering,
@@ -372,7 +375,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         ILogger MakeInnerLogger() => providedLogger ?? (callerType is not null ? loggerFactory.CreateLogger(callerType) : fallbackLogger);
 
         textLogger = behavior == LogBehavior.Show
-            ? new ActivityLogger(MakeInnerLogger(), activity)
+            ? new ActivityLogger(MakeInnerLogger(), activity, isStop ? activity.Duration : null)
             : NullLogger.Instance;
 
         writeActionAsPrefix = activitiesOptions.WriteActivityActionAsPrefix;
@@ -391,10 +394,9 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         private readonly ILogger decoratee;
         private readonly ILogger decorateeWithMetadata;
 
-        public ActivityLogger(ILogger decoratee, Activity activity)
+        public ActivityLogger(ILogger decoratee, Activity activity, TimeSpan? duration)
         {
-            TimeSpan? duration = activity.IsStopped ? activity.Duration : null;
-            Logging.ILogMetadata metadata = new LogMetadata(duration, activity);
+            Logging.ILogMetadata metadata = new LogMetadata(activity, duration);
 
             this.decoratee = decoratee;
             decorateeWithMetadata = decoratee.WithMetadata(metadata);
@@ -438,19 +440,19 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
 
     public interface ILogMetadata : Logging.ILogMetadata
     {
-        TimeSpan? Duration { get; }
         Activity Activity { get; }
+        TimeSpan? Duration { get; }
     }
 
     private sealed class LogMetadata : ILogMetadata
     {
-        public TimeSpan? Duration { get; }
         public Activity Activity { get; }
+        public TimeSpan? Duration { get; }
 
-        public LogMetadata(TimeSpan? duration, Activity activity)
+        public LogMetadata(Activity activity, TimeSpan? duration)
         {
-            Duration = duration;
             Activity = activity;
+            Duration = duration;
         }
     }
 }

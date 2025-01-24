@@ -108,10 +108,4 @@ public static class DependencyInjectionExtensions
 #endif
         return builder;
     }
-
-    public static void EnsureDiginsightOpenTelemetry(this IServiceProvider serviceProvider)
-    {
-        _ = serviceProvider.GetService<TracerProvider>();
-        _ = serviceProvider.GetService<MeterProvider>();
-    }
 }

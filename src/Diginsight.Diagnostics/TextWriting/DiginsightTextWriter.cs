@@ -61,10 +61,9 @@ public static class DiginsightTextWriter
             duration = activityMetadata.Duration;
             activity ??= activityMetadata.Activity;
 
-            bool isStop = activityMetadata.Duration is not null;
-            maybeTimestamp ??= activity
-                    .GetCustomProperty(isStop ? ActivityCustomPropertyNames.EmitStopTimestamp : ActivityCustomPropertyNames.EmitStartTimestamp)
-                as DateTimeOffset?;
+            bool isStop = duration is not null;
+            maybeTimestamp ??=
+                activity.GetCustomProperty(isStop ? ActivityCustomPropertyNames.EmitStopTimestamp : ActivityCustomPropertyNames.EmitStartTimestamp) as DateTimeOffset?;
         }
         else
         {

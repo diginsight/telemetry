@@ -5,6 +5,12 @@ namespace Diginsight.Diagnostics.TextWriting;
 
 public readonly ref struct LinePrefixData
 {
+    private static class CustomPropertyNames
+    {
+        public const string LastLogTimestamp = nameof(LastLogTimestamp);
+        public const string LastWasStart = nameof(LastWasStart);
+    }
+
     public DateTime Timestamp { get; }
     public LogLevel LogLevel { get; }
     public string Category { get; }
@@ -21,19 +27,16 @@ public readonly ref struct LinePrefixData
         DateTime? prevTimestamp;
         bool lastWasStart;
         {
-            const string lastLogTimestampCustomPropertyName = "lastLogTimestamp";
-            const string lastWasStartCustomPropertyName = "lastWasStart";
-
             if (activity is null)
             {
                 prevTimestamp = null;
             }
             else
             {
-                prevTimestamp = activity.GetCustomProperty(lastLogTimestampCustomPropertyName) switch
+                prevTimestamp = activity.GetCustomProperty(CustomPropertyNames.LastLogTimestamp) switch
                 {
                     DateTime dt => dt,
-                    null => activity.Parent?.GetCustomProperty(lastLogTimestampCustomPropertyName) switch
+                    null => activity.Parent?.GetCustomProperty(CustomPropertyNames.LastLogTimestamp) switch
                     {
                         DateTime dt => dt,
                         null => null,
@@ -45,18 +48,18 @@ public readonly ref struct LinePrefixData
 
             if (activity is not null)
             {
-                lastWasStart = activity.GetCustomProperty(lastWasStartCustomPropertyName) switch
+                lastWasStart = activity.GetCustomProperty(CustomPropertyNames.LastWasStart) switch
                 {
                     bool b => b,
                     null => false,
-                    _ => throw new InvalidOperationException($"Invalid '{lastWasStartCustomPropertyName}' in activity"),
+                    _ => throw new InvalidOperationException($"Invalid '{CustomPropertyNames.LastWasStart}' in activity"),
                 };
-                activity.SetCustomProperty(lastWasStartCustomPropertyName, isActivity && durationMsec is null);
+                activity.SetCustomProperty(CustomPropertyNames.LastWasStart, isActivity && durationMsec is null);
 
-                activity.SetCustomProperty(lastLogTimestampCustomPropertyName, timestamp);
+                activity.SetCustomProperty(CustomPropertyNames.LastLogTimestamp, timestamp);
                 if (durationMsec is not null)
                 {
-                    activity.Parent?.SetCustomProperty(lastLogTimestampCustomPropertyName, timestamp);
+                    activity.Parent?.SetCustomProperty(CustomPropertyNames.LastLogTimestamp, timestamp);
                 }
             }
             else
