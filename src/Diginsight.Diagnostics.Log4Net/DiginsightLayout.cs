@@ -12,7 +12,7 @@ public sealed class DiginsightLayout : ILayout
 
     public TimeZoneInfo? TimeZone { get; set; } = TimeZoneInfo.Utc;
 
-    public string? TimeZoneName
+    public string? TimeZoneId
     {
         get => TimeZone?.Id;
         set => TimeZone = value is null ? null : TimeZoneInfo.FindSystemTimeZoneById(value);
