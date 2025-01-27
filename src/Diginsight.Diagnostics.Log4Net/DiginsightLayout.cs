@@ -10,7 +10,13 @@ public sealed class DiginsightLayout : ILayout
 {
     private LineDescriptor? lineDescriptor;
 
-    public bool UseUtcTimestamp { get; set; } = true;
+    public TimeZoneInfo? TimeZone { get; set; } = TimeZoneInfo.Utc;
+
+    public string? TimeZoneName
+    {
+        get => TimeZone?.Id;
+        set => TimeZone = value is null ? null : TimeZoneInfo.FindSystemTimeZoneById(value);
+    }
 
     public string? Pattern { get; set; }
 
@@ -36,7 +42,7 @@ public sealed class DiginsightLayout : ILayout
             DiginsightTextWriter.Write(
                 writer,
                 false,
-                UseUtcTimestamp ? loggingEvent.TimeStampUtc : loggingEvent.TimeStamp,
+                TimeZoneInfo.ConvertTime(new DateTimeOffset(loggingEvent.TimeStampUtc), TimeZone ?? TimeZoneInfo.Local),
                 myLoggingEvent.Activity,
                 TranslateLogLevel(loggingEvent.Level),
                 myLoggingEvent.LoggerName,

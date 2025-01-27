@@ -3,7 +3,7 @@
 public interface IDiginsightConsoleFormatterOptions
 {
     string? TimestampFormat { get; }
-    bool UseUtcTimestamp { get; }
+    TimeZoneInfo? TimeZone { get; }
 
     string? Pattern { get; }
     IReadOnlyDictionary<int, string?> Patterns { get; }

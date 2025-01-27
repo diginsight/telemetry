@@ -5,7 +5,30 @@ namespace Diginsight.Diagnostics;
 
 public sealed class DiginsightConsoleFormatterOptions : ConsoleFormatterOptions, IDiginsightConsoleFormatterOptions
 {
+    private TimeZoneInfo? timeZone;
+    private bool useUtcTimestamp;
     private string? pattern;
+
+    [Obsolete($"This property hides the one in {nameof(ConsoleFormatterOptions)} and is not used by {nameof(DiginsightConsoleFormatter)}. Get/set {nameof(TimeZone)} instead.")]
+    public new bool UseUtcTimestamp
+    {
+        get => useUtcTimestamp;
+        set
+        {
+            useUtcTimestamp = value;
+            timeZone = value ? TimeZoneInfo.Utc : null;
+        }
+    }
+
+    public TimeZoneInfo? TimeZone
+    {
+        get => timeZone;
+        set
+        {
+            timeZone = value;
+            useUtcTimestamp = TimeZoneInfo.Utc.Equals(value);
+        }
+    }
 
     public string? Pattern
     {
@@ -26,6 +49,6 @@ public sealed class DiginsightConsoleFormatterOptions : ConsoleFormatterOptions,
 
     public DiginsightConsoleFormatterOptions()
     {
-        UseUtcTimestamp = true;
+        TimeZone = TimeZoneInfo.Utc;
     }
 }

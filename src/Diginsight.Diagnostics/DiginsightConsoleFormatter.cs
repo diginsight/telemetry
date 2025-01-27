@@ -71,7 +71,7 @@ internal sealed class DiginsightConsoleFormatter : ConsoleFormatter
             DiginsightTextWriter.Write(
                 textWriter,
                 formatterOptions.UseColor,
-                formatterOptions.UseUtcTimestamp ? finalTimestamp.UtcDateTime : finalTimestamp.LocalDateTime,
+                TimeZoneInfo.ConvertTime(finalTimestamp, formatterOptions.TimeZone ?? TimeZoneInfo.Local),
                 activity ?? Activity.Current,
                 logEntry.LogLevel,
                 logEntry.Category,

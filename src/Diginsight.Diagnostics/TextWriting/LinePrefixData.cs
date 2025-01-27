@@ -11,35 +11,37 @@ public readonly ref struct LinePrefixData
         public const string LastWasStart = nameof(LastWasStart);
     }
 
-    public DateTime Timestamp { get; }
+    private static DateTimeOffset? globalPrevTimestamp;
+
+    public DateTimeOffset Timestamp { get; }
     public LogLevel LogLevel { get; }
     public string Category { get; }
     public bool IsActivity { get; }
     public double? Duration { get; }
-    public DateTime? PrevTimestamp { get; }
+    public DateTimeOffset? PrevTimestamp { get; }
     public bool LastWasStart { get; }
     public Activity? Activity { get; }
 
-    public LinePrefixData(DateTime timestamp, LogLevel logLevel, string category, bool isActivity, TimeSpan? duration, Activity? activity)
+    public LinePrefixData(DateTimeOffset timestamp, LogLevel logLevel, string category, bool isActivity, TimeSpan? duration, Activity? activity)
     {
         double? durationMsec = duration?.TotalMilliseconds;
 
-        DateTime? prevTimestamp;
+        DateTimeOffset? prevTimestamp;
         bool lastWasStart;
         {
             if (activity is null)
             {
-                prevTimestamp = null;
+                prevTimestamp = globalPrevTimestamp;
             }
             else
             {
                 prevTimestamp = activity.GetCustomProperty(CustomPropertyNames.LastLogTimestamp) switch
                 {
-                    DateTime dt => dt,
+                    DateTimeOffset dto => dto,
                     null => activity.Parent?.GetCustomProperty(CustomPropertyNames.LastLogTimestamp) switch
                     {
-                        DateTime dt => dt,
-                        null => null,
+                        DateTimeOffset dto => dto,
+                        null => globalPrevTimestamp,
                         _ => throw new InvalidOperationException("Invalid last log timestamp in activity"),
                     },
                     _ => throw new InvalidOperationException("Invalid last log timestamp in activity"),
@@ -59,12 +61,20 @@ public readonly ref struct LinePrefixData
                 activity.SetCustomProperty(CustomPropertyNames.LastLogTimestamp, timestamp);
                 if (durationMsec is not null)
                 {
-                    activity.Parent?.SetCustomProperty(CustomPropertyNames.LastLogTimestamp, timestamp);
+                    if (activity.Parent is { } parent)
+                    {
+                        parent.SetCustomProperty(CustomPropertyNames.LastLogTimestamp, timestamp);
+                    }
+                    else
+                    {
+                        globalPrevTimestamp = timestamp;
+                    }
                 }
             }
             else
             {
                 lastWasStart = false;
+                globalPrevTimestamp = timestamp;
             }
         }
 

@@ -77,7 +77,7 @@ public static class DiginsightTextWriter
     public static bool Write(
         TextWriter textWriter,
         bool useColor,
-        DateTime timestamp,
+        DateTimeOffset timestamp,
         Activity? activity,
         LogLevel logLevel,
         string category,
@@ -154,7 +154,7 @@ public static class DiginsightTextWriter
     public static bool Write(
         TextWriter textWriter,
         bool useColor,
-        DateTime timestamp,
+        DateTimeOffset timestamp,
         Activity? activity,
         LogLevel logLevel,
         string category,
