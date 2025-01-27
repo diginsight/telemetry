@@ -26,7 +26,9 @@ public sealed class DeltaToken : ILineToken
             Append(
                 sb,
                 ref length,
-                linePrefixData.LastWasStart ? null : (linePrefixData.Timestamp - linePrefixData.PrevTimestamp)?.TotalMilliseconds,
+                linePrefixData is { LastWasStart: true, Duration: not null }
+                    ? null
+                    : (linePrefixData.Timestamp - linePrefixData.PrevTimestamp)?.TotalMilliseconds,
                 useColor
             );
         }
