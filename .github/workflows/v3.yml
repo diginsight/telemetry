@@ -54,4 +54,4 @@ jobs:
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY_V3 }}
         run: |
-          Get-ChildItem Diginsight.*.nupkg -Recurse | ForEach-Object { dotnet nuget push $_.FullName -s https://api.nuget.org/v3/index.json -k $env:NUGET_API_KEY }
+          Get-ChildItem Diginsight.*.nupkg -Recurse | ForEach-Object { dotnet nuget push $_.FullName -s https://api.nuget.org/v3/index.json -k $env:NUGET_API_KEY --skip-duplicate }
