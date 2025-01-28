@@ -3,7 +3,7 @@
 namespace Diginsight.Options;
 
 /// <summary>
-/// Wrapper for a class-aware options that projects it to a specific class.
+/// Wrapper for class-aware options that projects it to a specific class.
 /// </summary>
 /// <typeparam name="TOptions">The type of options instance.</typeparam>
 public sealed class ClassAwareOptionsProjection<TOptions> : IOptions<TOptions>

@@ -5,10 +5,11 @@ using System.Runtime.CompilerServices;
 namespace Diginsight.Diagnostics;
 
 [SuppressMessage("ReSharper", "InconsistentlySynchronizedField")]
-public sealed class DeferredActivityLifecycleLogEmitter
+public sealed class DeferredActivityLifecycleLogEmitter : IDisposable
 {
     private readonly DeferredOperationRegistry operationRegistry;
     private readonly TimeProvider timeProvider;
+    private readonly Func<ActivityLifecycleLogEmitter>? makeEmergencyTarget;
 #if NET9_0_OR_GREATER
     private readonly Lock @lock = new ();
 #else
@@ -21,11 +22,13 @@ public sealed class DeferredActivityLifecycleLogEmitter
     public DeferredActivityLifecycleLogEmitter(
         DeferredOperationRegistry operationRegistry,
         Func<ActivitySource, bool> shouldListenTo,
-        TimeProvider? timeProvider = null
+        TimeProvider? timeProvider = null,
+        Func<ActivityLifecycleLogEmitter>? makeEmergencyTarget = null
     )
     {
         this.operationRegistry = operationRegistry;
         this.timeProvider = timeProvider ?? TimeProvider.System;
+        this.makeEmergencyTarget = makeEmergencyTarget;
 
         activityListener = new ActivityListener()
         {
@@ -104,21 +107,32 @@ public sealed class DeferredActivityLifecycleLogEmitter
                     return;
             }
 
-            this.target = target;
-
-            UnregisterActivityListener();
+            SetTarget(target);
         }
 
-        operationRegistry.Flush(
-            operation =>
-            {
-                if (operation is not DeferredOperation myOperation)
-                    return false;
+        FlushOperations();
+    }
 
-                myOperation.PrepareFlushTo(target);
-                return true;
-            }
-        );
+    void IDisposable.Dispose()
+    {
+        UnregisterActivityListener();
+
+        if (makeEmergencyTarget is null)
+            return;
+
+        if (target is not null)
+            return;
+
+        lock (@lock)
+        {
+            if (target is not null)
+                return;
+
+            ActivityLifecycleLogEmitter emergencyTarget = makeEmergencyTarget();
+            SetTarget(emergencyTarget);
+        }
+
+        FlushOperations();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -127,13 +141,35 @@ public sealed class DeferredActivityLifecycleLogEmitter
         Interlocked.Exchange(ref activityListener, null)?.Dispose();
     }
 
+    // ReSharper disable once ParameterHidesMember
+    private void SetTarget(ActivityLifecycleLogEmitter target)
+    {
+        this.target = target;
+
+        UnregisterActivityListener();
+    }
+
+    private void FlushOperations()
+    {
+        operationRegistry.Flush(
+            operation =>
+            {
+                if (operation is not DeferredOperation myOperation)
+                    return false;
+
+                myOperation.PrepareFlushTo(target!);
+                return true;
+            }
+        );
+    }
+
     private abstract class DeferredOperation : IDeferredOperation
     {
         private ActivityLifecycleLogEmitter? target;
 
         protected ActivityLifecycleLogEmitter Target => target ?? throw new InvalidOperationException("Not flushable yet");
 
-        public bool IsFlushable => target is not null;
+        bool IDeferredOperation.IsFlushable => target is not null;
 
         // ReSharper disable once ParameterHidesMember
         public void PrepareFlushTo(ActivityLifecycleLogEmitter target)
@@ -141,7 +177,11 @@ public sealed class DeferredActivityLifecycleLogEmitter
             this.target = target;
         }
 
-        public abstract void Flush();
+        protected abstract void Flush();
+
+        void IDeferredOperation.Flush() => Flush();
+
+        void IDeferredOperation.Discard() => PrepareFlushTo(ActivityLifecycleLogEmitter.Noop);
     }
 
     private sealed class DeferredStartOperation : DeferredOperation
@@ -153,7 +193,7 @@ public sealed class DeferredActivityLifecycleLogEmitter
             this.activity = activity;
         }
 
-        public override void Flush() => Target.ActivityStarted(activity);
+        protected override void Flush() => Target.ActivityStarted(activity);
     }
 
     private sealed class DeferredStopOperation : DeferredOperation
@@ -165,6 +205,6 @@ public sealed class DeferredActivityLifecycleLogEmitter
             this.activity = activity;
         }
 
-        public override void Flush() => Target.ActivityStopped(activity);
+        protected override void Flush() => Target.ActivityStopped(activity);
     }
 }

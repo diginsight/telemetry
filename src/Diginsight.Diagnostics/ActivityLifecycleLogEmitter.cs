@@ -20,6 +20,15 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         public const string EmittedStop = nameof(EmittedStop);
     }
 
+    public static readonly ActivityLifecycleLogEmitter Noop = new (
+        NullLoggerFactory.Instance,
+        new ClassAwareOptionsMonitorExtension<DiginsightActivitiesOptions>(
+            new ClassAwareOptionsExtension<DiginsightActivitiesOptions>(
+                Microsoft.Extensions.Options.Options.Create(new DiginsightActivitiesOptions { LogBehavior = LogBehavior.Hide }.Freeze())
+            )
+        )
+    );
+
     private static readonly EventId StartActivityEventId = new (100, "StartActivity");
     private static readonly EventId StartMethodActivityEventId = new (110, "StartMethodActivity");
     private static readonly EventId EndActivityEventId = new (200, "EndActivity");

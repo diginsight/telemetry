@@ -1,6 +1,6 @@
 ﻿using Diginsight.Logging;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
@@ -10,7 +10,7 @@ public sealed class DeferredLoggerFactory : ILoggerFactory
 {
     private readonly DeferredOperationRegistry operationRegistry;
     private readonly TimeProvider timeProvider;
-    private readonly Func<ILoggerFactory>? makeEmergencyLoggerFactory;
+    private readonly Func<ILoggerFactory>? makeEmergencyTarget;
 #if NET9_0_OR_GREATER
     private readonly Lock @lock = new ();
 #else
@@ -23,28 +23,12 @@ public sealed class DeferredLoggerFactory : ILoggerFactory
     public DeferredLoggerFactory(
         DeferredOperationRegistry operationRegistry,
         TimeProvider? timeProvider = null,
-        Func<ILoggerFactory>? makeEmergencyLoggerFactory = null
+        Func<ILoggerFactory>? makeEmergencyTarget = null
     )
     {
         this.timeProvider = timeProvider ?? TimeProvider.System;
         this.operationRegistry = operationRegistry;
-        this.makeEmergencyLoggerFactory = makeEmergencyLoggerFactory;
-    }
-
-    public static ILoggerFactory MakeDefaultEmergencyLoggerFactory(
-        Action<LoggerFilterOptions>? configureFilterOptions = null,
-        Action<DiginsightConsoleFormatterOptions>? configureFormatterOptions = null
-    )
-    {
-        IServiceCollection services = new ServiceCollection()
-            .AddLogging(lb => { lb.AddDiginsightConsole(configureFormatterOptions); });
-
-        if (configureFilterOptions is not null)
-        {
-            services.Configure(configureFilterOptions);
-        }
-
-        return services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
+        this.makeEmergencyTarget = makeEmergencyTarget;
     }
 
     ILogger ILoggerFactory.CreateLogger(string categoryName)
@@ -111,30 +95,54 @@ public sealed class DeferredLoggerFactory : ILoggerFactory
                     return;
             }
 
-            this.target = target;
-
-            loggers.Clear();
+            SetTarget(target);
         }
 
+        FlushOperations();
+    }
+
+    void IDisposable.Dispose()
+    {
+        if (makeEmergencyTarget is null)
+            return;
+
+        if (target is not null)
+            return;
+
+        lock (@lock)
+        {
+            if (target is not null)
+                return;
+
+            ILoggerFactory emergencyTarget = makeEmergencyTarget();
+            operationRegistry.AddDisposable(emergencyTarget);
+
+            SetTarget(emergencyTarget);
+        }
+
+        FlushOperations();
+    }
+
+    // ReSharper disable once ParameterHidesMember
+    private void SetTarget(ILoggerFactory target)
+    {
+        this.target = target;
+
+        loggers.Clear();
+    }
+
+    private void FlushOperations()
+    {
         operationRegistry.Flush(
             operation =>
             {
                 if (operation is not DeferredOperation myOperation)
                     return false;
 
-                myOperation.PrepareFlushTo(target);
+                myOperation.PrepareFlushTo(target!);
                 return true;
             }
         );
-    }
-
-    void IDisposable.Dispose()
-    {
-        if (makeEmergencyLoggerFactory is null)
-            return;
-
-        using ILoggerFactory emergencyLoggerFactory = makeEmergencyLoggerFactory();
-        FlushTo(emergencyLoggerFactory, false);
     }
 
     private sealed class DeferredLogger : ILogger
@@ -207,7 +215,7 @@ public sealed class DeferredLoggerFactory : ILoggerFactory
 
         protected ILoggerFactory Target => target ?? throw new InvalidOperationException("Not flushable yet");
 
-        public bool IsFlushable => target is not null;
+        bool IDeferredOperation.IsFlushable => target is not null;
 
         // ReSharper disable once ParameterHidesMember
         public void PrepareFlushTo(ILoggerFactory target)
@@ -215,7 +223,11 @@ public sealed class DeferredLoggerFactory : ILoggerFactory
             this.target = target;
         }
 
-        public abstract void Flush();
+        protected abstract void Flush();
+
+        void IDeferredOperation.Flush() => Flush();
+
+        void IDeferredOperation.Discard() => PrepareFlushTo(NullLoggerFactory.Instance);
     }
 
     private sealed class DeferredLogOperation<TState> : DeferredOperation
@@ -248,7 +260,7 @@ public sealed class DeferredLoggerFactory : ILoggerFactory
             metadata = new LogMetadata(timestamp, activity);
         }
 
-        public override void Flush()
+        protected override void Flush()
         {
             Target.CreateLogger(category).WithMetadata(metadata).Log(logLevel, eventId, state, exception, formatter);
         }
@@ -290,7 +302,7 @@ public sealed class DeferredLoggerFactory : ILoggerFactory
             this.scopeBox = scopeBox;
         }
 
-        public override void Flush()
+        protected override void Flush()
         {
             scopeBox.Value = Target.CreateLogger(category).BeginScope(state);
         }
@@ -305,7 +317,7 @@ public sealed class DeferredLoggerFactory : ILoggerFactory
             this.scopeBox = scopeBox;
         }
 
-        public override void Flush()
+        protected override void Flush()
         {
             scopeBox.Value?.Dispose();
         }
