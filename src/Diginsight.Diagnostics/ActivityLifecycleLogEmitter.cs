@@ -89,7 +89,6 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         }
     }
 
-    [SuppressMessage("ReSharper", "TemplateIsNotCompileTimeConstantProblem")]
     public void ActivityStarted(Activity activity)
     {
         if (IsEmitted(activity, false))
@@ -137,9 +136,17 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
             activity.SetCustomProperty(CustomPropertyNames.ExceptionPointers, getExceptionPointers());
 
             EventId eventId = isStandalone ? StartActivityEventId : StartMethodActivityEventId;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            void LogText(string format, params object?[] args)
+            {
+                // ReSharper disable once TemplateIsNotCompileTimeConstantProblem
+                textLogger.Log(logLevel, eventId, ComposeLogFormat(format), args);
+            }
+
             if (disablePayloadRendering)
             {
-                textLogger.Log(logLevel, eventId, ComposeLogFormat(isStandalone ? "{ActivityName}" : "{ActivityName}()"), activityName);
+                LogText(isStandalone ? "{ActivityName}" : "{ActivityName}()", activityName);
                 return;
             }
 
@@ -152,7 +159,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
 
             if (inputs is null)
             {
-                textLogger.Log(logLevel, eventId, ComposeLogFormat(isStandalone ? "{ActivityName}" : "{ActivityName}()"), activityName);
+                LogText(isStandalone ? "{ActivityName}" : "{ActivityName}()", activityName);
                 return;
             }
 
@@ -166,7 +173,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
                 activity.SetTag($"input.{input.Key}", input.Value);
             }
 
-            textLogger.Log(logLevel, eventId, ComposeLogFormat("{ActivityName}({Inputs})"), activityName, inputsAsString);
+            LogText("{ActivityName}({Inputs})", activityName, inputsAsString);
         }
         catch (Exception exception)
         {
@@ -174,7 +181,6 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         }
     }
 
-    [SuppressMessage("ReSharper", "TemplateIsNotCompileTimeConstantProblem")]
     public void ActivityStopped(Activity activity)
     {
         if (IsEmitted(activity, true))
@@ -270,22 +276,30 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
             }
 
             EventId eventId = isStandalone ? EndActivityEventId : EndMethodActivityEventId;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            void LogText(string format, params object?[] args)
+            {
+                // ReSharper disable once TemplateIsNotCompileTimeConstantProblem
+                textLogger.Log(logLevel, eventId, ComposeLogFormat(format), args);
+            }
+
             switch (outputAsString, namedOutputsAsString)
             {
                 case (null, null):
-                    textLogger.Log(logLevel, eventId, ComposeLogFormat(faulted ? "{ActivityName} ‼" : "{ActivityName}"), activityName);
+                    LogText(faulted ? "{ActivityName} ‼" : "{ActivityName}", activityName);
                     break;
 
                 case (not null, null):
-                    textLogger.Log(logLevel, eventId, ComposeLogFormat("{ActivityName} => {Output}"), activityName, outputAsString);
+                    LogText("{ActivityName} => {Output}", activityName, outputAsString);
                     break;
 
                 case (null, not null):
-                    textLogger.Log(logLevel, eventId, ComposeLogFormat("{ActivityName} [=> {NamedOutputs}]"), activityName, namedOutputsAsString);
+                    LogText("{ActivityName} [=> {NamedOutputs}]", activityName, namedOutputsAsString);
                     break;
 
                 case (not null, not null):
-                    textLogger.Log(logLevel, eventId, ComposeLogFormat("{ActivityName} => {Output} [=> {NamedOutputs}]"), activityName, outputAsString, namedOutputsAsString);
+                    LogText("{ActivityName} => {Output} [=> {NamedOutputs}]", activityName, outputAsString, namedOutputsAsString);
                     break;
             }
         }

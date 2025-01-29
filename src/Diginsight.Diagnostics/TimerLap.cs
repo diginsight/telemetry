@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Metrics;
 using System.Runtime.CompilerServices;
 
@@ -30,8 +31,7 @@ public sealed class TimerLap : IDisposable
         this.elapsedMillisecondsBox = elapsedMillisecondsBox;
     }
 
-    // ReSharper disable once ParameterHidesMember
-    public void AddTags(params Tag[] tags)
+    public void AddTags([SuppressMessage("ReSharper", "ParameterHidesMember")] params Tag[] tags)
     {
         foreach (var tag in tags)
         {

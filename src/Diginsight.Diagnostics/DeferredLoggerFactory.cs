@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
@@ -74,8 +75,11 @@ public sealed class DeferredLoggerFactory : ILoggerFactory
         }
     }
 
-    // ReSharper disable once ParameterHidesMember
-    public void FlushTo(ILoggerFactory target, bool throwOnFlushed = true)
+    public void FlushTo(
+        [SuppressMessage("ReSharper", "ParameterHidesMember")]
+        ILoggerFactory target,
+        bool throwOnFlushed = true
+    )
     {
         if (this.target is not null)
         {
@@ -123,8 +127,10 @@ public sealed class DeferredLoggerFactory : ILoggerFactory
         FlushOperations();
     }
 
-    // ReSharper disable once ParameterHidesMember
-    private void SetTarget(ILoggerFactory target)
+    private void SetTarget(
+        [SuppressMessage("ReSharper", "ParameterHidesMember")]
+        ILoggerFactory target
+    )
     {
         this.target = target;
 
@@ -217,8 +223,10 @@ public sealed class DeferredLoggerFactory : ILoggerFactory
 
         bool IDeferredOperation.IsFlushable => target is not null;
 
-        // ReSharper disable once ParameterHidesMember
-        public void PrepareFlushTo(ILoggerFactory target)
+        public void PrepareFlushTo(
+            [SuppressMessage("ReSharper", "ParameterHidesMember")]
+            ILoggerFactory target
+        )
         {
             this.target = target;
         }

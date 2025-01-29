@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -122,8 +123,10 @@ public class StringifyTypeContract : IStringifyTypeContract
         return memberContracts.TryGetValue(member, out StringifyMemberContract? memberContract) ? memberContract : null;
     }
 
-    // ReSharper disable once ParameterHidesMember
-    IStringifyTypeContract? IStringifyTypeContractAccessor.TryGet(Type type)
+    IStringifyTypeContract? IStringifyTypeContractAccessor.TryGet(
+        [SuppressMessage("ReSharper", "ParameterHidesMember")]
+        Type type
+    )
     {
         return type == this.type ? this : null;
     }

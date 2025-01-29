@@ -86,8 +86,11 @@ public sealed class DeferredActivityLifecycleLogEmitter : IDisposable
         }
     }
 
-    // ReSharper disable once ParameterHidesMember
-    public void FlushTo(ActivityLifecycleLogEmitter target, bool throwOnFlushed = true)
+    public void FlushTo(
+        [SuppressMessage("ReSharper", "ParameterHidesMember")]
+        ActivityLifecycleLogEmitter target,
+        bool throwOnFlushed = true
+    )
     {
         if (this.target is not null)
         {
@@ -141,8 +144,9 @@ public sealed class DeferredActivityLifecycleLogEmitter : IDisposable
         Interlocked.Exchange(ref activityListener, null)?.Dispose();
     }
 
-    // ReSharper disable once ParameterHidesMember
-    private void SetTarget(ActivityLifecycleLogEmitter target)
+    private void SetTarget(
+        [SuppressMessage("ReSharper", "ParameterHidesMember")] ActivityLifecycleLogEmitter target
+    )
     {
         this.target = target;
 
@@ -171,8 +175,10 @@ public sealed class DeferredActivityLifecycleLogEmitter : IDisposable
 
         bool IDeferredOperation.IsFlushable => target is not null;
 
-        // ReSharper disable once ParameterHidesMember
-        public void PrepareFlushTo(ActivityLifecycleLogEmitter target)
+        public void PrepareFlushTo(
+            [SuppressMessage("ReSharper", "ParameterHidesMember")]
+            ActivityLifecycleLogEmitter target
+        )
         {
             this.target = target;
         }
