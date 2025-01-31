@@ -32,7 +32,7 @@ public class EarlyLoggingManager : IDisposable
 
     protected virtual ActivityLifecycleLogEmitter MakeEmergencyLogEmitter() => ActivityLifecycleLogEmitter.Noop;
 
-    public virtual void AttachTo(IServiceCollection services)
+    public void AttachTo(IServiceCollection services)
     {
         services.FlushOnCreateServiceProvider(loggerFactory);
         services.FlushOnCreateServiceProvider(logEmitter);
