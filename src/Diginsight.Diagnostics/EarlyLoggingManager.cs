@@ -24,11 +24,11 @@ public class EarlyLoggingManager : IDisposable
         logEmitter = new DeferredActivityLifecycleLogEmitter(operationRegistry, shouldListenTo, timeProvider, GetEmergencyLogEmitter);
     }
 
-    private ILoggerFactory GetEmergencyLoggerFactory() => emergencyLoggerFactory ??= MakeEmergencyLoggerFactory();
+    protected ILoggerFactory GetEmergencyLoggerFactory() => emergencyLoggerFactory ??= MakeEmergencyLoggerFactory();
 
     protected virtual ILoggerFactory MakeEmergencyLoggerFactory() => NullLoggerFactory.Instance;
 
-    private ActivityLifecycleLogEmitter GetEmergencyLogEmitter() => emergencyLogEmitter ??= MakeEmergencyLogEmitter();
+    protected ActivityLifecycleLogEmitter GetEmergencyLogEmitter() => emergencyLogEmitter ??= MakeEmergencyLogEmitter();
 
     protected virtual ActivityLifecycleLogEmitter MakeEmergencyLogEmitter() => ActivityLifecycleLogEmitter.Noop;
 
