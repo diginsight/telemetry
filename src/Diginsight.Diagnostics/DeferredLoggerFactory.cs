@@ -105,7 +105,7 @@ public sealed class DeferredLoggerFactory : ILoggerFactory
         FlushOperations();
     }
 
-    void IDisposable.Dispose()
+    public void Dispose()
     {
         if (makeEmergencyTarget is null)
             return;

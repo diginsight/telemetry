@@ -116,7 +116,7 @@ public sealed class DeferredActivityLifecycleLogEmitter : IDisposable
         FlushOperations();
     }
 
-    void IDisposable.Dispose()
+    public void Dispose()
     {
         UnregisterActivityListener();
 
