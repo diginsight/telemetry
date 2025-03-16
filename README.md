@@ -8,14 +8,14 @@ In particular, __the full application flow__ is made available to __local text b
 >  Diginsight allows __observability__ of the __full application lifecycle__, including __static methods__, __injection sequences__ and the __application startup__ and __shutdown sequences__ where configuration problems and much complexity are often hidden.
 >  
 
-__Diginsight telemetry__ is produced by standard __ILogger<>__ and __System.Diagnostic activity__ classes so it integrates (without replacing) other logging systems telemetry. Also, __diginsight telemetry__ fully integrated with __Opentelemetry__ and the __W3C Trace Context__ Specification so __traceids__ are preserved across process invocations of a distributed system.
+__Diginsight telemetry__ is produced by standard __ILogger<>__ and __System.Diagnostic activity__ classes so it integrates (without replacing) other logging systems telemetry. Also, __diginsight telemetry__ is fully integrated with __Opentelemetry__ and the __W3C Trace Context__ Specification so __traceids__ are preserved across process invocations of a distributed system.
 
 __Diginsight telemetry__ targets __all dotnet framework versions__ starting from __netstandard2.0__.<br>Samples are available on [telemetry.samples](https://github.com/diginsight/telemetry.samples) repository to demonstrate use of telemetry on __.net 4.8__ up to [__blazor webassembly__,]__.net6__ and __.net8+__ assemblies.
 <br>
 > __Diginsight telemetry__  can capture automatically __database queries__, __outgoing requests__ as well as __missing configuration data__.<br>
 This makes it is an invaluable companion for troubleshooting problems related to missing or invalid data.
 <br>
-
+> 
 > __Diginsight Telemetry__ is __fully dynamic__: minimal data can be enabled by default, on live environments.<br>
 Full execution flow observability can be enabled __on demand__ for `specific components` or `specific requests`.
 <br>
