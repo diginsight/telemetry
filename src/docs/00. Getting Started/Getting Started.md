@@ -3,7 +3,7 @@ title: "Getting Started"
 ---
 
 ## Getting Started with Diginsight
-Diginsight streamlines __logging__ and __OpenTelemetry integration__ by embracing standard notation for activity tracing with the __.NET System.Diagnostics API__.
+Diginsight streamlines __logging__ and __OpenTelemetry integration__ embracing __.NET System.Diagnostics__ standard notation for activity tracing.
 
 In the present article we'll understand __basic steps__ to __enable application flow observability__ to __local text based streams__ such as the application console or a log4net file, as well ass to the __remote analysis tools__ such as Azure Monitor.
 
@@ -13,6 +13,7 @@ public async Task<Plant> GetPlantByIdAsync([FromRoute] Guid plantId)
 {
     using var activity = Observability.ActivitySource.StartMethodActivity(logger, new { plantId });
 
+    ...
 
     activity?.SetOutput(plant);
     return plant;
@@ -37,7 +38,7 @@ logger.LogDebug("tenantId = {tenantId}, clientId = {clientId}, clientSecret = {c
 ...
 ```
 this generates a log raw as shown below
-![alt text](image.png)
+![alt text](<00.01 Method log stream.png>)
 
 ## Steps to use Diginsight
 You can obtain a __console log__ or __file log__ with diginsight by means of the following steps.<br>
@@ -131,7 +132,7 @@ Please, note that in this case the method payload is passed to `StartMethodActiv
 
 ## STEP 04 - Enable OpenTelemetry and send data to the remote tools
 With few changes to the startup sequence, __telemetry can be sent to the remote tools__.<br>
-Telemetry to the local tools is less expensive, m4ore efficient, well protected and often it is not even persisted.<br>
+Telemetry to the local tools is less expensive, more efficient, well protected and, often, it is not even persisted.<br>
 So, telemetry to the local tools can include verbose data with the maximum level of information.<br>
 Telemetry to the remote tools is more expensive (in cost and performance) so it will normally include only critical and warning non verbose information.
 
