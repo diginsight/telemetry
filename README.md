@@ -14,8 +14,7 @@ __Diginsight telemetry__ targets __all dotnet framework versions__ starting from
 <br>
 > __Diginsight telemetry__  can capture automatically __database queries__, __outgoing requests__ as well as __missing configuration data__.<br>
 This makes it is an invaluable companion for troubleshooting problems related to missing or invalid data.
-<br>
-> 
+<br><br>
 > __Diginsight Telemetry__ is __fully dynamic__: minimal data can be enabled by default, on live environments.<br>
 Full execution flow observability can be enabled __on demand__ for `specific components` or `specific requests`.
 <br>
