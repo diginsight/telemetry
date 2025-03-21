@@ -86,29 +86,29 @@ public class TupleEqualityComparer<<#= ts #>>
     public int GetHashCode(<#= valueTupleType #> obj)
     {
 <#
-        if (componentCount == 1)
-        {
+    if (componentCount == 1)
+    {
 #>
-        T1 o1 = obj.Item1;
+    T1 o1 = obj.Item1;
 <#
-        }
-        else
-        {
+    }
+    else
+    {
 #>
-        (<#= string.Join(", ", range.Select(static x => $"T{x} o{x}")) #>) = obj;
+    (<#= string.Join(", ", range.Select(static x => $"T{x} o{x}")) #>) = obj;
 <#
-        }
+    }
 #>
-        HashCode hashCode = new();
+    HashCode hashCode = new();
 <#
-        foreach (string x in range)
-        {
+    foreach (string x in range)
+    {
 #>
-        hashCode.Add(o<#= x #>, c<#= x #>);
+    hashCode.Add(o<#= x #> is null ? 0 : c<#= x #>.GetHashCode(o<#= x #>));
 <#
-        }
+    }
 #>
-        return hashCode.ToHashCode();
+    return hashCode.ToHashCode();
     }
 
 <#

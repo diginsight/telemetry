@@ -58,10 +58,10 @@
       },
       "Microsoft.Bcl.TimeProvider": {
         "type": "Transitive",
-        "resolved": "8.0.1",
-        "contentHash": "C7kWHJnMRY7EvJev2S8+yJHZ1y7A4ZlLbA4NE+O23BDIAN5mHeqND1m+SKv1ChRS5YlCDW7yAMUe7lttRsJaAA==",
+        "resolved": "9.0.3",
+        "contentHash": "G8mEABHtAtfs4wNhrViz0PN3s0TeLA/0lzUIQ79hkc2i18VwHPXzL03m3Wfv5mpmhPcoXMbRWMue0cJNOSEEMw==",
         "dependencies": {
-          "Microsoft.Bcl.AsyncInterfaces": "8.0.0"
+          "Microsoft.Bcl.AsyncInterfaces": "9.0.3"
         }
       },
       "Microsoft.Build.Tasks.Git": {
@@ -325,7 +325,7 @@
           "Microsoft.Bcl.AsyncInterfaces": "[9.*, )",
           "Microsoft.Bcl.HashCode": "[6.*, )",
           "Microsoft.Bcl.Memory": "[9.*, )",
-          "Microsoft.Bcl.TimeProvider": "[8.*, )",
+          "Microsoft.Bcl.TimeProvider": "[9.*, )",
           "System.Collections.Immutable": "[9.*, )"
         }
       }
@@ -356,15 +356,15 @@
       },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "3WA9q9yVqJp222P3x1wYIGDAkpjAku0TMUaaQV22g6L67AI0LdOIrVS7Ht2vJfLHGSPVuqN94vIr15qn+HEkHw=="
+        "resolved": "9.0.3",
+        "contentHash": "oFFX9Ls8dnNUBCD9yzRzHTY8tqvv+CiX43B8L8DjrM8BqYTAlORYaJf6+KXNtSC2bD1135yV8OxzcZFaluow5w=="
       },
       "Microsoft.Bcl.TimeProvider": {
         "type": "Transitive",
-        "resolved": "8.0.1",
-        "contentHash": "C7kWHJnMRY7EvJev2S8+yJHZ1y7A4ZlLbA4NE+O23BDIAN5mHeqND1m+SKv1ChRS5YlCDW7yAMUe7lttRsJaAA==",
+        "resolved": "9.0.3",
+        "contentHash": "G8mEABHtAtfs4wNhrViz0PN3s0TeLA/0lzUIQ79hkc2i18VwHPXzL03m3Wfv5mpmhPcoXMbRWMue0cJNOSEEMw==",
         "dependencies": {
-          "Microsoft.Bcl.AsyncInterfaces": "8.0.0"
+          "Microsoft.Bcl.AsyncInterfaces": "9.0.3"
         }
       },
       "Microsoft.Build.Tasks.Git": {
@@ -611,7 +611,7 @@
       "diginsight.polyfills": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.Bcl.TimeProvider": "[8.*, )",
+          "Microsoft.Bcl.TimeProvider": "[9.*, )",
           "System.Collections.Immutable": "[9.*, )"
         }
       }
@@ -642,15 +642,15 @@
       },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "3WA9q9yVqJp222P3x1wYIGDAkpjAku0TMUaaQV22g6L67AI0LdOIrVS7Ht2vJfLHGSPVuqN94vIr15qn+HEkHw=="
+        "resolved": "9.0.3",
+        "contentHash": "oFFX9Ls8dnNUBCD9yzRzHTY8tqvv+CiX43B8L8DjrM8BqYTAlORYaJf6+KXNtSC2bD1135yV8OxzcZFaluow5w=="
       },
       "Microsoft.Bcl.TimeProvider": {
         "type": "Transitive",
-        "resolved": "8.0.1",
-        "contentHash": "C7kWHJnMRY7EvJev2S8+yJHZ1y7A4ZlLbA4NE+O23BDIAN5mHeqND1m+SKv1ChRS5YlCDW7yAMUe7lttRsJaAA==",
+        "resolved": "9.0.3",
+        "contentHash": "G8mEABHtAtfs4wNhrViz0PN3s0TeLA/0lzUIQ79hkc2i18VwHPXzL03m3Wfv5mpmhPcoXMbRWMue0cJNOSEEMw==",
         "dependencies": {
-          "Microsoft.Bcl.AsyncInterfaces": "8.0.0"
+          "Microsoft.Bcl.AsyncInterfaces": "9.0.3"
         }
       },
       "Microsoft.Build.Tasks.Git": {
@@ -839,7 +839,7 @@
       "diginsight.polyfills": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.Bcl.TimeProvider": "[8.*, )"
+          "Microsoft.Bcl.TimeProvider": "[9.*, )"
         }
       }
     },
@@ -869,15 +869,15 @@
       },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "3WA9q9yVqJp222P3x1wYIGDAkpjAku0TMUaaQV22g6L67AI0LdOIrVS7Ht2vJfLHGSPVuqN94vIr15qn+HEkHw=="
+        "resolved": "9.0.3",
+        "contentHash": "oFFX9Ls8dnNUBCD9yzRzHTY8tqvv+CiX43B8L8DjrM8BqYTAlORYaJf6+KXNtSC2bD1135yV8OxzcZFaluow5w=="
       },
       "Microsoft.Bcl.TimeProvider": {
         "type": "Transitive",
-        "resolved": "8.0.1",
-        "contentHash": "C7kWHJnMRY7EvJev2S8+yJHZ1y7A4ZlLbA4NE+O23BDIAN5mHeqND1m+SKv1ChRS5YlCDW7yAMUe7lttRsJaAA==",
+        "resolved": "9.0.3",
+        "contentHash": "G8mEABHtAtfs4wNhrViz0PN3s0TeLA/0lzUIQ79hkc2i18VwHPXzL03m3Wfv5mpmhPcoXMbRWMue0cJNOSEEMw==",
         "dependencies": {
-          "Microsoft.Bcl.AsyncInterfaces": "8.0.0"
+          "Microsoft.Bcl.AsyncInterfaces": "9.0.3"
         }
       },
       "Microsoft.Build.Tasks.Git": {
@@ -1051,7 +1051,7 @@
       "diginsight.polyfills": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.Bcl.TimeProvider": "[8.*, )"
+          "Microsoft.Bcl.TimeProvider": "[9.*, )"
         }
       }
     },
@@ -1205,8 +1205,8 @@
       },
       "Scrutor": {
         "type": "Transitive",
-        "resolved": "5.1.2",
-        "contentHash": "48sb1JM6seMkk1bhMoYedogVGsTIqA4Nd93hB8Rv25kiP+t98OjrYKPWAXs3d9blBLAz6daIlO9/6MWT8Ixrww==",
+        "resolved": "6.0.1",
+        "contentHash": "5xKT6ND5GqnFzwSaYozHCJe75GFL8sPy4yw/iRFqeBFGlmqPNFpOg1T9Q0Gl2h76Cklt0ZTg6Ypkri5iUBKXsA==",
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.1",
           "Microsoft.Extensions.DependencyModel": "8.0.2"
@@ -1245,7 +1245,7 @@
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[9.*, )",
           "Microsoft.Extensions.Hosting.Abstractions": "[9.*, )",
           "Microsoft.Extensions.Logging": "[9.*, )",
-          "Scrutor": "[5.*, )",
+          "Scrutor": "[6.*, )",
           "System.Text.Json": "[9.*, )"
         }
       },
@@ -1401,8 +1401,8 @@
       },
       "Scrutor": {
         "type": "Transitive",
-        "resolved": "5.1.2",
-        "contentHash": "48sb1JM6seMkk1bhMoYedogVGsTIqA4Nd93hB8Rv25kiP+t98OjrYKPWAXs3d9blBLAz6daIlO9/6MWT8Ixrww==",
+        "resolved": "6.0.1",
+        "contentHash": "5xKT6ND5GqnFzwSaYozHCJe75GFL8sPy4yw/iRFqeBFGlmqPNFpOg1T9Q0Gl2h76Cklt0ZTg6Ypkri5iUBKXsA==",
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.1",
           "Microsoft.Extensions.DependencyModel": "8.0.2"
@@ -1422,7 +1422,7 @@
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[9.*, )",
           "Microsoft.Extensions.Hosting.Abstractions": "[9.*, )",
           "Microsoft.Extensions.Logging": "[9.*, )",
-          "Scrutor": "[5.*, )",
+          "Scrutor": "[6.*, )",
           "System.Text.Json": "[9.*, )"
         }
       },

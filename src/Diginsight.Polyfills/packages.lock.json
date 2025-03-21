@@ -29,11 +29,11 @@
       },
       "Microsoft.Bcl.TimeProvider": {
         "type": "Direct",
-        "requested": "[8.*, )",
-        "resolved": "8.0.1",
-        "contentHash": "C7kWHJnMRY7EvJev2S8+yJHZ1y7A4ZlLbA4NE+O23BDIAN5mHeqND1m+SKv1ChRS5YlCDW7yAMUe7lttRsJaAA==",
+        "requested": "[9.*, )",
+        "resolved": "9.0.3",
+        "contentHash": "G8mEABHtAtfs4wNhrViz0PN3s0TeLA/0lzUIQ79hkc2i18VwHPXzL03m3Wfv5mpmhPcoXMbRWMue0cJNOSEEMw==",
         "dependencies": {
-          "Microsoft.Bcl.AsyncInterfaces": "8.0.0"
+          "Microsoft.Bcl.AsyncInterfaces": "9.0.3"
         }
       },
       "Microsoft.SourceLink.GitHub": {
@@ -117,11 +117,11 @@
     ".NETStandard,Version=v2.1": {
       "Microsoft.Bcl.TimeProvider": {
         "type": "Direct",
-        "requested": "[8.*, )",
-        "resolved": "8.0.1",
-        "contentHash": "C7kWHJnMRY7EvJev2S8+yJHZ1y7A4ZlLbA4NE+O23BDIAN5mHeqND1m+SKv1ChRS5YlCDW7yAMUe7lttRsJaAA==",
+        "requested": "[9.*, )",
+        "resolved": "9.0.3",
+        "contentHash": "G8mEABHtAtfs4wNhrViz0PN3s0TeLA/0lzUIQ79hkc2i18VwHPXzL03m3Wfv5mpmhPcoXMbRWMue0cJNOSEEMw==",
         "dependencies": {
-          "Microsoft.Bcl.AsyncInterfaces": "8.0.0"
+          "Microsoft.Bcl.AsyncInterfaces": "9.0.3"
         }
       },
       "Microsoft.SourceLink.GitHub": {
@@ -146,8 +146,8 @@
       },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "3WA9q9yVqJp222P3x1wYIGDAkpjAku0TMUaaQV22g6L67AI0LdOIrVS7Ht2vJfLHGSPVuqN94vIr15qn+HEkHw=="
+        "resolved": "9.0.3",
+        "contentHash": "oFFX9Ls8dnNUBCD9yzRzHTY8tqvv+CiX43B8L8DjrM8BqYTAlORYaJf6+KXNtSC2bD1135yV8OxzcZFaluow5w=="
       },
       "Microsoft.Build.Tasks.Git": {
         "type": "Transitive",
@@ -188,11 +188,11 @@
     "net6.0": {
       "Microsoft.Bcl.TimeProvider": {
         "type": "Direct",
-        "requested": "[8.*, )",
-        "resolved": "8.0.1",
-        "contentHash": "C7kWHJnMRY7EvJev2S8+yJHZ1y7A4ZlLbA4NE+O23BDIAN5mHeqND1m+SKv1ChRS5YlCDW7yAMUe7lttRsJaAA==",
+        "requested": "[9.*, )",
+        "resolved": "9.0.3",
+        "contentHash": "G8mEABHtAtfs4wNhrViz0PN3s0TeLA/0lzUIQ79hkc2i18VwHPXzL03m3Wfv5mpmhPcoXMbRWMue0cJNOSEEMw==",
         "dependencies": {
-          "Microsoft.Bcl.AsyncInterfaces": "8.0.0"
+          "Microsoft.Bcl.AsyncInterfaces": "9.0.3"
         }
       },
       "Microsoft.SourceLink.GitHub": {
@@ -207,8 +207,8 @@
       },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "3WA9q9yVqJp222P3x1wYIGDAkpjAku0TMUaaQV22g6L67AI0LdOIrVS7Ht2vJfLHGSPVuqN94vIr15qn+HEkHw=="
+        "resolved": "9.0.3",
+        "contentHash": "oFFX9Ls8dnNUBCD9yzRzHTY8tqvv+CiX43B8L8DjrM8BqYTAlORYaJf6+KXNtSC2bD1135yV8OxzcZFaluow5w=="
       },
       "Microsoft.Build.Tasks.Git": {
         "type": "Transitive",
@@ -224,11 +224,11 @@
     "net7.0": {
       "Microsoft.Bcl.TimeProvider": {
         "type": "Direct",
-        "requested": "[8.*, )",
-        "resolved": "8.0.1",
-        "contentHash": "C7kWHJnMRY7EvJev2S8+yJHZ1y7A4ZlLbA4NE+O23BDIAN5mHeqND1m+SKv1ChRS5YlCDW7yAMUe7lttRsJaAA==",
+        "requested": "[9.*, )",
+        "resolved": "9.0.3",
+        "contentHash": "G8mEABHtAtfs4wNhrViz0PN3s0TeLA/0lzUIQ79hkc2i18VwHPXzL03m3Wfv5mpmhPcoXMbRWMue0cJNOSEEMw==",
         "dependencies": {
-          "Microsoft.Bcl.AsyncInterfaces": "8.0.0"
+          "Microsoft.Bcl.AsyncInterfaces": "9.0.3"
         }
       },
       "Microsoft.SourceLink.GitHub": {
@@ -243,8 +243,8 @@
       },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "3WA9q9yVqJp222P3x1wYIGDAkpjAku0TMUaaQV22g6L67AI0LdOIrVS7Ht2vJfLHGSPVuqN94vIr15qn+HEkHw=="
+        "resolved": "9.0.3",
+        "contentHash": "oFFX9Ls8dnNUBCD9yzRzHTY8tqvv+CiX43B8L8DjrM8BqYTAlORYaJf6+KXNtSC2bD1135yV8OxzcZFaluow5w=="
       },
       "Microsoft.Build.Tasks.Git": {
         "type": "Transitive",

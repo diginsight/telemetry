@@ -30,10 +30,10 @@ public class TupleEqualityComparer<T1>
     /// <inheritdoc />
     public int GetHashCode(ValueTuple<T1> obj)
     {
-        T1 o1 = obj.Item1;
-        HashCode hashCode = new();
-        hashCode.Add(o1, c1);
-        return hashCode.ToHashCode();
+    T1 o1 = obj.Item1;
+    HashCode hashCode = new();
+    hashCode.Add(o1 is null ? 0 : c1.GetHashCode(o1));
+    return hashCode.ToHashCode();
     }
 
     /// <inheritdoc />
@@ -95,11 +95,11 @@ public class TupleEqualityComparer<T1, T2>
     /// <inheritdoc />
     public int GetHashCode((T1, T2) obj)
     {
-        (T1 o1, T2 o2) = obj;
-        HashCode hashCode = new();
-        hashCode.Add(o1, c1);
-        hashCode.Add(o2, c2);
-        return hashCode.ToHashCode();
+    (T1 o1, T2 o2) = obj;
+    HashCode hashCode = new();
+    hashCode.Add(o1 is null ? 0 : c1.GetHashCode(o1));
+    hashCode.Add(o2 is null ? 0 : c2.GetHashCode(o2));
+    return hashCode.ToHashCode();
     }
 
     /// <inheritdoc />
@@ -169,12 +169,12 @@ public class TupleEqualityComparer<T1, T2, T3>
     /// <inheritdoc />
     public int GetHashCode((T1, T2, T3) obj)
     {
-        (T1 o1, T2 o2, T3 o3) = obj;
-        HashCode hashCode = new();
-        hashCode.Add(o1, c1);
-        hashCode.Add(o2, c2);
-        hashCode.Add(o3, c3);
-        return hashCode.ToHashCode();
+    (T1 o1, T2 o2, T3 o3) = obj;
+    HashCode hashCode = new();
+    hashCode.Add(o1 is null ? 0 : c1.GetHashCode(o1));
+    hashCode.Add(o2 is null ? 0 : c2.GetHashCode(o2));
+    hashCode.Add(o3 is null ? 0 : c3.GetHashCode(o3));
+    return hashCode.ToHashCode();
     }
 
     /// <inheritdoc />
@@ -252,13 +252,13 @@ public class TupleEqualityComparer<T1, T2, T3, T4>
     /// <inheritdoc />
     public int GetHashCode((T1, T2, T3, T4) obj)
     {
-        (T1 o1, T2 o2, T3 o3, T4 o4) = obj;
-        HashCode hashCode = new();
-        hashCode.Add(o1, c1);
-        hashCode.Add(o2, c2);
-        hashCode.Add(o3, c3);
-        hashCode.Add(o4, c4);
-        return hashCode.ToHashCode();
+    (T1 o1, T2 o2, T3 o3, T4 o4) = obj;
+    HashCode hashCode = new();
+    hashCode.Add(o1 is null ? 0 : c1.GetHashCode(o1));
+    hashCode.Add(o2 is null ? 0 : c2.GetHashCode(o2));
+    hashCode.Add(o3 is null ? 0 : c3.GetHashCode(o3));
+    hashCode.Add(o4 is null ? 0 : c4.GetHashCode(o4));
+    return hashCode.ToHashCode();
     }
 
     /// <inheritdoc />
@@ -344,14 +344,14 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5>
     /// <inheritdoc />
     public int GetHashCode((T1, T2, T3, T4, T5) obj)
     {
-        (T1 o1, T2 o2, T3 o3, T4 o4, T5 o5) = obj;
-        HashCode hashCode = new();
-        hashCode.Add(o1, c1);
-        hashCode.Add(o2, c2);
-        hashCode.Add(o3, c3);
-        hashCode.Add(o4, c4);
-        hashCode.Add(o5, c5);
-        return hashCode.ToHashCode();
+    (T1 o1, T2 o2, T3 o3, T4 o4, T5 o5) = obj;
+    HashCode hashCode = new();
+    hashCode.Add(o1 is null ? 0 : c1.GetHashCode(o1));
+    hashCode.Add(o2 is null ? 0 : c2.GetHashCode(o2));
+    hashCode.Add(o3 is null ? 0 : c3.GetHashCode(o3));
+    hashCode.Add(o4 is null ? 0 : c4.GetHashCode(o4));
+    hashCode.Add(o5 is null ? 0 : c5.GetHashCode(o5));
+    return hashCode.ToHashCode();
     }
 
     /// <inheritdoc />
@@ -445,15 +445,15 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6>
     /// <inheritdoc />
     public int GetHashCode((T1, T2, T3, T4, T5, T6) obj)
     {
-        (T1 o1, T2 o2, T3 o3, T4 o4, T5 o5, T6 o6) = obj;
-        HashCode hashCode = new();
-        hashCode.Add(o1, c1);
-        hashCode.Add(o2, c2);
-        hashCode.Add(o3, c3);
-        hashCode.Add(o4, c4);
-        hashCode.Add(o5, c5);
-        hashCode.Add(o6, c6);
-        return hashCode.ToHashCode();
+    (T1 o1, T2 o2, T3 o3, T4 o4, T5 o5, T6 o6) = obj;
+    HashCode hashCode = new();
+    hashCode.Add(o1 is null ? 0 : c1.GetHashCode(o1));
+    hashCode.Add(o2 is null ? 0 : c2.GetHashCode(o2));
+    hashCode.Add(o3 is null ? 0 : c3.GetHashCode(o3));
+    hashCode.Add(o4 is null ? 0 : c4.GetHashCode(o4));
+    hashCode.Add(o5 is null ? 0 : c5.GetHashCode(o5));
+    hashCode.Add(o6 is null ? 0 : c6.GetHashCode(o6));
+    return hashCode.ToHashCode();
     }
 
     /// <inheritdoc />
@@ -555,16 +555,16 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7>
     /// <inheritdoc />
     public int GetHashCode((T1, T2, T3, T4, T5, T6, T7) obj)
     {
-        (T1 o1, T2 o2, T3 o3, T4 o4, T5 o5, T6 o6, T7 o7) = obj;
-        HashCode hashCode = new();
-        hashCode.Add(o1, c1);
-        hashCode.Add(o2, c2);
-        hashCode.Add(o3, c3);
-        hashCode.Add(o4, c4);
-        hashCode.Add(o5, c5);
-        hashCode.Add(o6, c6);
-        hashCode.Add(o7, c7);
-        return hashCode.ToHashCode();
+    (T1 o1, T2 o2, T3 o3, T4 o4, T5 o5, T6 o6, T7 o7) = obj;
+    HashCode hashCode = new();
+    hashCode.Add(o1 is null ? 0 : c1.GetHashCode(o1));
+    hashCode.Add(o2 is null ? 0 : c2.GetHashCode(o2));
+    hashCode.Add(o3 is null ? 0 : c3.GetHashCode(o3));
+    hashCode.Add(o4 is null ? 0 : c4.GetHashCode(o4));
+    hashCode.Add(o5 is null ? 0 : c5.GetHashCode(o5));
+    hashCode.Add(o6 is null ? 0 : c6.GetHashCode(o6));
+    hashCode.Add(o7 is null ? 0 : c7.GetHashCode(o7));
+    return hashCode.ToHashCode();
     }
 
     /// <inheritdoc />
@@ -674,17 +674,17 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8>
     /// <inheritdoc />
     public int GetHashCode((T1, T2, T3, T4, T5, T6, T7, T8) obj)
     {
-        (T1 o1, T2 o2, T3 o3, T4 o4, T5 o5, T6 o6, T7 o7, T8 o8) = obj;
-        HashCode hashCode = new();
-        hashCode.Add(o1, c1);
-        hashCode.Add(o2, c2);
-        hashCode.Add(o3, c3);
-        hashCode.Add(o4, c4);
-        hashCode.Add(o5, c5);
-        hashCode.Add(o6, c6);
-        hashCode.Add(o7, c7);
-        hashCode.Add(o8, c8);
-        return hashCode.ToHashCode();
+    (T1 o1, T2 o2, T3 o3, T4 o4, T5 o5, T6 o6, T7 o7, T8 o8) = obj;
+    HashCode hashCode = new();
+    hashCode.Add(o1 is null ? 0 : c1.GetHashCode(o1));
+    hashCode.Add(o2 is null ? 0 : c2.GetHashCode(o2));
+    hashCode.Add(o3 is null ? 0 : c3.GetHashCode(o3));
+    hashCode.Add(o4 is null ? 0 : c4.GetHashCode(o4));
+    hashCode.Add(o5 is null ? 0 : c5.GetHashCode(o5));
+    hashCode.Add(o6 is null ? 0 : c6.GetHashCode(o6));
+    hashCode.Add(o7 is null ? 0 : c7.GetHashCode(o7));
+    hashCode.Add(o8 is null ? 0 : c8.GetHashCode(o8));
+    return hashCode.ToHashCode();
     }
 
 }
@@ -766,18 +766,18 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9>
     /// <inheritdoc />
     public int GetHashCode((T1, T2, T3, T4, T5, T6, T7, T8, T9) obj)
     {
-        (T1 o1, T2 o2, T3 o3, T4 o4, T5 o5, T6 o6, T7 o7, T8 o8, T9 o9) = obj;
-        HashCode hashCode = new();
-        hashCode.Add(o1, c1);
-        hashCode.Add(o2, c2);
-        hashCode.Add(o3, c3);
-        hashCode.Add(o4, c4);
-        hashCode.Add(o5, c5);
-        hashCode.Add(o6, c6);
-        hashCode.Add(o7, c7);
-        hashCode.Add(o8, c8);
-        hashCode.Add(o9, c9);
-        return hashCode.ToHashCode();
+    (T1 o1, T2 o2, T3 o3, T4 o4, T5 o5, T6 o6, T7 o7, T8 o8, T9 o9) = obj;
+    HashCode hashCode = new();
+    hashCode.Add(o1 is null ? 0 : c1.GetHashCode(o1));
+    hashCode.Add(o2 is null ? 0 : c2.GetHashCode(o2));
+    hashCode.Add(o3 is null ? 0 : c3.GetHashCode(o3));
+    hashCode.Add(o4 is null ? 0 : c4.GetHashCode(o4));
+    hashCode.Add(o5 is null ? 0 : c5.GetHashCode(o5));
+    hashCode.Add(o6 is null ? 0 : c6.GetHashCode(o6));
+    hashCode.Add(o7 is null ? 0 : c7.GetHashCode(o7));
+    hashCode.Add(o8 is null ? 0 : c8.GetHashCode(o8));
+    hashCode.Add(o9 is null ? 0 : c9.GetHashCode(o9));
+    return hashCode.ToHashCode();
     }
 
 }
@@ -865,19 +865,19 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
     /// <inheritdoc />
     public int GetHashCode((T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) obj)
     {
-        (T1 o1, T2 o2, T3 o3, T4 o4, T5 o5, T6 o6, T7 o7, T8 o8, T9 o9, T10 o10) = obj;
-        HashCode hashCode = new();
-        hashCode.Add(o1, c1);
-        hashCode.Add(o2, c2);
-        hashCode.Add(o3, c3);
-        hashCode.Add(o4, c4);
-        hashCode.Add(o5, c5);
-        hashCode.Add(o6, c6);
-        hashCode.Add(o7, c7);
-        hashCode.Add(o8, c8);
-        hashCode.Add(o9, c9);
-        hashCode.Add(o10, c10);
-        return hashCode.ToHashCode();
+    (T1 o1, T2 o2, T3 o3, T4 o4, T5 o5, T6 o6, T7 o7, T8 o8, T9 o9, T10 o10) = obj;
+    HashCode hashCode = new();
+    hashCode.Add(o1 is null ? 0 : c1.GetHashCode(o1));
+    hashCode.Add(o2 is null ? 0 : c2.GetHashCode(o2));
+    hashCode.Add(o3 is null ? 0 : c3.GetHashCode(o3));
+    hashCode.Add(o4 is null ? 0 : c4.GetHashCode(o4));
+    hashCode.Add(o5 is null ? 0 : c5.GetHashCode(o5));
+    hashCode.Add(o6 is null ? 0 : c6.GetHashCode(o6));
+    hashCode.Add(o7 is null ? 0 : c7.GetHashCode(o7));
+    hashCode.Add(o8 is null ? 0 : c8.GetHashCode(o8));
+    hashCode.Add(o9 is null ? 0 : c9.GetHashCode(o9));
+    hashCode.Add(o10 is null ? 0 : c10.GetHashCode(o10));
+    return hashCode.ToHashCode();
     }
 
 }
@@ -971,20 +971,20 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>
     /// <inheritdoc />
     public int GetHashCode((T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) obj)
     {
-        (T1 o1, T2 o2, T3 o3, T4 o4, T5 o5, T6 o6, T7 o7, T8 o8, T9 o9, T10 o10, T11 o11) = obj;
-        HashCode hashCode = new();
-        hashCode.Add(o1, c1);
-        hashCode.Add(o2, c2);
-        hashCode.Add(o3, c3);
-        hashCode.Add(o4, c4);
-        hashCode.Add(o5, c5);
-        hashCode.Add(o6, c6);
-        hashCode.Add(o7, c7);
-        hashCode.Add(o8, c8);
-        hashCode.Add(o9, c9);
-        hashCode.Add(o10, c10);
-        hashCode.Add(o11, c11);
-        return hashCode.ToHashCode();
+    (T1 o1, T2 o2, T3 o3, T4 o4, T5 o5, T6 o6, T7 o7, T8 o8, T9 o9, T10 o10, T11 o11) = obj;
+    HashCode hashCode = new();
+    hashCode.Add(o1 is null ? 0 : c1.GetHashCode(o1));
+    hashCode.Add(o2 is null ? 0 : c2.GetHashCode(o2));
+    hashCode.Add(o3 is null ? 0 : c3.GetHashCode(o3));
+    hashCode.Add(o4 is null ? 0 : c4.GetHashCode(o4));
+    hashCode.Add(o5 is null ? 0 : c5.GetHashCode(o5));
+    hashCode.Add(o6 is null ? 0 : c6.GetHashCode(o6));
+    hashCode.Add(o7 is null ? 0 : c7.GetHashCode(o7));
+    hashCode.Add(o8 is null ? 0 : c8.GetHashCode(o8));
+    hashCode.Add(o9 is null ? 0 : c9.GetHashCode(o9));
+    hashCode.Add(o10 is null ? 0 : c10.GetHashCode(o10));
+    hashCode.Add(o11 is null ? 0 : c11.GetHashCode(o11));
+    return hashCode.ToHashCode();
     }
 
 }
@@ -1084,21 +1084,21 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
     /// <inheritdoc />
     public int GetHashCode((T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) obj)
     {
-        (T1 o1, T2 o2, T3 o3, T4 o4, T5 o5, T6 o6, T7 o7, T8 o8, T9 o9, T10 o10, T11 o11, T12 o12) = obj;
-        HashCode hashCode = new();
-        hashCode.Add(o1, c1);
-        hashCode.Add(o2, c2);
-        hashCode.Add(o3, c3);
-        hashCode.Add(o4, c4);
-        hashCode.Add(o5, c5);
-        hashCode.Add(o6, c6);
-        hashCode.Add(o7, c7);
-        hashCode.Add(o8, c8);
-        hashCode.Add(o9, c9);
-        hashCode.Add(o10, c10);
-        hashCode.Add(o11, c11);
-        hashCode.Add(o12, c12);
-        return hashCode.ToHashCode();
+    (T1 o1, T2 o2, T3 o3, T4 o4, T5 o5, T6 o6, T7 o7, T8 o8, T9 o9, T10 o10, T11 o11, T12 o12) = obj;
+    HashCode hashCode = new();
+    hashCode.Add(o1 is null ? 0 : c1.GetHashCode(o1));
+    hashCode.Add(o2 is null ? 0 : c2.GetHashCode(o2));
+    hashCode.Add(o3 is null ? 0 : c3.GetHashCode(o3));
+    hashCode.Add(o4 is null ? 0 : c4.GetHashCode(o4));
+    hashCode.Add(o5 is null ? 0 : c5.GetHashCode(o5));
+    hashCode.Add(o6 is null ? 0 : c6.GetHashCode(o6));
+    hashCode.Add(o7 is null ? 0 : c7.GetHashCode(o7));
+    hashCode.Add(o8 is null ? 0 : c8.GetHashCode(o8));
+    hashCode.Add(o9 is null ? 0 : c9.GetHashCode(o9));
+    hashCode.Add(o10 is null ? 0 : c10.GetHashCode(o10));
+    hashCode.Add(o11 is null ? 0 : c11.GetHashCode(o11));
+    hashCode.Add(o12 is null ? 0 : c12.GetHashCode(o12));
+    return hashCode.ToHashCode();
     }
 
 }
@@ -1204,22 +1204,22 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
     /// <inheritdoc />
     public int GetHashCode((T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) obj)
     {
-        (T1 o1, T2 o2, T3 o3, T4 o4, T5 o5, T6 o6, T7 o7, T8 o8, T9 o9, T10 o10, T11 o11, T12 o12, T13 o13) = obj;
-        HashCode hashCode = new();
-        hashCode.Add(o1, c1);
-        hashCode.Add(o2, c2);
-        hashCode.Add(o3, c3);
-        hashCode.Add(o4, c4);
-        hashCode.Add(o5, c5);
-        hashCode.Add(o6, c6);
-        hashCode.Add(o7, c7);
-        hashCode.Add(o8, c8);
-        hashCode.Add(o9, c9);
-        hashCode.Add(o10, c10);
-        hashCode.Add(o11, c11);
-        hashCode.Add(o12, c12);
-        hashCode.Add(o13, c13);
-        return hashCode.ToHashCode();
+    (T1 o1, T2 o2, T3 o3, T4 o4, T5 o5, T6 o6, T7 o7, T8 o8, T9 o9, T10 o10, T11 o11, T12 o12, T13 o13) = obj;
+    HashCode hashCode = new();
+    hashCode.Add(o1 is null ? 0 : c1.GetHashCode(o1));
+    hashCode.Add(o2 is null ? 0 : c2.GetHashCode(o2));
+    hashCode.Add(o3 is null ? 0 : c3.GetHashCode(o3));
+    hashCode.Add(o4 is null ? 0 : c4.GetHashCode(o4));
+    hashCode.Add(o5 is null ? 0 : c5.GetHashCode(o5));
+    hashCode.Add(o6 is null ? 0 : c6.GetHashCode(o6));
+    hashCode.Add(o7 is null ? 0 : c7.GetHashCode(o7));
+    hashCode.Add(o8 is null ? 0 : c8.GetHashCode(o8));
+    hashCode.Add(o9 is null ? 0 : c9.GetHashCode(o9));
+    hashCode.Add(o10 is null ? 0 : c10.GetHashCode(o10));
+    hashCode.Add(o11 is null ? 0 : c11.GetHashCode(o11));
+    hashCode.Add(o12 is null ? 0 : c12.GetHashCode(o12));
+    hashCode.Add(o13 is null ? 0 : c13.GetHashCode(o13));
+    return hashCode.ToHashCode();
     }
 
 }
@@ -1331,23 +1331,23 @@ public class TupleEqualityComparer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
     /// <inheritdoc />
     public int GetHashCode((T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) obj)
     {
-        (T1 o1, T2 o2, T3 o3, T4 o4, T5 o5, T6 o6, T7 o7, T8 o8, T9 o9, T10 o10, T11 o11, T12 o12, T13 o13, T14 o14) = obj;
-        HashCode hashCode = new();
-        hashCode.Add(o1, c1);
-        hashCode.Add(o2, c2);
-        hashCode.Add(o3, c3);
-        hashCode.Add(o4, c4);
-        hashCode.Add(o5, c5);
-        hashCode.Add(o6, c6);
-        hashCode.Add(o7, c7);
-        hashCode.Add(o8, c8);
-        hashCode.Add(o9, c9);
-        hashCode.Add(o10, c10);
-        hashCode.Add(o11, c11);
-        hashCode.Add(o12, c12);
-        hashCode.Add(o13, c13);
-        hashCode.Add(o14, c14);
-        return hashCode.ToHashCode();
+    (T1 o1, T2 o2, T3 o3, T4 o4, T5 o5, T6 o6, T7 o7, T8 o8, T9 o9, T10 o10, T11 o11, T12 o12, T13 o13, T14 o14) = obj;
+    HashCode hashCode = new();
+    hashCode.Add(o1 is null ? 0 : c1.GetHashCode(o1));
+    hashCode.Add(o2 is null ? 0 : c2.GetHashCode(o2));
+    hashCode.Add(o3 is null ? 0 : c3.GetHashCode(o3));
+    hashCode.Add(o4 is null ? 0 : c4.GetHashCode(o4));
+    hashCode.Add(o5 is null ? 0 : c5.GetHashCode(o5));
+    hashCode.Add(o6 is null ? 0 : c6.GetHashCode(o6));
+    hashCode.Add(o7 is null ? 0 : c7.GetHashCode(o7));
+    hashCode.Add(o8 is null ? 0 : c8.GetHashCode(o8));
+    hashCode.Add(o9 is null ? 0 : c9.GetHashCode(o9));
+    hashCode.Add(o10 is null ? 0 : c10.GetHashCode(o10));
+    hashCode.Add(o11 is null ? 0 : c11.GetHashCode(o11));
+    hashCode.Add(o12 is null ? 0 : c12.GetHashCode(o12));
+    hashCode.Add(o13 is null ? 0 : c13.GetHashCode(o13));
+    hashCode.Add(o14 is null ? 0 : c14.GetHashCode(o14));
+    return hashCode.ToHashCode();
     }
 
 }

@@ -19,7 +19,7 @@
     <Otherwise>
 
       <ItemGroup>
-        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.9.*" />
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.11.*" />
       </ItemGroup>
 
     </Otherwise>

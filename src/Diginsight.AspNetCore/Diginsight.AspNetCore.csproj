@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
@@ -18,13 +18,13 @@
     <Otherwise>
 
       <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.*">
+        <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.3.*">
           <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.*">
+        <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.*">
           <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.2.*">
+        <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.3.*">
           <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
         </PackageReference>
       </ItemGroup>
@@ -36,7 +36,7 @@
     <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
 
       <ItemGroup>
-        <PackageReference Include="Scrutor" Version="5.*">
+        <PackageReference Include="Scrutor" Version="6.*">
           <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
         </PackageReference>
       </ItemGroup>
