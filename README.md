@@ -78,7 +78,7 @@ Example code used in the articles is also available in the [telemetry.samples](h
 >Explores how we can troubleshoot applications by means of __dynamic logging__.<br>
 >- [HowTo: use dynamic configuration to manage configurations and feature flags dynamically, at runtime](<src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.md>)<br>
 >Explores how we can troubleshoot applications by means of __dynamic configuration__.<br>4
->- [HowTo: configure diginsight telemetry to the remote tools](<src/docs/02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.md>)<br>
+>- [HowTo: configure diginsight telemetry to the remote tools](<src/docs/01. Concepts/02.00 - HowTo - configure diginsight telemetry to the remote tools.md>)<br>
 >Explores how we configure diginsight telemetry to the __remote analysis tools__.<br>
 >- [HowTo: maximize application performance and minimize telemetry cost with diginsight](<src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.md>)<br>
 >Explores diginsight telemetry can be used without impact on __application performance__ and __telemetry cost__.<br>
