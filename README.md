@@ -76,11 +76,11 @@ Example code used in the articles is also available in the [telemetry.samples](h
 >Explores how we configure diginsight telemetry to the __local analysis tools__.<br>
 >- [HowTo: use dynamic logging to manage loglevel dynamically, at runtime](<src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.md>)<br>
 >Explores how we can troubleshoot applications by means of __dynamic logging__.<br>
->- [HowTo: use dynamic configuration to manage configurations and feature flags dynamically, at runtime](<src/docs/01. Concepts/11.01 - HowTo - Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime.md>)<br>
+>- [HowTo: use dynamic configuration to manage dynamic options, at runtime](<src/docs/01. Concepts/11.01 - HowTo - Use dynamic configuration to manage dynamic options, at runtime.md>)<br>
 >Explores how we can troubleshoot applications by means of __dynamic configuration__.<br>4
 >- [HowTo: configure diginsight telemetry to the remote tools](<src/docs/01. Concepts/02.00 - HowTo - configure diginsight telemetry to the remote tools.md>)<br>
 >Explores how we configure diginsight telemetry to the __remote analysis tools__.<br>
->- [HowTo: maximize application performance and minimize telemetry cost with diginsight](<src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.md>)<br>
+>- [HowTo: Use diginsight telemetry with no impact on Application performance an telemetry cost](<src/docs/01. Concepts/20.00 - HowTo Use diginsight telemetry with no impact on Application performance an telemetry cost.md>)<br>
 >Explores diginsight telemetry can be used without impact on __application performance__ and __telemetry cost__.<br>
 
 Advanced topics:
