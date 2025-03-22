@@ -58,7 +58,7 @@ The following image shows the __Azure Monitor Metrics__ dashboard where method i
  __Intelligent sampling__, __dynamic compilation__, __automatic truncation__ and other strategies are used to __maximize application efficiency__ and __minimize telemetry cost__<br>For these reasons __Local analysis__ and __analysis on the remote tools__ can be supported __without compromises on performance__ and  __without compromises on cost of telemetry__ in __test__ and __production__ environments.<br><br>
 <!-- ![alt text](<src/docs/001.03d NoPerformanceImpact.png>)<br> -->
 
->[HowTo: Use diginsight telemetry with no impact on Application performance an telemetry cost](<src/docs/02. Advanced/10.00 - Maximize application performance and minimize telemetry cost with diginsight.md>)<br>
+>[HowTo: Use diginsight telemetry with no impact on Application performance an telemetry cost](<src/docs/01. Concepts/20.00 - HowTo Use diginsight telemetry with no impact on Application performance an telemetry cost.md>)<br>
 >Explores how diginsight telemetry can be used without impact on __application performance__ and __telemetry cost__.<br>
 
 
