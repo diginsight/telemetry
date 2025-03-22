@@ -52,7 +52,8 @@ The image below shows the __live environment App Service console__ where __our c
 
 Performance information gathered by __diginsight__ can be analyzed in the form of __metrics__.<br>
 The following image shows the __Azure Monitor Metrics__ dashboard where method invocations and latencies can be analized in __value__ and __frequency__: 
-![alt text](<src/docs/000.03.1 span_duration azmon metrics.png>)<br><br> 
+![alt text](<src/docs/000.03.1 span_duration azmon metrics.png>)<br>
+<br> 
 
  __Intelligent sampling__, __dynamic compilation__, __automatic truncation__ and other strategies are used to __maximize application efficiency__ and __minimize telemetry cost__<br>For these reasons __Local analysis__ and __analysis on the remote tools__ can be supported __without compromises on performance__ and  __without compromises on cost of telemetry__ in __test__ and __production__ environments.<br><br>
 <!-- ![alt text](<src/docs/001.03d NoPerformanceImpact.png>)<br> -->
@@ -91,9 +92,9 @@ Advanced topics:
 >Explores how custom metrics sent to the remote tools can be integrated and fully customized with tags.<br>
 >- [HowTo: customize diginsight log streams row content](<src/docs/02. Advanced/15.00 - Customize diginsight log streams row content.md>):
 >Explores how diginsight row content can be fully customized.<br>
->- [HowTo: troubleshoot the startup sequence](<src/docs/02. Advanced/17.00 - Troubleshoot the startup sequence.md>):
+>- [HowTo: troubleshoot the startup sequence](<src/docs/02. Advanced/16.00 - Troubleshoot the startup sequence.md>):
 >Explores how full observability can be enabled on static methods and the startup sequence.<br>
->- [HowTo: use class aware configurations to support comonent level or class level configurations](<src/docs/02. Advanced/18.00 - HowTo - Use class aware configurations to support comonent level or class level configurations.md>):
+>- [HowTo: use class aware configurations to support comonent level or class level configurations](<src/docs/02. Advanced/18.00 - Use class aware configurations to support comonent level or class level configurations.md>):
 >Explores how class aware configurations can be used to implement feature flags or configurations that can be enabled with class level granularity.<br>
 
 
