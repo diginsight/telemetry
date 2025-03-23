@@ -122,7 +122,7 @@ With Diginsight telemetry, __you can troubleshoot issues more effectively__, __u
 # Samples
 You can start using diginsight telemetry by running the samples on the [telemetry.samples](https://github.com/diginsight/telemetry.samples) repository.
 
-Article [HOWTO - Use Diginsight Samples](<src/docs/01. Concepts/15.00 - HowTo - Use Diginsight Samples.md>): explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.
+Article [HOWTO - Use Diginsight Samples](<src/docs/01. Concepts/90.00 - HowTo - Use Diginsight Samples.md>): explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.
 
 ![alt text](<src/docs/004.01a Diginsight samples solution.png>)
 

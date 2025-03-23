@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Application Observability Concepts –  telemetry</title>
+<title>Use Diginsight samples –  telemetry</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -70,11 +70,10 @@ ul.task-list li input[type="checkbox"] {
 
 
 <link rel="stylesheet" href="styles.css">
-<meta property="og:title" content="Application Observability Concepts –  telemetry">
+<meta property="og:title" content="Use Diginsight samples –  telemetry">
 <meta property="og:description" content="">
-<meta property="og:image" content="00.01 - Observability Concepts/000.00 Opentelemetry elements.png">
+<meta property="og:image" content="90.00 - HowTo - Use Diginsight Samples/001.01 telemetry samples repository.png">
 <meta property="og:site_name" content="<i class=&quot;bi bi-lightbulb-fill&quot; style=&quot;vertical-align: middle; margin-left: 0px;margin-right: 15px;&quot;></i> telemetry">
-<meta property="og:image:alt" content="alt text">
 </head>
 
 <body class="nav-sidebar docked nav-fixed">
@@ -156,7 +155,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../src/docs/01. Concepts/00.01 - Observability Concepts.html">Concepts</a></li><li class="breadcrumb-item"><a href="../../../src/docs/01. Concepts/00.01 - Observability Concepts.html">Application Observability Concepts</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../src/docs/01. Concepts/00.01 - Observability Concepts.html">Concepts</a></li><li class="breadcrumb-item"><a href="../../../src/docs/01. Concepts/90.00 - HowTo - Use Diginsight Samples.html">Use Diginsight samples</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -220,7 +219,7 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../src/docs/01. Concepts/00.01 - Observability Concepts.html" class="sidebar-item-text sidebar-link active">
+  <a href="../../../src/docs/01. Concepts/00.01 - Observability Concepts.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Application Observability Concepts</span></a>
   </div>
 </li>
@@ -256,7 +255,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../src/docs/01. Concepts/90.00 - HowTo - Use Diginsight Samples.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../src/docs/01. Concepts/90.00 - HowTo - Use Diginsight Samples.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Use Diginsight samples</span></a>
   </div>
 </li>
@@ -332,16 +331,19 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#additional-information" id="toc-additional-information" class="nav-link active" data-scroll-target="#additional-information">Additional Information</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#diginsight-samples-github-repository" id="toc-diginsight-samples-github-repository" class="nav-link" data-scroll-target="#diginsight-samples-github-repository">Diginsight samples github repository</a></li>
+  <li><a href="#contribute" id="toc-contribute" class="nav-link" data-scroll-target="#contribute">Contribute</a></li>
+  <li><a href="#license" id="toc-license" class="nav-link" data-scroll-target="#license">License</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../src/docs/01. Concepts/00.01 - Observability Concepts.html">Concepts</a></li><li class="breadcrumb-item"><a href="../../../src/docs/01. Concepts/00.01 - Observability Concepts.html">Application Observability Concepts</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../src/docs/01. Concepts/00.01 - Observability Concepts.html">Concepts</a></li><li class="breadcrumb-item"><a href="../../../src/docs/01. Concepts/90.00 - HowTo - Use Diginsight Samples.html">Use Diginsight samples</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Application Observability Concepts</h1>
+<h1 class="title">Use Diginsight samples</h1>
 </div>
 
 
@@ -358,26 +360,66 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p><strong>Application observability</strong> is about aggregating, correlating and analyzing the following key elements:<br></p>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>Diginsight <strong><a href="https://github.com/diginsight/telemetry.samples">telemetry.samples</a></strong> projects are a precious resource to understand how to integrate Diginsight telemetry in our own projects.<br> In particular, sample projects are provided to demonstate use of Diginsight telemetry with <strong>different types of .net applications</strong>.</p>
+<p>This article discusses how you can open, build and execute <strong>Diginsight telemetry.samples projects</strong>.</p>
+</section>
+<section id="diginsight-samples-github-repository" class="level2">
+<h2 class="anchored" data-anchor-id="diginsight-samples-github-repository">Diginsight samples github repository</h2>
+<p>Diginsight <code>telemetry.samples</code> projects are available on the <a href="https://github.com/diginsight/telemetry.samples">telemetry.samples</a> GitHub repository.</p>
+<!-- ![alt text](<15.00 - HowTo - Use Diginsight Samples/01. telemetry.samples github repository.png> =500x) -->
+<!-- <img src="15.00 - HowTo - Use Diginsight Samples/01. telemetry.samples github repository.png" alt="alt text" width="600"/> -->
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="90.00 - HowTo - Use Diginsight Samples/001.01 telemetry samples repository.png" class="img-fluid figure-img"></p>
+<figcaption>alt text</figcaption>
+</figure>
+</div>
+<p>When cloning the repositories you will find the following <strong>folder structure</strong>:<br> <!-- <img src="15.00 - HowTo - Use Diginsight Samples/02. repositories folders structure.png" alt="alt text" width="600"/> --> <img src="90.00 - HowTo - Use Diginsight Samples/001.02 telemetry samples folder structure.png" class="img-fluid" alt="alt text"></p>
+<p>Opening the <code>Telemetry.Samples.sln</code> solution you should be able to build and run the samples for Wpf, Aspnet and Blazor technologies<br></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="90.00 - HowTo - Use Diginsight Samples/001.03 telemetry samples solution.png" class="img-fluid figure-img"></p>
+<figcaption>alt text</figcaption>
+</figure>
+</div>
+<p>Opening the <code>Telemetry.Samples.DebugDependencies.sln</code> solution the samples will be loaded with reference to the <strong>telemetry</strong> repository.<br> Please note that the <strong>telemetry</strong> repository must be cloned under the <strong>same parent folder</strong> as the <strong>telemetry.samples</strong> repository.<br> <img src="90.00 - HowTo - Use Diginsight Samples/001.04 telemetry samples DebugDependencies solution.png" class="img-fluid" alt="alt text"></p>
+<p>The variable <code>DiginsightCoreDirectImport</code> into file <strong>Directory.Build.props</strong> allows you to use <strong>project references</strong> instead of <strong>Nuget packages</strong> for telemetry components.<br></p>
+<p>So, setting <code>DiginsightCoreDirectImport</code> = true you will be able to <strong>step into and debug diginsight code</strong>.<br></p>
 <blockquote class="blockquote">
-<ul>
-<li><strong>Logs</strong> with application execution details and data.<br></li>
-<li><strong>The requests and operations structure</strong> (sometimes also referred as <strong>Activity, Traces or Spans</strong>) with the structure of application calls, related to an event or exception condition.<br></li>
-<li><strong>Metrics</strong>: numeric values (such as latencies, payload sizes, frequencies) that can be aggregated and correlated with the operations structure and the logs.<br></li>
-</ul>
+<p>NB. <code>Telemetry.Samples.DebugDependencies.sln</code> solution can only be used when both <code>telemetry</code> and <code>telemetry.samples</code> repositories are cloned with their <strong>default name</strong>, under the <strong>same parent folder</strong>.</p>
 </blockquote>
-<p>The image below shows examples about the <strong>3 observability elements</strong> into <strong>local text based streams</strong>:<br> <img src="00.01 - Observability Concepts/000.00 Opentelemetry elements.png" class="img-fluid" alt="alt text"> The image below shows examples about the <strong>3 observability elements</strong> into <strong>Azure Monitor Performance Management (APM) Tools</strong>:<br> <img src="00.01 - Observability Concepts/000.01 Opentelemetry elements.png" class="img-fluid" alt="alt text"></p>
-<p>Diginsight <strong>makes observability easy</strong> as:<br> &gt;- it <strong>integrates the 3 observability elements</strong> (Log, Traces, Metrics) into high performance <strong>text-based streams</strong> such as traditional <code>File logs</code>, the <code>Console log</code> or the <code>Azure Streaming log</code>.<br> &gt;- it <strong>publishes the 3 observability elements</strong> to <code>OpenTelemetry</code> and allowing application analysis by means of remote APM tools such as <strong>Azure Monitor</strong> and <strong>Grafana</strong>.<br></p>
-<section id="additional-information" class="level2">
-<h2 class="anchored" data-anchor-id="additional-information">Additional Information</h2>
-<p>Application flow observability is provided leveraging existing <strong>.Net</strong> <strong>ILogger</strong> and <strong>System Diagnostics</strong> classes so that diginsight telemetry can be mixed and analyzed with other components telemetry, as long as they rely on the same standard framework classes.<br> Observability for remote tools is provided by means of <strong>OpenTelemetry</strong> so that telemetry data can be targeted to <strong>Azure Monitor</strong> and also other analysis tools such as <strong>Prometheus</strong>/<strong>Graphana</strong>.</p>
-<p>Diginsight application flow rendering is: - <strong>consistent across tools</strong>: every information or metric visible on the <strong>local text based streams</strong> can be published and observed on the <strong>remote analysis tools</strong> (eg. on Appinsight Transaction detail or Appinsight Metrics). <img src="00.01 - Observability Concepts/001.01 Consistency across tools.png" class="img-fluid" alt="alt text"></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Telemetry.Samples.sln solution</th>
+<th>Telemetry.Samples.DebugDependencies.sln solution</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><img src="90.00 - HowTo - Use Diginsight Samples/001.03 telemetry samples solution.png" alt="alt text" width="400"></td>
+<td><img src="90.00 - HowTo - Use Diginsight Samples/001.04 telemetry samples DebugDependencies solution.png" alt="alt text" width="460"></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="contribute" class="level2">
+<h2 class="anchored" data-anchor-id="contribute">Contribute</h2>
+<p>Contribute to the repository with your pull requests.</p>
 <ul>
-<li><p><strong>consistent with code</strong>: the application flow is published with information about classes, method names and call nesting so the <strong>‘gap’ from telemetry and code</strong> is shortened for <strong>application developers</strong> and <strong>site reliability engineers</strong>. <img src="00.01 - Observability Concepts/001.02 Consistency with code.png" class="img-fluid" alt="alt text"></p></li>
-<li><p><strong>consistent across applications</strong> application flow published in the same way for all applications. so it is <strong>easily readable for peopble without background knowledge</strong> on the application logic. <img src="00.01 - Observability Concepts/001.03 Consistency across applications.png" class="img-fluid" alt="alt text"> <br><br></p></li>
+<li><a href="https://github.com/aspnet/Home">ASP.NET Core</a></li>
+<li><a href="https://github.com/Microsoft/vscode">Visual Studio Code</a></li>
 </ul>
-<p>Diginsight <strong>log layout</strong> and <strong>automatic rendering</strong> for entities can be fully customized to ensure best readability of the application flow.</p>
-<p>Paragraph <a href="../../../src/docs/00. Getting Started/Getting Started.html">Getting Started</a> discusses basic steps we can follow to integrate diginsight telemetry.</p>
+</section>
+<section id="license" class="level2">
+<h2 class="anchored" data-anchor-id="license">License</h2>
+<p>See the <a href="LICENSE.md">LICENSE</a> file for license rights and limitations (MIT).</p>
 
 
 </section>
