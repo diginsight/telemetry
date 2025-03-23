@@ -12,7 +12,9 @@ about:
       href: https://github.com
 ---
 
-Diginsight is a free opensource project.
+__Diginsight__ is a free opensource project.<br> 
+__Diginsight__ __team__ is a team of __friends__ (__engineers__, __scientists__...) with passion for __technology__, __experimenting ideas__ and __excellence__. <br>
+
 
 ## Project members
 
