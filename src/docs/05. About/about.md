@@ -1,5 +1,5 @@
 ---
-title: "Diginsight"
+title: "Team"
 about:
   template: marquee
   image: diginsight.jpg

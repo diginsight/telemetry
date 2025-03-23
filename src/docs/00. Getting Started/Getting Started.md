@@ -1,8 +1,7 @@
 ---
-title: "Getting Started"
+title: "Getting Started with Diginsight"
 ---
 
-## Getting Started with Diginsight
 Diginsight streamlines __logging__ and __OpenTelemetry integration__ embracing __.NET System.Diagnostics__ standard notation for activity tracing.
 
 In the present article we'll understand __basic steps__ to __enable application flow observability__ to __local text based streams__ such as the application console or a log4net file, as well ass to the __remote analysis tools__ such as Azure Monitor.

@@ -1,0 +1,103 @@
+project:
+  type: website
+  output-dir: docs
+  render:
+  - "*.md"
+  - "*.qmd"
+  - "!ignore.qmd"
+  - "!ignore-dir/"
+
+website:
+  title: '<i class="bi bi-lightbulb-fill" style="vertical-align: middle; margin-left: 0px;margin-right: 15px;"></i> telemetry'
+  back-to-top-navigation: true
+  reader-mode: true
+  favicon: diginsight.jpg
+  search: true
+  open-graph: true
+  image: diginsight.jpg
+  announcement: 
+    icon: info-circle
+    dismissable: true
+    content: "**Information** - Diginsight v3 is now available"
+    type: primary
+    position: below-navbar    # location: navbar
+    # type: overlay
+    # keyboard-shortcut: ["?", "H"]
+    # logo: bi-lightbulb diginsight.ico
+    # language: 
+    #     search-box-placeholder: Search    
+  navbar:
+    background: primary
+    search: false
+    left:
+      - text: "Home"
+        href: Index.md
+      - text: "Concepts"
+        href: src/docs/01. Concepts/00.01 - Observability Concepts.md
+      - text: "Advanced articles"
+        href: src/docs/02. Advanced/13.00 - Customize entities rendering on diginsight log streams.md
+      - text: "About"
+        menu:
+           - text: About
+             href:  src/docs/05. About/about.md
+           - text: License
+             href:  src/LICENSE.md
+        # href: about.qmd
+    tools:
+       # - icon: twitter
+       #   href: https://twitter.com
+       - icon: github
+         menu:
+           - text: Profile
+             href:  https://github.com/diginsight
+           - text: Source Code
+             href:  https://github.com/diginsight/telemetry
+           - text: Report a Bug
+             href:  https://github.com/diginsight/telemetry
+  # contents: auto
+  sidebar:
+    style: "docked"
+    search: false
+    contents:
+    - text: Home
+      href:  Index.md
+    - text: "---"
+    - text: Getting Started
+      href:  "src/docs/00. Getting Started/Getting Started.md"
+    - text: "---"
+    - text: Example Aanalysis
+      href:  "src/docs/00.1 Example Analysis/00.01 - How to troubleshoot issues.md"
+    - text: "---"
+    - section: Concepts
+      contents: "src/docs/01. Concepts/**"
+    - text: "---"
+    - section: Advanced Articles
+      contents: "src/docs/02. Advanced/*"
+    - text: "---"
+    - section: About
+      contents: "src/docs/05. About/*"
+    # - text: "---"
+    # - section: About
+    #   contents: "src/docs/05. About/*"
+    tools:
+    # - icon: twitter
+    #   href: https://twitter.com
+    - icon: github
+      menu:
+        - text: Source Code
+          href:  https://github.com/diginsight
+        - text: Report a Bug
+          href:  https://github.com/diginsight
+  page-footer: 
+    left: "Copyright 2021, Diginsight" 
+    border: false
+    right: 
+      - icon: github
+        href: https://github.com/diginsight
+      # - icon: twitter 
+      #   href: https://twitter.com/         # - acknowlegment.qmd
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
