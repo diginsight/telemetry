@@ -31,7 +31,7 @@ website:
     search: false
     left:
       - text: "Home"
-        href: Index.md
+        href: index.md
       - text: "Concepts"
         href: src/docs/01. Concepts/00.01 - Observability Concepts.md
       - text: "Advanced articles"
