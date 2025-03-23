@@ -124,7 +124,7 @@ You can start using diginsight telemetry by running the samples on the [telemetr
 
 Article [HOWTO - Use Diginsight Samples](<src/docs/01. Concepts/15.00 - HowTo - Use Diginsight Samples.md>): explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.
 
-![alt text](<src/docs/004.01 Diginsight samples solution.png>)
+![alt text](<src/docs/004.01a Diginsight samples solution.png>)
 
 # Build and Test 
 You can easily test Diginsight integration with OpenTelemetry by means of the EasySampleBlazorv2 project:
