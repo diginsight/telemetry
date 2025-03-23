@@ -60,7 +60,7 @@ website:
     search: false
     contents:
     - text: Home
-      href:  Index.md
+      href:  index.md
     - text: "---"
     - text: Getting Started
       href:  "src/docs/00. Getting Started/Getting Started.md"

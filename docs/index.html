@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Introduction –  telemetry</title>
+<title> telemetry</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -70,7 +70,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 <link rel="stylesheet" href="styles.css">
-<meta property="og:title" content="Introduction –  telemetry">
+<meta property="og:title" content=" telemetry">
 <meta property="og:description" content="">
 <meta property="og:image" content="src/docs/000.01 Full call on log4net.png">
 <meta property="og:site_name" content="<i class=&quot;bi bi-lightbulb-fill&quot; style=&quot;vertical-align: middle; margin-left: 0px;margin-right: 15px;&quot;></i> telemetry">
@@ -156,7 +156,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Introduction</li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Home</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -190,7 +190,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./Index.md" class="sidebar-item-text sidebar-link">
+  <a href="./index.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Home</span></a>
   </div>
 </li>
@@ -326,7 +326,8 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#additional-information" id="toc-additional-information" class="nav-link active" data-scroll-target="#additional-information">Additional Information</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#additional-information" id="toc-additional-information" class="nav-link" data-scroll-target="#additional-information">Additional Information</a></li>
   <li><a href="#learn-more" id="toc-learn-more" class="nav-link" data-scroll-target="#learn-more">Learn more</a></li>
   <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
   <li><a href="#samples" id="toc-samples" class="nav-link" data-scroll-target="#samples">Samples</a></li>
@@ -337,27 +338,13 @@ ul.task-list li input[type="checkbox"] {
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
-
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">Introduction</h1>
-</div>
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
 
 
 
-<div class="quarto-title-meta">
 
-    
-  
-    
-  </div>
-  
-
-
-</header>
-
-
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
 <p><strong>Diginsight telemetry</strong> is a set .Net packages that that provides <strong>automatic</strong> <strong>observability</strong> for dotnet applications.<br> In particular, <strong>the full application flow</strong> is made available to <strong>local text based streams</strong> such as <strong>traditional file logs</strong>, the <strong>Console Log</strong> or the <strong>Azure Streaming Log</strong> and also to remote analysis tools such as <strong>Azure Monitor</strong> and <strong>Prometheus</strong>/<strong>Grafana</strong>.</p>
 <blockquote class="blockquote">
 <p>Diginsight allows <strong>observability</strong> of the <strong>full application lifecycle</strong>, including <strong>static methods</strong>, <strong>injection sequences</strong> and the <strong>application startup</strong> and <strong>shutdown sequences</strong> where configuration problems and much complexity are often hidden.</p>
@@ -365,6 +352,7 @@ ul.task-list li input[type="checkbox"] {
 <p><strong>Diginsight telemetry</strong> is produced by standard <strong>ILogger&lt;&gt;</strong> and <strong>System.Diagnostic activity</strong> classes so it integrates (without replacing) other logging systems telemetry. Also, <strong>diginsight telemetry</strong> is fully integrated with <strong>Opentelemetry</strong> and the <strong>W3C Trace Context</strong> Specification so <strong>traceids</strong> are preserved across process invocations of a distributed system.</p>
 <p><strong>Diginsight telemetry</strong> targets <strong>all dotnet framework versions</strong> starting from <strong>netstandard2.0</strong>.<br>Samples are available on <a href="https://github.com/diginsight/telemetry.samples">telemetry.samples</a> repository to demonstrate use of telemetry on <strong>.net 4.8</strong> up to [<strong>blazor webassembly</strong>,]<strong>.net6</strong> and <strong>.net8+</strong> assemblies. <br> &gt; <strong>Diginsight telemetry</strong> can capture automatically <strong>database queries</strong>, <strong>outgoing requests</strong> as well as <strong>missing configuration data</strong>.<br> This makes it is an invaluable companion for troubleshooting problems related to missing or invalid data. <br><br> &gt; <strong>Diginsight Telemetry</strong> is <strong>fully dynamic</strong>: minimal data can be enabled by default, on live environments.<br> Full execution flow observability can be enabled <strong>on demand</strong> for <code>specific components</code> or <code>specific requests</code>. <br></p>
 <p><strong>Diginsight Telemetry</strong> fully dynamic and automatic nature can be a strong base for automatic problems analysis and resolution.</p>
+</section>
 <section id="additional-information" class="level1">
 <h1>Additional Information</h1>
 <p>Diginsight telemetry is <strong>readable</strong>, <strong>consistent</strong> and <strong>efficient</strong>:<br></p>
