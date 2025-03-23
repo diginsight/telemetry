@@ -1,1 +1,1 @@
-https://github.com/diginsight/telemetry
+https://diginsight.github.io/telemetry/
