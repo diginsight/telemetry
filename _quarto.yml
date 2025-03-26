@@ -20,7 +20,8 @@ website:
     dismissable: true
     content: "**Information** - Diginsight v3 is now available"
     type: primary
-    position: below-navbar    # location: navbar
+    position: below-navbar    
+    # location: navbar
     # type: overlay
     # keyboard-shortcut: ["?", "H"]
     # logo: bi-lightbulb diginsight.ico
@@ -28,7 +29,7 @@ website:
     #     search-box-placeholder: Search    
   navbar:
     background: primary
-    search: false
+    search: true
     left:
       - text: "Home"
         href: index.md
