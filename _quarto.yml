@@ -20,7 +20,7 @@ website:
     dismissable: true
     content: "**Information** - Diginsight v3 is now available"
     type: primary
-    position: below-navbar    
+    position: below-navbar 
     # location: navbar
     # type: overlay
     # keyboard-shortcut: ["?", "H"]
