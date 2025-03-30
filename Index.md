@@ -96,7 +96,8 @@ Advanced topics:
 >- [HowTo: use class aware configurations to support comonent level or class level configurations](<src/docs/02. Advanced/18.00 - Use class aware configurations to support comonent level or class level configurations.md>):
 >Explores how class aware configurations can be used to implement feature flags or configurations that can be enabled with class level granularity.<br>
 
-Team and contributors:
+Team and contributors:<br>
+
 >- [About](<src/docs/05. About/about.md>): __Diginsight__ is a __team__ of __friends__ (__engineers__, __scientists__...) with passion for __technology__, __experimenting ideas__ and __excellence__. <br>
 
 
