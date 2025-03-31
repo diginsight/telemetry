@@ -1,7 +1,7 @@
 /*-- scss:defaults --*/
 // Base document colors
 $navbar-bg: #c78e3c;
-// $navbar-fg: white;
+$navbar-fg: white;
 // $navbar-hl-fg: white;
 // $link-color: white;
 // $body-bg: #181818;
@@ -10,3 +10,9 @@ $navbar-bg: #c78e3c;
 
 // Code blocks
 // $code-block-bg-alpha: -.8;
+
+$announcement-background: #fff9c477; // Light yellow color
+
+.announcement {
+  background-color: $announcement-background;
+}
