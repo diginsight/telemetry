@@ -19,9 +19,9 @@ website:
     icon: info-circle
     dismissable: true
     content: "**Information** - Diginsight v3 is now available"
-    type: primary
     position: below-navbar 
-    background: primary
+    type: primary
+    # background: primary
     # location: navbar
     # type: overlay
     # keyboard-shortcut: ["?", "H"]
