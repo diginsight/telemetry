@@ -12,6 +12,11 @@ $navbar-fg: white;
 // $code-block-bg-alpha: -.8;
 
 $announcement-background: #fff9c477; // Light yellow color
-.announcement {
-  background-color: $announcement-background;
+.alert-primary {
+    background-color: $announcement-background !important; // Light yellow background
+    color: #333 !important; // Optional: Adjust text color for better contrast
+}
+
+.navbar-nav .nav-link.active {
+    color: white !important; // Set active link color to white
 }
