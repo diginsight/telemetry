@@ -99,6 +99,8 @@ website:
       #   href: https://twitter.com/         # - acknowlegment.qmd
 format:
   html:
-    theme: cosmo
+    theme:
+      light: [cosmo, theme-light.scss]
+      dark: [cosmo, theme-dark.scss]
     css: styles.css
     toc: true
