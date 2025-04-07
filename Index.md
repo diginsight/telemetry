@@ -1,7 +1,7 @@
+# Introduction
 ![build](https://github.com/diginsight/telemetry/actions/workflows/v3.yml/badge.svg)<br>
 ![GitHub Pages](https://github.com/diginsight/telemetry/actions/workflows/github-pages.yml/badge.svg)
 
-# Introduction
 
 __Diginsight telemetry__ is a set .Net packages that that provides __automatic__ __observability__ for dotnet applications.<br> 
 In particular, __the full application flow__ is made available to __local text based streams__ such as __traditional file logs__, the __Console Log__ or the __Azure Streaming Log__ and also to remote analysis tools such as __Azure Monitor__ and __Prometheus__/__Grafana__.
