@@ -1,4 +1,4 @@
-https://github.com/diginsight/telemetry/actions/workflows/v3.yml/badge.svg
+![build](https://github.com/diginsight/telemetry/actions/workflows/v3.yml/badge.svg)
 
 # Introduction
 
