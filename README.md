@@ -1,7 +1,6 @@
 ![build](https://github.com/diginsight/telemetry/actions/workflows/v3.yml/badge.svg)<br>
 ![GitHub Pages](https://github.com/diginsight/telemetry/actions/workflows/github-pages.yml/badge.svg)
 
-
 # Introduction
 
 __Diginsight telemetry__ is a set .Net packages that that provides __automatic__ __observability__ for dotnet applications.<br> 
