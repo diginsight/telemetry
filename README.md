@@ -1,3 +1,5 @@
+https://github.com/diginsight/telemetry/actions/workflows/v2_99.Package.CICD/badge.svg
+
 # Introduction
 
 __Diginsight telemetry__ is a set .Net packages that that provides __automatic__ __observability__ for dotnet applications.<br> 
