@@ -1,4 +1,4 @@
-https://github.com/diginsight/telemetry/actions/workflows/v2_99.Package.CICD.yml/badge.svg
+https://github.com/diginsight/telemetry/actions/workflows/v3.yml/badge.svg
 
 # Introduction
 
