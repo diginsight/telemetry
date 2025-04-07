@@ -1,4 +1,4 @@
-name: Build and Publish 'Diginsight' v3+ NuGet Packages
+name: Diginsight v3+ NuGet Packages
 
 on:
   push:
