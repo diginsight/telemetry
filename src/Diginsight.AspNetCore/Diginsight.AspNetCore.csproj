@@ -45,7 +45,7 @@
     <Otherwise>
 
       <ItemGroup>
-        <PackageReference Include="Scrutor" Version="5.0.1">
+        <PackageReference Include="Scrutor" Version="6.*">
           <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
         </PackageReference>
       </ItemGroup>

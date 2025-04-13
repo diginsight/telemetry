@@ -8,6 +8,12 @@
     <PackageIcon>Diginsight.Core.png</PackageIcon>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Scrutor" Version="6.*">
+      <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
   <Choose>
     <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
 
@@ -17,9 +23,6 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.*" />
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.*" />
         <PackageReference Include="Microsoft.Extensions.Logging" Version="9.*" />
-        <PackageReference Include="Scrutor" Version="6.*">
-          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
-        </PackageReference>
         <PackageReference Include="System.Text.Json" Version="9.*" />
       </ItemGroup>
 
@@ -32,9 +35,6 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.*" />
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.*" />
         <PackageReference Include="Microsoft.Extensions.Logging" Version="8.*" />
-        <PackageReference Include="Scrutor" Version="5.0.1">
-          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
-        </PackageReference>
         <PackageReference Include="System.Text.Json" Version="8.*" />
       </ItemGroup>
 
