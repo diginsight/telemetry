@@ -7,6 +7,12 @@
     <PackageTags>$(PackageTags);aspnetcore</PackageTags>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Scrutor" Version="6.*">
+      <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
   <Choose>
     <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">
 
@@ -18,34 +24,13 @@
     <Otherwise>
 
       <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.3.*">
+        <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.*">
           <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.*">
+        <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.*">
           <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.3.*">
-          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
-        </PackageReference>
-      </ItemGroup>
-
-    </Otherwise>
-  </Choose>
-
-  <Choose>
-    <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
-
-      <ItemGroup>
-        <PackageReference Include="Scrutor" Version="6.*">
-          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
-        </PackageReference>
-      </ItemGroup>
-
-    </When>
-    <Otherwise>
-
-      <ItemGroup>
-        <PackageReference Include="Scrutor" Version="6.*">
+        <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.*">
           <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
         </PackageReference>
       </ItemGroup>

@@ -25,25 +25,25 @@ public interface IDynamicallyConfigurable
     ///         public class MyOptions : IDynamicallyConfigurable
     ///         {
     ///             public string? Foo { get; set; }
-    /// 
+    ///
     ///             public double Baz { get; set; }
-    /// 
+    ///
     ///             public ICollection&lt;string&gt; Bars { get; private set; } = new List&lt;string&gt;();
-    /// 
+    ///
     ///             object IDynamicallyConfigurable.MakeFiller() => new Filler(this);
-    /// 
+    ///
     ///             private class Filler
     ///             {
     ///                 private readonly MyOptions filled;
-    /// 
+    ///
     ///                 public Filler(MyOptions filled) => this.filled = filled;
-    /// 
+    ///
     ///                 public string? Foo
     ///                 {
     ///                     get => filled.Foo;
     ///                     set => filled.Foo = value;
     ///                 }
-    /// 
+    ///
     ///                 public string Bar
     ///                 {
     ///                     get => string.Join(';', filled.Bars);
