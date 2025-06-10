@@ -26,10 +26,12 @@ __Diginsight__ __team__ is a team of __friends__ (__engineers__, __scientists__.
 
 ## Other Contributors
 
-Chayashree Gollahalli | Bhangalore, India<br>
 Carlo Bollini | Milan, Italy<br>
 Metushi Margil | Milan, Italy<br>
 David Cun | Milan, Italy<br>
 Maurizio Iacovella | Milan, Italy<br>
+Chayashree Gollahalli | Bhangalore, India<br>
 Matteo Delli Rocioli | Milan, Italy<br>
 Raffaele Fanizzi | Milan, Italy<br>
+Andrea Marinoni | Milan, Italy<br>
+Andrea Rossi | Milan, Italy<br>
