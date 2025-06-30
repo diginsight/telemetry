@@ -162,6 +162,22 @@ public static class DependencyInjectionExtensions
         return loggingBuilder;
     }
 
+    public static ILoggingBuilder AddDiginsightDebug(
+        this ILoggingBuilder loggingBuilder, Action<DiginsightDebugLoggerOptions>? configureOptions = null
+    )
+    {
+        loggingBuilder.AddDiginsightCore();
+
+        loggingBuilder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<ILoggerProvider, DiginsightDebugLoggerProvider>());
+
+        if (configureOptions is not null)
+        {
+            loggingBuilder.Services.Configure(configureOptions);
+        }
+
+        return loggingBuilder;
+    }
+
     public static IServiceCollection AddSpanDurationMetricRecorder<TRegistration>(this IServiceCollection services)
         where TRegistration : SpanDurationMetricRecorderRegistration
     {
