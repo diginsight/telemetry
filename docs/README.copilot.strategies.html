@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title> telemetry</title>
+<title>readme.copilot.strategies – &lt;i class="bi bi-lightbulb-fill" style="vertical-align: middle; margin-left: 0px;margin-right: 15px;"&gt;&lt;/i&gt; telemetry</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -73,10 +73,8 @@ ul.task-list li input[type="checkbox"] {
 
 <link rel="stylesheet" href="styles.css">
 <meta property="og:title" content=" telemetry">
-<meta property="og:description" content="">
-<meta property="og:image" content="src/docs/000.01 Full call on log4net.png">
+<meta property="og:image" content="diginsight.jpg">
 <meta property="og:site_name" content="<i class=&quot;bi bi-lightbulb-fill&quot; style=&quot;vertical-align: middle; margin-left: 0px;margin-right: 15px;&quot;></i> telemetry">
-<meta property="og:image:alt" content="alt text">
 </head>
 
 <body class="nav-sidebar docked nav-fixed">
@@ -160,7 +158,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Home</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -194,7 +192,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Home</span></a>
   </div>
 </li>
@@ -331,21 +329,8 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
-  <li><a href="#additional-information" id="toc-additional-information" class="nav-link" data-scroll-target="#additional-information">Additional Information</a></li>
-  <li><a href="#learn-more" id="toc-learn-more" class="nav-link" data-scroll-target="#learn-more">Learn more</a></li>
-  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
-  <li><a href="#samples" id="toc-samples" class="nav-link" data-scroll-target="#samples">Samples</a></li>
-  <li><a href="#build-and-test" id="toc-build-and-test" class="nav-link" data-scroll-target="#build-and-test">Build and Test</a></li>
-  <li><a href="#contribute" id="toc-contribute" class="nav-link" data-scroll-target="#contribute">Contribute</a></li>
-  <li><a href="#license" id="toc-license" class="nav-link" data-scroll-target="#license">License</a></li>
-  </ul>
-</nav>
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
@@ -353,145 +338,8 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<p><img src="https://github.com/diginsight/telemetry/actions/workflows/v3.yml/badge.svg" class="img-fluid" alt="build"><br> <img src="https://github.com/diginsight/telemetry/actions/workflows/github-pages.yml/badge.svg" class="img-fluid" alt="GitHub Pages"></p>
-<section id="introduction" class="level1">
-<h1>Introduction</h1>
-<p><strong>Diginsight telemetry</strong> is a set of .Net packages that provides <strong>automatic</strong> <strong>observability</strong> for dotnet applications.<br> In particular, <strong>the full application flow</strong> is made available to <strong>local text based streams</strong> such as <strong>traditional file logs</strong>, the <strong>Console Log</strong> or the <strong>Azure Streaming Log</strong> and also to remote analysis tools such as <strong>Azure Monitor</strong> and <strong>Prometheus</strong>/<strong>Grafana</strong>.</p>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Key Benefits
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Diginsight allows <strong>observability</strong> of the <strong>full application lifecycle</strong>, including <strong>static methods</strong>, <strong>injection sequences</strong> and the <strong>application startup</strong> and <strong>shutdown sequences</strong> where configuration problems and much complexity are often hidden.</p>
-</div>
-</div>
-<p><strong>Diginsight telemetry</strong> is produced by standard <strong>ILogger&lt;&gt;</strong> and <strong>System.Diagnostics activity</strong> classes so it integrates (without replacing) other logging systems telemetry. Also, <strong>diginsight telemetry</strong> is fully integrated with <strong>Opentelemetry</strong> and the <strong>W3C Trace Context</strong> Specification so <strong>traceids</strong> are preserved across process invocations of a distributed system.</p>
-<p><strong>Diginsight telemetry</strong> targets <strong>all dotnet framework versions</strong> starting from <strong>netstandard2.0</strong>.<br>Samples are available on <a href="https://github.com/diginsight/telemetry.samples">telemetry.samples</a> repository to demonstrate use of telemetry on <strong>.net 4.8</strong> up to [<strong>blazor webassembly</strong>,]<strong>.net6</strong> and <strong>.net8+</strong> assemblies.</p>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Important
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p><strong>Diginsight telemetry</strong> can capture automatically <strong>database queries</strong>, <strong>outgoing requests</strong> as well as <strong>missing configuration data</strong>.</p>
-<p>This makes it an invaluable companion for troubleshooting problems related to missing or invalid data.</p>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Note
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p><strong>Diginsight Telemetry</strong> is <strong>fully dynamic</strong>: minimal data can be enabled by default, on live environments.</p>
-<p>Full execution flow observability can be enabled <strong>on demand</strong> for <code>specific components</code> or <code>specific requests</code>.</p>
-</div>
-</div>
-<p><strong>Diginsight Telemetry</strong>’s fully dynamic and automatic nature can be a strong base for automatic problems analysis and resolution.</p>
-</section>
-<section id="additional-information" class="level1">
-<h1>Additional Information</h1>
-<p>Diginsight telemetry is <strong>readable</strong>, <strong>consistent</strong> and <strong>efficient</strong>:</p>
-<ul>
-<li><strong>readable</strong>: telemetry is <strong>easily readable</strong> on <code>local troubleshooting tools</code>, <code>live server consoles</code> and <code>remote analysis tools</code> such as the Azure monitor. The generated application flow is <strong>consistent with application code</strong> so that problems understanding is much simplified.</li>
-<li><strong>consistent</strong>: the application flow is <strong>rendered consistently</strong> on <code>local troubleshooting tools</code>, where maximum flow detail is available, and to the <code>remote analysis tools</code> such as the Azure monitor, where metrics and data from past executions can be easily compared.</li>
-<li><strong>efficient</strong>: application flow is generated with fully optimized techniques (such as dynamic compilation). Also, the full application flow observability can be <strong>enabled dynamically</strong> and <strong>only on the specific executions</strong> that are under analysis. This ensures that diginsight can be leveraged with no practical impact on application performance.</li>
-</ul>
-<p>The image below shows the text based stream associated with a Web API call. <img src="src/docs/000.01 Full call on log4net.png" class="img-fluid" alt="alt text"></p>
-<p>The following image shows the same call on the <strong>Azure Monitor Transaction Detail</strong> where the call structure is shown as a hierarchy of <strong>activities</strong> (also called <strong>spans</strong>) and <strong>trace details</strong>: <img src="src/docs/000.02 Full call on azmon transaction.png" class="img-fluid" alt="alt text"> Please, note that the transaction involves two service invocations.<br> The first image reports the <strong>detailed log stream</strong> for the first web application call (<code>PlantsController.GetPlantsAsync</code>).<br> The latter image shows the full transaction detail on Azure Monitor.<br> Both invocations are correlated by the same traceId so, for every transaction: <strong>the full flow is visible across all service invocations</strong>.</p>
-<p><strong>Full observability on live environments</strong> can be supported with <strong>dynamic logging</strong>.<br> Live environments logging level is normally limited to <strong>Warning</strong> or <strong>Information</strong> to avoid any cost and performance impact from the telemetry produced by applications.<br> With <strong>dynamic logging</strong> Log level can be raised to debug or trace <strong>for a single call</strong>, for example, by means of the <strong>Log-Level http headers</strong>.</p>
-<p>The image below shows a <strong>call to a live environment</strong> where the log level is set to Debug or Trace for 2 categories: <img src="src/docs/000.02.1 live environment request with loglevel debug.png" class="img-fluid" alt="alt text"></p>
-<p>The image below shows the <strong>live environment App Service console</strong> where <strong>our call is traced with full detail</strong>, <strong>while other calls are being processed with limited Log level</strong>. <img src="src/docs/000.02.2 live environment request with loglevel debug.png" class="img-fluid" alt="alt text"></p>
-<p>Performance information gathered by <strong>diginsight</strong> can be analyzed in the form of <strong>metrics</strong>.<br> The following image shows the <strong>Azure Monitor Metrics</strong> dashboard where method invocations and latencies can be analyzed in <strong>value</strong> and <strong>frequency</strong>: <img src="src/docs/000.03.1 span_duration azmon metrics.png" class="img-fluid" alt="alt text"><br> <br></p>
-<p><strong>Intelligent sampling</strong>, <strong>dynamic compilation</strong>, <strong>automatic truncation</strong> and other strategies are used to <strong>maximize application efficiency</strong> and <strong>minimize telemetry cost</strong><br>For these reasons <strong>Local analysis</strong> and <strong>analysis on the remote tools</strong> can be supported <strong>without compromises on performance</strong> and <strong>without compromises on cost of telemetry</strong> in <strong>test</strong> and <strong>production</strong> environments.<br><br> <!-- ![alt text](<src/docs/001.03d NoPerformanceImpact.png>)<br> --></p>
-<blockquote class="blockquote">
-<p><a href="./src/docs/01. Concepts/20.00 - HowTo Use diginsight telemetry with no impact on Application performance an telemetry cost.html">HowTo: Use diginsight telemetry with no impact on Application performance and telemetry cost</a><br> Explores how Diginsight telemetry can be used without impact on <strong>application performance</strong> and <strong>telemetry cost</strong>.<br></p>
-</blockquote>
-</section>
-<section id="learn-more" class="level1">
-<h1>Learn more</h1>
-<p>The following articles provide <strong>easy steps to integrate diginsight into our code</strong>, how to <strong>configure telemetry for the local text based streams</strong> and how to <strong>configure telemetry for the remote analysis tools</strong>.<br> Also, details are provided to use its relevant features such as <strong>Dynamic configuration</strong> and <strong>Dynamic Logging</strong>.<br></p>
-<p>Example code used in the articles is also available in the <a href="https://github.com/diginsight/telemetry.samples">telemetry.samples</a> repository.</p>
-<blockquote class="blockquote">
-<ul>
-<li><a href="./src/docs/00. Getting Started/Getting Started.html">Getting Started</a>: explores <strong>basic steps we can follow to integrate diginsight telemetry</strong><br></li>
-<li><a href="./src/docs/00.1 Example Analysis/00.01 - How to troubleshoot issues.html">Example analysis</a>: explores how diginsight can be used to <strong>analyze applications and troubleshoot issues</strong>.<br></li>
-<li><a href="./src/docs/01. Concepts/00.01 - Observability Concepts.html">Observability Concepts</a>: Explores basic concepts for <strong>application observability and Opentelemetry</strong>.<br></li>
-<li><a href="./src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html">HowTo: configure diginsight telemetry to the local text based streams</a><br> Explores how we configure diginsight telemetry to the <strong>local analysis tools</strong>.<br></li>
-<li><a href="src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dynamically at runtime.md">HowTo: use dynamic logging to manage loglevel dynamically, at runtime</a><br> Explores how we can troubleshoot applications by means of <strong>dynamic logging</strong>.<br></li>
-<li><a href="./src/docs/01. Concepts/11.01 - HowTo - Use dynamic configuration to manage dynamic options, at runtime.html">HowTo: use dynamic configuration to manage dynamic options, at runtime</a><br> Explores how we can troubleshoot applications by means of <strong>dynamic configuration</strong>.<br></li>
-<li><a href="./src/docs/01. Concepts/02.00 - HowTo - configure diginsight telemetry to the remote tools.html">HowTo: configure diginsight telemetry to the remote tools</a><br> Explores how we configure diginsight telemetry to the <strong>remote analysis tools</strong>.<br></li>
-<li><a href="./src/docs/01. Concepts/20.00 - HowTo Use diginsight telemetry with no impact on Application performance an telemetry cost.html">HowTo: Use diginsight telemetry with no impact on Application performance and telemetry cost</a><br> Explores how Diginsight telemetry can be used without impact on <strong>application performance</strong> and <strong>telemetry cost</strong>.<br></li>
-</ul>
-</blockquote>
-<p>Advanced topics:</p>
-<blockquote class="blockquote">
-<ul>
-<li><a href="./src/docs/02. Advanced/13.00 - Customize entities rendering on diginsight log streams.html">HowTo: customize entities rendering on diginsight log streams</a>: Explores how diginsight entities rendering can be fully customized.<br></li>
-<li><a href="./src/docs/02. Advanced/14.00 - Customize metrics sent to the remote tools.html">HowTo: customize metrics sent to the remote tools</a>: Explores how custom metrics sent to the remote tools can be integrated and fully customized with tags.<br></li>
-<li><a href="./src/docs/02. Advanced/15.00 - Customize diginsight log streams row content.html">HowTo: customize diginsight log streams row content</a>: Explores how diginsight row content can be fully customized.<br></li>
-<li><a href="./src/docs/02. Advanced/16.00 - Troubleshoot the startup sequence.html">HowTo: troubleshoot the startup sequence</a>: Explores how full observability can be enabled on static methods and the startup sequence.<br></li>
-<li><a href="./src/docs/02. Advanced/18.00 - Use class aware configurations to support comonent level or class level configurations.html">HowTo: use class aware configurations to support component level or class level configurations</a>: Explores how class aware configurations can be used to implement feature flags or configurations that can be enabled with class level granularity.<br></li>
-</ul>
-</blockquote>
-<p>Team and contributors:<br></p>
-<blockquote class="blockquote">
-<ul>
-<li><a href="./src/docs/05. About/about.html">About</a>: <strong>Diginsight</strong> is a <strong>team</strong> of <strong>friends</strong> (<strong>engineers</strong>, <strong>scientists</strong>…) with passion for <strong>technology</strong>, <strong>experimenting ideas</strong> and <strong>excellence</strong>. <br></li>
-</ul>
-</blockquote>
-<p><br></p>
-</section>
-<section id="summary" class="level1">
-<h1>Summary</h1>
-<p>Diginsight telemetry is a comprehensive suite of .NET packages designed to <strong>provide automatic observability for .NET applications</strong>. It enables developers to gain deep insights into the <strong>full application lifecycle</strong>, from startup to shutdown, including static methods and injection sequences.</p>
-<p>By leveraging standard <code>ILogger&lt;&gt;</code> and <code>System.Diagnostics</code> activity classes, Diginsight telemetry <strong>integrates seamlessly with existing logging systems</strong> and <strong>supports OpenTelemetry</strong> and the <strong>W3C Trace Context Specification</strong>.</p>
-<p>Key features of Diginsight telemetry include: - <strong>Automatic Observability</strong>: Capture detailed telemetry data without manual instrumentation. - <strong>Full Lifecycle Coverage</strong>: Monitor application behavior from startup to shutdown. - <strong>Seamless Integration</strong>: Works with existing logging systems and supports OpenTelemetry. - <strong>Dynamic Configuration</strong>: Enable full observability on-demand for specific components or requests. - <strong>Performance Optimization</strong>: Uses intelligent sampling, dynamic compilation, and other strategies to minimize performance impact and telemetry cost.</p>
-<p>With Diginsight telemetry, <strong>you can troubleshoot issues more effectively</strong>, <strong>understand application behavior</strong>, and <strong>ensure optimal performance</strong> in both test and production environments.</p>
-</section>
-<section id="samples" class="level1">
-<h1>Samples</h1>
-<p>You can start using diginsight telemetry by running the samples on the <a href="https://github.com/diginsight/telemetry.samples">telemetry.samples</a> repository.</p>
-<p>Article <a href="./src/docs/01. Concepts/90.00 - HowTo - Use Diginsight Samples.html">HOWTO - Use Diginsight Samples</a>: explores how we can use diginsight samples to test and understand integration of Diginsight telemetry in our own projects.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="src/docs/004.01a Diginsight samples solution.png" class="img-fluid figure-img"></p>
-<figcaption>alt text</figcaption>
-</figure>
-</div>
-</section>
-<section id="build-and-test" class="level1">
-<h1>Build and Test</h1>
-<p>You can easily test Diginsight integration with OpenTelemetry by means of the EasySampleBlazorv2 project: - Clone diginsight repository - Open and build solution Diginsight.sln</p>
-<p><br><br></p>
-</section>
-<section id="contribute" class="level1">
-<h1>Contribute</h1>
-<p>Contribute to the repository with your pull requests.</p>
-<ul>
-<li><a href="https://github.com/aspnet/Home">ASP.NET Core</a></li>
-<li><a href="https://github.com/Microsoft/vscode">Visual Studio Code</a></li>
-</ul>
-</section>
-<section id="license" class="level1">
-<h1>License</h1>
-<p>See the <a href="LICENSE">LICENSE</a> file for license rights and limitations (MIT).</p>
 
 
-</section>
 
 <a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
