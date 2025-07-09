@@ -1,0 +1,65 @@
+/* Enhanced Blockquote Styling for Diginsight Callouts */
+
+/* General blockquote styling */
+blockquote {
+  border-left: 4px solid #e3e3e3;
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0;
+  background-color: #f8f9fa;
+  border-radius: 0.375rem;
+  position: relative;
+}
+
+/* Tip callouts (with 💡 emoji) */
+blockquote:has(strong:first-child:contains("💡")),
+blockquote > p:first-child > strong:first-child:contains("💡") {
+  border-left-color: #198754;
+  background-color: #d1e7dd;
+  background-image: linear-gradient(135deg, #d1e7dd 0%, #f8f9fa 100%);
+}
+
+/* Important callouts (with ⚠️ emoji) */
+blockquote:has(strong:first-child:contains("⚠️")),
+blockquote > p:first-child > strong:first-child:contains("⚠️") {
+  border-left-color: #fd7e14;
+  background-color: #fff3cd;
+  background-image: linear-gradient(135deg, #fff3cd 0%, #f8f9fa 100%);
+}
+
+/* Note callouts (with 📝 emoji) */
+blockquote:has(strong:first-child:contains("📝")),
+blockquote > p:first-child > strong:first-child:contains("📝") {
+  border-left-color: #0d6efd;
+  background-color: #cff4fc;
+  background-image: linear-gradient(135deg, #cff4fc 0%, #f8f9fa 100%);
+}
+
+/* Info callouts (with ℹ️ emoji) */
+blockquote:has(strong:first-child:contains("ℹ️")),
+blockquote > p:first-child > strong:first-child:contains("ℹ️") {
+  border-left-color: #6f42c1;
+  background-color: #e2e3ff;
+  background-image: linear-gradient(135deg, #e2e3ff 0%, #f8f9fa 100%);
+}
+
+/* Dark theme support */
+[data-bs-theme="dark"] blockquote {
+  background-color: #2b3035;
+  color: #f8f9fa;
+}
+
+[data-bs-theme="dark"] blockquote:has(strong:first-child:contains("💡")) {
+  background-color: #1a4d3a;
+}
+
+[data-bs-theme="dark"] blockquote:has(strong:first-child:contains("⚠️")) {
+  background-color: #4d2a00;
+}
+
+[data-bs-theme="dark"] blockquote:has(strong:first-child:contains("📝")) {
+  background-color: #0a2a66;
+}
+
+[data-bs-theme="dark"] blockquote:has(strong:first-child:contains("ℹ️")) {
+  background-color: #2d1b4d;
+}

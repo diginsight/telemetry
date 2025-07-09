@@ -72,6 +72,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="callouts.css">
 <meta property="og:title" content=" telemetry">
 <meta property="og:description" content="">
 <meta property="og:image" content="src/docs/000.01 Full call on log4net.png">
@@ -357,49 +358,22 @@ ul.task-list li input[type="checkbox"] {
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
 <p><strong>Diginsight telemetry</strong> is a set of .Net packages that provides <strong>automatic</strong> <strong>observability</strong> for dotnet applications.<br> In particular, <strong>the full application flow</strong> is made available to <strong>local text based streams</strong> such as <strong>traditional file logs</strong>, the <strong>Console Log</strong> or the <strong>Azure Streaming Log</strong> and also to remote analysis tools such as <strong>Azure Monitor</strong> and <strong>Prometheus</strong>/<strong>Grafana</strong>.</p>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Key Benefits
-</div>
-</div>
-<div class="callout-body-container callout-body">
+<blockquote class="blockquote">
+<p><strong>💡 Key Benefits</strong></p>
 <p>Diginsight allows <strong>observability</strong> of the <strong>full application lifecycle</strong>, including <strong>static methods</strong>, <strong>injection sequences</strong> and the <strong>application startup</strong> and <strong>shutdown sequences</strong> where configuration problems and much complexity are often hidden.</p>
-</div>
-</div>
+</blockquote>
 <p><strong>Diginsight telemetry</strong> is produced by standard <strong>ILogger&lt;&gt;</strong> and <strong>System.Diagnostics activity</strong> classes so it integrates (without replacing) other logging systems telemetry. Also, <strong>diginsight telemetry</strong> is fully integrated with <strong>Opentelemetry</strong> and the <strong>W3C Trace Context</strong> Specification so <strong>traceids</strong> are preserved across process invocations of a distributed system.</p>
 <p><strong>Diginsight telemetry</strong> targets <strong>all dotnet framework versions</strong> starting from <strong>netstandard2.0</strong>.<br>Samples are available on <a href="https://github.com/diginsight/telemetry.samples">telemetry.samples</a> repository to demonstrate use of telemetry on <strong>.net 4.8</strong> up to [<strong>blazor webassembly</strong>,]<strong>.net6</strong> and <strong>.net8+</strong> assemblies.</p>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Important
-</div>
-</div>
-<div class="callout-body-container callout-body">
+<blockquote class="blockquote">
+<p><strong>⚠️ Important Capabilities</strong></p>
 <p><strong>Diginsight telemetry</strong> can capture automatically <strong>database queries</strong>, <strong>outgoing requests</strong> as well as <strong>missing configuration data</strong>.</p>
 <p>This makes it an invaluable companion for troubleshooting problems related to missing or invalid data.</p>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Note
-</div>
-</div>
-<div class="callout-body-container callout-body">
+</blockquote>
+<blockquote class="blockquote">
+<p><strong>📝 Dynamic Features</strong></p>
 <p><strong>Diginsight Telemetry</strong> is <strong>fully dynamic</strong>: minimal data can be enabled by default, on live environments.</p>
 <p>Full execution flow observability can be enabled <strong>on demand</strong> for <code>specific components</code> or <code>specific requests</code>.</p>
-</div>
-</div>
+</blockquote>
 <p><strong>Diginsight Telemetry</strong>’s fully dynamic and automatic nature can be a strong base for automatic problems analysis and resolution.</p>
 </section>
 <section id="additional-information" class="level1">
