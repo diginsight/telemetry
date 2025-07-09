@@ -6,26 +6,25 @@
 __Diginsight telemetry__ is a set of .Net packages that provides __automatic__ __observability__ for dotnet applications.<br> 
 In particular, __the full application flow__ is made available to __local text based streams__ such as __traditional file logs__, the __Console Log__ or the __Azure Streaming Log__ and also to remote analysis tools such as __Azure Monitor__ and __Prometheus__/__Grafana__.
 
-::: {.callout-tip}
-## Key Benefits
-Diginsight allows __observability__ of the __full application lifecycle__, including __static methods__, __injection sequences__ and the __application startup__ and __shutdown sequences__ where configuration problems and much complexity are often hidden.
-:::
+> __💡 Key Benefits__
+>
+> Diginsight allows __observability__ of the __full application lifecycle__, including __static methods__, __injection sequences__ and the __application startup__ and __shutdown sequences__ where configuration problems and much complexity are often hidden.
 
 __Diginsight telemetry__ is produced by standard __ILogger<>__ and __System.Diagnostics activity__ classes so it integrates (without replacing) other logging systems telemetry. Also, __diginsight telemetry__ is fully integrated with __Opentelemetry__ and the __W3C Trace Context__ Specification so __traceids__ are preserved across process invocations of a distributed system.
 
 __Diginsight telemetry__ targets __all dotnet framework versions__ starting from __netstandard2.0__.<br>Samples are available on [telemetry.samples](https://github.com/diginsight/telemetry.samples) repository to demonstrate use of telemetry on __.net 4.8__ up to [__blazor webassembly__,]__.net6__ and __.net8+__ assemblies.
 
-::: {.callout-important}
-__Diginsight telemetry__ can capture automatically __database queries__, __outgoing requests__ as well as __missing configuration data__.
+> __⚠️ Important Capabilities__
+>
+> __Diginsight telemetry__ can capture automatically __database queries__, __outgoing requests__ as well as __missing configuration data__.
+>
+> This makes it an invaluable companion for troubleshooting problems related to missing or invalid data.
 
-This makes it an invaluable companion for troubleshooting problems related to missing or invalid data.
-:::
-
-::: {.callout-note}
-__Diginsight Telemetry__ is __fully dynamic__: minimal data can be enabled by default, on live environments.
-
-Full execution flow observability can be enabled __on demand__ for `specific components` or `specific requests`.
-:::
+> __📝 Dynamic Features__
+>
+> __Diginsight Telemetry__ is __fully dynamic__: minimal data can be enabled by default, on live environments.
+>
+> Full execution flow observability can be enabled __on demand__ for `specific components` or `specific requests`.
 
  __Diginsight Telemetry__'s fully dynamic and automatic nature can be a strong base for automatic problems analysis and resolution.
 

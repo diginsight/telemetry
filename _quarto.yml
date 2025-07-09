@@ -103,5 +103,5 @@ format:
     theme:
       light: [cosmo, theme-light.scss]
       dark: [cosmo, theme-dark.scss]
-    css: styles.css
+    css: [styles.css, callouts.css]
     toc: true
