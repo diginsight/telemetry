@@ -370,15 +370,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#startup-sequence-observability-with-diginsight" id="toc-startup-sequence-observability-with-diginsight" class="nav-link active" data-scroll-target="#startup-sequence-observability-with-diginsight">Startup sequence observability with Diginsight</a></li>
-  <li><a href="#how-to-make-the-startup-sequence-observable" id="toc-how-to-make-the-startup-sequence-observable" class="nav-link" data-scroll-target="#how-to-make-the-startup-sequence-observable">How to make the startup sequence observable</a>
+  <li><a href="#table-of-contents" id="toc-table-of-contents" class="nav-link active" data-scroll-target="#table-of-contents">Table of Contents</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#the-challenge" id="toc-the-challenge" class="nav-link" data-scroll-target="#the-challenge">The Challenge</a></li>
+  <li><a href="#diginsight-solution" id="toc-diginsight-solution" class="nav-link" data-scroll-target="#diginsight-solution">Diginsight Solution</a></li>
+  <li><a href="#implementation-guide" id="toc-implementation-guide" class="nav-link" data-scroll-target="#implementation-guide">Implementation Guide</a>
   <ul class="collapse">
-  <li><a href="#step-01-create-the-observabilitymanager-with-the-deferred-loggerfactory" id="toc-step-01-create-the-observabilitymanager-with-the-deferred-loggerfactory" class="nav-link" data-scroll-target="#step-01-create-the-observabilitymanager-with-the-deferred-loggerfactory">STEP 01: Create the <code>ObservabilityManager</code> with the deferred <code>LoggerFactory</code></a></li>
-  <li><a href="#step-02-register-for-telemetry-flush-at-the-end-of-the-startup-sequence" id="toc-step-02-register-for-telemetry-flush-at-the-end-of-the-startup-sequence" class="nav-link" data-scroll-target="#step-02-register-for-telemetry-flush-at-the-end-of-the-startup-sequence">STEP 02: Register for telemetry flush at the end of the startup sequence</a></li>
-  </ul></li>
-  <li><a href="#use-the-observabilityregistry-to-allow-use-of-loggerfactory-access-across-dependencies" id="toc-use-the-observabilityregistry-to-allow-use-of-loggerfactory-access-across-dependencies" class="nav-link" data-scroll-target="#use-the-observabilityregistry-to-allow-use-of-loggerfactory-access-across-dependencies">Use the ObservabilityRegistry to allow use of LoggerFactory access across dependencies</a>
-  <ul class="collapse">
-  <li><a href="#step-01-change-observability-class-to-receive-the-logger-factory" id="toc-step-01-change-observability-class-to-receive-the-logger-factory" class="nav-link" data-scroll-target="#step-01-change-observability-class-to-receive-the-logger-factory">STEP 01: Change Observability class to receive the logger factory</a></li>
+  <li><a href="#basic-setup" id="toc-basic-setup" class="nav-link" data-scroll-target="#basic-setup">Basic Setup</a></li>
+  <li><a href="#advanced-cross-assembly-access" id="toc-advanced-cross-assembly-access" class="nav-link" data-scroll-target="#advanced-cross-assembly-access">Advanced: Cross-Assembly Access</a></li>
   <li><a href="#step-02-update-the-startup-sequence-to-register-the-loggerfactory-into-the-observabilityregistry" id="toc-step-02-update-the-startup-sequence-to-register-the-loggerfactory-into-the-observabilityregistry" class="nav-link" data-scroll-target="#step-02-update-the-startup-sequence-to-register-the-loggerfactory-into-the-observabilityregistry">STEP 02: Update the startup sequence to register the LoggerFactory into the ObservabilityRegistry</a></li>
   </ul></li>
   </ul>
@@ -406,88 +405,116 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>The <strong>startup sequence</strong> and <strong>static methods</strong> often hide <strong>subtle and critical bugs</strong> especially hard to detect and resolve.</p>
-<p>For example:</p>
+<section id="table-of-contents" class="level2">
+<h2 class="anchored" data-anchor-id="table-of-contents">Table of Contents</h2>
 <ul>
-<li><strong>Startup configurations</strong>, such as <mark style="background-color:lightyellow">connection strings or resource access keys, may be incorrect or missing</mark>.</li>
-<li><strong>Static constructors</strong> <mark style="background-color:lightyellow">and their dependencies can conceal subtle bugs</mark> that are difficult to troubleshoot.</li>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#the-challenge">The Challenge</a></li>
+<li><a href="#diginsight-solution">Diginsight Solution</a></li>
+<li><a href="#implementation-guide">Implementation Guide</a>
+<ul>
+<li><a href="#basic-setup">Basic Setup</a></li>
+<li><a href="#advanced-cross-assembly-access">Advanced: Cross-Assembly Access</a></li>
+</ul></li>
 </ul>
-<p>Those places are usually <strong>difficult to troubleshoot</strong> as standard telemetry may not be active when they are executed.</p>
-<section id="startup-sequence-observability-with-diginsight" class="level2">
-<h2 class="anchored" data-anchor-id="startup-sequence-observability-with-diginsight">Startup sequence observability with Diginsight</h2>
-<p>Diginsight telemetry enables <strong>observability for the full startup sequence</strong> by means of the <code>DeferredLoggerFactory</code> that provides <strong>recording the application flow</strong> until the telemetry infrastructure is set up.<br> Upon startup completion, telemetry recording is flushed right before the standard telemetry flow gathering is started so that any configuration problem or error can be made visible.</p>
-<p>Also, <code>ObservabilityRegistry</code> provides access to the logger factory across assemblies, also for static methods.</p>
-<p>The code snippets below are available as working samples within the <strong>telemetry_samples</strong> repository.</p>
-<p>In particular the steps shown below explain how the startup sequence can be made observable on the <code>SampleWebApi</code> within the <code>telemetry_samples</code> repository.</p>
 </section>
-<section id="how-to-make-the-startup-sequence-observable" class="level2">
-<h2 class="anchored" data-anchor-id="how-to-make-the-startup-sequence-observable">How to make the startup sequence observable</h2>
-<p>The following code snippet shows the startup method of the <code>SampleWebApiWithStartupSequence</code> project: <img src="images/000.02 SampleWebAPIWithStartupSequence.png" class="img-fluid" alt="alt text"></p>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>Application <strong>startup sequences and static methods</strong> often hide <strong>critical bugs</strong> that can be extremely difficult to detect and resolve. These issues normally occur before standard telemetry systems are active, leaving developers blind to what’s happening during these crucial moments.</p>
+</section>
+<section id="the-challenge" class="level2">
+<h2 class="anchored" data-anchor-id="the-challenge">The Challenge</h2>
+<p>During application startup, several problems commonly occur:</p>
+<ul>
+<li><strong>Configuration issues</strong>: Missing connection strings, incorrect resource access keys, or invalid settings</li>
+<li><strong>Static constructor failures</strong>: Dependencies that fail silently or throw exceptions in static initialization</li>
+<li><strong>Timing problems</strong>: Components attempting to access services before they’re properly initialized</li>
+</ul>
+<p>The root problem is <strong>observability gaps</strong>: standard telemetry infrastructure isn’t active during startup, making these issues nearly impossible to diagnose.</p>
+</section>
+<section id="diginsight-solution" class="level2">
+<h2 class="anchored" data-anchor-id="diginsight-solution">Diginsight Solution</h2>
+<p>Diginsight telemetry solves this with the <code>DeferredLoggerFactory</code>, a recording logger that captures all startup activity before the telemetry system is ready. When startup completes, all recorded logs are flushed to your configured telemetry targets.</p>
+<p><strong>Key benefits:</strong> - <strong>Complete startup visibility</strong>: Every method call, configuration load, and potential failure is recorded - <strong>No telemetry gaps</strong>: Recording starts immediately, before any other systems - <strong>Cross-assembly support</strong>: Static methods and external dependencies can access logging</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>All code examples are available in the <a href="https://github.com/diginsight/telemetry.samples">telemetry.samples</a> repository.</p>
+</div>
+</div>
+</section>
+<section id="implementation-guide" class="level2">
+<h2 class="anchored" data-anchor-id="implementation-guide">Implementation Guide</h2>
+<section id="basic-setup" class="level3">
+<h3 class="anchored" data-anchor-id="basic-setup">Basic Setup</h3>
+<p>Here’s how to enable startup sequence observability in your application: <img src="images/000.02 SampleWebAPIWithStartupSequence.png" class="img-fluid" alt="alt text"></p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode c# code-with-copy"><code class="sourceCode cs"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">static</span> <span class="dt">void</span> <span class="fu">Main</span><span class="op">(</span><span class="dt">string</span><span class="op">[]</span> args<span class="op">)</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> <span class="dt">var</span> observabilityManager <span class="op">=</span> <span class="kw">new</span> <span class="fu">ObservabilityManager</span><span class="op">();</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    ILogger logger <span class="op">=</span> observabilityManager<span class="op">.</span><span class="fu">LoggerFactory</span><span class="op">.</span><span class="fu">CreateLogger</span><span class="op">(</span><span class="kw">typeof</span><span class="op">(</span>Program<span class="op">));</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    Observability<span class="op">.</span><span class="fu">LoggerFactory</span> <span class="op">=</span> observabilityManager<span class="op">.</span><span class="fu">LoggerFactory</span><span class="op">;</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    WebApplication app<span class="op">;</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> <span class="op">(</span><span class="dt">var</span> activity <span class="op">=</span> Observability<span class="op">.</span><span class="fu">ActivitySource</span><span class="op">.</span><span class="fu">StartMethodActivity</span><span class="op">(</span>logger<span class="op">,</span> <span class="kw">new</span> <span class="op">{</span> args <span class="op">}))</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        <span class="dt">var</span> builder <span class="op">=</span> WebApplication<span class="op">.</span><span class="fu">CreateBuilder</span><span class="op">(</span>args<span class="op">);</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="dt">var</span> services <span class="op">=</span> builder<span class="op">.</span><span class="fu">Services</span><span class="op">;</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        <span class="dt">var</span> configuration <span class="op">=</span> builder<span class="op">.</span><span class="fu">Configuration</span><span class="op">;</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        <span class="dt">var</span> environment <span class="op">=</span> builder<span class="op">.</span><span class="fu">Environment</span><span class="op">;</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Add logging and opentelemetry</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        services<span class="op">.</span><span class="fu">AddObservability</span><span class="op">(</span>configuration<span class="op">,</span> environment<span class="op">);</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        <span class="co">// register for flush of recorded telemetry</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        observabilityManager<span class="op">.</span><span class="fu">AttachTo</span><span class="op">(</span>services<span class="op">);</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        services<span class="op">.</span><span class="fu">AddControllers</span><span class="op">();</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        services<span class="op">.</span><span class="fu">AddEndpointsApiExplorer</span><span class="op">();</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        services<span class="op">.</span><span class="fu">AddSwaggerGen</span><span class="op">();</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>        <span class="co">// intercept build phase to flush recorded telemetry and register diginsight components</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>        builder<span class="op">.</span><span class="fu">Host</span><span class="op">.</span><span class="fu">UseDiginsightServiceProvider</span><span class="op">(</span><span class="kw">true</span><span class="op">);</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>        app <span class="op">=</span> builder<span class="op">.</span><span class="fu">Build</span><span class="op">();</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        <span class="kw">if</span> <span class="op">(</span>app<span class="op">.</span><span class="fu">Environment</span><span class="op">.</span><span class="fu">IsDevelopment</span><span class="op">())</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>        <span class="op">{</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>            app<span class="op">.</span><span class="fu">UseSwagger</span><span class="op">();</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>            app<span class="op">.</span><span class="fu">UseSwaggerUI</span><span class="op">();</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>        app<span class="op">.</span><span class="fu">UseHttpsRedirection</span><span class="op">();</span></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>        app<span class="op">.</span><span class="fu">UseAuthorization</span><span class="op">();</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Step 1: Create ObservabilityManager immediately</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> <span class="dt">var</span> observabilityManager <span class="op">=</span> <span class="kw">new</span> <span class="fu">ObservabilityManager</span><span class="op">();</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    ILogger logger <span class="op">=</span> observabilityManager<span class="op">.</span><span class="fu">LoggerFactory</span><span class="op">.</span><span class="fu">CreateLogger</span><span class="op">(</span><span class="kw">typeof</span><span class="op">(</span>Program<span class="op">));</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    Observability<span class="op">.</span><span class="fu">LoggerFactory</span> <span class="op">=</span> observabilityManager<span class="op">.</span><span class="fu">LoggerFactory</span><span class="op">;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    WebApplication app<span class="op">;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> <span class="op">(</span><span class="dt">var</span> activity <span class="op">=</span> Observability<span class="op">.</span><span class="fu">ActivitySource</span><span class="op">.</span><span class="fu">StartMethodActivity</span><span class="op">(</span>logger<span class="op">,</span> <span class="kw">new</span> <span class="op">{</span> args <span class="op">}))</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="dt">var</span> builder <span class="op">=</span> WebApplication<span class="op">.</span><span class="fu">CreateBuilder</span><span class="op">(</span>args<span class="op">);</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Step 2: Configure Diginsight and register for flush</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        builder<span class="op">.</span><span class="fu">Services</span><span class="op">.</span><span class="fu">AddObservability</span><span class="op">(</span>builder<span class="op">.</span><span class="fu">Configuration</span><span class="op">,</span> builder<span class="op">.</span><span class="fu">Environment</span><span class="op">);</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        observabilityManager<span class="op">.</span><span class="fu">AttachTo</span><span class="op">(</span>builder<span class="op">.</span><span class="fu">Services</span><span class="op">);</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Standard service registration</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        builder<span class="op">.</span><span class="fu">Services</span><span class="op">.</span><span class="fu">AddControllers</span><span class="op">();</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        builder<span class="op">.</span><span class="fu">Services</span><span class="op">.</span><span class="fu">AddEndpointsApiExplorer</span><span class="op">();</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        builder<span class="op">.</span><span class="fu">Services</span><span class="op">.</span><span class="fu">AddSwaggerGen</span><span class="op">();</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Step 3: Enable deferred logging flush during build</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>        builder<span class="op">.</span><span class="fu">Host</span><span class="op">.</span><span class="fu">UseDiginsightServiceProvider</span><span class="op">(</span><span class="kw">true</span><span class="op">);</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>        app <span class="op">=</span> builder<span class="op">.</span><span class="fu">Build</span><span class="op">();</span> <span class="co">// Flush happens here</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Configure pipeline</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>        <span class="kw">if</span> <span class="op">(</span>app<span class="op">.</span><span class="fu">Environment</span><span class="op">.</span><span class="fu">IsDevelopment</span><span class="op">())</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        <span class="op">{</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>            app<span class="op">.</span><span class="fu">UseSwagger</span><span class="op">();</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>            app<span class="op">.</span><span class="fu">UseSwaggerUI</span><span class="op">();</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>        app<span class="op">.</span><span class="fu">UseHttpsRedirection</span><span class="op">();</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>        app<span class="op">.</span><span class="fu">UseAuthorization</span><span class="op">();</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>        app<span class="op">.</span><span class="fu">MapControllers</span><span class="op">();</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
 <span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>        app<span class="op">.</span><span class="fu">MapControllers</span><span class="op">();</span></span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    app<span class="op">.</span><span class="fu">Run</span><span class="op">();</span></span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<section id="step-01-create-the-observabilitymanager-with-the-deferred-loggerfactory" class="level3">
-<h3 class="anchored" data-anchor-id="step-01-create-the-observabilitymanager-with-the-deferred-loggerfactory">STEP 01: Create the <code>ObservabilityManager</code> with the deferred <code>LoggerFactory</code></h3>
-<p>An <code>observabilityManager</code> is created at startup, <strong>immediately after application start</strong>:</p>
-<pre><code>using var observabilityManager = new ObservabilityManager();
-ILogger logger = observabilityManager.LoggerFactory.CreateLogger(typeof(Program));
-Observability.LoggerFactory = observabilityManager.LoggerFactory;</code></pre>
-<p><strong>.NET logging is not configured or activated yet</strong>, however observabilityManager <strong>loggerFactory is recording</strong> all activities START, END and all explicit logging operations.</p>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    app<span class="op">.</span><span class="fu">Run</span><span class="op">();</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="step-1-initialize-deferred-logging" class="level4">
+<h4 class="anchored" data-anchor-id="step-1-initialize-deferred-logging">Step 1: Initialize Deferred Logging</h4>
+<p>Create the <code>ObservabilityManager</code> as the very first action in your <code>Main</code> method:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="dt">var</span> observabilityManager <span class="op">=</span> <span class="kw">new</span> <span class="fu">ObservabilityManager</span><span class="op">();</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>ILogger logger <span class="op">=</span> observabilityManager<span class="op">.</span><span class="fu">LoggerFactory</span><span class="op">.</span><span class="fu">CreateLogger</span><span class="op">(</span><span class="kw">typeof</span><span class="op">(</span>Program<span class="op">));</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>Observability<span class="op">.</span><span class="fu">LoggerFactory</span> <span class="op">=</span> observabilityManager<span class="op">.</span><span class="fu">LoggerFactory</span><span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>What happens here:</strong> - The <code>ObservabilityManager</code> creates a recording logger that captures everything - No telemetry infrastructure is needed yet - this works immediately - The logger starts recording all method calls, timing, and log statements</p>
 </section>
-<section id="step-02-register-for-telemetry-flush-at-the-end-of-the-startup-sequence" class="level3">
-<h3 class="anchored" data-anchor-id="step-02-register-for-telemetry-flush-at-the-end-of-the-startup-sequence">STEP 02: Register for telemetry flush at the end of the startup sequence</h3>
-<p>After the <code>AddObservability()</code> method that registers diginsight telemetry.<br></p>
-<p>The <code>observabilityManager.AttachTo(services)</code> with its <code>services.FlushOnCreateServiceProvider()</code> registers the Flush operation for the recorded telemetry at the end of the startup sequence, during the dependency injection service provider creation (<strong>the host .build()</strong>).</p>
-<pre><code>// Add logging and opentelemetry
-services.AddObservability(configuration, environment);
-observabilityManager.AttachTo(services);</code></pre>
-<p>After services configuration, right <strong>before the host build</strong>, the telemetry and logging will be configured and activated. The <code>UseDiginsightServiceProvider()</code> call will run the registered telemetry <strong>Flush()</strong> and all the deferred logs will be flushed to the telemetry targets.</p>
-<pre><code>services.AddControllers();
-services.AddEndpointsApiExplorer();
-services.AddSwaggerGen();
-
-builder.Host.UseDiginsightServiceProvider(true);
-app = builder.Build();</code></pre>
-<p>API startup <strong>will then show all logs recorded during startup</strong>:</p>
+<section id="step-2-register-for-automatic-flush" class="level4">
+<h4 class="anchored" data-anchor-id="step-2-register-for-automatic-flush">Step 2: Register for Automatic Flush</h4>
+<p>After configuring Diginsight with <code>AddObservability()</code>, register the manager to flush when startup completes:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>builder<span class="op">.</span><span class="fu">Services</span><span class="op">.</span><span class="fu">AddObservability</span><span class="op">(</span>builder<span class="op">.</span><span class="fu">Configuration</span><span class="op">,</span> builder<span class="op">.</span><span class="fu">Environment</span><span class="op">);</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>observabilityManager<span class="op">.</span><span class="fu">AttachTo</span><span class="op">(</span>builder<span class="op">.</span><span class="fu">Services</span><span class="op">);</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>What happens here:</strong> - <code>AddObservability()</code> configures your standard telemetry (OpenTelemetry, logging providers, etc.) - <code>AttachTo()</code> registers a callback to flush recorded logs when the service container is built - All deferred logs will be sent to your configured telemetry targets</p>
+</section>
+<section id="step-3-enable-the-flush" class="level4">
+<h4 class="anchored" data-anchor-id="step-3-enable-the-flush">Step 3: Enable the Flush</h4>
+<p>Use the Diginsight service provider to trigger the flush during application build:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>builder<span class="op">.</span><span class="fu">Host</span><span class="op">.</span><span class="fu">UseDiginsightServiceProvider</span><span class="op">(</span><span class="kw">true</span><span class="op">);</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>app <span class="op">=</span> builder<span class="op">.</span><span class="fu">Build</span><span class="op">();</span> <span class="co">// Flush happens automatically here</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Result:</strong> Your application startup logs will show every detail of the initialization process:</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="images/000.03 Resulting startup log.png" class="img-fluid figure-img"></p>
@@ -496,27 +523,59 @@ app = builder.Build();</code></pre>
 </div>
 </section>
 </section>
-<section id="use-the-observabilityregistry-to-allow-use-of-loggerfactory-access-across-dependencies" class="level2">
-<h2 class="anchored" data-anchor-id="use-the-observabilityregistry-to-allow-use-of-loggerfactory-access-across-dependencies">Use the ObservabilityRegistry to allow use of LoggerFactory access across dependencies</h2>
-<p>It may happen that the <code>LoggerFactory</code> is needed in static methods or in other assemblies, where the <code>ObservabilityManager</code> is not available.</p>
-<p>We can use the <code>ObservabilityRegistry</code> to access the <code>LoggerFactory</code> from anywhere in the code, even in static methods.</p>
-<section id="step-01-change-observability-class-to-receive-the-logger-factory" class="level3">
-<h3 class="anchored" data-anchor-id="step-01-change-observability-class-to-receive-the-logger-factory">STEP 01: Change Observability class to receive the logger factory</h3>
-<p>Any assembly using the <code>Observability</code> class can access the <code>LoggerFactory</code> by using the static property <code>Observability.LoggerFactory</code>.</p>
-<p>With a simple static constructor, we can register the <code>Observability</code> class to receive the logger factory whenever it is changed into the ObservabilityRegistry:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode c# code-with-copy"><code class="sourceCode cs"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">internal</span> <span class="kw">static</span> <span class="kw">class</span> Observability</span>
+<section id="advanced-cross-assembly-access" class="level3">
+<h3 class="anchored" data-anchor-id="advanced-cross-assembly-access">Advanced: Cross-Assembly Access</h3>
+<p>For static methods or code in external assemblies that need logging during startup, use the <code>ObservabilityRegistry</code>.</p>
+<p>Create an <code>Observability</code> class in each assembly that needs startup logging:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">internal</span> <span class="kw">static</span> <span class="kw">class</span> Observability</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">readonly</span> ActivitySource ActivitySource <span class="op">=</span> <span class="kw">new</span><span class="op">(</span>Assembly<span class="op">.</span><span class="fu">GetExecutingAssembly</span><span class="op">().</span><span class="fu">GetName</span><span class="op">().</span><span class="fu">Name</span><span class="op">!);</span></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="kw">static</span> ILoggerFactory LoggerFactory <span class="op">{</span> <span class="kw">get</span><span class="op">;</span> <span class="kw">set</span><span class="op">;</span> <span class="op">}</span> <span class="op">=</span> <span class="kw">null</span><span class="op">!;</span></span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">static</span> <span class="fu">Observability</span><span class="op">()</span> <span class="op">=&gt;</span> ObservabilityRegistry<span class="op">.</span><span class="fu">RegisterComponent</span><span class="op">(</span>factory <span class="op">=&gt;</span> LoggerFactory <span class="op">=</span> factory<span class="op">);</span></span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="register-the-logger-factory" class="level4">
+<h4 class="anchored" data-anchor-id="register-the-logger-factory">Register the Logger Factory</h4>
+<p>In your startup code, register the logger factory with the registry:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="dt">var</span> observabilityManager <span class="op">=</span> <span class="kw">new</span> <span class="fu">ObservabilityManager</span><span class="op">();</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>ILogger logger <span class="op">=</span> observabilityManager<span class="op">.</span><span class="fu">LoggerFactory</span><span class="op">.</span><span class="fu">CreateLogger</span><span class="op">(</span><span class="kw">typeof</span><span class="op">(</span>Program<span class="op">));</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Register globally for cross-assembly access</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>ObservabilityRegistry<span class="op">.</span><span class="fu">RegisterLoggerFactory</span><span class="op">(</span>observabilityManager<span class="op">.</span><span class="fu">LoggerFactory</span><span class="op">);</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="use-in-static-methods" class="level4">
+<h4 class="anchored" data-anchor-id="use-in-static-methods">Use in Static Methods</h4>
+<p>Now any static method can access logging during startup:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">static</span> FeedIterator <span class="fu">GetItemQueryStreamIteratorObservable</span><span class="op">(</span><span class="kw">this</span> Container container<span class="op">,</span> <span class="dt">string</span> query<span class="op">,</span> <span class="dt">string</span><span class="op">?</span> continuationToken <span class="op">=</span> <span class="kw">null</span><span class="op">,</span> QueryRequestOptions<span class="op">?</span> requestOptions <span class="op">=</span> <span class="kw">null</span><span class="op">)</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> loggerFactory <span class="op">=</span> Observability<span class="op">.</span><span class="fu">LoggerFactory</span><span class="op">;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> logger <span class="op">=</span> loggerFactory<span class="op">.</span><span class="fu">CreateLogger</span><span class="op">(</span><span class="kw">typeof</span><span class="op">(</span>CosmosDbExtensions<span class="op">));</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> <span class="dt">var</span> activity <span class="op">=</span> Observability<span class="op">.</span><span class="fu">ActivitySource</span><span class="op">.</span><span class="fu">StartMethodActivity</span><span class="op">(</span>logger<span class="op">,</span> <span class="op">()</span> <span class="op">=&gt;</span> <span class="kw">new</span> <span class="op">{</span> query<span class="op">,</span> continuationToken<span class="op">,</span> requestOptions <span class="op">});</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Method implementation with full observability</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Result:</strong> Even static methods and external assemblies will appear in your startup logs:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/002.02 Static method observability output log.png" class="img-fluid figure-img"></p>
+<figcaption>alt text</figcaption>
+</figure>
+</div>
+<p>With a simple static constructor, we can register the <code>Observability</code> class to receive the logger factory whenever it is changed into the ObservabilityRegistry:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode c# code-with-copy"><code class="sourceCode cs"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">internal</span> <span class="kw">static</span> <span class="kw">class</span> Observability</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">readonly</span> ActivitySource ActivitySource <span class="op">=</span> <span class="kw">new</span><span class="op">(</span>Assembly<span class="op">.</span><span class="fu">GetExecutingAssembly</span><span class="op">().</span><span class="fu">GetName</span><span class="op">().</span><span class="fu">Name</span><span class="op">!);</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="kw">static</span> ILoggerFactory LoggerFactory <span class="op">{</span> <span class="kw">get</span><span class="op">;</span> <span class="kw">set</span><span class="op">;</span> <span class="op">}</span> <span class="op">=</span> <span class="kw">null</span><span class="op">!;</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">static</span> <span class="fu">Observability</span><span class="op">()</span> <span class="op">=&gt;</span> ObservabilityRegistry<span class="op">.</span><span class="fu">RegisterComponent</span><span class="op">(</span>factory <span class="op">=&gt;</span> LoggerFactory <span class="op">=</span> factory<span class="op">);</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="images/001.00 Observability class with static constructor.png" class="img-fluid figure-img"></p>
 <figcaption>alt text</figcaption>
 </figure>
 </div>
+</section>
 </section>
 <section id="step-02-update-the-startup-sequence-to-register-the-loggerfactory-into-the-observabilityregistry" class="level3">
 <h3 class="anchored" data-anchor-id="step-02-update-the-startup-sequence-to-register-the-loggerfactory-into-the-observabilityregistry">STEP 02: Update the startup sequence to register the LoggerFactory into the ObservabilityRegistry</h3>
@@ -527,18 +586,18 @@ app = builder.Build();</code></pre>
 <figcaption>alt text</figcaption>
 </figure>
 </div>
-<div class="sourceCode" id="cb6"><pre class="sourceCode c# code-with-copy"><code class="sourceCode cs"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="kw">static</span> async Task <span class="fu">Main</span><span class="op">(</span><span class="dt">string</span><span class="op">[]</span> args<span class="op">)</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> <span class="dt">var</span> observabilityManager <span class="op">=</span> <span class="kw">new</span> <span class="fu">ObservabilityManager</span><span class="op">();</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    ILogger logger <span class="op">=</span> observabilityManager<span class="op">.</span><span class="fu">LoggerFactory</span><span class="op">.</span><span class="fu">CreateLogger</span><span class="op">(</span><span class="kw">typeof</span><span class="op">(</span>Program<span class="op">));</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    ObservabilityRegistry<span class="op">.</span><span class="fu">RegisterLoggerFactory</span><span class="op">(</span>observabilityManager<span class="op">.</span><span class="fu">LoggerFactory</span><span class="op">);</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode c# code-with-copy"><code class="sourceCode cs"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="kw">static</span> async Task <span class="fu">Main</span><span class="op">(</span><span class="dt">string</span><span class="op">[]</span> args<span class="op">)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> <span class="dt">var</span> observabilityManager <span class="op">=</span> <span class="kw">new</span> <span class="fu">ObservabilityManager</span><span class="op">();</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    ILogger logger <span class="op">=</span> observabilityManager<span class="op">.</span><span class="fu">LoggerFactory</span><span class="op">.</span><span class="fu">CreateLogger</span><span class="op">(</span><span class="kw">typeof</span><span class="op">(</span>Program<span class="op">));</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    ObservabilityRegistry<span class="op">.</span><span class="fu">RegisterLoggerFactory</span><span class="op">(</span>observabilityManager<span class="op">.</span><span class="fu">LoggerFactory</span><span class="op">);</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Any component within your dependencies will then be able to use the <code>Observability.LoggerFactory</code> to create loggers and use Diginsight.</p>
 <p>In the following example from Diginsight.Components, <code>Observability.LoggerFactory</code> is used to create a logger in the <code>GetItemQueryStreamIteratorObservable</code> static extensions method:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode c# code-with-copy"><code class="sourceCode cs"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">static</span> FeedIterator <span class="fu">GetItemQueryStreamIteratorObservable</span><span class="op">(</span><span class="kw">this</span> Container container<span class="op">,</span> <span class="dt">string</span> query<span class="op">,</span> <span class="dt">string</span><span class="op">?</span> continuationToken <span class="op">=</span> <span class="kw">null</span><span class="op">,</span> QueryRequestOptions<span class="op">?</span> requestOptions <span class="op">=</span> <span class="kw">null</span><span class="op">)</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> loggerFactory <span class="op">=</span> Observability<span class="op">.</span><span class="fu">LoggerFactory</span><span class="op">;</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> logger <span class="op">=</span> loggerFactory<span class="op">.</span><span class="fu">CreateLogger</span><span class="op">(</span><span class="kw">typeof</span><span class="op">(</span>CosmosDbExtensions<span class="op">));</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> <span class="dt">var</span> activity <span class="op">=</span> Observability<span class="op">.</span><span class="fu">ActivitySource</span><span class="op">.</span><span class="fu">StartMethodActivity</span><span class="op">(</span>logger<span class="op">,</span> <span class="op">()</span> <span class="op">=&gt;</span> <span class="kw">new</span> <span class="op">{</span> query<span class="op">,</span> continuationToken<span class="op">,</span> requestOptions <span class="op">});</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode c# code-with-copy"><code class="sourceCode cs"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">static</span> FeedIterator <span class="fu">GetItemQueryStreamIteratorObservable</span><span class="op">(</span><span class="kw">this</span> Container container<span class="op">,</span> <span class="dt">string</span> query<span class="op">,</span> <span class="dt">string</span><span class="op">?</span> continuationToken <span class="op">=</span> <span class="kw">null</span><span class="op">,</span> QueryRequestOptions<span class="op">?</span> requestOptions <span class="op">=</span> <span class="kw">null</span><span class="op">)</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> loggerFactory <span class="op">=</span> Observability<span class="op">.</span><span class="fu">LoggerFactory</span><span class="op">;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> logger <span class="op">=</span> loggerFactory<span class="op">.</span><span class="fu">CreateLogger</span><span class="op">(</span><span class="kw">typeof</span><span class="op">(</span>CosmosDbExtensions<span class="op">));</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> <span class="dt">var</span> activity <span class="op">=</span> Observability<span class="op">.</span><span class="fu">ActivitySource</span><span class="op">.</span><span class="fu">StartMethodActivity</span><span class="op">(</span>logger<span class="op">,</span> <span class="op">()</span> <span class="op">=&gt;</span> <span class="kw">new</span> <span class="op">{</span> query<span class="op">,</span> continuationToken<span class="op">,</span> requestOptions <span class="op">});</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="images/002.01 Static method observability example.png" class="img-fluid figure-img"></p>
