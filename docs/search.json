@@ -699,7 +699,7 @@
     "href": "src/docs/02. Advanced/16.00 - Troubleshoot the startup sequence.html#introduction",
     "title": "Troubleshoot the startup sequence",
     "section": "Introduction",
-    "text": "Introduction\nApplication startup sequences and static methods are notorious hiding places for critical bugs that can be extremely difficult to detect and resolve. These issues often occur before standard telemetry systems are active, leaving developers blind to what’s happening during these crucial moments.",
+    "text": "Introduction\nApplication startup sequences and static methods often hide critical bugs that can be extremely difficult to detect and resolve. These issues normally occur before standard telemetry systems are active, leaving developers blind to what’s happening during these crucial moments.",
     "crumbs": [
       "Home",
       "Advanced Articles",
@@ -723,7 +723,7 @@
     "href": "src/docs/02. Advanced/16.00 - Troubleshoot the startup sequence.html#diginsight-solution",
     "title": "Troubleshoot the startup sequence",
     "section": "Diginsight Solution",
-    "text": "Diginsight Solution\nDiginsight telemetry solves this with the DeferredLoggerFactory - a recording logger that captures all startup activity before the telemetry system is ready. When startup completes, all recorded logs are flushed to your configured telemetry targets.\nKey benefits: - Complete startup visibility: Every method call, configuration load, and potential failure is recorded - No telemetry gaps: Recording starts immediately, before any other systems - Cross-assembly support: Static methods and external dependencies can access logging\n\n\n\n\n\n\nNote\n\n\n\nAll code examples are available in the telemetry.samples repository.",
+    "text": "Diginsight Solution\nDiginsight telemetry solves this with the DeferredLoggerFactory, a recording logger that captures all startup activity before the telemetry system is ready. When startup completes, all recorded logs are flushed to your configured telemetry targets.\nKey benefits:\n\nComplete startup visibility: Every method call, configuration load, and potential failure is recorded\nNo telemetry gaps: Recording starts immediately, before any other systems\nCross-assembly support: Static methods and external dependencies can access logging\n\n\n\n\n\n\n\nNote\n\n\n\nAll code examples are available in the telemetry.samples repository.",
     "crumbs": [
       "Home",
       "Advanced Articles",

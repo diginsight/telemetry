@@ -435,7 +435,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="diginsight-solution" class="level2">
 <h2 class="anchored" data-anchor-id="diginsight-solution">Diginsight Solution</h2>
 <p>Diginsight telemetry solves this with the <code>DeferredLoggerFactory</code>, a recording logger that captures all startup activity before the telemetry system is ready. When startup completes, all recorded logs are flushed to your configured telemetry targets.</p>
-<p><strong>Key benefits:</strong> - <strong>Complete startup visibility</strong>: Every method call, configuration load, and potential failure is recorded - <strong>No telemetry gaps</strong>: Recording starts immediately, before any other systems - <strong>Cross-assembly support</strong>: Static methods and external dependencies can access logging</p>
+<p><strong>Key benefits:</strong></p>
+<ul>
+<li><strong>Complete startup visibility</strong>: Every method call, configuration load, and potential failure is recorded</li>
+<li><strong>No telemetry gaps</strong>: Recording starts immediately, before any other systems</li>
+<li><strong>Cross-assembly support</strong>: Static methods and external dependencies can access logging</li>
+</ul>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
