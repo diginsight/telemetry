@@ -420,7 +420,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>Application <strong>startup sequences and static methods</strong> often hide <strong>critical bugs</strong> that can be extremely difficult to detect and resolve. These issues normally occur before standard telemetry systems are active, leaving developers blind to what’s happening during these crucial moments.</p>
+<p>Application <strong>startup sequences and static methods</strong> often hide <strong>critical bugs</strong> that can be extremely difficult to detect and resolve. These issues normally occur before standard telemetry systems are active, leaving developers blind right when observability is needed.</p>
 </section>
 <section id="the-challenge" class="level2">
 <h2 class="anchored" data-anchor-id="the-challenge">The Challenge</h2>
@@ -434,7 +434,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="diginsight-solution" class="level2">
 <h2 class="anchored" data-anchor-id="diginsight-solution">Diginsight Solution</h2>
-<p>Diginsight telemetry solves this with the <code>DeferredLoggerFactory</code>, a recording logger that captures all startup activity before the telemetry system is ready. When startup completes, all recorded logs are flushed to your configured telemetry targets.</p>
+<p>Diginsight provides <strong>observability for the whole startup sequence</strong> by means <code>DeferredLoggerFactory</code>, a recording logger that captures all startup activity before the telemetry system is ready.<br> When startup completes, all recorded logs are flushed to your configured telemetry targets.</p>
 <p><strong>Key benefits:</strong></p>
 <ul>
 <li><strong>Complete startup visibility</strong>: Every method call, configuration load, and potential failure is recorded</li>
@@ -505,14 +505,24 @@ Note
 <div class="sourceCode" id="cb2"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="dt">var</span> observabilityManager <span class="op">=</span> <span class="kw">new</span> <span class="fu">ObservabilityManager</span><span class="op">();</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>ILogger logger <span class="op">=</span> observabilityManager<span class="op">.</span><span class="fu">LoggerFactory</span><span class="op">.</span><span class="fu">CreateLogger</span><span class="op">(</span><span class="kw">typeof</span><span class="op">(</span>Program<span class="op">));</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>Observability<span class="op">.</span><span class="fu">LoggerFactory</span> <span class="op">=</span> observabilityManager<span class="op">.</span><span class="fu">LoggerFactory</span><span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><strong>What happens here:</strong> - The <code>ObservabilityManager</code> creates a recording logger that captures everything - No telemetry infrastructure is needed yet - this works immediately - The logger starts recording all method calls, timing, and log statements</p>
+<p><strong>What happens here:</strong></p>
+<ul>
+<li>The <code>ObservabilityManager</code> creates a recording logger that captures everything</li>
+<li>No telemetry infrastructure is needed yet - this works immediately</li>
+<li>The logger starts recording all method calls, timing, and log statements</li>
+</ul>
 </section>
 <section id="step-2-register-for-automatic-flush" class="level4">
 <h4 class="anchored" data-anchor-id="step-2-register-for-automatic-flush">Step 2: Register for Automatic Flush</h4>
 <p>After configuring Diginsight with <code>AddObservability()</code>, register the manager to flush when startup completes:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>builder<span class="op">.</span><span class="fu">Services</span><span class="op">.</span><span class="fu">AddObservability</span><span class="op">(</span>builder<span class="op">.</span><span class="fu">Configuration</span><span class="op">,</span> builder<span class="op">.</span><span class="fu">Environment</span><span class="op">);</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>observabilityManager<span class="op">.</span><span class="fu">AttachTo</span><span class="op">(</span>builder<span class="op">.</span><span class="fu">Services</span><span class="op">);</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><strong>What happens here:</strong> - <code>AddObservability()</code> configures your standard telemetry (OpenTelemetry, logging providers, etc.) - <code>AttachTo()</code> registers a callback to flush recorded logs when the service container is built - All deferred logs will be sent to your configured telemetry targets</p>
+<p><strong>What happens here:</strong></p>
+<ul>
+<li><code>AddObservability()</code> configures your standard telemetry (OpenTelemetry, logging providers, etc.)</li>
+<li><code>AttachTo()</code> registers a callback to flush recorded logs when the service container is built</li>
+<li>All deferred logs will be sent to your configured telemetry targets</li>
+</ul>
 </section>
 <section id="step-3-enable-the-flush" class="level4">
 <h4 class="anchored" data-anchor-id="step-3-enable-the-flush">Step 3: Enable the Flush</h4>
