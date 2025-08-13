@@ -1,6 +1,45 @@
 ﻿# Diginsight.Diagnostics
 
-**Diginsight.Diagnostics implements main observability and diagnostics functionality** that is based on .NET logging, activity tracing, and metrics collection capabilities. It seamlessly integrates with the .NET ecosystem including System.Diagnostics, Microsoft.Extensions.Logging, and OpenTelemetry.
+**Diginsight.Diagnostics implements application observability** that is based on **.NET logging**, **activity tracing**, and **metrics collection capabilities**.
+It seamlessly integrates with the .NET ecosystem including System.Diagnostics, Microsoft.Extensions.Logging, and OpenTelemetry.
+
+## 📑 Table of Contents
+
+- [🎯 Purpose](#-purpose)
+- [🏗️ Core Architecture](#️-core-architecture)
+  - [Key Components](#key-components)
+    - [1. Activity Lifecycle Management](#1-activity-lifecycle-management)
+    - [2. Enhanced Console Logging](#2-enhanced-console-logging)
+    - [3. Metrics and Timing](#3-metrics-and-timing)
+    - [4. Configuration and Options](#4-configuration-and-options)
+- [🚀 Key Features](#-key-features)
+  - [Method Activity and Rich Activity Creation](#method-activity-and-rich-activity-creation)
+  - [Automatic Logging](#automatic-logging)
+  - [Advanced Console Formatting](#advanced-console-formatting)
+  - [Metrics Collection](#metrics-collection)
+- [📋 Core Classes Reference](#-core-classes-reference)
+  - [Activity Management](#activity-management)
+  - [Logging Infrastructure](#logging-infrastructure)
+  - [Metrics and Timing](#metrics-and-timing)
+  - [Configuration](#configuration)
+  - [Text Formatting Tokens](#text-formatting-tokens)
+- [🔧 Usage Examples](#-usage-examples)
+  - [Basic Setup](#basic-setup)
+  - [Creating Instrumented Activities](#creating-instrumented-activities)
+  - [Custom Metrics](#custom-metrics)
+  - [Early Logging Setup](#early-logging-setup)
+- [🎨 Console Output Examples](#-console-output-examples)
+- [🔗 Integration Points](#-integration-points)
+  - [OpenTelemetry](#opentelemetry)
+  - [ASP.NET Core](#aspnet-core)
+  - [Dependency Injection](#dependency-injection)
+- [🎛️ Configuration](#️-configuration)
+  - [Activity Sources Configuration](#activity-sources-configuration)
+  - [Console Formatter Configuration](#console-formatter-configuration)
+- [📊 Understanding Span Duration Metrics](#-understanding-span-duration-metrics)
+- [📚 Reference Documentation](#-reference-documentation)
+- [🏗️ Target Frameworks](#️-target-frameworks)
+- [📦 Dependencies](#-dependencies)
 
 ## 🎯 Purpose
 
@@ -37,7 +76,8 @@ The library provides:
 
 ## 🚀 Key Features
 
-### Rich Activity Creation
+### Method Activity and Rich Activity Creation
+
 // Create method activity with automatic naming
 using var activity = activitySource.StartMethodActivity(new { userId = 123, name = "John" });
 
@@ -65,12 +105,15 @@ The console formatter provides:
 - **Responsive design**: Automatic width adjustment and intelligent line breaking
 
 ### Metrics Collection
+```c#
 // Automatic span duration metrics
 services.AddSpanDurationMetricRecorder();
 
 // Custom timer histograms
 var timer = meter.CreateTimer("operation_duration");
 using var lap = timer.StartLap(new { operation = "database_query" });
+```
+
 ## 📋 Core Classes Reference
 
 ### Activity Management
@@ -122,6 +165,8 @@ using var lap = timer.StartLap(new { operation = "database_query" });
 ## 🔧 Usage Examples
 
 ### Basic Setup
+
+```c#
 // Configure logging with Diginsight
 builder.Services.AddLogging(logging =>
 {
@@ -137,7 +182,11 @@ builder.Services.AddDiginsightCore();
 
 // Add metrics collection
 builder.Services.AddSpanDurationMetricRecorder();
+```
+
 ### Creating Instrumented Activities
+
+```c#
 public class OrderService
 {
     private static readonly ActivitySource ActivitySource = new("OrderService");
@@ -172,7 +221,11 @@ public class OrderService
         }
     }
 }
+```
+
 ### Custom Metrics
+
+```c#
 public class MetricsService
 {
     private readonly TimerHistogram dbTimer;
@@ -189,7 +242,11 @@ public class MetricsService
         return await operation();
     }
 }
+```
+
 ### Early Logging Setup
+
+```c#
 // For libraries that need logging before DI container is ready
 public class EarlyLoggingExample
 {
@@ -209,8 +266,11 @@ public class EarlyLoggingExample
         earlyLogging.AttachTo(services);
     }
 }
+```
+
 ## 🎨 Console Output Examples
 
+```
 The Diginsight console formatter produces rich, hierarchical output:
 15:30:45.123 [DBG] OrderService.ProcessOrderAsync({ orderId: 123 }) START
 15:30:45.125 [INF] ├─ Getting order from database
@@ -220,6 +280,8 @@ The Diginsight console formatter produces rich, hierarchical output:
 15:30:45.160 [DBG] │  PaymentService.ProcessPayment({ amount: 99.99 }) START
 15:30:45.180 [DBG] │  PaymentService.ProcessPayment({ amount: 99.99 }) => { success: true } END ⏱ 20ms
 15:30:45.181 [DBG] OrderService.ProcessOrderAsync({ orderId: 123 }) => { orderId: 123, status: "Completed" } END ⏱ 58ms
+```
+
 ## 🔗 Integration Points
 
 ### OpenTelemetry
@@ -240,6 +302,8 @@ The Diginsight console formatter produces rich, hierarchical output:
 ## 🎛️ Configuration
 
 ### Activity Sources Configuration
+
+```json
 {
   "Diginsight": {
     "Activities": {
@@ -254,7 +318,11 @@ The Diginsight console formatter produces rich, hierarchical output:
     }
   }
 }
+```
+
 ### Console Formatter Configuration
+
+```json
 {
   "Logging": {
     "Console": {
@@ -267,11 +335,34 @@ The Diginsight console formatter produces rich, hierarchical output:
     }
   }
 }
+```
+
+## 📊 Understanding Span Duration Metrics
+
+Diginsight automatically captures span duration metrics from .NET Activities, providing essential performance monitoring capabilities. These metrics measure the execution time of operations in your application and are crucial for:
+
+- **Performance Monitoring**: Track operation execution times
+- **Bottleneck Identification**: Find slow operations in your application  
+- **Trend Analysis**: Monitor performance changes over time
+- **SLA Monitoring**: Ensure operations meet performance requirements
+
+The system integrates seamlessly with OpenTelemetry and exports metrics to Application Insights, Prometheus, and other monitoring backends with minimal configuration.
+
+**📖 For comprehensive details on how metrics collection works**, including architecture, configuration, and troubleshooting, see: **[Understanding Diginsight Metrics Collection](./README-UnderstandMetricsCollectionWithDiginsight.md)**
+
+## 📚 Reference Documentation
+
+This section provides links to detailed documentation for specific aspects of Diginsight:
+
+- **[Understanding Diginsight Metrics Collection](./README-UnderstandMetricsCollectionWithDiginsight.md)** - Comprehensive guide to metrics architecture, configuration, and troubleshooting
+
 ## 🏗️ Target Frameworks
 
 Supports multiple .NET versions:
+```
 - .NET Standard 2.0, 2.1
 - .NET 6, 7, 8, 9
+```
 
 The library adapts its feature set based on the target framework, ensuring optimal performance and compatibility across different .NET versions.
 

@@ -1,4 +1,4 @@
-﻿using Diginsight.Options;
+using Diginsight.Options;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
@@ -26,7 +26,6 @@ public sealed class DiginsightActivitiesOptions
     private string? metricDescription;
 
     public IDictionary<string, bool> ActivitySources { get; }
-
     IReadOnlyDictionary<string, bool> IDiginsightActivitiesOptions.ActivitySources => (IReadOnlyDictionary<string, bool>)ActivitySources;
 
     public LogBehavior LogBehavior
@@ -64,7 +63,6 @@ public sealed class DiginsightActivitiesOptions
         get => meterName;
         set => meterName = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
     }
-
     string IDiginsightActivitiesMetricOptions.MeterName => MeterName ?? throw new InvalidOperationException($"{nameof(MeterName)} is unset");
 
     public string MetricName
@@ -86,12 +84,13 @@ public sealed class DiginsightActivitiesOptions
     }
 
     public IDictionary<string, LogBehavior> LoggedActivityNames { get; }
-
     IReadOnlyDictionary<string, LogBehavior> IDiginsightActivityNamesOptions.LoggedActivityNames => (IReadOnlyDictionary<string, LogBehavior>)LoggedActivityNames;
 
     public IDictionary<string, bool> SpanMeasuredActivityNames { get; }
-
     IReadOnlyDictionary<string, bool> IDiginsightActivityNamesOptions.SpanMeasuredActivityNames => (IReadOnlyDictionary<string, bool>)SpanMeasuredActivityNames;
+
+    //public ICollection<string> MetricTags { get; } = new List<string>();
+    //IEnumerable<string> IDiginsightActivityNamesOptions.MetricTags => MetricTags;
 
     public DiginsightActivitiesOptions()
         : this(
