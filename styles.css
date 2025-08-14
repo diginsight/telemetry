@@ -1,0 +1,16 @@
+/* Custom styles for Diginsight Telemetry */
+
+/* Ensure the white circle icon in the title is properly styled */
+.navbar-brand .navbar-title {
+  font-weight: 500;
+}
+
+/* Make sure icons in dark themes remain visible */
+html[data-bs-theme="dark"] .navbar-brand {
+  color: white;
+}
+
+/* Additional styling for better visual consistency */
+.navbar-brand {
+  font-size: 1.25rem;
+}

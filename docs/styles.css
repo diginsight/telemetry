@@ -1,0 +1,24 @@
+/* Custom styles for Diginsight Telemetry */
+
+/* Add white lightbulb icon to navbar title */
+.navbar-brand .navbar-title::before {
+  content: "💡";
+  filter: brightness(0) invert(1);
+  margin-right: 0.5rem;
+  font-size: 1.1em;
+}
+
+/* For dark themes, ensure the icon remains white */
+html[data-bs-theme="dark"] .navbar-brand .navbar-title::before {
+  filter: none;
+  color: white;
+}
+
+/* Alternative: Use Bootstrap Icons if preferred */
+.navbar-brand .navbar-title.with-icon::before {
+  content: "\F4CB"; /* Bootstrap lightbulb icon */
+  font-family: "Bootstrap Icons";
+  color: white;
+  margin-right: 0.5rem;
+  font-size: 1.1em;
+}

@@ -8,7 +8,7 @@ project:
   - "!ignore-dir/"
 
 website:
-  title: "💡 Diginsight Telemetry"
+  title: "⚪ Diginsight Telemetry"
   back-to-top-navigation: true
   reader-mode: true
   favicon: diginsight.jpg
@@ -21,13 +21,6 @@ website:
     content: "**Information** - Diginsight v3 is now available"
     position: below-navbar 
     type: primary
-    # background: primary
-    # location: navbar
-    # type: overlay
-    # keyboard-shortcut: ["?", "H"]
-    # logo: bi-lightbulb diginsight.ico
-    # language: 
-    #     search-box-placeholder: Search    
   navbar:
     background: primary
     search: true
@@ -44,10 +37,7 @@ website:
              href:  src/docs/05. About/about.md
            - text: License
              href:  src/LICENSE.md
-        # href: about.qmd
     tools:
-       # - icon: twitter
-       #   href: https://twitter.com
        - icon: github
          menu:
            - text: Profile
@@ -56,7 +46,6 @@ website:
              href:  https://github.com/diginsight/telemetry
            - text: Report a Bug
              href:  https://github.com/diginsight/telemetry
-  # contents: auto
   sidebar:
     style: "docked"
     search: false
@@ -67,7 +56,7 @@ website:
     - text: Getting Started
       href:  "src/docs/00. Getting Started/Getting Started.md"
     - text: "---"
-    - text: Example Aanalysis
+    - text: Example Analysis
       href:  "src/docs/00.1 Example Analysis/00.01 - How to troubleshoot issues.md"
     - text: "---"
     - section: Concepts
@@ -78,12 +67,7 @@ website:
     - text: "---"
     - section: About
       contents: "src/docs/05. About/*"
-    # - text: "---"
-    # - section: About
-    #   contents: "src/docs/05. About/*"
     tools:
-    # - icon: twitter
-    #   href: https://twitter.com
     - icon: github
       menu:
         - text: Source Code
@@ -96,8 +80,7 @@ website:
     right: 
       - icon: github
         href: https://github.com/diginsight
-      # - icon: twitter 
-      #   href: https://twitter.com/         # - acknowlegment.qmd
+
 format:
   html:
     theme:

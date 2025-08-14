@@ -304,7 +304,7 @@
     "text": "Troubleshooting with diginsight is easy and, for any application, it happens in similar ways.",
     "crumbs": [
       "Home",
-      "Example Aanalysis"
+      "Example Analysis"
     ]
   },
   {
@@ -315,7 +315,7 @@
     "text": "STEP 01: reproduce the problem and analyze the detail flow\nThe following image shows a diginsight application flow on a text based stream for PlantsController.GetPlantsAsync method. The flow can be easily obtained from developer machine log file, or from application live console such as Azure app streaming log or a Kubernetes console log: \nStarting from its traceid (0f83d3a1e2e834f4b8dab3f3f0f5bc12), the same flow can be found as an Azure Monitor Application transaction: \nFrom the image we can observe that internal component calls are shown into the transaction flow and not just interactions across different components. Also, note that the transaction flow structure is consistent with the transaction flow rendered on the live console log, where more detail is available. Also, note that the transaction flow structure is consistent with the application code as class names, method names, and variable names are obtained automatically.\nLatencies for the same function can be analyzed in a chart with the span_duration metric, filtered on DataAnalyticsReportsController.GetDevices method. \nIn facts, the span_duration metric allows analyzing latencies of any method within code.\nAlso, we’ll see that the developer can easily add other metrics and metric tags to split and compare values in different conditions (eg. by site properties, user properties etc)..",
     "crumbs": [
       "Home",
-      "Example Aanalysis"
+      "Example Analysis"
     ]
   },
   {
@@ -326,7 +326,7 @@
     "text": "Build and Test\nClone the repository, open and build solution Common.Diagnostics.sln. run EasySample and open the log file in your *** folder.",
     "crumbs": [
       "Home",
-      "Example Aanalysis"
+      "Example Analysis"
     ]
   },
   {
@@ -337,7 +337,7 @@
     "text": "Contribute\nContribute to the repository with your pull requests.\n\nASP.NET Core\nVisual Studio Code",
     "crumbs": [
       "Home",
-      "Example Aanalysis"
+      "Example Analysis"
     ]
   },
   {
@@ -348,13 +348,13 @@
     "text": "License\nSee the LICENSE file for license rights and limitations (MIT).",
     "crumbs": [
       "Home",
-      "Example Aanalysis"
+      "Example Analysis"
     ]
   },
   {
     "objectID": "src/LICENSE.html",
     "href": "src/LICENSE.html",
-    "title": "💡 Diginsight Telemetry",
+    "title": "⚪ Diginsight Telemetry",
     "section": "",
     "text": "Copyright (c) 2011-2017 GitHub Inc.\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\nTHE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\n\n\n Back to top"
   },
@@ -368,14 +368,14 @@
   {
     "objectID": "README.copilot.html",
     "href": "README.copilot.html",
-    "title": "💡 Diginsight Telemetry",
+    "title": "⚪ Diginsight Telemetry",
     "section": "",
     "text": "Back to top"
   },
   {
     "objectID": "README.copilot.strategies.html",
     "href": "README.copilot.strategies.html",
-    "title": "💡 Diginsight Telemetry",
+    "title": "⚪ Diginsight Telemetry",
     "section": "",
     "text": "Back to top"
   },
