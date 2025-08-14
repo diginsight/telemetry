@@ -4,7 +4,6 @@ project:
   render:
   - "*.md"
   - "*.qmd"
-  - "index.md"
   - "!ignore.qmd"
   - "!ignore-dir/"
 
@@ -34,7 +33,7 @@ website:
     search: true
     left:
       - text: "Home"
-        href: index.md
+        href: /
       - text: "Concepts"
         href: src/docs/01. Concepts/00.01 - Observability Concepts.md
       - text: "Advanced articles"
@@ -63,7 +62,7 @@ website:
     search: false
     contents:
     - text: Home
-      href:  index.md
+      href:  /
     - text: "---"
     - text: Getting Started
       href:  "src/docs/00. Getting Started/Getting Started.md"
