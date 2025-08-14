@@ -30,7 +30,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../diginsight.jpg" rel="icon" type="image/jpeg">
+<link href="../diginsight.bulb.svg" rel="icon" type="image/svg+xml">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -73,11 +73,13 @@ ul.task-list li input[type="checkbox"] {
 
 <script>
 
-// Simple script to ensure proper page loading
+// Add lightbulb icon to browser title after page loads
 
 document.addEventListener('DOMContentLoaded', function() {
 
-  console.log('Diginsight Telemetry site loaded');
+  // Create a lightbulb icon using Unicode for the browser title
+
+  document.title = '💡 ' + document.title;
 
 });
 
@@ -89,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <link rel="stylesheet" href="../callouts.css">
 <meta property="og:title" content="Diginsight Telemetry">
 <meta property="og:description" content="">
-<meta property="og:image" content="diginsight.jpg">
+<meta property="og:image" content="diginsight.bulb.svg">
 <meta property="og:site_name" content="Diginsight Telemetry">
 </head>
 

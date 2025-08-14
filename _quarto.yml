@@ -11,10 +11,10 @@ website:
   title: "Diginsight Telemetry"
   back-to-top-navigation: true
   reader-mode: true
-  favicon: diginsight.jpg
+  favicon: diginsight.bulb.svg
   search: true
   open-graph: true
-  image: diginsight.jpg
+  image: diginsight.bulb.svg
   announcement: 
     icon: info-circle
     dismissable: true
