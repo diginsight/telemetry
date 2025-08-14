@@ -1,24 +1,32 @@
 /* Custom styles for Diginsight Telemetry */
 
-/* Add white lightbulb icon to navbar title */
-.navbar-brand .navbar-title::before {
-  content: "💡";
-  filter: brightness(0) invert(1);
-  margin-right: 0.5rem;
-  font-size: 1.1em;
+/* Add Bootstrap lightbulb icon to navbar title */
+.navbar-brand::before {
+  content: "";
+  display: inline-block;
+  width: 1.2em;
+  height: 1.2em;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' class='bi bi-lightbulb-fill' viewBox='0 0 16 16'%3e%3cpath d='M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13h-5a.5.5 0 0 1-.459-.302l-.761-1.77a1.964 1.964 0 0 0-.453-.618A5.984 5.984 0 0 1 2 6zm3 8.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1-.5-.5z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-size: contain;
+  vertical-align: middle;
+  margin-right: 15px;
+  margin-left: 0px;
+}
+
+/* Remove the Unicode circle from the title text */
+.navbar-brand {
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+/* Ensure proper spacing and alignment */
+.navbar-brand .navbar-title {
+  display: inline-block;
+  vertical-align: middle;
 }
 
 /* For dark themes, ensure the icon remains white */
-html[data-bs-theme="dark"] .navbar-brand .navbar-title::before {
-  filter: none;
+html[data-bs-theme="dark"] .navbar-brand {
   color: white;
-}
-
-/* Alternative: Use Bootstrap Icons if preferred */
-.navbar-brand .navbar-title.with-icon::before {
-  content: "\F4CB"; /* Bootstrap lightbulb icon */
-  font-family: "Bootstrap Icons";
-  color: white;
-  margin-right: 0.5rem;
-  font-size: 1.1em;
 }

@@ -8,7 +8,7 @@ project:
   - "!ignore-dir/"
 
 website:
-  title: "⚪ Diginsight Telemetry"
+  title: "Diginsight Telemetry"
   back-to-top-navigation: true
   reader-mode: true
   favicon: diginsight.jpg
@@ -87,4 +87,5 @@ format:
       light: [cosmo, theme-light.scss]
       dark: [cosmo, theme-dark.scss]
     css: [styles.css, callouts.css]
+    include-in-header: header-includes.html
     toc: true
