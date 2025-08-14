@@ -1,0 +1,86 @@
+name: Render and Deploy Quarto Site to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Quarto
+      uses: quarto-dev/quarto-actions/setup@v2
+      with:
+        version: pre-release
+        
+    - name: Check for Python requirements
+      id: check-python
+      run: |
+        if [ -f requirements.txt ] || [ -f pyproject.toml ]; then
+          echo "python-needed=true" >> $GITHUB_OUTPUT
+        else
+          echo "python-needed=false" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Setup Python (if needed for computations)
+      if: steps.check-python.outputs.python-needed == 'true'
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+        
+    - name: Install Python dependencies (if needed)
+      if: steps.check-python.outputs.python-needed == 'true'
+      run: |
+        if [ -f requirements.txt ]; then
+          pip install -r requirements.txt
+        elif [ -f pyproject.toml ]; then
+          pip install -e .
+        fi
+        
+    - name: Setup R (if needed for computations)
+      uses: r-lib/actions/setup-r@v2
+      if: false  # Set to true if you use R
+      with:
+        r-version: '4.3.0'
+        
+    - name: Render Quarto Project
+      run: quarto render
+      
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+      
+    - name: Upload Pages artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: docs/
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+      
+    steps:
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
