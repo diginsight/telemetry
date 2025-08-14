@@ -1,7 +1,7 @@
 /* Custom styles for Diginsight Telemetry */
 
-/* Add lightbulb icon to navbar title */
-.navbar-brand::before {
+/* Add lightbulb icon to navbar title - Use :first-child to prevent duplication */
+.navbar-brand:first-child::before {
   content: "";
   display: inline-block;
   width: 1.2em;
