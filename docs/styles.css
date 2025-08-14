@@ -1,9 +1,9 @@
 /* Custom styles for Diginsight Telemetry */
 
-/* Add lightbulb icon to navbar title - DISABLED: favicon already provides lightbulb in navbar */
+/* Add lightbulb icon to navbar title */
 .navbar-brand::before {
   content: "";
-  display: none; /* Disabled because favicon lightbulb appears in navbar on GitHub Pages */
+  display: inline-block;
   width: 1.2em;
   height: 1.2em;
   background-image: url("diginsight.bulb.svg");
