@@ -4,6 +4,7 @@ project:
   render:
   - "*.md"
   - "*.qmd"
+  - "index.md"
   - "!ignore.qmd"
   - "!ignore-dir/"
 
