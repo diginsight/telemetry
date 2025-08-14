@@ -1,9 +1,9 @@
 /* Custom styles for Diginsight Telemetry */
 
-/* Add lightbulb icon to navbar title - TEMPORARILY DISABLED FOR DEBUGGING */
+/* Add lightbulb icon to navbar title */
 .navbar-brand::before {
   content: "";
-  display: none; /* Temporarily disabled to check for double icons */
+  display: inline-block;
   width: 1.2em;
   height: 1.2em;
   background-image: url("diginsight.bulb.svg");
