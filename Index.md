@@ -1,5 +1,5 @@
 ![build](https://github.com/diginsight/telemetry/actions/workflows/v3.yml/badge.svg)<br>
-![GitHub Pages](https://github.com/diginsight/telemetry/actions/workflows/github-pages.yml/badge.svg)
+![GitHub Pages](https://github.com/diginsight/telemetry/actions/workflows/quarto-publish.yml/badge.svg)
 
 # Introduction
 
