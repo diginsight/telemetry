@@ -1,9 +1,9 @@
 /* Custom styles for Diginsight Telemetry */
 
-/* Add lightbulb icon to navbar title */
+/* Add lightbulb icon to navbar title - TEMPORARILY DISABLED FOR DEBUGGING */
 .navbar-brand::before {
   content: "";
-  display: inline-block;
+  display: none; /* Temporarily disabled to check for double icons */
   width: 1.2em;
   height: 1.2em;
   background-image: url("diginsight.bulb.svg");
@@ -18,6 +18,13 @@
 .navbar-brand {
   font-size: 1.25rem;
   font-weight: 500;
+  color: inherit !important;
+}
+
+/* Fix hover color issue - ensure navbar title stays white */
+.navbar-brand:hover {
+  color: inherit !important;
+  text-decoration: none;
 }
 
 /* Ensure proper spacing and alignment */
@@ -28,5 +35,9 @@
 
 /* For dark themes, ensure the icon remains white */
 html[data-bs-theme="dark"] .navbar-brand {
-  color: white;
+  color: white !important;
+}
+
+html[data-bs-theme="dark"] .navbar-brand:hover {
+  color: white !important;
 }
