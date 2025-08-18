@@ -14,10 +14,10 @@ public class MetricRecordingNameBasedFilter : IMetricRecordingFilter
     private readonly MetricRecordingNameBasedFilterOptions filterOptions;
 
     public MetricRecordingNameBasedFilter(
-        MetricRecordingNameBasedFilterOptions filterOptions
+        IOptionsMonitor<MetricRecordingNameBasedFilterOptions> filterOptions
     )
     {
-        this.filterOptions = filterOptions;
+        this.filterOptions = filterOptions.CurrentValue;
     }
 
     public virtual bool? ShouldRecord(Activity activity)

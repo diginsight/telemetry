@@ -15,9 +15,9 @@ public class MetricRecordingTagsEnricher : IMetricRecordingEnricher
     private readonly MetricRecordingEnricherOptions enricherOptions;
 
     public MetricRecordingTagsEnricher(
-        MetricRecordingEnricherOptions enricherOptions)
+        IOptionsMonitor<MetricRecordingEnricherOptions> enricherOptions)
     {
-        this.enricherOptions = enricherOptions;
+        this.enricherOptions = enricherOptions.CurrentValue;
     }
 
     public IEnumerable<KeyValuePair<string, object?>> ExtractTags(Activity activity)
