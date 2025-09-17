@@ -1,12 +1,12 @@
 <Project>
 
   <PropertyGroup>
-    <LangVersion>13</LangVersion>
+    <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <WarningsAsErrors>nullable</WarningsAsErrors>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-    <NoWarn>CA2255;IDE0051</NoWarn>
+    <NoWarn>$(NoWarn);CA2255;IDE0051;IDE0290</NoWarn>
     <!--<GenerateDocumentationFile>true</GenerateDocumentationFile>-->
   </PropertyGroup>
 

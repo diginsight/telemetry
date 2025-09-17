@@ -109,9 +109,9 @@ public abstract class ReflectionStringifiable : IStringifiable
             else if (Nullable.GetUnderlyingType(memberType) is not null)
             {
                 finalValueExpr = Expression.Condition(
-                    Expression.Property(valueVar, nameof(Nullable<int>.HasValue)),
+                    Expression.Property(valueVar, nameof(Nullable<>.HasValue)),
                     Expression.Coalesce(
-                        Expression.Call(Expression.Constant(customStringifier, typeof(IStringifier)), TryStringifyMethod, Box(Expression.Property(valueVar, nameof(Nullable<int>.Value)))),
+                        Expression.Call(Expression.Constant(customStringifier, typeof(IStringifier)), TryStringifyMethod, Box(Expression.Property(valueVar, nameof(Nullable<>.Value)))),
                         Box(valueVar)
                     ),
                     Null<object>()

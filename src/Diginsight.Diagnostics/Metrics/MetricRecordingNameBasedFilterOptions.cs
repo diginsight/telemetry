@@ -2,6 +2,6 @@ namespace Diginsight.Diagnostics;
 
 public class MetricRecordingNameBasedFilterOptions
 {
-    public string MetricName { get; set; } = string.Empty;
+    public string MetricName { get; set; } = "";
     public IDictionary<string, bool> ActivityNames { get; set; } = new Dictionary<string, bool>();
 }

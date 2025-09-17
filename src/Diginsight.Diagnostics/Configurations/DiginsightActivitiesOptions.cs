@@ -126,6 +126,7 @@ public sealed class DiginsightActivitiesOptions
             logBehavior = logBehavior,
             activityLogLevel = activityLogLevel,
             writeActivityActionAsPrefix = writeActivityActionAsPrefix,
+            disablePayloadRendering = disablePayloadRendering,
             recordSpanDurations = recordSpanDurations,
             meterName = meterName,
             metricName = metricName,

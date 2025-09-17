@@ -39,7 +39,6 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
 
     private readonly ILoggerFactory loggerFactory;
     private readonly IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor;
-    private IStringifyContextFactory? stringifyContextFactory;
     private readonly IActivityLoggingSampler? activityLoggingSampler;
     private readonly ILogger fallbackLogger;
     private readonly Func<nint> getExceptionPointers;
@@ -49,8 +48,10 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
     private readonly object emittedLock = new ();
 #endif
 
+    [AllowNull]
+    [field: MaybeNull]
     private IStringifyContextFactory StringifyContextFactory =>
-        stringifyContextFactory ??= new StringifyContextFactoryBuilder().WithLoggerFactory(loggerFactory).Build();
+        field ??= new StringifyContextFactoryBuilder().WithLoggerFactory(loggerFactory).Build();
 
     public ActivityLifecycleLogEmitter(
         ILoggerFactory loggerFactory,
@@ -61,9 +62,10 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
     {
         this.loggerFactory = loggerFactory;
         this.activitiesOptionsMonitor = activitiesOptionsMonitor;
-        this.stringifyContextFactory = stringifyContextFactory;
         this.activityLoggingSampler = activityLoggingSampler;
         fallbackLogger = loggerFactory.CreateLogger($"{typeof(ActivityLifecycleLogEmitter).Namespace!}.$Activity");
+
+        StringifyContextFactory = stringifyContextFactory;
 
 #if NET
         getExceptionPointers = Marshal.GetExceptionPointers;

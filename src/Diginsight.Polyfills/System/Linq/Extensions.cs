@@ -30,4 +30,8 @@ public static class Extensions
         }
     }
 #endif
+
+#if !NET10_0_OR_GREATER
+    public static IEnumerable<TSource> Reverse<TSource>(this TSource[] array) => ((IEnumerable<TSource>)array).Reverse();
+#endif
 }

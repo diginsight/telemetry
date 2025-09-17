@@ -2,13 +2,12 @@
 
 public sealed class DiginsightDebugLoggerOptions : IDiginsightDebugLoggerOptions
 {
-    private string? pattern;
     private TimeZoneInfo? timeZone = TimeZoneInfo.Utc;
 
     public string? Pattern
     {
-        get => pattern;
-        set => pattern = value.HardTrim();
+        get;
+        set => field = value.HardTrim();
     }
 
     public string? TimeZone

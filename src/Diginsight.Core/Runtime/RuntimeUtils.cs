@@ -291,7 +291,7 @@ public static class RuntimeUtils
 
                     if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Lazy<>))
                     {
-                        return CoreGet(type.GetProperty(nameof(Lazy<object>.Value))!.GetValue(current));
+                        return CoreGet(type.GetProperty(nameof(Lazy<>.Value))!.GetValue(current));
                     }
 
                     if (!seen.Add(current))

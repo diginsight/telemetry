@@ -7,7 +7,6 @@ public sealed class DiginsightConsoleFormatterOptions : ConsoleFormatterOptions,
 {
     private TimeZoneInfo? timeZone;
     private bool useUtcTimestamp;
-    private string? pattern;
 
     [Obsolete($"This property hides the one in {nameof(ConsoleFormatterOptions)} and is not used by {nameof(DiginsightConsoleFormatter)}. Get/set {nameof(TimeZone)} instead.")]
     public new bool UseUtcTimestamp
@@ -32,8 +31,8 @@ public sealed class DiginsightConsoleFormatterOptions : ConsoleFormatterOptions,
 
     public string? Pattern
     {
-        get => pattern;
-        set => pattern = value.HardTrim();
+        get;
+        set => field = value.HardTrim();
     }
 
     public IDictionary<string, string?> Patterns { get; } = new Dictionary<string, string?>();

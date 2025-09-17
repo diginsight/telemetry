@@ -34,7 +34,7 @@ public sealed class DeferredActivityLifecycleLogEmitter : IDisposable
         {
             ActivityStarted = ActivityStarted,
             ActivityStopped = ActivityStopped,
-            Sample = static (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
+            Sample = static (ref _) => ActivitySamplingResult.AllData,
             ShouldListenTo = shouldListenTo,
         };
         ActivitySource.AddActivityListener(activityListener);

@@ -5,15 +5,14 @@ namespace Diginsight.Stringify;
 
 public sealed class StringifyContextFactoryBuilder
 {
-    private static IStringifyContextFactory? defaultFactory;
-
     public static StringifyContextFactoryBuilder DefaultBuilder { get; set; } = new ();
 
     [AllowNull]
+    [field: MaybeNull]
     public static IStringifyContextFactory DefaultFactory
     {
-        get => defaultFactory ??= DefaultBuilder.Build();
-        set => defaultFactory = value;
+        get => field ??= DefaultBuilder.Build();
+        set;
     }
 
     public IServiceCollection Services { get; } = new ServiceCollection();

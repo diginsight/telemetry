@@ -11,7 +11,7 @@ public static class ActivityUtils
 
     public static readonly ActivityListener DepthSetterActivityListener = new ()
     {
-        Sample = static (ref ActivityCreationOptions<ActivityContext> creationOptions) =>
+        Sample = static (ref creationOptions) =>
         {
             ActivityContext parent = creationOptions.Parent;
             string? rawParentDepth = TraceState.Parse(parent.TraceState).GetValueOrDefault(ActivityDepth.TraceStateKey);

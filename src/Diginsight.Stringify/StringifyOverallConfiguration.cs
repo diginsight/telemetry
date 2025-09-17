@@ -9,8 +9,6 @@ public sealed class StringifyOverallConfiguration : IStringifyOverallConfigurati
 
     public static IList<StringifierRegistration> GlobalCustomRegistrations { get; } = new List<StringifierRegistration>();
 
-    private Threshold maxTotalLength = 300;
-
     public IList<StringifierRegistration> CustomRegistrations { get; } = new List<StringifierRegistration>();
 
     IEnumerable<StringifierRegistration> IStringifyOverallConfiguration.CustomRegistrations => CustomRegistrations;
@@ -43,9 +41,9 @@ public sealed class StringifyOverallConfiguration : IStringifyOverallConfigurati
 
     public Threshold MaxTotalLength
     {
-        get => maxTotalLength;
-        set => maxTotalLength = value.Value == 0 ? throw new ArgumentOutOfRangeException(nameof(MaxTotalLength), "Expected positive value") : value;
-    }
+        get;
+        set => field = value.Value == 0 ? throw new ArgumentOutOfRangeException(nameof(MaxTotalLength), "Expected positive value") : value;
+    } = 300;
 
     public bool ShortenKnownTypes { get; set; } = true;
 
