@@ -18,6 +18,4 @@ public class HttpHeadersMetricRecordingFilter : IMetricRecordingFilter
     {
         return HttpHeadersHelper.ShouldInclude(activity.Source.Name, activity.OperationName, HeaderName, httpContextAccessor);
     }
-
-    // public virtual IEnumerable<KeyValuePair<string, object?>> ExtractTags(Activity activity) => [ ];
 }

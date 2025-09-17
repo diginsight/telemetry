@@ -10,7 +10,7 @@ public static class ServiceCollectionExtensions
 {
 #if NET8_0_OR_GREATER
     public static IServiceCollection AddNamedSingleton<TInterface, TImplementation>(
-        this IServiceCollection services, 
+        this IServiceCollection services,
         string name)
         where TImplementation : class, TInterface
         where TInterface : class
@@ -36,22 +36,22 @@ public static class ServiceCollectionExtensions
     {
         // Store the original registration temporarily
         var tempKey = $"_temp_{name}_{Guid.NewGuid():N}";
-        
+
         // Find the existing keyed service
-        var existingDescriptor = services.FirstOrDefault(d => 
-            d.ServiceType == typeof(TInterface) && 
+        var existingDescriptor = services.FirstOrDefault(d =>
+            d.ServiceType == typeof(TInterface) &&
             d.ServiceKey?.ToString() == name);
-        
+
         if (existingDescriptor == null)
             throw new InvalidOperationException($"No keyed service found for {typeof(TInterface).Name} with key '{name}'");
 
         // Remove the original registration
         services.Remove(existingDescriptor);
-        
+
         // Re-register the original with a temporary key
         services.AddKeyedSingleton<TInterface>(tempKey, (sp, _) => (TInterface) existingDescriptor.ImplementationFactory!(sp));
 
-        
+
         // Register the decorator with the original key
         services.AddKeyedSingleton<TInterface>(name, (sp, key) =>
         {
@@ -176,4 +176,3 @@ public class NamedServiceRegistry<T> : INamedServiceRegistry<T>
     }
 }
 #endif
-

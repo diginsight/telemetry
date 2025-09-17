@@ -120,8 +120,8 @@ public sealed class DictionaryView<TKeyIn, TValueIn, TKeyOut, TValueOut> : IRead
     public IEnumerator<KeyValuePair<TKeyOut, TValueOut>> GetEnumerator()
     {
         return (dictionary1 is { } dictionary
-                ? dictionary.Select(x => new KeyValuePair<TKeyOut, TValueOut>(convertKey(x.Key), convertValue(x.Value)))
-                : dictionary2!.Select(x => new KeyValuePair<TKeyOut, TValueOut>(convertKey(x.Key), convertValue(x.Value))))
+                ? dictionary.Select(x => KeyValuePair.Create(convertKey(x.Key), convertValue(x.Value)))
+                : dictionary2!.Select(x => KeyValuePair.Create(convertKey(x.Key), convertValue(x.Value))))
             .GetEnumerator();
     }
 
