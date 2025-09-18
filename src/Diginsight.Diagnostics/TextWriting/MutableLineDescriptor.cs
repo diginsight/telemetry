@@ -4,8 +4,10 @@ namespace Diginsight.Diagnostics.TextWriting;
 
 public ref struct MutableLineDescriptor
 {
-    [field: MaybeNull]
-    public ICollection<IPrefixTokenAppender> Appenders => field ??= new List<IPrefixTokenAppender>();
+    [SuppressMessage("ReSharper", "ReplaceWithFieldKeyword")]
+    private ICollection<IPrefixTokenAppender>? appenders;
+
+    public ICollection<IPrefixTokenAppender> Appenders => appenders ??= new List<IPrefixTokenAppender>();
 
     public int? MaxIndentedDepth { get; set; }
 

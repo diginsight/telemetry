@@ -667,15 +667,15 @@
       },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",
-        "resolved": "9.0.9",
-        "contentHash": "HVLnwIccvmsAySQM8N8q468DA/W/OddDB6deWXZDF0VPOwZ0utnm0aErfX4LnNVnsThtoPyVH0kCPPcitGcUdQ=="
+        "resolved": "8.0.0",
+        "contentHash": "3WA9q9yVqJp222P3x1wYIGDAkpjAku0TMUaaQV22g6L67AI0LdOIrVS7Ht2vJfLHGSPVuqN94vIr15qn+HEkHw=="
       },
       "Microsoft.Bcl.TimeProvider": {
         "type": "Transitive",
-        "resolved": "9.0.9",
-        "contentHash": "0TAZRyLLUpptBowj0AXKwTHoUuIe4T7iMLVq8jQ+gVdALOiq1XMug6urABAQGOz7v3zQzs6hjaOm9hVvhoprcQ==",
+        "resolved": "8.0.1",
+        "contentHash": "C7kWHJnMRY7EvJev2S8+yJHZ1y7A4ZlLbA4NE+O23BDIAN5mHeqND1m+SKv1ChRS5YlCDW7yAMUe7lttRsJaAA==",
         "dependencies": {
-          "Microsoft.Bcl.AsyncInterfaces": "9.0.9"
+          "Microsoft.Bcl.AsyncInterfaces": "8.0.0"
         }
       },
       "Microsoft.Build.Tasks.Git": {
@@ -889,7 +889,7 @@
       "diginsight.polyfills": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.Bcl.TimeProvider": "[9.*, )"
+          "Microsoft.Bcl.TimeProvider": "[8.*, )"
         }
       },
       "diginsight.stringify": {
@@ -913,15 +913,15 @@
       },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",
-        "resolved": "9.0.9",
-        "contentHash": "HVLnwIccvmsAySQM8N8q468DA/W/OddDB6deWXZDF0VPOwZ0utnm0aErfX4LnNVnsThtoPyVH0kCPPcitGcUdQ=="
+        "resolved": "8.0.0",
+        "contentHash": "3WA9q9yVqJp222P3x1wYIGDAkpjAku0TMUaaQV22g6L67AI0LdOIrVS7Ht2vJfLHGSPVuqN94vIr15qn+HEkHw=="
       },
       "Microsoft.Bcl.TimeProvider": {
         "type": "Transitive",
-        "resolved": "9.0.9",
-        "contentHash": "0TAZRyLLUpptBowj0AXKwTHoUuIe4T7iMLVq8jQ+gVdALOiq1XMug6urABAQGOz7v3zQzs6hjaOm9hVvhoprcQ==",
+        "resolved": "8.0.1",
+        "contentHash": "C7kWHJnMRY7EvJev2S8+yJHZ1y7A4ZlLbA4NE+O23BDIAN5mHeqND1m+SKv1ChRS5YlCDW7yAMUe7lttRsJaAA==",
         "dependencies": {
-          "Microsoft.Bcl.AsyncInterfaces": "9.0.9"
+          "Microsoft.Bcl.AsyncInterfaces": "8.0.0"
         }
       },
       "Microsoft.Build.Tasks.Git": {
@@ -1120,7 +1120,7 @@
       "diginsight.polyfills": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.Bcl.TimeProvider": "[9.*, )"
+          "Microsoft.Bcl.TimeProvider": "[8.*, )"
         }
       },
       "diginsight.stringify": {

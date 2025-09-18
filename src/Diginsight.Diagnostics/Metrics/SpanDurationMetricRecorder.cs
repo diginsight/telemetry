@@ -11,25 +11,28 @@ public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
     private readonly ILogger logger;
     private readonly IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor;
     private readonly IMeterFactory meterFactory;
-    //private readonly Lazy<Histogram<double>> metricLazy;
+    private readonly IMetricRecordingFilter? recordingFilter;
+    private readonly IMetricRecordingEnricher? recordingEnricher;
 
-    //private readonly IMetricRecordingFilter? metricFilter;
-    //private readonly IMetricRecordingEnricher? metricEnricher;
+    //private readonly Lazy<Histogram<double>> metricLazy;
 
     //private Histogram<double> Metric => metricLazy.Value;
     //private IMetricRecordingFilter RecordingFilter => recordingFilterLazy.Value;
     //private IMetricRecordingEnricher RecordingEnricher => recordingEnricherLazy.Value;
 
     public SpanDurationMetricRecorder(
-        IServiceProvider serviceProvider,
         ILogger<SpanDurationMetricRecorder> logger,
         IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor,
-        IMeterFactory meterFactory
+        IMeterFactory meterFactory,
+        IMetricRecordingFilter? recordingFilter,
+        IMetricRecordingEnricher? recordingEnricher
     )
     {
         this.logger = logger;
         this.activitiesOptionsMonitor = activitiesOptionsMonitor;
         this.meterFactory = meterFactory;
+        this.recordingFilter = recordingFilter;
+        this.recordingEnricher = recordingEnricher;
 
         //IDiginsightActivitiesMetricOptions activitiesOptions = activitiesOptionsMonitor.CurrentValue;
         //var metricName = activitiesOptions.MetricName;
@@ -63,18 +66,12 @@ public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
             Type? callerType = activity.GetCallerType();
             IDiginsightActivitiesMetricOptions activitiesOptions = activitiesOptionsMonitor.Get(callerType);
 
-            IMetricRecordingFilter? recordingFilter;
-            // TEMP Get named recordingFilter based on activitiesOptions.MetricName and callerType
-            Unsafe.SkipInit(out recordingFilter);
             if (!(recordingFilter?.ShouldRecord(activity) ?? activitiesOptions.RecordSpanDurations))
                 return;
 
             Tag nameTag = new("span_name", activityName);
             Tag statusTag = new("status", activity.Status.ToString());
 
-            IMetricRecordingEnricher? recordingEnricher;
-            // TEMP Get named recordingEnricher based on activitiesOptions.MetricName and callerType
-            Unsafe.SkipInit(out recordingEnricher);
             Tag[] tags = recordingEnricher is not null ? [ nameTag, statusTag, .. recordingEnricher.ExtractTags(activity) ] : [ nameTag, statusTag ];
 
             Histogram<double> metric;

@@ -48,10 +48,11 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
     private readonly object emittedLock = new ();
 #endif
 
-    [AllowNull]
-    [field: MaybeNull]
+    [SuppressMessage("ReSharper", "ReplaceWithFieldKeyword")]
+    private IStringifyContextFactory? stringifyContextFactory;
+
     private IStringifyContextFactory StringifyContextFactory =>
-        field ??= new StringifyContextFactoryBuilder().WithLoggerFactory(loggerFactory).Build();
+        stringifyContextFactory ??= new StringifyContextFactoryBuilder().WithLoggerFactory(loggerFactory).Build();
 
     public ActivityLifecycleLogEmitter(
         ILoggerFactory loggerFactory,
@@ -65,7 +66,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         this.activityLoggingSampler = activityLoggingSampler;
         fallbackLogger = loggerFactory.CreateLogger($"{typeof(ActivityLifecycleLogEmitter).Namespace!}.$Activity");
 
-        StringifyContextFactory = stringifyContextFactory;
+        this.stringifyContextFactory = stringifyContextFactory;
 
 #if NET
         getExceptionPointers = Marshal.GetExceptionPointers;

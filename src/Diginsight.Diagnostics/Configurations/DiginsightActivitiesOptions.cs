@@ -9,7 +9,6 @@ public sealed class DiginsightActivitiesOptions
     : IDiginsightActivitiesOptions,
         IDiginsightActivityNamesOptions,
         IDiginsightActivitiesLogOptions,
-        IDiginsightActivitiesMetricOptions,
         IDynamicallyConfigurable,
         IVolatilelyConfigurable
 {
@@ -19,11 +18,6 @@ public sealed class DiginsightActivitiesOptions
     private LogLevel activityLogLevel = LogLevel.Debug;
     private bool writeActivityActionAsPrefix;
     private bool disablePayloadRendering;
-    private bool recordSpanDurations;
-    private string? meterName;
-    private string? metricName;
-    private string? metricUnit;
-    private string? metricDescription;
 
     public IDictionary<string, bool> ActivitySources { get; }
 
@@ -53,85 +47,43 @@ public sealed class DiginsightActivitiesOptions
         set => disablePayloadRendering = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
     }
 
-    public bool RecordSpanDurations
-    {
-        get => recordSpanDurations;
-        set => recordSpanDurations = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
-    }
-
-    public string? MeterName
-    {
-        get => meterName;
-        set => meterName = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
-    }
-
-    string IDiginsightActivitiesMetricOptions.MeterName => MeterName ?? throw new InvalidOperationException($"{nameof(MeterName)} is unset");
-
-    public string MetricName
-    {
-        get => metricName ??= "diginsight.span_duration";
-        set => metricName = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
-    }
-
-    public string? MetricUnit
-    {
-        get => metricUnit;
-        set => metricUnit = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
-    }
-
-    public string? MetricDescription
-    {
-        get => metricDescription;
-        set => metricDescription = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
-    }
-
     public IDictionary<string, LogBehavior> LoggedActivityNames { get; }
 
     IReadOnlyDictionary<string, LogBehavior> IDiginsightActivityNamesOptions.LoggedActivityNames => (IReadOnlyDictionary<string, LogBehavior>)LoggedActivityNames;
-
-    //public IDictionary<string, bool> SpanMeasuredActivityNames { get; }
-
-    //IReadOnlyDictionary<string, bool> IDiginsightActivityNamesOptions.SpanMeasuredActivityNames => (IReadOnlyDictionary<string, bool>)SpanMeasuredActivityNames;
 
     public DiginsightActivitiesOptions()
         : this(
             false,
             new Dictionary<string, bool>(),
             new Dictionary<string, LogBehavior>()
-            //new Dictionary<string, bool>()
         ) { }
 
     private DiginsightActivitiesOptions(
         bool frozen,
         IDictionary<string, bool> activitySources,
         IDictionary<string, LogBehavior> loggedActivityNames
-        //IDictionary<string, bool> spanMeasuredActivityNames
     )
     {
         this.frozen = frozen;
         ActivitySources = activitySources;
         LoggedActivityNames = loggedActivityNames;
-        //SpanMeasuredActivityNames = spanMeasuredActivityNames;
     }
 
     public DiginsightActivitiesOptions Freeze()
     {
+        if (frozen)
+            return this;
+
         return new DiginsightActivitiesOptions(
             true,
-            ImmutableDictionary.CreateRange(ActivitySources),
-            ImmutableDictionary.CreateRange(LoggedActivityNames)
-            //ImmutableDictionary.CreateRange(SpanMeasuredActivityNames)
+            ActivitySources.ToImmutableDictionary(),
+            LoggedActivityNames.ToImmutableDictionary()
         )
         {
             logBehavior = logBehavior,
             activityLogLevel = activityLogLevel,
             writeActivityActionAsPrefix = writeActivityActionAsPrefix,
             disablePayloadRendering = disablePayloadRendering,
-            recordSpanDurations = recordSpanDurations,
-            meterName = meterName,
-            metricName = metricName,
-            metricUnit = metricUnit,
-            metricDescription = metricDescription,
         };
     }
 
@@ -144,7 +96,7 @@ public sealed class DiginsightActivitiesOptions
     {
 #if NET || NETSTANDARD2_1_OR_GREATER
         private const char SpaceSeparator = ' ';
-        private const char EqualsSeparator = ' ';
+        private const char EqualsSeparator = '=';
 #else
         private static readonly char[] SpaceSeparator = [ ' ' ];
         private static readonly char[] EqualsSeparator = [ '=' ];
@@ -168,12 +120,6 @@ public sealed class DiginsightActivitiesOptions
         {
             get => filled.DisablePayloadRendering;
             set => filled.DisablePayloadRendering = value;
-        }
-
-        public bool RecordSpanDurations
-        {
-            get => filled.RecordSpanDurations;
-            set => filled.RecordSpanDurations = value;
         }
 
         public string LoggedActivityNames

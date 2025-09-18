@@ -10,6 +10,7 @@ public static class ActivityExtensions
 {
     private static class CustomPropertyNames
     {
+        public const string CustomDurationMetric = nameof(CustomDurationMetric);
         public const string CustomDurationMetricTags = nameof(CustomDurationMetricTags);
         public const string Depth = nameof(Depth);
         public const string Label = nameof(Label);
@@ -115,25 +116,35 @@ public static class ActivityExtensions
         }
     }
 
+    public static Instrument? GetCustomDurationMetric(this Activity activity)
+    {
+        return activity.GetCustomProperty(CustomPropertyNames.CustomDurationMetric) switch
+        {
+            null => null,
+            Instrument instrument and (Histogram<double> or Histogram<long>) => instrument,
+            _ => throw new InvalidOperationException("Invalid duration metric in activity"),
+        };
+    }
+
     public static void SetCustomDurationMetric(this Activity activity, Histogram<long> metric, params Tag[] tags)
     {
-        activity.SetCustomDurationMetric((object)metric, tags);
+        activity.SetCustomDurationMetric((Instrument)metric, tags);
     }
 
     public static void SetCustomDurationMetric(this Activity activity, Histogram<double> metric, params Tag[] tags)
     {
-        activity.SetCustomDurationMetric((object)metric, tags);
+        activity.SetCustomDurationMetric((Instrument)metric, tags);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void SetCustomDurationMetric(this Activity activity, object metric, params Tag[] tags)
+    private static void SetCustomDurationMetric(this Activity activity, Instrument instrument, params Tag[] tags)
     {
         if (activity is null)
         {
             throw new ArgumentNullException(nameof(activity));
         }
 
-        activity.SetCustomProperty(ActivityCustomPropertyNames.CustomDurationMetric, metric);
+        activity.SetCustomProperty(CustomPropertyNames.CustomDurationMetric, instrument);
         activity.SetCustomProperty(CustomPropertyNames.CustomDurationMetricTags, tags);
     }
 
@@ -144,7 +155,7 @@ public static class ActivityExtensions
             throw new ArgumentNullException(nameof(activity));
         }
 
-        if (activity.GetCustomProperty(ActivityCustomPropertyNames.CustomDurationMetric) is not (Histogram<double> or Histogram<long>))
+        if (activity.GetCustomDurationMetric() is null)
         {
             throw new ArgumentException("Activity has no associated custom duration metric");
         }
