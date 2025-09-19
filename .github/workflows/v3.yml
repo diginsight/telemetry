@@ -20,7 +20,7 @@ defaults:
     shell: pwsh
 
 env:
-  SOLUTION_SLN: src/Diginsight.sln
+  SOLUTION_SLN: src/Diginsight.slnx
   DOTNET_NOLOGO: 1
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
 
