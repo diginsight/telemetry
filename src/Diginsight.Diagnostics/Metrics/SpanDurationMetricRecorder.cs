@@ -2,14 +2,13 @@ using Diginsight.Options;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
-using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
 
 public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
 {
     private readonly ILogger logger;
-    private readonly IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor;
+    private readonly IClassAwareOptions<DiginsightActivitiesOptions> activitiesOptions;
     private readonly IMeterFactory meterFactory;
     private readonly IMetricRecordingFilter? recordingFilter;
     private readonly IMetricRecordingEnricher? recordingEnricher;
@@ -22,14 +21,14 @@ public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
 
     public SpanDurationMetricRecorder(
         ILogger<SpanDurationMetricRecorder> logger,
-        IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor,
+        IClassAwareOptions<DiginsightActivitiesOptions> activitiesOptions,
         IMeterFactory meterFactory,
         IMetricRecordingFilter? recordingFilter,
         IMetricRecordingEnricher? recordingEnricher
     )
     {
         this.logger = logger;
-        this.activitiesOptionsMonitor = activitiesOptionsMonitor;
+        this.activitiesOptions = activitiesOptions;
         this.meterFactory = meterFactory;
         this.recordingFilter = recordingFilter;
         this.recordingEnricher = recordingEnricher;
@@ -64,19 +63,22 @@ public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
         try
         {
             Type? callerType = activity.GetCallerType();
-            IDiginsightActivitiesMetricOptions activitiesOptions = activitiesOptionsMonitor.Get(callerType);
+            IDiginsightActivitiesSpanDurationOptions metricOptions = activitiesOptions.Get(callerType);
 
-            if (!(recordingFilter?.ShouldRecord(activity) ?? activitiesOptions.RecordSpanDurations))
+            Histogram<double> metric = meterFactory
+                .Create(metricOptions.MeterName)
+                .CreateHistogram<double>(metricOptions.MetricName, "ms", metricOptions.MetricDescription);
+
+            if (!(recordingFilter?.ShouldRecord(activity, metric) ?? metricOptions.Record))
                 return;
 
             Tag nameTag = new("span_name", activityName);
             Tag statusTag = new("status", activity.Status.ToString());
 
-            Tag[] tags = recordingEnricher is not null ? [ nameTag, statusTag, .. recordingEnricher.ExtractTags(activity) ] : [ nameTag, statusTag ];
+            Tag[] tags = recordingEnricher is not null
+                ? [ nameTag, statusTag, .. recordingEnricher.ExtractTags(activity, metric) ]
+                : [ nameTag, statusTag ];
 
-            Histogram<double> metric;
-            // TEMP Get named metric based on activitiesOptions.MetricName and callerType
-            Unsafe.SkipInit(out metric);
             metric.Record(activity.Duration.TotalMilliseconds, tags);
         }
         catch (Exception exception)

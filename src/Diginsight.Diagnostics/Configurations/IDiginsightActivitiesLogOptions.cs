@@ -4,8 +4,9 @@ namespace Diginsight.Diagnostics;
 
 public interface IDiginsightActivitiesLogOptions
 {
+    IReadOnlyDictionary<string, LogBehavior> ActivityNames { get; }
     LogBehavior LogBehavior { get; }
-    LogLevel ActivityLogLevel { get; }
+    LogLevel LogLevel { get; }
     bool WriteActivityActionAsPrefix { get; }
     bool DisablePayloadRendering { get; }
 }

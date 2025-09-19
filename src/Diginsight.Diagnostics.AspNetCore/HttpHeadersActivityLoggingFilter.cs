@@ -3,13 +3,13 @@ using System.Diagnostics;
 
 namespace Diginsight.Diagnostics.AspNetCore;
 
-public class HttpHeadersActivityLoggingSampler : IActivityLoggingSampler
+public class HttpHeadersActivityLoggingFilter : IActivityLoggingFilter
 {
     public const string HeaderName = "Activity-Logging";
 
     private readonly IHttpContextAccessor httpContextAccessor;
 
-    public HttpHeadersActivityLoggingSampler(IHttpContextAccessor httpContextAccessor)
+    public HttpHeadersActivityLoggingFilter(IHttpContextAccessor httpContextAccessor)
     {
         this.httpContextAccessor = httpContextAccessor;
     }

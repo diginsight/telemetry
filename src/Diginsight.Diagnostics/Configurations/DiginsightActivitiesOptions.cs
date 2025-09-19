@@ -7,8 +7,8 @@ namespace Diginsight.Diagnostics;
 
 public sealed class DiginsightActivitiesOptions
     : IDiginsightActivitiesOptions,
-        IDiginsightActivityNamesOptions,
         IDiginsightActivitiesLogOptions,
+        IDiginsightActivitiesSpanDurationOptions,
         IDynamicallyConfigurable,
         IVolatilelyConfigurable
 {
@@ -18,10 +18,18 @@ public sealed class DiginsightActivitiesOptions
     private LogLevel activityLogLevel = LogLevel.Debug;
     private bool writeActivityActionAsPrefix;
     private bool disablePayloadRendering;
+    private bool recordSpanDuration;
+    private string? spanDurationMeterName;
+    private string? spanDurationMetricName;
+    private string? spanDurationMetricDescription;
 
     public IDictionary<string, bool> ActivitySources { get; }
 
     IReadOnlyDictionary<string, bool> IDiginsightActivitiesOptions.ActivitySources => (IReadOnlyDictionary<string, bool>)ActivitySources;
+
+    public IDictionary<string, LogBehavior> LoggedActivityNames { get; }
+
+    IReadOnlyDictionary<string, LogBehavior> IDiginsightActivitiesLogOptions.ActivityNames => (IReadOnlyDictionary<string, LogBehavior>)LoggedActivityNames;
 
     public LogBehavior LogBehavior
     {
@@ -35,6 +43,8 @@ public sealed class DiginsightActivitiesOptions
         set => activityLogLevel = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
     }
 
+    LogLevel IDiginsightActivitiesLogOptions.LogLevel => ActivityLogLevel;
+
     public bool WriteActivityActionAsPrefix
     {
         get => writeActivityActionAsPrefix;
@@ -47,9 +57,39 @@ public sealed class DiginsightActivitiesOptions
         set => disablePayloadRendering = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
     }
 
-    public IDictionary<string, LogBehavior> LoggedActivityNames { get; }
+    public bool RecordSpanDuration
+    {
+        get => recordSpanDuration;
+        set => recordSpanDuration = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
+    }
 
-    IReadOnlyDictionary<string, LogBehavior> IDiginsightActivityNamesOptions.LoggedActivityNames => (IReadOnlyDictionary<string, LogBehavior>)LoggedActivityNames;
+    bool IDiginsightActivitiesSpanDurationOptions.Record => RecordSpanDuration;
+
+    public string? SpanDurationMeterName
+    {
+        get => spanDurationMeterName;
+        set => spanDurationMeterName = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
+    }
+
+    string IDiginsightActivitiesSpanDurationOptions.MeterName =>
+        SpanDurationMeterName ?? throw new InvalidOperationException($"{nameof(IDiginsightActivitiesSpanDurationOptions.MeterName)} is unset");
+
+    public string? SpanDurationMetricName
+    {
+        get => spanDurationMetricName;
+        set => spanDurationMetricName = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
+    }
+
+    string IDiginsightActivitiesSpanDurationOptions.MetricName =>
+        SpanDurationMetricName ?? throw new InvalidOperationException($"{nameof(IDiginsightActivitiesSpanDurationOptions.MetricName)} is unset");
+
+    public string? SpanDurationMetricDescription
+    {
+        get => spanDurationMetricDescription;
+        set => spanDurationMetricDescription = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
+    }
+
+    string? IDiginsightActivitiesSpanDurationOptions.MetricDescription => SpanDurationMetricDescription;
 
     public DiginsightActivitiesOptions()
         : this(
@@ -84,6 +124,10 @@ public sealed class DiginsightActivitiesOptions
             activityLogLevel = activityLogLevel,
             writeActivityActionAsPrefix = writeActivityActionAsPrefix,
             disablePayloadRendering = disablePayloadRendering,
+            recordSpanDuration = recordSpanDuration,
+            spanDurationMeterName = spanDurationMeterName,
+            spanDurationMetricName = spanDurationMetricName,
+            spanDurationMetricDescription = spanDurationMetricDescription,
         };
     }
 
@@ -141,6 +185,12 @@ public sealed class DiginsightActivitiesOptions
                         .OfType<KeyValuePair<string, LogBehavior>>()
                 );
             }
+        }
+
+        public bool RecordSpanDuration
+        {
+            get => filled.RecordSpanDuration;
+            set => filled.RecordSpanDuration = value;
         }
 
         public Filler(DiginsightActivitiesOptions filled)

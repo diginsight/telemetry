@@ -3,11 +3,11 @@ using System.Diagnostics;
 
 namespace Diginsight.Diagnostics;
 
-public class NameBasedActivityLoggingSampler : IActivityLoggingSampler
+public class NameBasedActivityLoggingFilter : IActivityLoggingFilter
 {
     private readonly IClassAwareOptions<DiginsightActivitiesOptions> activitiesOptions;
 
-    public NameBasedActivityLoggingSampler(
+    public NameBasedActivityLoggingFilter(
         IClassAwareOptions<DiginsightActivitiesOptions> activitiesOptions
     )
     {
@@ -19,10 +19,10 @@ public class NameBasedActivityLoggingSampler : IActivityLoggingSampler
         string activitySourceName = activity.Source.Name;
         string activityName = activity.OperationName;
 
-        return activitiesOptions
-            .Get(activity.GetCallerType())
-            .Freeze()
-            .LoggedActivityNames
+        return ((IDiginsightActivitiesLogOptions)activitiesOptions
+                .Get(activity.GetCallerType())
+                .Freeze())
+            .ActivityNames
             .Where(x => ActivityUtils.FullNameMatchesPattern(activitySourceName, activityName, x.Key))
             .Select(static x => (LogBehavior?)x.Value)
             .Max();
