@@ -1,9 +1,10 @@
-﻿namespace Diginsight.Stringify;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Diginsight.Stringify;
 
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
 public sealed class StringifiableMemberAttribute : Attribute, IStringifiableMemberDescriptor
 {
-    private object[]? stringifierArgs;
     private int order;
     private bool isOrderSet;
 
@@ -11,10 +12,11 @@ public sealed class StringifiableMemberAttribute : Attribute, IStringifiableMemb
 
     public Type? StringifierType { get; set; }
 
+    [field: MaybeNull]
     public object[] StringifierArgs
     {
-        get => stringifierArgs ??= [ ];
-        set => stringifierArgs = value;
+        get => field ??= [ ];
+        set;
     }
 
     public int Order

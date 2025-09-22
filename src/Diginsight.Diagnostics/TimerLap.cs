@@ -24,10 +24,7 @@ public sealed class TimerLap : IDisposable
         this.histogram = histogram;
         this.tags = tags.ToList();
 
-        if (elapsedMillisecondsBox is not null)
-        {
-            elapsedMillisecondsBox.Value = double.NaN;
-        }
+        elapsedMillisecondsBox?.Value = double.NaN;
         this.elapsedMillisecondsBox = elapsedMillisecondsBox;
     }
 

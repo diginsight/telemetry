@@ -82,7 +82,7 @@ public readonly struct LogInterpolatedStringHandler
 
         public IEnumerator<KeyValuePair<string, object?>> GetEnumerator()
         {
-            return FormattableString.GetArguments().Select(static (x, i) => new KeyValuePair<string, object?>("Arg" + i, x)).GetEnumerator();
+            return FormattableString.GetArguments().Select(static (x, i) => KeyValuePair.Create("Arg" + i, x)).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

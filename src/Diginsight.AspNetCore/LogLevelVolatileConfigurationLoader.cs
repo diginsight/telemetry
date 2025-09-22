@@ -22,7 +22,7 @@ public sealed class LogLevelVolatileConfigurationLoader : IAspNetCoreVolatileCon
 
         return loggerFilterOptions.Rules
             .Select(
-                static x => new KeyValuePair<string, string?>(
+                static x => KeyValuePair.Create(
                     $"{(x.ProviderName is { } providerName ? $"{providerName}:" : "")}LogLevel:{x.CategoryName ?? "Default"}",
                     x.LogLevel is { } logLevel ? logLevel.ToString("G") : null
                 )

@@ -39,8 +39,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
 
     private readonly ILoggerFactory loggerFactory;
     private readonly IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor;
-    private IStringifyContextFactory? stringifyContextFactory;
-    private readonly IActivityLoggingSampler? activityLoggingSampler;
+    private readonly IActivityLoggingFilter? activityLoggingFilter;
     private readonly ILogger fallbackLogger;
     private readonly Func<nint> getExceptionPointers;
 #if NET9_0_OR_GREATER
@@ -49,6 +48,9 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
     private readonly object emittedLock = new ();
 #endif
 
+    [SuppressMessage("ReSharper", "ReplaceWithFieldKeyword")]
+    private IStringifyContextFactory? stringifyContextFactory;
+
     private IStringifyContextFactory StringifyContextFactory =>
         stringifyContextFactory ??= new StringifyContextFactoryBuilder().WithLoggerFactory(loggerFactory).Build();
 
@@ -56,14 +58,15 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         ILoggerFactory loggerFactory,
         IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor,
         IStringifyContextFactory? stringifyContextFactory = null,
-        IActivityLoggingSampler? activityLoggingSampler = null
+        IActivityLoggingFilter? activityLoggingFilter = null
     )
     {
         this.loggerFactory = loggerFactory;
         this.activitiesOptionsMonitor = activitiesOptionsMonitor;
-        this.stringifyContextFactory = stringifyContextFactory;
-        this.activityLoggingSampler = activityLoggingSampler;
+        this.activityLoggingFilter = activityLoggingFilter;
         fallbackLogger = loggerFactory.CreateLogger($"{typeof(ActivityLifecycleLogEmitter).Namespace!}.$Activity");
+
+        this.stringifyContextFactory = stringifyContextFactory;
 
 #if NET
         getExceptionPointers = Marshal.GetExceptionPointers;
@@ -364,7 +367,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         callerType = activity.GetCallerType();
 
         activitiesOptions = activitiesOptionsMonitor.Get(callerType);
-        LogBehavior candidateBehavior = activityLoggingSampler?.GetLogBehavior(activity) ?? activitiesOptions.LogBehavior;
+        LogBehavior candidateBehavior = activityLoggingFilter?.GetLogBehavior(activity) ?? activitiesOptions.LogBehavior;
         behavior = activity.Parent?.GetLogBehavior() == LogBehavior.Truncate ? LogBehavior.Truncate : candidateBehavior;
     }
 
@@ -407,7 +410,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         logLevel = activity.GetCustomProperty(ActivityCustomPropertyNames.LogLevel) switch
         {
             LogLevel ll => ll,
-            null => activitiesOptions.ActivityLogLevel,
+            null => activitiesOptions.LogLevel,
             _ => throw new InvalidOperationException("Invalid log level in activity"),
         };
     }

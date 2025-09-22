@@ -1,22 +1,24 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
-using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
 
 public sealed class CustomDurationMetricRecorder : IActivityListenerLogic
 {
     private readonly ILogger logger;
-    private readonly ICustomDurationMetricRecorderSettings? settings;
+    private readonly IMetricRecordingFilter? recordingFilter;
+    private readonly IMetricRecordingEnricher? recordingEnricher;
 
     public CustomDurationMetricRecorder(
         ILogger<CustomDurationMetricRecorder> logger,
-        ICustomDurationMetricRecorderSettings? settings = null
+        IMetricRecordingFilter? recordingFilter = null,
+        IMetricRecordingEnricher? recordingEnricher = null
     )
     {
         this.logger = logger;
-        this.settings = settings;
+        this.recordingFilter = recordingFilter;
+        this.recordingEnricher = recordingEnricher;
     }
 
 #if !(NET || NETSTANDARD2_1_OR_GREATER)
@@ -29,37 +31,27 @@ public sealed class CustomDurationMetricRecorder : IActivityListenerLogic
         {
             double duration = activity.Duration.TotalMilliseconds;
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            bool ShouldRecord(Instrument instrument) => settings?.ShouldRecord(activity, instrument) ?? true;
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            Tag[] ExtractTags(Instrument instrument)
+            if (activity.GetCustomDurationMetric() is not { } instrument ||
+                recordingFilter?.ShouldRecord(activity, instrument) == false)
             {
-                Tag[] tags = activity.GetCustomDurationMetricTags();
-                return settings is not null ? tags.Concat(settings.ExtractTags(activity, instrument)).ToArray() : tags;
+                return;
             }
 
-            switch (activity.GetCustomProperty(ActivityCustomPropertyNames.CustomDurationMetric))
+            Tag[] tags = activity.GetCustomDurationMetricTags();
+            Tag[] finalTags = recordingEnricher is not null ? tags.Concat(recordingEnricher.ExtractTags(activity, instrument)).ToArray() : tags;
+
+            switch (instrument)
             {
                 case Histogram<double> metric:
-                    if (ShouldRecord(metric))
-                    {
-                        metric.Record(duration, ExtractTags(metric));
-                    }
+                    metric.Record(duration, finalTags);
                     break;
 
                 case Histogram<long> metric:
-                    if (ShouldRecord(metric))
-                    {
-                        metric.Record((long)duration, ExtractTags(metric));
-                    }
-                    break;
-
-                case null:
+                    metric.Record((long)duration, finalTags);
                     break;
 
                 default:
-                    throw new InvalidOperationException("Invalid duration metric in activity");
+                    throw new UnreachableException($"Unrecognized {nameof(Instrument)}");
             }
         }
         catch (Exception exception)

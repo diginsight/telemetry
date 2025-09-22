@@ -59,16 +59,40 @@ public sealed class StringifyContext
         object? obj,
         bool? atomic = null,
         Action<StringifyVariableConfiguration>? configureVariables = null,
-        Action<IDictionary<string, object?>>? configureMetaProperties = null
+        Action<IDictionary<string, object?>>? configureMetaProperties = null,
+        Expiration? maxTime = null
     )
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static Action<T>? Combine<T>(Action<T>? a1, Action<T>? a2)
+        {
+            return a1 is null ? a2
+                : a2 is null ? a1
+                : x =>
+                {
+                    a1(x);
+                    a2(x);
+                };
+        }
+
+        if (obj is IStringifyModifier modifier)
+        {
+            return ComposeAndAppend(
+                modifier.Subject,
+                atomic ?? modifier.Atomic,
+                Combine(modifier.ConfigureVariables, configureVariables),
+                Combine(modifier.ConfigureMetaProperties, configureMetaProperties),
+                maxTime ?? modifier.MaxTime
+            );
+        }
+
         if (atomic ?? true)
         {
-            return AppendAtom(sc => sc.ComposeAndAppendCore(obj, configureVariables, configureMetaProperties));
+            return AppendAtom(sc => sc.ComposeAndAppendCore(obj, configureVariables, configureMetaProperties, maxTime));
         }
         else
         {
-            ComposeAndAppendCore(obj, configureVariables, configureMetaProperties);
+            ComposeAndAppendCore(obj, configureVariables, configureMetaProperties, maxTime);
             return this;
         }
     }
@@ -76,10 +100,11 @@ public sealed class StringifyContext
     private void ComposeAndAppendCore(
         object? obj,
         Action<StringifyVariableConfiguration>? configureVariables,
-        Action<IDictionary<string, object?>>? configureMetaProperties
+        Action<IDictionary<string, object?>>? configureMetaProperties,
+        Expiration? maxTime
     )
     {
-        ComposeAndAppendCore(ToStringifiable(obj), configureVariables, configureMetaProperties);
+        ComposeAndAppendCore(ToStringifiable(obj), configureVariables, configureMetaProperties, maxTime);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -88,12 +113,14 @@ public sealed class StringifyContext
     private void ComposeAndAppendCore(
         in IStringifiable stringifiable,
         Action<StringifyVariableConfiguration>? configureVariables,
-        Action<IDictionary<string, object?>>? configureMetaProperties
+        Action<IDictionary<string, object?>>? configureMetaProperties,
+        Expiration? maxTime
     )
     {
-        using IDisposable? _0 = this.WithVariablesSafe(configureVariables);
-        using IDisposable? _1 = this.WithMetaPropertiesSafe(configureMetaProperties);
-        using IDisposable? _2 = this.IncrementDepth(stringifiable.IsDeep, out bool isMaxDepth);
+        using IDisposable? _0 = maxTime is not null ? WithDedicatedTime(maxTime.Value) : null;
+        using IDisposable? _1 = this.WithVariablesSafe(configureVariables);
+        using IDisposable? _2 = this.WithMetaPropertiesSafe(configureMetaProperties);
+        using IDisposable? _3 = this.IncrementDepth(stringifiable.IsDeep, out bool isMaxDepth);
 
         if (isMaxDepth)
         {
@@ -103,7 +130,7 @@ public sealed class StringifyContext
 
         try
         {
-            using IDisposable? _3 = AddSeen(stringifiable.Subject);
+            using IDisposable? _4 = AddSeen(stringifiable.Subject);
             try
             {
                 stringifiable.AppendTo(this);
@@ -262,18 +289,17 @@ public sealed class StringifyContext
     {
         private readonly long maxTicks;
         private readonly Stopwatch? stopwatch;
-        private bool isOver = false;
 
         public bool IsOver
         {
             get
             {
-                if (isOver)
+                if (field)
                     return true;
                 if (stopwatch is null || stopwatch.ElapsedTicks <= maxTicks)
                     return false;
                 stopwatch.Stop();
-                return isOver = true;
+                return field = true;
             }
         }
 

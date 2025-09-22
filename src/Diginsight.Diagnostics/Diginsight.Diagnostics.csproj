@@ -8,13 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Observability\**" />
-    <EmbeddedResource Remove="Observability\**" />
-    <None Remove="Observability\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Pastel" Version="6.*" Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">
+    <PackageReference Include="Pastel" Version="5.*" Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0')) And !$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
+      <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Pastel" Version="7.*" Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
       <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
     </PackageReference>
   </ItemGroup>

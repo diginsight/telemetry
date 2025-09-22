@@ -4,8 +4,6 @@ namespace Diginsight.Stringify;
 
 public sealed class StringifyVariableConfiguration : IStringifyVariableConfiguration
 {
-    private Threshold maxDepth;
-
     public Threshold MaxStringLength { get; set; }
     public Threshold MaxCollectionItemCount { get; set; }
     public InheritableThreshold MaxDictionaryItemCount { get; set; }
@@ -16,8 +14,8 @@ public sealed class StringifyVariableConfiguration : IStringifyVariableConfigura
 
     public Threshold MaxDepth
     {
-        get => maxDepth;
-        set => maxDepth = value.Value == 0 ? throw new ArgumentOutOfRangeException(nameof(MaxDepth), "Expected positive value") : value;
+        get;
+        set => field = value.Value == 0 ? throw new ArgumentOutOfRangeException(nameof(MaxDepth), "Expected positive value") : value;
     }
 
     public Regex? ImplicitNamespaces { get; set; }

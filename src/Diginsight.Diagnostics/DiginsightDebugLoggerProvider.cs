@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace Diginsight.Diagnostics;
@@ -15,9 +16,9 @@ public sealed class DiginsightDebugLoggerProvider : ILoggerProvider
     private readonly TimeProvider timeProvider;
 
     private readonly ConcurrentDictionary<string, ILogger> loggers = new ();
-    private LineDescriptor? lineDescriptor;
 
-    private LineDescriptor LineDescriptor => lineDescriptor ??= LineDescriptor.ParseFull(options.Pattern, lineTokenParsers);
+    [field: MaybeNull]
+    private LineDescriptor LineDescriptor => field ??= LineDescriptor.ParseFull(options.Pattern, lineTokenParsers);
 
     public DiginsightDebugLoggerProvider(
         IEnumerable<ILineTokenParser> lineTokenParsers,

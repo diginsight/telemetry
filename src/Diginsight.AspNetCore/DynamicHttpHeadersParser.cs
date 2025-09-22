@@ -23,7 +23,7 @@ public static class DynamicHttpHeadersParser
 
             string specKey = match.Groups[1].Value;
 
-            yield return new KeyValuePair<string, string?>(specKey, specValue);
+            yield return KeyValuePair.Create(specKey, specValue);
         }
     }
 

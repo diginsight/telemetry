@@ -2,7 +2,7 @@
 
 namespace Diginsight.Diagnostics;
 
-public interface IActivityLoggingSampler
+public interface IActivityLoggingFilter
 {
     LogBehavior? GetLogBehavior(Activity activity);
 }

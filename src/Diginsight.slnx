@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/Core/">
+    <Project Path="Diginsight.AspNetCore/Diginsight.AspNetCore.csproj" />
+    <Project Path="Diginsight.Atomify/Diginsight.Atomify.csproj" />
+    <Project Path="Diginsight.Core/Diginsight.Core.csproj" />
+    <Project Path="Diginsight.Json/Diginsight.Json.csproj" />
+    <Project Path="Diginsight.Polyfills/Diginsight.Polyfills.csproj" />
+    <Project Path="Diginsight.Stringify/Diginsight.Stringify.csproj" />
+  </Folder>
+  <Folder Name="/Diagnostics/">
+    <Project Path="Diginsight.Diagnostics.AspNetCore.OpenTelemetry/Diginsight.Diagnostics.AspNetCore.OpenTelemetry.csproj" />
+    <Project Path="Diginsight.Diagnostics.AspNetCore/Diginsight.Diagnostics.AspNetCore.csproj" />
+    <Project Path="Diginsight.Diagnostics.Log4Net/Diginsight.Diagnostics.Log4Net.csproj" />
+    <Project Path="Diginsight.Diagnostics.OpenTelemetry/Diginsight.Diagnostics.OpenTelemetry.csproj" />
+    <Project Path="Diginsight.Diagnostics/Diginsight.Diagnostics.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="global.json" />
+  </Folder>
+</Solution>
