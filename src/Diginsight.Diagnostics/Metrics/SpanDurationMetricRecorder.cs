@@ -13,18 +13,12 @@ public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
     private readonly IMetricRecordingFilter? recordingFilter;
     private readonly IMetricRecordingEnricher? recordingEnricher;
 
-    //private readonly Lazy<Histogram<double>> metricLazy;
-
-    //private Histogram<double> Metric => metricLazy.Value;
-    //private IMetricRecordingFilter RecordingFilter => recordingFilterLazy.Value;
-    //private IMetricRecordingEnricher RecordingEnricher => recordingEnricherLazy.Value;
-
     public SpanDurationMetricRecorder(
         ILogger<SpanDurationMetricRecorder> logger,
         IClassAwareOptions<DiginsightActivitiesOptions> activitiesOptions,
         IMeterFactory meterFactory,
-        IMetricRecordingFilter? recordingFilter,
-        IMetricRecordingEnricher? recordingEnricher
+        IMetricRecordingFilter? recordingFilter = null,
+        IMetricRecordingEnricher? recordingEnricher = null
     )
     {
         this.logger = logger;
@@ -32,24 +26,6 @@ public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
         this.meterFactory = meterFactory;
         this.recordingFilter = recordingFilter;
         this.recordingEnricher = recordingEnricher;
-
-        //IDiginsightActivitiesMetricOptions activitiesOptions = activitiesOptionsMonitor.CurrentValue;
-        //var metricName = activitiesOptions.MetricName;
-
-        //metricLazy = new Lazy<Histogram<double>>(
-        //    () =>
-        //    {
-        //        IDiginsightActivitiesMetricOptions options = activitiesOptionsMonitor.CurrentValue;
-        //        return meterFactory.Create(options.MeterName)
-        //            .CreateHistogram<double>(options.MetricName, options.MetricUnit ?? "ms", options.MetricDescription);
-        //    }
-        //);
-
-        //var metricFilter = serviceProvider.GetNamedService<IMetricRecordingFilter>(metricName);
-        //this.metricFilter = metricFilter ?? serviceProvider.GetRequiredService<IMetricRecordingFilter>();
-
-        //var metricEnricher = serviceProvider.GetNamedService<IMetricRecordingEnricher>(metricName);
-        //this.metricEnricher = metricEnricher ?? serviceProvider.GetRequiredService<IMetricRecordingEnricher>();
     }
 
 #if !(NET || NETSTANDARD2_1_OR_GREATER)

@@ -80,8 +80,7 @@ public sealed class DiginsightActivitiesOptions
         set => spanDurationMetricName = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
     }
 
-    string IDiginsightActivitiesSpanDurationOptions.MetricName =>
-        SpanDurationMetricName ?? throw new InvalidOperationException($"{nameof(IDiginsightActivitiesSpanDurationOptions.MetricName)} is unset");
+    string IDiginsightActivitiesSpanDurationOptions.MetricName => SpanDurationMetricName ?? "diginsight.span_duration";
 
     public string? SpanDurationMetricDescription
     {
