@@ -3,11 +3,11 @@ using System.Diagnostics;
 
 namespace Diginsight.Diagnostics;
 
-public class NameBasedActivityLoggingFilter : IActivityLoggingFilter
+public class OptionsBasedActivityLoggingFilter : IActivityLoggingFilter
 {
     private readonly IClassAwareOptions<DiginsightActivitiesOptions> activitiesOptions;
 
-    public NameBasedActivityLoggingFilter(
+    public OptionsBasedActivityLoggingFilter(
         IClassAwareOptions<DiginsightActivitiesOptions> activitiesOptions
     )
     {

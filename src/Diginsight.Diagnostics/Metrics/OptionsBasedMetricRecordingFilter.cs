@@ -4,12 +4,12 @@ using System.Diagnostics.Metrics;
 
 namespace Diginsight.Diagnostics;
 
-public class NameBasedMetricRecordingFilter : IMetricRecordingFilter
+public class OptionsBasedMetricRecordingFilter : IMetricRecordingFilter
 {
-    private readonly IClassAwareOptionsMonitor<NameBasedMetricRecordingFilterOptions> filterMonitor;
+    private readonly IClassAwareOptionsMonitor<OptionsBasedMetricRecordingFilterOptions> filterMonitor;
 
-    public NameBasedMetricRecordingFilter(
-        IClassAwareOptionsMonitor<NameBasedMetricRecordingFilterOptions> filterMonitor
+    public OptionsBasedMetricRecordingFilter(
+        IClassAwareOptionsMonitor<OptionsBasedMetricRecordingFilterOptions> filterMonitor
     )
     {
         this.filterMonitor = filterMonitor;
@@ -21,9 +21,9 @@ public class NameBasedMetricRecordingFilter : IMetricRecordingFilter
         string activityName = activity.OperationName;
         Type? callerType = activity.GetCallerType();
 
-        IEnumerable<bool> GetMatches(NameBasedMetricRecordingFilterOptions options)
+        IEnumerable<bool> GetMatches(OptionsBasedMetricRecordingFilterOptions options)
         {
-            return ((INameBasedMetricRecordingFilterOptions)options.Freeze())
+            return ((IOptionsBasedMetricRecordingFilterOptions)options.Freeze())
                 .ActivityNames
                 .Where(x => ActivityUtils.FullNameMatchesPattern(activitySourceName, activityName, x.Key))
                 .Select(static x => x.Value);
