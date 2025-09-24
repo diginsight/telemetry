@@ -81,7 +81,7 @@ public static class DiginsightTextWriter
         Activity? activity,
         LogLevel logLevel,
         string category,
-        string message,
+        string? message,
         Exception? exception,
         bool isActivity,
         TimeSpan? duration,
@@ -158,7 +158,7 @@ public static class DiginsightTextWriter
         Activity? activity,
         LogLevel logLevel,
         string category,
-        string message,
+        string? message,
         Exception? exception,
         bool isActivity,
         TimeSpan? duration,
@@ -218,7 +218,7 @@ public static class DiginsightTextWriter
 #endif
             }
 
-            string finalMessage = ReplaceLineEndings(message);
+            string finalMessage = ReplaceLineEndings(message ?? "");
             string? finalException = ReplaceLineEndings(exception?.ToString());
 
             static IMessageLineResizer GetResizer(int maxMessage, int maxLine, int indentation, int prefix)
@@ -259,7 +259,6 @@ public static class DiginsightTextWriter
             IMessageLineResizer resizer = GetResizer(lineDescriptor.MaxMessageLength, lineDescriptor.MaxLineLength, indentationLength, prefixLength);
 
             bool first = true;
-            if (finalMessage is null) { finalMessage = ""; }
             foreach (string line in resizer.Resize(finalMessage.Split(nlc)))
             {
                 if (first)
