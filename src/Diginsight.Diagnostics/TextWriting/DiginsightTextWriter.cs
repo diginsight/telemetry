@@ -1,4 +1,4 @@
-﻿using Diginsight.Logging;
+using Diginsight.Logging;
 using Microsoft.Extensions.Logging;
 using Pastel;
 using System.Collections;
@@ -259,6 +259,7 @@ public static class DiginsightTextWriter
             IMessageLineResizer resizer = GetResizer(lineDescriptor.MaxMessageLength, lineDescriptor.MaxLineLength, indentationLength, prefixLength);
 
             bool first = true;
+            if (finalMessage is null) { finalMessage = ""; }
             foreach (string line in resizer.Resize(finalMessage.Split(nlc)))
             {
                 if (first)
