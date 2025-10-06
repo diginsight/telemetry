@@ -1,4 +1,4 @@
-using Diginsight.Options;
+using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 
@@ -6,10 +6,10 @@ namespace Diginsight.Diagnostics;
 
 public class OptionsBasedMetricRecordingFilter : IMetricRecordingFilter
 {
-    private readonly IClassAwareOptionsMonitor<OptionsBasedMetricRecordingFilterOptions> filterMonitor;
+    private readonly IOptionsMonitor<OptionsBasedMetricRecordingFilterOptions> filterMonitor;
 
     public OptionsBasedMetricRecordingFilter(
-        IClassAwareOptionsMonitor<OptionsBasedMetricRecordingFilterOptions> filterMonitor
+        IOptionsMonitor<OptionsBasedMetricRecordingFilterOptions> filterMonitor
     )
     {
         this.filterMonitor = filterMonitor;
@@ -19,7 +19,6 @@ public class OptionsBasedMetricRecordingFilter : IMetricRecordingFilter
     {
         string activitySourceName = activity.Source.Name;
         string activityName = activity.OperationName;
-        Type? callerType = activity.GetCallerType();
 
         IEnumerable<bool> GetMatches(OptionsBasedMetricRecordingFilterOptions options)
         {
@@ -29,9 +28,9 @@ public class OptionsBasedMetricRecordingFilter : IMetricRecordingFilter
                 .Select(static x => x.Value);
         }
 
-        IEnumerable<bool> specificMatches = GetMatches(filterMonitor.Get(instrument.Name, callerType));
+        IEnumerable<bool> specificMatches = GetMatches(filterMonitor.Get(instrument.Name));
         return specificMatches.Any()
             ? specificMatches.All(static x => x)
-            : GetMatches(filterMonitor.Get(callerType)).All(static x => x);
+            : GetMatches(filterMonitor.CurrentValue).All(static x => x);
     }
 }

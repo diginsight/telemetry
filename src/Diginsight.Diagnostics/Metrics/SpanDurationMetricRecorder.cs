@@ -1,5 +1,5 @@
-using Diginsight.Options;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 
@@ -8,14 +8,16 @@ namespace Diginsight.Diagnostics;
 public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
 {
     private readonly ILogger logger;
-    private readonly IClassAwareOptions<DiginsightActivitiesOptions> activitiesOptions;
+    private readonly IOptions<DiginsightActivitiesOptions> activitiesOptions;
     private readonly IMeterFactory meterFactory;
     private readonly IMetricRecordingFilter? recordingFilter;
     private readonly IMetricRecordingEnricher? recordingEnricher;
 
+    private Histogram<double>? metric;
+
     public SpanDurationMetricRecorder(
         ILogger<SpanDurationMetricRecorder> logger,
-        IClassAwareOptions<DiginsightActivitiesOptions> activitiesOptions,
+        IOptions<DiginsightActivitiesOptions> activitiesOptions,
         IMeterFactory meterFactory,
         IMetricRecordingFilter? recordingFilter = null,
         IMetricRecordingEnricher? recordingEnricher = null
@@ -38,12 +40,13 @@ public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
 
         try
         {
-            Type? callerType = activity.GetCallerType();
-            IDiginsightActivitiesSpanDurationOptions metricOptions = activitiesOptions.Get(callerType);
+            IDiginsightActivitiesSpanDurationOptions metricOptions = activitiesOptions.Value.Freeze();
 
-            Histogram<double> metric = meterFactory
-                .Create(metricOptions.MeterName)
-                .CreateHistogram<double>(metricOptions.MetricName, "ms", metricOptions.MetricDescription);
+            // ReSharper disable once LocalVariableHidesMember
+            Histogram<double> metric =
+                this.metric ??= meterFactory
+                    .Create(metricOptions.MeterName)
+                    .CreateHistogram<double>(metricOptions.MetricName, "ms", metricOptions.MetricDescription);
 
             if (!(recordingFilter?.ShouldRecord(activity, metric) ?? metricOptions.Record))
                 return;

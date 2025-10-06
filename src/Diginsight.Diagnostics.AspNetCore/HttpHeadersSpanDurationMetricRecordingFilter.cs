@@ -1,5 +1,5 @@
-using Diginsight.Options;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 
@@ -10,20 +10,20 @@ public class HttpHeadersSpanDurationMetricRecordingFilter : IMetricRecordingFilt
     public const string HeaderName = "Activity-Span-Recording";
 
     private readonly IHttpContextAccessor httpContextAccessor;
-    private readonly IClassAwareOptions<DiginsightActivitiesOptions> activitiesOptions;
+    private readonly IOptions<DiginsightActivitiesOptions> activitiesOptions;
 
     public HttpHeadersSpanDurationMetricRecordingFilter(
         IHttpContextAccessor httpContextAccessor,
-        IClassAwareOptions<DiginsightActivitiesOptions> activitiesOptions
+        IOptions<DiginsightActivitiesOptions> activitiesOptions
     )
     {
         this.httpContextAccessor = httpContextAccessor;
         this.activitiesOptions = activitiesOptions;
     }
 
-    private bool ShouldHandle(Activity activity, Instrument instrument)
+    private bool ShouldHandle(Instrument instrument)
     {
-        IDiginsightActivitiesSpanDurationOptions metricOptions = activitiesOptions.Get(activity.GetCallerType());
+        IDiginsightActivitiesSpanDurationOptions metricOptions = activitiesOptions.Value.Freeze();
 
         return instrument is Histogram<double> { Unit: "ms" } histogram
             && histogram.Name == metricOptions.MetricName
@@ -32,7 +32,7 @@ public class HttpHeadersSpanDurationMetricRecordingFilter : IMetricRecordingFilt
 
     public virtual bool? ShouldRecord(Activity activity, Instrument instrument)
     {
-        return ShouldHandle(activity, instrument)
+        return ShouldHandle(instrument)
             ? HttpHeadersHelper.ShouldInclude(activity.Source.Name, activity.OperationName, HeaderName, httpContextAccessor)
             : null;
     }
