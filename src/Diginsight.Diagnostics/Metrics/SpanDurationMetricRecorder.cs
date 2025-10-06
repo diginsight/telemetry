@@ -1,5 +1,5 @@
+using Diginsight.Options;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 
@@ -8,16 +8,14 @@ namespace Diginsight.Diagnostics;
 public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
 {
     private readonly ILogger logger;
-    private readonly IOptions<DiginsightActivitiesOptions> activitiesOptions;
-    private readonly IMeterFactory meterFactory;
+    private readonly IClassAwareOptions<DiginsightActivitiesOptions> activitiesOptions;
     private readonly IMetricRecordingFilter? recordingFilter;
     private readonly IMetricRecordingEnricher? recordingEnricher;
-
-    private Histogram<double>? metric;
+    private readonly Lazy<Histogram<double>> metricLazy;
 
     public SpanDurationMetricRecorder(
         ILogger<SpanDurationMetricRecorder> logger,
-        IOptions<DiginsightActivitiesOptions> activitiesOptions,
+        IClassAwareOptions<DiginsightActivitiesOptions> activitiesOptions,
         IMeterFactory meterFactory,
         IMetricRecordingFilter? recordingFilter = null,
         IMetricRecordingEnricher? recordingEnricher = null
@@ -25,9 +23,18 @@ public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
     {
         this.logger = logger;
         this.activitiesOptions = activitiesOptions;
-        this.meterFactory = meterFactory;
         this.recordingFilter = recordingFilter;
         this.recordingEnricher = recordingEnricher;
+
+        metricLazy = new Lazy<Histogram<double>>(
+            () =>
+            {
+                IDiginsightActivitiesSpanDurationOptions metricOptions = activitiesOptions.Value.Freeze();
+                return meterFactory
+                    .Create(metricOptions.MeterName)
+                    .CreateHistogram<double>(metricOptions.MetricName, "ms", metricOptions.MetricDescription);
+            }
+        );
     }
 
 #if !(NET || NETSTANDARD2_1_OR_GREATER)
@@ -40,13 +47,8 @@ public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
 
         try
         {
-            IDiginsightActivitiesSpanDurationOptions metricOptions = activitiesOptions.Value.Freeze();
-
-            // ReSharper disable once LocalVariableHidesMember
-            Histogram<double> metric =
-                this.metric ??= meterFactory
-                    .Create(metricOptions.MeterName)
-                    .CreateHistogram<double>(metricOptions.MetricName, "ms", metricOptions.MetricDescription);
+            Histogram<double> metric = metricLazy.Value;
+            IDiginsightActivitiesSpanDurationOptions metricOptions = activitiesOptions.Get(activity.GetCallerType()).Freeze();
 
             if (!(recordingFilter?.ShouldRecord(activity, metric) ?? metricOptions.Record))
                 return;
