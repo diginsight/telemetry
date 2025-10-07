@@ -4,11 +4,11 @@ using System.Diagnostics.Metrics;
 
 namespace Diginsight.Diagnostics;
 
-public class DefaultMetricRecordingEnricher : IMetricRecordingEnricher
+public class OptionsBasedMetricRecordingEnricher : IMetricRecordingEnricher
 {
     private readonly IOptionsMonitor<DefaultMetricRecordingEnricherOptions> enricherMonitor;
 
-    public DefaultMetricRecordingEnricher(
+    public OptionsBasedMetricRecordingEnricher(
         IOptionsMonitor<DefaultMetricRecordingEnricherOptions> enricherMonitor
     )
     {
@@ -22,12 +22,9 @@ public class DefaultMetricRecordingEnricher : IMetricRecordingEnricher
             return ((IDefaultMetricRecordingEnricherOptions)options.Freeze()).MetricTags;
         }
 
-        IReadOnlyCollection<string> tagNames =
-            GetTagNames(enricherMonitor.Get(instrument.Name)) is { Count: > 0 } specificTagNames
-                ? specificTagNames
-                : GetTagNames(enricherMonitor.CurrentValue);
-
-        return tagNames
+        return GetTagNames(enricherMonitor.Get(instrument.Name))
+            .Concat(GetTagNames(enricherMonitor.CurrentValue))
+            .Distinct()
             .Select(k => (Key: k, Value: activity.GetAncestors(true).Select(a => a.GetTagItem(k)).FirstOrDefault(static v => v is not null)))
             .Where(static x => x.Value is not null)
             .Select(static x => new Tag(x.Key, x.Value));

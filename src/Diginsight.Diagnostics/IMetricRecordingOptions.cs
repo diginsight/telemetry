@@ -1,6 +1,6 @@
 ﻿namespace Diginsight.Diagnostics;
 
-public interface IDiginsightActivitiesSpanDurationOptions
+public interface IMetricRecordingOptions
 {
     bool Record { get; }
     string MeterName { get; }

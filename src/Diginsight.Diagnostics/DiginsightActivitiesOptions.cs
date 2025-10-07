@@ -8,7 +8,7 @@ namespace Diginsight.Diagnostics;
 public sealed class DiginsightActivitiesOptions
     : IDiginsightActivitiesOptions,
         IDiginsightActivitiesLogOptions,
-        IDiginsightActivitiesSpanDurationOptions,
+        IMetricRecordingOptions,
         IDynamicallyConfigurable,
         IVolatilelyConfigurable
 {
@@ -63,7 +63,7 @@ public sealed class DiginsightActivitiesOptions
         set => recordSpanDuration = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
     }
 
-    bool IDiginsightActivitiesSpanDurationOptions.Record => RecordSpanDuration;
+    bool IMetricRecordingOptions.Record => RecordSpanDuration;
 
     public string? SpanDurationMeterName
     {
@@ -71,8 +71,8 @@ public sealed class DiginsightActivitiesOptions
         set => spanDurationMeterName = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
     }
 
-    string IDiginsightActivitiesSpanDurationOptions.MeterName =>
-        SpanDurationMeterName ?? throw new InvalidOperationException($"{nameof(IDiginsightActivitiesSpanDurationOptions.MeterName)} is unset");
+    string IMetricRecordingOptions.MeterName =>
+        SpanDurationMeterName ?? throw new InvalidOperationException($"{nameof(IMetricRecordingOptions.MeterName)} is unset");
 
     public string? SpanDurationMetricName
     {
@@ -80,7 +80,7 @@ public sealed class DiginsightActivitiesOptions
         set => spanDurationMetricName = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
     }
 
-    string IDiginsightActivitiesSpanDurationOptions.MetricName => SpanDurationMetricName ?? "diginsight.span_duration";
+    string IMetricRecordingOptions.MetricName => SpanDurationMetricName ?? "diginsight.span_duration";
 
     public string? SpanDurationMetricDescription
     {
@@ -88,7 +88,7 @@ public sealed class DiginsightActivitiesOptions
         set => spanDurationMetricDescription = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
     }
 
-    string? IDiginsightActivitiesSpanDurationOptions.MetricDescription => SpanDurationMetricDescription;
+    string? IMetricRecordingOptions.MetricDescription => SpanDurationMetricDescription;
 
     public DiginsightActivitiesOptions()
         : this(

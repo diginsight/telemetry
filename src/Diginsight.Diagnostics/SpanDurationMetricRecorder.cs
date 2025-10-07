@@ -29,7 +29,7 @@ public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
         metricLazy = new Lazy<Histogram<double>>(
             () =>
             {
-                IDiginsightActivitiesSpanDurationOptions metricOptions = activitiesOptions.Value.Freeze();
+                IMetricRecordingOptions metricOptions = activitiesOptions.Value.Freeze();
                 return meterFactory
                     .Create(metricOptions.MeterName)
                     .CreateHistogram<double>(metricOptions.MetricName, "ms", metricOptions.MetricDescription);
@@ -48,7 +48,7 @@ public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
         try
         {
             Histogram<double> metric = metricLazy.Value;
-            IDiginsightActivitiesSpanDurationOptions metricOptions = activitiesOptions.Get(activity.GetCallerType()).Freeze();
+            IMetricRecordingOptions metricOptions = activitiesOptions.Get(activity.GetCallerType()).Freeze();
 
             if (!(recordingFilter?.ShouldRecord(activity, metric) ?? metricOptions.Record))
                 return;
