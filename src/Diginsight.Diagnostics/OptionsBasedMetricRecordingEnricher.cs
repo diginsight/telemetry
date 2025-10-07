@@ -6,10 +6,10 @@ namespace Diginsight.Diagnostics;
 
 public class OptionsBasedMetricRecordingEnricher : IMetricRecordingEnricher
 {
-    private readonly IOptionsMonitor<DefaultMetricRecordingEnricherOptions> enricherMonitor;
+    private readonly IOptionsMonitor<OptionsBasedMetricRecordingEnricherOptions> enricherMonitor;
 
     public OptionsBasedMetricRecordingEnricher(
-        IOptionsMonitor<DefaultMetricRecordingEnricherOptions> enricherMonitor
+        IOptionsMonitor<OptionsBasedMetricRecordingEnricherOptions> enricherMonitor
     )
     {
         this.enricherMonitor = enricherMonitor;
@@ -17,9 +17,9 @@ public class OptionsBasedMetricRecordingEnricher : IMetricRecordingEnricher
 
     public virtual Tags ExtractTags(Activity activity, Instrument instrument)
     {
-        static IReadOnlyCollection<string> GetTagNames(DefaultMetricRecordingEnricherOptions options)
+        static IReadOnlyCollection<string> GetTagNames(OptionsBasedMetricRecordingEnricherOptions options)
         {
-            return ((IDefaultMetricRecordingEnricherOptions)options.Freeze()).MetricTags;
+            return ((IOptionsBasedMetricRecordingEnricherOptions)options.Freeze()).MetricTags;
         }
 
         return GetTagNames(enricherMonitor.Get(instrument.Name))
