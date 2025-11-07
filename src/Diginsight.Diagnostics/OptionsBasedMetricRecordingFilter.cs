@@ -25,12 +25,17 @@ public class OptionsBasedMetricRecordingFilter : IMetricRecordingFilter
             return ((IOptionsBasedMetricRecordingFilterOptions)options.Freeze())
                 .ActivityNames
                 .Where(x => ActivityUtils.FullNameMatchesPattern(activitySourceName, activityName, x.Key))
-                .Select(static x => x.Value);
+                .Select(static x => x.Value)
+                .ToArray();
         }
 
         IEnumerable<bool> specificMatches = GetMatches(filterMonitor.Get(instrument.Name));
-        return specificMatches.Any()
-            ? specificMatches.All(static x => x)
-            : GetMatches(filterMonitor.CurrentValue).All(static x => x);
+        if (specificMatches.Any())
+        {
+            return specificMatches.All(static x => x);
+        }
+
+        IEnumerable<bool> generalMatches = GetMatches(filterMonitor.CurrentValue);
+        return generalMatches.Any() && generalMatches.All(static x => x);
     }
 }

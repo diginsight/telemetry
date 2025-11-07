@@ -134,9 +134,11 @@ public static class DependencyInjectionExtensions
         public bool ShouldListenTo(ActivitySource activitySource)
         {
             string activitySourceName = activitySource.Name;
-            return activitiesOptions.ActivitySources
+            IEnumerable<bool> matches = activitiesOptions.ActivitySources
                 .Where(x => ActivityUtils.NameMatchesPattern(activitySourceName, x.Key))
-                .All(static x => x.Value);
+                .Select(static x => x.Value)
+                .ToArray();
+            return matches.Any() && matches.All(static x => x);
         }
     }
 
