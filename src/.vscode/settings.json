@@ -1,0 +1,39 @@
+{
+  "files.associations": {
+    "*.prompt": "markdown"
+  },
+  "editor.formatOnSave": true,
+  "editor.rulers": [120],
+  
+  "[markdown]": {
+    "editor.wordWrap": "on",
+    "editor.quickSuggestions": false
+  },
+  
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  
+  "[csharp]": {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    }
+  },
+  
+  "markdown.extension.toc.levels": "2..6",
+  "markdown.preview.breaks": true,
+  
+  "files.exclude": {
+    "**/bin": true,
+    "**/obj": true,
+    "**/.vs": true
+  },
+  
+  "search.exclude": {
+    "**/bin": true,
+    "**/obj": true,
+    "**/node_modules": true,
+    "**/.vs": true
+  }
+}

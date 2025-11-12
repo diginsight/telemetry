@@ -65,8 +65,14 @@ website:
     - section: Advanced Articles
       contents: "src/docs/02. Advanced/*"
     - text: "---"
+    - section: Reference
+      contents: "src/docs/03. Reference/*"
+    - text: "---"
     - section: About
       contents: "src/docs/05. About/*"
+    - text: "---"
+    - section: Changelogs
+      contents: "src/docs/10. ChangeLog/*"
     tools:
     - icon: github
       menu:
