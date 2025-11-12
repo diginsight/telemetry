@@ -65,6 +65,9 @@ website:
     - section: Advanced Articles
       contents: "src/docs/02. Advanced/*"
     - text: "---"
+    - section: Reference
+      contents: "src/docs/03. Reference/*"
+    - text: "---"
     - section: About
       contents: "src/docs/05. About/*"
     tools:
