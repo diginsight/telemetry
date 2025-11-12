@@ -73,7 +73,7 @@ website:
     - text: "---"
     - section: Changelogs
       contents: "src/docs/10. ChangeLog/*"
-  tools:
+    tools:
     - icon: github
       menu:
         - text: Source Code
