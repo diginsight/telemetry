@@ -1,0 +1,70 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Custom file associations for GitHub Linguist
+*.prompt linguist-language=Markdown linguist-detectable
+
+# Source code
+*.cs text diff=csharp
+*.csx text diff=csharp
+*.vb text
+*.vbx text
+
+# Documentation
+*.md text
+*.markdown text
+README text
+CHANGELOG text
+LICENSE text
+
+# Configuration files
+*.json text
+*.xml text
+*.config text
+*.yml text
+*.yaml text
+*.toml text
+.editorconfig text
+
+# Scripts
+*.sh text eol=lf
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Binary files
+*.dll binary
+*.exe binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.mov binary
+*.mp4 binary
+*.mp3 binary
+*.zip binary
+*.gz binary
+*.7z binary
+*.nupkg binary
+
+# Visual Studio files
+*.sln text eol=crlf
+*.csproj text
+*.vbproj text
+*.vcxproj text
+*.vcxproj.filters text
+*.proj text
+*.projitems text
+*.shproj text
+*.props text
+*.targets text
+*.ruleset text
+*.vsixmanifest text
+*.vsct text
+*.resx text
+
+# Git configuration
+.gitattributes text
+.gitignore text
+.gitmodules text

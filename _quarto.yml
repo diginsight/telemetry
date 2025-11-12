@@ -70,7 +70,10 @@ website:
     - text: "---"
     - section: About
       contents: "src/docs/05. About/*"
-    tools:
+    - text: "---"
+    - section: Changelogs
+      contents: "src/docs/10. ChangeLog/*"
+  tools:
     - icon: github
       menu:
         - text: Source Code
