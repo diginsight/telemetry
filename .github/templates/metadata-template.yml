@@ -1,0 +1,142 @@
+# Article Metadata Template
+# Place this file adjacent to your article with the same name
+# Example: article-name.md -> article-name.metadata.yml
+
+article:
+  title: "Article Title Here"
+  author: "Author Name"
+  created: "YYYY-MM-DD"
+  last_updated: "YYYY-MM-DD"
+  status: "draft" # Options: draft, in-review, published, archived
+  version: "1.0" # Semantic versioning: major.minor
+  published_date: null # Set when status changes to 'published'
+  tags:
+    - tag1
+    - tag2
+    - tag3
+  series:
+    name: "Series Name" # Optional: if part of an article series
+    position: 1 # Article number in series
+    total: 5 # Total articles in series
+    prerequisites: [] # Other articles that should be read first
+    next_article: "next-article-name.md" # Optional
+    previous_article: "previous-article-name.md" # Optional
+
+validations:
+  grammar:
+    last_run: null # ISO 8601 timestamp: "YYYY-MM-DDTHH:MM:SSZ"
+    model: null # e.g., "gpt-4o", "gpt-4-turbo"
+    tool: null # e.g., "grammar-review.prompt"
+    outcome: null # Options: passed, minor_issues, needs_revision, failed
+    issues_found: null # Number of issues
+    notes: null # Brief summary of validation
+    
+  readability:
+    last_run: null
+    model: null
+    tool: null # "readability-review.prompt"
+    outcome: null
+    flesch_score: null # Reading ease score (0-100)
+    grade_level: null # Flesch-Kincaid grade level
+    notes: null
+    
+  logic:
+    last_run: null
+    model: null
+    tool: null # "logic-analysis.prompt"
+    outcome: null
+    issues_found: null
+    notes: null
+    
+  facts:
+    last_run: null
+    model: null
+    tool: null # "fact-checking.prompt"
+    outcome: null
+    sources_verified: null # Number of sources checked
+    sources: [] # List of sources verified
+      # - url: "https://example.com/source"
+      #   verified: true
+      #   accessed: "YYYY-MM-DD"
+    issues_found: null
+    notes: null
+    
+  structure:
+    last_run: null
+    model: null
+    tool: null # "structure-validation.prompt"
+    outcome: null
+    has_toc: null # Boolean
+    has_introduction: null # Boolean
+    has_conclusion: null # Boolean
+    has_references: null # Boolean
+    heading_structure: null # "valid" or "invalid"
+    issues_found: null
+    notes: null
+    
+  gaps:
+    last_run: null
+    model: null
+    tool: null # "gap-analysis.prompt"
+    outcome: null # Options: comprehensive, minor_gaps, major_gaps
+    gaps_identified: [] # List of identified gaps
+      # - "Missing explanation of concept X"
+      # - "Should cover use case Y"
+    notes: null
+    
+  understandability:
+    last_run: null
+    model: null
+    tool: null # "understandability-review.prompt"
+    outcome: null
+    target_audience: null # "beginners", "intermediate", "advanced"
+    comprehension_score: null # 1-10 rating
+    notes: null
+
+  series:
+    last_run: null # For series-validation.prompt
+    model: null
+    tool: null
+    outcome: null
+    consistency_score: null
+    progression_score: null
+    notes: null
+
+cross_references:
+  related_articles: [] # List of related article filenames
+    # - "related-topic.md"
+  correlated_topics: [] # Topics discovered via correlated-topics prompt
+    # - "Topic Name"
+  prerequisites: [] # Articles reader should read first
+    # - "prerequisite-article.md"
+  advanced_topics: [] # Next-level topics building on this
+    # - "advanced-topic.md"
+  external_resources: [] # Key external references
+    # - url: "https://example.com"
+    #   title: "Resource Title"
+    #   description: "What it covers"
+  
+analytics:
+  word_count: 0 # Total words in article
+  reading_time_minutes: 0 # Estimated reading time (word_count / 200)
+  code_blocks: 0 # Number of code examples
+  images: 0 # Number of images
+  external_links: 0 # Number of external links
+  internal_links: 0 # Number of internal cross-references
+  last_analyzed: null # When analytics were last computed
+
+publication:
+  target_publish_date: null # Planned publication date
+  actual_publish_date: null # When actually published
+  last_review_date: null # Last time article was reviewed
+  next_review_date: null # When article should be reviewed again
+  review_frequency: null # "monthly", "quarterly", "yearly", "as-needed"
+
+history:
+  major_revisions: [] # Track significant changes
+    # - date: "YYYY-MM-DD"
+    #   version: "2.0"
+    #   description: "Major restructuring"
+    #   author: "Name"
+  deprecation_date: null # If article is being phased out
+  replaced_by: null # Article that replaces this one

@@ -1,4 +1,4 @@
-# 🐛 Issue: [Title]
+# ISSUE: [Title]
 
 **Date:** [Date]  
 **Author:** [Author Name]  
@@ -124,7 +124,7 @@
 
 ---
 
-## ✅ SOLUTION IMPLEMENTED
+## SOLUTION ANALYSIS
 
 ### Fix Overview
 [Brief description of the solution]
