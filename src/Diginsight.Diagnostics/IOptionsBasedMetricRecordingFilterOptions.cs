@@ -2,5 +2,6 @@ namespace Diginsight.Diagnostics;
 
 public interface IOptionsBasedMetricRecordingFilterOptions
 {
-    IReadOnlyDictionary<string, bool> ActivityNames { get; }
+    string? MetricName { get; set; }
+    IDictionary<string, bool> ActivityNames { get; set; }
 }

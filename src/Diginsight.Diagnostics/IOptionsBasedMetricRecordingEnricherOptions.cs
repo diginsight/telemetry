@@ -2,5 +2,6 @@ namespace Diginsight.Diagnostics;
 
 public interface IOptionsBasedMetricRecordingEnricherOptions
 {
-    IReadOnlyCollection<string> MetricTags { get; }
+    string? MetricName { get; set; }
+    ICollection<string> MetricTags { get; set; }
 }

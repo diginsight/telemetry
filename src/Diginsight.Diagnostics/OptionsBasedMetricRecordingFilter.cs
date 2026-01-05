@@ -22,7 +22,7 @@ public class OptionsBasedMetricRecordingFilter : IMetricRecordingFilter
 
         IEnumerable<bool> GetMatches(OptionsBasedMetricRecordingFilterOptions options)
         {
-            return ((IOptionsBasedMetricRecordingFilterOptions)options.Freeze())
+            return ((IOptionsBasedMetricRecordingFilterOptions)options)
                 .ActivityNames
                 .Where(x => ActivityUtils.FullNameMatchesPattern(activitySourceName, activityName, x.Key))
                 .Select(static x => x.Value)
