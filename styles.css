@@ -60,3 +60,26 @@ mark,
 #quarto-content article > h1:first-of-type {
   display: none !important;
 }
+
+/* Fix bullet list rendering in Quarto */
+ul {
+  list-style-type: disc !important;
+  padding-left: 2em !important;
+  margin-bottom: 1em !important;
+}
+
+ul li {
+  display: list-item !important;
+  list-style-type: disc !important;
+  margin-bottom: 0.5em !important;
+}
+
+/* Nested lists */
+ul ul {
+  list-style-type: circle !important;
+  margin-top: 0.5em !important;
+}
+
+ul ul ul {
+  list-style-type: square !important;
+}
