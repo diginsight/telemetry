@@ -1,19 +1,39 @@
-# Changes for Release 3.7.0.0
+# Changes for Release 3.7
 
-**Release Date:** November 12, 2025  
-**Commit Range:** `4ebf5faea81788ddba8fac2260d4a06e255ca5e3` → `987638cff2498640b108cd7c3822ff2ce8ff456b`
+**Release Date:** January 5, 2026  
+**Commit Range:** `4ebf5faea81788ddba8fac2260d4a06e255ca5e3` → `47ebed3977a26e882fc232454f4c307b0a24dc51`  
+**Release Tags:** `v3.7.0.0` (November 12, 2025), `v3.7.1.0` (January 5, 2026)
 
 ---
 
-## Changes Overview
+## Table of Contents
 
-This release includes **significant architectural improvements** focused on unifying and simplifying metric recording infrastructure.  
-The changes 
-- introduce a new **filter** and **enricher**-based architecture for **metric recording**
-- **reorganize project files** for better maintainability, and
-- **fix** critical issues in **Activity and ActivitySource filtering**.  
+- [📋 Changes Overview](#changes-overview)
+- [🔍 Changes Analysis](#changes-analysis)
+  - [⚙️ Configuration Schema Updates](#1-configuration-schema-updates)
+  - [🏗️ Architectural Improvements](#2-architectural-improvements)
+  - [✨ Feature Enhancements](#3-feature-enhancements)
+  - [🐛 Bug Fixes](#4-bug-fixes)
+  - [🛠️ Development Updates](#5-development-updates)
+- [🔄 Migration Guide](#migration-guide)
+- [✅ Testing Recommendations](#testing-recommendations)
+- [⚠️ Breaking Changes Summary](#breaking-changes-summary)
+- [🚨 Deprecations](#deprecations)
+- [☑️ Upgrade Checklist](#upgrade-checklist)
+- [📚 Resources](#resources)
+- [🙏 Acknowledgments](#acknowledgments)
 
-Release 3.7.0.0 represents the culmination of work through alpha versions 3.6.0.0-alpha.1 through alpha.6, delivering a <mark>more consistent, flexible, and maintainable</mark> telemetry framework.
+---
+
+## 📋 Changes Overview
+
+This release includes **significant architectural improvements** focused on unifying and simplifying metric recording infrastructure. 
+Release 3.7 introduces:
+- new **filter** and **enricher**-based architecture for **metric recording**
+- reorganizes project files for better maintainability
+- fixes critical issues in **Activity and ActivitySource filtering**.
+
+Release 3.7.0.0 (November 12, 2025) represents the culmination of work through alpha versions 3.6.0.0-alpha.1 through alpha.6, delivering a more consistent, flexible, and maintainable telemetry framework. Release 3.7.1.0 (January 5, 2026) adds support for multiple named metric filters and enrichers, enabling more granular control over metric recording behavior.
 
 ### Key Changes Summary
 
@@ -37,6 +57,11 @@ Release 3.7.0.0 represents the culmination of work through alpha versions 3.6.0.
    - Consolidated metric recording classes into coherent structure
 
 3. **Feature Enhancements** ✅
+   - **NEW v3.7.1.0**: <mark>Support for multiple named metric filters and enrichers</mark> - different filtering and enrichment rules per metric
+   - **NEW v3.7.1.0**: <mark>`NamedOptionsMonitor<T>` and `NamedOptions<T>`</mark> classes for named options support
+   - **NEW v3.7.1.0**: <mark>`MetricName` property</mark> added to filter and enricher options interfaces
+   - **NEW v3.7.1.0**: <mark>Updated filter and enricher signatures</mark> to accept `Instrument` parameter
+   - **NEW v3.7.1.0**: <mark>ServiceCollectionCoreExtensions</mark> for easier named options registration
    - New <mark>`HttpHeadersSpanDurationMetricRecordingFilter`</mark> for HTTP-based metric filtering
    - Enhanced <mark>`SpanDurationMetricRecorder`</mark> with improved options handling and better lifecycle management
    - Added <mark>`IStringifyModifier`</mark> interface and `StringifyModifier` class for extensible stringify operations
@@ -52,14 +77,20 @@ Release 3.7.0.0 represents the culmination of work through alpha versions 3.6.0.
    - Resolved configuration edge cases in `DiginsightActivitiesOptions`
 
 5. **Development Updates** ✅
+   - **NEW v3.7.1.0**: Added .NET 10.0 support to all projects
+   - **NEW v3.7.1.0**: Updated `global.json` to SDK 10.0.100-preview
+   - **NEW v3.7.1.0**: Added comprehensive reference documentation for metric recording classes
+   - **NEW v3.7.1.0**: Reorganized GitHub templates and prompts
    - Migrated solution format: `.sln` → `.slnx` (XML-based solution file)
    - Updated to **C# 14 preview** features  
    - Added `.csproj.DotSettings` files for ReSharper configuration
    - Updated CI/CD workflow (`.github/workflows/v3.yml`) to use `.slnx` format
    - Modernized polyfills: new `KeyValuePair` extensions, LINQ extensions
    - Updated `Directory.Build.props` and `Directory.Build.targets`
+   - Removed duplicate `.editorconfig` and `.gitattributes` files
 
 6. **Dependency Updates** ✅
+   - **NEW v3.7.1.0**: All projects now target .NET 10.0 in addition to existing frameworks (10.0, 9.0, 8.0, 7.0, 6.0)
    - Updated `packages.lock.json` across all projects (major cleanup)
    - Updated Polyfills project configuration
    - Cleaned up project references and removed obsolete dependencies
@@ -724,6 +755,388 @@ Activity source name filtering works reliably
 
 ---
 
+### Commit 16: a46efac - doc update
+
+**Date:** November 12, 2025  
+**Author:** Dario Airoldi  
+**Files Changed:** 10 files (documentation and templates added)
+
+#### What Changed for Library Users:
+
+**1. Documentation Enhancements**
+- Added GitHub Copilot instructions and templates
+- New reference documentation for metric recording classes
+- Added prompts for automated documentation generation
+- User Impact: ✅ **Better documentation** - easier to understand and use the library
+
+**2. New Reference Documentation**
+- **SpanDurationMetricRecorder.md** - Complete reference for metric recorder
+- **OptionsBasedMetricRecordingFilter.md** - Filter configuration guide
+- **OptionsBasedMetricRecordingEnricher.md** - Enricher configuration guide
+- User Impact: ✅ **Improved developer experience**
+
+**3. Updated Advanced Topics**
+- Replaced "Customize metrics" with "How metric recording works with diginsight and Opentelemetry"
+- More comprehensive explanation of metric recording architecture
+- User Impact: ✅ **Better understanding** of how metrics work
+
+**What Users Need to Do:**
+- ✅ **Nothing** - documentation improvements only
+- ℹ️ **Recommendation**: Review new documentation for better understanding
+
+---
+
+### Commit 17-21: Build and Documentation Fixes
+
+**Commits:** 4f371eb, cfded56, a9256cf, cc26269, 2b3cff4  
+**Date:** November 12, 2025 - December 1, 2025  
+**Author:** Dario Airoldi
+
+#### What Changed for Library Users:
+
+**1. Build Configuration Updates**
+- Updated `_quarto.yml` for documentation site
+- Reorganized GitHub templates and prompts
+- Added `.github/copilot-instructions.md`
+- User Impact: ✅ **No functional changes** - infrastructure improvements
+
+**2. Documentation Fixes**
+- Fixed configuration documentation examples
+- Updated HowTo guides
+- User Impact: ✅ **More accurate documentation**
+
+**3. Template Organization**
+- Moved templates from `.github/copilot/templates/` to `.github/templates/`
+- Moved prompts from `.github/copilot/prompts/` to `.github/prompts/`
+- Added new article templates
+- User Impact: ✅ **No functional changes** - better repository organization
+
+**What Users Need to Do:**
+- ✅ **Nothing** - internal changes only
+
+---
+
+### Commit 22-23: Editor Configuration Cleanup
+
+**Commits:** 548358f, 2b3cff4  
+**Date:** December 1, 2025  
+**Author:** Dario Airoldi
+
+#### What Changed for Library Users:
+
+**1. Removed Duplicate Configuration Files**
+- Deleted `src/.editorconfig` (using root `.editorconfig`)
+- Deleted `src/.gitattributes` (using root `.gitattributes`)
+- User Impact: ✅ **No functional changes** - configuration cleanup
+
+**What Users Need to Do:**
+- ✅ **Nothing** - internal cleanup only
+
+---
+
+### Commit 24: 3bd25ca - projects update .net10.0
+
+**Date:** December 1, 2025  
+**Author:** Dario Airoldi  
+**Files Changed:** 21 files (all project files)
+
+#### What Changed for Library Users:
+
+**1. .NET 10.0 Support Added**
+```xml
+<!-- BEFORE (in .csproj files) -->
+<TargetFrameworks>net9.0;net8.0;net7.0;net6.0</TargetFrameworks>
+
+<!-- AFTER -->
+<TargetFrameworks>net10.0;net9.0;net8.0;net7.0;net6.0</TargetFrameworks>
+```
+
+- User Impact: ✅ **Enhanced compatibility** - now supports .NET 10.0
+
+**2. global.json Updated**
+```json
+{
+  "sdk": {
+    "version": "10.0.100-preview"
+  }
+}
+```
+
+- User Impact: ✅ **Future-ready** - prepared for .NET 10.0 release
+
+**3. Package Lock Files Updated**
+- All `packages.lock.json` files regenerated
+- User Impact: ✅ **No breaking changes** - dependency updates
+
+**What Users Need to Do:**
+```csharp
+// For .NET 10.0 projects
+<PackageReference Include="Diginsight.Diagnostics" Version="3.7.1.0" />
+// Works with .NET 10.0, 9.0, 8.0, 7.0, and 6.0
+```
+
+---
+
+### Commit 25-26: Documentation Fixes
+
+**Commits:** 65a9508, 4e47521, 4a44c25  
+**Date:** January 5, 2026  
+**Author:** Dario Airoldi
+
+#### What Changed for Library Users:
+
+**1. Reference Documentation Added**
+- **IDiginsightActivitiesLogOptions.md** - Complete interface reference
+- **IDiginsightActivitiesOptions.md** - Complete interface reference
+- User Impact: ✅ **Better API documentation**
+
+**2. VSCode Settings**
+- Added `.vscode/settings.json` for better IDE support
+- User Impact: ✅ **Improved developer experience**
+
+**3. Style Improvements**
+- Updated `styles.css` for documentation site
+- User Impact: ✅ **Better documentation readability**
+
+**What Users Need to Do:**
+- ✅ **Nothing** - documentation improvements only
+- ℹ️ **Recommendation**: Review new interface reference documentation
+
+---
+
+### Commit 27: 47ebed3 - v3.7.1.0 support for multiple metrics filters and enrichers
+
+**Date:** January 5, 2026 (tag: v3.7.1.0 - Latest Release)  
+**Author:** Dario Airoldi  
+**Files Changed:** 7 files, 94 insertions, 38 deletions
+
+#### What Changed for Library Users:
+
+**1. NEW: Named Options Support** ⭐
+
+Added `NamedOptionsMonitor<T>` and `NamedOptions<T>` classes to support multiple named metric filter and enricher instances:
+
+```csharp
+// NEW: Support for named options
+public sealed class NamedOptionsMonitor<T> : IOptionsMonitor<T>
+{
+    private readonly IOptionsMonitor<T> innerOptionsMonitor;
+    public T CurrentValue { get; set; }
+
+    public NamedOptionsMonitor(IOptionsMonitor<T> innerOptionsMonitor, string? name = null)
+    {
+        this.innerOptionsMonitor = innerOptionsMonitor;
+        this.CurrentValue = innerOptionsMonitor.Get(name);
+    }
+    
+    public T Get(string? name) => innerOptionsMonitor.Get(name);
+}
+
+public sealed class NamedOptions<T> : IOptions<T> where T : class
+{
+    public T Value { get; }
+    
+    public NamedOptions(IOptionsMonitor<T> optionsMonitor, string name)
+    {
+        Value = optionsMonitor.Get(name);
+    }
+}
+```
+
+- User Impact: ✅ **Major enhancement** - now supports multiple independent filter and enricher configurations per metric
+
+**2. Enhanced Filter Options Interface**
+
+```csharp
+// BEFORE
+public interface IOptionsBasedMetricRecordingFilterOptions
+{
+    IDictionary<string, bool> ActivityNames { get; set; }
+}
+
+// AFTER - Added MetricName
+public interface IOptionsBasedMetricRecordingFilterOptions
+{
+    string? MetricName { get; set; }  // NEW: Allows naming filters
+    IDictionary<string, bool> ActivityNames { get; set; }
+}
+```
+
+- User Impact: ✅ **Enhanced functionality** - filters can be bound to specific metrics by name
+
+**3. Enhanced Enricher Options Interface**
+
+```csharp
+// BEFORE
+public interface IOptionsBasedMetricRecordingEnricherOptions
+{
+    ICollection<string> MetricTags { get; set; }
+}
+
+// AFTER - Added MetricName
+public interface IOptionsBasedMetricRecordingEnricherOptions
+{
+    string? MetricName { get; set; }  // NEW: Allows naming enrichers
+    ICollection<string> MetricTags { get; set; }
+}
+```
+
+- User Impact: ✅ **Enhanced functionality** - enrichers can be bound to specific metrics by name
+
+**4. Updated Filter Implementation**
+
+```csharp
+// Enhanced OptionsBasedMetricRecordingFilter with Instrument parameter
+public class OptionsBasedMetricRecordingFilter : IMetricRecordingFilter
+{
+    // NEW: ShouldRecord now accepts Instrument parameter
+    public virtual bool? ShouldRecord(Activity activity, Instrument instrument)
+    {
+        string activitySourceName = activity.Source.Name;
+        string activityName = activity.OperationName;
+        
+        // Get named options based on instrument name
+        IEnumerable<bool> specificMatches = GetMatches(filterMonitor.Get(instrument.Name));
+        if (specificMatches.Any())
+        {
+            return specificMatches.All(static x => x);
+        }
+        
+        // Fall back to default options
+        IEnumerable<bool> generalMatches = GetMatches(filterMonitor.CurrentValue);
+        return generalMatches.Any() && generalMatches.All(static x => x);
+    }
+}
+```
+
+- User Impact: ✅ **Enhanced filtering** - different filters per metric instrument
+
+**5. Updated Enricher Implementation**
+
+```csharp
+// Enhanced OptionsBasedMetricRecordingEnricher with Instrument parameter
+public class OptionsBasedMetricRecordingEnricher : IMetricRecordingEnricher
+{
+    // NEW: ExtractTags now accepts Instrument parameter
+    public virtual Tags ExtractTags(Activity activity, Instrument instrument)
+    {
+        // Get named enricher options based on instrument name
+        return GetTagNames(enricherMonitor.Get(instrument.Name))
+            .Concat(GetTagNames(enricherMonitor.CurrentValue))
+            .Distinct()
+            .Select(k => /* extract tag from activity */)
+            .Where(static x => x.Value is not null)
+            .Select(static x => new Tag(x.Key, x.Value));
+    }
+}
+```
+
+- User Impact: ✅ **Enhanced enrichment** - different enrichers per metric instrument
+
+**6. Core Extensions Added**
+
+Added `ServiceCollectionCoreExtensions.cs` to Diginsight.Core:
+
+```csharp
+// NEW: Core extension methods
+public static class ServiceCollectionCoreExtensions
+{
+    // Support for named options registration
+    public static IServiceCollection AddNamedOptions<T>(
+        this IServiceCollection services, 
+        string name) where T : class
+    {
+        // Implementation for named options support
+    }
+}
+```
+
+- User Impact: ✅ **New API** - easier registration of named options
+
+**What Users Can Now Do:**
+
+```json
+// Configure MULTIPLE filters for different metrics
+{
+  "OptionsBasedMetricRecordingFilter": {
+    // Default filter (applies to all metrics if no specific filter)
+    "ActivityNames": {
+      "MyApp.*": true,
+      "System.*": false
+    }
+  },
+  "OptionsBasedMetricRecordingFilter:span_duration": {
+    // Specific filter for "span_duration" metric
+    "MetricName": "span_duration",
+    "ActivityNames": {
+      "MyApp.CriticalPath.*": true,
+      "MyApp.*": false
+    }
+  },
+  "OptionsBasedMetricRecordingFilter:http_requests": {
+    // Specific filter for "http_requests" metric
+    "MetricName": "http_requests",
+    "ActivityNames": {
+      "Microsoft.AspNetCore.*": true
+    }
+  }
+}
+```
+
+```json
+// Configure MULTIPLE enrichers for different metrics
+{
+  "OptionsBasedMetricRecordingEnricher": {
+    // Default enricher (applies to all metrics if no specific enricher)
+    "MetricTags": ["environment", "version"]
+  },
+  "OptionsBasedMetricRecordingEnricher:span_duration": {
+    // Specific enricher for "span_duration" metric
+    "MetricName": "span_duration",
+    "MetricTags": ["user_id", "tenant_id", "operation_type"]
+  },
+  "OptionsBasedMetricRecordingEnricher:http_requests": {
+    // Specific enricher for "http_requests" metric
+    "MetricName": "http_requests",
+    "MetricTags": ["http_method", "http_route", "response_code"]
+  }
+}
+```
+
+**Service Registration:**
+
+```csharp
+// Register named filters
+services.Configure<OptionsBasedMetricRecordingFilterOptions>(
+    "span_duration", 
+    configuration.GetSection("OptionsBasedMetricRecordingFilter:span_duration"));
+
+services.Configure<OptionsBasedMetricRecordingFilterOptions>(
+    "http_requests", 
+    configuration.GetSection("OptionsBasedMetricRecordingFilter:http_requests"));
+
+// Register named enrichers
+services.Configure<OptionsBasedMetricRecordingEnricherOptions>(
+    "span_duration", 
+    configuration.GetSection("OptionsBasedMetricRecordingEnricher:span_duration"));
+
+services.Configure<OptionsBasedMetricRecordingEnricherOptions>(
+    "http_requests", 
+    configuration.GetSection("OptionsBasedMetricRecordingEnricher:http_requests"));
+```
+
+**Benefits:**
+- ✅ **Granular control**: Different filters per metric type
+- ✅ **Different tags**: Different enrichers per metric type
+- ✅ **Better organization**: Clear separation of concerns
+- ✅ **Backward compatible**: Default options still work as before
+
+**What Users Need to Do:**
+- ✅ **Optional adoption**: Named options are optional - existing configurations continue to work
+- ℹ️ **Recommendation**: Use named options for complex scenarios with multiple metrics requiring different filtering/enrichment rules
+
+---
+
 ## Migration Guide
 
 ### For Most Users (JSON Configuration Only)
@@ -858,6 +1271,195 @@ Replace all occurrences:
 
 ---
 
+### Migrating to v3.7.1.0 - Multiple Named Filters and Enrichers (Optional)
+
+**This is an OPTIONAL upgrade** - existing configurations continue to work unchanged.
+
+#### When to Use Named Filters/Enrichers
+
+Consider using named filters and enrichers if you need:
+- **Different filtering rules per metric** (e.g., record all activities for one metric, only critical paths for another)
+- **Different tags per metric** (e.g., include user_id for business metrics, but not for technical metrics)
+- **Multiple custom metrics** with independent configurations
+
+#### Step 1: Define Named Filter Configurations
+
+```json
+{
+  "OptionsBasedMetricRecordingFilter": {
+    // Default filter - applies when no specific filter is matched
+    "ActivityNames": {
+      "MyApp.*": true,
+      "System.*": false
+    }
+  },
+  "OptionsBasedMetricRecordingFilter:business_metrics": {
+    "MetricName": "business_metrics",
+    "ActivityNames": {
+      "MyApp.Orders.*": true,
+      "MyApp.Payments.*": true,
+      "MyApp.*": false  // Only specific business activities
+    }
+  },
+  "OptionsBasedMetricRecordingFilter:technical_metrics": {
+    "MetricName": "technical_metrics",
+    "ActivityNames": {
+      "MyApp.*": true,  // All technical activities
+      "System.*": true
+    }
+  }
+}
+```
+
+#### Step 2: Define Named Enricher Configurations
+
+```json
+{
+  "OptionsBasedMetricRecordingEnricher": {
+    // Default enricher - applies when no specific enricher is matched
+    "MetricTags": ["environment", "version"]
+  },
+  "OptionsBasedMetricRecordingEnricher:business_metrics": {
+    "MetricName": "business_metrics",
+    "MetricTags": ["user_id", "tenant_id", "order_type", "payment_method"]
+  },
+  "OptionsBasedMetricRecordingEnricher:technical_metrics": {
+    "MetricName": "technical_metrics",
+    "MetricTags": ["machine_name", "process_id", "thread_id"]
+  }
+}
+```
+
+#### Step 3: Register Named Options (if needed)
+
+In most cases, configuration binding will handle this automatically. For advanced scenarios:
+
+```csharp
+// Register named filter options
+services.Configure<OptionsBasedMetricRecordingFilterOptions>(
+    "business_metrics",
+    configuration.GetSection("OptionsBasedMetricRecordingFilter:business_metrics"));
+
+services.Configure<OptionsBasedMetricRecordingFilterOptions>(
+    "technical_metrics",
+    configuration.GetSection("OptionsBasedMetricRecordingFilter:technical_metrics"));
+
+// Register named enricher options
+services.Configure<OptionsBasedMetricRecordingEnricherOptions>(
+    "business_metrics",
+    configuration.GetSection("OptionsBasedMetricRecordingEnricher:business_metrics"));
+
+services.Configure<OptionsBasedMetricRecordingEnricherOptions>(
+    "technical_metrics",
+    configuration.GetSection("OptionsBasedMetricRecordingEnricher:technical_metrics"));
+```
+
+#### Step 4: Create Metrics with Matching Names
+
+```csharp
+// Create custom metric recorders with names matching your configuration
+public class BusinessMetricsRecorder : IActivityListenerLogic
+{
+    private readonly IMeterFactory meterFactory;
+    private readonly Histogram<double> histogram;
+    
+    public BusinessMetricsRecorder(IMeterFactory meterFactory)
+    {
+        this.meterFactory = meterFactory;
+        
+        // Metric name "business_metrics" matches configuration key
+        var meter = meterFactory.Create("MyApp.Business");
+        this.histogram = meter.CreateHistogram<double>("business_metrics", "ms", "Business operation durations");
+    }
+    
+    public void ActivityStopped(Activity activity)
+    {
+        // Filter and enricher with name "business_metrics" will be used
+        histogram.Record(activity.Duration.TotalMilliseconds);
+    }
+}
+
+public class TechnicalMetricsRecorder : IActivityListenerLogic
+{
+    private readonly IMeterFactory meterFactory;
+    private readonly Histogram<double> histogram;
+    
+    public TechnicalMetricsRecorder(IMeterFactory meterFactory)
+    {
+        this.meterFactory = meterFactory;
+        
+        // Metric name "technical_metrics" matches configuration key
+        var meter = meterFactory.Create("MyApp.Technical");
+        this.histogram = meter.CreateHistogram<double>("technical_metrics", "ms", "Technical operation durations");
+    }
+    
+    public void ActivityStopped(Activity activity)
+    {
+        // Filter and enricher with name "technical_metrics" will be used
+        histogram.Record(activity.Duration.TotalMilliseconds);
+    }
+}
+```
+
+#### Example: Different Rules for Different Metrics
+
+```csharp
+// Scenario: Record detailed user journeys for business analytics,
+//           but only critical paths for technical monitoring
+
+// Business metrics configuration
+{
+  "OptionsBasedMetricRecordingFilter:user_journey": {
+    "MetricName": "user_journey",
+    "ActivityNames": {
+      "MyApp.UI.*": true,           // All UI interactions
+      "MyApp.Orders.*": true,        // All order operations
+      "MyApp.Checkout.*": true       // All checkout steps
+    }
+  },
+  "OptionsBasedMetricRecordingEnricher:user_journey": {
+    "MetricName": "user_journey",
+    "MetricTags": [
+      "user_id",
+      "session_id",
+      "page_name",
+      "action_name",
+      "conversion_funnel_step"
+    ]
+  }
+}
+
+// Technical metrics configuration
+{
+  "OptionsBasedMetricRecordingFilter:performance": {
+    "MetricName": "performance",
+    "ActivityNames": {
+      "MyApp.Database.*": true,      // Only database operations
+      "MyApp.Cache.*": false,        // Skip cache operations
+      "MyApp.API.Critical.*": true   // Only critical API paths
+    }
+  },
+  "OptionsBasedMetricRecordingEnricher:performance": {
+    "MetricName": "performance",
+    "MetricTags": [
+      "operation_type",
+      "resource_name",
+      "is_cached"
+    ]
+  }
+}
+```
+
+#### Benefits of Named Filters/Enrichers
+
+✅ **Separation of concerns**: Business vs technical metrics have different requirements  
+✅ **Reduced noise**: Only record what's relevant for each metric  
+✅ **Better insights**: Different tags provide context-specific information  
+✅ **Performance**: Less overhead by filtering earlier in the pipeline  
+✅ **Flexibility**: Easy to add new metrics with independent configurations
+
+---
+
 ## Testing Recommendations
 
 After upgrading to 3.7, test the following scenarios:
@@ -944,6 +1546,10 @@ public async Task HTTP_Header_Filtering_Works()
 | `IMetricRecordingEnricher` signature changed | ⚠️ Medium | c0b4103 | Only for custom implementations |
 | `IDiginsightActivitiesSpanDurationOptions` → `IMetricRecordingOptions` | ⚠️ Medium | 24ce7db | Update interface references |
 | Metric property prefixes (`MeterName` → `SpanDurationMeterName`) | ⚠️ Medium | Multiple | Update configuration |
+| **v3.7.1.0**: `IMetricRecordingFilter.ShouldRecord()` now accepts `Instrument` parameter | ⚠️ Low | 47ebed3 | Only for custom filter implementations |
+| **v3.7.1.0**: `IMetricRecordingEnricher.ExtractTags()` now accepts `Instrument` parameter | ⚠️ Low | 47ebed3 | Only for custom enricher implementations |
+
+**Note**: v3.7.1.0 changes are **non-breaking** for standard usage - they only affect custom implementations of filters and enrichers.
 
 ---
 
@@ -964,9 +1570,55 @@ The following are deprecated and will be removed in v4.0:
 
 Use this checklist to ensure a smooth upgrade:
 
+### Core Upgrade Steps (v3.7.0.0)
+
 - [ ] **Backup current configuration**
-- [ ] **Update NuGet packages** to 3.7.x
+- [ ] **Update NuGet packages** to 3.7.x (3.7.0.0 or 3.7.1.0)
 - [ ] **Update configuration files:**
+  - [ ] Change `RecordSpanDurations` → `RecordSpanDuration`
+  - [ ] Add `SpanDuration` prefix to metric properties
+  - [ ] Remove `MetricUnit` if present
+- [ ] **Update service registrations:**
+  - [ ] Replace `IActivityLoggingSampler` with `IActivityLoggingFilter`
+  - [ ] Replace `NameBased*` with `OptionsBased*` classes
+- [ ] **Update custom implementations** (if any):
+  - [ ] Migrate `IMetricRecordingEnricher` to use `TagList`
+  - [ ] Update `IActivityLoggingFilter` implementations
+  - [ ] Replace deprecated interfaces
+- [ ] **Update code accessing interfaces directly:**
+  - [ ] Replace `ActivityLogLevel` with `LogLevel`
+  - [ ] Replace `IDiginsightActivitiesMetricOptions` with `IMetricRecordingOptions`
+- [ ] **Run tests:**
+  - [ ] Test configuration loading
+  - [ ] Test activity filtering (especially wildcards)
+  - [ ] Test metric recording
+  - [ ] Test HTTP header filtering (if applicable)
+
+### Optional: v3.7.1.0 Named Metrics (Advanced)
+
+- [ ] **Evaluate named metrics need:**
+  - [ ] Do you have multiple metrics requiring different filtering rules?
+  - [ ] Do you need different tags for different metric types?
+  - [ ] Would separate configurations improve clarity?
+- [ ] **If adopting named metrics:**
+  - [ ] Design metric naming strategy (e.g., `business_metrics`, `technical_metrics`)
+  - [ ] Create named configuration sections for filters
+  - [ ] Create named configuration sections for enrichers
+  - [ ] Update or create custom metric recorders with matching instrument names
+  - [ ] Test each named configuration independently
+  - [ ] Verify fallback to default configuration works
+
+### Finalization
+
+- [ ] **Update documentation:**
+  - [ ] Update code samples
+  - [ ] Update configuration examples
+  - [ ] Update Getting Started guides
+  - [ ] Document any named metrics if used
+- [ ] **Deploy to test environment**
+- [ ] **Run regression tests**
+- [ ] **Monitor metrics and logs** for correctness
+- [ ] **Deploy to production**
   - [ ] Change `RecordSpanDurations` → `RecordSpanDuration`
   - [ ] Add `SpanDuration` prefix to metric properties
   - [ ] Remove `MetricUnit` if present
@@ -1055,14 +1707,18 @@ If you encounter issues during migration:
 
 Special thanks to all contributors who made this release possible:
 
-- **Filippo Mineo** - Lead developer and architect
+- **Filippo Mineo** - Lead developer and architect for metric recording unification
+- **Dario Airoldi** - Named options support, .NET 10.0 upgrade, and comprehensive documentation
 - All community members who reported issues and provided feedback
-- Contributors who tested alpha releases
+- Contributors who tested alpha releases and provided valuable insights
 
-This release represents months of careful refactoring and testing to deliver a more consistent, maintainable, and reliable telemetry framework.
+This release represents months of careful refactoring and testing to deliver a more consistent, maintainable, and reliable telemetry framework. Version 3.7.1.0 extends this foundation with powerful new capabilities for managing multiple metrics with independent configurations.
 
 ---
 
-**Release Tag:** [v3.7.0.0](https://github.com/diginsight/telemetry/releases/tag/v3.7.0.0)  
+**Release Tags:**  
+- [v3.7.0.0](https://github.com/diginsight/telemetry/releases/tag/v3.7.0.0) - November 12, 2025  
+- [v3.7.1.0](https://github.com/diginsight/telemetry/releases/tag/v3.7.1.0) - January 5, 2026 (Latest)
+
 **Previous Release:** [v3.6.0.0-alpha.6](https://github.com/diginsight/telemetry/releases/tag/v3.6.0.0-alpha.6)  
 **Next Release:** v3.8.0.0 (planned)
