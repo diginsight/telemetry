@@ -1,59 +1,318 @@
-# Changes for Release 3.7
+# Changes for Release 3.7.0.0
 
 **Release Date:** November 12, 2025  
-**Commit Range:** `4ebf5faea81788ddba8fac2260d4a06e255ca5e3` ? `HEAD`
+**Commit Range:** `4ebf5faea81788ddba8fac2260d4a06e255ca5e3` → `987638cff2498640b108cd7c3822ff2ce8ff456b`
 
 ---
 
 ## Changes Overview
 
-This release includes significant architectural improvements, bug fixes, and enhanced metric recording capabilities. The changes focus on better code organization, improved configuration flexibility, and refined telemetry filtering mechanisms.
+This release includes **significant architectural improvements** focused on unifying and simplifying metric recording infrastructure. The changes introduce a new filter and enricher-based architecture for metric recording, reorganize project files for better maintainability, and fix critical issues in Activity and ActivitySource filtering. Release 3.7.0.0 represents the culmination of work through alpha versions 3.6.0.0-alpha.1 through alpha.6, delivering a more consistent, flexible, and maintainable telemetry framework.
 
 ### Key Changes Summary
 
-1. **Configuration Schema Updates**
-   - Property renaming in `IDiginsightActivitiesLogOptions`
-   - Metric interface consolidation
-   - Updated property names for consistency
+1. **Configuration Schema Updates** ⚠️
+   - **Breaking**: Removed metric-related properties from `DiginsightActivitiesOptions`
+   - **Breaking**: Removed `IDiginsightActivitiesMetricOptions` interface
+   - **Breaking**: Property rename: `ActivityLogLevel` → <mark>`LogLevel`</mark> in <mark>`IDiginsightActivitiesLogOptions`</mark>
+   - **Breaking**: Interface rename: `IActivityLoggingSampler` → <mark>`IActivityLoggingFilter`</mark>
+   - **Breaking**: Class rename: `NameBasedActivityLoggingSampler` → <mark>`OptionsBasedActivityLoggingFilter`</mark>
+   - **New**: Introduced <mark>`IDiginsightActivitiesSpanDurationOptions`</mark> for span duration metrics
+   - **New**: Added <mark>`ActivityNames`</mark> dictionary to <mark>`IDiginsightActivitiesLogOptions`</mark>
+   - Standardized class naming: `NameBased*` → <mark>`OptionsBased*`</mark> for <mark>filters and enrichers</mark>
 
-2. **Architectural Improvements**
-   - Configuration folder reorganization (`Configuration` ? `Configurations`)
-   - Metric recording unification with filter and enricher pattern
-   - Activity filtering mechanism renamed and improved
+2. **Architectural Improvements** ✅
+   - Unified metric recording with <mark>filter</mark> and <mark>enricher</mark> pattern
+   - Major folder reorganization: flattened structure by moving files from subfolders to root
+   - Introduced <mark>`DefaultMetricRecordingEnricher`</mark> and <mark>`OptionsBasedMetricRecordingEnricher`</mark>
+   - Renamed: <mark>`MetricRecordingNameBasedFilter`</mark> → `OptionsBasedMetricRecordingFilter`
+   - Deleted obsolete `ObservabilityRegistry` class
+   - Removed `ServiceCollectionExtensions` from Diginsight.Core
+   - Consolidated metric recording classes into coherent structure
 
-3. **Feature Enhancements**
-   - Improved activity and activity source filtering
-   - Enhanced metric recording with better filter/enricher integration
-   - String-based configuration support for `LoggedActivityNames`
-   - Immutable configuration with `Freeze()` method
-   - Dynamic configuration support via `IDynamicallyConfigurable`
+3. **Feature Enhancements** ✅
+   - New <mark>`HttpHeadersSpanDurationMetricRecordingFilter`</mark> for HTTP-based metric filtering
+   - Enhanced <mark>`SpanDurationMetricRecorder`</mark> with improved options handling and better lifecycle management
+   - Added <mark>`IStringifyModifier`</mark> interface and `StringifyModifier` class for extensible stringify operations
+   - New <mark>`LoggerFactoryStaticAccessor`</mark> for static logger factory access
+   - Improved <mark>`DiginsightActivitiesOptions.Freeze()`</mark> with optimization to avoid redundant freezing
+   - Enhanced <mark>`ActivityNames` property</mark> support in logging options
 
-4. **Bug Fixes**
-   - Fixed issues in `DiginsightTextWriter`
-   - Fixed `DiginsightActivitiesOptions` edge cases
-   - Resolved activity and activity source filtering bugs
+4. **Bug Fixes** ✅
+   - **Critical**: <mark>Fixed Activity and ActivitySource filtering</mark> in <mark>`OptionsBasedMetricRecordingFilter`</mark>
+   - Fixed <mark>`DiginsightTextWriter`</mark> null reference and rendering issues
+   - Corrected `DiginsightActivitiesOptions.Freeze()` to avoid redundant operations
+   - Fixed separator character in options parsing (`EqualsSeparator` changed from space to '=')
+   - Resolved configuration edge cases in `DiginsightActivitiesOptions`
 
-5. **Development Updates**
-   - Solution format migration (`.sln` ? `.slnx`)
-   - C# 14 preview support
-   - Code cleanup and modernization
+5. **Development Updates** ✅
+   - Migrated solution format: `.sln` → `.slnx` (XML-based solution file)
+   - Updated to **C# 14 preview** features  
+   - Added `.csproj.DotSettings` files for ReSharper configuration
+   - Updated CI/CD workflow (`.github/workflows/v3.yml`) to use `.slnx` format
+   - Modernized polyfills: new `KeyValuePair` extensions, LINQ extensions
+   - Updated `Directory.Build.props` and `Directory.Build.targets`
+
+6. **Dependency Updates** ✅
+   - Updated `packages.lock.json` across all projects (major cleanup)
+   - Updated Polyfills project configuration
+   - Cleaned up project references and removed obsolete dependencies
 
 ---
 
-## Changes Analysis
+## Detailed Changes Analysis (Chronological)
 
-### 1. Configuration Schema Updates
+### Commit 1: 3bcfd90 - Unifying metric recording with filter and enricher
 
-#### 1.1 IDiginsightActivitiesLogOptions Interface Changes
+**Date:** September 17, 2025  
+**Author:** Filippo Mineo  
+**Files Changed:** 38 files, 357 insertions, 396 deletions
 
-**What Changed:**
+#### What Changed for Library Users:
 
+**1. Folder Reorganization**
+- **Configuration/` → `Configurations/`**: All configuration classes moved to plural folder name
+  - Affects: `Diginsight.Core`, `Diginsight.Diagnostics`
+  - User Impact: ✅ **No breaking changes** - namespaces remain the same
+  
+**2. File Movements**
+- `Utils/ActivityUtils.cs` → <mark>`ActivityUtils.cs`</mark> (moved to root)
+- `MetricRecording/*` → <mark>`Metrics/*`</mark> (folder renamed)
+  - User Impact: ✅ **No breaking changes** - public API unchanged
+
+**3. New Metric Recording Structure**
+- Moved metric recording classes into `Metrics/` folder
+- Introduced <mark>`MetricRecordingNameBasedFilterOptions.cs`</mark>
+- User Impact: ✅ **Improved organization** - easier to find metric-related classes
+
+**4. Configuration Property Updates**
+```csharp
+// BEFORE
+public interface IDiginsightActivitiesOptions
+{
+    IReadOnlyDictionary<string, bool> ActivitySources { get; }
+}
+
+// AFTER  
+public interface IDiginsightActivitiesOptions
+{
+    IReadOnlyDictionary<string, bool> ActivitySources { get; }
+    // Additional configuration support added
+}
+```
+
+**What Users Need to Do:**
+- ✅ **Nothing** - changes are internal restructuring
+- Configuration files remain unchanged
+
+---
+
+### Commit 2: 5fa5baa - C# 14 preview. Unifying metric recording with filter and enricher
+
+**Date:** September 17, 2025 (after 3bcfd90)  
+**Author:** Filippo Mineo  
+**Files Changed:** 27 files, 140 insertions, 115 deletions
+
+#### What Changed for Library Users:
+
+**1. C# 14 Language Features**
+- Upgraded project to use C# 14 preview
+- Updated `Directory.Build.props` to set language version
+- User Impact: ✅ **No runtime breaking changes** - compiled assemblies work on older runtimes
+
+**2. New Stringify Infrastructure**
+```csharp
+// NEW: IStringifyModifier interface
+public interface IStringifyModifier
+{
+    // Allows custom modification of stringify behavior
+    object? Modify(object? value, StringifyContext context);
+}
+
+// NEW: StringifyModifier class
+public sealed class StringifyModifier : IStringifyModifier
+{
+    // Default implementation
+}
+```
+- User Impact: ✅ **New extensibility point** - users can implement custom stringify modifiers
+
+**3. Added LoggerFactoryStaticAccessor**
+```csharp
+// NEW: Static accessor for ILoggerFactory
+public static class LoggerFactoryStaticAccessor
+{
+    public static ILoggerFactory? LoggerFactory { get; set; }
+}
+```
+- User Impact: ✅ **Convenience feature** - easier access to logger factory in static contexts
+
+**4. Deleted ObservabilityRegistry**
+- Removed obsolete `ObservabilityRegistry.cs`
+- User Impact: ⚠️ **Breaking if used** - <mark>migrate to `LoggerFactoryStaticAccessor`</mark>
+
+**5. New Polyfill Extensions**
+```csharp
+// NEW: KeyValuePair.cs polyfill
+namespace System.Collections.Generic
+{
+    public static class KeyValuePair
+    {
+        public static KeyValuePair<TKey, TValue> Create<TKey, TValue>(TKey key, TValue value)
+            => new KeyValuePair<TKey, TValue>(key, value);
+    }
+}
+```
+- User Impact: ✅ **Better compatibility** - modern syntax on older frameworks
+
+**What Users Need to Do:**
+- ⚠️ If using `ObservabilityRegistry`: Replace with `LoggerFactoryStaticAccessor`
+- ✅ Otherwise: No changes needed
+
+---
+
+### Commit 3: c0b4103 - Unifying metric recording with filter and enricher
+
+**Date:** September 18, 2025  
+**Author:** Filippo Mineo  
+**Files Changed:** 38 files, 462 insertions, 2276 deletions (major refactoring)
+
+#### What Changed for Library Users:
+
+**1. Removed Diginsight.Core ServiceCollectionExtensions**
+- Deleted `Diginsight.Core/Extensions/ServiceCollectionExtensions.cs`
+- User Impact: ⚠️ **Potential breaking** - if using Core-level extension methods, migrate to Diagnostics package
+
+**2. New Metric Recording Architecture**
+
+**Added:**
+```csharp
+// NEW: DefaultMetricRecordingEnricher
+public class DefaultMetricRecordingEnricher : IMetricRecordingEnricher
+{
+    public void Enrich(Activity activity, TagList tags) { }
+}
+
+// NEW: DefaultMetricRecordingEnricherOptions
+public class DefaultMetricRecordingEnricherOptions : IDefaultMetricRecordingEnricherOptions
+{
+    // Options for enricher configuration
+}
+
+// NEW: NameBasedMetricRecordingFilter
+public class NameBasedMetricRecordingFilter : IMetricRecordingFilter
+{
+    public bool ShouldRecord(Activity activity) { }
+}
+
+// NEW: NameBasedMetricRecordingFilterOptions
+public class NameBasedMetricRecordingFilterOptions : INameBasedMetricRecordingFilterOptions
+{
+    public IDictionary<string, bool> ActivityNames { get; set; }
+}
+```
+
+**Deleted:**
+```csharp
+// REMOVED: Old implementations
+- MetricRecordingEnricherOptions.cs
+- MetricRecordingNameBasedFilter.cs (old version)
+- MetricRecordingNameBasedFilterOptions.cs (old version)
+- MetricRecordingTagsEnricher.cs
+```
+
+- User Impact: ⚠️ **Breaking** - if implementing custom enrichers or filters, update to new interfaces
+
+**3. Updated IMetricRecordingEnricher and IMetricRecordingFilter**
+```csharp
+// BEFORE
+public interface IMetricRecordingEnricher
+{
+    void Enrich(Activity activity, IDictionary<string, object?> tags);
+}
+
+// AFTER
+public interface IMetricRecordingEnricher
+{
+    void Enrich(Activity activity, TagList tags);  // Changed to TagList
+}
+```
+
+- User Impact: ⚠️ **Breaking** - custom enrichers must update method signature
+
+**4. Enhanced SpanDurationMetricRecorder**
+- Improved lifecycle management
+- Better integration with filters and enrichers
+- User Impact: ✅ **Performance improvement** - more efficient metric recording
+
+**5. AspNetCore Updates**
+```csharp
+// REMOVED
+- HttpHeadersMetricRecordingFilter.cs
+
+// ADDED
+- HttpHeadersSpanDurationMetricRecordingFilter.cs (new implementation)
+```
+- User Impact: ⚠️ **Breaking** - update registrations if using HTTP headers filtering
+
+**What Users Need to Do:**
+1. ⚠️ Update custom <mark>`IMetricRecordingEnricher` implementations to use `TagList` instead of `IDictionary`</mark>
+2. ⚠️ Replace <mark>`MetricRecordingTagsEnricher` with `DefaultMetricRecordingEnricher`</mark>
+3. ⚠️ Replace <mark>`HttpHeadersMetricRecordingFilter` with `HttpHeadersSpanDurationMetricRecordingFilter`</mark>
+
+---
+
+### Commit 4: f8f4e9e - Unifying metric recording with filter and enricher
+
+**Date:** September 19, 2025  
+**Author:** Filippo Mineo  
+**Files Changed:** 11 files, 106 insertions, 50 deletions
+
+#### What Changed for Library Users:
+
+**1. Interface Rename: IActivityLoggingSampler → IActivityLoggingFilter**
+```csharp
+// BEFORE
+public interface IActivityLoggingSampler
+{
+    LogBehavior? GetLogBehavior(Activity activity);
+}
+
+// AFTER
+public interface IActivityLoggingFilter
+{
+    LogBehavior? GetLogBehavior(Activity activity);
+}
+```
+- User Impact: ⚠️ **BREAKING** - update all references and registrations
+
+**2. Class Rename: NameBasedActivityLoggingSampler → NameBasedActivityLoggingFilter**
+```csharp
+// BEFORE
+public class NameBasedActivityLoggingSampler : IActivityLoggingSampler { }
+
+// AFTER  
+public class NameBasedActivityLoggingFilter : IActivityLoggingFilter { }
+```
+- User Impact: ⚠️ **BREAKING** - update service registrations
+
+**3. AspNetCore Filter Rename**
+```csharp
+// BEFORE
+public class HttpHeadersActivityLoggingSampler { }
+
+// AFTER
+public class HttpHeadersActivityLoggingFilter { }
+```
+- User Impact: ⚠️ **BREAKING** - update registrations if using HTTP headers
+
+**4. Updated IDiginsightActivitiesLogOptions**
 ```csharp
 // BEFORE
 public interface IDiginsightActivitiesLogOptions
 {
     LogBehavior LogBehavior { get; }
-    LogLevel ActivityLogLevel { get; }  // ? Property name
+    LogLevel ActivityLogLevel { get; }  // Old name
     bool WriteActivityActionAsPrefix { get; }
     bool DisablePayloadRendering { get; }
 }
@@ -61,639 +320,411 @@ public interface IDiginsightActivitiesLogOptions
 // AFTER
 public interface IDiginsightActivitiesLogOptions
 {
-    IReadOnlyDictionary<string, LogBehavior> ActivityNames { get; }  // ? NEW
+    IReadOnlyDictionary<string, LogBehavior> ActivityNames { get; }  // NEW
     LogBehavior LogBehavior { get; }
-    LogLevel LogLevel { get; }  // ? Renamed from ActivityLogLevel
+    LogLevel LogLevel { get; }  // RENAMED
     bool WriteActivityActionAsPrefix { get; }
     bool DisablePayloadRendering { get; }
 }
 ```
+- User Impact: ⚠️ **Breaking** - update code accessing `ActivityLogLevel` to <mark>`LogLevel`</mark>
 
-**Why Changes Were Applied:**
-- **Property rename** (`ActivityLogLevel` ? `LogLevel`): Simplified and more consistent with .NET conventions
-- **New `ActivityNames` property**: Provides read-only access to activity-specific logging behavior, improving encapsulation and supporting the new filtering mechanism
-
-**Impact on Applications:**
-- ? **JSON Configuration**: No breaking changes - `ActivityLogLevel` in config files still works
-- ?? **Code accessing interface directly**: Update references from `ActivityLogLevel` to `LogLevel` when using `IDiginsightActivitiesLogOptions`
-
+**5. Removed IDiginsightActivitiesMetricOptions, Added <mark>IDiginsightActivitiesSpanDurationOptions</mark>**
 ```csharp
-// Migration needed if accessing via interface
-// OLD
-var level = logOptions.ActivityLogLevel;
-
-// NEW
-var level = logOptions.LogLevel;
-```
-
----
-
-#### 1.2 Metric Recording Interface Consolidation
-
-**What Changed:**
-
-```csharp
-// BEFORE - IDiginsightActivitiesMetricOptions (REMOVED)
+// REMOVED
 public interface IDiginsightActivitiesMetricOptions
 {
-    bool RecordSpanDurations { get; }  // ? Plural
+    bool RecordSpanDurations { get; }
     string MeterName { get; }
     string MetricName { get; }
-    string? MetricUnit { get; }  // ? REMOVED
+    string? MetricUnit { get; }
     string? MetricDescription { get; }
 }
 
-// AFTER - IMetricRecordingOptions (NEW)
-public interface IMetricRecordingOptions
+// ADDED
+public interface IDiginsightActivitiesSpanDurationOptions
 {
-    bool Record { get; }  // ? Simplified from RecordSpanDurations
+    bool Record { get; }  // Simplified
     string MeterName { get; }
     string MetricName { get; }
     string? MetricDescription { get; }
-    // MetricUnit removed - not used in OpenTelemetry integration
+    // MetricUnit removed - not used
 }
 ```
+- User Impact: ⚠️ **BREAKING** - migrate to new interface
 
-**Why Changes Were Applied:**
-- **Interface consolidation**: Unified metric recording under a single, purpose-specific interface
-- **Property simplification**: `RecordSpanDurations` ? `Record` (more generic and reusable)
-- **Removed unused property**: `MetricUnit` was not used in the OpenTelemetry implementation
-- **Better naming**: More accurately reflects the interface's purpose
+**6. Deleted <mark>IDiginsightActivityNamesOptions</mark>**
+- Merged into `IDiginsightActivitiesLogOptions` via `ActivityNames` property
+- User Impact: ⚠️ **Breaking** - <mark>use `IDiginsightActivitiesLogOptions.ActivityNames`</mark> instead
 
-**Impact on Applications:**
-- ?? **Breaking change** for code implementing `IDiginsightActivitiesMetricOptions`
-- Migration required:
+**What Users Need to Do:**
+1. ⚠️ **Required**: Replace `IActivityLoggingSampler` with <mark>`IActivityLoggingFilter`</mark> in:
+   - Service registrations
+   - Interface implementations
+   - Dependency injection
 
 ```csharp
 // OLD
-public class MyOptions : IDiginsightActivitiesMetricOptions
-{
-    public bool RecordSpanDurations { get; set; }
-    public string MeterName { get; set; }
-    public string MetricName { get; set; }
-    public string? MetricUnit { get; set; }  // Remove this
-    public string? MetricDescription { get; set; }
-}
+services.AddSingleton<IActivityLoggingSampler, NameBasedActivityLoggingSampler>();
 
 // NEW
-public class MyOptions : IMetricRecordingOptions
-{
-    public bool Record { get; set; }  // Renamed
-    public string MeterName { get; set; }
-    public string MetricName { get; set; }
-    public string? MetricDescription { get; set; }
-}
+services.AddSingleton<IActivityLoggingFilter, NameBasedActivityLoggingFilter>();
 ```
 
----
-
-#### 1.3 DiginsightActivitiesOptions Property Updates
-
-**What Changed:**
-
-```csharp
-// Property names updated with specific prefixes
-public sealed class DiginsightActivitiesOptions
-{
-    // BEFORE (implicit)
-    bool RecordSpanDurations { get; set; }
-    string? MeterName { get; set; }
-    string? MetricName { get; set; }
-    string? MetricDescription { get; set; }
-
-    // AFTER (explicit prefixes)
-    public bool RecordSpanDuration { get; set; }  // Singular
-    public string? SpanDurationMeterName { get; set; }  // Prefixed
-    public string? SpanDurationMetricName { get; set; }  // Prefixed
-    public string? SpanDurationMetricDescription { get; set; }  // Prefixed
-}
-```
-
-**Why Changes Were Applied:**
-- **Property naming consistency**: Added `SpanDuration` prefix to clearly indicate these properties control span duration metrics
-- **Singular vs Plural**: Changed to singular form (`RecordSpanDuration`) for consistency with boolean property naming conventions
-- **Future extensibility**: Allows adding other metric types without naming conflicts
-
-**Impact on Applications:**
-
-| Old Configuration Property | New Configuration Property | Status |
-|---------------------------|---------------------------|--------|
-| `RecordSpanDurations` | `RecordSpanDuration` | ?? Update required |
-| `MeterName` | `SpanDurationMeterName` | ? Backward compatible |
-| `MetricName` | `SpanDurationMetricName` | ? Backward compatible |
-| `MetricDescription` | `SpanDurationMetricDescription` | ? Backward compatible |
-
-**Configuration Migration:**
-
-```json
-// OLD
-{
-  "Diginsight": {
-    "Activities": {
-      "RecordSpanDurations": true,
-      "MeterName": "MyApp.Telemetry",
-      "MetricName": "span_duration"
-    }
-  }
-}
-
-// NEW (recommended)
-{
-  "Diginsight": {
-    "Activities": {
-      "RecordSpanDuration": true,
-      "SpanDurationMeterName": "MyApp.Telemetry",
-      "SpanDurationMetricName": "diginsight.span_duration",
-      "SpanDurationMetricDescription": "Duration of application spans in milliseconds"
-    }
-  }
-}
-```
-
----
-
-### 2. Architectural Improvements
-
-#### 2.1 Configuration Folder Reorganization
-
-**What Changed:**
-- Moved `Configuration/` folder ? `Configurations/` folder
-- Moved `Utils/ActivityUtils.cs` ? root level `ActivityUtils.cs`
-- Moved `MetricRecording/*` ? `Metrics/*` folder
-
-**Files Affected:**
-
-| Old Path | New Path |
-|----------|----------|
-| `Diginsight.Core/Configuration/` | `Diginsight.Core/Configurations/` |
-| `Diginsight.Diagnostics/Configuration/` | `Diginsight.Diagnostics/Configurations/` |
-| `Diginsight.Diagnostics/Utils/ActivityUtils.cs` | `Diginsight.Diagnostics/ActivityUtils.cs` |
-| `Diginsight.Diagnostics/MetricRecording/` | `Diginsight.Diagnostics/Metrics/` |
-
-**Why Changes Were Applied:**
-- **Consistency**: Standardized folder naming (plural form)
-- **Better organization**: Metric-related classes grouped together in `Metrics/` folder
-- **Reduced nesting**: Moved utility classes to more logical locations
-
-**Impact on Applications:**
-- ? **No breaking changes**: These are internal organizational changes
-- ? **Namespace changes handled automatically**: Public API namespaces remain unchanged
-
----
-
-#### 2.2 Metric Recording Unification
-
-**What Changed:**
-- Deleted: `Diginsight.Diagnostics/MetricRecording/SpanDurationMetricRecorder.cs`
-- Created: `Diginsight.Diagnostics/Metrics/SpanDurationMetricRecorder.cs` (completely rewritten)
-- Added: `Metrics/MetricRecordingNameBasedFilterOptions.cs`
-- Moved all metric recording classes to unified `Metrics/` folder
-
-**New Architecture:**
-
-```
-Diginsight.Diagnostics/Metrics/
-??? IMetricRecordingFilter.cs           (filter interface)
-??? IMetricRecordingEnricher.cs         (enricher interface)
-??? MetricRecordingNameBasedFilter.cs   (pattern-based filtering)
-??? MetricRecordingNameBasedFilterOptions.cs (filter configuration)
-??? MetricRecordingTagsEnricher.cs      (tag enrichment)
-??? SpanDurationMetricRecorder.cs       (metric recording engine)
-??? SpanDurationMetricRecorderRegistration.cs
-??? CustomDurationMetricRecorder.cs
-```
-
-**Why Changes Were Applied:**
-- **Unified architecture**: Filter and enricher pattern provides consistent extension points
-- **Better separation of concerns**: Filtering, enriching, and recording are now distinct responsibilities
-- **Improved testability**: Each component can be tested independently
-- **Enhanced flexibility**: Users can implement custom filters and enrichers
-
-**Impact on Applications:**
-- ? **No API changes**: Existing registration methods still work
-- ? **Enhanced configuration**: New filtering and enrichment options available
-
-**New Configuration Options:**
-
-```json
-{
-  "OptionsBasedMetricRecordingFilter": {
-    "ActivityNames": {
-      "MyApp.Orders.*": true,
-      "MyApp.Payment.*": true,
-      "MyApp.Internal.*": false
-    }
-  },
-  "OptionsBasedMetricRecordingEnricher": {
-    "MetricTags": [
-      "customer_tier",
-      "region"
-    ]
-  }
-}
-```
-
----
-
-#### 2.3 Activity Filtering Mechanism Renamed
-
-**What Changed:**
-
-```csharp
-// BEFORE - IActivityLoggingSampler
-public interface IActivityLoggingSampler
-{
-    LogBehavior? GetLogBehavior(Activity activity);
-}
-
-// Implementation
-public class NameBasedActivityLoggingSampler : IActivityLoggingSampler
-{
-    // ...
-}
-
-// Registration
-services.TryAddSingleton<IActivityLoggingSampler, NameBasedActivityLoggingSampler>();
-```
-
-```csharp
-// AFTER - IActivityLoggingFilter
-public interface IActivityLoggingFilter
-{
-    LogBehavior? GetLogBehavior(Activity activity);
-}
-
-// Implementation
-public class OptionsBasedActivityLoggingFilter : IActivityLoggingFilter
-{
-    private readonly IClassAwareOptions<DiginsightActivitiesOptions> activitiesOptions;
-    
-    public virtual LogBehavior? GetLogBehavior(Activity activity)
-    {
-        string activitySourceName = activity.Source.Name;
-        string activityName = activity.OperationName;
-        
-        return ((IDiginsightActivitiesLogOptions)activitiesOptions
-                .Get(activity.GetCallerType())
-                .Freeze())
-            .ActivityNames
-            .Where(x => ActivityUtils.FullNameMatchesPattern(activitySourceName, activityName, x.Key))
-            .Select(static x => (LogBehavior?)x.Value)
-            .Max();
-    }
-}
-
-// Registration
-services.TryAddSingleton<IActivityLoggingFilter, OptionsBasedActivityLoggingFilter>();
-```
-
-**Why Changes Were Applied:**
-- **Better naming**: "Filter" more accurately describes the component's purpose than "Sampler"
-- **Improved implementation**: `OptionsBasedActivityLoggingFilter` uses class-aware options for more flexible configuration
-- **Pattern matching**: Enhanced support for wildcard patterns in activity names
-- **Consistency**: Aligns with other filter interfaces (`IMetricRecordingFilter`)
-
-**Impact on Applications:**
-- ?? **Breaking change**: Registration code must be updated
-- Migration required:
-
+2. ⚠️ **Required**: Update property access:
 ```csharp
 // OLD
-services.TryAddSingleton<IActivityLoggingSampler, NameBasedActivityLoggingSampler>();
+var level = options.ActivityLogLevel;
 
 // NEW
-services.TryAddSingleton<IActivityLoggingFilter, OptionsBasedActivityLoggingFilter>();
+var level = options.LogLevel;
 ```
 
-**Documentation Updates Required:**
-- Update all code samples showing registration
-- Update Getting Started guides
-- Update advanced configuration articles
+3. ⚠️ **Required**: Replace `IDiginsightActivitiesMetricOptions` with <mark>`IDiginsightActivitiesSpanDurationOptions`</mark>
 
 ---
 
-### 3. Feature Enhancements
+### Commit 5: 9f3896d - .sln to .slnx
 
-#### 3.1 String-Based Configuration for LoggedActivityNames
+**Date:** September 20, 2025  
+**Author:** Filippo Mineo  
+**Files Changed:** 2 files, 23 insertions, 109 deletions
 
-**What Changed:**
-Added support for space-separated string format in addition to dictionary format.
+#### What Changed for Library Users:
 
-**Before (dictionary only):**
-```json
-{
-  "Diginsight": {
-    "Activities": {
-      "LoggedActivityNames": {
-        "MyApp.Orders.*": "Show",
-        "MyApp.Payment.*": "Show",
-        "MyApp.Internal.*": "Hide"
-      }
-    }
-  }
-}
-```
+**1. Solution File Format Change**
+- Deleted `Diginsight.sln` (traditional format)
+- Added `Diginsight.slnx` (new XML-based format)
+- User Impact: ✅ **No functional changes** - both formats supported by Visual Studio 2022+
 
-**After (both formats supported):**
-```json
-{
-  "Diginsight": {
-    "Activities": {
-      "LoggedActivityNames": "MyApp.Orders.* MyApp.Payment.*=Show MyApp.Internal.*=Hide"
-    }
-  }
-}
-```
+**What Users Need to Do:**
+- ✅ **Nothing** - Visual Studio 2022+ automatically handles both formats
+- ℹ️ Visual Studio 2019 users may need to upgrade IDE
 
-**Why Changes Were Applied:**
-- **Convenience**: Simpler syntax for straightforward configurations
-- **Compactness**: Reduces verbosity in configuration files
-- **Flexibility**: Both formats supported based on user preference
+---
 
-**Implementation:**
+### Commit 6: bab6879 - .sln to .slnx
+
+**Date:** September 20, 2025 (after 9f3896d)  
+**Author:** Filippo Mineo  
+**Files Changed:** 1 file, 1 insertion, 1 deletion
+
+#### What Changed for Library Users:
+
+**1. CI/CD Workflow Update**
+- Updated `.github/workflows/v3.yml` to use `.slnx` instead of `.sln`
+- User Impact: ✅ **No user impact** - internal build process change
+
+**What Users Need to Do:**
+- ✅ **Nothing** - build process change only
+
+---
+
+### Commit 7: bbdd6cc - small fix
+
+**Date:** September 21, 2025  
+**Author:** Filippo Mineo  
+**Files Changed:** 1 file, 2 insertions, 1 deletion
+
+#### What Changed for Library Users:
+
+**1. DiginsightTextWriter Fix**
+- Fixed edge case in text rendering
+- Improved null handling
+- User Impact: ✅ **Stability improvement** - fewer exceptions during logging
+
+**What Users Need to Do:**
+- ✅ **Nothing** - automatic improvement
+
+---
+
+### Commit 8: e025853 - Fix in DiginsightActivitiesOptions
+
+**Date:** September 22, 2025  
+**Author:** Filippo Mineo  
+**Files Changed:** 3 files, 3 insertions, 37 deletions
+
+#### What Changed for Library Users:
+
+**1. DiginsightActivitiesOptions Configuration Fix**
+- Fixed configuration binding issues
+- Improved default value handling
+- User Impact: ✅ **Reliability improvement** - configuration loads correctly
+
+**2. SpanDurationMetricRecorder Cleanup**
+- Removed redundant code
+- User Impact: ✅ **No functional change**
+
+**3. Directory.Build.targets Update**
+- Removed obsolete build configurations
+- User Impact: ✅ **No user impact**
+
+**What Users Need to Do:**
+- ✅ **Nothing** - automatic improvement
+
+---
+
+### Commit 9: dffd6d7 - Fix in DiginsightTextWriter
+
+**Date:** September 23, 2025  
+**Author:** Filippo Mineo  
+**Files Changed:** 1 file, 3 insertions, 4 deletions
+
+#### What Changed for Library Users:
+
+**1. DiginsightTextWriter Rendering Fix**
+- Improved character escaping
+- Better handling of special characters
+- User Impact: ✅ **Quality improvement** - cleaner log output
+
+**What Users Need to Do:**
+- ✅ **Nothing** - automatic improvement
+
+---
+
+### Commit 10: af4121c - Rename
+
+**Date:** September 25, 2025  
+**Author:** Filippo Mineo  
+**Files Changed:** 5 files, 41 insertions, 41 deletions
+
+#### What Changed for Library Users:
+
+**1. Standardized Naming: NameBased → <mark>OptionsBased</mark>**
+
+**Interfaces Renamed:**
 ```csharp
-// In DiginsightActivitiesOptions.Filler class
-public string LoggedActivityNames
-{
-    get => string.Join(" ", filled.LoggedActivityNames);
-    set
-    {
-        filled.LoggedActivityNames.Clear();
-        filled.LoggedActivityNames.AddRange(
-            value.Split(SpaceSeparator, StringSplitOptions.RemoveEmptyEntries)
-                .Select(
-                    static x => x.Split(EqualsSeparator, 2) switch
-                    {
-                        [ var x0 ] => KeyValuePair.Create(x0, LogBehavior.Show),
-                        [ var x0, var x1 ] when Enum.TryParse(x1, true, out LogBehavior b) 
-                            => KeyValuePair.Create(x0, b),
-                        _ => (KeyValuePair<string, LogBehavior>?)null,
-                    }
-                )
-                .OfType<KeyValuePair<string, LogBehavior>>()
-        );
-    }
-}
+// BEFORE
+INameBasedMetricRecordingFilterOptions
+
+// AFTER
+IOptionsBasedMetricRecordingFilterOptions
 ```
 
-**Format Rules:**
-- Space-separated patterns: `"Pattern1 Pattern2 Pattern3"`
-- Optional behavior suffix: `"Pattern1=Show Pattern2=Hide"`
-- Default behavior if not specified: `Show`
-- Supported behaviors: `Show`, `Hide`, `Truncate`
+**Classes Renamed:**
+```csharp
+// BEFORE
+NameBasedMetricRecordingFilter
+NameBasedMetricRecordingFilterOptions
+NameBasedActivityLoggingFilter
 
-**Impact on Applications:**
-- ? **Fully backward compatible**: Existing dictionary configurations still work
-- ? **Optional feature**: Use string format if preferred
+// AFTER
+OptionsBasedMetricRecordingFilter
+OptionsBasedMetricRecordingFilterOptions
+OptionsBasedActivityLoggingFilter
+```
+
+- User Impact: ⚠️ **Breaking** - update class references and registrations
+
+**What Users Need to Do:**
+```csharp
+// OLD
+services.AddSingleton<INameBasedMetricRecordingFilterOptions, NameBasedMetricRecordingFilterOptions>();
+services.AddSingleton<IMetricRecordingFilter, NameBasedMetricRecordingFilter>();
+
+// NEW
+services.AddSingleton<IOptionsBasedMetricRecordingFilterOptions, OptionsBasedMetricRecordingFilterOptions>();
+services.AddSingleton<IMetricRecordingFilter, OptionsBasedMetricRecordingFilter>();
+```
 
 ---
 
-#### 3.2 Immutable Configuration with Freeze()
+### Commit 11: 35423d8 - Improvements in metric recording
 
-**What Changed:**
-Added `Freeze()` method to `DiginsightActivitiesOptions` for creating immutable instances.
+**Date:** October 5, 2025  
+**Author:** Filippo Mineo  
+**Files Changed:** 5 files, 27 insertions, 38 deletions
+
+#### What Changed for Library Users:
+
+**1. Deleted ICustomDurationMetricRecorderSettings**
+- Removed obsolete interface
+- User Impact: ⚠️ **Breaking if used** - migrate to standard options
+
+**2. Enhanced Metric Recording Components**
+- Improved <mark>`DefaultMetricRecordingEnricher`</mark>
+- Optimized <mark>`OptionsBasedMetricRecordingFilter`</mark>
+- Better <mark>`SpanDurationMetricRecorder`</mark> performance
+- User Impact: ✅ **Performance improvement**
+
+**3. HttpHeadersSpanDurationMetricRecordingFilter Update**
+- Enhanced HTTP header parsing
+- Better integration with filter pipeline
+- User Impact: ✅ **Improved functionality**
+
+**What Users Need to Do:**
+- ⚠️ If using <mark>`ICustomDurationMetricRecorderSettings`</mark>: Migrate to <mark>standard options classes</mark>
+- ✅ Otherwise: No changes needed
+
+---
+
+### Commit 12: a664cbb - Improvements in metric recording
+
+**Date:** October 6, 2025  
+**Author:** Filippo Mineo  
+**Files Changed:** 1 file, 16 insertions, 14 deletions
+
+#### What Changed for Library Users:
+
+**1. SpanDurationMetricRecorder Enhancements**
+- Improved metric recording lifecycle
+- Better error handling
+- Optimized tag collection
+- User Impact: ✅ **Reliability and performance improvement**
+
+**What Users Need to Do:**
+- ✅ **Nothing** - automatic improvement
+
+---
+
+### Commit 13: 24ce7db - Improvements in metric recording
+
+**Date:** October 7, 2025  
+**Author:** Filippo Mineo (tag: v3.6.0.0-alpha.5)  
+**Files Changed:** 26 files, 16 insertions, 25 deletions
+
+#### What Changed for Library Users:
+
+**1. Major File Reorganization - Flattened Structure**
+
+**Moved from subfolders to root:**
+```
+Extensions/ActivityExtensions.cs              → ActivityExtensions.cs
+Extensions/ActivityListenerExtensions.cs      → ActivityListenerExtensions.cs
+Extensions/ActivitySourceExtensions.cs        → ActivitySourceExtensions.cs
+Extensions/DependencyInjectionExtensions.cs   → DependencyInjectionExtensions.cs
+Extensions/MeterExtensions.cs                 → MeterExtensions.cs
+Configurations/DiginsightActivitiesOptions.cs → DiginsightActivitiesOptions.cs
+Configurations/...                            → (all moved to root)
+Metrics/...                                   → (all moved to root)
+```
+
+- User Impact: ✅ **No breaking changes** - namespaces unchanged
+
+**2. Interface/Class Renames**
+```csharp
+// BEFORE
+IDiginsightActivitiesSpanDurationOptions
+
+// AFTER
+IMetricRecordingOptions  // More generic name
+```
 
 ```csharp
-public sealed class DiginsightActivitiesOptions
-{
-    private readonly bool frozen;
-    
-    public DiginsightActivitiesOptions Freeze()
-    {
-        if (frozen)
-            return this;
-            
-        return new DiginsightActivitiesOptions(
-            true,
-            ActivitySources.ToImmutableDictionary(),
-            LoggedActivityNames.ToImmutableDictionary()
-        )
-        {
-            logBehavior = logBehavior,
-            activityLogLevel = activityLogLevel,
-            writeActivityActionAsPrefix = writeActivityActionAsPrefix,
-            disablePayloadRendering = disablePayloadRendering,
-            recordSpanDuration = recordSpanDuration,
-            spanDurationMeterName = spanDurationMeterName,
-            spanDurationMetricName = spanDurationMetricName,
-            spanDurationMetricDescription = spanDurationMetricDescription,
-        };
-    }
-    
-    // Setters throw InvalidOperationException when frozen
-    public LogBehavior LogBehavior
-    {
-        get => logBehavior;
-        set => logBehavior = frozen 
-            ? throw new InvalidOperationException("Instance is frozen") 
-            : value;
-    }
-}
+// BEFORE  
+DefaultMetricRecordingEnricher
+
+// AFTER
+OptionsBasedMetricRecordingEnricher  // Consistent naming
 ```
 
-**Why Changes Were Applied:**
-- **Thread safety**: Immutable instances are safe for concurrent access
-- **Configuration integrity**: Prevents accidental modifications after configuration is loaded
-- **Performance**: Frozen instances use immutable collections for better performance
+- User Impact: ⚠️ **Breaking** - update references
 
-**Impact on Applications:**
-- ? **No breaking changes**: Existing code continues to work
-- ? **Optional feature**: Use `Freeze()` when immutability is desired
+**3. LoggerFactoryStaticAccessor Simplification**
+- Removed unnecessary code
+- User Impact: ✅ **No functional change**
 
-**Usage Example:**
+**What Users Need to Do:**
 ```csharp
-var options = new DiginsightActivitiesOptions
-{
-    LogBehavior = LogBehavior.Show,
-    RecordSpanDuration = true
-};
+// OLD
+services.Configure<IDiginsightActivitiesSpanDurationOptions>(options => { });
 
-var frozenOptions = options.Freeze();
-
-// This will throw InvalidOperationException
-frozenOptions.LogBehavior = LogBehavior.Hide;
+// NEW
+services.Configure<IMetricRecordingOptions>(options => { });
 ```
 
 ---
 
-#### 3.3 Dynamic Configuration Support
+### Commit 14: 9cf9421 - Improvements in metric recording
 
-**What Changed:**
-`DiginsightActivitiesOptions` now implements `IDynamicallyConfigurable` and `IVolatilelyConfigurable`.
+**Date:** October 8, 2025 (tag: v3.6.0.0-alpha.6)  
+**Author:** Filippo Mineo  
+**Files Changed:** 4 files, 37 insertions, 37 deletions
 
+#### What Changed for Library Users:
+
+**1. Enricher Options Reorganization**
 ```csharp
-public sealed class DiginsightActivitiesOptions
-    : IDiginsightActivitiesOptions,
-        IDiginsightActivitiesLogOptions,
-        IMetricRecordingOptions,
-        IDynamicallyConfigurable,  // ? NEW
-        IVolatilelyConfigurable     // ? NEW
-{
-    object IDynamicallyConfigurable.MakeFiller() => new Filler(this);
-    object IVolatilelyConfigurable.MakeFiller() => new Filler(this);
-    
-    // Filler class enables dynamic updates
-    private class Filler
-    {
-        private readonly DiginsightActivitiesOptions filled;
-        
-        public LogBehavior LogBehavior
-        {
-            get => filled.LogBehavior;
-            set => filled.LogBehavior = value;
-        }
-        // ... other properties
-    }
-}
+// DELETED
+DefaultMetricRecordingEnricherOptions
+
+// RENAMED  
+IDefaultMetricRecordingEnricherOptions → IOptionsBasedMetricRecordingEnricherOptions
+
+// ADDED
+OptionsBasedMetricRecordingEnricherOptions  // New implementation
 ```
 
-**Why Changes Were Applied:**
-- **Runtime reconfiguration**: Allows configuration changes without application restart
-- **Dynamic logging**: Enable detailed logging for specific requests or scenarios
-- **Troubleshooting**: Temporarily increase logging verbosity for diagnosis
+- User Impact: ⚠️ **Breaking** - update options configuration
 
-**Impact on Applications:**
-- ? **No breaking changes**: Existing configurations work unchanged
-- ? **New capability**: Runtime configuration updates now possible
+**2. <mark>OptionsBasedMetricRecordingEnricher</mark> Updates**
+- Enhanced configuration binding
+- Better default values
+- User Impact: ✅ **Improved functionality**
 
-**Usage Example:**
+**What Users Need to Do:**
 ```csharp
-// Enable via HTTP header
-services.AddSingleton<IActivityLoggingFilter, HttpHeadersActivityLoggingFilter>();
+// OLD
+services.Configure<IDefaultMetricRecordingEnricherOptions>(options => { });
 
-// Request with dynamic configuration
-curl -H "Activity-Logging: Show" https://myapi.com/api/orders/123
+// NEW
+services.Configure<IOptionsBasedMetricRecordingEnricherOptions>(options => { });
+services.Configure<OptionsBasedMetricRecordingEnricherOptions>(options => { });
 ```
 
 ---
 
-### 4. Bug Fixes
+### Commit 15: 987638c - Fixed Activity and ActivitySource filtering
 
-#### 4.1 Activity and ActivitySource Filtering (Commit 987638c)
+**Date:** October 10, 2025 (tag: v3.7.0.0 - Final Release)  
+**Author:** Filippo Mineo  
+**Files Changed:** 3 files, 19 insertions, 10 deletions
 
-**What Was Fixed:**
-- Corrected logic in `ActivityUtils.cs` for pattern matching
-- Fixed issues where wildcard patterns weren't matching correctly
-- Resolved edge cases in activity source name comparison
+#### What Changed for Library Users:
 
-**Why Fix Was Needed:**
-- Activities weren't being filtered as configured
-- Wildcard patterns (`MyApp.*`) sometimes failed to match
-- Source name filtering was inconsistent
+**1. Critical Bug Fix in OptionsBasedMetricRecordingFilter**
+- Fixed pattern matching logic for activity names
+- Corrected activity source filtering
+- Fixed wildcard pattern support
+- User Impact: ✅ **CRITICAL FIX** - filtering now works as documented
 
-**Impact:**
-- ? **Reliability improvement**: Activity filtering now works as documented
-- ? **Better performance**: Unnecessary activities correctly filtered out
-
----
-
-#### 4.2 DiginsightTextWriter Fix (Commit dffd6d7)
-
-**What Was Fixed:**
-- Fixed edge cases in text rendering
-- Resolved issues with special characters
-- Improved handling of null/empty values
-
-**Why Fix Was Needed:**
-- Some log entries were malformed
-- Special characters caused rendering issues
-- Null reference exceptions in edge cases
-
-**Impact:**
-- ? **Stability improvement**: Fewer exceptions during logging
-- ? **Better log quality**: Cleaner, more readable output
-
----
-
-#### 4.3 DiginsightActivitiesOptions Fix (Commit e025853)
-
-**What Was Fixed:**
-- Resolved configuration binding issues
-- Fixed default value handling
-- Corrected property initialization order
-
-**Why Fix Was Needed:**
-- Some configuration properties weren't being loaded correctly
-- Default values weren't applied in all scenarios
-- Configuration validation was incomplete
-
-**Impact:**
-- ? **Configuration reliability**: Settings now load correctly in all scenarios
-- ? **Better defaults**: Sensible defaults applied when config is missing
-
----
-
-### 5. Development Updates
-
-#### 5.1 Solution Format Migration (`.sln` ? `.slnx`)
-
-**What Changed:**
-- Migrated from traditional `.sln` to new `.slnx` format
-- Updated solution file structure
-- Maintained backward compatibility
-
-**Why Change Was Made:**
-- **Modern tooling**: `.slnx` is the new Visual Studio solution format
-- **Better performance**: Faster solution loading
-- **Enhanced features**: Better multi-targeting support
-
-**Impact on Applications:**
-- ? **No impact**: Both formats supported by Visual Studio 2022+
-- ?? **Older IDEs**: Visual Studio 2019 users may need to upgrade
-
----
-
-#### 5.2 C# 14 Preview Support (Commit 5fa5baa)
-
-**What Changed:**
-- Added C# 14 language features
-- Used `field` keyword in auto-properties
-- Leveraged new language improvements
-
-**Example:**
+**Before (Broken):**
 ```csharp
-// C# 14 'field' keyword
-public string? Pattern
-{
-    get;
-    set => field = value.HardTrim();
-}
+// Patterns like "MyApp.*" sometimes failed to match
+// Activity source filtering was inconsistent
 ```
 
-**Why Change Was Made:**
-- **Code modernization**: Leverage latest C# features
-- **Better readability**: Cleaner property implementations
-- **Future-proof**: Stay current with .NET evolution
+**After (Fixed):**
+```csharp
+// Correct pattern matching:
+"MyApp.Orders.*" correctly matches "MyApp.Orders.ProcessOrder"
+"MyApp.*" correctly matches all MyApp activities
+Activity source name filtering works reliably
+```
 
-**Impact on Applications:**
-- ? **No impact**: Binary compatibility maintained
-- ? **Compiled assemblies work** on older runtimes
+**2. Enhanced <mark>DependencyInjectionExtensions</mark>**
+- Improved service registration
+- Better validation
+- User Impact: ✅ **Improved reliability**
 
----
+**3. <mark>SpanDurationMetricRecorderRegistration</mark> Updates**
+- Better lifecycle management
+- Improved error handling
+- User Impact: ✅ **More reliable metric recording**
 
-#### 5.3 File Reorganization Summary
-
-**Key Deletions:**
-- `Diginsight.Core/Configuration/NamedOptionsMonitor.cs` (obsolete)
-- `Diginsight.Diagnostics/Configuration/IDiginsightActivityNamesOptions.cs` (moved)
-- `Diginsight.Diagnostics/ObservabilityRegistry.cs` (obsolete)
-- `Diginsight.Diagnostics/MetricRecording/SpanDurationMetricRecorder.cs` (reimplemented)
-
-**Key Additions:**
-- `Diginsight.Core/LoggerFactoryStaticAccessor.cs`
-- `Diginsight.Polyfills/System/Collections/Generic/KeyValuePair.cs`
-- `Diginsight.Polyfills/System/Linq/Extensions.cs`
-- `Diginsight.Stringify/IStringifyModifier.cs`
-- `Diginsight.Stringify/StringifyModifier.cs`
-- `Diginsight.Diagnostics/Metrics/MetricRecordingEnricherOptions.cs`
+**What Users Need to Do:**
+- ✅ **Nothing** - automatic fix
+- ℹ️ **Benefit**: Activity filtering now works correctly with wildcard patterns
 
 ---
 
 ## Migration Guide
 
-### For Most Users (Minimal Impact)
+### For Most Users (JSON Configuration Only)
 
-If you're using **JSON-based configuration only**, minimal changes needed:
+If you're using **JSON-based configuration only** and not implementing custom filters/enrichers, here's what you need to update:
+
+#### Step 1: Update Configuration Properties
 
 ```json
 {
@@ -703,146 +734,329 @@ If you're using **JSON-based configuration only**, minimal changes needed:
         "MyApp.*": true
       },
       "LogBehavior": "Hide",
-      "ActivityLogLevel": "Debug",  // ? Still works
-      "RecordSpanDuration": false   // ?? Update from RecordSpanDurations
+      "LogLevel": "Debug",  // ⚠️ Was "ActivityLogLevel" (both work for backward compatibility)
+      
+      // ⚠️ IMPORTANT: Update these
+      "RecordSpanDuration": false,  // ⚠️ Was "RecordSpanDurations" (plural)
+      "SpanDurationMeterName": "MyApp",  // ⚠️ Was "MeterName"
+      "SpanDurationMetricName": "span_duration",  // ⚠️ Was "MetricName"
+      "SpanDurationMetricDescription": "Activity durations"  // ⚠️ Was "MetricDescription"
+      // Note: "MetricUnit" has been removed (not used)
     }
   }
 }
 ```
 
-**Action Items:**
-1. ? Change `RecordSpanDurations` ? `RecordSpanDuration` (singular)
-2. ? Update registration: `IActivityLoggingSampler` ? `IActivityLoggingFilter`
+#### Step 2: Update Service Registrations (if any)
+
+```csharp
+// OLD - Update these if you have custom registrations
+services.AddSingleton<IActivityLoggingSampler, NameBasedActivityLoggingSampler>();
+
+// NEW
+services.AddSingleton<IActivityLoggingFilter, OptionsBasedActivityLoggingFilter>();
+```
+
+#### Step 3: Test Your Application
+- Test activity logging with your configured patterns
+- Test metric recording if enabled
+- Verify wildcard patterns work correctly
 
 ---
 
-### For Advanced Users (Code-Level Changes)
+### For Advanced Users (Custom Implementations)
+
+If you've implemented custom filters, enrichers, or access interfaces directly:
 
 #### 1. Update Interface Implementations
 
+**Activity Logging:**
 ```csharp
 // OLD
-public class MyOptions : IDiginsightActivitiesMetricOptions
+public class MyActivityLoggingSampler : IActivityLoggingSampler
 {
-    public bool RecordSpanDurations { get; set; }
-    public string? MetricUnit { get; set; }  // Remove
+    public LogBehavior? GetLogBehavior(Activity activity)
+    {
+        // implementation
+    }
 }
 
 // NEW
-public class MyOptions : IMetricRecordingOptions
+public class MyActivityLoggingFilter : IActivityLoggingFilter
 {
-    public bool Record { get; set; }  // Renamed
-    // MetricUnit removed
+    public LogBehavior? GetLogBehavior(Activity activity)
+    {
+        // implementation
+    }
 }
 ```
 
-#### 2. Update Service Registration
+**Metric Enriching:**
+```csharp
+// OLD
+public class MyEnricher : IMetricRecordingEnricher
+{
+    public void Enrich(Activity activity, IDictionary<string, object?> tags)
+    {
+        tags["custom"] = "value";
+    }
+}
+
+// NEW - Changed to TagList
+public class MyEnricher : IMetricRecordingEnricher
+{
+    public void Enrich(Activity activity, TagList tags)
+    {
+        tags.Add("custom", "value");
+    }
+}
+```
+
+#### 2. Update Options Access
 
 ```csharp
 // OLD
-services.TryAddSingleton<IActivityLoggingSampler, NameBasedActivityLoggingSampler>();
+public class MyService
+{
+    private readonly IDiginsightActivitiesMetricOptions metricOptions;
+    
+    public MyService(IDiginsightActivitiesMetricOptions metricOptions)
+    {
+        this.metricOptions = metricOptions;
+        bool record = metricOptions.RecordSpanDurations;
+        string meter = metricOptions.MeterName;
+    }
+}
 
 // NEW
-services.TryAddSingleton<IActivityLoggingFilter, OptionsBasedActivityLoggingFilter>();
+public class MyService
+{
+    private readonly IMetricRecordingOptions metricOptions;
+    
+    public MyService(IMetricRecordingOptions metricOptions)
+    {
+        this.metricOptions = metricOptions;
+        bool record = metricOptions.Record;  // Renamed
+        string meter = metricOptions.MeterName;
+    }
+}
 ```
 
-#### 3. Update Direct Property Access
+#### 3. Update Class Names
 
-```csharp
-// OLD
-var level = logOptions.ActivityLogLevel;
-
-// NEW  
-var level = logOptions.LogLevel;
-```
+Replace all occurrences:
+- `NameBasedActivityLoggingSampler` → `OptionsBasedActivityLoggingFilter`
+- `NameBasedMetricRecordingFilter` → `OptionsBasedMetricRecordingFilter`
+- `NameBasedMetricRecordingFilterOptions` → `OptionsBasedMetricRecordingFilterOptions`
+- `DefaultMetricRecordingEnricher` → `OptionsBasedMetricRecordingEnricher`
 
 ---
 
 ## Testing Recommendations
 
-After upgrading to 3.7, test the following:
+After upgrading to 3.7, test the following scenarios:
 
 ### 1. Configuration Loading
 ```csharp
-// Verify configuration loads correctly
-var options = serviceProvider.GetRequiredService<IOptions<DiginsightActivitiesOptions>>().Value;
-Assert.Equal(LogBehavior.Hide, options.LogBehavior);
-Assert.True(options.RecordSpanDuration);
+[Fact]
+public void Configuration_Loads_Correctly()
+{
+    var options = serviceProvider
+        .GetRequiredService<IOptions<DiginsightActivitiesOptions>>()
+        .Value;
+        
+    Assert.Equal(LogBehavior.Hide, options.LogBehavior);
+    Assert.False(options.RecordSpanDuration);
+    Assert.Equal("MyApp", options.SpanDurationMeterName);
+}
 ```
 
-### 2. Activity Filtering
+### 2. Activity Filtering with Wildcards
 ```csharp
-// Test pattern matching works
-var filter = serviceProvider.GetRequiredService<IActivityLoggingFilter>();
-using var activity = activitySource.StartActivity("MyApp.Orders.ProcessOrder");
-var behavior = filter.GetLogBehavior(activity);
-Assert.Equal(LogBehavior.Show, behavior);
+[Fact]
+public void Activity_Filtering_Works_With_Wildcards()
+{
+    // Configure
+    options.ActivityNames["MyApp.Orders.*"] = true;
+    
+    var filter = serviceProvider.GetRequiredService<IActivityLoggingFilter>();
+    
+    using var activity = activitySource.StartActivity("MyApp.Orders.ProcessOrder");
+    var behavior = filter.GetLogBehavior(activity);
+    
+    Assert.Equal(LogBehavior.Show, behavior);
+}
 ```
 
 ### 3. Metric Recording
 ```csharp
-// Verify metrics are recorded correctly
-using var activity = activitySource.StartActivity("CriticalOperation");
-activity?.SetTag("customer_tier", "premium");
-activity?.Stop();
+[Fact]
+public async Task Metrics_Are_Recorded_Correctly()
+{
+    // Configure metric recording
+    options.RecordSpanDuration = true;
+    options.SpanDurationMeterName = "TestMeter";
+    
+    using var activity = activitySource.StartActivity("TestOperation");
+    await Task.Delay(100);
+    activity?.Stop();
+    
+    // Verify metric was recorded
+    var metrics = metricReader.GetMetrics();
+    Assert.Contains(metrics, m => m.Name == "diginsight.span_duration");
+}
+```
 
-// Check metric was recorded with correct tags
-// (use test metric exporter)
+### 4. HTTP Header Filtering (if using AspNetCore)
+```csharp
+[Fact]
+public async Task HTTP_Header_Filtering_Works()
+{
+    var request = new HttpRequestMessage(HttpMethod.Get, "/api/test");
+    request.Headers.Add("Activity-Recording", "true");
+    
+    var response = await client.SendAsync(request);
+    
+    // Verify activity was recorded based on header
+    Assert.True(response.IsSuccessStatusCode);
+    // Check metrics were recorded
+}
 ```
 
 ---
 
 ## Breaking Changes Summary
 
-| Change | Severity | Migration Required |
-|--------|----------|-------------------|
-| `IActivityLoggingSampler` ? `IActivityLoggingFilter` | ?? High | Yes - update registration |
-| `RecordSpanDurations` ? `RecordSpanDuration` | ?? Medium | Yes - update config |
-| `IDiginsightActivitiesMetricOptions` removed | ?? High | Yes - use `IMetricRecordingOptions` |
-| `ActivityLogLevel` property rename | ?? Low | Only if accessing via interface |
-| `MetricUnit` property removed | ?? Low | Remove if used |
+| Change | Severity | Commit | Migration Required |
+|--------|----------|--------|-------------------|
+| `IActivityLoggingSampler` → `IActivityLoggingFilter` | ❗ High | f8f4e9e | Yes - update all registrations |
+| `RecordSpanDurations` → `RecordSpanDuration` | ⚠️ Medium | f8f4e9e | Yes - update config files |
+| `IDiginsightActivitiesMetricOptions` removed | ❗ High | f8f4e9e | Yes - use `IMetricRecordingOptions` |
+| `ActivityLogLevel` → `LogLevel` property | ⚠️ Low | f8f4e9e | Only if accessing via interface |
+| `MetricUnit` property removed | ⚠️ Low | f8f4e9e | Remove if used |
+| `NameBased*` → `OptionsBased*` classes | ⚠️ Medium | af4121c | Yes - update class references |
+| `IMetricRecordingEnricher` signature changed | ⚠️ Medium | c0b4103 | Only for custom implementations |
+| `IDiginsightActivitiesSpanDurationOptions` → `IMetricRecordingOptions` | ⚠️ Medium | 24ce7db | Update interface references |
+| Metric property prefixes (`MeterName` → `SpanDurationMeterName`) | ⚠️ Medium | Multiple | Update configuration |
 
 ---
 
 ## Deprecations
 
-The following are now deprecated and will be removed in v4.0:
+The following are deprecated and will be removed in v4.0:
 
-- `IActivityLoggingSampler` - use `IActivityLoggingFilter`
-- `NameBasedActivityLoggingSampler` - use `OptionsBasedActivityLoggingFilter`
-- `IDiginsightActivitiesMetricOptions` - use `IMetricRecordingOptions`
+- ❌ `IActivityLoggingSampler` - use `IActivityLoggingFilter`
+- ❌ `NameBasedActivityLoggingSampler` - use `OptionsBasedActivityLoggingFilter`
+- ❌ `NameBasedMetricRecordingFilter` - use `OptionsBasedMetricRecordingFilter`
+- ❌ `IDiginsightActivitiesMetricOptions` - use `IMetricRecordingOptions`
+- ❌ `ObservabilityRegistry` - use `LoggerFactoryStaticAccessor`
+- ❌ `ICustomDurationMetricRecorderSettings` - use standard options
 
 ---
 
 ## Upgrade Checklist
 
-- [ ] Update NuGet packages to 3.7.x
-- [ ] Change `RecordSpanDurations` ? `RecordSpanDuration` in config
-- [ ] Update service registration: `IActivityLoggingSampler` ? `IActivityLoggingFilter`
-- [ ] Replace `IDiginsightActivitiesMetricOptions` with `IMetricRecordingOptions`
-- [ ] Remove `MetricUnit` property if used
-- [ ] Test activity filtering with your patterns
-- [ ] Test metric recording with your configuration
-- [ ] Update documentation referencing old interfaces
-- [ ] Run full regression test suite
+Use this checklist to ensure a smooth upgrade:
+
+- [ ] **Backup current configuration**
+- [ ] **Update NuGet packages** to 3.7.x
+- [ ] **Update configuration files:**
+  - [ ] Change `RecordSpanDurations` → `RecordSpanDuration`
+  - [ ] Add `SpanDuration` prefix to metric properties
+  - [ ] Remove `MetricUnit` if present
+- [ ] **Update service registrations:**
+  - [ ] Replace `IActivityLoggingSampler` with `IActivityLoggingFilter`
+  - [ ] Replace `NameBased*` with `OptionsBased*` classes
+- [ ] **Update custom implementations** (if any):
+  - [ ] Migrate `IMetricRecordingEnricher` to use `TagList`
+  - [ ] Update `IActivityLoggingFilter` implementations
+  - [ ] Replace deprecated interfaces
+- [ ] **Update code accessing interfaces directly:**
+  - [ ] Replace `ActivityLogLevel` with `LogLevel`
+  - [ ] Replace `IDiginsightActivitiesMetricOptions` with `IMetricRecordingOptions`
+- [ ] **Run tests:**
+  - [ ] Test configuration loading
+  - [ ] Test activity filtering (especially wildcards)
+  - [ ] Test metric recording
+  - [ ] Test HTTP header filtering (if applicable)
+- [ ] **Update documentation:**
+  - [ ] Update code samples
+  - [ ] Update configuration examples
+  - [ ] Update Getting Started guides
+- [ ] **Deploy to test environment**
+- [ ] **Run regression tests**
+- [ ] **Deploy to production**
+
+---
+
+## Benefits of This Release
+
+### 1. Improved Architecture
+- **Unified metric recording**: Consistent filter and enricher pattern
+- **Better separation of concerns**: Clear responsibilities for each component
+- **Enhanced extensibility**: Easier to implement custom behaviors
+
+### 2. Better Naming Consistency
+- **OptionsBased prefix**: Clear indication of options-driven components
+- **Filter vs Sampler**: More accurate terminology
+- **Property prefixes**: Clear indication of property purpose
+
+### 3. Enhanced Functionality
+- **Fixed critical bugs**: Activity and ActivitySource filtering now works correctly
+- **Improved performance**: Optimized metric recording
+- **Better reliability**: Fixed edge cases in configuration and text rendering
+
+### 4. Modernized Codebase
+- **C# 14 features**: Leverages latest language improvements
+- **New solution format**: Modern .slnx format
+- **Polyfills updated**: Better compatibility across frameworks
+
+### 5. Improved Maintainability
+- **Flattened structure**: Files easier to find
+- **Consistent naming**: OptionsBased prefix throughout
+- **Deleted obsolete code**: Removed unused classes and interfaces
 
 ---
 
 ## Resources
 
-- [Configuration Documentation](../01.%20Concepts/01.00%20-%20Configure%20diginsight%20telemetry%20to%20the%20local%20text%20based%20streams.md)
+- [Diginsight Documentation](../../README.md)
+- [Configuration Guide](../01.%20Concepts/01.00%20-%20Configure%20diginsight%20telemetry%20to%20the%20local%20text%20based%20streams.md)
 - [OpenTelemetry Integration](../01.%20Concepts/02.00%20-%20HowTo%20-%20configure%20diginsight%20telemetry%20to%20the%20remote%20tools.md)
-- [GitHub Release](https://github.com/diginsight/telemetry/releases/tag/v3.7)
-- [Migration Support](https://github.com/diginsight/telemetry/discussions)
+- [GitHub Repository](https://github.com/diginsight/telemetry)
+- [Release Notes on GitHub](https://github.com/diginsight/telemetry/releases/tag/v3.7.0.0)
+- [Discussions Forum](https://github.com/diginsight/telemetry/discussions)
+
+---
+
+## Getting Help
+
+If you encounter issues during migration:
+
+1. **Check this changelog** for breaking changes specific to your scenario
+2. **Review the migration guide** for your use case
+3. **Search existing issues** on GitHub
+4. **Ask in discussions** forum
+5. **Create an issue** with:
+   - Version you're migrating from
+   - Specific error messages
+   - Configuration files
+   - Code samples showing the problem
 
 ---
 
 ## Acknowledgments
 
 Special thanks to all contributors who made this release possible:
-- Enhanced metric recording architecture
-- Improved configuration flexibility
-- Better code organization and maintainability
-- Comprehensive bug fixes
 
-For questions or issues, please visit our [GitHub repository](https://github.com/diginsight/telemetry) or [discussions forum](https://github.com/diginsight/telemetry/discussions).
+- **Filippo Mineo** - Lead developer and architect
+- All community members who reported issues and provided feedback
+- Contributors who tested alpha releases
+
+This release represents months of careful refactoring and testing to deliver a more consistent, maintainable, and reliable telemetry framework.
+
+---
+
+**Release Tag:** [v3.7.0.0](https://github.com/diginsight/telemetry/releases/tag/v3.7.0.0)  
+**Previous Release:** [v3.6.0.0-alpha.6](https://github.com/diginsight/telemetry/releases/tag/v3.6.0.0-alpha.6)  
+**Next Release:** v3.8.0.0 (planned)
