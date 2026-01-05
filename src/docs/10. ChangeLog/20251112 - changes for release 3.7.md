@@ -7,7 +7,13 @@
 
 ## Changes Overview
 
-This release includes **significant architectural improvements** focused on unifying and simplifying metric recording infrastructure. The changes introduce a new filter and enricher-based architecture for metric recording, reorganize project files for better maintainability, and fix critical issues in Activity and ActivitySource filtering. Release 3.7.0.0 represents the culmination of work through alpha versions 3.6.0.0-alpha.1 through alpha.6, delivering a more consistent, flexible, and maintainable telemetry framework.
+This release includes **significant architectural improvements** focused on unifying and simplifying metric recording infrastructure.  
+The changes 
+- introduce a new **filter** and **enricher**-based architecture for **metric recording**
+- **reorganize project files** for better maintainability, and
+- **fix** critical issues in **Activity and ActivitySource filtering**.  
+
+Release 3.7.0.0 represents the culmination of work through alpha versions 3.6.0.0-alpha.1 through alpha.6, delivering a <mark>more consistent, flexible, and maintainable</mark> telemetry framework.
 
 ### Key Changes Summary
 
