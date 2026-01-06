@@ -1,127 +1,202 @@
-# Global GitHub Copilot Instructions for Learning Documentation Site
+# Diginsight Telemetry - Copilot Instructions
 
-## Purpose
-This repository is a **learning and personal development documentation site** focused on creating high-quality, accurate, and accessible educational content.
+## Repository Overview
 
-## Core Principles
+**Diginsight Telemetry** is a .NET observability library providing automatic, comprehensive application flow tracing through standard `ILogger<>` and `System.Diagnostics.Activity` APIs. It integrates with OpenTelemetry, supports dynamic logging/configuration, and targets netstandard2.0+ through .NET 8+.
 
-### Dual Metadata Block Structure
-**All articles use two metadata blocks for clean separation:**
+## Architecture
 
-1. **Top YAML Block** (Quarto Metadata):
-   - Location: Beginning of file (lines 1-X)
-   - Format: Standard YAML frontmatter (`---` delimiters)
-   - Contains: `title`, `author`, `date`, `categories`, `description`
-   - Purpose: Quarto rendering and site generation
-   - Visibility: Visible in source, used by Quarto
-   - Modified by: Authors manually (NOT by validation prompts or watcher)
-   
-2. **Bottom HTML Comment Block with YAML** (Article additional metadata):
-   - Location: End of file (after References section)
-   - Format: HTML comment containing YAML (`<!-- \n---\nYAML\n---\n-->`)
-   - Contains: `validations`, `article_metadata`, `cross_references`
-   - Purpose: Quality tracking, analytics, cross-referencing
-   - Visibility: **Completely hidden from rendered output**
-   - Modified by: Validation prompts and content management tools (eg.IQPilot)
+### Multi-Package Structure
+The solution is organized into distinct NuGet packages under `src/`:
 
-**Critical Rules:**
-- ❌ Validation prompts must NEVER modify top YAML block
-- ✅ Validation prompts update only their section in bottom metadata
-- ✅ IQPilot tools updates `article_metadata.filename` in bottom metadata
-- ✅ Bottom metadata wrapped in HTML comment for complete invisibility
-- ✅ All metadata travels with the article 
+**Core Packages:**
+- **Diginsight.Core**: Foundation - class-aware options, enhanced DI, logging infrastructure, volatile configuration
+- **Diginsight.Diagnostics**: Activity lifecycle logging, console formatters, metrics collection, timing infrastructure
+- **Diginsight.Stringify**: Object rendering for logs - customizable stringification with depth control
+- **Diginsight.Json**: JSON utilities for structured data handling
 
-**Example Structure:**
-```markdown
----
-title: "Article Title"
-author: "Author Name"
-date: "2025-11-21"
----
+**Platform Integration:**
+- **Diginsight.AspNetCore**: ASP.NET Core integration - dynamic logging via HTTP headers, context propagation
+- **Diginsight.Diagnostics.AspNetCore**: ASP.NET-specific diagnostic features
+- **Diginsight.Diagnostics.OpenTelemetry**: OpenTelemetry bridge - tracers, meters, exporters
+- **Diginsight.Diagnostics.AspNetCore.OpenTelemetry**: ASP.NET + OpenTelemetry integration
+- **Diginsight.Diagnostics.Log4Net**: Log4Net adapter with Diginsight layout
 
-# Article Content
+**Specialized:**
+- **Diginsight.Atomify**: JSON composition helpers (Newtonsoft.Json & System.Text.Json)
+- **Diginsight.Polyfills**: Compatibility shims for older .NET versions
 
-...
+### Key Architectural Patterns
 
-<!-- 
----
-validations:
-  grammar: {...}
-article_metadata:
-  filename: "article.md"
----
--->
+**1. Activity-Based Tracing:**
+All telemetry flows through `System.Diagnostics.Activity`. Extensions in `ActivitySourceExtensions` provide fluent APIs:
+```csharp
+using Activity activity = activitySource.StartMethodActivity(logger, payload: new { userId, orderId });
 ```
 
-See `.copilot/context/dual-yaml-helpers.md` for complete parsing guidelines.
+**2. Class-Aware Configuration:**
+Options can vary by calling class context via `IClassAwareOptions<T>`. Enable with `services.AddClassAwareOptions()`. This powers component-level feature flags and per-class log levels.
 
-**Note on Metadata:** Some articles may contain an HTML comment block at the end with YAML metadata managed by validation tools. This metadata tracks validation history and quality metrics. Validation prompts should update only this bottom metadata block, never the top YAML frontmatter.
+**3. Deferred/Early Logging:**
+Before DI container is built, use `DeferredLoggerFactory` and `DeferredActivityLifecycleLogEmitter`. They buffer events and flush to real implementations once available via `FlushOnCreateServiceProvider()`.
 
-### Content Quality Standards
-- **Accuracy First**: Always verify facts against authoritative sources before publishing
-- **Citation Required**: Include references section with links to all sources used
-- **Up-to-Date Information**: Check that information is current; flag outdated content
-- **Evidence-Based**: Support claims with verifiable evidence or documentation
+**4. Dynamic Configuration:**
+Options implementing `IDynamicallyConfigurable` can change at runtime without app restart. Paired with `VolatileConfiguration` system for HTTP header-driven config overrides.
 
-### Writing Standards
-- **Clarity**: Use clear, concise language appropriate for the target audience
-- **Structure**: Follow standard article templates with TOC, introduction, body, conclusion, and references
-- **Consistency**: Maintain consistent terminology, formatting, and style across articles
-- **Readability**: Aim for Grade 9-10 reading level unless technical depth requires higher complexity
-- **Non-Redundancy**: Avoid repeating information; link to existing content instead
+## Essential Setup Patterns
 
-### Technical Standards
-- **Markdown Format**: All content in Markdown with proper heading hierarchy
-- **Code Examples**: Include syntax highlighting, explanations, and working examples
-- **Accessibility**: Use descriptive link text, alt text for images, and semantic HTML
-- **Cross-References**: Link related articles and maintain series navigation
+### Basic Diginsight Integration
+```csharp
+// Program.cs or Startup.cs
+var builder = WebApplication.CreateBuilder(args);
 
-### Validation Requirements
-- Check grammar and spelling before finalizing content
-- Verify logical flow and concept connections
-- Ensure all required sections are present (TOC, references, etc.)
-- Validate metadata is complete and up-to-date
-- Run fact-checking against official documentation sources
+// Enable enhanced DI with validation
+builder.UseDiginsightServiceProvider(validateInDevelopment: true);
 
-### Metadata Management
-- Metadata may be embedded in articles using dual YAML blocks
-- Top YAML: Document properties (title, author, date) - manual only
-- Bottom YAML (in HTML comment): Article additional metadata - updated by validation prompts
-- Automatic sync: Some tools may update filename on rename
+// Add core diagnostics (activity logging + class-aware options)
+builder.Logging.AddDiginsightCore();
 
-## Tools and Automation
-- Use prompt files from `.github/prompts/` for consistent automation
-- Follow templates from `.github/templates/` for new content
-- Reference context materials in `.copilot/context/` for guidance
-- Leverage validation caching to avoid redundant checks
-- Use PowerShell scripts in `.copilot/scripts/` for programmatic tasks
+// Console output with Diginsight formatting
+builder.Logging.AddDiginsightConsole();
 
-## Preferred Models and Modes
-- Default to Claude Sonnet 4.5 for complex analysis and generation
-- Use agent mode for multi-step workflows
-- Use ask mode for analysis and review tasks
-- Use edit mode for inline content improvements
+// Span duration metrics
+builder.Services.AddSpanDurationMetricRecorder();
+```
 
-## When Creating Content
-1. Start with appropriate template from `.github/templates/`
-2. Initialize metadata file using `metadata-init` prompt
-3. Draft content following structure guidelines
-4. Run validation prompts (grammar, readability, structure)
-5. Verify facts using `fact-checking` prompt
-6. Update metadata with validation results
-7. Check for gaps and logical flow
-8. Run final `publish-ready` checklist
+### Dynamic Logging via HTTP Headers
+```csharp
+// In ASP.NET Core projects, enable log level overrides:
+services.Configure<DiginsightDistributedContextOptions>(options =>
+{
+    // Exclude these from baggage propagation:
+    options.NonBaggageKeys.Add("Log-Level");
+    options.NonBaggageKeys.Add("Metric-Recording-Enabled");
+});
+```
+Clients can then send `Log-Level: Debug` headers to get detailed traces for specific requests on live environments.
 
-## When Reviewing Content
-1. Check metadata for last validation dates
-2. Skip validations if article unchanged and recent
-3. Focus on modified sections for efficiency
-4. Update metadata with new validation results
-5. Suggest improvements with clear rationale
-6. Maintain constructive, educational tone
+### OpenTelemetry Integration
+```csharp
+// Add Diginsight to OpenTelemetry pipeline:
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracing => tracing
+        .AddDiginsight() // Registers Diginsight activity sources
+        .AddAzureMonitorTraceExporter())
+    .WithMetrics(metrics => metrics
+        .AddDiginsight() // Registers span_duration meters
+        .AddAzureMonitorMetricExporter());
 
-## File Organization
-- Articles stored in subject-specific folders (e.g., `tech/`, `howto/`)
-- Metadata files adjacent to articles (`.metadata.yml`)
-- Images in article-specific subdirectories
-- Series navigation maintained in parent folders
+builder.Logging.AddDiginsightOpenTelemetry();
+```
+
+## Development Workflows
+
+### Building
+Standard .NET SDK commands from `src/`:
+```bash
+dotnet build Diginsight.slnx
+dotnet test
+```
+
+Build configuration in `Directory.Build.props`:
+- LangVersion: `preview`
+- Nullable: `enable`
+- Package lock files enabled
+- Suppressed warnings: CA2255, IDE0051, IDE0290
+
+### Testing
+Test projects follow convention: `<PackageName>.Tests` (not shown in structure but standard pattern).
+
+### Debugging
+Enable full observability during development:
+```json
+// appsettings.Development.json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Trace",
+      "Diginsight": "Debug"
+    }
+  },
+  "Diginsight": {
+    "Activities": {
+      "LogActivities": true,
+      "ActivitySources": { "*": true }
+    }
+  }
+}
+```
+
+### Documentation Site
+Root-level Quarto site (`docs/` output from `*.md` sources). Build with:
+```bash
+quarto render
+```
+
+Markdown articles in `src/docs/` with dual metadata structure (top YAML for Quarto, bottom HTML comment for validation tracking).
+
+## Coding Conventions
+
+### Dependency Injection Extensions
+- Place in `<ProjectName>Extensions` classes marked `[EditorBrowsable(EditorBrowsableState.Never)]`
+- Chain setup: `AddDiginsightCore()` → `AddDiginsightConsole()` / `AddDiginsightOpenTelemetry()`
+- Use `TryAdd*` for non-destructive registration
+- Core always calls `.AddClassAwareOptions()` and `.AddActivityListenersAdder()`
+
+### Activity Logging Pattern
+```csharp
+// Standard method activity wrapper:
+using Activity? activity = activitySource.StartMethodActivity(logger);
+try
+{
+    // Work here
+    activity?.SetOutput(result); // Optional
+    return result;
+}
+catch (Exception ex)
+{
+    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+    throw;
+}
+```
+
+### Options Classes
+- Implement interfaces from `Diginsight.Options` namespace
+- Volatile options: implement `IVolatileConfiguration`
+- Class-aware: no special interface, just configure with `services.Configure<TOptions>()`
+- Dynamic: implement `IDynamicallyConfigurable` + call `services.FlagAsDynamic<TOptions>(name)`
+
+### Logging
+Use interpolated string handlers for structured logging (net7.0+):
+```csharp
+logger.LogDebug($"Processing order {orderId} for user {userId}");
+// Auto-captures as structured properties, not concatenated string
+```
+
+## Key Files and References
+
+- [`src/Diginsight.Core/Extensions/DependencyInjectionExtensions.cs`](src/Diginsight.Core/Extensions/DependencyInjectionExtensions.cs) - Core DI setup
+- [`src/Diginsight.Diagnostics/DependencyInjectionExtensions.cs`](src/Diginsight.Diagnostics/DependencyInjectionExtensions.cs) - Diagnostics registration
+- [`src/Diginsight.Diagnostics/ActivitySourceExtensions.cs`](src/Diginsight.Diagnostics/ActivitySourceExtensions.cs) - Activity creation fluent API
+- [`src/Diginsight.Core/Options/`](src/Diginsight.Core/Options/) - Class-aware options implementation
+- [`src/docs/00. Getting Started/Getting Started.md`](src/docs/00. Getting Started/Getting Started.md) - Integration walkthrough
+- [`src/docs/01. Concepts/`](src/docs/01. Concepts/) - Architecture and feature explanations
+
+## Cross-Cutting Concerns
+
+- **W3C Trace Context**: Full support via OpenTelemetry integration; TraceIds preserved across services
+- **Performance**: Dynamic compilation, intelligent sampling, automatic truncation to minimize overhead
+- **Multi-Framework**: Single codebase targets netstandard2.0 through net8.0+ using conditional compilation
+- **Backward Compat**: Polyfills package provides missing APIs for older frameworks
+
+## Documentation Articles (Dual Metadata)
+
+Articles in `src/docs/` use dual YAML metadata blocks:
+1. **Top YAML** (lines 1-X): Quarto frontmatter (`title`, `author`, `date`, `categories`) - edit manually only
+2. **Bottom HTML Comment** (after References): Validation tracking (`validations`, `article_metadata`) - updated by validation tools
+
+When working with documentation:
+- Never modify top YAML block via automated tools
+- Update bottom metadata block for validation results only
+- Maintain consistent article structure (TOC, body, references)
+
