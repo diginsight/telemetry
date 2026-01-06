@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 
 namespace Diginsight;
 
@@ -181,13 +181,15 @@ public static class CollectionExtensions
         if (collection is null)
             throw new ArgumentNullException(nameof(collection));
 
+        IEnumerable<T> itemsToAdd = collection.Except(target);
+
         if (target is List<T> list)
         {
-            list.AddRange(collection);
+            list.AddRange(itemsToAdd);
         }
         else
         {
-            foreach (T item in collection)
+            foreach (T item in itemsToAdd)
             {
                 target.Add(item);
             }
