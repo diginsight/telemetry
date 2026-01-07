@@ -54,11 +54,17 @@ mark,
   background-color: var(--bs-highlight-bg) !important;
 }
 
-/* Hide redundant h1 when it matches the page title */
-/* Only hide h1 that appears in the content AFTER the title block */
-#quarto-content .quarto-title-block ~ * h1:first-child,
-#quarto-content article > h1:first-of-type {
+/* Hide redundant h1 ONLY when Quarto title block is present */
+/* This prevents hiding the H1 when it's the only title (no YAML frontmatter) */
+.quarto-title-block ~ * h1:first-child,
+.quarto-title-block ~ article > h1:first-of-type {
   display: none !important;
+}
+
+/* Don't hide H1 if there's no title block (no frontmatter) */
+body:not(:has(.quarto-title-block)) article > h1:first-of-type,
+body:not(:has(.quarto-title-block)) #quarto-content h1:first-child {
+  display: block !important;
 }
 
 /* CRITICAL: Prevent .list-unstyled (used by sidebar) from getting bullets */
