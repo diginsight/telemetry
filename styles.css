@@ -73,8 +73,7 @@ ul.list-unstyled li,
   list-style-image: none !important;
 }
 
-/* Ensure sidebar navigation has NO bullets - CRITICAL FIX */
-/* Target all possible sidebar list structures */
+/* Ensure LEFT sidebar navigation has NO bullets */
 .sidebar-menu-container ul,
 .sidebar-menu-container ul li,
 .sidebar-menu-container .list-unstyled,
@@ -92,7 +91,6 @@ ul.list-unstyled.sidebar-section li,
 .sidebar-section ul li,
 nav[role="navigation"] ul,
 nav[role="navigation"] ul li,
-/* Also target by attribute for Quarto sidebars */
 [class*="sidebar"] ul,
 [class*="sidebar"] ul li {
   list-style-type: none !important;
@@ -100,26 +98,46 @@ nav[role="navigation"] ul li,
   list-style-image: none !important;
 }
 
-/* Fix bullet list rendering in Quarto - only in main content, not sidebar */
-/* Explicitly EXCLUDE .list-unstyled from this rule */
-#quarto-content ul:not(.list-unstyled) {
+/* Ensure RIGHT sidebar (TOC) has NO bullets */
+#TOC ul,
+#TOC ul li,
+#quarto-margin-sidebar ul,
+#quarto-margin-sidebar ul li,
+nav[role="doc-toc"] ul,
+nav[role="doc-toc"] ul li,
+.toc-active ul,
+.toc-active ul li {
+  list-style-type: none !important;
+  list-style: none !important;
+  list-style-image: none !important;
+}
+
+/* Fix bullet list rendering in Quarto - ONLY in main article content */
+/* Target specifically article content, not sidebars */
+article ul:not(.list-unstyled),
+#quarto-document-content ul:not(.list-unstyled),
+.page-columns ul:not(.list-unstyled):not(#TOC ul):not(.sidebar-section) {
   list-style-type: disc !important;
   padding-left: 2em !important;
   margin-bottom: 1em !important;
 }
 
-#quarto-content ul:not(.list-unstyled) li {
+article ul:not(.list-unstyled) li,
+#quarto-document-content ul:not(.list-unstyled) li,
+.page-columns ul:not(.list-unstyled):not(#TOC ul):not(.sidebar-section) li {
   display: list-item !important;
   list-style-type: disc !important;
   margin-bottom: 0.5em !important;
 }
 
-/* Nested lists */
-#quarto-content ul:not(.list-unstyled) ul:not(.list-unstyled) {
+/* Nested lists in content */
+article ul:not(.list-unstyled) ul:not(.list-unstyled),
+#quarto-document-content ul:not(.list-unstyled) ul:not(.list-unstyled) {
   list-style-type: circle !important;
   margin-top: 0.5em !important;
 }
 
-#quarto-content ul:not(.list-unstyled) ul:not(.list-unstyled) ul:not(.list-unstyled) {
+article ul:not(.list-unstyled) ul:not(.list-unstyled) ul:not(.list-unstyled),
+#quarto-document-content ul:not(.list-unstyled) ul:not(.list-unstyled) ul:not(.list-unstyled) {
   list-style-type: square !important;
 }

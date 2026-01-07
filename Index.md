@@ -73,7 +73,7 @@ The following image shows the __Azure Monitor Metrics__ dashboard where method i
 # Learn more
 
 The following articles provide __easy steps to integrate diginsight into our code__, how to __configure telemetry for the local text based streams__ and how to __configure telemetry for the remote analysis tools__.<br>
-Also, details are provided to use its relevant features such as __Dynamic configuration__ and __Dynamic Logging__.<br>
+Also, details are provided to use its relevant features such as __<mark>Dynamic configuration</mark>__ and __<mark>Dynamic Logging</mark>__.<br>
 
 Example code used in the articles is also available in the [telemetry.samples](https://github.com/diginsight/telemetry.samples) repository.
 
