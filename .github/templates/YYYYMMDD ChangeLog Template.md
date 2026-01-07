@@ -1,492 +1,331 @@
 # Changes for Release [Version]
 
 **Release Date:** [YYYYMMDD]  
-**Commit Range:** `[start-commit]` ? `[end-commit]`
+**Commit Range:** `[start-commit]` → `[end-commit]`  
+**Previous Version:** [Version]
 
 ---
 
 ## Table of Contents
 
-- [📋 Changes Overview](#changes-overview)
-- [🔍 Changes Analysis](#changes-analysis)
-  - [⚙️ Configuration Schema Updates](#1-configuration-schema-updates)
-  - [🏗️ Architectural Improvements](#2-architectural-improvements)
-  - [✨ Feature Enhancements](#3-feature-enhancements)
-  - [🐛 Bug Fixes](#4-bug-fixes)
-  - [🛠️ Development Updates](#5-development-updates)
-- [🔄 Migration Guide](#migration-guide)
-- [✅ Testing Recommendations](#testing-recommendations)
-- [⚠️ Breaking Changes Summary](#breaking-changes-summary)
-- [🚨 Deprecations](#deprecations)
-- [☑️ Upgrade Checklist](#upgrade-checklist)
-- [📚 Resources](#resources)
-- [🙏 Acknowledgments](#acknowledgments)
+- [📋 Overview](#-overview)
+- [🔄 Changes Summary](#-changes-summary)
+  - [🔴 Breaking Changes](#-breaking-changes)
+  - [✨ What's New](#-whats-new)
+  - [🐛 Bug Fixes](#-bug-fixes)
+- [🚀 Migration Guide](#-migration-guide)
+- [✅ Testing Recommendations](#-testing-recommendations)
+- [☑️ Upgrade Checklist](#-upgrade-checklist)
+- [📚 Resources](#-resources)
+- [🙏 Acknowledgments](#-acknowledgments)
+- [📖 Appendix A: Detailed Commit History](#-appendix-a-detailed-commit-history)
 
 ---
 
-## 📋 Changes Overview
+## 📋 Overview
 
-This release includes [brief summary of release focus - e.g., "significant architectural improvements, bug fixes, and enhanced metric recording capabilities"]. The changes focus on [key themes].
+[3-4 sentences maximum - neutral, factual tone]
 
-### Key Changes Summary
+Version [X.X.X] [consolidates|updates|changes] [area of focus]. This release includes [breaking|non-breaking] changes to [specific components].
 
-1. **Configuration Schema Updates**
-   - [High-level summary of config changes]
-   - [Key property renames or additions]
-   - [Interface consolidations]
+**Key changes:**
+- [Change 1 - brief, factual]
+- [Change 2 - brief, factual]
+- [Change 3 - brief, factual]
+- [Change 4 - brief, factual]
+- [Change 5 - brief, factual - max 5 bullets]
 
-2. **Architectural Improvements**
-   - [Major refactorings]
-   - [Folder reorganizations]
-   - [Design pattern implementations]
-
-3. **Feature Enhancements**
-   - [New features]
-   - [Enhanced capabilities]
-   - [Performance improvements]
-
-4. **Bug Fixes**
-   - [Critical fixes]
-   - [Stability improvements]
-   - [Edge case resolutions]
-
-5. **Development Updates**
-   - [Build system changes]
-   - [Tool/SDK updates]
-   - [Code modernization]
-
-6. **Dependency Updates** (if applicable)
-   - [Framework upgrades]
-   - [Library updates]
+**Action required:** See [Changes Summary](#-changes-summary) and [Migration Guide](#-migration-guide).
 
 ---
 
-## 🔍 Changes Analysis
+## 🔄 Changes Summary
 
-### 1. ⚙️ Configuration Schema Updates
+**Release:** [X.X.X]  
+**Type:** [Breaking|Non-Breaking] Changes  
+**Migration Effort:** [Estimated - e.g., "5-15 minutes for config-only users, 30 minutes for custom implementations"]
 
-#### 1.1 [Specific Configuration Change Title]
+---
 
-**What Changed:**
+### 🔴 Breaking Changes
 
-```csharp
-// BEFORE
-public interface I[Name]
-{
-    [Type] [OldPropertyName] { get; }  // ? [Description of old property]
-    [Type] [Property2] { get; }
-}
+| Category | Old | New | Affected Users | Impact |
+|----------|-----|-----|----------------|--------|
+| Interface | `IOldName` | <mark>`INewName`</mark> | Custom implementations | High |
+| Property | `OldProperty` | <mark>`NewProperty`</mark> | Config files | Medium |
+| Class | `OldClass` | <mark>`NewClass`</mark> | Service registrations | Medium |
 
-// AFTER
-public interface I[Name]
-{
-    [Type] [NewPropertyName] { get; }  // ? [Description: renamed from OldPropertyName]
-    [Type] [Property2] { get; }
-    [Type] [NewProperty] { get; }      // ? NEW: [Description]
-}
-```
+**Impact Legend:**
+- **High**: Immediate action required - code will not compile
+- **Medium**: Action required - runtime errors if not updated  
+- **Low**: Optional - backward compatibility maintained
 
-**Why Changes Were Applied:**
-- **[Reason 1]**: [Technical justification]
-- **[Reason 2]**: [Benefits provided]
-- **[Reason 3]**: [Problems solved]
-- **[Reason 4]**: [Standards compliance]
+**Quick Migration Reference:**
 
-**Impact on Applications:**
-- ? **JSON Configuration**: [Description of impact - e.g., "No breaking changes - backward compatible"]
-- ?? **Code accessing interface directly**: [Description of required changes]
-- ?? **Critical changes**: [Description of major impacts]
-
-```csharp
-// Migration needed if [condition]
-// OLD
-[Old code example]
-
-// NEW
-[New code example]
-```
-
-**Configuration Migration:**
+> **Note:** In tables, new syntax is highlighted with <mark>highlighting</mark>. In code blocks, look for `← NEW` comment markers.
 
 ```json
-// OLD
+// Configuration changes
 {
-  "[Section]": {
-    "[OldProperty]": "[value]"
-  }
-}
-
-// NEW (recommended)
-{
-  "[Section]": {
-    "[NewProperty]": "[value]",  // Renamed
-    "[AddedProperty]": "[default]"  // NEW - with default
-  }
+  "OldProperty": "value",      // ❌ Remove
+  "NewProperty": "value"       // ✅ NEW
 }
 ```
 
----
-
-#### 1.2 [Another Configuration Change]
-
-[Follow same structure as 1.1]
-
----
-
-### 2. 🏗️ Architectural Improvements
-
-#### 2.1 [Architectural Change Title]
-
-**What Changed:**
-- [Change description]
-- [Files affected]
-- [Structural changes]
-
-**Files Affected:**
-
-| Old Path | New Path |
-|----------|----------|
-| `[old/path/file.cs]` | `[new/path/file.cs]` |
-| `[old/path/file2.cs]` | `[new/path/file2.cs]` |
-
-**Why Changes Were Applied:**
-- **[Reason 1]**: [Explanation]
-- **[Reason 2]**: [Benefits]
-- **[Reason 3]**: [Improvements]
-
-**Impact on Applications:**
-- ? **No breaking changes**: [Explanation]
-- ? **Namespace changes handled automatically**: [Details]
-
----
-
-#### 2.2 [Another Architectural Change]
-
-**What Changed:**
-- [High-level description]
-- [Component restructuring details]
-
-**New Architecture:**
-
-```
-[ComponentName]/
-??? [Folder1]/
-?   ??? [File1.cs]           (description)
-?   ??? [File2.cs]           (description)
-??? [Folder2]/
-?   ??? [File3.cs]           (description)
-?   ??? [File4.cs]           (description)
+```csharp
+// Code changes
+// OLD → NEW
+IOldInterface → INewInterface  // ← NEW
+OldClass → NewClass            // ← NEW
 ```
 
-**Why Changes Were Applied:**
-- **[Reason 1]**: [Benefits]
-- **[Reason 2]**: [Improvements]
-- **[Reason 3]**: [Enhanced capabilities]
+---
 
-**Impact on Applications:**
-- ? **[Impact type]**: [Description]
-- ? **[Another impact]**: [Description]
+### ✨ What's New
 
-**New Configuration Options:**
+**New Features:**
+
+**[Feature name]** - [Brief, neutral description]
+- **Use case:** [When to use - factual]
+- **Example:**
+  ```csharp
+  // Usage example
+  [Code]
+  ```
+
+**Improvements:**
+
+- **[Area]**: [Description - no marketing language]
+- **[Performance]**: [Metric if available - e.g., "30% faster"]
+- **[Compatibility]**: [Framework/version support - factual]
+
+---
+
+### 🐛 Bug Fixes
+
+**Critical:**
+
+- **[Bug]**: [What was fixed - factual] - See [commit hash or appendix reference]
+
+**Minor:**
+
+- **[Bug]**: [What was fixed - brief]
+- **[Bug]**: [What was fixed - brief]
+
+---
+
+## 🚀 Migration Guide
+
+### Quick Check: Do You Need to Migrate?
+
+**✅ No action needed if:**
+- Using default configuration only
+- No custom filter/enricher implementations
+- No direct interface usage
+
+**⚠️ Action required if:**
+
+| Scenario | Old Code | New Code |
+|----------|----------|----------|
+| Custom implementations | `IOldInterface` | <mark>`INewInterface`</mark> |
+| Configuration properties | `OldProperty` | <mark>`NewProperty`</mark> |
+| Service registrations | `OldClass` | <mark>`NewClass`</mark> |
+| Deleted interfaces | `IDeletedInterface` | Removed - see migration |
+
+> Review each scenario above. If you use any "Old Code" pattern, migration is required.
+
+---
+
+### For Config-Only Users
+
+**Estimated time:** 5-10 minutes
+
+#### Step 1: Update Configuration Properties
 
 ```json
+// OLD - Remove these
 {
-  "[NewConfigSection]": {
-    "[Property1]": {
-      "[SubProperty1]": [value],
-      "[SubProperty2]": [value]
-    }
-  }
+  "OldProperty": "value",          // ❌ Remove
+  "AnotherOldProperty": "value"    // ❌ Remove
+}
+
+// NEW - Use these  
+{
+  "NewProperty": "value",          // ✅ NEW
+  "AnotherNewProperty": "value"    // ✅ NEW
 }
 ```
 
----
+#### Step 2: Test Application
 
-### 3. ✨ Feature Enhancements
+```bash
+# Run application
+dotnet run
 
-#### 3.1 [Feature Enhancement Title]
-
-**What Changed:**
-[Description of the enhancement]
-
-**Before ([old behavior]):**
-```[language]
-// [Description of old way]
-[Old code example]
-```
-
-**After ([new capability]):**
-```[language]
-// [Description of new way]
-[New code example]
-```
-
-**Why Changes Were Applied:**
-- **[Reason 1]**: [User benefit]
-- **[Reason 2]**: [Convenience improvement]
-- **[Reason 3]**: [Flexibility enhancement]
-
-**Implementation:**
-```csharp
-// [Description of how it works internally]
-[Implementation code snippet]
-```
-
-**Format Rules:**
-- [Rule 1]: [Description]
-- [Rule 2]: [Description]
-- [Rule 3]: [Description]
-
-**Impact on Applications:**
-- ? **Fully backward compatible**: [Explanation]
-- ? **Optional feature**: [How to adopt]
-
----
-
-#### 3.2 [Another Feature Enhancement]
-
-**What Changed:**
-[Description]
-
-```csharp
-public [class/interface] [Name]
-{
-    [New member declarations]
-}
-```
-
-**Why Changes Were Applied:**
-- **[Reason 1]**: [Benefit]
-- **[Reason 2]**: [Improvement]
-- **[Reason 3]**: [Capability]
-
-**Impact on Applications:**
-- ? **No breaking changes**: [Details]
-- ? **Optional feature**: [Usage guidance]
-
-**Usage Example:**
-```csharp
-// [Description of usage scenario]
-[Code example]
+# Verify configuration loads
+# Check for warnings in logs
 ```
 
 ---
 
-### 4. 🐛 Bug Fixes
+### For Advanced Users
 
-#### 4.1 [Bug Fix Title] (Commit [hash])
-
-**What Was Fixed:**
-- [Issue description]
-- [Error conditions resolved]
-- [Edge cases handled]
-
-**Why Fix Was Needed:**
-- [Problem encountered]
-- [User impact]
-- [System behavior issue]
-
-**Impact:**
-- ? **Reliability improvement**: [Description]
-- ? **Better [aspect]**: [Details]
-
----
-
-#### 4.2 [Another Bug Fix] (Commit [hash])
-
-[Follow same structure as 4.1]
-
----
-
-### 5. 🛠️ Development Updates
-
-#### 5.1 [Development Update Title]
-
-**What Changed:**
-- [Description of build/tool change]
-- [Updated versions]
-- [New capabilities]
-
-**Why Change Was Made:**
-- **[Reason 1]**: [Benefit]
-- **[Reason 2]**: [Improvement]
-- **[Reason 3]**: [Future-proofing]
-
-**Impact on Applications:**
-- ? **No impact**: [Explanation]
-- ?? **[Condition]**: [Required update for specific scenarios]
-
-**Example:**
-```[language]
-// [Description]
-[Code showing new feature usage]
-```
-
----
-
-#### 5.2 [Another Development Update]
-
-[Follow same structure as 5.1]
-
----
-
-#### 5.3 File Reorganization Summary
-
-**Key Deletions:**
-- `[path/to/file.cs]` ([reason for deletion])
-- `[path/to/file2.cs]` ([reason])
-
-**Key Additions:**
-- `[path/to/newfile.cs]` ([purpose])
-- `[path/to/newfile2.cs]` ([purpose])
-
----
-
-## 🔄 Migration Guide
-
-### For Most Users (Minimal Impact)
-
-If you're using **[primary usage pattern]**, minimal changes needed:
-
-```[format]
-{
-  "[ConfigSection]": {
-    "[Property]": [value],  // ? Still works
-    "[UpdatedProperty]": [value]  // ?? Update from [OldName]
-  }
-}
-```
-
-**Action Items:**
-1. ? Change `[OldName]` ? `[NewName]`
-2. ? Update [component]: `[OldInterface]` ? `[NewInterface]`
-
----
-
-### For Advanced Users (Code-Level Changes)
+**Estimated time:** 15-30 minutes
 
 #### 1. Update Interface Implementations
 
 ```csharp
-// OLD
-public class [ClassName] : [OldInterface]
+// OLD - Remove these
+public class MyClass : IOldInterface  // ❌ Remove
 {
-    public [Type] [OldProperty] { get; set; }
-    public [Type] [RemovedProperty] { get; set; }  // Remove
+    public void OldMethod() { }       // ❌ Remove
 }
 
-// NEW
-public class [ClassName] : [NewInterface]
+// NEW - Use these
+public class MyClass : INewInterface  // ← NEW interface
 {
-    public [Type] [NewProperty] { get; set; }  // Renamed
-    // [RemovedProperty] removed
+    public void NewMethod() { }       // ← NEW method
 }
 ```
 
-#### 2. Update Service Registration
+#### 2. Update Service Registrations
 
 ```csharp
-// OLD
-services.[Registration]<[OldInterface], [OldImplementation]>();
+// OLD - Remove these
+services.AddSingleton<IOldInterface, MyClass>();  // ❌ Remove
 
-// NEW
-services.[Registration]<[NewInterface], [NewImplementation]>();
+// NEW - Use these
+services.AddSingleton<INewInterface, MyClass>();  // ← NEW interface
 ```
 
-#### 3. Update Direct Property Access
+#### 3. Update Property Access
 
 ```csharp
-// OLD
-var [variable] = [object].[OldPropertyName];
+// OLD - Remove these
+var value = options.OldProperty;  // ❌ Remove
 
-// NEW  
-var [variable] = [object].[NewPropertyName];
+// NEW - Use these
+var value = options.NewProperty;  // ← NEW property
+```
+
+---
+
+### For New Features (Optional)
+
+[Only if release includes optional new features]
+
+#### Feature: [Name]
+
+**When to use:** [Scenario description]
+
+```csharp
+// Example usage
+[Code]
 ```
 
 ---
 
 ## ✅ Testing Recommendations
 
-After upgrading to [Version], test the following:
-
 ### 1. Configuration Loading
+
 ```csharp
-// Verify configuration loads correctly
-var options = serviceProvider.GetRequiredService<[OptionsType]>().Value;
-Assert.Equal([expected], options.[Property]);
+// Verify config loads
+[Test code]
 ```
 
-### 2. [Feature Category] Testing
+### 2. Feature Testing
+
 ```csharp
-// Test [specific functionality]
-[Test code example]
+// Test specific feature
+[Test code]
 ```
-
-### 3. [Another Category] Testing
-```csharp
-// Verify [specific behavior]
-[Test code example]
-```
-
----
-
-## ⚠️ Breaking Changes Summary
-
-| Change | Severity | Migration Required |
-|--------|----------|-------------------|
-| `[Change1]` ? `[Change1New]` | ?? High | Yes - [migration type] |
-| `[Change2]` ? `[Change2New]` | ?? Medium | Yes - [migration type] |
-| `[Change3]` property rename | ?? Low | Only if [condition] |
-| `[Change4]` removed | ?? High | Yes - use `[Alternative]` |
-
----
-
-## 🚨 Deprecations
-
-The following are now deprecated and will be removed in v[NextMajor]:
-
-- `[Component1]` - use `[Alternative1]`
-- `[Component2]` - use `[Alternative2]`
-- `[Component3]` - use `[Alternative3]`
 
 ---
 
 ## ☑️ Upgrade Checklist
 
+- [ ] Review Breaking Changes
 - [ ] Update NuGet packages to [Version]
-- [ ] Change `[OldConfig]` ? `[NewConfig]` in configuration
-- [ ] Update service registration: `[OldInterface]` ? `[NewInterface]`
-- [ ] Replace `[OldClass]` with `[NewClass]`
-- [ ] Remove `[DeprecatedProperty]` usage
-- [ ] Test [critical functionality] with new configuration
-- [ ] Test [feature] with updated API
-- [ ] Update documentation referencing old interfaces
-- [ ] Run full regression test suite
-- [ ] Verify [specific scenario] works correctly
+- [ ] Update configuration files (see Migration Guide)
+- [ ] Update interface implementations (if applicable)
+- [ ] Update service registrations (if applicable)
+- [ ] Run tests
+- [ ] Verify application starts
+- [ ] Verify functionality works as expected
 
 ---
 
 ## 📚 Resources
 
-- [Configuration Documentation](../01.%20Concepts/[relevant-doc].md)
-- [Integration Guide](../01.%20Concepts/[integration-doc].md)
-- [GitHub Release](https://github.com/[org]/[repo]/releases/tag/v[Version])
-- [Migration Support](https://github.com/[org]/[repo]/discussions)
+- [Documentation](link)
+- [GitHub Release](link)
+- [Discussions](link)
 
 ---
 
 ## 🙏 Acknowledgments
 
-Special thanks to all contributors who made this release possible:
-- [Contribution area 1]
-- [Contribution area 2]
-- [Contribution area 3]
-- [Contribution area 4]
+Contributors:
+- [Name] - [Specific contributions]
+- [Name] - [Specific contributions]
 
-For questions or issues, please visit our [GitHub repository](https://github.com/[org]/[repo]) or [discussions forum](https://github.com/[org]/[repo]/discussions).
+For questions: [GitHub repository link]
+
+---
+
+## 📖 Appendix A: Detailed Commit History
+
+*Complete chronological analysis for users needing specific technical details.*
+
+<details open>
+<summary><b>Click to collapse/expand</b></summary>
+
+### Commit 1: [hash] - [title] [BREAKING]
+
+**Date:** [Date]  
+**Author:** [Author]  
+**Impact:** High/Medium/Low - [Who is affected]
+
+**Changes:**
+```csharp
+// What changed (start vs end comparison)
+```
+
+**Reason:** [Why - technical justification only, no marketing language]
+
+**Migration:** See [Migration Guide](#-migration-guide) section [specific subsection]
+
+---
+
+### Commit 2: [hash] - [title]
+
+**Date:** [Date]  
+**Author:** [Author]  
+**Impact:** None - Internal change
+
+**Changes:** [Brief description]
+
+**Reason:** [Technical justification]
+
+---
+
+### Commit 3: [hash] - [title]
+
+**Date:** [Date]  
+**Author:** [Author]  
+**Impact:** Low - [Specific improvement]
+
+**Changes:** [Description]
+
+---
+
+[Continue for all commits - use condensed format for non-breaking changes]
+
+</details>
 
 ---
 
 **Document Version:** 1.0  
-**Last Updated:** [Date]  
-**Next Review:** [Date]
+**Last Updated:** [Date]
+
