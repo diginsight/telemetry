@@ -4,7 +4,7 @@
 # Introduction
 
 __Diginsight telemetry__ is a set of .Net packages that provides <mark>__automatic__ __observability__</mark> for dotnet applications.<br> 
-In particular, <mark>__the full application flow__</mark> is made available to __<mark>local text based streams</mark>__ such as __<mark>traditional file logs</mark>__, the __<mark>Console Log</mark>__ or the __<mark>Azure Streaming Log</mark>__ and also to remote analysis tools such as __<mark>Azure Monitor</mark>__ and __<mark>Prometheus</mark>__/__<mark>Grafana</mark>__.
+In particular, <mark>__the full application flow__</mark> is made available to __local text based streams__ such as __traditional file logs__, the __Console Log__ or the __Azure Streaming Log__ and also to remote analysis tools such as __Azure Monitor__ and __Prometheus__/__Grafana__.
 
 > __💡 Key Benefits__
 >
@@ -16,13 +16,13 @@ __Diginsight telemetry__ targets __all dotnet framework versions__ starting from
 
 > __⚠️ Important Capabilities__
 >
-> __Diginsight telemetry__ can capture automatically __database queries__, __outgoing requests__ as well as __missing configuration data__.
+> __Diginsight telemetry__ can capture automatically __<mark>database queries__, __<mark>outgoing requests__ as well as __<mark>missing configuration data__.
 >
 > This makes it an invaluable companion for troubleshooting problems related to missing or invalid data.
 
 > __📝 Dynamic Features__
 >
-> __Diginsight Telemetry__ is __fully dynamic__: minimal data can be enabled by default, on live environments.
+> __Diginsight Telemetry__ is __<mark>fully dynamic__: minimal data can be enabled by default, on live environments.
 >
 > Full execution flow observability can be enabled __on demand__ for `specific components` or `specific requests`.
 

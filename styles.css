@@ -61,20 +61,31 @@ mark,
   display: none !important;
 }
 
-/* Ensure sidebar navigation has NO bullets */
+/* Ensure sidebar navigation has NO bullets - CRITICAL FIX */
+/* Target all possible sidebar list structures */
 .sidebar-menu-container ul,
-.sidebar-menu-container li,
+.sidebar-menu-container ul li,
+.sidebar-menu-container .list-unstyled,
+.sidebar-menu-container .list-unstyled li,
 .sidebar-navigation ul,
-.sidebar-navigation li,
+.sidebar-navigation ul li,
 #quarto-sidebar ul,
-#quarto-sidebar li,
+#quarto-sidebar ul li,
 .sidebar ul,
-.sidebar li,
+.sidebar ul li,
+ul.list-unstyled.sidebar-section,
+ul.list-unstyled.sidebar-section li,
 .sidebar-item,
 .sidebar-section ul,
-.sidebar-section li {
+.sidebar-section ul li,
+nav[role="navigation"] ul,
+nav[role="navigation"] ul li,
+/* Also target by attribute for Quarto sidebars */
+[class*="sidebar"] ul,
+[class*="sidebar"] ul li {
   list-style-type: none !important;
   list-style: none !important;
+  list-style-image: none !important;
 }
 
 /* Fix bullet list rendering in Quarto - only in main content, not sidebar */
