@@ -28,8 +28,9 @@
 Version 3.7 consolidates metric recording infrastructure with filter and enricher patterns, adds .NET 10.0 support, and includes critical bug fixes. This release contains breaking changes to interface naming, configuration properties, and class names.
 
 **Key changes:**
-- Interface rename: `IActivityLoggingSampler` → `IActivityLoggingFilter`
-- New naming: `NameBased*` → `OptionsBased*` classes
+
+- Interface rename: `IActivityLoggingSampler` → <mark>`IActivityLoggingFilter`</mark>
+- New naming: `NameBased*` → <mark>`OptionsBased*`</mark> classes
 - Added .NET 10.0 target framework support
 - Critical fix: Dictionary key duplication exception in v3.7.1.2
 - New feature: Multiple named filters and enrichers per metric (v3.7.1.0)
@@ -80,6 +81,8 @@ NameBasedMetricRecordingFilter → OptionsBasedMetricRecordingFilter
 DefaultMetricRecordingEnricher → OptionsBasedMetricRecordingEnricher
 ```
 
+**In descriptions:** `OldTerm` → <mark>`NewTerm`</mark> highlights the new syntax.
+
 ```json
 // Configuration changes
 {
@@ -114,10 +117,10 @@ DefaultMetricRecordingEnricher → OptionsBasedMetricRecordingEnricher
   ```
 
 **New Interfaces:**
-- `IMetricRecordingOptions` - Replaces `IDiginsightActivitiesMetricOptions`
-- `IOptionsBasedMetricRecordingFilterOptions` - Configuration for metric filters
-- `IOptionsBasedMetricRecordingEnricherOptions` - Configuration for metric enrichers
-- `IActivityLoggingFilter` - Replaces `IActivityLoggingSampler`
+- <mark>`IMetricRecordingOptions`</mark> - Replaces `IDiginsightActivitiesMetricOptions`
+- <mark>`IOptionsBasedMetricRecordingFilterOptions`</mark> - Configuration for metric filters
+- <mark>`IOptionsBasedMetricRecordingEnricherOptions`</mark> - Configuration for metric enrichers
+- <mark>`IActivityLoggingFilter`</mark> - Replaces `IActivityLoggingSampler`
 
 **Improvements:**
 
@@ -712,9 +715,9 @@ For questions or issues: [GitHub Issues](https://github.com/diginsight/telemetry
 
 **Changes:**
 - Deleted `DefaultMetricRecordingEnricherOptions`
-- Renamed `IDefaultMetricRecordingEnricherOptions` → `IOptionsBasedMetricRecordingEnricherOptions`
-- Added `OptionsBasedMetricRecordingEnricherOptions` implementation
-- Enhanced `OptionsBasedMetricRecordingEnricher` configuration binding
+- Renamed `IDefaultMetricRecordingEnricherOptions` → <mark>`IOptionsBasedMetricRecordingEnricherOptions`</mark>
+- Added <mark>`OptionsBasedMetricRecordingEnricherOptions`</mark> implementation
+- Enhanced <mark>`OptionsBasedMetricRecordingEnricher`</mark> configuration binding
 
 **Reason:** Standardized enricher options naming
 
@@ -735,8 +738,8 @@ For questions or issues: [GitHub Issues](https://github.com/diginsight/telemetry
   - Moved files from `Configurations/` to root
   - Moved files from `Metrics/` to root
 - **Interface renames**:
-  - `IDiginsightActivitiesSpanDurationOptions` → `IMetricRecordingOptions`
-  - `DefaultMetricRecordingEnricher` → `OptionsBasedMetricRecordingEnricher`
+  - `IDiginsightActivitiesSpanDurationOptions` → <mark>`IMetricRecordingOptions`</mark>
+  - `DefaultMetricRecordingEnricher` → <mark>`OptionsBasedMetricRecordingEnricher`</mark>
 
 **Reason:** Simplified project structure, consistent naming
 
@@ -778,7 +781,7 @@ For questions or issues: [GitHub Issues](https://github.com/diginsight/telemetry
 
 **Reason:** Removed obsolete interface, improved performance
 
-**Migration:** If using `ICustomDurationMetricRecorderSettings`, migrate to `IMetricRecordingFilter`
+**Migration:** If using `ICustomDurationMetricRecorderSettings`, migrate to <mark>`IMetricRecordingFilter`</mark>
 
 ---
 
@@ -790,11 +793,11 @@ For questions or issues: [GitHub Issues](https://github.com/diginsight/telemetry
 
 **Changes:**
 - **Interface renames**:
-  - `INameBasedMetricRecordingFilterOptions` → `IOptionsBasedMetricRecordingFilterOptions`
+  - `INameBasedMetricRecordingFilterOptions` → <mark>`IOptionsBasedMetricRecordingFilterOptions`</mark>
 - **Class renames**:
-  - `NameBasedMetricRecordingFilter` → `OptionsBasedMetricRecordingFilter`
-  - `NameBasedMetricRecordingFilterOptions` → `OptionsBasedMetricRecordingFilterOptions`
-  - `NameBasedActivityLoggingFilter` → `OptionsBasedActivityLoggingFilter`
+  - `NameBasedMetricRecordingFilter` → <mark>`OptionsBasedMetricRecordingFilter`</mark>
+  - `NameBasedMetricRecordingFilterOptions` → <mark>`OptionsBasedMetricRecordingFilterOptions`</mark>
+  - `NameBasedActivityLoggingFilter` → <mark>`OptionsBasedActivityLoggingFilter`</mark>
 
 **Reason:** Standardized naming convention
 
@@ -934,10 +937,10 @@ For questions or issues: [GitHub Issues](https://github.com/diginsight/telemetry
 
 **Changes:**
 - Initial implementation of unified metric recording architecture
-- Introduced `IMetricRecordingFilter` interface
-- Introduced `IMetricRecordingEnricher` interface
+- Introduced <mark>`IMetricRecordingFilter`</mark> interface
+- Introduced <mark>`IMetricRecordingEnricher`</mark> interface
 - Replaced sampler pattern with filter pattern
-- Changed from `IActivityLoggingSampler` to `IActivityLoggingFilter`
+- Changed from `IActivityLoggingSampler` to <mark>`IActivityLoggingFilter`</mark>
 
 **Reason:** Unified approach to metric recording with better separation of concerns
 

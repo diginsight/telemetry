@@ -141,3 +141,19 @@ article ul:not(.list-unstyled) ul:not(.list-unstyled) ul:not(.list-unstyled),
 #quarto-document-content ul:not(.list-unstyled) ul:not(.list-unstyled) ul:not(.list-unstyled) {
   list-style-type: square !important;
 }
+
+/* Ensure mark tags within list items display inline */
+article ul li mark,
+#quarto-document-content ul li mark,
+.page-columns ul li mark {
+  display: inline !important;
+  padding: 0.1em 0.3em !important;
+}
+
+/* Ensure list items containing mark tags still display as list items */
+article ul li:has(mark),
+#quarto-document-content ul li:has(mark),
+.page-columns ul li:has(mark) {
+  display: list-item !important;
+  list-style-type: disc !important;
+}

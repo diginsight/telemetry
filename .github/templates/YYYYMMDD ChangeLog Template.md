@@ -29,7 +29,7 @@
 Version [X.X.X] [consolidates|updates|changes] [area of focus]. This release includes [breaking|non-breaking] changes to [specific components].
 
 **Key changes:**
-- [Change 1 - brief, factual]
+- [Change 1 - brief, factual - use <mark> for new terms: `OldInterface` → <mark>`NewInterface`</mark>]
 - [Change 2 - brief, factual]
 - [Change 3 - brief, factual]
 - [Change 4 - brief, factual]
@@ -78,6 +78,8 @@ Version [X.X.X] [consolidates|updates|changes] [area of focus]. This release inc
 IOldInterface → INewInterface  // ← NEW
 OldClass → NewClass            // ← NEW
 ```
+
+**In prose, show transitions as:** `OldTerm` → <mark>`NewTerm`</mark>
 
 ---
 

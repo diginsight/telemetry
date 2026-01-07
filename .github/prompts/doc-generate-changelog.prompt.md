@@ -354,6 +354,11 @@ Example: `src/docs/10. ChangeLog/20251112 - changes for release 3.7.md`
 - Use `// ❌ Remove` for old code to remove
 - Use `// ✅ Add` for new code to add
 
+**Transition Markers (Inline Text):**
+- When showing old → new transitions in prose, use: `OldTerm` → <mark>`NewTerm`</mark>
+- Example: "Interface `IActivityLoggingSampler` → <mark>`IActivityLoggingFilter`</mark>"
+- Always highlight the NEW term with `<mark>` tags in transitions
+
 **Status Indicators:**
 - ✅ No action needed / Improvement / Works
 - ⚠️ Action required / Warning / Review needed
