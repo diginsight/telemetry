@@ -4,13 +4,13 @@
 # Introduction
 
 __Diginsight telemetry__ is a set of .Net packages that provides <mark>__automatic__ __observability__</mark> for dotnet applications.<br> 
-In particular, <mark>__the full application flow__</mark> is made available to __local text based streams__ such as __traditional file logs__, the __Console Log__ or the __Azure Streaming Log__ and also to remote analysis tools such as __Azure Monitor__ and __Prometheus__/__Grafana__.
+In particular, <mark>__the full application flow__</mark> is made available to __<mark>local text based streams</mark>__ such as __<mark>traditional file logs</mark>__, the __<mark>Console Log</mark>__ or the __<mark>Azure Streaming Log</mark>__ and also to remote analysis tools such as __<mark>Azure Monitor</mark>__ and __<mark>Prometheus</mark>__/__<mark>Grafana</mark>__.
 
 > __💡 Key Benefits__
 >
-> Diginsight allows __observability__ of the __full application lifecycle__, including __static methods__, __injection sequences__ and the __application startup__ and __shutdown sequences__ where configuration problems and much complexity are often hidden.
+> Diginsight allows __observability__ of the __full application lifecycle__, including __<mark>static methods</mark>__, __<mark>injection sequences</mark>__ and the __<mark>application startup</mark>__ and __<mark>shutdown sequences</mark>__ where configuration problems and much complexity are often hidden.
 
-__Diginsight telemetry__ is produced by standard __ILogger<>__ and __System.Diagnostics activity__ classes so it integrates (without replacing) other logging systems telemetry. Also, __diginsight telemetry__ is fully integrated with __Opentelemetry__ and the __W3C Trace Context__ Specification so __traceids__ are preserved across process invocations of a distributed system.
+__Diginsight telemetry__ is produced by standard __ILogger<>__ and __System.Diagnostics activity__ classes so it integrates (without replacing) other logging systems telemetry. Also, __diginsight telemetry__ is fully integrated with __Opentelemetry__ and the __<mark>W3C Trace Context</mark>__ Specification so __traceids__ are preserved across process invocations of a distributed system.
 
 __Diginsight telemetry__ targets __all dotnet framework versions__ starting from __netstandard2.0__.<br>Samples are available on [telemetry.samples](https://github.com/diginsight/telemetry.samples) repository to demonstrate use of telemetry on __.net 4.8__ up to [__blazor webassembly__,]__.net6__ and __.net8+__ assemblies.
 
@@ -32,9 +32,9 @@ __Diginsight telemetry__ targets __all dotnet framework versions__ starting from
 
 Diginsight telemetry is __readable__, __consistent__ and __efficient__:
 
-- **readable**: telemetry is __easily readable__ on `local troubleshooting tools`, `live server consoles` and `remote analysis tools` such as the Azure monitor. The generated application flow is __consistent with application code__ so that problems understanding is much simplified.
-- **consistent**: the application flow is __rendered consistently__ on `local troubleshooting tools`, where maximum flow detail is available, and to the `remote analysis tools` such as the Azure monitor, where metrics and data from past executions can be easily compared.
-- **efficient**: application flow is generated with fully optimized techniques (such as dynamic compilation). Also, the full application flow observability can be __enabled dynamically__ and __only on the specific executions__ that are under analysis. This ensures that diginsight can be leveraged with no practical impact on application performance.
+- **<mark>readable**: telemetry is __easily readable__ on `local troubleshooting tools`, `live server consoles` and `remote analysis tools` such as the Azure monitor. The generated application flow is __consistent with application code__ so that problems understanding is much simplified.
+- **<mark>consistent**: the application flow is __rendered consistently__ on `local troubleshooting tools`, where maximum flow detail is available, and to the `remote analysis tools` such as the Azure monitor, where metrics and data from past executions can be easily compared.
+- **<mark>efficient**: application flow is generated with fully optimized techniques (such as dynamic compilation). Also, the full application flow observability can be __<mark>enabled dynamically</mark>__ and __<mark>only on the specific executions</mark>__ that are under analysis. This ensures that diginsight can be leveraged with no practical impact on application performance.
 
 
 The image below shows the text based stream associated with a Web API call.
@@ -63,7 +63,7 @@ The following image shows the __Azure Monitor Metrics__ dashboard where method i
 ![alt text](<src/docs/000.03.1 span_duration azmon metrics.png>)<br>
 <br> 
 
- __Intelligent sampling__, __dynamic compilation__, __automatic truncation__ and other strategies are used to __maximize application efficiency__ and __minimize telemetry cost__<br>For these reasons __Local analysis__ and __analysis on the remote tools__ can be supported __without compromises on performance__ and  __without compromises on cost of telemetry__ in __test__ and __production__ environments.<br><br>
+ __<mark>Intelligent sampling__, __<mark>dynamic compilation__, __<mark>automatic truncation__ and other strategies are used to __maximize application efficiency__ and __minimize telemetry cost__<br>For these reasons __Local analysis__ and __analysis on the remote tools__ can be supported __<mark>without compromises on performance__ and  __<mark>without compromises on cost of telemetry__ in __test__ and __production__ environments.<br><br>
 <!-- ![alt text](<src/docs/001.03d NoPerformanceImpact.png>)<br> -->
 
 >[HowTo: Use diginsight telemetry with no impact on Application performance and telemetry cost](<src/docs/01. Concepts/20.00 - HowTo Use diginsight telemetry with no impact on Application performance an telemetry cost.md>)<br>
