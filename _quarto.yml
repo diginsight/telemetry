@@ -95,3 +95,7 @@ format:
     css: [styles.css, callouts.css]
     include-in-header: header-includes.html
     toc: true
+
+markdown:
+  extensions:
+    - +lists_without_preceding_blankline
