@@ -61,6 +61,18 @@ mark,
   display: none !important;
 }
 
+/* CRITICAL: Prevent .list-unstyled (used by sidebar) from getting bullets */
+ul.list-unstyled,
+ul.list-unstyled li,
+.list-unstyled,
+.list-unstyled li,
+.list-unstyled ul,
+.list-unstyled ul li {
+  list-style-type: none !important;
+  list-style: none !important;
+  list-style-image: none !important;
+}
+
 /* Ensure sidebar navigation has NO bullets - CRITICAL FIX */
 /* Target all possible sidebar list structures */
 .sidebar-menu-container ul,
@@ -89,24 +101,25 @@ nav[role="navigation"] ul li,
 }
 
 /* Fix bullet list rendering in Quarto - only in main content, not sidebar */
-#quarto-content ul {
+/* Explicitly EXCLUDE .list-unstyled from this rule */
+#quarto-content ul:not(.list-unstyled) {
   list-style-type: disc !important;
   padding-left: 2em !important;
   margin-bottom: 1em !important;
 }
 
-#quarto-content ul li {
+#quarto-content ul:not(.list-unstyled) li {
   display: list-item !important;
   list-style-type: disc !important;
   margin-bottom: 0.5em !important;
 }
 
 /* Nested lists */
-#quarto-content ul ul {
+#quarto-content ul:not(.list-unstyled) ul:not(.list-unstyled) {
   list-style-type: circle !important;
   margin-top: 0.5em !important;
 }
 
-#quarto-content ul ul ul {
+#quarto-content ul:not(.list-unstyled) ul:not(.list-unstyled) ul:not(.list-unstyled) {
   list-style-type: square !important;
 }
