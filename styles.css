@@ -61,25 +61,25 @@ mark,
   display: none !important;
 }
 
-/* Fix bullet list rendering in Quarto */
-ul {
+/* Fix bullet list rendering in Quarto - only in main content, not sidebar */
+#quarto-content ul {
   list-style-type: disc !important;
   padding-left: 2em !important;
   margin-bottom: 1em !important;
 }
 
-ul li {
+#quarto-content ul li {
   display: list-item !important;
   list-style-type: disc !important;
   margin-bottom: 0.5em !important;
 }
 
 /* Nested lists */
-ul ul {
+#quarto-content ul ul {
   list-style-type: circle !important;
   margin-top: 0.5em !important;
 }
 
-ul ul ul {
+#quarto-content ul ul ul {
   list-style-type: square !important;
 }
