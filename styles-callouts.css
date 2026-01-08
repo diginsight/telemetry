@@ -45,21 +45,35 @@ blockquote > p:first-child > strong:first-child:contains("ℹ️") {
 /* Dark theme support */
 [data-bs-theme="dark"] blockquote {
   background-color: #2b3035;
+  background-image: none;
+  border-left-color: #495057;
   color: #f8f9fa;
 }
 
-[data-bs-theme="dark"] blockquote:has(strong:first-child:contains("💡")) {
+[data-bs-theme="dark"] blockquote:has(strong:first-child:contains("💡")),
+[data-bs-theme="dark"] blockquote > p:first-child > strong:first-child:contains("💡") {
+  border-left-color: #198754;
   background-color: #1a4d3a;
+  background-image: linear-gradient(135deg, #1a4d3a 0%, #2b3035 100%);
 }
 
-[data-bs-theme="dark"] blockquote:has(strong:first-child:contains("⚠️")) {
+[data-bs-theme="dark"] blockquote:has(strong:first-child:contains("⚠️")),
+[data-bs-theme="dark"] blockquote > p:first-child > strong:first-child:contains("⚠️") {
+  border-left-color: #fd7e14;
   background-color: #4d2a00;
+  background-image: linear-gradient(135deg, #4d2a00 0%, #2b3035 100%);
 }
 
-[data-bs-theme="dark"] blockquote:has(strong:first-child:contains("📝")) {
+[data-bs-theme="dark"] blockquote:has(strong:first-child:contains("📝")),
+[data-bs-theme="dark"] blockquote > p:first-child > strong:first-child:contains("📝") {
+  border-left-color: #0d6efd;
   background-color: #0a2a66;
+  background-image: linear-gradient(135deg, #0a2a66 0%, #2b3035 100%);
 }
 
-[data-bs-theme="dark"] blockquote:has(strong:first-child:contains("ℹ️")) {
+[data-bs-theme="dark"] blockquote:has(strong:first-child:contains("ℹ️")),
+[data-bs-theme="dark"] blockquote > p:first-child > strong:first-child:contains("ℹ️") {
+  border-left-color: #6f42c1;
   background-color: #2d1b4d;
+  background-image: linear-gradient(135deg, #2d1b4d 0%, #2b3035 100%);
 }
