@@ -163,3 +163,57 @@ article ul li:has(mark),
   display: list-item !important;
   list-style-type: disc !important;
 }
+
+/* Force lists to render properly even after headings/bold text without blank lines */
+article p + ul:not(.list-unstyled),
+article h1 + ul:not(.list-unstyled),
+article h2 + ul:not(.list-unstyled),
+article h3 + ul:not(.list-unstyled),
+article h4 + ul:not(.list-unstyled),
+article h5 + ul:not(.list-unstyled),
+article h6 + ul:not(.list-unstyled),
+article strong + ul:not(.list-unstyled),
+article b + ul:not(.list-unstyled),
+article pre + ul:not(.list-unstyled),
+#quarto-document-content p + ul:not(.list-unstyled),
+#quarto-document-content h1 + ul:not(.list-unstyled),
+#quarto-document-content h2 + ul:not(.list-unstyled),
+#quarto-document-content h3 + ul:not(.list-unstyled),
+#quarto-document-content h4 + ul:not(.list-unstyled),
+#quarto-document-content h5 + ul:not(.list-unstyled),
+#quarto-document-content h6 + ul:not(.list-unstyled),
+#quarto-document-content strong + ul:not(.list-unstyled),
+#quarto-document-content b + ul:not(.list-unstyled),
+#quarto-document-content pre + ul:not(.list-unstyled) {
+  list-style-type: disc !important;
+  display: block !important;
+  padding-left: 2em !important;
+  margin-top: 0.5em !important;
+  margin-bottom: 1em !important;
+}
+
+/* Force list items to render with bullets even after inline elements */
+article p + ul:not(.list-unstyled) > li,
+article h1 + ul:not(.list-unstyled) > li,
+article h2 + ul:not(.list-unstyled) > li,
+article h3 + ul:not(.list-unstyled) > li,
+article h4 + ul:not(.list-unstyled) > li,
+article h5 + ul:not(.list-unstyled) > li,
+article h6 + ul:not(.list-unstyled) > li,
+article strong + ul:not(.list-unstyled) > li,
+article b + ul:not(.list-unstyled) > li,
+article pre + ul:not(.list-unstyled) > li,
+#quarto-document-content p + ul:not(.list-unstyled) > li,
+#quarto-document-content h1 + ul:not(.list-unstyled) > li,
+#quarto-document-content h2 + ul:not(.list-unstyled) > li,
+#quarto-document-content h3 + ul:not(.list-unstyled) > li,
+#quarto-document-content h4 + ul:not(.list-unstyled) > li,
+#quarto-document-content h5 + ul:not(.list-unstyled) > li,
+#quarto-document-content h6 + ul:not(.list-unstyled) > li,
+#quarto-document-content strong + ul:not(.list-unstyled) > li,
+#quarto-document-content b + ul:not(.list-unstyled) > li,
+#quarto-document-content pre + ul:not(.list-unstyled) > li {
+  display: list-item !important;
+  list-style-type: disc !important;
+  margin-bottom: 0.5em !important;
+}
