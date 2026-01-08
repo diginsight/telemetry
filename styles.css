@@ -67,26 +67,3 @@ article ul ul ul li {
   list-style-type: square;
 }
 
-/* CSS workaround for paragraphs containing " - " pattern (inline lists) */
-/* Targets paragraphs with "strong:first-child" followed by " - " patterns */
-#quarto-document-content p:has(strong:first-child),
-article p:has(strong:first-child) {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-/* Make the strong element (heading) a block */
-#quarto-document-content p:has(strong:first-child) strong:first-child,
-article p:has(strong:first-child) strong:first-child {
-  display: block;
-  margin-bottom: 0.5rem;
-}
-
-/* Target text nodes containing " - " to split and style as list items */
-/* This uses a pseudo-element approach for visual bullets */
-#quarto-document-content p:has(strong:first-child)::after,
-article p:has(strong:first-child)::after {
-  content: '';
-  display: block;
-}
