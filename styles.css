@@ -1,7 +1,7 @@
 /* Custom styles for Diginsight Telemetry */
 
-/* Add lightbulb icon to navbar title - Use :first-child to prevent duplication */
-.navbar-brand:first-child::before {
+/* Add lightbulb icon to navbar title */
+.navbar-brand::before {
   content: "";
   display: inline-block;
   width: 1.2em;
@@ -11,38 +11,7 @@
   background-size: contain;
   vertical-align: middle;
   margin-right: 8px;
-  margin-left: 0px;
 }
-
-/* Remove the Unicode circle from the title text */
-.navbar-brand {
-  font-size: 1.25rem;
-  font-weight: 500;
-  color: inherit !important;
-}
-
-/* Fix hover color issue - ensure navbar title stays white */
-.navbar-brand:hover {
-  color: inherit !important;
-  text-decoration: none;
-}
-
-/* Ensure proper spacing and alignment */
-.navbar-brand .navbar-title {
-  display: inline-block;
-  vertical-align: middle;
-}
-
-/* For dark themes, ensure the icon remains white */
-html[data-bs-theme="dark"] .navbar-brand {
-  color: white !important;
-}
-
-html[data-bs-theme="dark"] .navbar-brand:hover {
-  color: white !important;
-}
-
-/* Custom styles for Learning Journey site */
 
 /* Override Bootstrap highlight color to light yellow */
 :root {
@@ -55,165 +24,69 @@ mark,
 }
 
 /* Hide redundant h1 ONLY when Quarto title block is present */
-/* This prevents hiding the H1 when it's the only title (no YAML frontmatter) */
-.quarto-title-block ~ * h1:first-child,
-.quarto-title-block ~ article > h1:first-of-type {
+.quarto-title-block ~ * h1:first-of-type {
   display: none !important;
 }
 
-/* Don't hide H1 if there's no title block (no frontmatter) */
-body:not(:has(.quarto-title-block)) article > h1:first-of-type,
-body:not(:has(.quarto-title-block)) #quarto-content h1:first-child {
+/* Ensure H1 is visible when there's NO title block (no metadata) */
+#quarto-content > h1:first-child,
+main h1:first-child,
+article > h1:first-child {
   display: block !important;
 }
 
-/* CRITICAL: Prevent .list-unstyled (used by sidebar) from getting bullets */
-ul.list-unstyled,
-ul.list-unstyled li,
-.list-unstyled,
-.list-unstyled li,
-.list-unstyled ul,
-.list-unstyled ul li {
-  list-style-type: none !important;
-  list-style: none !important;
-  list-style-image: none !important;
-}
-
-/* Ensure LEFT sidebar navigation has NO bullets */
-.sidebar-menu-container ul,
-.sidebar-menu-container ul li,
-.sidebar-menu-container .list-unstyled,
-.sidebar-menu-container .list-unstyled li,
-.sidebar-navigation ul,
-.sidebar-navigation ul li,
-#quarto-sidebar ul,
-#quarto-sidebar ul li,
-.sidebar ul,
-.sidebar ul li,
-ul.list-unstyled.sidebar-section,
-ul.list-unstyled.sidebar-section li,
-.sidebar-item,
-.sidebar-section ul,
-.sidebar-section ul li,
-nav[role="navigation"] ul,
-nav[role="navigation"] ul li,
-[class*="sidebar"] ul,
-[class*="sidebar"] ul li {
-  list-style-type: none !important;
-  list-style: none !important;
-  list-style-image: none !important;
-}
-
-/* Ensure RIGHT sidebar (TOC) has NO bullets */
-#TOC ul,
-#TOC ul li,
-#quarto-margin-sidebar ul,
-#quarto-margin-sidebar ul li,
-nav[role="doc-toc"] ul,
-nav[role="doc-toc"] ul li,
-.toc-active ul,
-.toc-active ul li {
-  list-style-type: none !important;
-  list-style: none !important;
-  list-style-image: none !important;
-}
-
-/* Fix bullet list rendering in Quarto - ONLY in main article content */
-/* Target specifically article content, not sidebars */
-article ul:not(.list-unstyled),
-#quarto-document-content ul:not(.list-unstyled),
-.page-columns ul:not(.list-unstyled):not(#TOC ul):not(.sidebar-section) {
-  list-style-type: disc !important;
-  padding-left: 2em !important;
-  margin-bottom: 1em !important;
-}
-
-article ul:not(.list-unstyled) li,
-#quarto-document-content ul:not(.list-unstyled) li,
-.page-columns ul:not(.list-unstyled):not(#TOC ul):not(.sidebar-section) li {
-  display: list-item !important;
-  list-style-type: disc !important;
-  margin-bottom: 0.5em !important;
-}
-
-/* Nested lists in content */
-article ul:not(.list-unstyled) ul:not(.list-unstyled),
-#quarto-document-content ul:not(.list-unstyled) ul:not(.list-unstyled) {
-  list-style-type: circle !important;
-  margin-top: 0.5em !important;
-}
-
-article ul:not(.list-unstyled) ul:not(.list-unstyled) ul:not(.list-unstyled),
-#quarto-document-content ul:not(.list-unstyled) ul:not(.list-unstyled) ul:not(.list-unstyled) {
-  list-style-type: square !important;
-}
-
-/* Ensure mark tags within list items display inline */
-article ul li mark,
-#quarto-document-content ul li mark,
-.page-columns ul li mark {
-  display: inline !important;
-  padding: 0.1em 0.3em !important;
-}
-
-/* Ensure list items containing mark tags still display as list items */
-article ul li:has(mark),
-#quarto-document-content ul li:has(mark),
-.page-columns ul li:has(mark) {
-  display: list-item !important;
-  list-style-type: disc !important;
-}
-
-/* Force lists to render properly even after headings/bold text without blank lines */
-article p + ul:not(.list-unstyled),
-article h1 + ul:not(.list-unstyled),
-article h2 + ul:not(.list-unstyled),
-article h3 + ul:not(.list-unstyled),
-article h4 + ul:not(.list-unstyled),
-article h5 + ul:not(.list-unstyled),
-article h6 + ul:not(.list-unstyled),
-article strong + ul:not(.list-unstyled),
-article b + ul:not(.list-unstyled),
-article pre + ul:not(.list-unstyled),
-#quarto-document-content p + ul:not(.list-unstyled),
-#quarto-document-content h1 + ul:not(.list-unstyled),
-#quarto-document-content h2 + ul:not(.list-unstyled),
-#quarto-document-content h3 + ul:not(.list-unstyled),
-#quarto-document-content h4 + ul:not(.list-unstyled),
-#quarto-document-content h5 + ul:not(.list-unstyled),
-#quarto-document-content h6 + ul:not(.list-unstyled),
-#quarto-document-content strong + ul:not(.list-unstyled),
-#quarto-document-content b + ul:not(.list-unstyled),
-#quarto-document-content pre + ul:not(.list-unstyled) {
-  list-style-type: disc !important;
+/* More specific: show H1 when no title block exists */
+body:not(:has(.quarto-title-block)) #quarto-content h1,
+body:not(:has(.quarto-title-block)) main h1,
+body:not(:has(.quarto-title-block)) article h1 {
   display: block !important;
-  padding-left: 2em !important;
-  margin-top: 0.5em !important;
-  margin-bottom: 1em !important;
 }
 
-/* Force list items to render with bullets even after inline elements */
-article p + ul:not(.list-unstyled) > li,
-article h1 + ul:not(.list-unstyled) > li,
-article h2 + ul:not(.list-unstyled) > li,
-article h3 + ul:not(.list-unstyled) > li,
-article h4 + ul:not(.list-unstyled) > li,
-article h5 + ul:not(.list-unstyled) > li,
-article h6 + ul:not(.list-unstyled) > li,
-article strong + ul:not(.list-unstyled) > li,
-article b + ul:not(.list-unstyled) > li,
-article pre + ul:not(.list-unstyled) > li,
-#quarto-document-content p + ul:not(.list-unstyled) > li,
-#quarto-document-content h1 + ul:not(.list-unstyled) > li,
-#quarto-document-content h2 + ul:not(.list-unstyled) > li,
-#quarto-document-content h3 + ul:not(.list-unstyled) > li,
-#quarto-document-content h4 + ul:not(.list-unstyled) > li,
-#quarto-document-content h5 + ul:not(.list-unstyled) > li,
-#quarto-document-content h6 + ul:not(.list-unstyled) > li,
-#quarto-document-content strong + ul:not(.list-unstyled) > li,
-#quarto-document-content b + ul:not(.list-unstyled) > li,
-#quarto-document-content pre + ul:not(.list-unstyled) > li {
-  display: list-item !important;
-  list-style-type: disc !important;
-  margin-bottom: 0.5em !important;
+/* Ensure markdown bullet lists are visible in content */
+#quarto-document-content ul li,
+.quarto-title-block ~ * ul li,
+article ul li {
+  list-style-type: disc;
+  display: list-item;
+}
+
+#quarto-document-content ul,
+.quarto-title-block ~ * ul,
+article ul {
+  padding-left: 2rem;
+}
+
+/* Nested lists */
+#quarto-document-content ul ul li,
+article ul ul li {
+  list-style-type: circle;
+}
+
+#quarto-document-content ul ul ul li,
+article ul ul ul li {
+  list-style-type: square;
+}
+
+/* CSS workaround for paragraphs containing " - " pattern (inline lists) */
+/* Targets paragraphs with "strong:first-child" followed by " - " patterns */
+#quarto-document-content p:has(strong:first-child),
+article p:has(strong:first-child) {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* Make the strong element (heading) a block */
+#quarto-document-content p:has(strong:first-child) strong:first-child,
+article p:has(strong:first-child) strong:first-child {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* Target text nodes containing " - " to split and style as list items */
+/* This uses a pseudo-element approach for visual bullets */
+#quarto-document-content p:has(strong:first-child)::after,
+article p:has(strong:first-child)::after {
+  content: '';
+  display: block;
 }

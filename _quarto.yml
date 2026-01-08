@@ -92,7 +92,7 @@ format:
     theme:
       light: [cosmo, theme-light.scss]
       dark: [cosmo, theme-dark.scss]
-    css: [styles.css, callouts.css]
+    css: [styles.css, styles-callouts.css]
     include-in-header: header-includes.html
     toc: true
 

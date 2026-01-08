@@ -1,4 +1,6 @@
-# Changes for Release 3.7
+---
+title: "Changes for Release 3.7"
+---
 
 **Release Date:** January 7, 2026  
 **Commit Range:** `4ebf5faea81788ddba8fac2260d4a06e255ca5e3` → `93ae50a4b19794043534e8b827fa3bd55cb22934`  
@@ -117,6 +119,7 @@ DefaultMetricRecordingEnricher → OptionsBasedMetricRecordingEnricher
   ```
 
 **New Interfaces:**
+
 - <mark>`IMetricRecordingOptions`</mark> - Replaces `IDiginsightActivitiesMetricOptions`
 - <mark>`IOptionsBasedMetricRecordingFilterOptions`</mark> - Configuration for metric filters
 - <mark>`IOptionsBasedMetricRecordingEnricherOptions`</mark> - Configuration for metric enrichers
