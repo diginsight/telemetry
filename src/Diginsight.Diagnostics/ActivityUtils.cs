@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 namespace Diginsight.Diagnostics;
 
@@ -30,18 +30,32 @@ public static class ActivityUtils
     public static bool NameMatchesPattern(string name, string namePattern)
     {
 #if NET || NETSTANDARD2_1_OR_GREATER
-        return namePattern.Split('*', 3) switch
+    return namePattern.Split('*', 4) switch
 #else
-        return namePattern.Split(StarSeparators, 3) switch
+        return namePattern.Split(StarSeparators, 4) switch
 #endif
         {
-            [ _ ] => string.Equals(name, namePattern, StringComparison.OrdinalIgnoreCase),
-            [ var startToken, var endToken ] => (startToken, endToken) switch
+            [_] => string.Equals(name, namePattern, StringComparison.OrdinalIgnoreCase),
+            [var startToken, var endToken] => (startToken, endToken) switch
             {
                 ("", "") => true,
                 ("", _) => name.EndsWith(endToken, StringComparison.OrdinalIgnoreCase),
                 (_, "") => name.StartsWith(startToken, StringComparison.OrdinalIgnoreCase),
                 (_, _) => name.StartsWith(startToken, StringComparison.OrdinalIgnoreCase) &&
+                    name.EndsWith(endToken, StringComparison.OrdinalIgnoreCase),
+            },
+            [var startToken, var middleToken, var endToken] => (startToken, middleToken, endToken) switch
+            {
+                ("", "", "") => true,
+                ("", _, "") => name.Contains(middleToken, StringComparison.OrdinalIgnoreCase),
+                ("", _, _) => name.Contains(middleToken, StringComparison.OrdinalIgnoreCase) &&
+                    name.EndsWith(endToken, StringComparison.OrdinalIgnoreCase),
+                (_, "", _) => name.StartsWith(startToken, StringComparison.OrdinalIgnoreCase) &&
+                    name.EndsWith(endToken, StringComparison.OrdinalIgnoreCase),
+                (_, _, "") => name.StartsWith(startToken, StringComparison.OrdinalIgnoreCase) &&
+                    name.Contains(middleToken, StringComparison.OrdinalIgnoreCase),
+                (_, _, _) => name.StartsWith(startToken, StringComparison.OrdinalIgnoreCase) &&
+                    name.Contains(middleToken, StringComparison.OrdinalIgnoreCase) &&
                     name.EndsWith(endToken, StringComparison.OrdinalIgnoreCase),
             },
             _ => throw new ArgumentException("Invalid activity name pattern"),

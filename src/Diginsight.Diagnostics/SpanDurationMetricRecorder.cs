@@ -1,4 +1,6 @@
 using Diginsight.Options;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.Metrics;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
@@ -14,6 +16,7 @@ public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
     private readonly Lazy<Histogram<double>> metricLazy;
 
     public SpanDurationMetricRecorder(
+        IServiceProvider serviceProvider,
         ILogger<SpanDurationMetricRecorder> logger,
         IClassAwareOptions<DiginsightActivitiesOptions> activitiesOptions,
         IMeterFactory meterFactory,
@@ -23,8 +26,17 @@ public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
     {
         this.logger = logger;
         this.activitiesOptions = activitiesOptions;
+        var activitiesConfig = this.activitiesOptions.Value;
+        var metricName = "diginsight.span_duration";
+
         this.recordingFilter = recordingFilter;
         this.recordingEnricher = recordingEnricher;
+
+        var metricFilter = serviceProvider.GetNamedService<IMetricRecordingFilter>(metricName);
+        if (metricFilter != null) { this.recordingFilter = serviceProvider.GetRequiredService<IMetricRecordingFilter>(); }
+
+        var metricEnricher = serviceProvider.GetNamedService<IMetricRecordingEnricher>(metricName);
+        if (metricEnricher) { this.recordingEnricher = serviceProvider.GetRequiredService<IMetricRecordingEnricher>(); }
 
         metricLazy = new Lazy<Histogram<double>>(
             () =>
@@ -57,8 +69,8 @@ public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
             Tag statusTag = new("status", activity.Status.ToString());
 
             Tag[] tags = recordingEnricher is not null
-                ? [ nameTag, statusTag, .. recordingEnricher.ExtractTags(activity, metric) ]
-                : [ nameTag, statusTag ];
+                ? [nameTag, statusTag, .. recordingEnricher.ExtractTags(activity, metric)]
+                : [nameTag, statusTag];
 
             metric.Record(activity.Duration.TotalMilliseconds, tags);
         }
