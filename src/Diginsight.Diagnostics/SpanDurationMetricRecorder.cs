@@ -33,10 +33,10 @@ public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
         this.recordingEnricher = recordingEnricher;
 
         var metricFilter = serviceProvider.GetNamedService<IMetricRecordingFilter>(metricName);
-        if (metricFilter != null) { this.recordingFilter = serviceProvider.GetRequiredService<IMetricRecordingFilter>(); }
+        if (metricFilter != null) { this.recordingFilter = metricFilter; }
 
         var metricEnricher = serviceProvider.GetNamedService<IMetricRecordingEnricher>(metricName);
-        if (metricEnricher != null) { this.recordingEnricher = serviceProvider.GetRequiredService<IMetricRecordingEnricher>(); }
+        if (metricEnricher != null) { this.recordingEnricher = metricEnricher; }
 
         metricLazy = new Lazy<Histogram<double>>(
             () =>
