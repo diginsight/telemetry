@@ -175,9 +175,11 @@ public sealed class DiginsightActivitiesOptions
 
         public string LoggedActivityNames
         {
-            get => string.Join(" ", filled.LoggedActivityNames);
+            get => string.Join(" ", filled.LoggedActivityNames.Select(static kv => $"{kv.Key}={kv.Value}"));
             set
             {
+                if (value == string.Join(" ", filled.LoggedActivityNames.Select(static kv => $"{kv.Key}={kv.Value}"))) { return; }
+
                 filled.LoggedActivityNames.Clear();
                 filled.LoggedActivityNames.AddRange(
                     value.Split(SpaceSeparator, StringSplitOptions.RemoveEmptyEntries)

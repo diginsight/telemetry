@@ -25,7 +25,7 @@ where, `StartMethodActivity`:
 
 and `SetOutput` stores  the method `result` for rendering within method END line.<br>
 This code generates a log stream like the following:
-![alt text](<00.00 StartMethodActivity log stream.png>)
+![alt text](<images/00.00 StartMethodActivity log stream.png>)
 
 Standard rows within the section can be logged with `ILogger<>` methods.
 ```c#
@@ -37,7 +37,7 @@ logger.LogDebug("tenantId = {tenantId}, clientId = {clientId}, clientSecret = {c
 ...
 ```
 this generates a log raw as shown below
-![alt text](<00.01 Method log stream.png>)
+![alt text](<images/00.01 Method log stream.png>)
 
 ## Steps to use Diginsight
 You can obtain a __console log__ or __file log__ with diginsight by means of the following steps.<br>
@@ -50,7 +50,7 @@ Article [HOWTO - Use Diginsight Samples](<../01. Concepts/90.00 - HowTo - Use Di
 : {#step01 .sidebar="STEP 01 - Add Package Reference"}
 
 In the first step you can just add a diginsight reference to your code:<br>
-![alt text](<00.01 STEP1 - add reference.png>)
+![alt text](<images/00.01 STEP1 - add reference.png>)
 
 ## STEP 02 - Configure logging within the Startup sequence
 : {#step01 .sidebar[STEP 02 - Configure logging]}
@@ -178,7 +178,7 @@ app.MapControllers();
 
 As a reference example you can use the SampleWebAPI into the [telemetry.samples](https://github.com/diginsight/telemetry.samples) repository. 
 
-![alt text](<01.01 STEP1 - SampleWebAPI.png>)
+![alt text](<images/01.01 STEP1 - SampleWebAPI.png>)
 
 Details about opentelemetry configuration is available here:
 [HowTo: Configure diginsight telemetry to the remote tools](<02. Advanced/09.00 - Configure diginsight telemetry to the remote tools.md>).<br>
