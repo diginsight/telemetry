@@ -20,7 +20,8 @@
 
 mark,
 .mark {
-  background-color: var(--bs-highlight-bg) !important;
+  background-color: #fff7d1 !important;
+  color: inherit !important;
 }
 
 /* Hide redundant h1 ONLY when Quarto title block is present */
