@@ -29,7 +29,7 @@ public static class ActivityUtils
 
     public static bool NameMatchesPattern(string name, string namePattern)
     {
-        return new Regex($"^{string.Join(".*", namePattern.Split('*').Select(Regex.Escape))}$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant).IsMatch(name);
+        return new Regex($"^{string.Join(".*", namePattern.Split('*').Select(Regex.Escape))}$", RegexOptions.NonBacktracking | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant).IsMatch(name);
     }
 
     public static bool FullNameMatchesPattern(string sourceName, string operationName, string fullNamePattern)
@@ -53,12 +53,15 @@ public static class ActivityUtils
         };
     }
 
-    public static IDisposable? WithCurrent(Activity? activity)
+    extension(Activity)
     {
-        if (Activity.Current is not { } current)
-            return null;
+        public static IDisposable? WithCurrent(Activity? activity)
+        {
+            if (Activity.Current is not { } current)
+                return null;
 
-        Activity.Current = activity;
-        return new CallbackDisposable(() => { Activity.Current = current; });
+            Activity.Current = activity;
+            return new CallbackDisposable(() => { Activity.Current = current; });
+        }
     }
 }

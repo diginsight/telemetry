@@ -219,7 +219,7 @@ internal sealed class MemberInfoStringifier : IMemberInfoStringifier
                     sc.AppendEnumerator(
                         enumerator,
                         (ac1, e) => { Append(e.Current, ac1); },
-                        AllottedCounter.Count(stringifyContext.VariableConfiguration.GetEffectiveMaxMethodParameterCount())
+                        AllottedCounter.Count(stringifyContext.VariableConfiguration.EffectiveMaxMethodParameterCount)
                     );
                 }
             );

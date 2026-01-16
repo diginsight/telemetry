@@ -244,19 +244,19 @@ public static class StringifyContextExtensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AllottedCounter CountCollectionItems()
         {
-            return AllottedCounter.Count(stringifyContext.VariableConfiguration.GetEffectiveMaxCollectionItemCount());
+            return AllottedCounter.Count(stringifyContext.VariableConfiguration.EffectiveMaxCollectionItemCount);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AllottedCounter CountDictionaryItems()
         {
-            return AllottedCounter.Count(stringifyContext.VariableConfiguration.GetEffectiveMaxDictionaryItemCount());
+            return AllottedCounter.Count(stringifyContext.VariableConfiguration.EffectiveMaxDictionaryItemCount);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AllottedCounter CountMemberwiseProperties()
         {
-            return AllottedCounter.Count(stringifyContext.VariableConfiguration.GetEffectiveMaxMemberwisePropertyCount());
+            return AllottedCounter.Count(stringifyContext.VariableConfiguration.EffectiveMaxMemberwisePropertyCount);
         }
     }
 }

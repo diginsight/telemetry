@@ -93,7 +93,7 @@ internal sealed class BasicStringifier : IStringifier
                 StringifyTokens.TupleEnd,
                 sc =>
                 {
-                    AllottedCounter counter = AllottedCounter.Count(sc.VariableConfiguration.GetEffectiveMaxTupleItemCount());
+                    AllottedCounter counter = AllottedCounter.Count(sc.VariableConfiguration.EffectiveMaxTupleItemCount);
 
                     try
                     {

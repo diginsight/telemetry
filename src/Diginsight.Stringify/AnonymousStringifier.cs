@@ -29,7 +29,7 @@ internal sealed class AnonymousStringifier : ReflectionStringifier
 
         protected override AllottedCounter Count(StringifyContext stringifyContext)
         {
-            return AllottedCounter.Count(stringifyContext.VariableConfiguration.GetEffectiveMaxAnonymousObjectPropertyCount());
+            return AllottedCounter.Count(stringifyContext.VariableConfiguration.EffectiveMaxAnonymousObjectPropertyCount);
         }
     }
 }

@@ -262,7 +262,7 @@ public sealed class StringifyContext
     public IDisposable IncrementDepth(out bool isMaxDepth)
     {
         currentDepth += 1;
-        isMaxDepth = currentDepth > VariableConfiguration.GetEffectiveMaxDepth();
+        isMaxDepth = currentDepth > VariableConfiguration.EffectiveMaxDepth;
         return new CallbackDisposable(() => currentDepth -= 1);
     }
 

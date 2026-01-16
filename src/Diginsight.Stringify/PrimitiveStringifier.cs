@@ -38,7 +38,7 @@ internal sealed class PrimitiveStringifier : IStringifier
         public void AppendTo(StringifyContext stringifyContext)
         {
             stringifyContext.AppendDirect('"');
-            if (stringifyContext.VariableConfiguration.GetEffectiveMaxStringLength() is { } length && str.Length > length)
+            if (stringifyContext.VariableConfiguration.EffectiveMaxStringLength is { } length && str.Length > length)
             {
                 stringifyContext.AppendDirect(str[..length]);
                 stringifyContext.AppendEllipsis();
