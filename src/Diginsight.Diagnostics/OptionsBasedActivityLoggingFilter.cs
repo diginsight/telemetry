@@ -19,9 +19,7 @@ public class OptionsBasedActivityLoggingFilter : IActivityLoggingFilter
         string activitySourceName = activity.Source.Name;
         string activityName = activity.OperationName;
 
-        return ((IDiginsightActivitiesLogOptions)activitiesOptions
-                .Get(activity.GetCallerType())
-                .Freeze())
+        return ((IDiginsightActivitiesLogOptions)activitiesOptions.Get(activity.GetCallerType()))
             .ActivityNames
             .Where(x => ActivityUtils.FullNameMatchesPattern(activitySourceName, activityName, x.Key))
             .Select(static x => (LogBehavior?)x.Value)

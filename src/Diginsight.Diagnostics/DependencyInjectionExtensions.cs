@@ -14,10 +14,140 @@ namespace Diginsight.Diagnostics;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class DependencyInjectionExtensions
 {
-    public static IServiceCollection FlushOnCreateServiceProvider(this IServiceCollection services, DeferredLoggerFactory deferredLoggerFactory)
+    extension(IServiceCollection services)
     {
-        services.AddSingleton<IOnCreateServiceProvider>(sp => ActivatorUtilities.CreateInstance<DeferredLoggerFactoryFlusher>(sp, deferredLoggerFactory));
-        return services;
+        public IServiceCollection FlushOnCreateServiceProvider(DeferredLoggerFactory deferredLoggerFactory)
+        {
+            services.AddSingleton<IOnCreateServiceProvider>(sp => ActivatorUtilities.CreateInstance<DeferredLoggerFactoryFlusher>(sp, deferredLoggerFactory));
+            return services;
+        }
+
+        public IServiceCollection FlushOnCreateServiceProvider(DeferredActivityLifecycleLogEmitter deferredEmitter)
+        {
+            services.AddSingleton<IOnCreateServiceProvider>(sp => ActivatorUtilities.CreateInstance<DeferredActivityLifecycleLogEmitterFlusher>(sp, deferredEmitter));
+            return services;
+        }
+
+        public IServiceCollection AddActivityListenersAdder()
+        {
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<IOnCreateServiceProvider, ActivityListenersAdder>());
+            return services;
+        }
+
+        public IServiceCollection AddSpanDurationMetricRecorder<TRegistration>()
+            where TRegistration : SpanDurationMetricRecorderRegistration
+        {
+            services
+                .AddClassAwareOptions()
+                .AddActivityListenersAdder()
+                .AddMetrics();
+
+            services.TryAddSingleton<SpanDurationMetricRecorder>();
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<IActivityListenerRegistration, TRegistration>());
+
+            return services;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IServiceCollection AddSpanDurationMetricRecorder()
+        {
+            return services.AddSpanDurationMetricRecorder<SpanDurationMetricRecorderRegistration>();
+        }
+    }
+
+    extension(ILoggingBuilder loggingBuilder)
+    {
+        public ILoggingBuilder AddDiginsightCore()
+        {
+            IServiceCollection services = loggingBuilder.Services;
+
+            services
+                .AddClassAwareOptions()
+                .AddActivityListenersAdder();
+
+            services.TryAddSingleton<ActivityLifecycleLogEmitter>();
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<IActivityListenerRegistration, ActivityLifecycleLogEmitterRegistration>());
+
+            loggingBuilder.Configure(
+                static loggerFactoryOptions =>
+                {
+                    loggerFactoryOptions.ActivityTrackingOptions =
+                        ActivityTrackingOptions.SpanId | ActivityTrackingOptions.TraceId | ActivityTrackingOptions.TraceFlags;
+                }
+            );
+
+            return loggingBuilder;
+        }
+
+        public ILoggingBuilder AddDiginsightConsole(
+            Action<DiginsightConsoleFormatterOptions>? configureFormatterOptions = null
+        )
+        {
+            loggingBuilder.AddDiginsightCore();
+
+            if (configureFormatterOptions is not null)
+            {
+                loggingBuilder.AddConsoleFormatter<DiginsightConsoleFormatter, DiginsightConsoleFormatterOptions>(configureFormatterOptions);
+            }
+            else
+            {
+                loggingBuilder.AddConsoleFormatter<DiginsightConsoleFormatter, DiginsightConsoleFormatterOptions>();
+            }
+
+            loggingBuilder.AddConsole(static consoleLoggerOptions => { consoleLoggerOptions.FormatterName = DiginsightConsoleFormatter.FormatterName; });
+
+            loggingBuilder.Services.TryAddSingleton<IConsoleLineDescriptorProvider, ConsoleLineDescriptorProvider>();
+
+            return loggingBuilder;
+        }
+
+        public ILoggingBuilder AddDiginsightDebug(
+            Action<DiginsightDebugLoggerOptions>? configureOptions = null
+        )
+        {
+            loggingBuilder.AddDiginsightCore();
+
+            loggingBuilder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<ILoggerProvider, DiginsightDebugLoggerProvider>());
+
+            if (configureOptions is not null)
+            {
+                loggingBuilder.Services.Configure(configureOptions);
+            }
+
+            return loggingBuilder;
+        }
+
+        public ILoggingBuilder AddVolatileConfiguration()
+        {
+            IServiceCollection services = loggingBuilder.Services;
+
+            if (services.Any(static sd => sd.ImplementationType == typeof(VolatileLogLevelOptionsChangeTokenSource)))
+            {
+                return loggingBuilder;
+            }
+
+            services.AddSingleton<IOptionsChangeTokenSource<LoggerFilterOptions>, VolatileLogLevelOptionsChangeTokenSource>();
+
+            Assembly assembly = typeof(ILoggerProviderConfigurationFactory).Assembly;
+
+            services.AddSingleton(
+                sp => (IConfigureOptions<LoggerFilterOptions>)Activator.CreateInstance(
+                    assembly.GetType("Microsoft.Extensions.Logging.LoggerFilterConfigureOptions")!,
+                    sp.GetRequiredService<IVolatileConfigurationStorageProvider>().Get(KnownVolatileConfigurationStorageNames.LogLevel).Configuration
+                )!
+            );
+
+            Type loggingConfigurationType = assembly.GetType("Microsoft.Extensions.Logging.Configuration.LoggingConfiguration")!;
+            services.AddSingleton(
+                loggingConfigurationType,
+                sp => Activator.CreateInstance(
+                    loggingConfigurationType,
+                    sp.GetRequiredService<IVolatileConfigurationStorageProvider>().Get(KnownVolatileConfigurationStorageNames.LogLevel).Configuration
+                )!
+            );
+
+            return loggingBuilder;
+        }
     }
 
     private sealed class DeferredLoggerFactoryFlusher : IOnCreateServiceProvider
@@ -38,12 +168,6 @@ public static class DependencyInjectionExtensions
                 deferredLoggerFactory.FlushTo(loggerFactory);
             }
         }
-    }
-
-    public static IServiceCollection FlushOnCreateServiceProvider(this IServiceCollection services, DeferredActivityLifecycleLogEmitter deferredEmitter)
-    {
-        services.AddSingleton<IOnCreateServiceProvider>(sp => ActivatorUtilities.CreateInstance<DeferredActivityLifecycleLogEmitterFlusher>(sp, deferredEmitter));
-        return services;
     }
 
     private sealed class DeferredActivityLifecycleLogEmitterFlusher : IOnCreateServiceProvider
@@ -68,12 +192,6 @@ public static class DependencyInjectionExtensions
         }
     }
 
-    public static IServiceCollection AddActivityListenersAdder(this IServiceCollection services)
-    {
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IOnCreateServiceProvider, ActivityListenersAdder>());
-        return services;
-    }
-
     private sealed class ActivityListenersAdder : IOnCreateServiceProvider
     {
         private readonly IEnumerable<IActivityListenerRegistration> registrations;
@@ -92,28 +210,6 @@ public static class DependencyInjectionExtensions
                 ActivitySource.AddActivityListener(registration.ToActivityListener());
             }
         }
-    }
-
-    public static ILoggingBuilder AddDiginsightCore(this ILoggingBuilder loggingBuilder)
-    {
-        IServiceCollection services = loggingBuilder.Services;
-
-        services
-            .AddClassAwareOptions()
-            .AddActivityListenersAdder();
-
-        services.TryAddSingleton<ActivityLifecycleLogEmitter>();
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IActivityListenerRegistration, ActivityLifecycleLogEmitterRegistration>());
-
-        loggingBuilder.Configure(
-            static loggerFactoryOptions =>
-            {
-                loggerFactoryOptions.ActivityTrackingOptions =
-                    ActivityTrackingOptions.SpanId | ActivityTrackingOptions.TraceId | ActivityTrackingOptions.TraceFlags;
-            }
-        );
-
-        return loggingBuilder;
     }
 
     private sealed class ActivityLifecycleLogEmitterRegistration : IActivityListenerRegistration
@@ -140,96 +236,6 @@ public static class DependencyInjectionExtensions
                 .ToArray();
             return matches.Any() && matches.All(static x => x);
         }
-    }
-
-    public static ILoggingBuilder AddDiginsightConsole(
-        this ILoggingBuilder loggingBuilder, Action<DiginsightConsoleFormatterOptions>? configureFormatterOptions = null
-    )
-    {
-        loggingBuilder.AddDiginsightCore();
-
-        if (configureFormatterOptions is not null)
-        {
-            loggingBuilder.AddConsoleFormatter<DiginsightConsoleFormatter, DiginsightConsoleFormatterOptions>(configureFormatterOptions);
-        }
-        else
-        {
-            loggingBuilder.AddConsoleFormatter<DiginsightConsoleFormatter, DiginsightConsoleFormatterOptions>();
-        }
-
-        loggingBuilder.AddConsole(static consoleLoggerOptions => { consoleLoggerOptions.FormatterName = DiginsightConsoleFormatter.FormatterName; });
-
-        loggingBuilder.Services.TryAddSingleton<IConsoleLineDescriptorProvider, ConsoleLineDescriptorProvider>();
-
-        return loggingBuilder;
-    }
-
-    public static ILoggingBuilder AddDiginsightDebug(
-        this ILoggingBuilder loggingBuilder, Action<DiginsightDebugLoggerOptions>? configureOptions = null
-    )
-    {
-        loggingBuilder.AddDiginsightCore();
-
-        loggingBuilder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<ILoggerProvider, DiginsightDebugLoggerProvider>());
-
-        if (configureOptions is not null)
-        {
-            loggingBuilder.Services.Configure(configureOptions);
-        }
-
-        return loggingBuilder;
-    }
-
-    public static IServiceCollection AddSpanDurationMetricRecorder<TRegistration>(this IServiceCollection services)
-        where TRegistration : SpanDurationMetricRecorderRegistration
-    {
-        services
-            .AddClassAwareOptions()
-            .AddActivityListenersAdder()
-            .AddMetrics();
-
-        services.TryAddSingleton<SpanDurationMetricRecorder>();
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IActivityListenerRegistration, TRegistration>());
-
-        return services;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IServiceCollection AddSpanDurationMetricRecorder(this IServiceCollection services)
-    {
-        return services.AddSpanDurationMetricRecorder<SpanDurationMetricRecorderRegistration>();
-    }
-
-    public static ILoggingBuilder AddVolatileConfiguration(this ILoggingBuilder loggingBuilder)
-    {
-        IServiceCollection services = loggingBuilder.Services;
-
-        if (services.Any(static sd => sd.ImplementationType == typeof(VolatileLogLevelOptionsChangeTokenSource)))
-        {
-            return loggingBuilder;
-        }
-
-        services.AddSingleton<IOptionsChangeTokenSource<LoggerFilterOptions>, VolatileLogLevelOptionsChangeTokenSource>();
-
-        Assembly assembly = typeof(ILoggerProviderConfigurationFactory).Assembly;
-
-        services.AddSingleton(
-            sp => (IConfigureOptions<LoggerFilterOptions>)Activator.CreateInstance(
-                assembly.GetType("Microsoft.Extensions.Logging.LoggerFilterConfigureOptions")!,
-                sp.GetRequiredService<IVolatileConfigurationStorageProvider>().Get(KnownVolatileConfigurationStorageNames.LogLevel).Configuration
-            )!
-        );
-
-        Type loggingConfigurationType = assembly.GetType("Microsoft.Extensions.Logging.Configuration.LoggingConfiguration")!;
-        services.AddSingleton(
-            loggingConfigurationType,
-            sp => Activator.CreateInstance(
-                loggingConfigurationType,
-                sp.GetRequiredService<IVolatileConfigurationStorageProvider>().Get(KnownVolatileConfigurationStorageNames.LogLevel).Configuration
-            )!
-        );
-
-        return loggingBuilder;
     }
 
     private sealed class VolatileLogLevelOptionsChangeTokenSource : ConfigurationChangeTokenSource<LoggerFilterOptions>

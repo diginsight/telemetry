@@ -19,64 +19,67 @@ public static class StringifyContextFactoryBuilderExtensions
         return factory.MakeStringifyContext(ref stringBuilder);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static StringifyContextFactoryBuilder ConfigureOverall(
-        this StringifyContextFactoryBuilder builder, IStringifyOverallConfiguration configuration
-    )
+    extension(StringifyContextFactoryBuilder builder)
     {
-        return builder.ConfigureOverall(x => x.ResetFrom(configuration));
-    }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public StringifyContextFactoryBuilder ConfigureOverall(
+            IStringifyOverallConfiguration configuration
+        )
+        {
+            return builder.ConfigureOverall(x => x.ResetFrom(configuration));
+        }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static StringifyContextFactoryBuilder ConfigureOverall(
-        this StringifyContextFactoryBuilder builder, Action<StringifyOverallConfiguration> configure
-    )
-    {
-        builder.Services.Configure(configure);
-        return builder;
-    }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public StringifyContextFactoryBuilder ConfigureOverall(
+            Action<StringifyOverallConfiguration> configure
+        )
+        {
+            builder.Services.Configure(configure);
+            return builder;
+        }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static StringifyContextFactoryBuilder ConfigureContracts(
-        this StringifyContextFactoryBuilder builder, Action<StringifyTypeContractAccessor> configure
-    )
-    {
-        builder.Services.Configure(configure);
-        return builder;
-    }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public StringifyContextFactoryBuilder ConfigureContracts(
+            Action<StringifyTypeContractAccessor> configure
+        )
+        {
+            builder.Services.Configure(configure);
+            return builder;
+        }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static StringifyContextFactoryBuilder RegisterStringifier(
-        this StringifyContextFactoryBuilder builder, Type stringifierType, int priority = 0
-    )
-    {
-        builder.Services.Configure<StringifyOverallConfiguration>(
-            configuration => { configuration.CustomRegistrations.Add(new StringifierRegistration(stringifierType, priority)); }
-        );
-        return builder;
-    }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public StringifyContextFactoryBuilder RegisterStringifier(
+            Type stringifierType, int priority = 0
+        )
+        {
+            builder.Services.Configure<StringifyOverallConfiguration>(
+                configuration => { configuration.CustomRegistrations.Add(new StringifierRegistration(stringifierType, priority)); }
+            );
+            return builder;
+        }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static StringifyContextFactoryBuilder RegisterStringifier<T>(
-        this StringifyContextFactoryBuilder builder, int priority = 0
-    )
-        where T : IStringifier
-    {
-        return builder.RegisterStringifier(typeof(T), priority);
-    }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public StringifyContextFactoryBuilder RegisterStringifier<T>(
+            int priority = 0
+        )
+            where T : IStringifier
+        {
+            return builder.RegisterStringifier(typeof(T), priority);
+        }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static StringifyContextFactoryBuilder WithLoggerFactory(
-        this StringifyContextFactoryBuilder builder, ILoggerFactory loggerFactory
-    )
-    {
-        builder.Services.TryAddSingleton(loggerFactory);
-        return builder;
-    }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public StringifyContextFactoryBuilder WithLoggerFactory(
+            ILoggerFactory loggerFactory
+        )
+        {
+            builder.Services.TryAddSingleton(loggerFactory);
+            return builder;
+        }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IStringifyContextFactory Build(this StringifyContextFactoryBuilder builder)
-    {
-        return builder.Services.BuildServiceProvider().GetRequiredService<IStringifyContextFactory>();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IStringifyContextFactory Build()
+        {
+            return builder.Services.BuildServiceProvider().GetRequiredService<IStringifyContextFactory>();
+        }
     }
 }

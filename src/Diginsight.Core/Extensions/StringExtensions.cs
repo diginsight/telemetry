@@ -21,22 +21,25 @@ public static class StringExtensions
         };
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string? HardTrim(this string? str)
+    extension(string? str)
     {
-        str = (str ?? "").Trim();
-        return str switch
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public string? HardTrim()
         {
-            "" => null,
-            _ => str,
-        };
-    }
+            str = (str ?? "").Trim();
+            return str switch
+            {
+                "" => null,
+                _ => str,
+            };
+        }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    [return: NotNullIfNotNull(nameof(str))]
-    public static string? Truncate(this string? str, int length)
-    {
-        return str?.Length > length ? str[..length] : str;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: NotNullIfNotNull(nameof(str))]
+        public string? Truncate(int length)
+        {
+            return str?.Length > length ? str[..length] : str;
+        }
     }
 
     public static IEnumerable<string> NormalizeHttpHeaderValue(this StringValues stringValues)

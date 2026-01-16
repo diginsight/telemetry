@@ -11,107 +11,109 @@ namespace Diginsight.Diagnostics.Log4Net;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class DependencyInjectionExtensions
 {
-    public static ILoggingBuilder AddDiginsightLog4Net(
-        this ILoggingBuilder loggingBuilder,
-        Func<IServiceProvider, IEnumerable<IAppender>> createAppenders,
-        Func<IServiceProvider, Level?>? getLevel = null,
-        string? repositoryName = null
-    )
+    extension(ILoggingBuilder loggingBuilder)
     {
-        loggingBuilder.AddDiginsightCore();
+        public ILoggingBuilder AddDiginsightLog4Net(
+            Func<IServiceProvider, IEnumerable<IAppender>> createAppenders,
+            Func<IServiceProvider, Level?>? getLevel = null,
+            string? repositoryName = null
+        )
+        {
+            loggingBuilder.AddDiginsightCore();
 
-        IServiceCollection services = loggingBuilder.Services;
+            IServiceCollection services = loggingBuilder.Services;
 
-        repositoryName ??= Guid.NewGuid().ToString("N");
+            repositoryName ??= Guid.NewGuid().ToString("N");
 
-        ServiceDescriptor descriptor = ServiceDescriptor.Singleton<ILoggerProvider, Log4NetProvider>(
-            sp =>
-            {
-                string fullRepositoryName = string.Format(CultureInfo.InvariantCulture, "{0}_{1:X8}", repositoryName, sp.GetHashCode());
-                IRepositorySelector repositorySelector = LoggerManager.RepositorySelector;
-
-                Hierarchy hierarchy = repositorySelector.ExistsRepository(fullRepositoryName)
-                    ? (Hierarchy)repositorySelector.GetRepository(fullRepositoryName)
-                    : (Hierarchy)repositorySelector.CreateRepository(fullRepositoryName, typeof(Hierarchy));
-
-                if (!hierarchy.Configured)
+            ServiceDescriptor descriptor = ServiceDescriptor.Singleton<ILoggerProvider, Log4NetProvider>(
+                sp =>
                 {
-                    Logger logger = hierarchy.Root;
+                    string fullRepositoryName = string.Format(CultureInfo.InvariantCulture, "{0}_{1:X8}", repositoryName, sp.GetHashCode());
+                    IRepositorySelector repositorySelector = LoggerManager.RepositorySelector;
 
-                    foreach (IAppender appender in createAppenders(sp))
+                    Hierarchy hierarchy = repositorySelector.ExistsRepository(fullRepositoryName)
+                        ? (Hierarchy)repositorySelector.GetRepository(fullRepositoryName)
+                        : (Hierarchy)repositorySelector.CreateRepository(fullRepositoryName, typeof(Hierarchy));
+
+                    if (!hierarchy.Configured)
                     {
-                        logger.AddAppender(appender.AsActivatedOptionHandler());
+                        Logger logger = hierarchy.Root;
+
+                        foreach (IAppender appender in createAppenders(sp))
+                        {
+                            logger.AddAppender(appender.AsActivatedOptionHandler());
+                        }
+
+                        if (getLevel?.Invoke(sp) is { } logLevel)
+                        {
+                            logger.Level = logLevel;
+                        }
+
+                        hierarchy.Configured = true;
                     }
 
-                    if (getLevel?.Invoke(sp) is { } logLevel)
+                    Log4NetProviderOptions providerOptions = new ()
                     {
-                        logger.Level = logLevel;
-                    }
-
-                    hierarchy.Configured = true;
+                        LoggingEventFactory = ActivatorUtilities.CreateInstance<DiginsightLoggingEventFactory>(sp),
+                        ExternalConfigurationSetup = true,
+                        LoggerRepository = hierarchy.Name,
+                    };
+                    return new Log4NetProvider(providerOptions);
                 }
+            );
 
-                Log4NetProviderOptions providerOptions = new ()
-                {
-                    LoggingEventFactory = ActivatorUtilities.CreateInstance<DiginsightLoggingEventFactory>(sp),
-                    ExternalConfigurationSetup = true,
-                    LoggerRepository = hierarchy.Name,
-                };
-                return new Log4NetProvider(providerOptions);
-            }
-        );
-
-        AddDiginsightLog4NetMarker marker;
-        if (services.FirstOrDefault(static x => x.ServiceType == typeof(AddDiginsightLog4NetMarker)) is { } markerDescriptor)
-        {
-            marker = (AddDiginsightLog4NetMarker)markerDescriptor.ImplementationInstance!;
-            services.Remove(marker.Descriptor);
-            marker.Descriptor = descriptor;
-        }
-        else
-        {
-            marker = new AddDiginsightLog4NetMarker(descriptor);
-            services.AddSingleton(marker);
-        }
-
-        services.Add(descriptor);
-
-        return loggingBuilder;
-    }
-
-    public static ILoggingBuilder AddDiginsightLog4Net(this ILoggingBuilder loggingBuilder, string configFileName)
-    {
-        loggingBuilder.AddDiginsightCore();
-
-        IServiceCollection services = loggingBuilder.Services;
-
-        ServiceDescriptor descriptor = ServiceDescriptor.Singleton<ILoggerProvider, Log4NetProvider>(
-            sp =>
+            AddDiginsightLog4NetMarker marker;
+            if (services.FirstOrDefault(static x => x.ServiceType == typeof(AddDiginsightLog4NetMarker)) is { } markerDescriptor)
             {
-                Log4NetProviderOptions providerOptions = new (configFileName)
-                {
-                    LoggingEventFactory = ActivatorUtilities.CreateInstance<DiginsightLoggingEventFactory>(sp),
-                };
-                return new Log4NetProvider(providerOptions);
+                marker = (AddDiginsightLog4NetMarker)markerDescriptor.ImplementationInstance!;
+                services.Remove(marker.Descriptor);
+                marker.Descriptor = descriptor;
             }
-        );
+            else
+            {
+                marker = new AddDiginsightLog4NetMarker(descriptor);
+                services.AddSingleton(marker);
+            }
 
-        AddDiginsightLog4NetMarker marker;
-        if (services.FirstOrDefault(static x => x.ServiceType == typeof(AddDiginsightLog4NetMarker)) is { } markerDescriptor)
-        {
-            marker = (AddDiginsightLog4NetMarker)markerDescriptor.ImplementationInstance!;
-            services.Remove(marker.Descriptor);
-            marker.Descriptor = descriptor;
-        }
-        else
-        {
-            marker = new AddDiginsightLog4NetMarker(descriptor);
-            services.AddSingleton(marker);
+            services.Add(descriptor);
+
+            return loggingBuilder;
         }
 
-        services.Add(descriptor);
+        public ILoggingBuilder AddDiginsightLog4Net(string configFileName)
+        {
+            loggingBuilder.AddDiginsightCore();
 
-        return loggingBuilder;
+            IServiceCollection services = loggingBuilder.Services;
+
+            ServiceDescriptor descriptor = ServiceDescriptor.Singleton<ILoggerProvider, Log4NetProvider>(
+                sp =>
+                {
+                    Log4NetProviderOptions providerOptions = new (configFileName)
+                    {
+                        LoggingEventFactory = ActivatorUtilities.CreateInstance<DiginsightLoggingEventFactory>(sp),
+                    };
+                    return new Log4NetProvider(providerOptions);
+                }
+            );
+
+            AddDiginsightLog4NetMarker marker;
+            if (services.FirstOrDefault(static x => x.ServiceType == typeof(AddDiginsightLog4NetMarker)) is { } markerDescriptor)
+            {
+                marker = (AddDiginsightLog4NetMarker)markerDescriptor.ImplementationInstance!;
+                services.Remove(marker.Descriptor);
+                marker.Descriptor = descriptor;
+            }
+            else
+            {
+                marker = new AddDiginsightLog4NetMarker(descriptor);
+                services.AddSingleton(marker);
+            }
+
+            services.Add(descriptor);
+
+            return loggingBuilder;
+        }
     }
 
     private sealed class AddDiginsightLog4NetMarker

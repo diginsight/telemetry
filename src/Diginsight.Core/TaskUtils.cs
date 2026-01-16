@@ -145,6 +145,7 @@ public static class TaskUtils
                         {
                             if (cancellationToken.IsCancellationRequested)
                             {
+                                // ReSharper disable once PossiblyMistakenUseOfCancellationToken
                                 taskCompletionSource.TrySetCanceled(cancellationToken);
                             }
 

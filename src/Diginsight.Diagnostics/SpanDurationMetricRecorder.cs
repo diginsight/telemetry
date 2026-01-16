@@ -41,7 +41,7 @@ public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
         metricLazy = new Lazy<Histogram<double>>(
             () =>
             {
-                IMetricRecordingOptions metricOptions = activitiesOptions.Value.Freeze();
+                IMetricRecordingOptions metricOptions = activitiesOptions.Value;
                 return meterFactory
                     .Create(metricOptions.MeterName)
                     .CreateHistogram<double>(metricOptions.MetricName, "ms", metricOptions.MetricDescription);
@@ -60,17 +60,17 @@ public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
         try
         {
             Histogram<double> metric = metricLazy.Value;
-            IMetricRecordingOptions metricOptions = activitiesOptions.Get(activity.GetCallerType()).Freeze();
+            IMetricRecordingOptions metricOptions = activitiesOptions.Get(activity.GetCallerType());
 
             if (!(recordingFilter?.ShouldRecord(activity, metric) ?? metricOptions.Record))
                 return;
 
-            Tag nameTag = new("span_name", activityName);
-            Tag statusTag = new("status", activity.Status.ToString());
+            Tag nameTag = new ("span_name", activityName);
+            Tag statusTag = new ("status", activity.Status.ToString());
 
             Tag[] tags = recordingEnricher is not null
-                ? [nameTag, statusTag, .. recordingEnricher.ExtractTags(activity, metric)]
-                : [nameTag, statusTag];
+                ? [ nameTag, statusTag, .. recordingEnricher.ExtractTags(activity, metric) ]
+                : [ nameTag, statusTag ];
 
             metric.Record(activity.Duration.TotalMilliseconds, tags);
         }
