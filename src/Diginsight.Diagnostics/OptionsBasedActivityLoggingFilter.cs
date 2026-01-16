@@ -1,4 +1,4 @@
-﻿using Diginsight.Options;
+using Diginsight.Options;
 using System.Diagnostics;
 
 namespace Diginsight.Diagnostics;
@@ -19,11 +19,9 @@ public class OptionsBasedActivityLoggingFilter : IActivityLoggingFilter
         string activitySourceName = activity.Source.Name;
         string activityName = activity.OperationName;
 
-        return ((IDiginsightActivitiesLogOptions)activitiesOptions
-                .Get(activity.GetCallerType())
-                .Freeze())
-            .ActivityNames
-            .Where(x => ActivityUtils.FullNameMatchesPattern(activitySourceName, activityName, x.Key))
+        var activityNames = ((IDiginsightActivitiesLogOptions)activitiesOptions.Get(activity.GetCallerType()).Freeze()).ActivityNames;
+
+        return activityNames.Where(x => ActivityUtils.FullNameMatchesPattern(activitySourceName, activityName, x.Key))
             .Select(static x => (LogBehavior?)x.Value)
             .Max();
     }
