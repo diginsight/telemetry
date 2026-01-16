@@ -1,0 +1,8 @@
+/* Custom styles for VS Code Markdown Preview */
+
+/* Override highlight color to match Quarto site */
+mark {
+  background-color: #fff7d1 !important;
+  color: inherit;
+  padding: 0.1em 0.2em;
+}
