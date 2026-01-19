@@ -7,45 +7,51 @@ namespace Diginsight.Stringify;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class StringifyContractExtensions
 {
-    public static StringifyTypeContract<T> GetOrAdd<T>(this StringifyTypeContractAccessor contractAccessor)
+    extension(StringifyTypeContractAccessor contractAccessor)
     {
-        return (StringifyTypeContract<T>)contractAccessor.GetOrAdd(typeof(T));
+        public StringifyTypeContract<T> GetOrAdd<T>()
+        {
+            return (StringifyTypeContract<T>)contractAccessor.GetOrAdd(typeof(T));
+        }
+
+        public StringifyTypeContractAccessor GetOrAdd(
+            Type type, Action<StringifyTypeContract> configureContract
+        )
+        {
+            StringifyTypeContract contract = contractAccessor.GetOrAdd(type);
+            configureContract(contract);
+            return contractAccessor;
+        }
+
+        public StringifyTypeContractAccessor GetOrAdd<T>(
+            Action<StringifyTypeContract<T>> configureContract
+        )
+        {
+            StringifyTypeContract<T> contract = contractAccessor.GetOrAdd<T>();
+            configureContract(contract);
+            return contractAccessor;
+        }
     }
 
-    public static StringifyTypeContractAccessor GetOrAdd(
-        this StringifyTypeContractAccessor contractAccessor, Type type, Action<StringifyTypeContract> configureContract
-    )
+    extension(StringifyTypeContract typeContract)
     {
-        StringifyTypeContract contract = contractAccessor.GetOrAdd(type);
-        configureContract(contract);
-        return contractAccessor;
-    }
+        public StringifyTypeContract GetOrAdd(
+            string memberName, Action<StringifyMemberContract> configureContract
+        )
+        {
+            StringifyMemberContract memberContract = typeContract.GetOrAdd(memberName);
+            configureContract(memberContract);
+            return typeContract;
+        }
 
-    public static StringifyTypeContractAccessor GetOrAdd<T>(
-        this StringifyTypeContractAccessor contractAccessor, Action<StringifyTypeContract<T>> configureContract
-    )
-    {
-        StringifyTypeContract<T> contract = contractAccessor.GetOrAdd<T>();
-        configureContract(contract);
-        return contractAccessor;
-    }
-
-    public static StringifyTypeContract GetOrAdd(
-        this StringifyTypeContract typeContract, string memberName, Action<StringifyMemberContract> configureContract
-    )
-    {
-        StringifyMemberContract memberContract = typeContract.GetOrAdd(memberName);
-        configureContract(memberContract);
-        return typeContract;
-    }
-
-    public static StringifyTypeContract GetOrAdd(
-        this StringifyTypeContract typeContract, MemberInfo member, Action<StringifyMemberContract> configureContract
-    )
-    {
-        StringifyMemberContract memberContract = typeContract.GetOrAdd(member);
-        configureContract(memberContract);
-        return typeContract;
+        public StringifyTypeContract GetOrAdd(
+            MemberInfo member, Action<StringifyMemberContract> configureContract
+        )
+        {
+            StringifyMemberContract memberContract = typeContract.GetOrAdd(member);
+            configureContract(memberContract);
+            return typeContract;
+        }
     }
 
     public static StringifyTypeContract<T> GetOrAdd<T, TMember>(

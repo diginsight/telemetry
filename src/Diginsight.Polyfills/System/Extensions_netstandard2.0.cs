@@ -9,16 +9,18 @@ public static partial class Extensions
         value = kvp.Value;
     }
 
-    public static TValue? GetValueOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key)
+    extension<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> dictionary)
         where TKey : notnull
     {
-        return dictionary.GetValueOrDefault(key, default);
-    }
+        public TValue? GetValueOrDefault(TKey key)
+        {
+            return dictionary.GetValueOrDefault(key, default);
+        }
 
-    public static TValue? GetValueOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key, TValue? defaultValue)
-        where TKey : notnull
-    {
-        return dictionary.TryGetValue(key, out TValue obj) ? obj : defaultValue;
+        public TValue? GetValueOrDefault(TKey key, TValue? defaultValue)
+        {
+            return dictionary.TryGetValue(key, out TValue obj) ? obj : defaultValue;
+        }
     }
 }
 #endif

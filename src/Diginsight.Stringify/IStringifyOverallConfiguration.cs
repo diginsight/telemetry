@@ -10,8 +10,4 @@ public interface IStringifyOverallConfiguration : IStringifyVariableConfiguratio
     StringComparison MetaPropertyKeyComparison { get; }
 
     void ResetFrom(IStringifyOverallConfiguration source);
-
-#if NET || NETSTANDARD2_1_OR_GREATER
-    sealed int? GetEffectiveMaxTotalLength() => MaxTotalLength.Value;
-#endif
 }

@@ -15,41 +15,44 @@ namespace Diginsight.AspNetCore;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddDynamicLogLevel<T>(this IServiceCollection services)
-        where T : class, IDynamicLogLevelInjector
+    extension(IServiceCollection services)
     {
-        AddDynamicLogLevelCore(services);
-        services.TryAddTransient<IDynamicLogLevelInjector, T>();
-        return services;
-    }
+        public IServiceCollection AddDynamicLogLevel<T>()
+            where T : class, IDynamicLogLevelInjector
+        {
+            services.AddDynamicLogLevelCore();
+            services.TryAddTransient<IDynamicLogLevelInjector, T>();
+            return services;
+        }
 
-    public static IServiceCollection AddDynamicLogLevel(
-        this IServiceCollection services, Func<IServiceProvider, IDynamicLogLevelInjector> implementationFactory
-    )
-    {
-        AddDynamicLogLevelCore(services);
-        services.TryAddTransient(implementationFactory);
-        return services;
-    }
+        public IServiceCollection AddDynamicLogLevel(
+            Func<IServiceProvider, IDynamicLogLevelInjector> implementationFactory
+        )
+        {
+            services.AddDynamicLogLevelCore();
+            services.TryAddTransient(implementationFactory);
+            return services;
+        }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static IServiceCollection AddDynamicLogLevelCore(IServiceCollection services)
-    {
-        return services
-            .AddLoggerFactorySetter()
-            .AddHttpContextAccessor()
-            .Decorate<IHttpContextFactory, DynamicLogLevelHttpContextFactory>();
-    }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private IServiceCollection AddDynamicLogLevelCore()
+        {
+            return services
+                .AddLoggerFactorySetter()
+                .AddHttpContextAccessor()
+                .Decorate<IHttpContextFactory, DynamicLogLevelHttpContextFactory>();
+        }
 
-    public static IServiceCollection AddAspNetCorePropagator(this IServiceCollection services)
-    {
-        services.AddHttpContextAccessor();
-        services.TryAddSingleton<DistributedContextPropagator>(
-            static sp => ActivatorUtilities.CreateInstance<AspNetCorePropagator>(sp, DistributedContextPropagator.Current)
-        );
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IOnCreateServiceProvider, SetCurrentPropagator>());
+        public IServiceCollection AddAspNetCorePropagator()
+        {
+            services.AddHttpContextAccessor();
+            services.TryAddSingleton<DistributedContextPropagator>(
+                static sp => ActivatorUtilities.CreateInstance<AspNetCorePropagator>(sp, DistributedContextPropagator.Current)
+            );
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<IOnCreateServiceProvider, SetCurrentPropagator>());
 
-        return services;
+            return services;
+        }
     }
 
     public sealed class SetCurrentPropagator : IOnCreateServiceProvider
