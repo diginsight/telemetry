@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Frozen;
 
 namespace Diginsight.Options;
 
@@ -23,7 +23,7 @@ public sealed class ClassAwareOptionsWrapper<TOptions> : IClassAwareOptions<TOpt
     /// <param name="valuesByClass">A dictionary of options instances by class.</param>
     public ClassAwareOptionsWrapper(TOptions noClassValue, IReadOnlyDictionary<Type, TOptions>? valuesByClass = null)
     {
-        this.valuesByClass = valuesByClass ?? ImmutableDictionary<Type, TOptions>.Empty;
+        this.valuesByClass = valuesByClass ?? FrozenDictionary<Type, TOptions>.Empty;
         Value = noClassValue;
     }
 

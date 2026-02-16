@@ -31,26 +31,27 @@ public static class StringifyExtensions
         MseOptions.Create(new MemoryCacheOptions() { SizeLimit = 2000 })
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IStringifiable ToStringifiable(
-        this object? obj,
-        IStringifyContextFactory? stringifyContextFactory = null
-    )
+    extension(object? obj)
     {
-        return (stringifyContextFactory ?? StringifyContextFactoryBuilder.DefaultFactory)
-            .ToStringifiable(obj);
-    }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IStringifiable ToStringifiable(
+            IStringifyContextFactory? stringifyContextFactory = null
+        )
+        {
+            return (stringifyContextFactory ?? StringifyContextFactoryBuilder.DefaultFactory)
+                .ToStringifiable(obj);
+        }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string Stringify(
-        this object? obj,
-        IStringifyContextFactory? stringifyContextFactory = null,
-        Action<StringifyVariableConfiguration>? configureVariables = null,
-        Action<IDictionary<string, object?>>? configureMetaProperties = null
-    )
-    {
-        return (stringifyContextFactory ?? StringifyContextFactoryBuilder.DefaultFactory)
-            .Stringify(obj, configureVariables, configureMetaProperties);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public string Stringify(
+            IStringifyContextFactory? stringifyContextFactory = null,
+            Action<StringifyVariableConfiguration>? configureVariables = null,
+            Action<IDictionary<string, object?>>? configureMetaProperties = null
+        )
+        {
+            return (stringifyContextFactory ?? StringifyContextFactoryBuilder.DefaultFactory)
+                .Stringify(obj, configureVariables, configureMetaProperties);
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

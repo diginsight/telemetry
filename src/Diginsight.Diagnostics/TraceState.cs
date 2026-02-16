@@ -8,11 +8,31 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Diginsight.Diagnostics;
 
-public sealed class TraceState : IDictionary<TraceStateKey, string>, IReadOnlyDictionary<TraceStateKey, string>
+public sealed partial class TraceState : IDictionary<TraceStateKey, string>, IReadOnlyDictionary<TraceStateKey, string>
 {
-    private static readonly Regex SimpleKeyRegex = new (@"^([a-z][a-z0-9_\-*/]{0,255})=");
-    private static readonly Regex ComplexKeyRegex = new (@"^([a-z0-9][a-z0-9_\-*/]{0,240})@([a-z0-9_\-*/]{0,13})=");
-    private static readonly Regex ValueRegex = new (@"^[\x20-\x7e-[,=]]{0,255}[\x21-\x7e-[,=]]");
+#if NET7_0_OR_GREATER
+    [GeneratedRegex(@"^([a-z][a-z0-9_\-*/]{0,255})=", RegexOptions.NonBacktracking)]
+    private static partial Regex SimpleKeyRegexImpl();
+
+    [GeneratedRegex(@"^([a-z0-9][a-z0-9_\-*/]{0,240})@([a-z0-9_\-*/]{0,13})=", RegexOptions.NonBacktracking)]
+    private static partial Regex ComplexKeyRegexImpl();
+
+    [GeneratedRegex(@"^[\x20-\x7e-[,=]]{0,255}[\x21-\x7e-[,=]]", RegexOptions.NonBacktracking)]
+    private static partial Regex ValueRegexImpl();
+
+    /// <inheritdoc cref="SimpleKeyRegexImpl" />
+    private static Regex SimpleKeyRegex => SimpleKeyRegexImpl();
+
+    /// <inheritdoc cref="ComplexKeyRegexImpl" />
+    private static Regex ComplexKeyRegex => ComplexKeyRegexImpl();
+
+    /// <inheritdoc cref="ValueRegexImpl" />
+    private static Regex ValueRegex => ValueRegexImpl();
+#else
+    private static readonly Regex SimpleKeyRegex = new (@"^([a-z][a-z0-9_\-*/]{0,255})=", RegexOptions.NonBacktracking);
+    private static readonly Regex ComplexKeyRegex = new (@"^([a-z0-9][a-z0-9_\-*/]{0,240})@([a-z0-9_\-*/]{0,13})=", RegexOptions.NonBacktracking);
+    private static readonly Regex ValueRegex = new (@"^[\x20-\x7e-[,=]]{0,255}[\x21-\x7e-[,=]]", RegexOptions.NonBacktracking);
+#endif
 
     private readonly IList<Entry> items = new List<Entry>();
 

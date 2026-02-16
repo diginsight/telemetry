@@ -68,11 +68,20 @@ namespace Diginsight.Options;
 ///     </para>
 ///     <para>The class markers for a generic type are built as if the type was not generic.</para>
 /// </remarks>
-public static class ClassConfigurationMarkers
+public static partial class ClassConfigurationMarkers
 {
     private static readonly ConcurrentDictionary<Type, IReadOnlyList<string>> Markers = new ();
-    private static readonly Regex GenericSuffixRegex = new (@"`\d+");
     private static readonly IReadOnlyList<string> NoClassMarkers = [ "" ];
+
+#if NET7_0_OR_GREATER
+    [GeneratedRegex(@"`\d+", RegexOptions.NonBacktracking)]
+    private static partial Regex GenericSuffixRegexImpl();
+
+    /// <inheritdoc cref="GenericSuffixRegexImpl" />
+    private static Regex GenericSuffixRegex => GenericSuffixRegexImpl();
+#else
+    private static readonly Regex GenericSuffixRegex = new (@"`\d+", RegexOptions.NonBacktracking);
+#endif
 
     /// <summary>
     /// Gets the configuration markers for a given class type.

@@ -1,6 +1,6 @@
 ﻿using Diginsight.Options;
 using Microsoft.Extensions.Logging;
-using System.Collections.Immutable;
+using System.Collections.Frozen;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Diginsight.Diagnostics;
@@ -122,8 +122,8 @@ public sealed class DiginsightActivitiesOptions
 
         return new DiginsightActivitiesOptions(
             true,
-            ActivitySources.ToImmutableDictionary(),
-            LoggedActivityNames.ToImmutableDictionary()
+            ActivitySources.ToFrozenDictionary(),
+            LoggedActivityNames.ToFrozenDictionary()
         )
         {
             logBehavior = logBehavior,
@@ -175,7 +175,7 @@ public sealed class DiginsightActivitiesOptions
 
         public string LoggedActivityNames
         {
-            get => string.Join(" ", filled.LoggedActivityNames);
+            get => string.Join(" ", filled.LoggedActivityNames.Select(static kv => $"{kv.Key}={kv.Value:G}"));
             set
             {
                 filled.LoggedActivityNames.Clear();

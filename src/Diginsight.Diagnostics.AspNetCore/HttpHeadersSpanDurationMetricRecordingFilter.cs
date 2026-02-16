@@ -23,7 +23,7 @@ public class HttpHeadersSpanDurationMetricRecordingFilter : IMetricRecordingFilt
 
     private bool ShouldHandle(Instrument instrument)
     {
-        IMetricRecordingOptions metricOptions = activitiesOptions.Value.Freeze();
+        IMetricRecordingOptions metricOptions = activitiesOptions.Value;
 
         return instrument is Histogram<double> { Unit: "ms" } histogram
             && histogram.Name == metricOptions.MetricName

@@ -5,10 +5,24 @@ using System.Text.RegularExpressions;
 
 namespace Diginsight.AspNetCore;
 
-public static class DynamicHttpHeadersParser
+public static partial class DynamicHttpHeadersParser
 {
-    private static readonly Regex ConfigurationSpecRegex = new ("^([^= ]+?)(?: *= *([^ ]*))?$");
-    private static readonly Regex LogLevelSpecRegex = new ("^([^= ]+?) *=(?: *([a-z]+?))?(?: *; *p *= *([^ ]+?))?$", RegexOptions.IgnoreCase);
+#if NET7_0_OR_GREATER
+    [GeneratedRegex("^([^= ]+?)(?: *= *([^ ]*))?$", RegexOptions.NonBacktracking)]
+    private static partial Regex ConfigurationSpecRegexImpl();
+
+    [GeneratedRegex("^([^= ]+?) *=(?: *([a-z]+?))?(?: *; *p *= *([^ ]+?))?$", RegexOptions.NonBacktracking | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    private static partial Regex LogLevelSpecRegexImpl();
+
+    /// <inheritdoc cref="ConfigurationSpecRegexImpl" />
+    private static Regex ConfigurationSpecRegex => ConfigurationSpecRegexImpl();
+
+    /// <inheritdoc cref="LogLevelSpecRegexImpl" />
+    private static Regex LogLevelSpecRegex => LogLevelSpecRegexImpl();
+#else
+    private static readonly Regex ConfigurationSpecRegex = new ("^([^= ]+?)(?: *= *([^ ]*))?$", RegexOptions.NonBacktracking);
+    private static readonly Regex LogLevelSpecRegex = new ("^([^= ]+?) *=(?: *([a-z]+?))?(?: *; *p *= *([^ ]+?))?$", RegexOptions.NonBacktracking | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+#endif
 
     public static IEnumerable<KeyValuePair<string, string?>> ParseConfiguration(IEnumerable<string> rawSpecs, bool allowUnset)
     {

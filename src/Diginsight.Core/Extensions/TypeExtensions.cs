@@ -151,130 +151,129 @@ public static class TypeExtensions
         }
     }
 
-    /// <summary>
-    /// Determines whether the specified type is an anonymous type.
-    /// </summary>
     /// <param name="type">The type to check.</param>
-    /// <returns><c>true</c> if <paramref name="type" /> is an anonymous type; otherwise, <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="type" /> is <c>null</c>.</exception>
-    public static bool IsAnonymous(this Type type)
+    extension(Type type)
     {
-        if (type is null)
-            throw new ArgumentNullException(nameof(type));
-
-        lock (((ICollection)AnonymousCache).SyncRoot)
+        /// <summary>
+        /// Determines whether the specified type is an anonymous type.
+        /// </summary>
+        /// <returns><c>true</c> if <paramref name="type" /> is an anonymous type; otherwise, <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="type" /> is <c>null</c>.</exception>
+        public bool IsAnonymous()
         {
-            return AnonymousCache.TryGetValue(type, out bool isAnonymous)
-                ? isAnonymous
-                : AnonymousCache[type] = IsAnonymousCore();
+            if (type is null)
+                throw new ArgumentNullException(nameof(type));
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            bool IsAnonymousCore()
+            lock (((ICollection)AnonymousCache).SyncRoot)
             {
-                return type is { IsClass: true, IsSealed: true, IsNotPublic: true }
-                    && type.IsDefined(typeof(CompilerGeneratedAttribute))
-                    && type.Name.Contains("AnonymousType");
+                return AnonymousCache.TryGetValue(type, out bool isAnonymous)
+                    ? isAnonymous
+                    : AnonymousCache[type] = IsAnonymousCore();
+
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                bool IsAnonymousCore()
+                {
+                    return type is { IsClass: true, IsSealed: true, IsNotPublic: true }
+                        && type.IsDefined(typeof(CompilerGeneratedAttribute))
+                        && type.Name.Contains("AnonymousType");
+                }
             }
         }
-    }
 
-    /// <summary>
-    /// Determines whether the specified type implements <see cref="IEnumerable{T}" /> and which is the enumerated type.
-    /// </summary>
-    /// <param name="type">The type to check.</param>
-    /// <param name="tInner">When this method returns <c>true</c>, contains the enumerated type; otherwise, <c>null</c>.</param>
-    /// <returns><c>true</c> if the <paramref name="type" /> implements <see cref="IEnumerable{T}" />; otherwise, <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="type" /> is <c>null</c>.</exception>
-    public static bool IsIEnumerable(this Type type, [NotNullWhen(true)] out Type? tInner)
-    {
-        if (type is null)
-            throw new ArgumentNullException(nameof(type));
-
-        foreach (Type interfaceType in type.GetInterfaces())
+        /// <summary>
+        /// Determines whether the specified type implements <see cref="IEnumerable{T}" /> and which is the enumerated type.
+        /// </summary>
+        /// <param name="tInner">When this method returns <c>true</c>, contains the enumerated type; otherwise, <c>null</c>.</param>
+        /// <returns><c>true</c> if the <paramref name="type" /> implements <see cref="IEnumerable{T}" />; otherwise, <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="type" /> is <c>null</c>.</exception>
+        public bool IsIEnumerable([NotNullWhen(true)] out Type? tInner)
         {
-            if (!interfaceType.IsGenericType || interfaceType.GetGenericTypeDefinition() != typeof(IEnumerable<>))
-                continue;
+            if (type is null)
+                throw new ArgumentNullException(nameof(type));
 
-            tInner = interfaceType.GetGenericArguments()[0];
+            foreach (Type interfaceType in type.GetInterfaces())
+            {
+                if (!interfaceType.IsGenericType || interfaceType.GetGenericTypeDefinition() != typeof(IEnumerable<>))
+                    continue;
+
+                tInner = interfaceType.GetGenericArguments()[0];
+                return true;
+            }
+
+            tInner = null;
+            return false;
+        }
+
+        /// <summary>
+        /// Determines whether the specified type implements <see cref="IAsyncEnumerable{T}" /> and which is the enumerated type.
+        /// </summary>
+        /// <param name="tInner">When this method returns <c>true</c>, contains the enumerated type; otherwise, <c>null</c>.</param>
+        /// <returns><c>true</c> if the <paramref name="type" /> implements <see cref="IAsyncEnumerable{T}" />; otherwise, <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="type" /> is <c>null</c>.</exception>
+        public bool IsIAsyncEnumerable([NotNullWhen(true)] out Type? tInner)
+        {
+            if (type is null)
+                throw new ArgumentNullException(nameof(type));
+
+            foreach (Type interfaceType in type.GetInterfaces())
+            {
+                if (!interfaceType.IsGenericType || interfaceType.GetGenericTypeDefinition() != typeof(IAsyncEnumerable<>))
+                    continue;
+
+                tInner = interfaceType.GetGenericArguments()[0];
+                return true;
+            }
+
+            tInner = null;
+            return false;
+        }
+
+        /// <summary>
+        /// Determines whether the specified type is <see cref="KeyValuePair{TKey, TValue}" /> and which are the key and value types.
+        /// </summary>
+        /// <param name="tKey">When this method returns <c>true</c>, contains the key type; otherwise, <c>null</c>.</param>
+        /// <param name="tValue">When this method returns <c>true</c>, contains the value type; otherwise, <c>null</c>.</param>
+        /// <returns><c>true</c> if the <paramref name="type" /> is <see cref="KeyValuePair{TKey, TValue}" />; otherwise, <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="type" /> is <c>null</c>.</exception>
+        public bool IsKeyValuePair([NotNullWhen(true)] out Type? tKey, [NotNullWhen(true)] out Type? tValue)
+        {
+            if (type is null)
+                throw new ArgumentNullException(nameof(type));
+
+            if (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(KeyValuePair<,>))
+            {
+                tKey = null;
+                tValue = null;
+                return false;
+            }
+
+            Type[] typeArgs = type.GetGenericArguments();
+            tKey = typeArgs[0];
+            tValue = typeArgs[1];
             return true;
         }
 
-        tInner = null;
-        return false;
-    }
-
-    /// <summary>
-    /// Determines whether the specified type implements <see cref="IAsyncEnumerable{T}" /> and which is the enumerated type.
-    /// </summary>
-    /// <param name="type">The type to check.</param>
-    /// <param name="tInner">When this method returns <c>true</c>, contains the enumerated type; otherwise, <c>null</c>.</param>
-    /// <returns><c>true</c> if the <paramref name="type" /> implements <see cref="IAsyncEnumerable{T}" />; otherwise, <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="type" /> is <c>null</c>.</exception>
-    public static bool IsIAsyncEnumerable(this Type type, [NotNullWhen(true)] out Type? tInner)
-    {
-        if (type is null)
-            throw new ArgumentNullException(nameof(type));
-
-        foreach (Type interfaceType in type.GetInterfaces())
+        /// <summary>
+        /// Determines whether the specified type implements <see cref="IEnumerable{T}" /> of <see cref="System.Collections.Generic.KeyValuePair{TKey, TValue}" /> and which are the enumerated key and value types.
+        /// </summary>
+        /// <param name="tKey">When this method returns <c>true</c>, contains the enumerated key type; otherwise, <c>null</c>.</param>
+        /// <param name="tValue">When this method returns <c>true</c>, contains the enumerated value type; otherwise, <c>null</c>.</param>
+        /// <returns><c>true</c> if the <paramref name="type" /> implements <see cref="IEnumerable{T}" /> of <see cref="System.Collections.Generic.KeyValuePair{TKey, TValue}" />; otherwise, <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="type" /> is <c>null</c>.</exception>
+        public bool IsIEnumerableOfKeyValuePair([NotNullWhen(true)] out Type? tKey, [NotNullWhen(true)] out Type? tValue)
         {
-            if (!interfaceType.IsGenericType || interfaceType.GetGenericTypeDefinition() != typeof(IAsyncEnumerable<>))
-                continue;
+            foreach (Type interfaceType in type.GetInterfaces())
+            {
+                if (interfaceType.IsIEnumerable(out Type? innerType) && innerType.IsKeyValuePair(out tKey, out tValue))
+                {
+                    return true;
+                }
+            }
 
-            tInner = interfaceType.GetGenericArguments()[0];
-            return true;
-        }
-
-        tInner = null;
-        return false;
-    }
-
-    /// <summary>
-    /// Determines whether the specified type is <see cref="KeyValuePair{TKey, TValue}" /> and which are the key and value types.
-    /// </summary>
-    /// <param name="type">The type to check.</param>
-    /// <param name="tKey">When this method returns <c>true</c>, contains the key type; otherwise, <c>null</c>.</param>
-    /// <param name="tValue">When this method returns <c>true</c>, contains the value type; otherwise, <c>null</c>.</param>
-    /// <returns><c>true</c> if the <paramref name="type" /> is <see cref="KeyValuePair{TKey, TValue}" />; otherwise, <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="type" /> is <c>null</c>.</exception>
-    public static bool IsKeyValuePair(this Type type, [NotNullWhen(true)] out Type? tKey, [NotNullWhen(true)] out Type? tValue)
-    {
-        if (type is null)
-            throw new ArgumentNullException(nameof(type));
-
-        if (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(KeyValuePair<,>))
-        {
             tKey = null;
             tValue = null;
             return false;
         }
-
-        Type[] typeArgs = type.GetGenericArguments();
-        tKey = typeArgs[0];
-        tValue = typeArgs[1];
-        return true;
-    }
-
-    /// <summary>
-    /// Determines whether the specified type implements <see cref="IEnumerable{T}" /> of <see cref="System.Collections.Generic.KeyValuePair{TKey, TValue}" /> and which are the enumerated key and value types.
-    /// </summary>
-    /// <param name="type">The type to check.</param>
-    /// <param name="tKey">When this method returns <c>true</c>, contains the enumerated key type; otherwise, <c>null</c>.</param>
-    /// <param name="tValue">When this method returns <c>true</c>, contains the enumerated value type; otherwise, <c>null</c>.</param>
-    /// <returns><c>true</c> if the <paramref name="type" /> implements <see cref="IEnumerable{T}" /> of <see cref="System.Collections.Generic.KeyValuePair{TKey, TValue}" />; otherwise, <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="type" /> is <c>null</c>.</exception>
-    public static bool IsIEnumerableOfKeyValuePair(this Type type, [NotNullWhen(true)] out Type? tKey, [NotNullWhen(true)] out Type? tValue)
-    {
-        foreach (Type interfaceType in type.GetInterfaces())
-        {
-            if (interfaceType.IsIEnumerable(out Type? innerType) && innerType.IsKeyValuePair(out tKey, out tValue))
-            {
-                return true;
-            }
-        }
-
-        tKey = null;
-        tValue = null;
-        return false;
     }
 
 #if !(NET || NETSTANDARD2_1_OR_GREATER)

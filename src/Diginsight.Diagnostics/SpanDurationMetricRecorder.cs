@@ -1,4 +1,6 @@
 using Diginsight.Options;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.Metrics;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
@@ -14,6 +16,7 @@ public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
     private readonly Lazy<Histogram<double>> metricLazy;
 
     public SpanDurationMetricRecorder(
+        IServiceProvider serviceProvider,
         ILogger<SpanDurationMetricRecorder> logger,
         IClassAwareOptions<DiginsightActivitiesOptions> activitiesOptions,
         IMeterFactory meterFactory,
@@ -23,13 +26,22 @@ public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
     {
         this.logger = logger;
         this.activitiesOptions = activitiesOptions;
+        var activitiesConfig = this.activitiesOptions.Value;
+        var metricName = "diginsight.span_duration";
+
         this.recordingFilter = recordingFilter;
         this.recordingEnricher = recordingEnricher;
+
+        var metricFilter = serviceProvider.GetNamedService<IMetricRecordingFilter>(metricName);
+        if (metricFilter != null) { this.recordingFilter = metricFilter; }
+
+        var metricEnricher = serviceProvider.GetNamedService<IMetricRecordingEnricher>(metricName);
+        if (metricEnricher != null) { this.recordingEnricher = metricEnricher; }
 
         metricLazy = new Lazy<Histogram<double>>(
             () =>
             {
-                IMetricRecordingOptions metricOptions = activitiesOptions.Value.Freeze();
+                IMetricRecordingOptions metricOptions = activitiesOptions.Value;
                 return meterFactory
                     .Create(metricOptions.MeterName)
                     .CreateHistogram<double>(metricOptions.MetricName, "ms", metricOptions.MetricDescription);
@@ -48,13 +60,13 @@ public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
         try
         {
             Histogram<double> metric = metricLazy.Value;
-            IMetricRecordingOptions metricOptions = activitiesOptions.Get(activity.GetCallerType()).Freeze();
+            IMetricRecordingOptions metricOptions = activitiesOptions.Get(activity.GetCallerType());
 
             if (!(recordingFilter?.ShouldRecord(activity, metric) ?? metricOptions.Record))
                 return;
 
-            Tag nameTag = new("span_name", activityName);
-            Tag statusTag = new("status", activity.Status.ToString());
+            Tag nameTag = new ("span_name", activityName);
+            Tag statusTag = new ("status", activity.Status.ToString());
 
             Tag[] tags = recordingEnricher is not null
                 ? [ nameTag, statusTag, .. recordingEnricher.ExtractTags(activity, metric) ]

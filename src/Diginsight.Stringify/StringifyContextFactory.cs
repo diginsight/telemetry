@@ -33,7 +33,7 @@ internal sealed class StringifyContextFactory : IStringifyContextFactory
             serviceProvider.GetRequiredService<IMemberInfoStringifier>(),
             new StringifyVariableConfiguration(overallConfiguration),
             overallConfiguration.MaxTime,
-            overallConfiguration.GetEffectiveMaxTotalLength(),
+            overallConfiguration.EffectiveMaxTotalLength,
 #if NET || NETSTANDARD2_1_OR_GREATER
             StringComparer.FromComparison(overallConfiguration.MetaPropertyKeyComparison)
 #else

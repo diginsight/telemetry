@@ -1,5 +1,10 @@
 {
   "markdown.styles": [
     ".vscode/markdown-preview.css"
-  ]
+  ],
+  "workbench.colorCustomizations": {
+    "editor.findMatchHighlightBackground": "#fff7d1",
+    "editor.findMatchBackground": "#fff7d1",
+    "editor.selectionHighlightBackground": "#fff7d180"
+  }
 }
