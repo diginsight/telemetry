@@ -20,8 +20,8 @@
     <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
 
       <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Diagnostics" Version="9.*" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.*" />
+        <PackageReference Include="Microsoft.Extensions.Diagnostics" Version="10.*" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.*" />
       </ItemGroup>
 
     </When>
