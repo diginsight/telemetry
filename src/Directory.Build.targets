@@ -1,6 +1,14 @@
 <Project>
 
   <PropertyGroup>
+    <MicrosoftExtensionsVersion Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net9.0'))">10.*</MicrosoftExtensionsVersion>
+    <MicrosoftExtensionsVersion Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0')) And '$(MicrosoftExtensionsVersion)' == ''">9.*</MicrosoftExtensionsVersion>
+    <MicrosoftExtensionsVersion Condition="'$(MicrosoftExtensionsVersion)' == ''">8.*</MicrosoftExtensionsVersion>
+    <ScrutorVersion Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net9.0'))">7.*</ScrutorVersion>
+    <ScrutorVersion Condition="'$(ScrutorVersion)' == ''">6.*</ScrutorVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <IsPackable Condition="'$(IsPackable)' == ''">true</IsPackable>
   </PropertyGroup>
 

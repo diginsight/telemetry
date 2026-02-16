@@ -7,26 +7,11 @@
     <PackageTags>$(PackageTags);aspnetcore</PackageTags>
   </PropertyGroup>
 
-	<Choose>
-		<When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
-
-			<ItemGroup>
-				<PackageReference Include="Scrutor"  Version="7.*">
-					<PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
-				</PackageReference>
-			</ItemGroup>
-
-		</When>
-		<Otherwise>
-
-			<ItemGroup>
-				<PackageReference Include="Scrutor"  Version="6.*">
-					<PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
-				</PackageReference>
-			</ItemGroup>
-
-		</Otherwise>
-	</Choose>
+	<ItemGroup>
+		<PackageReference Include="Scrutor" Version="$(ScrutorVersion)">
+			<PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+		</PackageReference>
+	</ItemGroup>
 
 	<Choose>
     <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">

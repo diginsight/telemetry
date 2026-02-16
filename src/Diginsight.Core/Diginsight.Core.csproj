@@ -8,52 +8,20 @@
 		<PackageIcon>Diginsight.Core.png</PackageIcon>
 	</PropertyGroup>
 
-	<Choose>
-		<When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
+	<ItemGroup>
+		<PackageReference Include="Scrutor" Version="$(ScrutorVersion)">
+			<PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+		</PackageReference>
+	</ItemGroup>
 
-			<ItemGroup>
-				<PackageReference Include="Scrutor"  Version="7.*">
-					<PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
-				</PackageReference>
-			</ItemGroup>
-
-		</When>
-		<Otherwise>
-
-			<ItemGroup>
-				<PackageReference Include="Scrutor"  Version="6.*">
-					<PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
-				</PackageReference>
-			</ItemGroup>
-
-		</Otherwise>
-	</Choose>
-	<Choose>
-		<When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
-
-			<ItemGroup>
-				<PackageReference Include="Microsoft.Extensions.Configuration" Version="10.*" />
-				<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.*" />
-				<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.*" />
-				<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.*" />
-				<PackageReference Include="Microsoft.Extensions.Logging" Version="10.*" />
-				<PackageReference Include="System.Text.Json" Version="10.*" />
-			</ItemGroup>
-
-		</When>
-		<Otherwise>
-
-			<ItemGroup>
-				<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.*" />
-				<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.*" />
-				<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.*" />
-				<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.*" />
-				<PackageReference Include="Microsoft.Extensions.Logging" Version="8.*" />
-				<PackageReference Include="System.Text.Json" Version="8.*" />
-			</ItemGroup>
-
-		</Otherwise>
-	</Choose>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="$(MicrosoftExtensionsVersion)" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="$(MicrosoftExtensionsVersion)" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(MicrosoftExtensionsVersion)" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(MicrosoftExtensionsVersion)" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsVersion)" />
+		<PackageReference Include="System.Text.Json" Version="$(MicrosoftExtensionsVersion)" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Diginsight.Polyfills\Diginsight.Polyfills.csproj" />

@@ -13,24 +13,8 @@
 
       <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="$(MicrosoftExtensionsVersion)" />
       </ItemGroup>
-
-      <Choose>
-        <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
-
-          <ItemGroup>
-            <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.*" />
-          </ItemGroup>
-
-        </When>
-        <Otherwise>
-
-          <ItemGroup>
-            <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.*" />
-          </ItemGroup>
-
-        </Otherwise>
-      </Choose>
 
     </When>
     <Otherwise>

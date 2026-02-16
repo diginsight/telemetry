@@ -7,26 +7,11 @@
     <PackageTags>$(PackageTags);stringify</PackageTags>
   </PropertyGroup>
 
-  <Choose>
-    <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
-
-      <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.*">
-          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
-        </PackageReference>
-      </ItemGroup>
-
-    </When>
-    <Otherwise>
-
-      <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.*">
-          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
-        </PackageReference>
-      </ItemGroup>
-
-    </Otherwise>
-  </Choose>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="$(MicrosoftExtensionsVersion)">
+      <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Diginsight.Core\Diginsight.Core.csproj" />
