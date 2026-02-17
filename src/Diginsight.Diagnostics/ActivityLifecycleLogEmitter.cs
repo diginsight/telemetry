@@ -103,7 +103,8 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         {
             bool isStandalone;
             bool writeActionAsPrefix;
-            bool disablePayloadRendering;
+            bool enablePayloadRendering;
+            bool enablePayloadTagging;
             ILogger textLogger;
             LogLevel logLevel;
             {
@@ -127,7 +128,8 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
                     false,
                     out isStandalone,
                     out writeActionAsPrefix,
-                    out disablePayloadRendering,
+                    out enablePayloadRendering,
+                    out enablePayloadTagging,
                     out textLogger,
                     out logLevel
                 );
@@ -147,9 +149,18 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
                 textLogger.Log(logLevel, eventId, ComposeLogFormat(format), args);
             }
 
-            if (disablePayloadRendering)
+            // Determine if any consumer needs the payload:
+            // - tagging needs it for SetTag (OTel spans)
+            // - rendering needs it for log text (only if the logger will actually emit)
+            bool needsLogging = enablePayloadRendering && textLogger.IsEnabled(logLevel);
+            bool needsPayloadEval = enablePayloadTagging || needsLogging;
+
+            if (!needsPayloadEval)
             {
-                LogText(isStandalone ? "{ActivityName}" : "{ActivityName}()", activityName);
+                if (textLogger.IsEnabled(logLevel))
+                {
+                    LogText(isStandalone ? "{ActivityName}" : "{ActivityName}()", activityName);
+                }
                 return;
             }
 
@@ -162,7 +173,10 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
 
             if (inputs is null)
             {
-                LogText(isStandalone ? "{ActivityName}" : "{ActivityName}()", activityName);
+                if (textLogger.IsEnabled(logLevel))
+                {
+                    LogText(isStandalone ? "{ActivityName}" : "{ActivityName}()", activityName);
+                }
                 return;
             }
 
@@ -171,12 +185,22 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
                 throw new InvalidOperationException("Invalid inputs in activity");
             }
 
-            foreach (KeyValuePair<string, string> input in inputsAsDict)
+            if (enablePayloadTagging)
             {
-                activity.SetTag($"input.{input.Key}", input.Value);
+                foreach (KeyValuePair<string, string> input in inputsAsDict)
+                {
+                    activity.SetTag($"input.{input.Key}", input.Value);
+                }
             }
 
-            LogText("{ActivityName}({Inputs})", activityName, inputsAsString);
+            if (needsLogging)
+            {
+                LogText("{ActivityName}({Inputs})", activityName, inputsAsString);
+            }
+            else if (textLogger.IsEnabled(logLevel))
+            {
+                LogText(isStandalone ? "{ActivityName}" : "{ActivityName}()", activityName);
+            }
         }
         catch (Exception exception)
         {
@@ -195,7 +219,8 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         {
             bool isStandalone;
             bool writeActionAsPrefix;
-            bool disablePayloadRendering;
+            bool enablePayloadRendering;
+            bool enablePayloadTagging;
             ILogger textLogger;
             LogLevel logLevel;
             {
@@ -217,7 +242,8 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
                     true,
                     out isStandalone,
                     out writeActionAsPrefix,
-                    out disablePayloadRendering,
+                    out enablePayloadRendering,
+                    out enablePayloadTagging,
                     out textLogger,
                     out logLevel
                 );
@@ -236,8 +262,14 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
 
             bool faulted = IsFaulted();
 
-            string? outputAsString = faulted || disablePayloadRendering ? null : LogOutput();
-            string? namedOutputsAsString = faulted || disablePayloadRendering ? null : LogNamedOutputs();
+            // Determine if any consumer needs the payload:
+            // - tagging needs it for SetTag (OTel spans)
+            // - rendering needs it for log text (only if the logger will actually emit)
+            bool needsLogging = enablePayloadRendering && textLogger.IsEnabled(logLevel);
+            bool needsPayloadEval = !faulted && (enablePayloadTagging || needsLogging);
+
+            string? outputAsString = needsPayloadEval ? LogOutput() : null;
+            string? namedOutputsAsString = needsPayloadEval ? LogNamedOutputs() : null;
 
             string? LogOutput()
             {
@@ -256,9 +288,10 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
                 }
 
                 string outputAsString0 = StringifyContextFactory.Stringify(output);
-
-                activity.SetTag("output", outputAsString0);
-
+                if (enablePayloadTagging)
+                {
+                    activity.SetTag("output", outputAsString0);
+                }
                 return outputAsString0;
             }
 
@@ -270,40 +303,53 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
                 if (ExtractLoggable(namedOutputs) is not var (namedOutputsAsDict, namedOutputsAsString0))
                     throw new InvalidOperationException("Invalid named outputs in activity");
 
-                foreach (KeyValuePair<string, string> namedOutput in namedOutputsAsDict)
+                if (enablePayloadTagging)
                 {
-                    activity.SetTag($"namedOutput.{namedOutput.Key}", namedOutput.Value);
+                    foreach (KeyValuePair<string, string> namedOutput in namedOutputsAsDict)
+                    {
+                        activity.SetTag($"namedOutput.{namedOutput.Key}", namedOutput.Value);
+                    }
                 }
 
                 return namedOutputsAsString0;
             }
 
-            EventId eventId = isStandalone ? EndActivityEventId : EndMethodActivityEventId;
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            void LogText(string format, params object?[] args)
+            if (textLogger.IsEnabled(logLevel))
             {
-                // ReSharper disable once TemplateIsNotCompileTimeConstantProblem
-                textLogger.Log(logLevel, eventId, ComposeLogFormat(format), args);
-            }
+                EventId eventId = isStandalone ? EndActivityEventId : EndMethodActivityEventId;
 
-            switch (outputAsString, namedOutputsAsString)
-            {
-                case (null, null):
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                void LogText(string format, params object?[] args)
+                {
+                    // ReSharper disable once TemplateIsNotCompileTimeConstantProblem
+                    textLogger.Log(logLevel, eventId, ComposeLogFormat(format), args);
+                }
+
+                if (!needsLogging)
+                {
                     LogText(faulted ? "{ActivityName} ‼" : "{ActivityName}", activityName);
-                    break;
+                }
+                else
+                {
+                    switch (outputAsString, namedOutputsAsString)
+                    {
+                        case (null, null):
+                            LogText(faulted ? "{ActivityName} ‼" : "{ActivityName}", activityName);
+                            break;
 
-                case (not null, null):
-                    LogText("{ActivityName} => {Output}", activityName, outputAsString);
-                    break;
+                        case (not null, null):
+                            LogText("{ActivityName} => {Output}", activityName, outputAsString);
+                            break;
 
-                case (null, not null):
-                    LogText("{ActivityName} [=> {NamedOutputs}]", activityName, namedOutputsAsString);
-                    break;
+                        case (null, not null):
+                            LogText("{ActivityName} [=> {NamedOutputs}]", activityName, namedOutputsAsString);
+                            break;
 
-                case (not null, not null):
-                    LogText("{ActivityName} => {Output} [=> {NamedOutputs}]", activityName, outputAsString, namedOutputsAsString);
-                    break;
+                        case (not null, not null):
+                            LogText("{ActivityName} => {Output} [=> {NamedOutputs}]", activityName, outputAsString, namedOutputsAsString);
+                            break;
+                    }
+                }
             }
         }
         catch (Exception exception)
@@ -379,7 +425,8 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         bool isStop,
         out bool isStandalone,
         out bool writeActionAsPrefix,
-        out bool disablePayloadRendering,
+        out bool enablePayloadRendering,
+        out bool enablePayloadTagging,
         out ILogger textLogger,
         out LogLevel logLevel
     )
@@ -405,7 +452,8 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
             : NullLogger.Instance;
 
         writeActionAsPrefix = activitiesOptions.WriteActivityActionAsPrefix;
-        disablePayloadRendering = activitiesOptions.DisablePayloadRendering;
+        enablePayloadRendering = activitiesOptions.EnablePayloadRendering;
+        enablePayloadTagging = activitiesOptions.EnablePayloadTagging;
 
         logLevel = activity.GetCustomProperty(ActivityCustomPropertyNames.LogLevel) switch
         {

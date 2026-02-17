@@ -8,5 +8,6 @@ public interface IDiginsightActivitiesLogOptions
     LogBehavior LogBehavior { get; }
     LogLevel LogLevel { get; }
     bool WriteActivityActionAsPrefix { get; }
-    bool DisablePayloadRendering { get; }
+    bool EnablePayloadRendering { get; }
+    bool EnablePayloadTagging { get; }
 }
