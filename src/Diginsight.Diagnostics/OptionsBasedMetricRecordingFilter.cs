@@ -20,22 +20,29 @@ public class OptionsBasedMetricRecordingFilter : IMetricRecordingFilter
         string activitySourceName = activity.Source.Name;
         string activityName = activity.OperationName;
 
-        IEnumerable<bool> GetMatches(OptionsBasedMetricRecordingFilterOptions options)
-        {
-            return ((IOptionsBasedMetricRecordingFilterOptions)options)
-                .ActivityNames
-                .Where(x => ActivityUtils.FullNameMatchesPattern(activitySourceName, activityName, x.Key))
-                .Select(static x => x.Value)
-                .ToArray();
-        }
+        var specificOptions = filterMonitor.Get(instrument.Name);
+        bool? specificResult = HasMatches(specificOptions, activitySourceName, activityName);
+        if (specificResult.HasValue)
+            return specificResult;
 
-        IEnumerable<bool> specificMatches = GetMatches(filterMonitor.Get(instrument.Name));
-        if (specificMatches.Any())
-        {
-            return specificMatches.All(static x => x);
-        }
-
-        IEnumerable<bool> generalMatches = GetMatches(filterMonitor.CurrentValue);
-        return generalMatches.Any() && generalMatches.All(static x => x);
+        var defaultOptions = filterMonitor.CurrentValue;
+        return HasMatches(defaultOptions, activitySourceName, activityName) ?? false;
     }
+
+    private static bool? HasMatches(OptionsBasedMetricRecordingFilterOptions options, string activitySourceName, string activityName)
+    {
+        bool hasMatch = false;
+        foreach (var kvp in options.ActivityNames)
+        {
+            if (ActivityUtils.FullNameMatchesPattern(activitySourceName, activityName, kvp.Key))
+            {
+                hasMatch = true;
+                if (!kvp.Value) // Early exit if any match is false
+                    return false;
+            }
+        }
+        return hasMatch ? true : (bool?)null;
+    }
+
+
 }

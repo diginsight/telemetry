@@ -79,13 +79,12 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
 
     private bool IsEmitted(Activity activity, bool isStopped)
     {
+        string customPropertyName = isStopped ? CustomPropertyNames.EmittedStop : CustomPropertyNames.EmittedStart;
+        if (activity.GetCustomProperty(customPropertyName) is not null) { return true; }
+
         lock (emittedLock)
         {
-            string customPropertyName = isStopped ? CustomPropertyNames.EmittedStop : CustomPropertyNames.EmittedStart;
-            if (activity.GetCustomProperty(customPropertyName) is not null)
-            {
-                return true;
-            }
+            if (activity.GetCustomProperty(customPropertyName) is not null) { return true; }
 
             activity.SetCustomProperty(customPropertyName, new object());
             return false;

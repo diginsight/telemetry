@@ -19,10 +19,19 @@ public class OptionsBasedActivityLoggingFilter : IActivityLoggingFilter
         string activitySourceName = activity.Source.Name;
         string activityName = activity.OperationName;
 
-        return ((IDiginsightActivitiesLogOptions)activitiesOptions.Get(activity.GetCallerType()))
-            .ActivityNames
-            .Where(x => ActivityUtils.FullNameMatchesPattern(activitySourceName, activityName, x.Key))
-            .Select(static x => (LogBehavior?)x.Value)
-            .Max();
+        LogBehavior? maxBehavior = null;
+        foreach (var kvp in ((IDiginsightActivitiesLogOptions)activitiesOptions.Get(activity.GetCallerType())).ActivityNames)
+        {
+            if (ActivityUtils.FullNameMatchesPattern(activitySourceName, activityName, kvp.Key))
+            {
+                // Track maximum LogBehavior value
+                if (maxBehavior == null || kvp.Value > maxBehavior.Value)
+                {
+                    maxBehavior = kvp.Value;
+                }
+            }
+        }
+
+        return maxBehavior;
     }
 }
