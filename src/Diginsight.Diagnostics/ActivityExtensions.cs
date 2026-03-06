@@ -21,10 +21,7 @@ public static class ActivityExtensions
     {
         public void SetOutput(object? output)
         {
-            if (activity is null)
-            {
-                return;
-            }
+            if (activity is null) { return; }
             if (activity.GetCustomProperty(ActivityCustomPropertyNames.Logger) is null)
             {
                 throw new ArgumentException("Invalid logger in activity");
@@ -45,10 +42,7 @@ public static class ActivityExtensions
 
         public ActivityDepth GetDepth()
         {
-            if (activity is null)
-            {
-                return default;
-            }
+            if (activity is null) { return default; }
 
             if (activity.GetCustomProperty(CustomPropertyNames.Depth) is not ActivityDepth depth)
             {
@@ -155,10 +149,7 @@ public static class ActivityExtensions
 
         public void AddTagsToCustomDurationMetric(params Tag[] tags)
         {
-            if (activity is null)
-            {
-                throw new ArgumentNullException(nameof(activity));
-            }
+            if (activity is null) { throw new ArgumentNullException(nameof(activity)); }
 
             if (activity.GetCustomDurationMetric() is null)
             {
