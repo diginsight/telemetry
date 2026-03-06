@@ -22,11 +22,7 @@ public static class ActivitySourceExtensions
             LogLevel? logLevel = null
         )
         {
-            if (inputs is null)
-            {
-                throw new ArgumentNullException(nameof(inputs));
-            }
-
+            if (inputs is null) { throw new ArgumentNullException(nameof(inputs)); }
             if (!activitySource.HasListeners()) return null;
 
             Type callerType = RuntimeUtils.GetCallerType(1);
@@ -56,11 +52,7 @@ public static class ActivitySourceExtensions
             LogLevel? logLevel = null
         )
         {
-            if (inputs is null)
-            {
-                throw new ArgumentNullException(nameof(inputs));
-            }
-
+            if (inputs is null) { throw new ArgumentNullException(nameof(inputs)); }
             if (!activitySource.HasListeners()) return null;
 
             Type callerType = RuntimeUtils.GetCallerType(1);
@@ -90,11 +82,7 @@ public static class ActivitySourceExtensions
             LogLevel? logLevel = null
         )
         {
-            if (inputs is null)
-            {
-                throw new ArgumentNullException(nameof(inputs));
-            }
-
+            if (inputs is null) { throw new ArgumentNullException(nameof(inputs)); }
             if (!activitySource.HasListeners()) return null;
 
             Type callerType = RuntimeUtils.GetCallerType(1);
@@ -124,11 +112,7 @@ public static class ActivitySourceExtensions
             LogLevel? logLevel = null
         )
         {
-            if (inputs is null)
-            {
-                throw new ArgumentNullException(nameof(inputs));
-            }
-
+            if (inputs is null) { throw new ArgumentNullException(nameof(inputs)); }
             if (!activitySource.HasListeners()) return null;
 
             Type callerType = RuntimeUtils.GetCallerType(1);
@@ -158,11 +142,7 @@ public static class ActivitySourceExtensions
             [CallerMemberName] string callerMemberName = ""
         )
         {
-            if (inputs is null)
-            {
-                throw new ArgumentNullException(nameof(inputs));
-            }
-
+            if (inputs is null) { throw new ArgumentNullException(nameof(inputs)); }
             if (!activitySource.HasListeners()) return null;
 
             var (callerType, localFunctionName) = RuntimeUtils.GetCallerInfo(1);
@@ -192,10 +172,7 @@ public static class ActivitySourceExtensions
             [CallerMemberName] string callerMemberName = ""
         )
         {
-            if (inputs is null)
-            {
-                throw new ArgumentNullException(nameof(inputs));
-            }
+            if (inputs is null) { throw new ArgumentNullException(nameof(inputs)); }
 
             if (!activitySource.HasListeners()) return null;
 
@@ -226,11 +203,7 @@ public static class ActivitySourceExtensions
             [CallerMemberName] string callerMemberName = ""
         )
         {
-            if (inputs is null)
-            {
-                throw new ArgumentNullException(nameof(inputs));
-            }
-
+            if (inputs is null) { throw new ArgumentNullException(nameof(inputs)); }
             if (!activitySource.HasListeners()) return null;
 
             var (callerType, localFunctionName) = RuntimeUtils.GetCallerInfo(1);
@@ -260,11 +233,7 @@ public static class ActivitySourceExtensions
             [CallerMemberName] string callerMemberName = ""
         )
         {
-            if (inputs is null)
-            {
-                throw new ArgumentNullException(nameof(inputs));
-            }
-
+            if (inputs is null) { throw new ArgumentNullException(nameof(inputs)); }
             if (!activitySource.HasListeners()) return null;
 
             var (callerType, localFunctionName) = RuntimeUtils.GetCallerInfo(1);
@@ -284,6 +253,442 @@ public static class ActivitySourceExtensions
 
             var (callerType, localFunctionName) = RuntimeUtils.GetCallerInfo(1);
             return activitySource.CoreCreateRichActivity(logger, makeInputs, callerMemberName, false, activityKind, logLevel, true, callerType, localFunctionName);
+        }
+
+        // ── Generic overloads: caller provides type explicitly, no stack walk needed ──
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? CreateRichActivity<TCallerType>(
+            string activityName,
+            object inputs,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null
+        )
+        {
+            if (inputs is null) { throw new ArgumentNullException(nameof(inputs)); }
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(null, () => inputs, activityName, true, activityKind, logLevel, false, typeof(TCallerType), null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? CreateRichActivity<TCallerType>(
+            string activityName,
+            Func<object>? makeInputs = null,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null
+        )
+        {
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(null, makeInputs, activityName, true, activityKind, logLevel, false, typeof(TCallerType), null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? CreateRichActivity<TCallerType>(
+            ILogger logger,
+            string activityName,
+            object inputs,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null
+        )
+        {
+            if (inputs is null) { throw new ArgumentNullException(nameof(inputs)); }
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(logger, () => inputs, activityName, true, activityKind, logLevel, false, typeof(TCallerType), null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? CreateRichActivity<TCallerType>(
+            ILogger logger,
+            string activityName,
+            Func<object>? makeInputs = null,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null
+        )
+        {
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(logger, makeInputs, activityName, true, activityKind, logLevel, false, typeof(TCallerType), null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? StartRichActivity<TCallerType>(
+            string activityName,
+            object inputs,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null
+        )
+        {
+            if (inputs is null) { throw new ArgumentNullException(nameof(inputs)); }
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(null, () => inputs, activityName, true, activityKind, logLevel, true, typeof(TCallerType), null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? StartRichActivity<TCallerType>(
+            string activityName,
+            Func<object>? makeInputs = null,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null
+        )
+        {
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(null, makeInputs, activityName, true, activityKind, logLevel, true, typeof(TCallerType), null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? StartRichActivity<TCallerType>(
+            ILogger logger,
+            string activityName,
+            object inputs,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null
+        )
+        {
+            if (inputs is null) { throw new ArgumentNullException(nameof(inputs)); }
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(logger, () => inputs, activityName, true, activityKind, logLevel, true, typeof(TCallerType), null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? StartRichActivity<TCallerType>(
+            ILogger logger,
+            string activityName,
+            Func<object>? makeInputs = null,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null
+        )
+        {
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(logger, makeInputs, activityName, true, activityKind, logLevel, true, typeof(TCallerType), null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? CreateMethodActivity<TCallerType>(
+            object inputs,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null,
+            [CallerMemberName] string callerMemberName = ""
+        )
+        {
+            if (inputs is null) { throw new ArgumentNullException(nameof(inputs)); }
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(null, () => inputs, callerMemberName, false, activityKind, logLevel, false, typeof(TCallerType), null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? CreateMethodActivity<TCallerType>(
+            Func<object>? makeInputs = null,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null,
+            [CallerMemberName] string callerMemberName = ""
+        )
+        {
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(null, makeInputs, callerMemberName, false, activityKind, logLevel, false, typeof(TCallerType), null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? CreateMethodActivity<TCallerType>(
+            ILogger logger,
+            object inputs,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null,
+            [CallerMemberName] string callerMemberName = ""
+        )
+        {
+            if (inputs is null) { throw new ArgumentNullException(nameof(inputs)); }
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(logger, () => inputs, callerMemberName, false, activityKind, logLevel, false, typeof(TCallerType), null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? CreateMethodActivity<TCallerType>(
+            ILogger logger,
+            Func<object>? makeInputs = null,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null,
+            [CallerMemberName] string callerMemberName = ""
+        )
+        {
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(logger, makeInputs, callerMemberName, false, activityKind, logLevel, false, typeof(TCallerType), null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? StartMethodActivity<TCallerType>(
+            object inputs,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null,
+            [CallerMemberName] string callerMemberName = ""
+        )
+        {
+            if (inputs is null) { throw new ArgumentNullException(nameof(inputs)); }
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(null, () => inputs, callerMemberName, false, activityKind, logLevel, true, typeof(TCallerType), null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? StartMethodActivity<TCallerType>(
+            Func<object>? makeInputs = null,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null,
+            [CallerMemberName] string callerMemberName = ""
+        )
+        {
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(null, makeInputs, callerMemberName, false, activityKind, logLevel, true, typeof(TCallerType), null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? StartMethodActivity<TCallerType>(
+            ILogger logger,
+            object inputs,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null,
+            [CallerMemberName] string callerMemberName = ""
+        )
+        {
+            if (inputs is null) { throw new ArgumentNullException(nameof(inputs)); }
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(logger, () => inputs, callerMemberName, false, activityKind, logLevel, true, typeof(TCallerType), null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? StartMethodActivity<TCallerType>(
+            ILogger logger,
+            Func<object>? makeInputs = null,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null,
+            [CallerMemberName] string callerMemberName = ""
+        )
+        {
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(logger, makeInputs, callerMemberName, false, activityKind, logLevel, true, typeof(TCallerType), null);
+        }
+
+        // ── Type-based overloads: caller passes Type explicitly, no stack walk needed ──
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? CreateRichActivity(
+            Type callerType,
+            string activityName,
+            object inputs,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null
+        )
+        {
+            if (inputs is null) { throw new ArgumentNullException(nameof(inputs)); }
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(null, () => inputs, activityName, true, activityKind, logLevel, false, callerType, null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? CreateRichActivity(
+            Type callerType,
+            string activityName,
+            Func<object>? makeInputs = null,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null
+        )
+        {
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(null, makeInputs, activityName, true, activityKind, logLevel, false, callerType, null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? CreateRichActivity(
+            Type callerType,
+            ILogger logger,
+            string activityName,
+            object inputs,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null
+        )
+        {
+            if (inputs is null) { throw new ArgumentNullException(nameof(inputs)); }
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(logger, () => inputs, activityName, true, activityKind, logLevel, false, callerType, null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? CreateRichActivity(
+            Type callerType,
+            ILogger logger,
+            string activityName,
+            Func<object>? makeInputs = null,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null
+        )
+        {
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(logger, makeInputs, activityName, true, activityKind, logLevel, false, callerType, null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? StartRichActivity(
+            Type callerType,
+            string activityName,
+            object inputs,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null
+        )
+        {
+            if (inputs is null) { throw new ArgumentNullException(nameof(inputs)); }
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(null, () => inputs, activityName, true, activityKind, logLevel, true, callerType, null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? StartRichActivity(
+            Type callerType,
+            string activityName,
+            Func<object>? makeInputs = null,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null
+        )
+        {
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(null, makeInputs, activityName, true, activityKind, logLevel, true, callerType, null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? StartRichActivity(
+            Type callerType,
+            ILogger logger,
+            string activityName,
+            object inputs,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null
+        )
+        {
+            if (inputs is null) { throw new ArgumentNullException(nameof(inputs)); }
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(logger, () => inputs, activityName, true, activityKind, logLevel, true, callerType, null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? StartRichActivity(
+            Type callerType,
+            ILogger logger,
+            string activityName,
+            Func<object>? makeInputs = null,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null
+        )
+        {
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(logger, makeInputs, activityName, true, activityKind, logLevel, true, callerType, null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? CreateMethodActivity(
+            Type callerType,
+            object inputs,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null,
+            [CallerMemberName] string callerMemberName = ""
+        )
+        {
+            if (inputs is null) { throw new ArgumentNullException(nameof(inputs)); }
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(null, () => inputs, callerMemberName, false, activityKind, logLevel, false, callerType, null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? CreateMethodActivity(
+            Type callerType,
+            Func<object>? makeInputs = null,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null,
+            [CallerMemberName] string callerMemberName = ""
+        )
+        {
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(null, makeInputs, callerMemberName, false, activityKind, logLevel, false, callerType, null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? CreateMethodActivity(
+            Type callerType,
+            ILogger logger,
+            object inputs,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null,
+            [CallerMemberName] string callerMemberName = ""
+        )
+        {
+            if (inputs is null) { throw new ArgumentNullException(nameof(inputs)); }
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(logger, () => inputs, callerMemberName, false, activityKind, logLevel, false, callerType, null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? CreateMethodActivity(
+            Type callerType,
+            ILogger logger,
+            Func<object>? makeInputs = null,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null,
+            [CallerMemberName] string callerMemberName = ""
+        )
+        {
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(logger, makeInputs, callerMemberName, false, activityKind, logLevel, false, callerType, null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? StartMethodActivity(
+            Type callerType,
+            object inputs,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null,
+            [CallerMemberName] string callerMemberName = ""
+        )
+        {
+            if (inputs is null) { throw new ArgumentNullException(nameof(inputs)); }
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(null, () => inputs, callerMemberName, false, activityKind, logLevel, true, callerType, null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? StartMethodActivity(
+            Type callerType,
+            Func<object>? makeInputs = null,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null,
+            [CallerMemberName] string callerMemberName = ""
+        )
+        {
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(null, makeInputs, callerMemberName, false, activityKind, logLevel, true, callerType, null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? StartMethodActivity(
+            Type callerType,
+            ILogger logger,
+            object inputs,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null,
+            [CallerMemberName] string callerMemberName = ""
+        )
+        {
+            if (inputs is null) { throw new ArgumentNullException(nameof(inputs)); }
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(logger, () => inputs, callerMemberName, false, activityKind, logLevel, true, callerType, null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? StartMethodActivity(
+            Type callerType,
+            ILogger logger,
+            Func<object>? makeInputs = null,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null,
+            [CallerMemberName] string callerMemberName = ""
+        )
+        {
+            if (!activitySource.HasListeners()) return null;
+            return activitySource.CoreCreateRichActivity(logger, makeInputs, callerMemberName, false, activityKind, logLevel, true, callerType, null);
         }
 
         private Activity? CoreCreateRichActivity(
