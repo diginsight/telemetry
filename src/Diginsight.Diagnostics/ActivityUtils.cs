@@ -13,23 +13,26 @@ public static class ActivityUtils
     // Cache compiled regex patterns to avoid repeated compilation
     private static readonly ConcurrentDictionary<string, Regex> PatternCache = new(StringComparer.OrdinalIgnoreCase);
 
-    public static readonly ActivityListener DepthSetterActivityListener = new ()
+    public static ActivityListener CreateDepthSetterActivityListener(Func<ActivitySource, bool>? shouldListenTo = null)
     {
-        Sample = static (ref creationOptions) =>
+        return new ActivityListener()
         {
-            ActivityContext parent = creationOptions.Parent;
-            string? rawParentDepth = TraceState.Parse(parent.TraceState).GetValueOrDefault(ActivityDepth.TraceStateKey);
+            Sample = static (ref creationOptions) =>
+            {
+                ActivityContext parent = creationOptions.Parent;
+                string? rawParentDepth = TraceState.Parse(parent.TraceState).GetValueOrDefault(ActivityDepth.TraceStateKey);
 
-            ActivityDepth parentDepth = ActivityDepth.FromTraceStateValue(rawParentDepth) ?? default;
-            ActivityDepth depth = parent.IsRemote ? parentDepth.MakeRemoteChild() : parentDepth.MakeLocalChild();
-            TraceState traceState = TraceState.Parse(creationOptions.TraceState);
-            traceState[ActivityDepth.TraceStateKey] = depth.ToTraceStateValue();
+                ActivityDepth parentDepth = ActivityDepth.FromTraceStateValue(rawParentDepth) ?? default;
+                ActivityDepth depth = parent.IsRemote ? parentDepth.MakeRemoteChild() : parentDepth.MakeLocalChild();
+                TraceState traceState = TraceState.Parse(creationOptions.TraceState);
+                traceState[ActivityDepth.TraceStateKey] = depth.ToTraceStateValue();
 
-            creationOptions = creationOptions with { TraceState = traceState.ToString() };
-            return ActivitySamplingResult.PropagationData;
-        },
-        ShouldListenTo = static _ => true,
-    };
+                creationOptions = creationOptions with { TraceState = traceState.ToString() };
+                return ActivitySamplingResult.PropagationData;
+            },
+            ShouldListenTo = shouldListenTo ?? (static _ => true),
+        };
+    }
 
     public static bool NameMatchesPattern(string name, string namePattern)
     {

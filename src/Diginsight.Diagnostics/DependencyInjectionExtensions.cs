@@ -203,9 +203,16 @@ public static class DependencyInjectionExtensions
 
         public void Run()
         {
-            ActivitySource.AddActivityListener(ActivityUtils.DepthSetterActivityListener);
+            // Depth-setter listener respects the same ActivitySources config as the registrations:
+            // only listen to sources that at least one registration accepts.
+            IActivityListenerRegistration[] regs = registrations as IActivityListenerRegistration[] ?? registrations.ToArray();
+            ActivitySource.AddActivityListener(
+                ActivityUtils.CreateDepthSetterActivityListener(
+                    activitySource => regs.Any(r => r.ShouldListenTo(activitySource))
+                )
+            );
 
-            foreach (IActivityListenerRegistration registration in registrations)
+            foreach (IActivityListenerRegistration registration in regs)
             {
                 ActivitySource.AddActivityListener(registration.ToActivityListener());
             }
@@ -230,11 +237,20 @@ public static class DependencyInjectionExtensions
         public bool ShouldListenTo(ActivitySource activitySource)
         {
             string activitySourceName = activitySource.Name;
-            IEnumerable<bool> matches = activitiesOptions.ActivitySources
-                .Where(x => ActivityUtils.NameMatchesPattern(activitySourceName, x.Key))
-                .Select(static x => x.Value)
-                .ToArray();
-            return matches.Any() && matches.All(static x => x);
+            bool anyMatch = false;
+
+            foreach (KeyValuePair<string, bool> kvp in activitiesOptions.ActivitySources)
+            {
+                if (!ActivityUtils.NameMatchesPattern(activitySourceName, kvp.Key))
+                    continue;
+
+                if (!kvp.Value)
+                    return false;
+
+                anyMatch = true;
+            }
+
+            return anyMatch;
         }
     }
 

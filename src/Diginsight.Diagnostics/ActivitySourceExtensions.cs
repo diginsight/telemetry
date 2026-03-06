@@ -262,14 +262,26 @@ public static class ActivitySourceExtensions
                     not null => $"{activityNameHint}+{localFunctionName}",
                     null => activityNameHint,
                 };
+                
+                // Optimize string concatenation to reduce allocations
+                // string.Create() is available in netstandard2.1+ and all .NET versions
+#if NETSTANDARD2_0
                 finalActivityName = $"{callerType.Name}.{fullCallerMemberName}";
+#else
+                finalActivityName = string.Create(
+                    callerType.Name.Length + 1 + fullCallerMemberName.Length,
+                    (callerType.Name, fullCallerMemberName),
+                    static (span, state) =>
+                    {
+                        state.Item1.AsSpan().CopyTo(span);
+                        span[state.Item1.Length] = '.';
+                        state.Item2.AsSpan().CopyTo(span[(state.Item1.Length + 1)..]);
+                    });
+#endif
             }
 
             Activity? activity = activitySource.CreateActivity(finalActivityName, activityKind);
-            if (activity is null)
-            {
-                return null;
-            }
+            if (activity is null) { return null; }
 
             activity.SetCustomProperty(ActivityCustomPropertyNames.Logger, logger);
             activity.SetCustomProperty(ActivityCustomPropertyNames.LogLevel, logLevel);

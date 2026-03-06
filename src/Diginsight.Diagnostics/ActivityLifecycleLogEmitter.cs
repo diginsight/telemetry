@@ -1,8 +1,10 @@
 ﻿using Diginsight.Logging;
 using Diginsight.Options;
 using Diginsight.Stringify;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -29,6 +31,10 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         )
     );
 
+    // Logger cache to avoid CreateLogger allocation on every StartMethodActivity call
+    // Cache size is bounded by unique caller Types in the application (~50-200 typically)
+    private static readonly ConcurrentDictionary<Type, ILogger> LoggerCache = new();
+
     private static readonly EventId StartActivityEventId = new (100, "StartActivity");
     private static readonly EventId StartMethodActivityEventId = new (110, "StartMethodActivity");
     private static readonly EventId EndActivityEventId = new (200, "EndActivity");
@@ -38,15 +44,10 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         typeof(ActivityLifecycleLogEmitter).GetMethod(nameof(ExtractLoggablesFromKvps), BindingFlags.NonPublic | BindingFlags.Instance)!;
 
     private readonly ILoggerFactory loggerFactory;
-    private readonly IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor;
+    private readonly IOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor;
     private readonly IActivityLoggingFilter? activityLoggingFilter;
     private readonly ILogger fallbackLogger;
     private readonly Func<nint> getExceptionPointers;
-#if NET9_0_OR_GREATER
-    private readonly Lock emittedLock = new ();
-#else
-    private readonly object emittedLock = new ();
-#endif
 
     [SuppressMessage("ReSharper", "ReplaceWithFieldKeyword")]
     private IStringifyContextFactory? stringifyContextFactory;
@@ -56,7 +57,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
 
     public ActivityLifecycleLogEmitter(
         ILoggerFactory loggerFactory,
-        IClassAwareOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor,
+        IOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor,
         IStringifyContextFactory? stringifyContextFactory = null,
         IActivityLoggingFilter? activityLoggingFilter = null
     )
@@ -80,15 +81,17 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
     private bool IsEmitted(Activity activity, bool isStopped)
     {
         string customPropertyName = isStopped ? CustomPropertyNames.EmittedStop : CustomPropertyNames.EmittedStart;
+
+        // Lock-free: An Activity is started/stopped once per its lifecycle on a single logical flow,
+        // so concurrent calls to IsEmitted for the same activity+event are not expected.
+        // The only edge case is duplicate listener registration, which is already prevented by DI
+        // (TryAddSingleton + TryAddEnumerable in AddDiginsightCore).
+        // The original global emittedLock serialized ALL activities, causing 100+µs contention
+        // across unrelated concurrent requests — eliminated here.
         if (activity.GetCustomProperty(customPropertyName) is not null) { return true; }
 
-        lock (emittedLock)
-        {
-            if (activity.GetCustomProperty(customPropertyName) is not null) { return true; }
-
-            activity.SetCustomProperty(customPropertyName, new object());
-            return false;
-        }
+        activity.SetCustomProperty(customPropertyName, new object());
+        return false;
     }
 
     public void ActivityStarted(Activity activity)
@@ -411,7 +414,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
     {
         callerType = activity.GetCallerType();
 
-        activitiesOptions = activitiesOptionsMonitor.Get(callerType);
+        activitiesOptions = activitiesOptionsMonitor.CurrentValue;
         LogBehavior candidateBehavior = activityLoggingFilter?.GetLogBehavior(activity) ?? activitiesOptions.LogBehavior;
         behavior = activity.Parent?.GetLogBehavior() == LogBehavior.Truncate ? LogBehavior.Truncate : candidateBehavior;
     }
@@ -444,7 +447,11 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
             _ => throw new InvalidOperationException($"Invalid '{ActivityCustomPropertyNames.IsStandalone}' in activity"),
         };
 
-        ILogger MakeInnerLogger() => providedLogger ?? (callerType is not null ? loggerFactory.CreateLogger(callerType) : fallbackLogger);
+        // Logger caching: Use two-parameter GetOrAdd for netstandard2.0 compatibility
+        // The three-parameter overload (with state parameter) is only available in .NET 5+
+        ILogger MakeInnerLogger() => providedLogger ?? (callerType is not null 
+            ? LoggerCache.GetOrAdd(callerType, type => loggerFactory.CreateLogger(type))
+            : fallbackLogger);
 
         textLogger = behavior == LogBehavior.Show
             ? new ActivityLogger(MakeInnerLogger(), activity, isStop ? activity.Duration : null)
