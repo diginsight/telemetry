@@ -14,29 +14,29 @@
 	</ItemGroup>
 
 	<Choose>
-    <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">
+		<When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">
 
-      <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App" />
-      </ItemGroup>
+			<ItemGroup>
+				<FrameworkReference Include="Microsoft.AspNetCore.App" />
+			</ItemGroup>
 
-    </When>
-    <Otherwise>
+		</When>
+		<Otherwise>
 
-      <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.*">
-          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
-        </PackageReference>
-        <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.*">
-          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
-        </PackageReference>
-        <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.*">
-          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
-        </PackageReference>
-      </ItemGroup>
+			<ItemGroup>
+				<PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.3.10">
+					<PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+				</PackageReference>
+				<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.10">
+					<PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+				</PackageReference>
+				<PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.3.10">
+					<PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+				</PackageReference>
+			</ItemGroup>
 
-    </Otherwise>
-  </Choose>
+		</Otherwise>
+	</Choose>
 
   <ItemGroup>
     <ProjectReference Include="..\Diginsight.Core\Diginsight.Core.csproj" />

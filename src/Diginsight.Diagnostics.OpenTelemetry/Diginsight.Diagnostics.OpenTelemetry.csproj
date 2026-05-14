@@ -8,22 +8,9 @@
     <PackageTags>$(PackageTags);diagnostics;opentelemetry</PackageTags>
   </PropertyGroup>
 
-  <Choose>
-    <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
-
-      <ItemGroup>
-        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.*" />
-      </ItemGroup>
-
-    </When>
-    <Otherwise>
-
-      <ItemGroup>
-        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.15.*" />
-      </ItemGroup>
-
-    </Otherwise>
-  </Choose>
+  <ItemGroup>
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.15.*" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Diginsight.Diagnostics\Diginsight.Diagnostics.csproj" />

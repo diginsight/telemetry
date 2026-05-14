@@ -20,7 +20,7 @@
     <Otherwise>
 
       <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.*">
+        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.10">
           <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
         </PackageReference>
       </ItemGroup>
