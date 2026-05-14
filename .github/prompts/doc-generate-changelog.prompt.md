@@ -2,7 +2,7 @@
 name: generate-changelog
 description: "Generate comprehensive changelog from git commit range with migration guides and breaking change documentation"
 agent: agent
-model: claude-sonnet-4.5
+model: claude-opus-4.6
 tools:
   - run_in_terminal  # Git commands for commit analysis
   - read_file        # Read template and existing files

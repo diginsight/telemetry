@@ -2,7 +2,7 @@
 name: doc-generate-or-update-class-reference-doc
 description: Generate or Update Class Reference Documentation
 agent: agent
-model: claude-sonnet-4.5
+model: claude-opus-4.6
 tools: ['codebase', 'fetch']
 argument-hint: 'class="ClassName"'
 ---

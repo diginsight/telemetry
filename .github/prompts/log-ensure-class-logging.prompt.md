@@ -2,7 +2,7 @@
 name: log-ensure-class-logging
 description: implements diginsight observability into current class
 agent: agent
-model: claude-sonnet-4.5
+model: claude-opus-4.6
 tools: ['codebase', 'fetch']
 argument-hint: 'class="ClassName"'
 ---
