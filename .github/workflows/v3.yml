@@ -44,7 +44,7 @@ jobs:
 
       - name: Restore
         run: |
-          dotnet restore $env:SOLUTION_SLN -f -v minimal
+          dotnet restore $env:SOLUTION_SLN --locked-mode -f -v minimal
 
       - name: Build
         run: |
