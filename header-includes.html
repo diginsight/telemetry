@@ -282,6 +282,24 @@
     markActive(next);
   }
 
+  // When a custom Bootswatch theme is active its stylesheet overrides Quarto's
+  // own light/dark sheets, so clicking the NATIVE navbar dark-mode toggle would
+  // flip body.quarto-dark but leave the page looking light (or dark). Keep the
+  // two systems in sync: if the native mode no longer matches the active custom
+  // theme's mode, swap the custom theme to its opposite-mode sibling.
+  function syncWithNativeMode() {
+    var current = read();
+    if (!current) return; // no custom theme -> native mode handled by styles.css
+    var t = THEME_INDEX[current];
+    if (!t) return;
+    var wantDark = document.body.classList.contains("quarto-dark");
+    if ((t.m === "dark") === wantDark) return; // already aligned
+    var next = THEME_INDEX[t.pair] ? t.pair : (wantDark ? "darkly" : "cosmo");
+    write(next);
+    applyTheme(next);
+    markActive(next);
+  }
+
   function resetTheme() {
     write(null);
     applyTheme(null);
@@ -347,6 +365,9 @@
     // Re-apply now that <body> (and the custom CSS links at its end) are parsed,
     // so a saved theme correctly disables the Diginsight customizations.
     applyTheme(read());
+    // Keep the custom theme in sync with the native navbar dark-mode toggle.
+    var modeObs = new MutationObserver(syncWithNativeMode);
+    modeObs.observe(document.body, { attributes: true, attributeFilter: ["class"] });
     if (injectMenu()) return;
     var obs = new MutationObserver(function () { if (injectMenu()) obs.disconnect(); });
     obs.observe(document.body, { childList: true, subtree: true });
