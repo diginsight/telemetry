@@ -1,0 +1,70 @@
+/* Custom styles for Diginsight Telemetry */
+
+/* Add lightbulb icon to navbar title */
+.navbar-brand::before {
+  content: "";
+  display: inline-block;
+  width: 1.2em;
+  height: 1.2em;
+  background-image: url("diginsight.bulb.svg");
+  background-repeat: no-repeat;
+  background-size: contain;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+/* Override Bootstrap highlight color to light yellow */
+:root {
+  --bs-highlight-bg: #fff7d1;
+}
+
+mark,
+.mark {
+  background-color: #fff7d1 !important;
+  color: inherit !important;
+}
+
+/* Hide redundant h1 ONLY when Quarto title block is present */
+.quarto-title-block ~ * h1:first-of-type {
+  display: none !important;
+}
+
+/* Ensure H1 is visible when there's NO title block (no metadata) */
+#quarto-content > h1:first-child,
+main h1:first-child,
+article > h1:first-child {
+  display: block !important;
+}
+
+/* More specific: show H1 when no title block exists */
+body:not(:has(.quarto-title-block)) #quarto-content h1,
+body:not(:has(.quarto-title-block)) main h1,
+body:not(:has(.quarto-title-block)) article h1 {
+  display: block !important;
+}
+
+/* Ensure markdown bullet lists are visible in content */
+#quarto-document-content ul li,
+.quarto-title-block ~ * ul li,
+article ul li {
+  list-style-type: disc;
+  display: list-item;
+}
+
+#quarto-document-content ul,
+.quarto-title-block ~ * ul,
+article ul {
+  padding-left: 2rem;
+}
+
+/* Nested lists */
+#quarto-document-content ul ul li,
+article ul ul li {
+  list-style-type: circle;
+}
+
+#quarto-document-content ul ul ul li,
+article ul ul ul li {
+  list-style-type: square;
+}
+

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Diginsight Telemetry &mdash; Quarto theme comparison</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; margin: 0; display: grid; grid-template-columns: 280px 1fr; height: 100vh; }
+  aside { background: #fafafa; border-right: 1px solid #ddd; overflow-y: auto; padding: 1rem; }
+  aside h1 { font-size: 1.05rem; margin: 0 0 .75rem 0; }
+  aside p { font-size: .8rem; color: #555; margin: 0 0 1rem 0; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: .35rem; }
+  .card { display: flex; flex-direction: column; align-items: center; gap: .25rem; padding: .55rem .25rem; background: white; border: 1px solid #ddd; border-radius: 6px; text-decoration: none; color: #222; font-size: .8rem; }
+  .card:hover { border-color: #888; background: #fff8e8; }
+  .card .mode { font-size: .65rem; padding: 1px 6px; border-radius: 10px; text-transform: uppercase; letter-spacing: .03em; }
+  main { display: flex; flex-direction: column; }
+  .toolbar { padding: .5rem .75rem; border-bottom: 1px solid #ddd; background: #f0f0f0; font-size: .85rem; display: flex; gap: .75rem; align-items: center; }
+  .toolbar a { color: #225; }
+  iframe { flex: 1; width: 100%; border: 0; }
+</style>
+</head>
+<body>
+  <aside>
+    <h1>Quarto theme comparison</h1>
+    <p>Click any theme to preview in the right pane. Open in a new tab with middle-click.</p>
+    <div class="grid">
+        <a class="card light" href="./cerulean/Index.html" target="preview">
+            <div class="name">cerulean</div>
+            <div class="mode" style="background:#eef;color:#225">light</div>
+        </a>
+        <a class="card light" href="./cosmo/Index.html" target="preview">
+            <div class="name">cosmo</div>
+            <div class="mode" style="background:#eef;color:#225">light</div>
+        </a>
+        <a class="card dark" href="./cyborg/Index.html" target="preview">
+            <div class="name">cyborg</div>
+            <div class="mode" style="background:#222;color:#eee">dark</div>
+        </a>
+        <a class="card dark" href="./darkly/Index.html" target="preview">
+            <div class="name">darkly</div>
+            <div class="mode" style="background:#222;color:#eee">dark</div>
+        </a>
+        <a class="card light" href="./flatly/Index.html" target="preview">
+            <div class="name">flatly</div>
+            <div class="mode" style="background:#eef;color:#225">light</div>
+        </a>
+        <a class="card light" href="./journal/Index.html" target="preview">
+            <div class="name">journal</div>
+            <div class="mode" style="background:#eef;color:#225">light</div>
+        </a>
+        <a class="card light" href="./litera/Index.html" target="preview">
+            <div class="name">litera</div>
+            <div class="mode" style="background:#eef;color:#225">light</div>
+        </a>
+        <a class="card light" href="./lumen/Index.html" target="preview">
+            <div class="name">lumen</div>
+            <div class="mode" style="background:#eef;color:#225">light</div>
+        </a>
+        <a class="card light" href="./lux/Index.html" target="preview">
+            <div class="name">lux</div>
+            <div class="mode" style="background:#eef;color:#225">light</div>
+        </a>
+        <a class="card light" href="./materia/Index.html" target="preview">
+            <div class="name">materia</div>
+            <div class="mode" style="background:#eef;color:#225">light</div>
+        </a>
+        <a class="card light" href="./minty/Index.html" target="preview">
+            <div class="name">minty</div>
+            <div class="mode" style="background:#eef;color:#225">light</div>
+        </a>
+        <a class="card light" href="./morph/Index.html" target="preview">
+            <div class="name">morph</div>
+            <div class="mode" style="background:#eef;color:#225">light</div>
+        </a>
+        <a class="card light" href="./pulse/Index.html" target="preview">
+            <div class="name">pulse</div>
+            <div class="mode" style="background:#eef;color:#225">light</div>
+        </a>
+        <a class="card dark" href="./quartz/Index.html" target="preview">
+            <div class="name">quartz</div>
+            <div class="mode" style="background:#222;color:#eee">dark</div>
+        </a>
+        <a class="card light" href="./sandstone/Index.html" target="preview">
+            <div class="name">sandstone</div>
+            <div class="mode" style="background:#eef;color:#225">light</div>
+        </a>
+        <a class="card light" href="./simplex/Index.html" target="preview">
+            <div class="name">simplex</div>
+            <div class="mode" style="background:#eef;color:#225">light</div>
+        </a>
+        <a class="card light" href="./sketchy/Index.html" target="preview">
+            <div class="name">sketchy</div>
+            <div class="mode" style="background:#eef;color:#225">light</div>
+        </a>
+        <a class="card dark" href="./slate/Index.html" target="preview">
+            <div class="name">slate</div>
+            <div class="mode" style="background:#222;color:#eee">dark</div>
+        </a>
+        <a class="card dark" href="./solar/Index.html" target="preview">
+            <div class="name">solar</div>
+            <div class="mode" style="background:#222;color:#eee">dark</div>
+        </a>
+        <a class="card light" href="./spacelab/Index.html" target="preview">
+            <div class="name">spacelab</div>
+            <div class="mode" style="background:#eef;color:#225">light</div>
+        </a>
+        <a class="card dark" href="./superhero/Index.html" target="preview">
+            <div class="name">superhero</div>
+            <div class="mode" style="background:#222;color:#eee">dark</div>
+        </a>
+        <a class="card light" href="./united/Index.html" target="preview">
+            <div class="name">united</div>
+            <div class="mode" style="background:#eef;color:#225">light</div>
+        </a>
+        <a class="card dark" href="./vapor/Index.html" target="preview">
+            <div class="name">vapor</div>
+            <div class="mode" style="background:#222;color:#eee">dark</div>
+        </a>
+        <a class="card light" href="./yeti/Index.html" target="preview">
+            <div class="name">yeti</div>
+            <div class="mode" style="background:#eef;color:#225">light</div>
+        </a>
+        <a class="card light" href="./zephyr/Index.html" target="preview">
+            <div class="name">zephyr</div>
+            <div class="mode" style="background:#eef;color:#225">light</div>
+        </a>
+    </div>
+  </aside>
+  <main>
+    <div class="toolbar">
+      <span>Preview pane &mdash;</span>
+      <a href="#" onclick="document.querySelector('iframe').src=document.querySelector('iframe').src;return false;">Reload</a>
+      <span id="current"></span>
+    </div>
+    <iframe name="preview" src="./cosmo/Index.html"></iframe>
+  </main>
+<script>
+  document.querySelectorAll('.card').forEach(a => a.addEventListener('click', e => {
+    document.getElementById('current').textContent = a.querySelector('.name').textContent;
+  }));
+</script>
+</body>
+</html>

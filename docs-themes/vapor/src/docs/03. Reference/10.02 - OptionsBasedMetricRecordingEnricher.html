@@ -1,0 +1,1993 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.56">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>optionsbasedmetricrecordingenricher – Diginsight Telemetry</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<link href="../../../diginsight.bulb.svg" rel="icon" type="image/svg+xml">
+<script src="../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<!-- Custom header includes for Diginsight Telemetry -->
+
+<!-- No custom scripts currently needed -->
+
+
+
+<link rel="stylesheet" href="../../../styles.css">
+<link rel="stylesheet" href="../../../styles-callouts.css">
+<meta property="og:title" content="Diginsight Telemetry">
+<meta property="og:description" content="">
+<meta property="og:image" content="diginsight.bulb.svg">
+<meta property="og:site_name" content="Diginsight Telemetry">
+</head>
+
+<body class="nav-sidebar docked nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">Diginsight Telemetry</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../../../" aria-current="page"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../src/docs/01. Concepts/00.01 - Observability Concepts.html"> 
+<span class="menu-text">Concepts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../src/docs/02. Advanced/13.00 - Customize entities rendering on diginsight log streams.html"> 
+<span class="menu-text">Advanced articles</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-about" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">About</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-about">    
+        <li>
+    <a class="dropdown-item" href="../../../src/docs/05. About/about.html">
+ <span class="dropdown-text">About</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../../src/LICENSE.html">
+ <span class="dropdown-text">License</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+    <div class="dropdown">
+      <a href="" title="" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label=""><i class="bi bi-github"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/diginsight">
+            Profile
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/diginsight/telemetry">
+            Source Code
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/diginsight/telemetry">
+            Report a Bug
+            </a>
+          </li>
+      </ul>
+    </div>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../src/docs/03. Reference/11.00 - IDiginsightActivitiesLogOptions.html">Reference</a></li><li class="breadcrumb-item"><a href="../../../src/docs/03. Reference/10.02 - OptionsBasedMetricRecordingEnricher.html">OptionsBasedMetricRecordingEnricher Class</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+  <div id="quarto-announcement" data-announcement-id="3d8e590ee37425636677ca46a3f022de" class="alert alert-primary hidden"><i class="bi bi-info-circle quarto-announcement-icon"></i><div class="quarto-announcement-content">
+<p><strong>Information</strong> - Diginsight v3 is now available</p>
+</div><i class="bi bi-x-lg quarto-announcement-action"></i></div>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="sidebar-tools-main">
+    <div class="dropdown">
+      <a href="" title="" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label=""><i class="bi bi-github"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://github.com/diginsight">
+            Source Code
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://github.com/diginsight">
+            Report a Bug
+            </a>
+          </li>
+      </ul>
+    </div>
+</div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Home</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/00. Getting Started/Getting Started.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Getting Started</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/00.1 Example Analysis/00.01 - How to troubleshoot issues.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Example Analysis</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Concepts</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/01. Concepts/00.01 - Observability Concepts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Application Observability Concepts</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">HowTo: Configure diginsight telemetry to the local text based streams</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/01. Concepts/02.00 - HowTo - configure diginsight telemetry to the remote tools.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">HowTo: Configure diginsight telemetry to the remote tools</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">HowTo: Use dynamic logging to manage loglevel dinamically, at runtime</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/01. Concepts/11.01 - HowTo - Use dynamic configuration to manage dynamic options, at runtime.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/01. Concepts/20.00 - HowTo Use diginsight telemetry with no impact on Application performance an telemetry cost.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">HowTo: Use diginsight telemetry with no impact on Application performance and telemetry cost</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/01. Concepts/90.00 - HowTo - Use Diginsight Samples.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Use Diginsight samples</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Advanced Articles</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/02. Advanced/13.00 - Customize entities rendering on diginsight log streams.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Customize entities rendering</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/02. Advanced/14.00 - How metric recording works with diginsight and Opentelemetry.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">How metric recording works with diginsight and Opentelemetry</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/02. Advanced/15.00 - Customize diginsight log streams row content.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Customize diginsight log streams</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/02. Advanced/16.00 - Troubleshoot the startup sequence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Troubleshoot the startup sequence</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/02. Advanced/18.00 - How dynamic configuration works.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">How Dynamic Configuration Works</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/02. Advanced/18.01 - Use class aware configurations to support comonent level or class level configurations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Use class aware configurations</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Reference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/03. Reference/11.00 - IDiginsightActivitiesLogOptions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">IDiginsightActivitiesLogOptions Interface</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/03. Reference/11.01 - IDiginsightActivitiesOptions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">IDiginsightActivitiesOptions Interface</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/03. Reference/10.00 - SpanDurationMetricRecorder.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">SpanDurationMetricRecorder Class</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/03. Reference/10.01 - OptionsBasedMetricRecordingFilter.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">OptionsBasedMetricRecordingFilter Class</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/03. Reference/10.02 - OptionsBasedMetricRecordingEnricher.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">OptionsBasedMetricRecordingEnricher Class</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">About</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/05. About/about.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Team</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Changelogs</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/10. ChangeLog/20251112 - changes for release 3.7.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Changes for Release 3.7</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/10. ChangeLog/20251112 - diginsight-v37-update-guide.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Diginsight v3.7 Upgrade Guide</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#optionsbasedmetricrecordingenricher-class" id="toc-optionsbasedmetricrecordingenricher-class" class="nav-link active" data-scroll-target="#optionsbasedmetricrecordingenricher-class">OptionsBasedMetricRecordingEnricher Class</a>
+  <ul class="collapse">
+  <li><a href="#inheritance" id="toc-inheritance" class="nav-link" data-scroll-target="#inheritance">Inheritance</a></li>
+  <li><a href="#implements" id="toc-implements" class="nav-link" data-scroll-target="#implements">Implements</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  <li><a href="#constructors" id="toc-constructors" class="nav-link" data-scroll-target="#constructors">Constructors</a>
+  <ul class="collapse">
+  <li><a href="#optionsbasedmetricrecordingenricherioptionsmonitor" id="toc-optionsbasedmetricrecordingenricherioptionsmonitor" class="nav-link" data-scroll-target="#optionsbasedmetricrecordingenricherioptionsmonitor">OptionsBasedMetricRecordingEnricher(IOptionsMonitor<optionsbasedmetricrecordingenricheroptions>)</optionsbasedmetricrecordingenricheroptions></a></li>
+  </ul></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
+  <ul class="collapse">
+  <li><a href="#extracttagsactivity-instrument" id="toc-extracttagsactivity-instrument" class="nav-link" data-scroll-target="#extracttagsactivity-instrument">ExtractTags(Activity, Instrument)</a></li>
+  </ul></li>
+  <li><a href="#configuration" id="toc-configuration" class="nav-link" data-scroll-target="#configuration">Configuration</a>
+  <ul class="collapse">
+  <li><a href="#optionsbasedmetricrecordingenricheroptions" id="toc-optionsbasedmetricrecordingenricheroptions" class="nav-link" data-scroll-target="#optionsbasedmetricrecordingenricheroptions">OptionsBasedMetricRecordingEnricherOptions</a></li>
+  <li><a href="#named-configuration-instrument-specific" id="toc-named-configuration-instrument-specific" class="nav-link" data-scroll-target="#named-configuration-instrument-specific">Named Configuration (Instrument-Specific)</a></li>
+  </ul></li>
+  <li><a href="#usage-examples" id="toc-usage-examples" class="nav-link" data-scroll-target="#usage-examples">Usage Examples</a>
+  <ul class="collapse">
+  <li><a href="#basic-registration" id="toc-basic-registration" class="nav-link" data-scroll-target="#basic-registration">Basic Registration</a></li>
+  <li><a href="#simple-configuration" id="toc-simple-configuration" class="nav-link" data-scroll-target="#simple-configuration">Simple Configuration</a></li>
+  <li><a href="#business-context-tags" id="toc-business-context-tags" class="nav-link" data-scroll-target="#business-context-tags">Business Context Tags</a></li>
+  <li><a href="#hierarchical-tag-resolution" id="toc-hierarchical-tag-resolution" class="nav-link" data-scroll-target="#hierarchical-tag-resolution">Hierarchical Tag Resolution</a></li>
+  <li><a href="#instrument-specific-tags" id="toc-instrument-specific-tags" class="nav-link" data-scroll-target="#instrument-specific-tags">Instrument-Specific Tags</a></li>
+  <li><a href="#cardinality-control" id="toc-cardinality-control" class="nav-link" data-scroll-target="#cardinality-control">Cardinality Control</a></li>
+  <li><a href="#multiple-enrichers" id="toc-multiple-enrichers" class="nav-link" data-scroll-target="#multiple-enrichers">Multiple Enrichers</a></li>
+  <li><a href="#hot-reload-configuration" id="toc-hot-reload-configuration" class="nav-link" data-scroll-target="#hot-reload-configuration">Hot Reload Configuration</a></li>
+  <li><a href="#custom-derived-enricher" id="toc-custom-derived-enricher" class="nav-link" data-scroll-target="#custom-derived-enricher">Custom Derived Enricher</a></li>
+  </ul></li>
+  <li><a href="#tag-extraction-details" id="toc-tag-extraction-details" class="nav-link" data-scroll-target="#tag-extraction-details">Tag Extraction Details</a>
+  <ul class="collapse">
+  <li><a href="#activity-tag-lookup" id="toc-activity-tag-lookup" class="nav-link" data-scroll-target="#activity-tag-lookup">Activity Tag Lookup</a></li>
+  <li><a href="#hierarchical-search-process" id="toc-hierarchical-search-process" class="nav-link" data-scroll-target="#hierarchical-search-process">Hierarchical Search Process</a></li>
+  <li><a href="#value-type-support" id="toc-value-type-support" class="nav-link" data-scroll-target="#value-type-support">Value Type Support</a></li>
+  </ul></li>
+  <li><a href="#performance-considerations" id="toc-performance-considerations" class="nav-link" data-scroll-target="#performance-considerations">Performance Considerations</a>
+  <ul class="collapse">
+  <li><a href="#configuration-freezing" id="toc-configuration-freezing" class="nav-link" data-scroll-target="#configuration-freezing">Configuration Freezing</a></li>
+  <li><a href="#linq-pipeline-efficiency" id="toc-linq-pipeline-efficiency" class="nav-link" data-scroll-target="#linq-pipeline-efficiency">LINQ Pipeline Efficiency</a></li>
+  <li><a href="#memory-efficiency" id="toc-memory-efficiency" class="nav-link" data-scroll-target="#memory-efficiency">Memory Efficiency</a></li>
+  <li><a href="#recommended-tag-counts" id="toc-recommended-tag-counts" class="nav-link" data-scroll-target="#recommended-tag-counts">Recommended Tag Counts</a></li>
+  </ul></li>
+  <li><a href="#thread-safety" id="toc-thread-safety" class="nav-link" data-scroll-target="#thread-safety">Thread Safety</a></li>
+  <li><a href="#troubleshooting" id="toc-troubleshooting" class="nav-link" data-scroll-target="#troubleshooting">Troubleshooting</a>
+  <ul class="collapse">
+  <li><a href="#tags-not-appearing-in-metrics" id="toc-tags-not-appearing-in-metrics" class="nav-link" data-scroll-target="#tags-not-appearing-in-metrics">Tags Not Appearing in Metrics</a></li>
+  <li><a href="#tags-not-found-in-hierarchy" id="toc-tags-not-found-in-hierarchy" class="nav-link" data-scroll-target="#tags-not-found-in-hierarchy">Tags Not Found in Hierarchy</a></li>
+  <li><a href="#hierarchical-search-not-working" id="toc-hierarchical-search-not-working" class="nav-link" data-scroll-target="#hierarchical-search-not-working">Hierarchical Search Not Working</a></li>
+  <li><a href="#high-cardinality-issues" id="toc-high-cardinality-issues" class="nav-link" data-scroll-target="#high-cardinality-issues">High Cardinality Issues</a></li>
+  <li><a href="#performance-impact" id="toc-performance-impact" class="nav-link" data-scroll-target="#performance-impact">Performance Impact</a></li>
+  </ul></li>
+  <li><a href="#related-types" id="toc-related-types" class="nav-link" data-scroll-target="#related-types">Related Types</a>
+  <ul class="collapse">
+  <li><a href="#interfaces" id="toc-interfaces" class="nav-link" data-scroll-target="#interfaces">Interfaces</a></li>
+  <li><a href="#options" id="toc-options" class="nav-link" data-scroll-target="#options">Options</a></li>
+  <li><a href="#extensions" id="toc-extensions" class="nav-link" data-scroll-target="#extensions">Extensions</a></li>
+  <li><a href="#related-components" id="toc-related-components" class="nav-link" data-scroll-target="#related-components">Related Components</a></li>
+  </ul></li>
+  <li><a href="#design-patterns" id="toc-design-patterns" class="nav-link" data-scroll-target="#design-patterns">Design Patterns</a>
+  <ul class="collapse">
+  <li><a href="#strategy-pattern" id="toc-strategy-pattern" class="nav-link" data-scroll-target="#strategy-pattern">Strategy Pattern</a></li>
+  <li><a href="#options-pattern" id="toc-options-pattern" class="nav-link" data-scroll-target="#options-pattern">Options Pattern</a></li>
+  <li><a href="#chain-of-responsibility" id="toc-chain-of-responsibility" class="nav-link" data-scroll-target="#chain-of-responsibility">Chain of Responsibility</a></li>
+  <li><a href="#template-method-pattern" id="toc-template-method-pattern" class="nav-link" data-scroll-target="#template-method-pattern">Template Method Pattern</a></li>
+  </ul></li>
+  <li><a href="#best-practices" id="toc-best-practices" class="nav-link" data-scroll-target="#best-practices">Best Practices</a>
+  <ul class="collapse">
+  <li><a href="#tag-selection" id="toc-tag-selection" class="nav-link" data-scroll-target="#tag-selection">Tag Selection</a></li>
+  <li><a href="#configuration-organization" id="toc-configuration-organization" class="nav-link" data-scroll-target="#configuration-organization">Configuration Organization</a></li>
+  <li><a href="#activity-tagging" id="toc-activity-tagging" class="nav-link" data-scroll-target="#activity-tagging">Activity Tagging</a></li>
+  <li><a href="#testing-enrichers" id="toc-testing-enrichers" class="nav-link" data-scroll-target="#testing-enrichers">Testing Enrichers</a></li>
+  </ul></li>
+  <li><a href="#version-history" id="toc-version-history" class="nav-link" data-scroll-target="#version-history">Version History</a></li>
+  <li><a href="#see-also" id="toc-see-also" class="nav-link" data-scroll-target="#see-also">See Also</a></li>
+  <li><a href="#remarks-2" id="toc-remarks-2" class="nav-link" data-scroll-target="#remarks-2">Remarks</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+
+
+<section id="optionsbasedmetricrecordingenricher-class" class="level1">
+<h1>OptionsBasedMetricRecordingEnricher Class</h1>
+<p><strong>Namespace:</strong> <code>Diginsight.Diagnostics</code><br>
+<strong>Assembly:</strong> Diginsight.Diagnostics.dll</p>
+<p>Configuration-based enricher that adds contextual tags to metrics by extracting specified tag names from activity hierarchies.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> OptionsBasedMetricRecordingEnricher <span class="op">:</span> IMetricRecordingEnricher</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="inheritance" class="level2">
+<h2 class="anchored" data-anchor-id="inheritance">Inheritance</h2>
+<p><code>Object</code> ? <code>OptionsBasedMetricRecordingEnricher</code></p>
+</section>
+<section id="implements" class="level2">
+<h2 class="anchored" data-anchor-id="implements">Implements</h2>
+<ul>
+<li><code>IMetricRecordingEnricher</code></li>
+</ul>
+<hr>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>The <code>OptionsBasedMetricRecordingEnricher</code> class automatically extracts business-relevant tags from activities and their parent hierarchy to enrich metrics with contextual dimensions. It uses a declarative, configuration-driven approach where you specify tag names in <code>appsettings.json</code>, and the enricher searches the activity tree to find matching tag values.</p>
+<p><strong>Key capabilities:</strong> - ? <strong>Configuration-driven enrichment</strong> - specify tag names in <code>appsettings.json</code> - ? <strong>Hierarchical tag search</strong> - searches activity and all parent activities - ? <strong>Instrument-specific tags</strong> - different tags per metric instrument - ? <strong>Tag deduplication</strong> - combined instrument-specific and general tags with duplicates removed - ? <strong>Null-safe extraction</strong> - only includes tags with non-null values - ? <strong>Virtualizable method</strong> - easily extensible for custom enrichment logic - ? <strong>Low cardinality support</strong> - promotes using categorical tags from configuration</p>
+<hr>
+</section>
+<section id="constructors" class="level2">
+<h2 class="anchored" data-anchor-id="constructors">Constructors</h2>
+<section id="optionsbasedmetricrecordingenricherioptionsmonitor" class="level3">
+<h3 class="anchored" data-anchor-id="optionsbasedmetricrecordingenricherioptionsmonitor">OptionsBasedMetricRecordingEnricher(IOptionsMonitor<optionsbasedmetricrecordingenricheroptions>)</optionsbasedmetricrecordingenricheroptions></h3>
+<p>Initializes a new instance of the <code>OptionsBasedMetricRecordingEnricher</code> class.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="fu">OptionsBasedMetricRecordingEnricher</span><span class="op">(</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    IOptionsMonitor<span class="op">&lt;</span>OptionsBasedMetricRecordingEnricherOptions<span class="op">&gt;</span> enricherMonitor</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="parameters" class="level4">
+<h4 class="anchored" data-anchor-id="parameters">Parameters</h4>
+<p><strong><code>enricherMonitor</code></strong> : <code>IOptionsMonitor&lt;OptionsBasedMetricRecordingEnricherOptions&gt;</code><br>
+Monitor for accessing enricher configuration options. Uses <code>IOptionsMonitor</code> to support dynamic configuration changes at runtime without restarting the application.</p>
+</section>
+<section id="remarks" class="level4">
+<h4 class="anchored" data-anchor-id="remarks">Remarks</h4>
+<p>The constructor stores the options monitor which allows: - Access to <strong>named options</strong> for instrument-specific tag configurations - <strong>Hot reload</strong> support - configuration changes apply immediately - <strong>Default configuration</strong> via <code>CurrentValue</code> property</p>
+<hr>
+</section>
+</section>
+</section>
+<section id="methods" class="level2">
+<h2 class="anchored" data-anchor-id="methods">Methods</h2>
+<section id="extracttagsactivity-instrument" class="level3">
+<h3 class="anchored" data-anchor-id="extracttagsactivity-instrument">ExtractTags(Activity, Instrument)</h3>
+<p>Extracts tags from the activity hierarchy based on configured tag names.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">virtual</span> Tags <span class="fu">ExtractTags</span><span class="op">(</span>Activity activity<span class="op">,</span> Instrument instrument<span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="returns" class="level4">
+<h4 class="anchored" data-anchor-id="returns">Returns</h4>
+<p><code>Tags</code> (which is <code>IEnumerable&lt;Tag&gt;</code>)<br>
+A collection of tags where each tag’s value was found in the activity hierarchy. Only includes tags with non-null values.</p>
+</section>
+<section id="parameters-1" class="level4">
+<h4 class="anchored" data-anchor-id="parameters-1">Parameters</h4>
+<p><strong><code>activity</code></strong> : <code>Activity</code><br>
+The activity from which to extract tags. The enricher searches this activity and all parent activities.</p>
+<p><strong><code>instrument</code></strong> : <code>Instrument</code><br>
+The metric instrument that will use these tags (e.g., histogram for span duration).</p>
+</section>
+<section id="remarks-1" class="level4">
+<h4 class="anchored" data-anchor-id="remarks-1">Remarks</h4>
+<p>This method implements a sophisticated tag extraction strategy:</p>
+<p><strong>Two-tier configuration:</strong> 1. <strong>Instrument-specific tags</strong>: First retrieves tag names from configuration named by <code>instrument.Name</code> 2. <strong>General tags</strong>: Then retrieves tag names from default (unnamed) configuration 3. <strong>Combines and deduplicates</strong>: Merges both lists and removes duplicate tag names</p>
+<p><strong>Hierarchical search:</strong> For each configured tag name, the enricher: 1. Searches the current activity’s tags 2. If not found, searches each parent activity moving up the hierarchy 3. Returns the first non-null value found</p>
+<p><strong>Implementation logic:</strong></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Step 1: Get tag names from instrument-specific and general config</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="dt">var</span> instrumentTags <span class="op">=</span> <span class="fu">GetTagNames</span><span class="op">(</span>enricherMonitor<span class="op">.</span><span class="fu">Get</span><span class="op">(</span>instrument<span class="op">.</span><span class="fu">Name</span><span class="op">));</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="dt">var</span> generalTags <span class="op">=</span> <span class="fu">GetTagNames</span><span class="op">(</span>enricherMonitor<span class="op">.</span><span class="fu">CurrentValue</span><span class="op">);</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="dt">var</span> allTagNames <span class="op">=</span> instrumentTags<span class="op">.</span><span class="fu">Concat</span><span class="op">(</span>generalTags<span class="op">).</span><span class="fu">Distinct</span><span class="op">();</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Step 2: For each tag name, search activity hierarchy</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="kw">foreach</span> <span class="op">(</span><span class="dt">var</span> tagName <span class="kw">in</span> allTagNames<span class="op">)</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Search current activity and all parents</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> value <span class="op">=</span> activity<span class="op">.</span><span class="fu">GetAncestors</span><span class="op">(</span>includeSelf<span class="op">:</span> <span class="kw">true</span><span class="op">)</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">Select</span><span class="op">(</span>a <span class="op">=&gt;</span> a<span class="op">.</span><span class="fu">GetTagItem</span><span class="op">(</span>tagName<span class="op">))</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">FirstOrDefault</span><span class="op">(</span>v <span class="op">=&gt;</span> v <span class="op">!=</span> <span class="kw">null</span><span class="op">);</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">if</span> <span class="op">(</span>value <span class="op">!=</span> <span class="kw">null</span><span class="op">)</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        <span class="kw">yield</span> <span class="kw">return</span> <span class="kw">new</span> <span class="fu">Tag</span><span class="op">(</span>tagName<span class="op">,</span> value<span class="op">);</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Null handling:</strong> - If a tag name doesn’t exist in any activity in the hierarchy, it’s skipped - Only tags with non-null values are included in the result</p>
+</section>
+<section id="example" class="level4">
+<h4 class="anchored" data-anchor-id="example">Example</h4>
+<p><strong>Configuration:</strong></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"OptionsBasedMetricRecordingEnricher"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"MetricTags"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>      <span class="st">"customer_tier"</span><span class="ot">,</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>      <span class="st">"region"</span><span class="ot">,</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">"environment"</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"diginsight.span_duration"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"MetricTags"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>      <span class="st">"operation_category"</span><span class="ot">,</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>      <span class="st">"customer_tier"</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Activity hierarchy:</strong></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Root activity</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="dt">var</span> rootActivity <span class="op">=</span> activitySource<span class="op">.</span><span class="fu">StartRichActivity</span><span class="op">(</span><span class="st">"HandleRequest"</span><span class="op">,</span> <span class="kw">new</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    customer_tier <span class="op">=</span> <span class="st">"premium"</span><span class="op">,</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    region <span class="op">=</span> <span class="st">"us-east"</span><span class="op">,</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    environment <span class="op">=</span> <span class="st">"production"</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="op">});</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">// Child activity</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="dt">var</span> childActivity <span class="op">=</span> activitySource<span class="op">.</span><span class="fu">StartRichActivity</span><span class="op">(</span><span class="st">"ProcessOrder"</span><span class="op">,</span> <span class="kw">new</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    operation_category <span class="op">=</span> <span class="st">"order"</span><span class="op">,</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    order_id <span class="op">=</span> <span class="st">"12345"</span>  <span class="co">// Not configured, won't be extracted</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="op">});</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co">// For instrument "diginsight.span_duration"</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="dt">var</span> tags <span class="op">=</span> enricher<span class="op">.</span><span class="fu">ExtractTags</span><span class="op">(</span>childActivity<span class="op">,</span> spanDurationInstrument<span class="op">);</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co">// Result: [</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="co">//   Tag("operation_category", "order"),        // From child (instrument-specific)</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co">//   Tag("customer_tier", "premium"),           // From parent (both configs, deduplicated)</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="co">//   Tag("region", "us-east"),                  // From parent (general config)</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="co">//   Tag("environment", "production")           // From parent (general config)</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="co">// ]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Search order example:</strong></p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Looking for "customer_tier" tag</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">// 1. Check childActivity.GetTagItem("customer_tier") ? null</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">// 2. Check rootActivity.GetTagItem("customer_tier") ? "premium" ?</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Result: Tag("customer_tier", "premium")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+</section>
+</section>
+<section id="configuration" class="level2">
+<h2 class="anchored" data-anchor-id="configuration">Configuration</h2>
+<section id="optionsbasedmetricrecordingenricheroptions" class="level3">
+<h3 class="anchored" data-anchor-id="optionsbasedmetricrecordingenricheroptions">OptionsBasedMetricRecordingEnricherOptions</h3>
+<p>Configure the enricher in <code>appsettings.json</code>:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"OptionsBasedMetricRecordingEnricher"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"MetricTags"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>      <span class="st">"&lt;tag_name_1&gt;"</span><span class="ot">,</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>      <span class="st">"&lt;tag_name_2&gt;"</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="properties" class="level4">
+<h4 class="anchored" data-anchor-id="properties">Properties</h4>
+<p><strong><code>MetricTags</code></strong> : <code>ICollection&lt;string&gt;</code><br>
+List of tag names to extract from activities and include in metrics.</p>
+<p><strong>Guidelines:</strong> - ? Use <strong>low-cardinality tags</strong> (status, tier, region, category) - ? Use <strong>business-relevant dimensions</strong> for filtering and grouping - ? Avoid <strong>high-cardinality identifiers</strong> (user IDs, order IDs, request IDs) - ? Avoid <strong>unbounded values</strong> (URLs, timestamps, freeform text)</p>
+</section>
+</section>
+<section id="named-configuration-instrument-specific" class="level3">
+<h3 class="anchored" data-anchor-id="named-configuration-instrument-specific">Named Configuration (Instrument-Specific)</h3>
+<p>Configure different tags for specific metric instruments:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"OptionsBasedMetricRecordingEnricher"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"MetricTags"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>      <span class="st">"environment"</span><span class="ot">,</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>      <span class="st">"region"</span><span class="ot">,</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">"customer_tier"</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"diginsight.span_duration"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"MetricTags"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>      <span class="st">"operation_category"</span><span class="ot">,</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>      <span class="st">"criticality_level"</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"http.server.request.duration"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"MetricTags"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>      <span class="st">"endpoint_category"</span><span class="ot">,</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>      <span class="st">"api_version"</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>How it works:</strong> - Section name matches <code>instrument.Name</code> parameter - Instrument-specific tags are combined with general tags - Duplicate tag names are automatically removed - All tags are searched in the activity hierarchy</p>
+<p><strong>Resulting tag names:</strong></p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">// For "diginsight.span_duration" instrument:</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">// ["operation_category", "criticality_level", "environment", "region", "customer_tier"]</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">// (instrument-specific + general, deduplicated)</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co">// For "http.server.request.duration" instrument:</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co">// ["endpoint_category", "api_version", "environment", "region", "customer_tier"]</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">// For other instruments:</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">// ["environment", "region", "customer_tier"]</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">// (only general tags)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+</section>
+<section id="usage-examples" class="level2">
+<h2 class="anchored" data-anchor-id="usage-examples">Usage Examples</h2>
+<section id="basic-registration" class="level3">
+<h3 class="anchored" data-anchor-id="basic-registration">Basic Registration</h3>
+<p>Register the enricher during application startup:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="dt">var</span> builder <span class="op">=</span> WebApplication<span class="op">.</span><span class="fu">CreateBuilder</span><span class="op">(</span>args<span class="op">);</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Register enricher</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>builder<span class="op">.</span><span class="fu">Services</span><span class="op">.</span><span class="fu">AddSingleton</span><span class="op">&lt;</span>IMetricRecordingEnricher<span class="op">,</span> OptionsBasedMetricRecordingEnricher<span class="op">&gt;();</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Register metric recorder (uses the enricher)</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>builder<span class="op">.</span><span class="fu">Services</span><span class="op">.</span><span class="fu">AddSpanDurationMetricRecorder</span><span class="op">();</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="dt">var</span> app <span class="op">=</span> builder<span class="op">.</span><span class="fu">Build</span><span class="op">();</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>app<span class="op">.</span><span class="fu">Run</span><span class="op">();</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="simple-configuration" class="level3">
+<h3 class="anchored" data-anchor-id="simple-configuration">Simple Configuration</h3>
+<p><strong>appsettings.json:</strong></p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"OptionsBasedMetricRecordingEnricher"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"MetricTags"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>      <span class="st">"environment"</span><span class="ot">,</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>      <span class="st">"service_version"</span><span class="ot">,</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">"deployment_slot"</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Application code:</strong></p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="dt">var</span> activity <span class="op">=</span> activitySource<span class="op">.</span><span class="fu">StartRichActivity</span><span class="op">(</span><span class="st">"ProcessOrder"</span><span class="op">,</span> <span class="kw">new</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    environment <span class="op">=</span> <span class="st">"production"</span><span class="op">,</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    service_version <span class="op">=</span> <span class="st">"2.5.1"</span><span class="op">,</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    deployment_slot <span class="op">=</span> <span class="st">"blue"</span><span class="op">,</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    order_id <span class="op">=</span> <span class="st">"12345"</span>  <span class="co">// Not in config, won't be extracted</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="op">});</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co">// Resulting metric:</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co">// diginsight.span_duration{</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co">//   span_name="ProcessOrder",</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co">//   status="Ok",</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="co">//   environment="production",</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="co">//   service_version="2.5.1",</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="co">//   deployment_slot="blue"</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="co">// } = 250ms</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="business-context-tags" class="level3">
+<h3 class="anchored" data-anchor-id="business-context-tags">Business Context Tags</h3>
+<p><strong>appsettings.json:</strong></p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"OptionsBasedMetricRecordingEnricher"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"MetricTags"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>      <span class="st">"customer_tier"</span><span class="ot">,</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>      <span class="st">"region"</span><span class="ot">,</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">"feature_flag_set"</span><span class="ot">,</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>      <span class="st">"tenant_id"</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Application code:</strong></p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> OrderController <span class="op">:</span> ControllerBase</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">[</span><span class="fu">HttpPost</span><span class="op">(</span><span class="st">"orders"</span><span class="op">)]</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> async Task<span class="op">&lt;</span>IActionResult<span class="op">&gt;</span> <span class="fu">CreateOrder</span><span class="op">([</span>FromBody<span class="op">]</span> CreateOrderRequest request<span class="op">)</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Root activity with business context</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>        <span class="kw">using</span> <span class="dt">var</span> activity <span class="op">=</span> activitySource<span class="op">.</span><span class="fu">StartRichActivity</span><span class="op">(</span><span class="st">"CreateOrder"</span><span class="op">,</span> <span class="kw">new</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">{</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>            customer_tier <span class="op">=</span> <span class="fu">GetCustomerTier</span><span class="op">(</span>request<span class="op">.</span><span class="fu">CustomerId</span><span class="op">),</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>            region <span class="op">=</span> request<span class="op">.</span><span class="fu">ShippingAddress</span><span class="op">.</span><span class="fu">Region</span><span class="op">,</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>            feature_flag_set <span class="op">=</span> featureFlags<span class="op">.</span><span class="fu">GetActiveSet</span><span class="op">(),</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>            tenant_id <span class="op">=</span> <span class="fu">GetTenantId</span><span class="op">()</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>        <span class="op">});</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>        <span class="dt">var</span> order <span class="op">=</span> await orderService<span class="op">.</span><span class="fu">ProcessOrderAsync</span><span class="op">(</span>request<span class="op">);</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>        <span class="kw">return</span> <span class="fu">Ok</span><span class="op">(</span>order<span class="op">);</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a><span class="co">// Child activities automatically inherit parent tags</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> async Task <span class="fu">ProcessOrderAsync</span><span class="op">(</span>CreateOrderRequest request<span class="op">)</span></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">// This activity doesn't set any tags</span></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> <span class="dt">var</span> activity <span class="op">=</span> activitySource<span class="op">.</span><span class="fu">StartMethodActivity</span><span class="op">();</span></span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>    <span class="co">// But metrics still include parent tags:</span></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>    <span class="co">// diginsight.span_duration{</span></span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>    <span class="co">//   span_name="ProcessOrderAsync",</span></span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>    <span class="co">//   customer_tier="premium",</span></span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>    <span class="co">//   region="us-east",</span></span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>    <span class="co">//   feature_flag_set="v2_checkout",</span></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>    <span class="co">//   tenant_id="tenant-abc"</span></span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>    <span class="co">// }</span></span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>    await <span class="fu">ValidateInventory</span><span class="op">();</span></span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a>    await <span class="fu">ProcessPayment</span><span class="op">();</span></span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="hierarchical-tag-resolution" class="level3">
+<h3 class="anchored" data-anchor-id="hierarchical-tag-resolution">Hierarchical Tag Resolution</h3>
+<p><strong>Configuration:</strong></p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"OptionsBasedMetricRecordingEnricher"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"MetricTags"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>      <span class="st">"customer_tier"</span><span class="ot">,</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>      <span class="st">"operation_type"</span><span class="ot">,</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">"correlation_id"</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Activity hierarchy:</strong></p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Root activity (e.g., from HTTP request middleware)</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="dt">var</span> httpActivity <span class="op">=</span> activitySource<span class="op">.</span><span class="fu">StartRichActivity</span><span class="op">(</span><span class="st">"HttpRequest"</span><span class="op">,</span> <span class="kw">new</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    correlation_id <span class="op">=</span> Guid<span class="op">.</span><span class="fu">NewGuid</span><span class="op">().</span><span class="fu">ToString</span><span class="op">(),</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    customer_tier <span class="op">=</span> <span class="st">"enterprise"</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="op">});</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="co">// Business logic activity (overrides operation_type)</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="dt">var</span> businessActivity <span class="op">=</span> activitySource<span class="op">.</span><span class="fu">StartRichActivity</span><span class="op">(</span><span class="st">"ProcessOrder"</span><span class="op">,</span> <span class="kw">new</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    operation_type <span class="op">=</span> <span class="st">"write"</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="op">});</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="co">// Database activity (inherits from ancestors)</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="dt">var</span> dbActivity <span class="op">=</span> activitySource<span class="op">.</span><span class="fu">StartRichActivity</span><span class="op">(</span><span class="st">"SaveOrder"</span><span class="op">,</span> <span class="kw">new</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">// No tags set</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="op">});</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a><span class="co">// Tags extracted for dbActivity:</span></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a><span class="co">// correlation_id ? searches dbActivity (null), businessActivity (null), httpActivity ("guid") ?</span></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a><span class="co">// customer_tier ? searches dbActivity (null), businessActivity (null), httpActivity ("enterprise") ?</span></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a><span class="co">// operation_type ? searches dbActivity (null), businessActivity ("write") ?</span></span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a><span class="co">// Result: All three tags found in ancestor hierarchy</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="instrument-specific-tags" class="level3">
+<h3 class="anchored" data-anchor-id="instrument-specific-tags">Instrument-Specific Tags</h3>
+<p>Different tags for different metric types:</p>
+<p><strong>appsettings.json:</strong></p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"OptionsBasedMetricRecordingEnricher"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"MetricTags"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>      <span class="st">"environment"</span><span class="ot">,</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>      <span class="st">"region"</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"diginsight.span_duration"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"MetricTags"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>      <span class="st">"operation_category"</span><span class="ot">,</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>      <span class="st">"performance_tier"</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"custom.database.query_cost"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"MetricTags"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>      <span class="st">"database_name"</span><span class="ot">,</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>      <span class="st">"collection_name"</span><span class="ot">,</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>      <span class="st">"partition_key"</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Application code:</strong></p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="dt">var</span> activity <span class="op">=</span> activitySource<span class="op">.</span><span class="fu">StartRichActivity</span><span class="op">(</span><span class="st">"ExecuteQuery"</span><span class="op">,</span> <span class="kw">new</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    environment <span class="op">=</span> <span class="st">"production"</span><span class="op">,</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    region <span class="op">=</span> <span class="st">"us-east"</span><span class="op">,</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    operation_category <span class="op">=</span> <span class="st">"database"</span><span class="op">,</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    performance_tier <span class="op">=</span> <span class="st">"premium"</span><span class="op">,</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    database_name <span class="op">=</span> <span class="st">"orders"</span><span class="op">,</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    collection_name <span class="op">=</span> <span class="st">"orders_2024"</span><span class="op">,</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    partition_key <span class="op">=</span> <span class="st">"tenant-abc"</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="op">});</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="co">// For span_duration instrument:</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="co">// Tags: environment, region, operation_category, performance_tier</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a><span class="co">// For database.query_cost instrument:</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="co">// Tags: environment, region, database_name, collection_name, partition_key</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a><span class="co">// For other instruments:</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a><span class="co">// Tags: environment, region</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="cardinality-control" class="level3">
+<h3 class="anchored" data-anchor-id="cardinality-control">Cardinality Control</h3>
+<p>Use enricher to promote low-cardinality tagging:</p>
+<p><strong>? Bad - High cardinality tags in activity:</strong></p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="dt">var</span> activity <span class="op">=</span> activitySource<span class="op">.</span><span class="fu">StartRichActivity</span><span class="op">(</span><span class="st">"ProcessOrder"</span><span class="op">,</span> <span class="kw">new</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    order_id <span class="op">=</span> <span class="st">"order-12345"</span><span class="op">,</span>        <span class="co">// Millions of unique values</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    customer_id <span class="op">=</span> <span class="st">"cust-67890"</span><span class="op">,</span>      <span class="co">// Millions of unique values</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    request_id <span class="op">=</span> Guid<span class="op">.</span><span class="fu">NewGuid</span><span class="op">()</span>      <span class="co">// Unlimited unique values</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="op">});</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="co">// These high-cardinality values are available for logging/tracing</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="co">// but won't become metric tags (not in config)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>? Good - Low cardinality tags:</strong></p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"OptionsBasedMetricRecordingEnricher"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"MetricTags"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>      <span class="st">"customer_tier"</span><span class="ot">,</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>      <span class="st">"order_size_bucket"</span><span class="ot">,</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">"payment_method"</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="dt">var</span> activity <span class="op">=</span> activitySource<span class="op">.</span><span class="fu">StartRichActivity</span><span class="op">(</span><span class="st">"ProcessOrder"</span><span class="op">,</span> <span class="kw">new</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// High cardinality - available for logs/traces, not metrics</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    order_id <span class="op">=</span> <span class="st">"order-12345"</span><span class="op">,</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    customer_id <span class="op">=</span> <span class="st">"cust-67890"</span><span class="op">,</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Low cardinality - will become metric tags</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    customer_tier <span class="op">=</span> <span class="st">"premium"</span><span class="op">,</span>           <span class="co">// 3 values: free, standard, premium</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    order_size_bucket <span class="op">=</span> <span class="st">"large"</span><span class="op">,</span>         <span class="co">// 4 values: small, medium, large, xlarge</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    payment_method <span class="op">=</span> <span class="st">"credit_card"</span>       <span class="co">// 5 values: credit_card, paypal, invoice, etc.</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="op">});</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a><span class="co">// Resulting metric:</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="co">// diginsight.span_duration{</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a><span class="co">//   customer_tier="premium",</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a><span class="co">//   order_size_bucket="large",</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="co">//   payment_method="credit_card"</span></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="co">// } = 250ms</span></span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a><span class="co">// Only ~60 unique combinations (3 � 4 � 5) - excellent cardinality!</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="multiple-enrichers" class="level3">
+<h3 class="anchored" data-anchor-id="multiple-enrichers">Multiple Enrichers</h3>
+<p>Combine with custom enrichers for advanced scenarios:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>builder<span class="op">.</span><span class="fu">Services</span><span class="op">.</span><span class="fu">AddSingleton</span><span class="op">&lt;</span>IMetricRecordingEnricher<span class="op">,</span> OptionsBasedMetricRecordingEnricher<span class="op">&gt;();</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>builder<span class="op">.</span><span class="fu">Services</span><span class="op">.</span><span class="fu">AddSingleton</span><span class="op">&lt;</span>IMetricRecordingEnricher<span class="op">,</span> DeploymentContextEnricher<span class="op">&gt;();</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>builder<span class="op">.</span><span class="fu">Services</span><span class="op">.</span><span class="fu">AddSingleton</span><span class="op">&lt;</span>IMetricRecordingEnricher<span class="op">,</span> PerformanceTierEnricher<span class="op">&gt;();</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Custom enricher example:</strong></p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> DeploymentContextEnricher <span class="op">:</span> IMetricRecordingEnricher</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> Tags <span class="fu">ExtractTags</span><span class="op">(</span>Activity activity<span class="op">,</span> Instrument instrument<span class="op">)</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>        <span class="kw">return</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>        <span class="op">[</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>            <span class="kw">new</span> <span class="fu">Tag</span><span class="op">(</span><span class="st">"host"</span><span class="op">,</span> Environment<span class="op">.</span><span class="fu">MachineName</span><span class="op">),</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>            <span class="kw">new</span> <span class="fu">Tag</span><span class="op">(</span><span class="st">"k8s_pod"</span><span class="op">,</span> Environment<span class="op">.</span><span class="fu">GetEnvironmentVariable</span><span class="op">(</span><span class="st">"POD_NAME"</span><span class="op">)),</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>            <span class="kw">new</span> <span class="fu">Tag</span><span class="op">(</span><span class="st">"deployment_version"</span><span class="op">,</span> <span class="fu">GetAssemblyVersion</span><span class="op">())</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>        <span class="op">];</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="hot-reload-configuration" class="level3">
+<h3 class="anchored" data-anchor-id="hot-reload-configuration">Hot Reload Configuration</h3>
+<p>Changes to <code>appsettings.json</code> apply immediately without restart:</p>
+<p><strong>Initial configuration:</strong></p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"OptionsBasedMetricRecordingEnricher"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"MetricTags"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"environment"</span><span class="ot">,</span> <span class="st">"region"</span><span class="ot">]</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>After hot reload (add more tags):</strong></p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"OptionsBasedMetricRecordingEnricher"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"MetricTags"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>      <span class="st">"environment"</span><span class="ot">,</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>      <span class="st">"region"</span><span class="ot">,</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">"customer_tier"</span><span class="ot">,</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>      <span class="st">"feature_flags"</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Result:</strong> - New activities immediately include the additional tags - No application restart required - Existing in-flight activities use old configuration</p>
+</section>
+<section id="custom-derived-enricher" class="level3">
+<h3 class="anchored" data-anchor-id="custom-derived-enricher">Custom Derived Enricher</h3>
+<p>Extend for custom logic:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SmartMetricEnricher <span class="op">:</span> OptionsBasedMetricRecordingEnricher</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="kw">readonly</span> IFeatureFlagService _featureFlags<span class="op">;</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">SmartMetricEnricher</span><span class="op">(</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>        IOptionsMonitor<span class="op">&lt;</span>OptionsBasedMetricRecordingEnricherOptions<span class="op">&gt;</span> enricherMonitor<span class="op">,</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>        IFeatureFlagService featureFlags<span class="op">)</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">:</span> <span class="kw">base</span><span class="op">(</span>enricherMonitor<span class="op">)</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>        _featureFlags <span class="op">=</span> featureFlags<span class="op">;</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="kw">override</span> Tags <span class="fu">ExtractTags</span><span class="op">(</span>Activity activity<span class="op">,</span> Instrument instrument<span class="op">)</span></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span></span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Start with configuration-based tags</span></span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>        <span class="dt">var</span> baseTags <span class="op">=</span> <span class="kw">base</span><span class="op">.</span><span class="fu">ExtractTags</span><span class="op">(</span>activity<span class="op">,</span> instrument<span class="op">).</span><span class="fu">ToList</span><span class="op">();</span></span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Add computed tags</span></span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>        baseTags<span class="op">.</span><span class="fu">Add</span><span class="op">(</span><span class="kw">new</span> <span class="fu">Tag</span><span class="op">(</span><span class="st">"ab_test_variant"</span><span class="op">,</span> _featureFlags<span class="op">.</span><span class="fu">GetVariant</span><span class="op">(</span><span class="st">"checkout_flow"</span><span class="op">)));</span></span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Add conditional tags</span></span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>        <span class="kw">if</span> <span class="op">(</span>activity<span class="op">.</span><span class="fu">Duration</span> <span class="op">&gt;</span> TimeSpan<span class="op">.</span><span class="fu">FromSeconds</span><span class="op">(</span><span class="dv">1</span><span class="op">))</span></span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>        <span class="op">{</span></span>
+<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a>            baseTags<span class="op">.</span><span class="fu">Add</span><span class="op">(</span><span class="kw">new</span> <span class="fu">Tag</span><span class="op">(</span><span class="st">"slow_operation"</span><span class="op">,</span> <span class="st">"true"</span><span class="op">));</span></span>
+<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a>        <span class="kw">return</span> baseTags<span class="op">;</span></span>
+<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Registration:</strong></p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>builder<span class="op">.</span><span class="fu">Services</span><span class="op">.</span><span class="fu">AddSingleton</span><span class="op">&lt;</span>IMetricRecordingEnricher<span class="op">,</span> SmartMetricEnricher<span class="op">&gt;();</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+</section>
+<section id="tag-extraction-details" class="level2">
+<h2 class="anchored" data-anchor-id="tag-extraction-details">Tag Extraction Details</h2>
+<section id="activity-tag-lookup" class="level3">
+<h3 class="anchored" data-anchor-id="activity-tag-lookup">Activity Tag Lookup</h3>
+<p>Tags are extracted using <code>Activity.GetTagItem(string key)</code>:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Activity tags set during creation</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="dt">var</span> activity <span class="op">=</span> activitySource<span class="op">.</span><span class="fu">StartRichActivity</span><span class="op">(</span><span class="st">"ProcessOrder"</span><span class="op">,</span> <span class="kw">new</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    customer_tier <span class="op">=</span> <span class="st">"premium"</span><span class="op">,</span>    <span class="co">// Becomes tag: customer_tier = "premium"</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    order_value <span class="op">=</span> <span class="fl">1299.99</span><span class="op">,</span>        <span class="co">// Becomes tag: order_value = 1299.99</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    is_express <span class="op">=</span> <span class="kw">true</span>             <span class="co">// Becomes tag: is_express = true</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="op">});</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="co">// Can also be set later</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>activity<span class="op">.</span><span class="fu">SetTag</span><span class="op">(</span><span class="st">"retry_count"</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>activity<span class="op">.</span><span class="fu">SetTag</span><span class="op">(</span><span class="st">"cache_hit"</span><span class="op">,</span> <span class="kw">true</span><span class="op">);</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="hierarchical-search-process" class="level3">
+<h3 class="anchored" data-anchor-id="hierarchical-search-process">Hierarchical Search Process</h3>
+<p><strong>Example hierarchy:</strong></p>
+<pre><code>HttpRequest (root)
+  ?? customer_id = "cust-123"
+  ?? region = "us-east"
+  ?? ProcessOrder
+      ?? operation_type = "write"
+      ?? SaveToDatabase
+          ?? database = "orders"
+          ?? (current activity)</code></pre>
+<p><strong>Tag extraction for “customer_id”:</strong></p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>activity<span class="op">.</span><span class="fu">GetAncestors</span><span class="op">(</span>includeSelf<span class="op">:</span> <span class="kw">true</span><span class="op">)</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Returns: [SaveToDatabase, ProcessOrder, HttpRequest]</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="op">.</span><span class="fu">Select</span><span class="op">(</span>a <span class="op">=&gt;</span> a<span class="op">.</span><span class="fu">GetTagItem</span><span class="op">(</span><span class="st">"customer_id"</span><span class="op">))</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Returns: [null, null, "cust-123"]</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="op">.</span><span class="fu">FirstOrDefault</span><span class="op">(</span>v <span class="op">=&gt;</span> v <span class="op">!=</span> <span class="kw">null</span><span class="op">)</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="co">// Returns: "cust-123"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Search is efficient:</strong> - Stops at first non-null value (early exit) - No unnecessary hierarchy traversal - Lazy evaluation with LINQ</p>
+</section>
+<section id="value-type-support" class="level3">
+<h3 class="anchored" data-anchor-id="value-type-support">Value Type Support</h3>
+<p>Tags can have various value types:</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="dt">var</span> activity <span class="op">=</span> activitySource<span class="op">.</span><span class="fu">StartRichActivity</span><span class="op">(</span><span class="st">"Operation"</span><span class="op">,</span> <span class="kw">new</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    string_tag <span class="op">=</span> <span class="st">"value"</span><span class="op">,</span>           <span class="co">// string</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    int_tag <span class="op">=</span> <span class="dv">42</span><span class="op">,</span>                   <span class="co">// int</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    double_tag <span class="op">=</span> <span class="fl">3.14</span><span class="op">,</span>              <span class="co">// double</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    bool_tag <span class="op">=</span> <span class="kw">true</span><span class="op">,</span>                <span class="co">// bool</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>    enum_tag <span class="op">=</span> HttpStatusCode<span class="op">.</span><span class="fu">OK</span><span class="op">,</span>   <span class="co">// enum</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>    guid_tag <span class="op">=</span> Guid<span class="op">.</span><span class="fu">NewGuid</span><span class="op">()</span>       <span class="co">// Guid</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="op">});</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a><span class="co">// All types are preserved in Tag structure</span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a><span class="co">// Metric exporters handle type conversion as needed</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Type handling by exporters:</strong> - <strong>Prometheus</strong>: Converts to strings - <strong>Application Insights</strong>: Preserves types as custom dimensions - <strong>OTLP</strong>: Supports typed attributes per OpenTelemetry spec</p>
+<hr>
+</section>
+</section>
+<section id="performance-considerations" class="level2">
+<h2 class="anchored" data-anchor-id="performance-considerations">Performance Considerations</h2>
+<section id="configuration-freezing" class="level3">
+<h3 class="anchored" data-anchor-id="configuration-freezing">Configuration Freezing</h3>
+<p><strong>Immutability for thread safety:</strong></p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="op">((</span>IOptionsBasedMetricRecordingEnricherOptions<span class="op">)</span>options<span class="op">.</span><span class="fu">Freeze</span><span class="op">())</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li>Options are frozen to immutable collections before use</li>
+<li>Prevents modification during concurrent access</li>
+<li>Creates immutable list copy only once per instrument</li>
+</ul>
+</section>
+<section id="linq-pipeline-efficiency" class="level3">
+<h3 class="anchored" data-anchor-id="linq-pipeline-efficiency">LINQ Pipeline Efficiency</h3>
+<p><strong>Deduplication strategy:</strong></p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>instrumentTags<span class="op">.</span><span class="fu">Concat</span><span class="op">(</span>generalTags<span class="op">).</span><span class="fu">Distinct</span><span class="op">()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li>Combines instrument-specific and general tag names</li>
+<li><code>Distinct()</code> removes duplicate names efficiently (hash-based)</li>
+<li>Minimal allocations with deferred execution</li>
+</ul>
+<p><strong>Hierarchical search:</strong></p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>activity<span class="op">.</span><span class="fu">GetAncestors</span><span class="op">(</span>includeSelf<span class="op">:</span> <span class="kw">true</span><span class="op">)</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">Select</span><span class="op">(</span>a <span class="op">=&gt;</span> a<span class="op">.</span><span class="fu">GetTagItem</span><span class="op">(</span>tagName<span class="op">))</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">FirstOrDefault</span><span class="op">(</span>v <span class="op">=&gt;</span> v <span class="op">!=</span> <span class="kw">null</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><code>FirstOrDefault</code> with predicate enables early exit</li>
+<li>Stops at first non-null value</li>
+<li>No unnecessary parent traversal</li>
+</ul>
+</section>
+<section id="memory-efficiency" class="level3">
+<h3 class="anchored" data-anchor-id="memory-efficiency">Memory Efficiency</h3>
+<p><strong>Tag collection:</strong> - Returns <code>IEnumerable&lt;Tag&gt;</code> with deferred execution - Only materializes tags that exist in hierarchy - No allocations for missing tags</p>
+<p><strong>Best practices:</strong></p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ? Good - minimal tag list</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="st">"MetricTags"</span><span class="op">:</span> <span class="op">[</span><span class="st">"environment"</span><span class="op">,</span> <span class="st">"region"</span><span class="op">,</span> <span class="st">"tier"</span><span class="op">]</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="co">// ? Bad - excessive tags</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="st">"MetricTags"</span><span class="op">:</span> <span class="op">[</span> <span class="co">/* 20+ tag names */</span> <span class="op">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="recommended-tag-counts" class="level3">
+<h3 class="anchored" data-anchor-id="recommended-tag-counts">Recommended Tag Counts</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Scenario</th>
+<th>Tag Count</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Minimal</strong></td>
+<td>2-3 tags</td>
+<td>Environment, region, tier</td>
+</tr>
+<tr class="even">
+<td><strong>Standard</strong></td>
+<td>4-6 tags</td>
+<td>+ operation category, version</td>
+</tr>
+<tr class="odd">
+<td><strong>Detailed</strong></td>
+<td>7-10 tags</td>
+<td>+ feature flags, deployment slot</td>
+</tr>
+<tr class="even">
+<td><strong>Avoid</strong></td>
+<td>10+ tags</td>
+<td>Excessive cardinality and lookup overhead</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="thread-safety" class="level2">
+<h2 class="anchored" data-anchor-id="thread-safety">Thread Safety</h2>
+<p>The <code>OptionsBasedMetricRecordingEnricher</code> is thread-safe:</p>
+<ul>
+<li>? <code>IOptionsMonitor&lt;T&gt;</code> is thread-safe by design</li>
+<li>? <code>Freeze()</code> creates immutable snapshot for evaluation</li>
+<li>? No mutable state between enrichment operations</li>
+<li>? LINQ operations are stateless</li>
+<li>? Activity tag lookup is thread-safe</li>
+</ul>
+<p>Multiple threads can enrich different activities concurrently without synchronization issues.</p>
+<hr>
+</section>
+<section id="troubleshooting" class="level2">
+<h2 class="anchored" data-anchor-id="troubleshooting">Troubleshooting</h2>
+<section id="tags-not-appearing-in-metrics" class="level3">
+<h3 class="anchored" data-anchor-id="tags-not-appearing-in-metrics">Tags Not Appearing in Metrics</h3>
+<p><strong>Symptoms:</strong> Expected tags don’t show up in metrics.</p>
+<p><strong>Checklist:</strong></p>
+<ol type="1">
+<li><p><strong>Is the enricher registered?</strong></p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>builder<span class="op">.</span><span class="fu">Services</span><span class="op">.</span><span class="fu">AddSingleton</span><span class="op">&lt;</span>IMetricRecordingEnricher<span class="op">,</span> OptionsBasedMetricRecordingEnricher<span class="op">&gt;();</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Is the configuration section correctly named?</strong></p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="er">"OptionsBasedMetricRecordingEnricher":</span> <span class="fu">{</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"MetricTags"</span><span class="fu">:</span> <span class="ot">[</span> <span class="er">...</span> <span class="ot">]</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Are tag names spelled correctly?</strong></p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Activity tag name must match config exactly</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="dt">var</span> activity <span class="op">=</span> activitySource<span class="op">.</span><span class="fu">StartRichActivity</span><span class="op">(</span><span class="st">"Op"</span><span class="op">,</span> <span class="kw">new</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>    customer_tier <span class="op">=</span> <span class="st">"premium"</span>  <span class="co">// Must match "customer_tier" in config</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="op">});</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Are tags set on the activity?</strong></p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Debug: check what tags exist</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>Console<span class="op">.</span><span class="fu">WriteLine</span><span class="op">(</span>$<span class="st">"Tags: {string.Join("</span><span class="op">,</span> <span class="st">", activity.Tags.Select(t =&gt; $"</span><span class="op">{</span>t<span class="op">.</span><span class="fu">Key</span><span class="op">}={</span>t<span class="op">.</span><span class="fu">Value</span><span class="op">}</span><span class="st">"))}"</span><span class="op">);</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Is the tag value null?</strong></p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Null values are excluded</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="dt">var</span> activity <span class="op">=</span> activitySource<span class="op">.</span><span class="fu">StartRichActivity</span><span class="op">(</span><span class="st">"Op"</span><span class="op">,</span> <span class="kw">new</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    customer_tier <span class="op">=</span> <span class="op">(</span><span class="dt">string</span><span class="op">?)</span><span class="kw">null</span>  <span class="co">// Won't appear in metrics</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a><span class="op">});</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ol>
+</section>
+<section id="tags-not-found-in-hierarchy" class="level3">
+<h3 class="anchored" data-anchor-id="tags-not-found-in-hierarchy">Tags Not Found in Hierarchy</h3>
+<p><strong>Symptoms:</strong> Tags exist but aren’t extracted.</p>
+<p><strong>Cause:</strong> Tag set on activity after enrichment occurs.</p>
+<p><strong>Example:</strong></p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="dt">var</span> activity <span class="op">=</span> activitySource<span class="op">.</span><span class="fu">StartActivity</span><span class="op">(</span><span class="st">"Op"</span><span class="op">);</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Enrichment happens here (activity stopping)</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="co">// ? Too late - enrichment already occurred</span></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>activity<span class="op">?.</span><span class="fu">SetTag</span><span class="op">(</span><span class="st">"customer_tier"</span><span class="op">,</span> <span class="st">"premium"</span><span class="op">);</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Solution:</strong> Set tags during activity creation:</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ? Correct - tags available for enrichment</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="dt">var</span> activity <span class="op">=</span> activitySource<span class="op">.</span><span class="fu">StartRichActivity</span><span class="op">(</span><span class="st">"Op"</span><span class="op">,</span> <span class="kw">new</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>    customer_tier <span class="op">=</span> <span class="st">"premium"</span></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a><span class="op">});</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="hierarchical-search-not-working" class="level3">
+<h3 class="anchored" data-anchor-id="hierarchical-search-not-working">Hierarchical Search Not Working</h3>
+<p><strong>Symptoms:</strong> Parent tags not inherited by child activities.</p>
+<p><strong>Debugging:</strong></p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> Tags <span class="fu">ExtractTags</span><span class="op">(</span>Activity activity<span class="op">,</span> Instrument instrument<span class="op">)</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Debug: print hierarchy</span></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">foreach</span> <span class="op">(</span><span class="dt">var</span> ancestor <span class="kw">in</span> activity<span class="op">.</span><span class="fu">GetAncestors</span><span class="op">(</span>includeSelf<span class="op">:</span> <span class="kw">true</span><span class="op">))</span></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span></span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>        Console<span class="op">.</span><span class="fu">WriteLine</span><span class="op">(</span>$<span class="st">"Activity: {ancestor.OperationName}"</span><span class="op">);</span></span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>        <span class="kw">foreach</span> <span class="op">(</span><span class="dt">var</span> tag <span class="kw">in</span> ancestor<span class="op">.</span><span class="fu">Tags</span><span class="op">)</span></span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">{</span></span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>            Console<span class="op">.</span><span class="fu">WriteLine</span><span class="op">(</span>$<span class="st">"  {tag.Key} = {tag.Value}"</span><span class="op">);</span></span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">return</span> <span class="kw">base</span><span class="op">.</span><span class="fu">ExtractTags</span><span class="op">(</span>activity<span class="op">,</span> instrument<span class="op">);</span></span>
+<span id="cb44-14"><a href="#cb44-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Common issue:</strong> Activity hierarchy broken</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ? Wrong - creates unrelated activity</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="dt">var</span> activity1 <span class="op">=</span> activitySource<span class="op">.</span><span class="fu">StartActivity</span><span class="op">(</span><span class="st">"Parent"</span><span class="op">);</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="dt">var</span> activity2 <span class="op">=</span> activitySource<span class="op">.</span><span class="fu">StartActivity</span><span class="op">(</span><span class="st">"Child"</span><span class="op">);</span></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="co">// activity2.Parent != activity1 (both are children of current Activity)</span></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a><span class="co">// ? Correct - proper hierarchy</span></span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="dt">var</span> activity1 <span class="op">=</span> activitySource<span class="op">.</span><span class="fu">StartActivity</span><span class="op">(</span><span class="st">"Parent"</span><span class="op">);</span></span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a><span class="co">// activity1 is now Activity.Current</span></span>
+<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="dt">var</span> activity2 <span class="op">=</span> activitySource<span class="op">.</span><span class="fu">StartActivity</span><span class="op">(</span><span class="st">"Child"</span><span class="op">);</span></span>
+<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a><span class="co">// activity2.Parent == activity1 ?</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="high-cardinality-issues" class="level3">
+<h3 class="anchored" data-anchor-id="high-cardinality-issues">High Cardinality Issues</h3>
+<p><strong>Symptoms:</strong> Excessive storage costs, slow queries.</p>
+<p><strong>Cause:</strong> Too many unique tag combinations.</p>
+<p><strong>Diagnosis:</strong></p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Check configured tags</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="dt">var</span> options <span class="op">=</span> serviceProvider<span class="op">.</span><span class="fu">GetService</span><span class="op">&lt;</span>IOptions<span class="op">&lt;</span>OptionsBasedMetricRecordingEnricherOptions<span class="op">&gt;&gt;();</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>Console<span class="op">.</span><span class="fu">WriteLine</span><span class="op">(</span>$<span class="st">"Configured tags: {string.Join("</span><span class="op">,</span> <span class="st">", options.Value.MetricTags)}"</span><span class="op">);</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Estimate cardinality</span></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a><span class="co">// If customer_id is configured: ? Millions of unique values</span></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a><span class="co">// If customer_tier is configured: ? ~3 unique values</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Solution:</strong> Review configured tags for cardinality:</p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"MetricTags"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"customer_id"</span>        <span class="er">//</span> <span class="er">?</span> <span class="er">Remove</span> <span class="er">-</span> <span class="er">high</span> <span class="er">cardinality</span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"customer_tier"</span><span class="ot">,</span>     <span class="er">//</span> <span class="er">?</span> <span class="er">Keep</span> <span class="er">-</span> <span class="er">low</span> <span class="er">cardinality</span> <span class="er">(</span><span class="dv">3</span> <span class="er">values)</span></span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"region"</span><span class="ot">,</span>            <span class="er">//</span> <span class="er">?</span> <span class="er">Keep</span> <span class="er">-</span> <span class="er">low</span> <span class="er">cardinality</span> <span class="er">(~</span><span class="dv">10</span> <span class="er">values)</span></span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"request_path"</span>       <span class="er">//</span> <span class="er">?</span> <span class="er">Remove</span> <span class="er">-</span> <span class="er">high</span> <span class="er">cardinality</span> <span class="er">(thousands)</span></span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"endpoint_category"</span>  <span class="er">//</span> <span class="er">?</span> <span class="er">Keep</span> <span class="er">-</span> <span class="er">low</span> <span class="er">cardinality</span> <span class="er">(</span><span class="dv">5</span> <span class="er">values)</span></span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="performance-impact" class="level3">
+<h3 class="anchored" data-anchor-id="performance-impact">Performance Impact</h3>
+<p><strong>Symptoms:</strong> Increased latency or CPU usage.</p>
+<p><strong>Diagnosis:</strong></p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Check enricher overhead</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="dt">var</span> stopwatch <span class="op">=</span> Stopwatch<span class="op">.</span><span class="fu">StartNew</span><span class="op">();</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="dt">var</span> tags <span class="op">=</span> enricher<span class="op">.</span><span class="fu">ExtractTags</span><span class="op">(</span>activity<span class="op">,</span> instrument<span class="op">).</span><span class="fu">ToArray</span><span class="op">();</span></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>stopwatch<span class="op">.</span><span class="fu">Stop</span><span class="op">();</span></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>Console<span class="op">.</span><span class="fu">WriteLine</span><span class="op">(</span>$<span class="st">"Enrichment took: {stopwatch.ElapsedMilliseconds}ms"</span><span class="op">);</span></span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>Console<span class="op">.</span><span class="fu">WriteLine</span><span class="op">(</span>$<span class="st">"Extracted {tags.Length} tags"</span><span class="op">);</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Mitigation:</strong> - Reduce configured tag count (&lt; 10 tags) - Limit activity hierarchy depth (&lt; 10 levels) - Profile hierarchical search for bottlenecks - Consider caching for repeated extractions</p>
+<hr>
+</section>
+</section>
+<section id="related-types" class="level2">
+<h2 class="anchored" data-anchor-id="related-types">Related Types</h2>
+<section id="interfaces" class="level3">
+<h3 class="anchored" data-anchor-id="interfaces">Interfaces</h3>
+<ul>
+<li><strong><code>IMetricRecordingEnricher</code></strong> - Base interface for metric enrichers</li>
+<li><strong><code>IOptionsBasedMetricRecordingEnricherOptions</code></strong> - Read-only view of enricher options</li>
+</ul>
+</section>
+<section id="options" class="level3">
+<h3 class="anchored" data-anchor-id="options">Options</h3>
+<ul>
+<li><strong><code>OptionsBasedMetricRecordingEnricherOptions</code></strong> - Configuration container for tag names</li>
+</ul>
+</section>
+<section id="extensions" class="level3">
+<h3 class="anchored" data-anchor-id="extensions">Extensions</h3>
+<ul>
+<li><strong><code>ActivityExtensions.GetAncestors</code></strong> - Traverses activity hierarchy</li>
+<li><strong><code>Activity.GetTagItem</code></strong> - Retrieves tag value by key</li>
+</ul>
+</section>
+<section id="related-components" class="level3">
+<h3 class="anchored" data-anchor-id="related-components">Related Components</h3>
+<ul>
+<li><strong><code>SpanDurationMetricRecorder</code></strong> - Uses enrichers to add tags to span duration metrics</li>
+<li><strong><code>OptionsBasedMetricRecordingFilter</code></strong> - Filtering counterpart (controls if metrics are recorded)</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="design-patterns" class="level2">
+<h2 class="anchored" data-anchor-id="design-patterns">Design Patterns</h2>
+<section id="strategy-pattern" class="level3">
+<h3 class="anchored" data-anchor-id="strategy-pattern">Strategy Pattern</h3>
+<p>The enricher implements the Strategy pattern: - <code>IMetricRecordingEnricher</code> defines the enrichment strategy interface - <code>OptionsBasedMetricRecordingEnricher</code> is one concrete strategy - <code>SpanDurationMetricRecorder</code> uses enrichers without knowing implementation details</p>
+</section>
+<section id="options-pattern" class="level3">
+<h3 class="anchored" data-anchor-id="options-pattern">Options Pattern</h3>
+<p>Uses the .NET Options pattern: - <code>IOptionsMonitor&lt;T&gt;</code> for reactive configuration - Named options for instrument-specific configuration - Hot reload support without restart</p>
+</section>
+<section id="chain-of-responsibility" class="level3">
+<h3 class="anchored" data-anchor-id="chain-of-responsibility">Chain of Responsibility</h3>
+<p>Multiple enrichers can be registered:</p>
+<div class="sourceCode" id="cb49"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Each enricher contributes tags</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>builder<span class="op">.</span><span class="fu">Services</span><span class="op">.</span><span class="fu">AddSingleton</span><span class="op">&lt;</span>IMetricRecordingEnricher<span class="op">,</span> OptionsBasedMetricRecordingEnricher<span class="op">&gt;();</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>builder<span class="op">.</span><span class="fu">Services</span><span class="op">.</span><span class="fu">AddSingleton</span><span class="op">&lt;</span>IMetricRecordingEnricher<span class="op">,</span> DeploymentEnricher<span class="op">&gt;();</span></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>builder<span class="op">.</span><span class="fu">Services</span><span class="op">.</span><span class="fu">AddSingleton</span><span class="op">&lt;</span>IMetricRecordingEnricher<span class="op">,</span> BusinessEnricher<span class="op">&gt;();</span></span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a><span class="co">// SpanDurationMetricRecorder collects tags from all enrichers</span></span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a><span class="dt">var</span> allTags <span class="op">=</span> enrichers<span class="op">.</span><span class="fu">SelectMany</span><span class="op">(</span>e <span class="op">=&gt;</span> e<span class="op">.</span><span class="fu">ExtractTags</span><span class="op">(</span>activity<span class="op">,</span> instrument<span class="op">));</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="template-method-pattern" class="level3">
+<h3 class="anchored" data-anchor-id="template-method-pattern">Template Method Pattern</h3>
+<p>Virtual <code>ExtractTags</code> method enables customization:</p>
+<div class="sourceCode" id="cb50"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> CustomEnricher <span class="op">:</span> OptionsBasedMetricRecordingEnricher</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="kw">override</span> Tags <span class="fu">ExtractTags</span><span class="op">(</span>Activity activity<span class="op">,</span> Instrument instrument<span class="op">)</span></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span></span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Custom pre-processing</span></span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>        <span class="dt">var</span> baseTags <span class="op">=</span> <span class="kw">base</span><span class="op">.</span><span class="fu">ExtractTags</span><span class="op">(</span>activity<span class="op">,</span> instrument<span class="op">).</span><span class="fu">ToList</span><span class="op">();</span></span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Add additional tags</span></span>
+<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>        baseTags<span class="op">.</span><span class="fu">Add</span><span class="op">(</span><span class="kw">new</span> <span class="fu">Tag</span><span class="op">(</span><span class="st">"custom"</span><span class="op">,</span> <span class="st">"value"</span><span class="op">));</span></span>
+<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a>        <span class="kw">return</span> baseTags<span class="op">;</span></span>
+<span id="cb50-12"><a href="#cb50-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb50-13"><a href="#cb50-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+</section>
+<section id="best-practices" class="level2">
+<h2 class="anchored" data-anchor-id="best-practices">Best Practices</h2>
+<section id="tag-selection" class="level3">
+<h3 class="anchored" data-anchor-id="tag-selection">Tag Selection</h3>
+<p>? <strong>DO</strong> choose low-cardinality business dimensions:</p>
+<div class="sourceCode" id="cb51"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"MetricTags"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"customer_tier"</span><span class="ot">,</span>        <span class="er">//</span> <span class="dv">3-5</span> <span class="er">values</span></span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"region"</span><span class="ot">,</span>               <span class="er">//</span> <span class="er">~</span><span class="dv">10</span> <span class="er">values</span></span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"operation_category"</span><span class="ot">,</span>   <span class="er">//</span> <span class="dv">5-10</span> <span class="er">values</span></span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"deployment_ring"</span><span class="ot">,</span>      <span class="er">//</span> <span class="dv">3-4</span> <span class="er">values</span></span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"feature_flag_variant"</span>  <span class="er">//</span> <span class="dv">2-3</span> <span class="er">values</span> <span class="er">per</span> <span class="er">flag</span></span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>? <strong>DON’T</strong> include high-cardinality identifiers:</p>
+<div class="sourceCode" id="cb52"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"MetricTags"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"customer_id"</span><span class="ot">,</span>      <span class="er">//</span> <span class="er">?</span> <span class="er">Millions</span> <span class="er">of</span> <span class="er">values</span></span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"order_id"</span><span class="ot">,</span>         <span class="er">//</span> <span class="er">?</span> <span class="er">Unlimited</span> <span class="er">values</span></span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"request_id"</span><span class="ot">,</span>       <span class="er">//</span> <span class="er">?</span> <span class="er">Unlimited</span> <span class="er">values</span></span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"user_agent"</span><span class="ot">,</span>       <span class="er">//</span> <span class="er">?</span> <span class="er">Thousands</span> <span class="er">of</span> <span class="er">values</span></span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"url_path"</span>          <span class="er">//</span> <span class="er">?</span> <span class="er">Thousands</span> <span class="er">of</span> <span class="er">values</span></span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="configuration-organization" class="level3">
+<h3 class="anchored" data-anchor-id="configuration-organization">Configuration Organization</h3>
+<p>? <strong>DO</strong> group by metric purpose:</p>
+<div class="sourceCode" id="cb53"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"OptionsBasedMetricRecordingEnricher"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"MetricTags"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>      <span class="st">"environment"</span><span class="ot">,</span></span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a>      <span class="st">"region"</span><span class="ot">,</span></span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">"deployment_slot"</span></span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"diginsight.span_duration"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb53-10"><a href="#cb53-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"MetricTags"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb53-11"><a href="#cb53-11" aria-hidden="true" tabindex="-1"></a>      <span class="st">"operation_category"</span><span class="ot">,</span></span>
+<span id="cb53-12"><a href="#cb53-12" aria-hidden="true" tabindex="-1"></a>      <span class="st">"performance_tier"</span></span>
+<span id="cb53-13"><a href="#cb53-13" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb53-14"><a href="#cb53-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb53-15"><a href="#cb53-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"http.server.request.duration"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb53-16"><a href="#cb53-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"MetricTags"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb53-17"><a href="#cb53-17" aria-hidden="true" tabindex="-1"></a>      <span class="st">"endpoint_category"</span><span class="ot">,</span></span>
+<span id="cb53-18"><a href="#cb53-18" aria-hidden="true" tabindex="-1"></a>      <span class="st">"api_version"</span></span>
+<span id="cb53-19"><a href="#cb53-19" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb53-20"><a href="#cb53-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb53-21"><a href="#cb53-21" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>? <strong>DO</strong> use consistent tag naming:</p>
+<div class="sourceCode" id="cb54"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"MetricTags"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"customer_tier"</span><span class="ot">,</span>        <span class="er">//</span> <span class="er">?</span> <span class="er">snake_case</span><span class="ot">,</span> <span class="er">descriptive</span></span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"deployment_region"</span><span class="ot">,</span>    <span class="er">//</span> <span class="er">?</span> <span class="er">fully</span> <span class="er">qualified</span></span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"api_version"</span>           <span class="er">//</span> <span class="er">?</span> <span class="er">clear</span> <span class="er">meaning</span></span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>? <strong>DON’T</strong> use inconsistent naming:</p>
+<div class="sourceCode" id="cb55"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"MetricTags"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"customerTier"</span><span class="ot">,</span>    <span class="er">//</span> <span class="er">?</span> <span class="er">Mixed</span> <span class="er">case</span></span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"region"</span><span class="ot">,</span>          <span class="er">//</span> <span class="er">?</span> <span class="er">Ambiguous</span> <span class="er">(deployment?</span> <span class="er">customer?)</span></span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"v"</span>                <span class="er">//</span> <span class="er">?</span> <span class="er">Unclear</span> <span class="er">abbreviation</span></span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="activity-tagging" class="level3">
+<h3 class="anchored" data-anchor-id="activity-tagging">Activity Tagging</h3>
+<p>? <strong>DO</strong> set tags during activity creation:</p>
+<div class="sourceCode" id="cb56"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="dt">var</span> activity <span class="op">=</span> activitySource<span class="op">.</span><span class="fu">StartRichActivity</span><span class="op">(</span><span class="st">"ProcessOrder"</span><span class="op">,</span> <span class="kw">new</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>    customer_tier <span class="op">=</span> <span class="fu">GetCustomerTier</span><span class="op">(),</span></span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>    region <span class="op">=</span> <span class="fu">GetRegion</span><span class="op">(),</span></span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>    operation_category <span class="op">=</span> <span class="st">"order_processing"</span></span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a><span class="op">});</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>? <strong>DO</strong> set business context at root activity:</p>
+<div class="sourceCode" id="cb57"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="co">// HTTP middleware or entry point</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="dt">var</span> rootActivity <span class="op">=</span> activitySource<span class="op">.</span><span class="fu">StartRichActivity</span><span class="op">(</span><span class="st">"HandleRequest"</span><span class="op">,</span> <span class="kw">new</span></span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>    customer_tier <span class="op">=</span> context<span class="op">.</span><span class="fu">GetCustomerTier</span><span class="op">(),</span></span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>    region <span class="op">=</span> context<span class="op">.</span><span class="fu">GetRegion</span><span class="op">(),</span></span>
+<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a>    tenant_id <span class="op">=</span> context<span class="op">.</span><span class="fu">GetTenantId</span><span class="op">()</span></span>
+<span id="cb57-7"><a href="#cb57-7" aria-hidden="true" tabindex="-1"></a><span class="op">});</span></span>
+<span id="cb57-8"><a href="#cb57-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-9"><a href="#cb57-9" aria-hidden="true" tabindex="-1"></a><span class="co">// Child activities inherit these automatically</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>? <strong>DON’T</strong> duplicate tags on every child:</p>
+<div class="sourceCode" id="cb58"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ? Wasteful - region already set on parent</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <span class="dt">var</span> childActivity <span class="op">=</span> activitySource<span class="op">.</span><span class="fu">StartRichActivity</span><span class="op">(</span><span class="st">"SubOperation"</span><span class="op">,</span> <span class="kw">new</span></span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>    region <span class="op">=</span> <span class="fu">GetRegion</span><span class="op">()</span>  <span class="co">// Unnecessary duplication</span></span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a><span class="op">});</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="testing-enrichers" class="level3">
+<h3 class="anchored" data-anchor-id="testing-enrichers">Testing Enrichers</h3>
+<div class="sourceCode" id="cb59"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="op">[</span>Fact<span class="op">]</span></span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">void</span> <span class="fu">ExtractTags_RetrievesFromHierarchy</span><span class="op">()</span></span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Arrange</span></span>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> options <span class="op">=</span> <span class="kw">new</span> OptionsBasedMetricRecordingEnricherOptions</span>
+<span id="cb59-6"><a href="#cb59-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span></span>
+<span id="cb59-7"><a href="#cb59-7" aria-hidden="true" tabindex="-1"></a>        MetricTags <span class="op">=</span> <span class="op">{</span> <span class="st">"customer_tier"</span><span class="op">,</span> <span class="st">"region"</span> <span class="op">}</span></span>
+<span id="cb59-8"><a href="#cb59-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb59-9"><a href="#cb59-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> monitor <span class="op">=</span> Mock<span class="op">.</span><span class="fu">Of</span><span class="op">&lt;</span>IOptionsMonitor<span class="op">&lt;</span>OptionsBasedMetricRecordingEnricherOptions<span class="op">&gt;&gt;(</span></span>
+<span id="cb59-10"><a href="#cb59-10" aria-hidden="true" tabindex="-1"></a>        m <span class="op">=&gt;</span> m<span class="op">.</span><span class="fu">CurrentValue</span> <span class="op">==</span> options <span class="op">&amp;&amp;</span></span>
+<span id="cb59-11"><a href="#cb59-11" aria-hidden="true" tabindex="-1"></a>             m<span class="op">.</span><span class="fu">Get</span><span class="op">(</span>It<span class="op">.</span><span class="fu">IsAny</span><span class="op">&lt;</span><span class="dt">string</span><span class="op">&gt;())</span> <span class="op">==</span> <span class="kw">new</span> <span class="fu">OptionsBasedMetricRecordingEnricherOptions</span><span class="op">());</span></span>
+<span id="cb59-12"><a href="#cb59-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb59-13"><a href="#cb59-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> enricher <span class="op">=</span> <span class="kw">new</span> <span class="fu">OptionsBasedMetricRecordingEnricher</span><span class="op">(</span>monitor<span class="op">);</span></span>
+<span id="cb59-14"><a href="#cb59-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb59-15"><a href="#cb59-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> parentSource <span class="op">=</span> <span class="kw">new</span> <span class="fu">ActivitySource</span><span class="op">(</span><span class="st">"Parent"</span><span class="op">);</span></span>
+<span id="cb59-16"><a href="#cb59-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> childSource <span class="op">=</span> <span class="kw">new</span> <span class="fu">ActivitySource</span><span class="op">(</span><span class="st">"Child"</span><span class="op">);</span></span>
+<span id="cb59-17"><a href="#cb59-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb59-18"><a href="#cb59-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> <span class="dt">var</span> parent <span class="op">=</span> parentSource<span class="op">.</span><span class="fu">StartActivity</span><span class="op">(</span><span class="st">"ParentOp"</span><span class="op">)!;</span></span>
+<span id="cb59-19"><a href="#cb59-19" aria-hidden="true" tabindex="-1"></a>    parent<span class="op">.</span><span class="fu">SetTag</span><span class="op">(</span><span class="st">"customer_tier"</span><span class="op">,</span> <span class="st">"premium"</span><span class="op">);</span></span>
+<span id="cb59-20"><a href="#cb59-20" aria-hidden="true" tabindex="-1"></a>    parent<span class="op">.</span><span class="fu">SetTag</span><span class="op">(</span><span class="st">"region"</span><span class="op">,</span> <span class="st">"us-east"</span><span class="op">);</span></span>
+<span id="cb59-21"><a href="#cb59-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb59-22"><a href="#cb59-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> <span class="dt">var</span> child <span class="op">=</span> childSource<span class="op">.</span><span class="fu">StartActivity</span><span class="op">(</span><span class="st">"ChildOp"</span><span class="op">)!;</span></span>
+<span id="cb59-23"><a href="#cb59-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">// child doesn't have tags</span></span>
+<span id="cb59-24"><a href="#cb59-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb59-25"><a href="#cb59-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> instrument <span class="op">=</span> Mock<span class="op">.</span><span class="fu">Of</span><span class="op">&lt;</span>Instrument<span class="op">&gt;(</span>i <span class="op">=&gt;</span> i<span class="op">.</span><span class="fu">Name</span> <span class="op">==</span> <span class="st">"test.metric"</span><span class="op">);</span></span>
+<span id="cb59-26"><a href="#cb59-26" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb59-27"><a href="#cb59-27" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Act</span></span>
+<span id="cb59-28"><a href="#cb59-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> tags <span class="op">=</span> enricher<span class="op">.</span><span class="fu">ExtractTags</span><span class="op">(</span>child<span class="op">,</span> instrument<span class="op">).</span><span class="fu">ToArray</span><span class="op">();</span></span>
+<span id="cb59-29"><a href="#cb59-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb59-30"><a href="#cb59-30" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Assert</span></span>
+<span id="cb59-31"><a href="#cb59-31" aria-hidden="true" tabindex="-1"></a>    Assert<span class="op">.</span><span class="fu">Contains</span><span class="op">(</span>tags<span class="op">,</span> t <span class="op">=&gt;</span> t<span class="op">.</span><span class="fu">Key</span> <span class="op">==</span> <span class="st">"customer_tier"</span> <span class="op">&amp;&amp;</span> t<span class="op">.</span><span class="fu">Value</span><span class="op">.</span><span class="fu">Equals</span><span class="op">(</span><span class="st">"premium"</span><span class="op">));</span></span>
+<span id="cb59-32"><a href="#cb59-32" aria-hidden="true" tabindex="-1"></a>    Assert<span class="op">.</span><span class="fu">Contains</span><span class="op">(</span>tags<span class="op">,</span> t <span class="op">=&gt;</span> t<span class="op">.</span><span class="fu">Key</span> <span class="op">==</span> <span class="st">"region"</span> <span class="op">&amp;&amp;</span> t<span class="op">.</span><span class="fu">Value</span><span class="op">.</span><span class="fu">Equals</span><span class="op">(</span><span class="st">"us-east"</span><span class="op">));</span></span>
+<span id="cb59-33"><a href="#cb59-33" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+</section>
+<section id="version-history" class="level2">
+<h2 class="anchored" data-anchor-id="version-history">Version History</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Version</th>
+<th>Changes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>3.0.0</td>
+<td>Initial release with <code>IMetricRecordingEnricher</code> support</td>
+</tr>
+<tr class="even">
+<td>3.1.0</td>
+<td>Added instrument-specific named configuration support</td>
+</tr>
+<tr class="odd">
+<td>3.2.0</td>
+<td>Improved hierarchical tag resolution performance</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="see-also" class="level2">
+<h2 class="anchored" data-anchor-id="see-also">See Also</h2>
+<ul>
+<li><a href="../../../src/docs/02. Advanced/14.00 - How metric recording works with diginsight and Opentelemetry.html">How Metric Recording Works with Diginsight and OpenTelemetry</a></li>
+<li><a href="./IMetricRecordingEnricher.md">IMetricRecordingEnricher Interface</a></li>
+<li><a href="./OptionsBasedMetricRecordingEnricherOptions.md">OptionsBasedMetricRecordingEnricherOptions Class</a></li>
+<li><a href="./SpanDurationMetricRecorder.md">SpanDurationMetricRecorder Class</a></li>
+<li><a href="./OptionsBasedMetricRecordingFilter.md">OptionsBasedMetricRecordingFilter Class</a></li>
+<li><a href="./ActivityExtensions.md">ActivityExtensions Class</a></li>
+<li><a href="https://opentelemetry.io/docs/specs/semconv/">OpenTelemetry Semantic Conventions</a></li>
+</ul>
+<hr>
+</section>
+<section id="remarks-2" class="level2">
+<h2 class="anchored" data-anchor-id="remarks-2">Remarks</h2>
+<p>The <code>OptionsBasedMetricRecordingEnricher</code> provides a declarative approach to metric enrichment that promotes low-cardinality tagging through configuration. By searching the activity hierarchy, it enables setting business context once at the root activity level and automatically propagating it to all child operations’ metrics.</p>
+<p><strong>Design principles:</strong> - ?? <strong>Configuration over code</strong> - define tags in settings, not scattered through code - ?? <strong>Low cardinality by design</strong> - configuration makes high-cardinality tags obvious - ?? <strong>Hierarchical context</strong> - set once at root, inherit in children - ? <strong>Performance-optimized</strong> - early exit search with frozen options - ?? <strong>Hot reload</strong> - configuration changes apply immediately - ?? <strong>Composable</strong> - works alongside custom enrichers</p>
+<p><strong>Common use cases:</strong> - Add deployment context (environment, region, version) to all metrics - Include business dimensions (customer tier, tenant) for filtering - Tag with feature flags for A/B test analysis - Add operation categories for grouping and alerting - Include performance tiers for SLA monitoring</p>
+<p><strong>Integration:</strong></p>
+<div class="sourceCode" id="cb60"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>builder<span class="op">.</span><span class="fu">Services</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">AddSingleton</span><span class="op">&lt;</span>IMetricRecordingEnricher<span class="op">,</span> OptionsBasedMetricRecordingEnricher<span class="op">&gt;()</span></span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">AddSpanDurationMetricRecorder</span><span class="op">();</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This configuration-based approach ensures that metric dimensions remain consistent, maintainable, and observable through version control, making it easier to reason about telemetry costs and cardinality in production environments.</p>
+
+
+</section>
+</section>
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Copyright 2021, Diginsight</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/diginsight">
+      <i class="bi bi-github" role="img">
+</i> 
+    </a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

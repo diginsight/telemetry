@@ -1,0 +1,1825 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.56">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Changes for Release 3.7 – Diginsight Telemetry</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<link href="../../../diginsight.bulb.svg" rel="icon" type="image/svg+xml">
+<script src="../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<!-- Custom header includes for Diginsight Telemetry -->
+
+<!-- No custom scripts currently needed -->
+
+
+
+<link rel="stylesheet" href="../../../styles.css">
+<link rel="stylesheet" href="../../../styles-callouts.css">
+<meta property="og:title" content="Changes for Release 3.7 – Diginsight Telemetry">
+<meta property="og:description" content="">
+<meta property="og:image" content="diginsight.bulb.svg">
+<meta property="og:site_name" content="Diginsight Telemetry">
+</head>
+
+<body class="nav-sidebar docked nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">Diginsight Telemetry</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../../../" aria-current="page"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../src/docs/01. Concepts/00.01 - Observability Concepts.html"> 
+<span class="menu-text">Concepts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../src/docs/02. Advanced/13.00 - Customize entities rendering on diginsight log streams.html"> 
+<span class="menu-text">Advanced articles</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-about" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">About</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-about">    
+        <li>
+    <a class="dropdown-item" href="../../../src/docs/05. About/about.html">
+ <span class="dropdown-text">About</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../../src/LICENSE.html">
+ <span class="dropdown-text">License</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+    <div class="dropdown">
+      <a href="" title="" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label=""><i class="bi bi-github"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/diginsight">
+            Profile
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/diginsight/telemetry">
+            Source Code
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/diginsight/telemetry">
+            Report a Bug
+            </a>
+          </li>
+      </ul>
+    </div>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../src/docs/10. ChangeLog/20251112 - changes for release 3.7.html">Changelogs</a></li><li class="breadcrumb-item"><a href="../../../src/docs/10. ChangeLog/20251112 - changes for release 3.7.html">Changes for Release 3.7</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+  <div id="quarto-announcement" data-announcement-id="3d8e590ee37425636677ca46a3f022de" class="alert alert-primary hidden"><i class="bi bi-info-circle quarto-announcement-icon"></i><div class="quarto-announcement-content">
+<p><strong>Information</strong> - Diginsight v3 is now available</p>
+</div><i class="bi bi-x-lg quarto-announcement-action"></i></div>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="sidebar-tools-main">
+    <div class="dropdown">
+      <a href="" title="" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label=""><i class="bi bi-github"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://github.com/diginsight">
+            Source Code
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://github.com/diginsight">
+            Report a Bug
+            </a>
+          </li>
+      </ul>
+    </div>
+</div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Home</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/00. Getting Started/Getting Started.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Getting Started</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/00.1 Example Analysis/00.01 - How to troubleshoot issues.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Example Analysis</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Concepts</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/01. Concepts/00.01 - Observability Concepts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Application Observability Concepts</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/01. Concepts/01.00 - Configure diginsight telemetry to the local text based streams.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">HowTo: Configure diginsight telemetry to the local text based streams</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/01. Concepts/02.00 - HowTo - configure diginsight telemetry to the remote tools.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">HowTo: Configure diginsight telemetry to the remote tools</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/01. Concepts/11.00 - HowTo - Use Dynamic-Logging to manage loglevel dinamically at runtime.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">HowTo: Use dynamic logging to manage loglevel dinamically, at runtime</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/01. Concepts/11.01 - HowTo - Use dynamic configuration to manage dynamic options, at runtime.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Use Dynamic-Configuration to manage configurations and feature flags dynamically at runtime</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/01. Concepts/20.00 - HowTo Use diginsight telemetry with no impact on Application performance an telemetry cost.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">HowTo: Use diginsight telemetry with no impact on Application performance and telemetry cost</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/01. Concepts/90.00 - HowTo - Use Diginsight Samples.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Use Diginsight samples</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Advanced Articles</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/02. Advanced/13.00 - Customize entities rendering on diginsight log streams.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Customize entities rendering</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/02. Advanced/14.00 - How metric recording works with diginsight and Opentelemetry.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">How metric recording works with diginsight and Opentelemetry</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/02. Advanced/15.00 - Customize diginsight log streams row content.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Customize diginsight log streams</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/02. Advanced/16.00 - Troubleshoot the startup sequence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Troubleshoot the startup sequence</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/02. Advanced/18.00 - How dynamic configuration works.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">How Dynamic Configuration Works</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/02. Advanced/18.01 - Use class aware configurations to support comonent level or class level configurations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Use class aware configurations</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Reference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/03. Reference/11.00 - IDiginsightActivitiesLogOptions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">IDiginsightActivitiesLogOptions Interface</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/03. Reference/11.01 - IDiginsightActivitiesOptions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">IDiginsightActivitiesOptions Interface</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/03. Reference/10.00 - SpanDurationMetricRecorder.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">SpanDurationMetricRecorder Class</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/03. Reference/10.01 - OptionsBasedMetricRecordingFilter.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">OptionsBasedMetricRecordingFilter Class</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/03. Reference/10.02 - OptionsBasedMetricRecordingEnricher.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">OptionsBasedMetricRecordingEnricher Class</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">About</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/05. About/about.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Team</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Changelogs</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/10. ChangeLog/20251112 - changes for release 3.7.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Changes for Release 3.7</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../src/docs/10. ChangeLog/20251112 - diginsight-v37-update-guide.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Diginsight v3.7 Upgrade Guide</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#table-of-contents" id="toc-table-of-contents" class="nav-link active" data-scroll-target="#table-of-contents">Table of Contents</a></li>
+  <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">📋 Overview</a></li>
+  <li><a href="#changes-summary" id="toc-changes-summary" class="nav-link" data-scroll-target="#changes-summary">🔄 Changes Summary</a>
+  <ul class="collapse">
+  <li><a href="#breaking-changes" id="toc-breaking-changes" class="nav-link" data-scroll-target="#breaking-changes">🔴 Breaking Changes</a></li>
+  <li><a href="#whats-new" id="toc-whats-new" class="nav-link" data-scroll-target="#whats-new">✨ What’s New</a></li>
+  <li><a href="#bug-fixes" id="toc-bug-fixes" class="nav-link" data-scroll-target="#bug-fixes">🐛 Bug Fixes</a></li>
+  </ul></li>
+  <li><a href="#migration-guide" id="toc-migration-guide" class="nav-link" data-scroll-target="#migration-guide">🚀 Migration Guide</a>
+  <ul class="collapse">
+  <li><a href="#quick-check-do-you-need-to-migrate" id="toc-quick-check-do-you-need-to-migrate" class="nav-link" data-scroll-target="#quick-check-do-you-need-to-migrate">Quick Check: Do You Need to Migrate?</a></li>
+  <li><a href="#for-config-only-users" id="toc-for-config-only-users" class="nav-link" data-scroll-target="#for-config-only-users">For Config-Only Users</a></li>
+  <li><a href="#for-advanced-users" id="toc-for-advanced-users" class="nav-link" data-scroll-target="#for-advanced-users">For Advanced Users</a></li>
+  <li><a href="#for-new-features-optional" id="toc-for-new-features-optional" class="nav-link" data-scroll-target="#for-new-features-optional">For New Features (Optional)</a></li>
+  </ul></li>
+  <li><a href="#testing-recommendations" id="toc-testing-recommendations" class="nav-link" data-scroll-target="#testing-recommendations">✅ Testing Recommendations</a>
+  <ul class="collapse">
+  <li><a href="#configuration-loading" id="toc-configuration-loading" class="nav-link" data-scroll-target="#configuration-loading">1. Configuration Loading</a></li>
+  <li><a href="#activity-filtering" id="toc-activity-filtering" class="nav-link" data-scroll-target="#activity-filtering">2. Activity Filtering</a></li>
+  <li><a href="#metric-recording" id="toc-metric-recording" class="nav-link" data-scroll-target="#metric-recording">3. Metric Recording</a></li>
+  </ul></li>
+  <li><a href="#upgrade-checklist" id="toc-upgrade-checklist" class="nav-link" data-scroll-target="#upgrade-checklist">☑️ Upgrade Checklist</a></li>
+  <li><a href="#resources" id="toc-resources" class="nav-link" data-scroll-target="#resources">📚 Resources</a></li>
+  <li><a href="#acknowledgments" id="toc-acknowledgments" class="nav-link" data-scroll-target="#acknowledgments">🙏 Acknowledgments</a></li>
+  <li><a href="#appendix-a-detailed-commit-history" id="toc-appendix-a-detailed-commit-history" class="nav-link" data-scroll-target="#appendix-a-detailed-commit-history">📖 Appendix A: Detailed Commit History</a>
+  <ul class="collapse">
+  <li><a href="#commit-1-93ae50a---item-with-the-same-key-has-already-been-added-exception-fix-critical" id="toc-commit-1-93ae50a---item-with-the-same-key-has-already-been-added-exception-fix-critical" class="nav-link" data-scroll-target="#commit-1-93ae50a---item-with-the-same-key-has-already-been-added-exception-fix-critical">Commit 1: 93ae50a - “Item with the same key has already been added” Exception fix [CRITICAL]</a></li>
+  <li><a href="#commit-2-fb2b694---metername-instead-of-spandurationmetername" id="toc-commit-2-fb2b694---metername-instead-of-spandurationmetername" class="nav-link" data-scroll-target="#commit-2-fb2b694---metername-instead-of-spandurationmetername">Commit 2: fb2b694 - MeterName instead of SpanDurationMeterName</a></li>
+  <li><a href="#commit-3-5bd7350---doc-fix" id="toc-commit-3-5bd7350---doc-fix" class="nav-link" data-scroll-target="#commit-3-5bd7350---doc-fix">Commit 3: 5bd7350 - doc fix</a></li>
+  <li><a href="#commit-4-368af50---prompts-and-changelog-update" id="toc-commit-4-368af50---prompts-and-changelog-update" class="nav-link" data-scroll-target="#commit-4-368af50---prompts-and-changelog-update">Commit 4: 368af50 - prompts and changelog update</a></li>
+  <li><a href="#commit-5-47ebed3---v3.7.1.0-support-for-multiple-metrics-filters-and-enrichers-feature" id="toc-commit-5-47ebed3---v3.7.1.0-support-for-multiple-metrics-filters-and-enrichers-feature" class="nav-link" data-scroll-target="#commit-5-47ebed3---v3.7.1.0-support-for-multiple-metrics-filters-and-enrichers-feature">Commit 5: 47ebed3 - v3.7.1.0 support for multiple metrics filters and enrichers [FEATURE]</a></li>
+  <li><a href="#commit-6-4a44c25---quarto-style-fix" id="toc-commit-6-4a44c25---quarto-style-fix" class="nav-link" data-scroll-target="#commit-6-4a44c25---quarto-style-fix">Commit 6: 4a44c25 - quarto style fix</a></li>
+  <li><a href="#commit-7-4e47521---doc-fix" id="toc-commit-7-4e47521---doc-fix" class="nav-link" data-scroll-target="#commit-7-4e47521---doc-fix">Commit 7: 4e47521 - doc fix</a></li>
+  <li><a href="#commit-8-65a9508---doc-fix" id="toc-commit-8-65a9508---doc-fix" class="nav-link" data-scroll-target="#commit-8-65a9508---doc-fix">Commit 8: 65a9508 - doc fix</a></li>
+  <li><a href="#commit-9-3bd25ca---projects-update-.net10.0-feature" id="toc-commit-9-3bd25ca---projects-update-.net10.0-feature" class="nav-link" data-scroll-target="#commit-9-3bd25ca---projects-update-.net10.0-feature">Commit 9: 3bd25ca - projects update .net10.0 [FEATURE]</a></li>
+  <li><a href="#commit-10-548358f---fix" id="toc-commit-10-548358f---fix" class="nav-link" data-scroll-target="#commit-10-548358f---fix">Commit 10: 548358f - fix</a></li>
+  <li><a href="#commit-11-2b3cff4---fix" id="toc-commit-11-2b3cff4---fix" class="nav-link" data-scroll-target="#commit-11-2b3cff4---fix">Commit 11: 2b3cff4 - fix</a></li>
+  <li><a href="#commit-12-cc26269---build-fix" id="toc-commit-12-cc26269---build-fix" class="nav-link" data-scroll-target="#commit-12-cc26269---build-fix">Commit 12: cc26269 - build fix</a></li>
+  <li><a href="#commit-13-a9256cf---changelog" id="toc-commit-13-a9256cf---changelog" class="nav-link" data-scroll-target="#commit-13-a9256cf---changelog">Commit 13: a9256cf - changelog</a></li>
+  <li><a href="#commit-14-cfded56---doc-fix" id="toc-commit-14-cfded56---doc-fix" class="nav-link" data-scroll-target="#commit-14-cfded56---doc-fix">Commit 14: cfded56 - doc fix</a></li>
+  <li><a href="#commit-15-4f371eb---fix" id="toc-commit-15-4f371eb---fix" class="nav-link" data-scroll-target="#commit-15-4f371eb---fix">Commit 15: 4f371eb - fix</a></li>
+  <li><a href="#commit-16-a46efac---doc-update-documentation" id="toc-commit-16-a46efac---doc-update-documentation" class="nav-link" data-scroll-target="#commit-16-a46efac---doc-update-documentation">Commit 16: a46efac - doc update [DOCUMENTATION]</a></li>
+  <li><a href="#commit-17-987638c---fixed-activity-and-activitysource-filtering-critical" id="toc-commit-17-987638c---fixed-activity-and-activitysource-filtering-critical" class="nav-link" data-scroll-target="#commit-17-987638c---fixed-activity-and-activitysource-filtering-critical">Commit 17: 987638c - Fixed Activity and ActivitySource filtering [CRITICAL]</a></li>
+  <li><a href="#commit-18-9cf9421---improvements-in-metric-recording" id="toc-commit-18-9cf9421---improvements-in-metric-recording" class="nav-link" data-scroll-target="#commit-18-9cf9421---improvements-in-metric-recording">Commit 18: 9cf9421 - Improvements in metric recording</a></li>
+  <li><a href="#commit-19-24ce7db---improvements-in-metric-recording-breaking" id="toc-commit-19-24ce7db---improvements-in-metric-recording-breaking" class="nav-link" data-scroll-target="#commit-19-24ce7db---improvements-in-metric-recording-breaking">Commit 19: 24ce7db - Improvements in metric recording [BREAKING]</a></li>
+  <li><a href="#commit-20-a664cbb---improvements-in-metric-recording" id="toc-commit-20-a664cbb---improvements-in-metric-recording" class="nav-link" data-scroll-target="#commit-20-a664cbb---improvements-in-metric-recording">Commit 20: a664cbb - Improvements in metric recording</a></li>
+  <li><a href="#commit-21-35423d8---improvements-in-metric-recording" id="toc-commit-21-35423d8---improvements-in-metric-recording" class="nav-link" data-scroll-target="#commit-21-35423d8---improvements-in-metric-recording">Commit 21: 35423d8 - Improvements in metric recording</a></li>
+  <li><a href="#commit-22-af4121c---rename-breaking" id="toc-commit-22-af4121c---rename-breaking" class="nav-link" data-scroll-target="#commit-22-af4121c---rename-breaking">Commit 22: af4121c - Rename [BREAKING]</a></li>
+  <li><a href="#commit-23-dffd6d7---fix-in-diginsighttextwriter" id="toc-commit-23-dffd6d7---fix-in-diginsighttextwriter" class="nav-link" data-scroll-target="#commit-23-dffd6d7---fix-in-diginsighttextwriter">Commit 23: dffd6d7 - Fix in DiginsightTextWriter</a></li>
+  <li><a href="#commit-24-e025853---fix-in-diginsightactivitiesoptions" id="toc-commit-24-e025853---fix-in-diginsightactivitiesoptions" class="nav-link" data-scroll-target="#commit-24-e025853---fix-in-diginsightactivitiesoptions">Commit 24: e025853 - Fix in DiginsightActivitiesOptions</a></li>
+  <li><a href="#commit-25-bbdd6cc---small-fix" id="toc-commit-25-bbdd6cc---small-fix" class="nav-link" data-scroll-target="#commit-25-bbdd6cc---small-fix">Commit 25: bbdd6cc - small fix</a></li>
+  <li><a href="#commit-26-bab6879---.sln-to-.slnx" id="toc-commit-26-bab6879---.sln-to-.slnx" class="nav-link" data-scroll-target="#commit-26-bab6879---.sln-to-.slnx">Commit 26: bab6879 - .sln to .slnx</a></li>
+  <li><a href="#commit-27-9f3896d---.sln-to-.slnx-infrastructure" id="toc-commit-27-9f3896d---.sln-to-.slnx-infrastructure" class="nav-link" data-scroll-target="#commit-27-9f3896d---.sln-to-.slnx-infrastructure">Commit 27: 9f3896d - .sln to .slnx [INFRASTRUCTURE]</a></li>
+  <li><a href="#commit-28-f8f4e9e---unifying-metric-recording-with-filter-and-enricher-breaking" id="toc-commit-28-f8f4e9e---unifying-metric-recording-with-filter-and-enricher-breaking" class="nav-link" data-scroll-target="#commit-28-f8f4e9e---unifying-metric-recording-with-filter-and-enricher-breaking">Commit 28: f8f4e9e - Unifying metric recording with filter and enricher [BREAKING]</a></li>
+  <li><a href="#commit-29-c0b4103---unifying-metric-recording-with-filter-and-enricher" id="toc-commit-29-c0b4103---unifying-metric-recording-with-filter-and-enricher" class="nav-link" data-scroll-target="#commit-29-c0b4103---unifying-metric-recording-with-filter-and-enricher">Commit 29: c0b4103 - Unifying metric recording with filter and enricher</a></li>
+  <li><a href="#commit-30-5fa5baa---c-14-preview.-unifying-metric-recording-with-filter-and-enricher" id="toc-commit-30-5fa5baa---c-14-preview.-unifying-metric-recording-with-filter-and-enricher" class="nav-link" data-scroll-target="#commit-30-5fa5baa---c-14-preview.-unifying-metric-recording-with-filter-and-enricher">Commit 30: 5fa5baa - C# 14 preview. Unifying metric recording with filter and enricher</a></li>
+  <li><a href="#commit-31-3bcfd90---unifying-metric-recording-with-filter-and-enricher-major-refactoring" id="toc-commit-31-3bcfd90---unifying-metric-recording-with-filter-and-enricher-major-refactoring" class="nav-link" data-scroll-target="#commit-31-3bcfd90---unifying-metric-recording-with-filter-and-enricher-major-refactoring">Commit 31: 3bcfd90 - Unifying metric recording with filter and enricher [MAJOR REFACTORING]</a></li>
+  <li><a href="#commits-32-33-additional-fixes-and-improvements" id="toc-commits-32-33-additional-fixes-and-improvements" class="nav-link" data-scroll-target="#commits-32-33-additional-fixes-and-improvements">Commits 32-33: Additional fixes and improvements</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../src/docs/10. ChangeLog/20251112 - changes for release 3.7.html">Changelogs</a></li><li class="breadcrumb-item"><a href="../../../src/docs/10. ChangeLog/20251112 - changes for release 3.7.html">Changes for Release 3.7</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Changes for Release 3.7</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><strong>Release Date:</strong> January 7, 2026<br>
+<strong>Commit Range:</strong> <code>4ebf5faea81788ddba8fac2260d4a06e255ca5e3</code> → <code>93ae50a4b19794043534e8b827fa3bd55cb22934</code><br>
+<strong>Previous Version:</strong> 3.5.0<br>
+<strong>Release Tags:</strong> <code>v3.6.0.0-alpha.1</code> through <code>v3.7.1.2</code></p>
+<hr>
+<section id="table-of-contents" class="level2">
+<h2 class="anchored" data-anchor-id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#-overview">📋 Overview</a></li>
+<li><a href="#-changes-summary">🔄 Changes Summary</a>
+<ul>
+<li><a href="#-breaking-changes">🔴 Breaking Changes</a></li>
+<li><a href="#-whats-new">✨ What’s New</a></li>
+<li><a href="#-bug-fixes">🐛 Bug Fixes</a></li>
+</ul></li>
+<li><a href="#-migration-guide">🚀 Migration Guide</a></li>
+<li><a href="#-testing-recommendations">✅ Testing Recommendations</a></li>
+<li><a href="#-upgrade-checklist">☑️ Upgrade Checklist</a></li>
+<li><a href="#-resources">📚 Resources</a></li>
+<li><a href="#-acknowledgments">🙏 Acknowledgments</a></li>
+<li><a href="#-appendix-a-detailed-commit-history">📖 Appendix A: Detailed Commit History</a></li>
+</ul>
+<hr>
+</section>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">📋 Overview</h2>
+<p>Version 3.7 consolidates metric recording infrastructure with filter and enricher patterns, adds .NET 10.0 support, and includes critical bug fixes. This release contains breaking changes to interface naming, configuration properties, and class names.</p>
+<p><strong>Key changes:</strong></p>
+<ul>
+<li>Interface rename: <code>IActivityLoggingSampler</code> → <mark><code>IActivityLoggingFilter</code></mark></li>
+<li>New naming: <code>NameBased*</code> → <mark><code>OptionsBased*</code></mark> classes</li>
+<li>Added .NET 10.0 target framework support</li>
+<li>Critical fix: Dictionary key duplication exception in v3.7.1.2</li>
+<li>New feature: Multiple named filters and enrichers per metric (v3.7.1.0)</li>
+</ul>
+<p><strong>Action required:</strong> See <a href="#-changes-summary">Changes Summary</a> and <a href="#-migration-guide">Migration Guide</a>.</p>
+<hr>
+</section>
+<section id="changes-summary" class="level2">
+<h2 class="anchored" data-anchor-id="changes-summary">🔄 Changes Summary</h2>
+<p><strong>Release:</strong> 3.7.1.2<br>
+<strong>Type:</strong> Breaking Changes<br>
+<strong>Migration Effort:</strong> 5-15 minutes for config-only users, 30-60 minutes for custom implementations</p>
+<hr>
+<section id="breaking-changes" class="level3">
+<h3 class="anchored" data-anchor-id="breaking-changes">🔴 Breaking Changes</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 36%">
+<col style="width: 18%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Category</th>
+<th>Old</th>
+<th>New</th>
+<th>Affected Users</th>
+<th>Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Interface</td>
+<td><code>IActivityLoggingSampler</code></td>
+<td><mark><code>IActivityLoggingFilter</code></mark></td>
+<td>Custom implementations</td>
+<td>High</td>
+</tr>
+<tr class="even">
+<td>Interface</td>
+<td><code>IDiginsightActivitiesMetricOptions</code></td>
+<td><mark><code>IMetricRecordingOptions</code></mark></td>
+<td>Options access</td>
+<td>High</td>
+</tr>
+<tr class="odd">
+<td>Interface</td>
+<td><code>ICustomDurationMetricRecorderSettings</code></td>
+<td>Deleted</td>
+<td>Custom metric recorders</td>
+<td>High</td>
+</tr>
+<tr class="even">
+<td>Interface</td>
+<td><code>IDiginsightActivityNamesOptions</code></td>
+<td>Deleted</td>
+<td>Activity name configs</td>
+<td>Medium</td>
+</tr>
+<tr class="odd">
+<td>Class</td>
+<td><code>NameBasedActivityLoggingSampler</code></td>
+<td><mark><code>OptionsBasedActivityLoggingFilter</code></mark></td>
+<td>Service registrations</td>
+<td>High</td>
+</tr>
+<tr class="even">
+<td>Class</td>
+<td><code>NameBasedMetricRecordingFilter</code></td>
+<td><mark><code>OptionsBasedMetricRecordingFilter</code></mark></td>
+<td>Service registrations</td>
+<td>High</td>
+</tr>
+<tr class="odd">
+<td>Class</td>
+<td><code>DefaultMetricRecordingEnricher</code></td>
+<td><mark><code>OptionsBasedMetricRecordingEnricher</code></mark></td>
+<td>Service registrations</td>
+<td>High</td>
+</tr>
+<tr class="even">
+<td>Property</td>
+<td><code>RecordSpanDurations</code></td>
+<td><mark><code>RecordSpanDuration</code></mark> (singular)</td>
+<td>Configuration</td>
+<td>Medium</td>
+</tr>
+<tr class="odd">
+<td>Property</td>
+<td>Added <code>SpanDurationMeterName</code></td>
+<td>New property alongside <code>MeterName</code></td>
+<td>Configuration</td>
+<td>Low</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Impact Legend:</strong> - <strong>High</strong>: Immediate action required - code will not compile - <strong>Medium</strong>: Action required - runtime errors if not updated<br>
+- <strong>Low</strong>: Optional - backward compatibility maintained</p>
+<p><strong>Quick Migration Reference:</strong></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Interface changes</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">// OLD → NEW</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>IActivityLoggingSampler → IActivityLoggingFilter  <span class="co">// ← NEW</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>IDiginsightActivitiesMetricOptions → IMetricRecordingOptions  <span class="co">// ← NEW</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>ICustomDurationMetricRecorderSettings → <span class="op">(</span>deleted<span class="op">)</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Class renames</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>NameBasedActivityLoggingSampler → OptionsBasedActivityLoggingFilter</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>NameBasedMetricRecordingFilter → OptionsBasedMetricRecordingFilter</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>DefaultMetricRecordingEnricher → OptionsBasedMetricRecordingEnricher</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>In descriptions:</strong> <code>OldTerm</code> → <mark><code>NewTerm</code></mark> highlights the new syntax.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="er">//</span> <span class="er">Configuration</span> <span class="er">changes</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"RecordSpanDurations"</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span>  <span class="er">//</span> <span class="er">❌</span> <span class="er">Remove</span> <span class="er">(plural)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"RecordSpanDuration"</span><span class="fu">:</span> <span class="kw">true</span>    <span class="er">//</span> <span class="er">✅</span> <span class="er">NEW</span> <span class="er">(singular)</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+<section id="whats-new" class="level3">
+<h3 class="anchored" data-anchor-id="whats-new">✨ What’s New</h3>
+<p><strong>New Features:</strong></p>
+<p><strong>Multiple Named Filters and Enrichers (v3.7.1.0)</strong> - Configure different filtering and enrichment rules per metric instrument</p>
+<ul>
+<li><p><strong>Use case:</strong> When different metrics need different activity filters or tags</p></li>
+<li><p><strong>Example:</strong></p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"OptionsBasedMetricRecordingFilter:span_duration"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"MetricName"</span><span class="fu">:</span> <span class="st">"span_duration"</span><span class="fu">,</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"ActivityNames"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"MyApp.CriticalPath.*"</span><span class="fu">:</span> <span class="kw">true</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"OptionsBasedMetricRecordingEnricher:span_duration"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"MetricName"</span><span class="fu">:</span> <span class="st">"span_duration"</span><span class="fu">,</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"MetricTags"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"user_id"</span><span class="ot">,</span> <span class="st">"tenant_id"</span><span class="ot">]</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ul>
+<p><strong>New Interfaces:</strong></p>
+<ul>
+<li><mark><code>IMetricRecordingOptions</code></mark> - Replaces <code>IDiginsightActivitiesMetricOptions</code></li>
+<li><mark><code>IOptionsBasedMetricRecordingFilterOptions</code></mark> - Configuration for metric filters</li>
+<li><mark><code>IOptionsBasedMetricRecordingEnricherOptions</code></mark> - Configuration for metric enrichers</li>
+<li><mark><code>IActivityLoggingFilter</code></mark> - Replaces <code>IActivityLoggingSampler</code></li>
+</ul>
+<p><strong>Improvements:</strong></p>
+<ul>
+<li><strong>.NET 10.0 Support</strong>: Added <code>net10.0</code> target framework to all packages</li>
+<li><strong>File Structure</strong>: Flattened directory structure - moved files from subfolders to root level</li>
+<li><strong>Named Options</strong>: <code>NamedOptionsMonitor&lt;T&gt;</code> and <code>NamedOptions&lt;T&gt;</code> for per-metric configurations</li>
+<li><strong>Enricher API</strong>: Changed from <code>IDictionary&lt;string, object?&gt;</code> to <code>TagList</code> for better performance</li>
+</ul>
+<hr>
+</section>
+<section id="bug-fixes" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes">🐛 Bug Fixes</h3>
+<p><strong>Critical:</strong></p>
+<ul>
+<li><strong>Dictionary Key Duplication (v3.7.1.2)</strong>: Fixed “Item with the same key has already been added” exception - See <a href="#commit-1-93ae50a---item-with-the-same-key-has-already-been-added-exception-fix">Commit 93ae50a</a></li>
+<li><strong>Activity Filtering Patterns (v3.7.0.0)</strong>: Fixed wildcard pattern matching in <code>OptionsBasedMetricRecordingFilter</code> - See <a href="#commit-16-987638c---fixed-activity-and-activitysource-filtering">Commit 987638c</a></li>
+</ul>
+<p><strong>Minor:</strong></p>
+<ul>
+<li><strong>DiginsightTextWriter</strong>: Improved character escaping and null handling</li>
+<li><strong>Configuration Binding</strong>: Fixed configuration binding issues in <code>DiginsightActivitiesOptions</code></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="migration-guide" class="level2">
+<h2 class="anchored" data-anchor-id="migration-guide">🚀 Migration Guide</h2>
+<section id="quick-check-do-you-need-to-migrate" class="level3">
+<h3 class="anchored" data-anchor-id="quick-check-do-you-need-to-migrate">Quick Check: Do You Need to Migrate?</h3>
+<p><strong>✅ No action needed if:</strong> - Using default configuration only (no custom code) - Using JSON-based configuration without property <code>RecordSpanDurations</code> (plural) - No custom filter/enricher implementations</p>
+<p><strong>⚠️ Action required if:</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Scenario</th>
+<th>Old Code</th>
+<th>New Code</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Custom sampler implementations</td>
+<td><code>IActivityLoggingSampler</code></td>
+<td><mark><code>IActivityLoggingFilter</code></mark></td>
+</tr>
+<tr class="even">
+<td>Metric options access</td>
+<td><code>IDiginsightActivitiesMetricOptions</code></td>
+<td><mark><code>IMetricRecordingOptions</code></mark></td>
+</tr>
+<tr class="odd">
+<td>Configuration properties</td>
+<td><code>RecordSpanDurations</code></td>
+<td><mark><code>RecordSpanDuration</code></mark></td>
+</tr>
+<tr class="even">
+<td>Activity logging sampler registration</td>
+<td><code>NameBasedActivityLoggingSampler</code></td>
+<td><mark><code>OptionsBasedActivityLoggingFilter</code></mark></td>
+</tr>
+<tr class="odd">
+<td>Metric filter registration</td>
+<td><code>NameBasedMetricRecordingFilter</code></td>
+<td><mark><code>OptionsBasedMetricRecordingFilter</code></mark></td>
+</tr>
+<tr class="even">
+<td>Metric enricher registration</td>
+<td><code>DefaultMetricRecordingEnricher</code></td>
+<td><mark><code>OptionsBasedMetricRecordingEnricher</code></mark></td>
+</tr>
+<tr class="odd">
+<td>Custom metric recorder settings</td>
+<td><code>ICustomDurationMetricRecorderSettings</code></td>
+<td>Deleted - use <mark><code>IMetricRecordingFilter</code></mark></td>
+</tr>
+<tr class="even">
+<td>Activity names configuration</td>
+<td><code>IDiginsightActivityNamesOptions</code></td>
+<td>Deleted - see migration</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="blockquote">
+<p>Review each scenario above. If you use any “Old Code” pattern, follow the migration steps below.</p>
+</blockquote>
+<hr>
+</section>
+<section id="for-config-only-users" class="level3">
+<h3 class="anchored" data-anchor-id="for-config-only-users">For Config-Only Users</h3>
+<p><strong>Estimated time:</strong> 5-10 minutes</p>
+<section id="step-1-update-configuration-properties" class="level4">
+<h4 class="anchored" data-anchor-id="step-1-update-configuration-properties">Step 1: Update Configuration Properties</h4>
+<div class="sourceCode" id="cb4"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="er">//</span> <span class="er">OLD</span> <span class="er">-</span> <span class="er">Remove</span> <span class="er">these</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"Diginsight"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"Activities"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"RecordSpanDurations"</span><span class="fu">:</span> <span class="kw">true</span>  <span class="er">//</span> <span class="er">❌</span> <span class="er">Remove</span> <span class="er">(plural)</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="er">//</span> <span class="er">NEW</span> <span class="er">-</span> <span class="er">Use</span> <span class="er">these</span>  </span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"Diginsight"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"Activities"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"RecordSpanDuration"</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span>              <span class="er">//</span> <span class="er">✅</span> <span class="er">NEW</span> <span class="er">(singular)</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"MeterName"</span><span class="fu">:</span> <span class="st">"MyApp"</span><span class="fu">,</span>                    <span class="er">//</span> <span class="er">Optional</span><span class="fu">:</span> <span class="er">general</span> <span class="er">meter</span> <span class="er">name</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>      <span class="st">"SpanDurationMeterName"</span><span class="er">:</span> <span class="st">"MyApp.Spans"</span>   <span class="er">//</span> <span class="er">Optional:</span> <span class="er">specific</span> <span class="er">to</span> <span class="er">span</span> <span class="er">metrics</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="step-2-test-application" class="level4">
+<h4 class="anchored" data-anchor-id="step-2-test-application">Step 2: Test Application</h4>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Run application</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">dotnet</span> run</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify configuration loads without errors</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Check logs for any warnings about deprecated properties</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+</section>
+<section id="for-advanced-users" class="level3">
+<h3 class="anchored" data-anchor-id="for-advanced-users">For Advanced Users</h3>
+<p><strong>Estimated time:</strong> 30-60 minutes</p>
+<section id="update-interface-implementations" class="level4">
+<h4 class="anchored" data-anchor-id="update-interface-implementations">1. Update Interface Implementations</h4>
+<div class="sourceCode" id="cb6"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// OLD - Remove these</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> MyActivityFilter <span class="op">:</span> IActivityLoggingSampler  <span class="co">// ❌ Remove</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> LogBehavior<span class="op">?</span> <span class="fu">GetLogBehavior</span><span class="op">(</span>Activity activity<span class="op">)</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Implementation</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">// NEW - Use these</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> MyActivityFilter <span class="op">:</span> IActivityLoggingFilter  <span class="co">// ← NEW interface</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> LogBehavior<span class="op">?</span> <span class="fu">GetLogBehavior</span><span class="op">(</span>Activity activity<span class="op">)</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Same implementation - method signature unchanged</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// OLD - Remove these</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> MyEnricher <span class="op">:</span> IMetricRecordingEnricher</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">Enrich</span><span class="op">(</span>Activity activity<span class="op">,</span> IDictionary<span class="op">&lt;</span><span class="dt">string</span><span class="op">,</span> <span class="dt">object</span><span class="op">?&gt;</span> tags<span class="op">)</span>  <span class="co">// ❌ Remove</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        tags<span class="op">[</span><span class="st">"custom"</span><span class="op">]</span> <span class="op">=</span> <span class="st">"value"</span><span class="op">;</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">// NEW - Use these</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> MyEnricher <span class="op">:</span> IMetricRecordingEnricher</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">Enrich</span><span class="op">(</span>Activity activity<span class="op">,</span> TagList tags<span class="op">)</span>  <span class="co">// ← NEW parameter type</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>        tags<span class="op">.</span><span class="fu">Add</span><span class="op">(</span><span class="st">"custom"</span><span class="op">,</span> <span class="st">"value"</span><span class="op">);</span>  <span class="co">// ← NEW API</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="update-service-registrations" class="level4">
+<h4 class="anchored" data-anchor-id="update-service-registrations">2. Update Service Registrations</h4>
+<div class="sourceCode" id="cb8"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">// OLD - Remove these</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>services<span class="op">.</span><span class="fu">AddSingleton</span><span class="op">&lt;</span>IActivityLoggingSampler<span class="op">,</span> NameBasedActivityLoggingSampler<span class="op">&gt;();</span>  <span class="co">// ❌ Remove</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>services<span class="op">.</span><span class="fu">AddSingleton</span><span class="op">&lt;</span>IMetricRecordingFilter<span class="op">,</span> NameBasedMetricRecordingFilter<span class="op">&gt;();</span>    <span class="co">// ❌ Remove</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>services<span class="op">.</span><span class="fu">AddSingleton</span><span class="op">&lt;</span>IMetricRecordingEnricher<span class="op">,</span> DefaultMetricRecordingEnricher<span class="op">&gt;();</span>  <span class="co">// ❌ Remove</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co">// NEW - Use these</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>services<span class="op">.</span><span class="fu">AddSingleton</span><span class="op">&lt;</span>IActivityLoggingFilter<span class="op">,</span> OptionsBasedActivityLoggingFilter<span class="op">&gt;();</span>      <span class="co">// ← NEW</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>services<span class="op">.</span><span class="fu">AddSingleton</span><span class="op">&lt;</span>IMetricRecordingFilter<span class="op">,</span> OptionsBasedMetricRecordingFilter<span class="op">&gt;();</span>      <span class="co">// ← NEW</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>services<span class="op">.</span><span class="fu">AddSingleton</span><span class="op">&lt;</span>IMetricRecordingEnricher<span class="op">,</span> OptionsBasedMetricRecordingEnricher<span class="op">&gt;();</span>  <span class="co">// ← NEW</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="update-options-access" class="level4">
+<h4 class="anchored" data-anchor-id="update-options-access">3. Update Options Access</h4>
+<div class="sourceCode" id="cb9"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">// OLD - Remove these</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> MyService</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="kw">readonly</span> IDiginsightActivitiesMetricOptions options<span class="op">;</span>  <span class="co">// ❌ Remove</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">MyService</span><span class="op">(</span>IDiginsightActivitiesMetricOptions options<span class="op">)</span>  <span class="co">// ❌ Remove</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">options</span> <span class="op">=</span> options<span class="op">;</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>        <span class="dt">bool</span> record <span class="op">=</span> options<span class="op">.</span><span class="fu">RecordSpanDurations</span><span class="op">;</span>  <span class="co">// ❌ Remove (plural)</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co">// NEW - Use these</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> MyService</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="kw">readonly</span> IMetricRecordingOptions options<span class="op">;</span>  <span class="co">// ← NEW interface</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">MyService</span><span class="op">(</span>IMetricRecordingOptions options<span class="op">)</span>  <span class="co">// ← NEW</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">options</span> <span class="op">=</span> options<span class="op">;</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>        <span class="dt">bool</span> record <span class="op">=</span> options<span class="op">.</span><span class="fu">Record</span><span class="op">;</span>  <span class="co">// ← NEW property name</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>        <span class="dt">string</span> meter <span class="op">=</span> options<span class="op">.</span><span class="fu">MeterName</span><span class="op">;</span>  <span class="co">// ← NEW property</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="update-custom-metric-recorders-if-using-icustomdurationmetricrecordersettings" class="level4">
+<h4 class="anchored" data-anchor-id="update-custom-metric-recorders-if-using-icustomdurationmetricrecordersettings">4. Update Custom Metric Recorders (if using ICustomDurationMetricRecorderSettings)</h4>
+<div class="sourceCode" id="cb10"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">// OLD - ICustomDurationMetricRecorderSettings interface is deleted</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">// If you had custom metric recording logic, migrate to:</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">// NEW - Implement IMetricRecordingFilter instead</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> MyMetricFilter <span class="op">:</span> IMetricRecordingFilter</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">bool</span><span class="op">?</span> <span class="fu">ShouldRecord</span><span class="op">(</span>Activity activity<span class="op">,</span> Instrument instrument<span class="op">)</span>  <span class="co">// ← NEW</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Your custom logic here</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>        <span class="kw">return</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co">// Register filter</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>services<span class="op">.</span><span class="fu">AddSingleton</span><span class="op">&lt;</span>IMetricRecordingFilter<span class="op">,</span> MyMetricFilter<span class="op">&gt;();</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+</section>
+<section id="for-new-features-optional" class="level3">
+<h3 class="anchored" data-anchor-id="for-new-features-optional">For New Features (Optional)</h3>
+<section id="feature-multiple-named-filters-and-enrichers" class="level4">
+<h4 class="anchored" data-anchor-id="feature-multiple-named-filters-and-enrichers">Feature: Multiple Named Filters and Enrichers</h4>
+<p><strong>When to use:</strong> When you have multiple custom metrics that need different filtering rules or tags</p>
+<p><strong>Example:</strong></p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Configuration</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"OptionsBasedMetricRecordingFilter"</span><span class="op">:</span> <span class="op">{</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Default filter - applies to all metrics if no specific filter</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ActivityNames"</span><span class="op">:</span> <span class="op">{</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">"MyApp.*"</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>      <span class="st">"System.*"</span><span class="op">:</span> <span class="kw">false</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="op">},</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">"OptionsBasedMetricRecordingFilter:business_metrics"</span><span class="op">:</span> <span class="op">{</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Specific filter for "business_metrics" instrument</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"MetricName"</span><span class="op">:</span> <span class="st">"business_metrics"</span><span class="op">,</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ActivityNames"</span><span class="op">:</span> <span class="op">{</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>      <span class="st">"MyApp.Orders.*"</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>      <span class="st">"MyApp.Payments.*"</span><span class="op">:</span> <span class="kw">true</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>  <span class="op">},</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>  <span class="st">"OptionsBasedMetricRecordingEnricher:business_metrics"</span><span class="op">:</span> <span class="op">{</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Specific enricher for "business_metrics" instrument  </span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"MetricName"</span><span class="op">:</span> <span class="st">"business_metrics"</span><span class="op">,</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">"MetricTags"</span><span class="op">:</span> <span class="op">[</span><span class="st">"user_id"</span><span class="op">,</span> <span class="st">"tenant_id"</span><span class="op">,</span> <span class="st">"order_type"</span><span class="op">]</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Service registration (usually automatic via configuration binding)</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>services<span class="op">.</span><span class="fu">Configure</span><span class="op">&lt;</span>OptionsBasedMetricRecordingFilterOptions<span class="op">&gt;(</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"business_metrics"</span><span class="op">,</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    configuration<span class="op">.</span><span class="fu">GetSection</span><span class="op">(</span><span class="st">"OptionsBasedMetricRecordingFilter:business_metrics"</span><span class="op">));</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+</section>
+</section>
+<section id="testing-recommendations" class="level2">
+<h2 class="anchored" data-anchor-id="testing-recommendations">✅ Testing Recommendations</h2>
+<section id="configuration-loading" class="level3">
+<h3 class="anchored" data-anchor-id="configuration-loading">1. Configuration Loading</h3>
+<div class="sourceCode" id="cb13"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Verify options load correctly</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="op">[</span>Fact<span class="op">]</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">void</span> <span class="fu">Options_LoadCorrectly</span><span class="op">()</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> services <span class="op">=</span> <span class="kw">new</span> <span class="fu">ServiceCollection</span><span class="op">();</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    services<span class="op">.</span><span class="fu">AddLogging</span><span class="op">(</span>builder <span class="op">=&gt;</span> builder<span class="op">.</span><span class="fu">AddDiginsightCore</span><span class="op">());</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> sp <span class="op">=</span> services<span class="op">.</span><span class="fu">BuildServiceProvider</span><span class="op">();</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> options <span class="op">=</span> sp<span class="op">.</span><span class="fu">GetRequiredService</span><span class="op">&lt;</span>IOptions<span class="op">&lt;</span>DiginsightActivitiesOptions<span class="op">&gt;&gt;().</span><span class="fu">Value</span><span class="op">;</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    Assert<span class="op">.</span><span class="fu">NotNull</span><span class="op">(</span>options<span class="op">);</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Test your specific configuration values</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="activity-filtering" class="level3">
+<h3 class="anchored" data-anchor-id="activity-filtering">2. Activity Filtering</h3>
+<div class="sourceCode" id="cb14"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Test activity filtering works</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="op">[</span>Fact<span class="op">]</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">void</span> <span class="fu">ActivityFilter_FiltersCorrectly</span><span class="op">()</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> filter <span class="op">=</span> <span class="kw">new</span> <span class="fu">OptionsBasedActivityLoggingFilter</span><span class="op">(</span><span class="co">/* dependencies */</span><span class="op">);</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> activity <span class="op">=</span> <span class="kw">new</span> <span class="fu">Activity</span><span class="op">(</span><span class="st">"MyApp.TestOperation"</span><span class="op">);</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> behavior <span class="op">=</span> filter<span class="op">.</span><span class="fu">GetLogBehavior</span><span class="op">(</span>activity<span class="op">);</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    Assert<span class="op">.</span><span class="fu">NotNull</span><span class="op">(</span>behavior<span class="op">);</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="metric-recording" class="level3">
+<h3 class="anchored" data-anchor-id="metric-recording">3. Metric Recording</h3>
+<div class="sourceCode" id="cb15"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Test metric recording with named filters</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="op">[</span>Fact<span class="op">]</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">void</span> <span class="fu">MetricRecording_UsesNamedFilter</span><span class="op">()</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Setup with named configuration</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> options <span class="op">=</span> <span class="kw">new</span> OptionsBasedMetricRecordingFilterOptions</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>        MetricName <span class="op">=</span> <span class="st">"test_metric"</span><span class="op">,</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>        ActivityNames <span class="op">=</span> <span class="op">{</span> <span class="op">[</span><span class="st">"MyApp.*"</span><span class="op">]</span> <span class="op">=</span> <span class="kw">true</span> <span class="op">}</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> filter <span class="op">=</span> <span class="kw">new</span> <span class="fu">OptionsBasedMetricRecordingFilter</span><span class="op">(</span><span class="co">/* dependencies */</span><span class="op">);</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Verify filtering works</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+</section>
+<section id="upgrade-checklist" class="level2">
+<h2 class="anchored" data-anchor-id="upgrade-checklist">☑️ Upgrade Checklist</h2>
+<ul class="task-list">
+<li><label><input type="checkbox">Review Breaking Changes section above</label></li>
+<li><label><input type="checkbox">Update NuGet packages to 3.7.1.2</label></li>
+<li><label><input type="checkbox">Search codebase for <code>IActivityLoggingSampler</code> and update to <code>IActivityLoggingFilter</code></label></li>
+<li><label><input type="checkbox">Search codebase for <code>NameBased</code> classes and update to <code>OptionsBased</code></label></li>
+<li><label><input type="checkbox">Update configuration: <code>RecordSpanDurations</code> → <code>RecordSpanDuration</code> (singular)</label></li>
+<li><label><input type="checkbox">Update service registrations for renamed classes</label></li>
+<li><label><input type="checkbox">Update <code>IMetricRecordingEnricher</code> implementations to use <code>TagList</code> instead of <code>IDictionary</code></label></li>
+<li><label><input type="checkbox">Remove references to deleted interfaces (<code>ICustomDurationMetricRecorderSettings</code>, etc.)</label></li>
+<li><label><input type="checkbox">Run build to identify compilation errors</label></li>
+<li><label><input type="checkbox">Run tests to verify functionality</label></li>
+<li><label><input type="checkbox">Verify application starts without errors</label></li>
+<li><label><input type="checkbox">Verify metric recording works as expected</label></li>
+<li><label><input type="checkbox">Check logs for any configuration warnings</label></li>
+</ul>
+<hr>
+</section>
+<section id="resources" class="level2">
+<h2 class="anchored" data-anchor-id="resources">📚 Resources</h2>
+<ul>
+<li><a href="https://diginsight.github.io/telemetry/">Documentation</a></li>
+<li><a href="https://github.com/diginsight/telemetry">GitHub Repository</a></li>
+<li><a href="https://github.com/diginsight/telemetry/releases/tag/v3.7.1.2">v3.7.1.2 Release</a></li>
+<li><a href="https://github.com/diginsight/telemetry/releases/tag/v3.7.1.0">v3.7.1.0 Release</a></li>
+<li><a href="https://github.com/diginsight/telemetry/releases/tag/v3.7.0.0">v3.7.0.0 Release</a></li>
+</ul>
+<hr>
+</section>
+<section id="acknowledgments" class="level2">
+<h2 class="anchored" data-anchor-id="acknowledgments">🙏 Acknowledgments</h2>
+<p>Contributors: - <strong>Filippo Mineo</strong> - Core metric recording refactoring, interface redesign, bug fixes - <strong>Dario Airoldi</strong> - .NET 10.0 support, documentation updates, testing</p>
+<p>For questions or issues: <a href="https://github.com/diginsight/telemetry/issues">GitHub Issues</a></p>
+<hr>
+</section>
+<section id="appendix-a-detailed-commit-history" class="level2">
+<h2 class="anchored" data-anchor-id="appendix-a-detailed-commit-history">📖 Appendix A: Detailed Commit History</h2>
+<p><em>Complete chronological analysis for users needing specific technical details.</em></p>
+<details open="">
+<summary>
+<b>Click to collapse/expand (33 commits)</b>
+</summary>
+<section id="commit-1-93ae50a---item-with-the-same-key-has-already-been-added-exception-fix-critical" class="level3">
+<h3 class="anchored" data-anchor-id="commit-1-93ae50a---item-with-the-same-key-has-already-been-added-exception-fix-critical">Commit 1: 93ae50a - “Item with the same key has already been added” Exception fix [CRITICAL]</h3>
+<p><strong>Date:</strong> January 7, 2026<br>
+<strong>Author:</strong> [Author]<br>
+<strong>Tag:</strong> v3.7.1.2<br>
+<strong>Impact:</strong> High - Fixes runtime exception</p>
+<p><strong>Changes:</strong> - Fixed dictionary key duplication issue causing “Item with the same key has already been added” exception - Affected component: Configuration binding or service registration</p>
+<p><strong>Reason:</strong> Prevented runtime crashes when duplicate keys were encountered</p>
+<p><strong>Migration:</strong> Automatic - no user action required</p>
+<hr>
+</section>
+<section id="commit-2-fb2b694---metername-instead-of-spandurationmetername" class="level3">
+<h3 class="anchored" data-anchor-id="commit-2-fb2b694---metername-instead-of-spandurationmetername">Commit 2: fb2b694 - MeterName instead of SpanDurationMeterName</h3>
+<p><strong>Date:</strong> January 7, 2026<br>
+<strong>Author:</strong> [Author]<br>
+<strong>Tag:</strong> v3.7.1.1<br>
+<strong>Impact:</strong> Medium - Configuration property clarification</p>
+<p><strong>Changes:</strong> - Clarified usage of <code>MeterName</code> vs <code>SpanDurationMeterName</code> properties - <code>SpanDurationMeterName</code> now takes precedence if both are set - Falls back to <code>MeterName</code> if <code>SpanDurationMeterName</code> is not set</p>
+<p><strong>Reason:</strong> Provides flexibility for users who want to use same meter name for all metrics or specific name for span duration metrics</p>
+<p><strong>Migration:</strong> Optional - can set either property or both</p>
+<hr>
+</section>
+<section id="commit-3-5bd7350---doc-fix" class="level3">
+<h3 class="anchored" data-anchor-id="commit-3-5bd7350---doc-fix">Commit 3: 5bd7350 - doc fix</h3>
+<p><strong>Date:</strong> January 6, 2026<br>
+<strong>Author:</strong> Dario Airoldi<br>
+<strong>Impact:</strong> None - Documentation only</p>
+<p><strong>Changes:</strong> Documentation corrections</p>
+<hr>
+</section>
+<section id="commit-4-368af50---prompts-and-changelog-update" class="level3">
+<h3 class="anchored" data-anchor-id="commit-4-368af50---prompts-and-changelog-update">Commit 4: 368af50 - prompts and changelog update</h3>
+<p><strong>Date:</strong> January 6, 2026<br>
+<strong>Author:</strong> Dario Airoldi<br>
+<strong>Impact:</strong> None - Documentation and tooling</p>
+<p><strong>Changes:</strong> Updated GitHub Copilot prompts and changelog templates</p>
+<hr>
+</section>
+<section id="commit-5-47ebed3---v3.7.1.0-support-for-multiple-metrics-filters-and-enrichers-feature" class="level3">
+<h3 class="anchored" data-anchor-id="commit-5-47ebed3---v3.7.1.0-support-for-multiple-metrics-filters-and-enrichers-feature">Commit 5: 47ebed3 - v3.7.1.0 support for multiple metrics filters and enrichers [FEATURE]</h3>
+<p><strong>Date:</strong> January 5, 2026<br>
+<strong>Author:</strong> Dario Airoldi<br>
+<strong>Tag:</strong> v3.7.1.0<br>
+<strong>Impact:</strong> Low - New optional feature</p>
+<p><strong>Changes:</strong> - Added <code>NamedOptionsMonitor&lt;T&gt;</code> and <code>NamedOptions&lt;T&gt;</code> classes - Added <code>MetricName</code> property to <code>IOptionsBasedMetricRecordingFilterOptions</code> - Added <code>MetricName</code> property to <code>IOptionsBasedMetricRecordingEnricherOptions</code> - Updated <code>OptionsBasedMetricRecordingFilter.ShouldRecord()</code> to accept <code>Instrument</code> parameter - Updated <code>OptionsBasedMetricRecordingEnricher.ExtractTags()</code> to accept <code>Instrument</code> parameter - Added <code>ServiceCollectionCoreExtensions</code> with named options support</p>
+<p><strong>Reason:</strong> Enables different filtering and enrichment rules per metric instrument</p>
+<p><strong>Migration:</strong> Optional - existing configurations continue to work. See <a href="#for-new-features-optional">Migration Guide</a> for adoption</p>
+<hr>
+</section>
+<section id="commit-6-4a44c25---quarto-style-fix" class="level3">
+<h3 class="anchored" data-anchor-id="commit-6-4a44c25---quarto-style-fix">Commit 6: 4a44c25 - quarto style fix</h3>
+<p><strong>Date:</strong> January 5, 2026<br>
+<strong>Author:</strong> Dario Airoldi<br>
+<strong>Impact:</strong> None - Documentation styling</p>
+<p><strong>Changes:</strong> Fixed Quarto documentation site styling</p>
+<hr>
+</section>
+<section id="commit-7-4e47521---doc-fix" class="level3">
+<h3 class="anchored" data-anchor-id="commit-7-4e47521---doc-fix">Commit 7: 4e47521 - doc fix</h3>
+<p><strong>Date:</strong> January 5, 2026<br>
+<strong>Author:</strong> Dario Airoldi<br>
+<strong>Impact:</strong> None - Documentation only</p>
+<p><strong>Changes:</strong> Documentation corrections</p>
+<hr>
+</section>
+<section id="commit-8-65a9508---doc-fix" class="level3">
+<h3 class="anchored" data-anchor-id="commit-8-65a9508---doc-fix">Commit 8: 65a9508 - doc fix</h3>
+<p><strong>Date:</strong> January 5, 2026<br>
+<strong>Author:</strong> Dario Airoldi<br>
+<strong>Impact:</strong> None - Documentation only</p>
+<p><strong>Changes:</strong> Documentation corrections and additions</p>
+<hr>
+</section>
+<section id="commit-9-3bd25ca---projects-update-.net10.0-feature" class="level3">
+<h3 class="anchored" data-anchor-id="commit-9-3bd25ca---projects-update-.net10.0-feature">Commit 9: 3bd25ca - projects update .net10.0 [FEATURE]</h3>
+<p><strong>Date:</strong> December 1, 2025<br>
+<strong>Author:</strong> Dario Airoldi<br>
+<strong>Impact:</strong> Low - New framework support</p>
+<p><strong>Changes:</strong> - Added <code>net10.0</code> to target frameworks in all project files - Updated <code>global.json</code> to SDK version <code>10.0.100-preview</code> - Regenerated all <code>packages.lock.json</code> files</p>
+<p><strong>Reason:</strong> Adds support for .NET 10.0 (preview)</p>
+<p><strong>Migration:</strong> Automatic - packages now support .NET 10.0</p>
+<hr>
+</section>
+<section id="commit-10-548358f---fix" class="level3">
+<h3 class="anchored" data-anchor-id="commit-10-548358f---fix">Commit 10: 548358f - fix</h3>
+<p><strong>Date:</strong> December 1, 2025<br>
+<strong>Author:</strong> Dario Airoldi<br>
+<strong>Impact:</strong> None - Internal cleanup</p>
+<p><strong>Changes:</strong> Removed duplicate configuration files (<code>.editorconfig</code>, <code>.gitattributes</code> in <code>src/</code>)</p>
+<hr>
+</section>
+<section id="commit-11-2b3cff4---fix" class="level3">
+<h3 class="anchored" data-anchor-id="commit-11-2b3cff4---fix">Commit 11: 2b3cff4 - fix</h3>
+<p><strong>Date:</strong> December 1, 2025<br>
+<strong>Author:</strong> Dario Airoldi<br>
+<strong>Impact:</strong> None - Internal cleanup</p>
+<p><strong>Changes:</strong> Build and configuration fixes</p>
+<hr>
+</section>
+<section id="commit-12-cc26269---build-fix" class="level3">
+<h3 class="anchored" data-anchor-id="commit-12-cc26269---build-fix">Commit 12: cc26269 - build fix</h3>
+<p><strong>Date:</strong> November 12, 2025<br>
+<strong>Author:</strong> Dario Airoldi<br>
+<strong>Impact:</strong> None - Build system</p>
+<p><strong>Changes:</strong> Fixed build configuration</p>
+<hr>
+</section>
+<section id="commit-13-a9256cf---changelog" class="level3">
+<h3 class="anchored" data-anchor-id="commit-13-a9256cf---changelog">Commit 13: a9256cf - changelog</h3>
+<p><strong>Date:</strong> November 12, 2025<br>
+<strong>Author:</strong> Dario Airoldi<br>
+<strong>Impact:</strong> None - Documentation</p>
+<p><strong>Changes:</strong> Changelog updates</p>
+<hr>
+</section>
+<section id="commit-14-cfded56---doc-fix" class="level3">
+<h3 class="anchored" data-anchor-id="commit-14-cfded56---doc-fix">Commit 14: cfded56 - doc fix</h3>
+<p><strong>Date:</strong> November 12, 2025<br>
+<strong>Author:</strong> Dario Airoldi<br>
+<strong>Impact:</strong> None - Documentation</p>
+<p><strong>Changes:</strong> Documentation fixes</p>
+<hr>
+</section>
+<section id="commit-15-4f371eb---fix" class="level3">
+<h3 class="anchored" data-anchor-id="commit-15-4f371eb---fix">Commit 15: 4f371eb - fix</h3>
+<p><strong>Date:</strong> November 12, 2025<br>
+<strong>Author:</strong> Dario Airoldi<br>
+<strong>Impact:</strong> None - Build system</p>
+<p><strong>Changes:</strong> Updated <code>_quarto.yml</code> configuration</p>
+<hr>
+</section>
+<section id="commit-16-a46efac---doc-update-documentation" class="level3">
+<h3 class="anchored" data-anchor-id="commit-16-a46efac---doc-update-documentation">Commit 16: a46efac - doc update [DOCUMENTATION]</h3>
+<p><strong>Date:</strong> November 12, 2025<br>
+<strong>Author:</strong> Dario Airoldi<br>
+<strong>Impact:</strong> Low - Better documentation</p>
+<p><strong>Changes:</strong> - Added GitHub Copilot instructions (<code>.github/copilot-instructions.md</code>) - Added documentation templates (<code>.github/templates/</code>) - Added prompts for documentation generation (<code>.github/prompts/</code>) - Added reference documentation: - <code>SpanDurationMetricRecorder.md</code> - <code>OptionsBasedMetricRecordingFilter.md</code> - <code>OptionsBasedMetricRecordingEnricher.md</code> - <code>IDiginsightActivitiesLogOptions.md</code> - <code>IDiginsightActivitiesOptions.md</code> - Updated “Customize metrics” to “How metric recording works with diginsight and Opentelemetry”</p>
+<p><strong>Reason:</strong> Improved developer experience and understanding</p>
+<p><strong>Migration:</strong> No action required - documentation improvements only</p>
+<hr>
+</section>
+<section id="commit-17-987638c---fixed-activity-and-activitysource-filtering-critical" class="level3">
+<h3 class="anchored" data-anchor-id="commit-17-987638c---fixed-activity-and-activitysource-filtering-critical">Commit 17: 987638c - Fixed Activity and ActivitySource filtering [CRITICAL]</h3>
+<p><strong>Date:</strong> October 10, 2025<br>
+<strong>Author:</strong> Filippo Mineo<br>
+<strong>Tag:</strong> v3.7.0.0 (Final Release)<br>
+<strong>Impact:</strong> High - Critical bug fix</p>
+<p><strong>Changes:</strong> - Fixed pattern matching logic in <code>OptionsBasedMetricRecordingFilter</code> - Fixed activity source filtering - Fixed wildcard pattern support (e.g., <code>"MyApp.*"</code> now correctly matches)</p>
+<p><strong>Before (Broken):</strong></p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Patterns like "MyApp.*" sometimes failed to match</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Activity source filtering was inconsistent</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>After (Fixed):</strong></p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode csharp code-with-copy"><code class="sourceCode cs"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Correct pattern matching:</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="st">"MyApp.Orders.*"</span> correctly matches <span class="st">"MyApp.Orders.ProcessOrder"</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="st">"MyApp.*"</span> correctly matches all MyApp activities</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Reason:</strong> Activity filtering patterns were not working as documented</p>
+<p><strong>Migration:</strong> Automatic - filtering now works correctly</p>
+<hr>
+</section>
+<section id="commit-18-9cf9421---improvements-in-metric-recording" class="level3">
+<h3 class="anchored" data-anchor-id="commit-18-9cf9421---improvements-in-metric-recording">Commit 18: 9cf9421 - Improvements in metric recording</h3>
+<p><strong>Date:</strong> October 8, 2025<br>
+<strong>Author:</strong> Filippo Mineo<br>
+<strong>Tag:</strong> v3.6.0.0-alpha.6<br>
+<strong>Impact:</strong> Medium - Breaking changes</p>
+<p><strong>Changes:</strong> - Deleted <code>DefaultMetricRecordingEnricherOptions</code> - Renamed <code>IDefaultMetricRecordingEnricherOptions</code> → <mark><code>IOptionsBasedMetricRecordingEnricherOptions</code></mark> - Added <mark><code>OptionsBasedMetricRecordingEnricherOptions</code></mark> implementation - Enhanced <mark><code>OptionsBasedMetricRecordingEnricher</code></mark> configuration binding</p>
+<p><strong>Reason:</strong> Standardized enricher options naming</p>
+<p><strong>Migration:</strong> See <a href="#for-advanced-users">Migration Guide</a></p>
+<hr>
+</section>
+<section id="commit-19-24ce7db---improvements-in-metric-recording-breaking" class="level3">
+<h3 class="anchored" data-anchor-id="commit-19-24ce7db---improvements-in-metric-recording-breaking">Commit 19: 24ce7db - Improvements in metric recording [BREAKING]</h3>
+<p><strong>Date:</strong> October 7, 2025<br>
+<strong>Author:</strong> Filippo Mineo<br>
+<strong>Tag:</strong> v3.6.0.0-alpha.5<br>
+<strong>Impact:</strong> High - Major restructuring</p>
+<p><strong>Changes:</strong> - <strong>File reorganization</strong>: Flattened directory structure - Moved files from <code>Extensions/</code> to root - Moved files from <code>Configurations/</code> to root - Moved files from <code>Metrics/</code> to root - <strong>Interface renames</strong>: - <code>IDiginsightActivitiesSpanDurationOptions</code> → <mark><code>IMetricRecordingOptions</code></mark> - <code>DefaultMetricRecordingEnricher</code> → <mark><code>OptionsBasedMetricRecordingEnricher</code></mark></p>
+<p><strong>Reason:</strong> Simplified project structure, consistent naming</p>
+<p><strong>Migration:</strong> Update interface references (namespaces unchanged)</p>
+<hr>
+</section>
+<section id="commit-20-a664cbb---improvements-in-metric-recording" class="level3">
+<h3 class="anchored" data-anchor-id="commit-20-a664cbb---improvements-in-metric-recording">Commit 20: a664cbb - Improvements in metric recording</h3>
+<p><strong>Date:</strong> October 6, 2025<br>
+<strong>Author:</strong> Filippo Mineo<br>
+<strong>Tag:</strong> v3.6.0.0-alpha.4<br>
+<strong>Impact:</strong> Low - Internal improvements</p>
+<p><strong>Changes:</strong> - Enhanced <code>SpanDurationMetricRecorder</code> lifecycle management - Improved error handling - Optimized tag collection</p>
+<p><strong>Reason:</strong> Improved reliability and performance</p>
+<p><strong>Migration:</strong> Automatic</p>
+<hr>
+</section>
+<section id="commit-21-35423d8---improvements-in-metric-recording" class="level3">
+<h3 class="anchored" data-anchor-id="commit-21-35423d8---improvements-in-metric-recording">Commit 21: 35423d8 - Improvements in metric recording</h3>
+<p><strong>Date:</strong> October 5, 2025<br>
+<strong>Author:</strong> Filippo Mineo<br>
+<strong>Tag:</strong> v3.6.0.0-alpha.3<br>
+<strong>Impact:</strong> Medium - Breaking if using deleted interface</p>
+<p><strong>Changes:</strong> - Deleted <code>ICustomDurationMetricRecorderSettings</code> interface - Enhanced <code>DefaultMetricRecordingEnricher</code> - Optimized <code>OptionsBasedMetricRecordingFilter</code> - Improved <code>SpanDurationMetricRecorder</code> performance - Updated <code>HttpHeadersSpanDurationMetricRecordingFilter</code></p>
+<p><strong>Reason:</strong> Removed obsolete interface, improved performance</p>
+<p><strong>Migration:</strong> If using <code>ICustomDurationMetricRecorderSettings</code>, migrate to <mark><code>IMetricRecordingFilter</code></mark></p>
+<hr>
+</section>
+<section id="commit-22-af4121c---rename-breaking" class="level3">
+<h3 class="anchored" data-anchor-id="commit-22-af4121c---rename-breaking">Commit 22: af4121c - Rename [BREAKING]</h3>
+<p><strong>Date:</strong> September 25, 2025<br>
+<strong>Author:</strong> Filippo Mineo<br>
+<strong>Impact:</strong> High - Breaking changes</p>
+<p><strong>Changes:</strong> - <strong>Interface renames</strong>: - <code>INameBasedMetricRecordingFilterOptions</code> → <mark><code>IOptionsBasedMetricRecordingFilterOptions</code></mark> - <strong>Class renames</strong>: - <code>NameBasedMetricRecordingFilter</code> → <mark><code>OptionsBasedMetricRecordingFilter</code></mark> - <code>NameBasedMetricRecordingFilterOptions</code> → <mark><code>OptionsBasedMetricRecordingFilterOptions</code></mark> - <code>NameBasedActivityLoggingFilter</code> → <mark><code>OptionsBasedActivityLoggingFilter</code></mark></p>
+<p><strong>Reason:</strong> Standardized naming convention</p>
+<p><strong>Migration:</strong> Update class references and service registrations</p>
+<hr>
+</section>
+<section id="commit-23-dffd6d7---fix-in-diginsighttextwriter" class="level3">
+<h3 class="anchored" data-anchor-id="commit-23-dffd6d7---fix-in-diginsighttextwriter">Commit 23: dffd6d7 - Fix in DiginsightTextWriter</h3>
+<p><strong>Date:</strong> September 23, 2025<br>
+<strong>Author:</strong> Filippo Mineo<br>
+<strong>Tag:</strong> v3.6.0.0-alpha.2<br>
+<strong>Impact:</strong> Low - Improved log quality</p>
+<p><strong>Changes:</strong> - Improved character escaping - Better special character handling</p>
+<p><strong>Reason:</strong> Cleaner log output</p>
+<p><strong>Migration:</strong> Automatic</p>
+<hr>
+</section>
+<section id="commit-24-e025853---fix-in-diginsightactivitiesoptions" class="level3">
+<h3 class="anchored" data-anchor-id="commit-24-e025853---fix-in-diginsightactivitiesoptions">Commit 24: e025853 - Fix in DiginsightActivitiesOptions</h3>
+<p><strong>Date:</strong> September 22, 2025<br>
+<strong>Author:</strong> Filippo Mineo<br>
+<strong>Impact:</strong> Low - Reliability improvement</p>
+<p><strong>Changes:</strong> - Fixed configuration binding issues - Improved default value handling - Cleanup in <code>SpanDurationMetricRecorder</code> and <code>Directory.Build.targets</code></p>
+<p><strong>Reason:</strong> Configuration loads correctly</p>
+<p><strong>Migration:</strong> Automatic</p>
+<hr>
+</section>
+<section id="commit-25-bbdd6cc---small-fix" class="level3">
+<h3 class="anchored" data-anchor-id="commit-25-bbdd6cc---small-fix">Commit 25: bbdd6cc - small fix</h3>
+<p><strong>Date:</strong> September 21, 2025<br>
+<strong>Author:</strong> Filippo Mineo<br>
+<strong>Impact:</strong> Low - Stability improvement</p>
+<p><strong>Changes:</strong> - Fixed edge case in <code>DiginsightTextWriter</code> text rendering - Improved null handling</p>
+<p><strong>Reason:</strong> Fewer exceptions during logging</p>
+<p><strong>Migration:</strong> Automatic</p>
+<hr>
+</section>
+<section id="commit-26-bab6879---.sln-to-.slnx" class="level3">
+<h3 class="anchored" data-anchor-id="commit-26-bab6879---.sln-to-.slnx">Commit 26: bab6879 - .sln to .slnx</h3>
+<p><strong>Date:</strong> September 20, 2025<br>
+<strong>Author:</strong> Filippo Mineo<br>
+<strong>Tag:</strong> v3.6.0.0-alpha.1<br>
+<strong>Impact:</strong> None - Build system</p>
+<p><strong>Changes:</strong> - Updated <code>.github/workflows/v3.yml</code> to use <code>.slnx</code> instead of <code>.sln</code></p>
+<p><strong>Reason:</strong> CI/CD workflow update</p>
+<p><strong>Migration:</strong> No user impact</p>
+<hr>
+</section>
+<section id="commit-27-9f3896d---.sln-to-.slnx-infrastructure" class="level3">
+<h3 class="anchored" data-anchor-id="commit-27-9f3896d---.sln-to-.slnx-infrastructure">Commit 27: 9f3896d - .sln to .slnx [INFRASTRUCTURE]</h3>
+<p><strong>Date:</strong> September 20, 2025<br>
+<strong>Author:</strong> Filippo Mineo<br>
+<strong>Impact:</strong> None - Development environment</p>
+<p><strong>Changes:</strong> - Converted solution file from <code>.sln</code> to <code>.slnx</code> format - Updated <code>Diginsight.slnx</code> structure</p>
+<p><strong>Reason:</strong> Visual Studio 2022 XML-based solution format</p>
+<p><strong>Migration:</strong> Visual Studio 2022+ handles both formats automatically</p>
+<hr>
+</section>
+<section id="commit-28-f8f4e9e---unifying-metric-recording-with-filter-and-enricher-breaking" class="level3">
+<h3 class="anchored" data-anchor-id="commit-28-f8f4e9e---unifying-metric-recording-with-filter-and-enricher-breaking">Commit 28: f8f4e9e - Unifying metric recording with filter and enricher [BREAKING]</h3>
+<p><strong>Date:</strong> [Date from git log]<br>
+<strong>Author:</strong> Filippo Mineo<br>
+<strong>Impact:</strong> High - Architecture change</p>
+<p><strong>Changes:</strong> - Part of metric recording unification - Introduced filter and enricher pattern</p>
+<p><strong>Reason:</strong> Unified metric recording architecture</p>
+<p><strong>Migration:</strong> See consolidated migration guide above</p>
+<hr>
+</section>
+<section id="commit-29-c0b4103---unifying-metric-recording-with-filter-and-enricher" class="level3">
+<h3 class="anchored" data-anchor-id="commit-29-c0b4103---unifying-metric-recording-with-filter-and-enricher">Commit 29: c0b4103 - Unifying metric recording with filter and enricher</h3>
+<p><strong>Date:</strong> [Date from git log]<br>
+<strong>Author:</strong> Filippo Mineo<br>
+<strong>Impact:</strong> High - Architecture change</p>
+<p><strong>Changes:</strong> Continued metric recording unification</p>
+<hr>
+</section>
+<section id="commit-30-5fa5baa---c-14-preview.-unifying-metric-recording-with-filter-and-enricher" class="level3">
+<h3 class="anchored" data-anchor-id="commit-30-5fa5baa---c-14-preview.-unifying-metric-recording-with-filter-and-enricher">Commit 30: 5fa5baa - C# 14 preview. Unifying metric recording with filter and enricher</h3>
+<p><strong>Date:</strong> [Date from git log]<br>
+<strong>Author:</strong> Filippo Mineo<br>
+<strong>Impact:</strong> Medium - Language version update</p>
+<p><strong>Changes:</strong> - Updated to C# 14 preview features - Continued metric recording unification</p>
+<p><strong>Reason:</strong> Adopted latest C# features</p>
+<p><strong>Migration:</strong> No user action - compiler feature</p>
+<hr>
+</section>
+<section id="commit-31-3bcfd90---unifying-metric-recording-with-filter-and-enricher-major-refactoring" class="level3">
+<h3 class="anchored" data-anchor-id="commit-31-3bcfd90---unifying-metric-recording-with-filter-and-enricher-major-refactoring">Commit 31: 3bcfd90 - Unifying metric recording with filter and enricher [MAJOR REFACTORING]</h3>
+<p><strong>Date:</strong> [Date from git log]<br>
+<strong>Author:</strong> Filippo Mineo<br>
+<strong>Impact:</strong> High - Major architecture changes</p>
+<p><strong>Changes:</strong> - Initial implementation of unified metric recording architecture - Introduced <mark><code>IMetricRecordingFilter</code></mark> interface - Introduced <mark><code>IMetricRecordingEnricher</code></mark> interface - Replaced sampler pattern with filter pattern - Changed from <code>IActivityLoggingSampler</code> to <mark><code>IActivityLoggingFilter</code></mark></p>
+<p><strong>Reason:</strong> Unified approach to metric recording with better separation of concerns</p>
+<p><strong>Migration:</strong> See <a href="#-migration-guide">Migration Guide</a> for complete migration steps</p>
+<hr>
+</section>
+<section id="commits-32-33-additional-fixes-and-improvements" class="level3">
+<h3 class="anchored" data-anchor-id="commits-32-33-additional-fixes-and-improvements">Commits 32-33: Additional fixes and improvements</h3>
+<p>Remaining commits in range include additional minor fixes, documentation updates, and incremental improvements that are consolidated in the changes above.</p>
+</section></details>
+<hr>
+<p><strong>Document Version:</strong> 1.0<br>
+<strong>Last Updated:</strong> January 7, 2026</p>
+
+
+</section>
+
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Copyright 2021, Diginsight</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/diginsight">
+      <i class="bi bi-github" role="img">
+</i> 
+    </a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
