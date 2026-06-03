@@ -11,7 +11,14 @@
 [CmdletBinding()]
 param(
     [string]   $OutRoot = 'docs-themes',
-    [switch]   $SkipRender
+    # Skip the base render entirely and reuse an already-rendered site (e.g. in CI,
+    # where `quarto render` has already produced the parent site).
+    [switch]   $SkipRender,
+    # URL the preview iframe/cards point at, relative to <OutRoot>/index.html.
+    # Default targets the local base render at <OutRoot>/site. In CI, where this
+    # page is written inside the already-rendered docs/ site, pass '../Index.html'
+    # to reuse the main render and avoid a duplicate copy.
+    [string]   $SiteHref = './site/Index.html'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -50,9 +57,10 @@ $themes = @(
 New-Item -ItemType Directory -Force -Path $OutRoot | Out-Null
 $siteDir = Join-Path $OutRoot 'site'
 
-# Single base render (shared by every theme).
-if ($SkipRender -and (Test-Path (Join-Path $siteDir 'Index.html'))) {
-    Write-Host "=== Skipping render (base site already present) ===" -ForegroundColor DarkGray
+# Single base render (shared by every theme). Skipped when reusing an existing
+# render (e.g. in CI, via -SkipRender + -SiteHref '../Index.html').
+if ($SkipRender) {
+    Write-Host "=== Skipping render (reusing existing site at '$SiteHref') ===" -ForegroundColor DarkGray
 } else {
     Write-Host "=== Rendering base site once -> $siteDir ===" -ForegroundColor Cyan
     $sw = [System.Diagnostics.Stopwatch]::StartNew()
@@ -71,7 +79,7 @@ $cards = ($themes | ForEach-Object {
     $n = $_.Name; $m = $_.Mode
     $badge = if ($m -eq 'dark') { 'background:#222;color:#eee' } else { 'background:#eef;color:#225' }
     @"
-        <a class="card $m" href="./site/Index.html?theme=$n" target="preview" data-name="$n">
+        <a class="card $m" href="$SiteHref?theme=$n" target="preview" data-name="$n">
             <div class="name">$n</div>
             <div class="mode" style="$badge">$m</div>
         </a>
@@ -114,7 +122,7 @@ $cards
       <a href="#" onclick="document.querySelector('iframe').src=document.querySelector('iframe').src;return false;">Reload</a>
       <span id="current">cosmo</span>
     </div>
-    <iframe name="preview" src="./site/Index.html?theme=cosmo"></iframe>
+    <iframe name="preview" src="$SiteHref?theme=cosmo"></iframe>
   </main>
 <script>
   document.querySelectorAll('.card').forEach(a => a.addEventListener('click', () => {
@@ -129,5 +137,6 @@ Set-Content -Path (Join-Path $OutRoot 'index.html') -Value $indexHtml -Encoding 
 
 Write-Host ""
 Write-Host "=== Done ===" -ForegroundColor Cyan
-Write-Host "Single base render: $siteDir" -ForegroundColor Green
+if (-not $SkipRender) { Write-Host "Single base render: $siteDir" -ForegroundColor Green }
+Write-Host "Preview source: $SiteHref" -ForegroundColor Green
 Write-Host "Open: $OutRoot/index.html" -ForegroundColor Green

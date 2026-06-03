@@ -13,7 +13,7 @@
   margin-right: 8px;
 }
 
-/* Override Bootstrap highlight color to light yellow */
+/* Override Bootstrap highlight color to light yellow (light theme) */
 :root {
   --bs-highlight-bg: #fff7d1;
 }
@@ -21,6 +21,18 @@
 mark,
 .mark {
   background-color: #fff7d1 !important;
+  color: inherit !important;
+}
+
+/* Dark theme: use a muted translucent highlight instead of the light yellow,
+   so marked text stays readable on dark backgrounds */
+body.quarto-dark {
+  --bs-highlight-bg: rgba(255, 226, 138, 0.22);
+}
+
+body.quarto-dark mark,
+body.quarto-dark .mark {
+  background-color: rgba(255, 226, 138, 0.22) !important;
   color: inherit !important;
 }
 
@@ -66,5 +78,31 @@ article ul ul li {
 #quarto-document-content ul ul ul li,
 article ul ul ul li {
   list-style-type: square;
+}
+
+/* Dark theme: ensure the left sidebar (docked navigation) follows dark styles */
+body.quarto-dark #quarto-sidebar,
+body.quarto-dark .sidebar.sidebar-navigation,
+body.quarto-dark nav.sidebar-navigation {
+  background-color: #2b3035 !important;
+  border-color: #495057 !important;
+}
+
+body.quarto-dark #quarto-sidebar .sidebar-item a,
+body.quarto-dark #quarto-sidebar .sidebar-item .sidebar-section .sidebar-item-text,
+body.quarto-dark #quarto-sidebar a.sidebar-item-text,
+body.quarto-dark .sidebar-navigation .sidebar-item a {
+  color: #dee2e6 !important;
+}
+
+body.quarto-dark #quarto-sidebar .sidebar-item a:hover,
+body.quarto-dark .sidebar-navigation .sidebar-item a:hover {
+  color: #ffffff !important;
+}
+
+body.quarto-dark #quarto-sidebar .sidebar-item a.active,
+body.quarto-dark .sidebar-navigation .sidebar-item a.active {
+  color: #ffffff !important;
+  font-weight: 600;
 }
 
