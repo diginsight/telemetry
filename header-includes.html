@@ -104,7 +104,13 @@
   var THEME_INDEX = THEMES.reduce(function (acc, t) { acc[t.n] = t; return acc; }, {});
 
   function read() {
-    try { return localStorage.getItem(STORAGE_KEY); } catch (e) { return null; }
+    try {
+      // Allow deep-linking a theme via ?theme=<name> (used by the theme-comparison
+      // preview so a single base render can be shown under every palette).
+      var q = new URLSearchParams(location.search).get("theme");
+      if (q) return THEME_INDEX[q] ? q : null;
+      return localStorage.getItem(STORAGE_KEY);
+    } catch (e) { return null; }
   }
   function write(name) {
     try {
