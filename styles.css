@@ -24,16 +24,17 @@ mark,
   color: inherit !important;
 }
 
-/* Dark theme: use a muted translucent highlight instead of the light yellow,
-   so marked text stays readable on dark backgrounds */
+/* Dark theme: use a dark amber highlight with warm light text instead of the
+   light yellow, so marked text reads as a proper dark-mode highlight (a low
+   alpha over the dark background just desaturates into a light-grey box). */
 body.quarto-dark {
-  --bs-highlight-bg: rgba(255, 226, 138, 0.22);
+  --bs-highlight-bg: #4d3f17;
 }
 
 body.quarto-dark mark,
 body.quarto-dark .mark {
-  background-color: rgba(255, 226, 138, 0.22) !important;
-  color: inherit !important;
+  background-color: #4d3f17 !important;
+  color: #ffe9a6 !important;
 }
 
 /* Hide redundant h1 ONLY when Quarto title block is present */

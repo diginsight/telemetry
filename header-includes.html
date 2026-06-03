@@ -341,3 +341,173 @@
   }
 })();
 </script>
+
+<!-- Diginsight resizable left navigation sidebar -->
+<style>
+  @media (min-width: 992px) {
+    /* Re-flow the docked page grid so the navigation column follows a CSS
+       variable. !important wins over Quarto's per-layout variants (docked,
+       docked.fullcontent, docked.slimcontent, docked.listing) regardless of
+       their higher selector specificity. */
+    body.docked .page-columns {
+      grid-template-columns:
+        [screen-start] 1.5em
+        [screen-start-inset] var(--ds-sidebar-width, 220px)
+        [page-start page-start-inset body-start-outset body-start] 1.5em
+        [body-content-start] minmax(0, 1fr)
+        [body-content-end] 1.5em
+        [body-end body-end-outset page-end-inset page-end] minmax(0, 250px)
+        [screen-end-inset] 1.5em [screen-end] !important;
+    }
+
+    .ds-sidebar-resizer {
+      position: fixed;
+      width: 10px;
+      margin-left: -5px;
+      cursor: col-resize;
+      z-index: 1056;
+      background: transparent;
+      touch-action: none;
+    }
+    .ds-sidebar-resizer::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 5px;
+      width: 1px;
+      background: var(--bs-border-color, #dee2e6);
+      transition: background-color .15s ease, width .15s ease, left .15s ease;
+    }
+    .ds-sidebar-resizer:hover::after,
+    .ds-sidebar-resizer.ds-dragging::after {
+      width: 3px;
+      left: 4px;
+      background: var(--bs-primary, #2780e3);
+    }
+
+    /* Suppress the sidebar's width transition while dragging so it tracks the
+       pointer instantly instead of easing behind it. */
+    body.ds-sidebar-resizing {
+      cursor: col-resize;
+      user-select: none;
+    }
+    body.ds-sidebar-resizing #quarto-sidebar {
+      transition: none !important;
+    }
+  }
+
+  @media (max-width: 991.98px) {
+    .ds-sidebar-resizer { display: none !important; }
+  }
+</style>
+
+<script>
+(function () {
+  "use strict";
+
+  var KEY = "diginsight.sidebarWidth";
+  var MIN = 150;
+  var MAX = 600;
+  var root = document.documentElement;
+
+  function readWidth() {
+    try {
+      var v = parseInt(localStorage.getItem(KEY), 10);
+      return isNaN(v) ? null : v;
+    } catch (e) { return null; }
+  }
+  function writeWidth(px) {
+    try { localStorage.setItem(KEY, String(px)); } catch (e) { /* private mode */ }
+  }
+  function clearWidth() {
+    try { localStorage.removeItem(KEY); } catch (e) { /* private mode */ }
+  }
+  function clamp(v) { return Math.max(MIN, Math.min(MAX, v)); }
+  function applyWidth(px) { root.style.setProperty("--ds-sidebar-width", px + "px"); }
+  function currentVar() {
+    var v = parseFloat(getComputedStyle(root).getPropertyValue("--ds-sidebar-width"));
+    return isNaN(v) ? 220 : v;
+  }
+
+  // Restore the saved width ASAP to minimise layout flashing.
+  var saved = readWidth();
+  if (saved) applyWidth(clamp(saved));
+
+  function setup() {
+    var sidebar = document.getElementById("quarto-sidebar");
+    if (!sidebar) return false;
+    if (document.querySelector(".ds-sidebar-resizer")) return true;
+
+    var handle = document.createElement("div");
+    handle.className = "ds-sidebar-resizer";
+    handle.setAttribute("role", "separator");
+    handle.setAttribute("aria-orientation", "vertical");
+    handle.title = "Drag to resize the navigation. Double-click to reset.";
+    document.body.appendChild(handle);
+
+    function reposition() {
+      var r = sidebar.getBoundingClientRect();
+      // Hidden / collapsed (mobile) — let CSS media query handle visibility.
+      handle.style.left = r.right + "px";
+      handle.style.top = r.top + "px";
+      handle.style.height = Math.max(0, window.innerHeight - r.top) + "px";
+    }
+
+    var dragging = false;
+    var startLeft = 0;
+    var pad = 0; // non-variable part of the sidebar (left gutter)
+
+    function onMove(e) {
+      if (!dragging) return;
+      var w = clamp(Math.round(e.clientX - startLeft - pad));
+      applyWidth(w);
+      reposition();
+      e.preventDefault();
+    }
+    function onUp() {
+      if (!dragging) return;
+      dragging = false;
+      handle.classList.remove("ds-dragging");
+      document.body.classList.remove("ds-sidebar-resizing");
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      writeWidth(Math.round(currentVar()));
+      reposition();
+    }
+    handle.addEventListener("pointerdown", function (e) {
+      var rect = sidebar.getBoundingClientRect();
+      startLeft = rect.left;
+      pad = rect.width - currentVar(); // measured left gutter (~1.5em)
+      dragging = true;
+      handle.classList.add("ds-dragging");
+      document.body.classList.add("ds-sidebar-resizing");
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
+      e.preventDefault();
+    });
+    handle.addEventListener("dblclick", function () {
+      root.style.removeProperty("--ds-sidebar-width");
+      clearWidth();
+      reposition();
+    });
+
+    window.addEventListener("resize", reposition);
+    window.addEventListener("scroll", reposition, true);
+    reposition();
+    return true;
+  }
+
+  function whenReady() {
+    if (setup()) return;
+    var obs = new MutationObserver(function () { if (setup()) obs.disconnect(); });
+    obs.observe(document.documentElement, { childList: true, subtree: true });
+    setTimeout(function () { obs.disconnect(); }, 10000);
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", whenReady);
+  } else {
+    whenReady();
+  }
+})();
+</script>
