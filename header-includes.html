@@ -187,13 +187,31 @@
       styleEl.id = OVERRIDE_STYLE_ID;
       document.head.appendChild(styleEl);
     }
-    styleEl.textContent =
+    var css =
       ".navbar{background-color:" + t.p + " !important;}" +
       ".alert-primary{" +
         "background-color:var(--bs-primary-bg-subtle) !important;" +
         "color:var(--bs-primary-text-emphasis) !important;" +
         "border-color:var(--bs-primary-border-subtle) !important;" +
       "}";
+
+    // When a predefined DARK theme is selected, styles.css (which carries the
+    // body.quarto-dark sidebar + highlight rules) is disabled and body.quarto-dark
+    // is never added, so the docked left sidebar and <mark> highlights would stay
+    // light. Re-apply dark styling here using the selected theme's own colors.
+    if (t.m === "dark") {
+      css +=
+        "#quarto-sidebar,.sidebar.sidebar-navigation,nav.sidebar-navigation{" +
+          "background-color:" + t.bg + " !important;border-color:" + t.br + " !important;}" +
+        "#quarto-sidebar .sidebar-item a,.sidebar-navigation .sidebar-item a," +
+        "#quarto-sidebar a.sidebar-item-text{color:" + t.fg + " !important;}" +
+        "#quarto-sidebar .sidebar-item a:hover,.sidebar-navigation .sidebar-item a:hover," +
+        "#quarto-sidebar .sidebar-item a.active,.sidebar-navigation .sidebar-item a.active{" +
+          "color:#ffffff !important;}" +
+        "mark,.mark{background-color:#4d3f17 !important;color:#ffe9a6 !important;}";
+    }
+
+    styleEl.textContent = css;
   }
 
   // Apply ASAP to minimise FOUC (head script — body may not exist yet).
