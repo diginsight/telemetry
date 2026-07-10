@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-#if NET7_0_OR_GREATER
+#if NET
 using System.Runtime.CompilerServices;
 #endif
 
@@ -21,7 +21,7 @@ public static partial class LoggerExtensions
         return new MetadataLogger(logger, metadata);
     }
 
-#if NET7_0_OR_GREATER
+#if NET
     public static void Log(
         // ReSharper disable EntityNameCapturedOnly.Global
         this ILogger logger,

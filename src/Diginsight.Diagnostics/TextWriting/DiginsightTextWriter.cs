@@ -287,7 +287,7 @@ public static class DiginsightTextWriter
         }
         finally
         {
-#if NET7_0_OR_GREATER
+#if NET
             WriteDuration.Record(timing = stopwatch.Elapsed.TotalMicroseconds);
 #else
             WriteDuration.Record(timing = stopwatch.Elapsed.TotalMilliseconds / 1000);

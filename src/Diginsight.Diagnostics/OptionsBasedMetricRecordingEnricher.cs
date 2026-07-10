@@ -17,7 +17,7 @@ public class OptionsBasedMetricRecordingEnricher : IMetricRecordingEnricher
 
     public virtual Tags ExtractTags(Activity activity, Instrument instrument)
     {
-        static ICollection<string> GetTagNames(OptionsBasedMetricRecordingEnricherOptions options)
+        static IReadOnlyCollection<string> GetTagNames(OptionsBasedMetricRecordingEnricherOptions options)
         {
             return ((IOptionsBasedMetricRecordingEnricherOptions)options).MetricTags;
         }

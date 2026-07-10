@@ -1,5 +1,5 @@
 ﻿#nullable enable
-#if NET7_0_OR_GREATER
+#if NET
 using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 #endif
@@ -8,7 +8,7 @@ namespace Diginsight.Logging;
 
 public static partial class LoggerExtensions
 {
-#if NET7_0_OR_GREATER
+#if NET
     public static void LogTrace(
         // ReSharper disable once EntityNameCapturedOnly.Global
         this ILogger logger,

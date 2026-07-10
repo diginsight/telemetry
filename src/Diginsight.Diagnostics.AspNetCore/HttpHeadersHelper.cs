@@ -5,14 +5,14 @@ namespace Diginsight.Diagnostics.AspNetCore;
 
 internal static partial class HttpHeadersHelper
 {
-#if NET7_0_OR_GREATER
-    [GeneratedRegex("^([^=]+?)(=(?:[a-z]+)?)?$", RegexOptions.NonBacktracking | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+#if NET
+    [GeneratedRegex("^([^=]+?)(=(?:[a-z]+)?)?$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex SpecRegexImpl();
 
     /// <inheritdoc cref="SpecRegexImpl" />
     private static Regex SpecRegex => SpecRegexImpl();
 #else
-    private static readonly Regex SpecRegex = new ("^([^=]+?)(=(?:[a-z]+)?)?$", RegexOptions.NonBacktracking | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+    private static readonly Regex SpecRegex = new ("^([^=]+?)(=(?:[a-z]+)?)?$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 #endif
 
     public static IEnumerable<string?> GetMatches(

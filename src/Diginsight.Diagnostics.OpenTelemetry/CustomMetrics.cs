@@ -3,7 +3,7 @@ using System.Diagnostics.Metrics;
 
 namespace Diginsight.Diagnostics;
 
-#if NET7_0_OR_GREATER
+#if NET
 public interface ICustomMetrics<TSelf>
     where TSelf : ICustomMetrics<TSelf>
 {

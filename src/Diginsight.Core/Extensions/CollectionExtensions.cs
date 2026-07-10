@@ -181,15 +181,13 @@ public static class CollectionExtensions
         if (collection is null)
             throw new ArgumentNullException(nameof(collection));
 
-        IEnumerable<T> itemsToAdd = collection.Except(target);
-
         if (target is List<T> list)
         {
-            list.AddRange(itemsToAdd);
+            list.AddRange(collection);
         }
         else
         {
-            foreach (T item in itemsToAdd)
+            foreach (T item in collection)
             {
                 target.Add(item);
             }

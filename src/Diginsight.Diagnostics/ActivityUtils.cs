@@ -29,7 +29,7 @@ public static class ActivityUtils
 
     public static bool NameMatchesPattern(string name, string namePattern)
     {
-        return new Regex($"^{string.Join(".*", namePattern.Split('*').Select(Regex.Escape))}$", RegexOptions.NonBacktracking | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant).IsMatch(name);
+        return new Regex($"^{string.Join(".*", namePattern.Split('*').Select(Regex.Escape))}$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant).IsMatch(name);
     }
 
     public static bool FullNameMatchesPattern(string sourceName, string operationName, string fullNamePattern)

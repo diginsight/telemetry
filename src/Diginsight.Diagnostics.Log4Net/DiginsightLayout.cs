@@ -8,6 +8,8 @@ namespace Diginsight.Diagnostics.Log4Net;
 
 public sealed class DiginsightLayout : ILayout
 {
+    private static readonly string FallbackLoggerName = $"{typeof(DiginsightLayout).Namespace!}.$Layout";
+
     private LineDescriptor? lineDescriptor;
 
     public TimeZoneInfo? TimeZone { get; set; } = TimeZoneInfo.Utc;
@@ -45,7 +47,7 @@ public sealed class DiginsightLayout : ILayout
                 TimeZoneInfo.ConvertTime(new DateTimeOffset(loggingEvent.TimeStampUtc), TimeZone ?? TimeZoneInfo.Local),
                 myLoggingEvent.Activity,
                 TranslateLogLevel(loggingEvent.Level),
-                myLoggingEvent.LoggerName,
+                myLoggingEvent.LoggerName ?? FallbackLoggerName,
                 myLoggingEvent.RenderedMessage,
                 loggingEvent.ExceptionObject,
                 myLoggingEvent.IsActivity,
@@ -60,9 +62,10 @@ public sealed class DiginsightLayout : ILayout
         }
     }
 
-    private static LogLevel TranslateLogLevel(Level level)
+    private static LogLevel TranslateLogLevel(Level? level)
     {
-        return level >= Level.Critical ? LogLevel.Critical
+        return level is null ? LogLevel.Trace
+            : level >= Level.Critical ? LogLevel.Critical
             : level >= Level.Error ? LogLevel.Error
             : level >= Level.Warn ? LogLevel.Warning
             : level >= Level.Info ? LogLevel.Information

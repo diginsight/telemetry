@@ -1,20 +1,35 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0;net9.0;net10.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net8.0;net9.0;net10.0</TargetFrameworks>
     <Title>Diginsight ASP.NET Core extensions</Title>
     <PackageIcon>Diginsight.Core.png</PackageIcon>
     <PackageTags>$(PackageTags);aspnetcore</PackageTags>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Scrutor" Version="6.*">
-      <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
+  <Choose>
+    <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net10.0'))">
+
+      <ItemGroup>
+        <PackageReference Include="Scrutor" Version="7.*">
+          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+        </PackageReference>
+      </ItemGroup>
+
+    </When>
+    <Otherwise>
+
+      <ItemGroup>
+        <PackageReference Include="Scrutor" Version="6.*">
+          <PrivateAssets>contentfiles; analyzers; build; compile</PrivateAssets>
+        </PackageReference>
+      </ItemGroup>
+
+    </Otherwise>
+  </Choose>
 
   <Choose>
-    <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">
+    <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
 
       <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />

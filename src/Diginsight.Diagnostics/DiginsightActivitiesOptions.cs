@@ -66,12 +66,6 @@ public sealed class DiginsightActivitiesOptions
 
     bool IMetricRecordingOptions.Record => RecordSpanDuration;
 
-    public string? MeterName
-    {
-        get => meterName;
-        set => meterName = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
-    }
-
     public string? SpanDurationMeterName
     {
         get => spanDurationMeterName;
@@ -79,7 +73,7 @@ public sealed class DiginsightActivitiesOptions
     }
 
     string IMetricRecordingOptions.MeterName =>
-        SpanDurationMeterName ?? MeterName ?? throw new InvalidOperationException($"{nameof(IMetricRecordingOptions.MeterName)} is unset");
+        SpanDurationMeterName ?? throw new InvalidOperationException($"{nameof(IMetricRecordingOptions.MeterName)} is unset");
 
     public string? SpanDurationMetricName
     {
@@ -198,12 +192,6 @@ public sealed class DiginsightActivitiesOptions
         {
             get => filled.RecordSpanDuration;
             set => filled.RecordSpanDuration = value;
-        }
-
-        public string? MeterName
-        {
-            get => filled.MeterName;
-            set => filled.MeterName = value;
         }
 
         public Filler(DiginsightActivitiesOptions filled)

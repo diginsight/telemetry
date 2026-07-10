@@ -1,7 +1,5 @@
-using Diginsight.Options;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Diagnostics.Metrics;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 
@@ -10,15 +8,21 @@ namespace Diginsight.Diagnostics;
 public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
 {
     private readonly ILogger logger;
-    private readonly IClassAwareOptions<DiginsightActivitiesOptions> activitiesOptions;
+    private readonly IOptions<DiginsightActivitiesOptions> activitiesOptions;
+    private readonly IMeterFactory meterFactory;
     private readonly IMetricRecordingFilter? recordingFilter;
     private readonly IMetricRecordingEnricher? recordingEnricher;
-    private readonly Lazy<Histogram<double>> metricLazy;
+
+    private IMetricRecordingOptions MetricOptions =>
+        field ??= activitiesOptions.Value.Freeze();
+
+    private Histogram<double> Metric => meterFactory
+        .Create(MetricOptions.MeterName)
+        .CreateHistogram<double>(MetricOptions.MetricName, "ms", MetricOptions.MetricDescription);
 
     public SpanDurationMetricRecorder(
-        IServiceProvider serviceProvider,
         ILogger<SpanDurationMetricRecorder> logger,
-        IClassAwareOptions<DiginsightActivitiesOptions> activitiesOptions,
+        IOptions<DiginsightActivitiesOptions> activitiesOptions,
         IMeterFactory meterFactory,
         IMetricRecordingFilter? recordingFilter = null,
         IMetricRecordingEnricher? recordingEnricher = null
@@ -26,27 +30,9 @@ public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
     {
         this.logger = logger;
         this.activitiesOptions = activitiesOptions;
-        var activitiesConfig = this.activitiesOptions.Value;
-        var metricName = "diginsight.span_duration";
-
+        this.meterFactory = meterFactory;
         this.recordingFilter = recordingFilter;
         this.recordingEnricher = recordingEnricher;
-
-        var metricFilter = serviceProvider.GetNamedService<IMetricRecordingFilter>(metricName);
-        if (metricFilter != null) { this.recordingFilter = metricFilter; }
-
-        var metricEnricher = serviceProvider.GetNamedService<IMetricRecordingEnricher>(metricName);
-        if (metricEnricher != null) { this.recordingEnricher = metricEnricher; }
-
-        metricLazy = new Lazy<Histogram<double>>(
-            () =>
-            {
-                IMetricRecordingOptions metricOptions = activitiesOptions.Value;
-                return meterFactory
-                    .Create(metricOptions.MeterName)
-                    .CreateHistogram<double>(metricOptions.MetricName, "ms", metricOptions.MetricDescription);
-            }
-        );
     }
 
 #if !(NET || NETSTANDARD2_1_OR_GREATER)
@@ -59,20 +45,17 @@ public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
 
         try
         {
-            Histogram<double> metric = metricLazy.Value;
-            IMetricRecordingOptions metricOptions = activitiesOptions.Get(activity.GetCallerType());
-
-            if (!(recordingFilter?.ShouldRecord(activity, metric) ?? metricOptions.Record))
+            if (!(recordingFilter?.ShouldRecord(activity, Metric) ?? MetricOptions.Record))
                 return;
 
             Tag nameTag = new ("span_name", activityName);
             Tag statusTag = new ("status", activity.Status.ToString());
 
             Tag[] tags = recordingEnricher is not null
-                ? [ nameTag, statusTag, .. recordingEnricher.ExtractTags(activity, metric) ]
+                ? [ nameTag, statusTag, .. recordingEnricher.ExtractTags(activity, Metric) ]
                 : [ nameTag, statusTag ];
 
-            metric.Record(activity.Duration.TotalMilliseconds, tags);
+            Metric.Record(activity.Duration.TotalMilliseconds, tags);
         }
         catch (Exception exception)
         {

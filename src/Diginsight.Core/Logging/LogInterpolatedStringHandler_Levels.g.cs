@@ -1,5 +1,5 @@
-﻿#nullable enable
-#if NET7_0_OR_GREATER
+﻿#if NET
+#nullable enable
 using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 

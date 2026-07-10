@@ -1,14 +1,17 @@
-﻿using Diginsight.Options;
+﻿using Microsoft.Extensions.Options;
 using System.Diagnostics;
 
 namespace Diginsight.Diagnostics;
 
 public class OptionsBasedActivityLoggingFilter : IActivityLoggingFilter
 {
-    private readonly IClassAwareOptions<DiginsightActivitiesOptions> activitiesOptions;
+    private readonly IOptions<DiginsightActivitiesOptions> activitiesOptions;
+
+    private IDiginsightActivitiesLogOptions LogOptions =>
+        field ??= activitiesOptions.Value.Freeze();
 
     public OptionsBasedActivityLoggingFilter(
-        IClassAwareOptions<DiginsightActivitiesOptions> activitiesOptions
+        IOptions<DiginsightActivitiesOptions> activitiesOptions
     )
     {
         this.activitiesOptions = activitiesOptions;
@@ -19,7 +22,7 @@ public class OptionsBasedActivityLoggingFilter : IActivityLoggingFilter
         string activitySourceName = activity.Source.Name;
         string activityName = activity.OperationName;
 
-        return ((IDiginsightActivitiesLogOptions)activitiesOptions.Get(activity.GetCallerType()))
+        return LogOptions
             .ActivityNames
             .Where(x => ActivityUtils.FullNameMatchesPattern(activitySourceName, activityName, x.Key))
             .Select(static x => (LogBehavior?)x.Value)

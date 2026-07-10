@@ -92,13 +92,13 @@ public static class DependencyInjectionExtensions
     }
 
     public static MeterProviderBuilder AddMetrics<T>(this MeterProviderBuilder builder)
-#if NET7_0_OR_GREATER
+#if NET
         where T : ICustomMetrics<T>
 #else
         where T : CustomMetrics
 #endif
     {
-#if NET7_0_OR_GREATER
+#if NET
         builder.AddMeter(T.ObservabilityName);
         builder.AddViews(T.Views);
 #else

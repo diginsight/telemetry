@@ -73,14 +73,14 @@ public static partial class ClassConfigurationMarkers
     private static readonly ConcurrentDictionary<Type, IReadOnlyList<string>> Markers = new ();
     private static readonly IReadOnlyList<string> NoClassMarkers = [ "" ];
 
-#if NET7_0_OR_GREATER
-    [GeneratedRegex(@"`\d+", RegexOptions.NonBacktracking)]
+#if NET
+    [GeneratedRegex(@"`\d+")]
     private static partial Regex GenericSuffixRegexImpl();
 
     /// <inheritdoc cref="GenericSuffixRegexImpl" />
     private static Regex GenericSuffixRegex => GenericSuffixRegexImpl();
 #else
-    private static readonly Regex GenericSuffixRegex = new (@"`\d+", RegexOptions.NonBacktracking);
+    private static readonly Regex GenericSuffixRegex = new (@"`\d+");
 #endif
 
     /// <summary>
@@ -107,7 +107,7 @@ public static partial class ClassConfigurationMarkers
 #endif
             || @class.IsGenericParameter
             || @class.IsPointer
-#if NET8_0_OR_GREATER
+#if NET
             || @class.IsFunctionPointer
             || @class.IsUnmanagedFunctionPointer
 #endif

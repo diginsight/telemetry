@@ -1,4 +1,4 @@
-﻿#if NET7_0_OR_GREATER
+﻿#if NET
 using Microsoft.Extensions.Logging;
 using System.Collections;
 using System.Globalization;

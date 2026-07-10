@@ -44,7 +44,7 @@ public sealed class TimestampToken : ILineToken
 
     private sealed class Appender : IPrefixTokenAppender
     {
-#if NET8_0_OR_GREATER
+#if NET
         private readonly CompositeFormat format;
 #else
         private readonly string format;
@@ -53,13 +53,13 @@ public sealed class TimestampToken : ILineToken
 
         public Appender(string? format, CultureInfo? culture)
         {
-#if NET8_0_OR_GREATER
+#if NET
             string tmpFormat =
 #else
             this.format =
 #endif
                 $"{{0:{format ?? "yyyy-MM-dd'T'HH:mm:ss.fff"}}}";
-#if NET8_0_OR_GREATER
+#if NET
             this.format = CompositeFormat.Parse(tmpFormat);
 #endif
 
