@@ -44,10 +44,7 @@ public sealed class DiginsightDebugLoggerProvider : ILoggerProvider
         );
     }
 
-    public void Dispose()
-    {
-        throw new NotImplementedException();
-    }
+    public void Dispose() { }
 
     private sealed class Logger : ILogger
     {

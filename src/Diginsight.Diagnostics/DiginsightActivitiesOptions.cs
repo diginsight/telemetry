@@ -17,7 +17,8 @@ public sealed class DiginsightActivitiesOptions
     private LogBehavior logBehavior = LogBehavior.Hide;
     private LogLevel activityLogLevel = LogLevel.Debug;
     private bool writeActivityActionAsPrefix;
-    private bool disablePayloadRendering;
+    private bool enablePayloadLogging;
+    private bool enablePayloadTagging;
     private bool recordSpanDuration;
     private string? meterName;
     private string? spanDurationMeterName;
@@ -52,10 +53,16 @@ public sealed class DiginsightActivitiesOptions
         set => writeActivityActionAsPrefix = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
     }
 
-    public bool DisablePayloadRendering
+    public bool EnablePayloadLogging
     {
-        get => disablePayloadRendering;
-        set => disablePayloadRendering = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
+        get => enablePayloadLogging;
+        set => enablePayloadLogging = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
+    }
+
+    public bool EnablePayloadTagging
+    {
+        get => enablePayloadTagging;
+        set => enablePayloadTagging = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
     }
 
     public bool RecordSpanDuration
@@ -123,7 +130,8 @@ public sealed class DiginsightActivitiesOptions
             logBehavior = logBehavior,
             activityLogLevel = activityLogLevel,
             writeActivityActionAsPrefix = writeActivityActionAsPrefix,
-            disablePayloadRendering = disablePayloadRendering,
+            enablePayloadLogging = enablePayloadLogging,
+            enablePayloadTagging = enablePayloadTagging,
             recordSpanDuration = recordSpanDuration,
             meterName = meterName,
             spanDurationMeterName = spanDurationMeterName,
@@ -161,10 +169,16 @@ public sealed class DiginsightActivitiesOptions
             set => filled.ActivityLogLevel = value;
         }
 
-        public bool DisablePayloadRendering
+        public bool EnablePayloadLogging
         {
-            get => filled.DisablePayloadRendering;
-            set => filled.DisablePayloadRendering = value;
+            get => filled.EnablePayloadLogging;
+            set => filled.EnablePayloadLogging = value;
+        }
+
+        public bool EnablePayloadTagging
+        {
+            get => filled.EnablePayloadTagging;
+            set => filled.EnablePayloadTagging = value;
         }
 
         public string LoggedActivityNames

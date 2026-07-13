@@ -9,7 +9,9 @@ public static class ActivityUtils
     private static readonly char[] PipeSeparators = [ '|' ];
 #endif
 
-    public static readonly ActivityListener DepthSetterActivityListener = new ()
+    private static readonly IDictionary<string, Regex> PatternRegexCache = new Dictionary<string, Regex>(StringComparer.OrdinalIgnoreCase);
+
+    public static ActivityListener CreateDepthSetterActivityListener(Func<ActivitySource, bool>? shouldListenTo = null) => new ()
     {
         Sample = static (ref creationOptions) =>
         {
@@ -24,12 +26,15 @@ public static class ActivityUtils
             creationOptions = creationOptions with { TraceState = traceState.ToString() };
             return ActivitySamplingResult.PropagationData;
         },
-        ShouldListenTo = static _ => true,
+        ShouldListenTo = shouldListenTo ?? (static _ => true),
     };
 
     public static bool NameMatchesPattern(string name, string namePattern)
     {
-        return new Regex($"^{string.Join(".*", namePattern.Split('*').Select(Regex.Escape))}$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant).IsMatch(name);
+        Regex regex = PatternRegexCache.TryGetValue(namePattern, out Regex? regex0)
+            ? regex0
+            : PatternRegexCache[namePattern] = new Regex($"^{string.Join(".*", namePattern.Split('*').Select(Regex.Escape))}$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        return regex.IsMatch(name);
     }
 
     public static bool FullNameMatchesPattern(string sourceName, string operationName, string fullNamePattern)

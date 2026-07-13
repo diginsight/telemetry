@@ -33,8 +33,15 @@ public class SpanDurationMetricRecorderRegistration : IActivityListenerRegistrat
         string activitySourceName = activitySource.Name;
         IEnumerable<bool> matches = activitiesOptions.ActivitySources
             .Where(x => ActivityUtils.NameMatchesPattern(activitySourceName, x.Key))
-            .Select(static x => x.Value)
-            .ToArray();
-        return matches.Any() && matches.All(static x => x);
+            .Select(static x => x.Value);
+
+        bool result = false;
+        foreach (bool match in matches)
+        {
+            if (!match)
+                return false;
+            result = true;
+        }
+        return result;
     }
 }

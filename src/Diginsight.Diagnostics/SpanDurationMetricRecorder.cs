@@ -8,31 +8,30 @@ namespace Diginsight.Diagnostics;
 public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
 {
     private readonly ILogger logger;
-    private readonly IOptions<DiginsightActivitiesOptions> activitiesOptions;
-    private readonly IMeterFactory meterFactory;
+    private readonly IOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor;
+    private readonly Lazy<Histogram<double>> metricLazy;
     private readonly IMetricRecordingFilter? recordingFilter;
     private readonly IMetricRecordingEnricher? recordingEnricher;
 
-    private IMetricRecordingOptions MetricOptions =>
-        field ??= activitiesOptions.Value.Freeze();
-
-    private Histogram<double> Metric => meterFactory
-        .Create(MetricOptions.MeterName)
-        .CreateHistogram<double>(MetricOptions.MetricName, "ms", MetricOptions.MetricDescription);
-
     public SpanDurationMetricRecorder(
         ILogger<SpanDurationMetricRecorder> logger,
-        IOptions<DiginsightActivitiesOptions> activitiesOptions,
+        IOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor,
         IMeterFactory meterFactory,
         IMetricRecordingFilter? recordingFilter = null,
         IMetricRecordingEnricher? recordingEnricher = null
     )
     {
         this.logger = logger;
-        this.activitiesOptions = activitiesOptions;
-        this.meterFactory = meterFactory;
+        this.activitiesOptionsMonitor = activitiesOptionsMonitor;
         this.recordingFilter = recordingFilter;
         this.recordingEnricher = recordingEnricher;
+
+        IMetricRecordingOptions metricOptions = activitiesOptionsMonitor.CurrentValue;
+        metricLazy = new Lazy<Histogram<double>>(
+            () => meterFactory
+                .Create(metricOptions.MeterName)
+                .CreateHistogram<double>(metricOptions.MetricName, "ms", metricOptions.MetricDescription)
+        );
     }
 
 #if !(NET || NETSTANDARD2_1_OR_GREATER)
@@ -45,17 +44,20 @@ public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
 
         try
         {
-            if (!(recordingFilter?.ShouldRecord(activity, Metric) ?? MetricOptions.Record))
+            Histogram<double> metric = metricLazy.Value;
+            bool record = ((IMetricRecordingOptions)activitiesOptionsMonitor.CurrentValue).Record;
+
+            if (!(recordingFilter?.ShouldRecord(activity, metric) ?? record))
                 return;
 
             Tag nameTag = new ("span_name", activityName);
             Tag statusTag = new ("status", activity.Status.ToString());
 
             Tag[] tags = recordingEnricher is not null
-                ? [ nameTag, statusTag, .. recordingEnricher.ExtractTags(activity, Metric) ]
+                ? [ nameTag, statusTag, .. recordingEnricher.ExtractTags(activity, metric) ]
                 : [ nameTag, statusTag ];
 
-            Metric.Record(activity.Duration.TotalMilliseconds, tags);
+            metric.Record(activity.Duration.TotalMilliseconds, tags);
         }
         catch (Exception exception)
         {

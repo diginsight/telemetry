@@ -20,22 +20,25 @@ public class OptionsBasedMetricRecordingFilter : IMetricRecordingFilter
         string activitySourceName = activity.Source.Name;
         string activityName = activity.OperationName;
 
-        IEnumerable<bool> GetMatches(OptionsBasedMetricRecordingFilterOptions options)
+        bool? HasMatches(IOptionsBasedMetricRecordingFilterOptions options)
         {
-            return ((IOptionsBasedMetricRecordingFilterOptions)options)
+            IEnumerable<bool> matches = options
                 .ActivityNames
                 .Where(x => ActivityUtils.FullNameMatchesPattern(activitySourceName, activityName, x.Key))
-                .Select(static x => x.Value)
-                .ToArray();
+                .Select(static x => x.Value);
+
+            bool? result = null;
+            foreach (bool match in matches)
+            {
+                if (!match)
+                    return false;
+                result = true;
+            }
+            return result;
         }
 
-        IEnumerable<bool> specificMatches = GetMatches(filterMonitor.Get(instrument.Name));
-        if (specificMatches.Any())
-        {
-            return specificMatches.All(static x => x);
-        }
-
-        IEnumerable<bool> generalMatches = GetMatches(filterMonitor.CurrentValue);
-        return generalMatches.Any() && generalMatches.All(static x => x);
+        return HasMatches(filterMonitor.Get(instrument.Name))
+            ?? HasMatches(filterMonitor.CurrentValue)
+            ?? false;
     }
 }

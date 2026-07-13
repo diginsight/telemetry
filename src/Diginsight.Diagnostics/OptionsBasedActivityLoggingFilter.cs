@@ -5,16 +5,13 @@ namespace Diginsight.Diagnostics;
 
 public class OptionsBasedActivityLoggingFilter : IActivityLoggingFilter
 {
-    private readonly IOptions<DiginsightActivitiesOptions> activitiesOptions;
-
-    private IDiginsightActivitiesLogOptions LogOptions =>
-        field ??= activitiesOptions.Value.Freeze();
+    private readonly IOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor;
 
     public OptionsBasedActivityLoggingFilter(
-        IOptions<DiginsightActivitiesOptions> activitiesOptions
+        IOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor
     )
     {
-        this.activitiesOptions = activitiesOptions;
+        this.activitiesOptionsMonitor = activitiesOptionsMonitor;
     }
 
     public virtual LogBehavior? GetLogBehavior(Activity activity)
@@ -22,7 +19,7 @@ public class OptionsBasedActivityLoggingFilter : IActivityLoggingFilter
         string activitySourceName = activity.Source.Name;
         string activityName = activity.OperationName;
 
-        return LogOptions
+        return ((IDiginsightActivitiesLogOptions)activitiesOptionsMonitor.CurrentValue)
             .ActivityNames
             .Where(x => ActivityUtils.FullNameMatchesPattern(activitySourceName, activityName, x.Key))
             .Select(static x => (LogBehavior?)x.Value)

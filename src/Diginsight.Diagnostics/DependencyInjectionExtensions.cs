@@ -194,16 +194,18 @@ public static class DependencyInjectionExtensions
 
     private sealed class ActivityListenersAdder : IOnCreateServiceProvider
     {
-        private readonly IEnumerable<IActivityListenerRegistration> registrations;
+        private readonly IReadOnlyCollection<IActivityListenerRegistration> registrations;
 
         public ActivityListenersAdder(IEnumerable<IActivityListenerRegistration> registrations)
         {
-            this.registrations = registrations;
+            this.registrations = registrations.ToArray();
         }
 
         public void Run()
         {
-            ActivitySource.AddActivityListener(ActivityUtils.DepthSetterActivityListener);
+            ActivitySource.AddActivityListener(
+                ActivityUtils.CreateDepthSetterActivityListener(activitySource => registrations.Any(x => x.ShouldListenTo(activitySource)))
+            );
 
             foreach (IActivityListenerRegistration registration in registrations)
             {
@@ -232,9 +234,16 @@ public static class DependencyInjectionExtensions
             string activitySourceName = activitySource.Name;
             IEnumerable<bool> matches = activitiesOptions.ActivitySources
                 .Where(x => ActivityUtils.NameMatchesPattern(activitySourceName, x.Key))
-                .Select(static x => x.Value)
-                .ToArray();
-            return matches.Any() && matches.All(static x => x);
+                .Select(static x => x.Value);
+
+            bool result = false;
+            foreach (bool match in matches)
+            {
+                if (!match)
+                    return false;
+                result = true;
+            }
+            return result;
         }
     }
 

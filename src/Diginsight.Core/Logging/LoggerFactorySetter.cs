@@ -10,9 +10,7 @@ internal sealed class LoggerFactorySetter : ILoggerFactorySetter
 
     public IEnumerable<ILoggerProvider> LoggerProviders => loggerProviders;
 
-    public ILoggerFactory Current => Underlying.Factory;
-
-    private (ILoggerFactory Factory, bool IsRoot) Underlying => asyncLocal.Value is { } factory ? (factory, false) : (decoratee, true);
+    public ILoggerFactory Current => asyncLocal.Value ?? decoratee;
 
     public LoggerFactorySetter(
         ILoggerFactory decoratee,
@@ -34,17 +32,20 @@ internal sealed class LoggerFactorySetter : ILoggerFactorySetter
 
     void ILoggerFactory.AddProvider(ILoggerProvider provider)
     {
-        (ILoggerFactory factory, bool isRoot) = Underlying;
-        factory.AddProvider(provider);
-        if (isRoot)
+        if (asyncLocal.Value is { } factory)
         {
+            factory.AddProvider(provider);
+        }
+        else
+        {
+            decoratee.AddProvider(provider);
             loggerProviders.Add(provider);
         }
     }
 
     void IDisposable.Dispose()
     {
-        if (Underlying.IsRoot)
+        if (asyncLocal.Value is null)
         {
             decoratee.Dispose();
         }
@@ -78,7 +79,7 @@ internal sealed class LoggerFactorySetter : ILoggerFactorySetter
             get
             {
                 ILogger logger;
-                ILoggerFactory factory = setter.Underlying.Factory;
+                ILoggerFactory factory = setter.Current;
 
                 lock (@lock)
                 {
