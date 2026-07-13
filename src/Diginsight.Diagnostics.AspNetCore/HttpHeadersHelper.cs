@@ -3,7 +3,11 @@ using System.Text.RegularExpressions;
 
 namespace Diginsight.Diagnostics.AspNetCore;
 
-internal static partial class HttpHeadersHelper
+internal static
+#if NET
+    partial
+#endif
+    class HttpHeadersHelper
 {
 #if NET
     [GeneratedRegex("^([^=]+?)(=(?:[a-z]+)?)?$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]

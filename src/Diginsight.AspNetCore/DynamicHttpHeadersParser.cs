@@ -5,7 +5,11 @@ using System.Text.RegularExpressions;
 
 namespace Diginsight.AspNetCore;
 
-public static partial class DynamicHttpHeadersParser
+public static
+#if NET
+    partial
+#endif
+    class DynamicHttpHeadersParser
 {
 #if NET
     [GeneratedRegex("^([^= ]+?)(?: *= *([^ ]*))?$")]

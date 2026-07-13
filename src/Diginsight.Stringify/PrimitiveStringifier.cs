@@ -107,7 +107,17 @@ internal sealed class PrimitiveStringifier : IStringifier
             using IEnumerator<Enum> enumerator = skimmedFlaggedValues.GetEnumerator();
             stringifyContext.AppendEnumerator(
                 enumerator,
-                static (sc, e) => { sc.AppendDirect(e.Current.ToString()); },
+                static (sc, e) =>
+                {
+                    sc.AppendDirect(
+#if NET
+                        e.Current
+#else
+                        e.Current!
+#endif
+                            .ToString()
+                    );
+                },
                 AllottedCounter.Unlimited,
                 "|"
             );

@@ -1081,6 +1081,162 @@
         }
       }
     },
+    "net11.0": {
+      "Microsoft.Extensions.Logging.Log4Net.AspNetCore": {
+        "type": "Direct",
+        "requested": "[10.*, )",
+        "resolved": "10.0.0",
+        "contentHash": "ASXCV+/IuxGCiXjRnrdL1waRKaCDcxkdL1U2yqteJzGcyXN+qLf6wTLBR12sQIhK36d1um6P55AaWqlXf+X0xg==",
+        "dependencies": {
+          "Microsoft.Extensions.Configuration": "10.0.0",
+          "Microsoft.Extensions.Configuration.Binder": "10.0.0",
+          "Microsoft.Extensions.Logging": "10.0.0",
+          "log4net": "3.3.0"
+        }
+      },
+      "log4net": {
+        "type": "Transitive",
+        "resolved": "3.3.0",
+        "contentHash": "wtZ7K4XGWDxeQqHbUybwIug/3AAzhKcmroLf4ENfE5GsaDIMqT3GLX24f18XPFY8Qg9vaxfMSAODwWAXqkjI/Q==",
+        "dependencies": {
+          "System.Configuration.ConfigurationManager": "4.5.0"
+        }
+      },
+      "Microsoft.Extensions.Caching.Memory": {
+        "type": "Transitive",
+        "resolved": "10.0.9",
+        "contentHash": "G9mregdatGWMCQWeCw012LDeJVP7G/XIxH8Ddbjc8bD1//dA+8VVQdcRE9jI1moyoJxSSZhHITUnNQ8FUDl5+Q=="
+      },
+      "Microsoft.Extensions.Configuration": {
+        "type": "Transitive",
+        "resolved": "10.0.9",
+        "contentHash": "woZsWLhOQsASuxbmgiZJqiGUBNo3IjRdXC92xt8rRokza+P6/nIsnzq7sm9Or6ZYcRl2kL1ufj8HVzp1QlPTXw=="
+      },
+      "Microsoft.Extensions.Configuration.Binder": {
+        "type": "Transitive",
+        "resolved": "10.0.9",
+        "contentHash": "Tp/+LPb70RyjjtLg9m5C959eP4KrUpJHThZfAegZVpsfmGvzfuNkuYbI/ft+LvXhMSyUcAeOPaN6rzTccwnZAg==",
+        "dependencies": {
+          "Microsoft.Extensions.Configuration": "10.0.9"
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection": {
+        "type": "Transitive",
+        "resolved": "10.0.9",
+        "contentHash": "NijozhERJDIaJ4k5TSMy1jOi0cSC2HfkvRD/Sl+kGSSKgVbFnF4GxgtMN/MrzHB8D1JxIrD4xSer9Blh9v3axQ=="
+      },
+      "Microsoft.Extensions.DependencyModel": {
+        "type": "Transitive",
+        "resolved": "10.0.0",
+        "contentHash": "RFYJR7APio/BiqdQunRq6DB+nDB6nc2qhHr77mlvZ0q0BT8PubMXN7XicmfzCbrDE/dzhBnUKBRXLTcqUiZDGg=="
+      },
+      "Microsoft.Extensions.Diagnostics": {
+        "type": "Transitive",
+        "resolved": "10.0.9",
+        "contentHash": "NLXI3PbTe39q6/sgs7JYhmfPf7bMzReUoAJ0q9Po6yhfM+0anZa7PrEva4W2SdiLWGyB9eKZS9THGt2BP40xJg==",
+        "dependencies": {
+          "Microsoft.Extensions.Configuration": "10.0.9",
+          "Microsoft.Extensions.Options.ConfigurationExtensions": "10.0.9"
+        }
+      },
+      "Microsoft.Extensions.Logging": {
+        "type": "Transitive",
+        "resolved": "10.0.9",
+        "contentHash": "N7Gm9SjugYjmmnhwbBKC9DFqGqjfJvh6YfOJgtwh0AW0Xpok3dIVors1ik050XmUxKAgAc7nNngDIJyFb06K2g==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection": "10.0.9"
+        }
+      },
+      "Microsoft.Extensions.Logging.Configuration": {
+        "type": "Transitive",
+        "resolved": "10.0.9",
+        "contentHash": "bUth5ip7YsZMXWZS42IRTI0zDrPEqdE+xnsmcL0Pk784grWKApDvc5UoMi2tP2qYJ5ylFzeVDuDu08sFATq1bg==",
+        "dependencies": {
+          "Microsoft.Extensions.Configuration": "10.0.9",
+          "Microsoft.Extensions.Configuration.Binder": "10.0.9",
+          "Microsoft.Extensions.Logging": "10.0.9",
+          "Microsoft.Extensions.Options.ConfigurationExtensions": "10.0.9"
+        }
+      },
+      "Microsoft.Extensions.Logging.Console": {
+        "type": "Transitive",
+        "resolved": "10.0.9",
+        "contentHash": "WyZEG/O8jKqBOBF6/M6IJqiEyWFBUv6PDyzNoXDA0mBZwKtkuf7GiZ/0/8eU8OpLKKQL0O95oPOY1szrWIKofQ==",
+        "dependencies": {
+          "Microsoft.Extensions.Logging": "10.0.9",
+          "Microsoft.Extensions.Logging.Configuration": "10.0.9"
+        }
+      },
+      "Microsoft.Extensions.Options.ConfigurationExtensions": {
+        "type": "Transitive",
+        "resolved": "10.0.9",
+        "contentHash": "Y4E24zffF/aPS0igNvY6ZzAQfbxd6AYdC9L4brnH+uK0yYYHIR6FeGVQVVjAOo8wub1EQDl2B90lCcpqoTF7Yw==",
+        "dependencies": {
+          "Microsoft.Extensions.Configuration.Binder": "10.0.9"
+        }
+      },
+      "Pastel": {
+        "type": "Transitive",
+        "resolved": "7.0.1",
+        "contentHash": "qLANIt80UgHVjEWtDJBpqunbhfqUVcSrY8SaZcJpfFDq3ZzzQntsNyWyizb9UoNHqvK/wRgENdI163CymyEbmQ=="
+      },
+      "Scrutor": {
+        "type": "Transitive",
+        "resolved": "7.0.0",
+        "contentHash": "wHWaroody48jnlLoq/REwUltIFLxplXyHTP+sttrc8P7+jkiVqf38afDidJNv4qgD/6zz2NKOYg06xLZ1bG7wQ==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyModel": "10.0.0"
+        }
+      },
+      "System.Configuration.ConfigurationManager": {
+        "type": "Transitive",
+        "resolved": "4.5.0",
+        "contentHash": "UIFvaFfuKhLr9u5tWMxmVoDPkFeD+Qv8gUuap4aZgVGYSYMdERck4OhLN/2gulAc0nYTEigWXSJNNWshrmxnng==",
+        "dependencies": {
+          "System.Security.Cryptography.ProtectedData": "4.5.0",
+          "System.Security.Permissions": "4.5.0"
+        }
+      },
+      "System.Security.Cryptography.ProtectedData": {
+        "type": "Transitive",
+        "resolved": "4.5.0",
+        "contentHash": "wLBKzFnDCxP12VL9ANydSYhk59fC4cvOr9ypYQLPnAj48NQIhqnjdD2yhP8yEKyBJEjERWS9DisKL7rX5eU25Q=="
+      },
+      "System.Security.Permissions": {
+        "type": "Transitive",
+        "resolved": "4.5.0",
+        "contentHash": "9gdyuARhUR7H+p5CjyUB/zPk7/Xut3wUSP8NJQB6iZr8L3XUXTMdoLeVAg9N4rqF8oIpE7MpdqHdDHQ7XgJe0g=="
+      },
+      "diginsight.core": {
+        "type": "Project",
+        "dependencies": {
+          "Diginsight.Polyfills": "[1.0.0, )",
+          "Microsoft.Extensions.Configuration": "[10.*, )",
+          "Microsoft.Extensions.Configuration.Binder": "[10.*, )",
+          "Microsoft.Extensions.Logging": "[10.*, )",
+          "Scrutor": "[7.*, )"
+        }
+      },
+      "diginsight.diagnostics": {
+        "type": "Project",
+        "dependencies": {
+          "Diginsight.Stringify": "[1.0.0, )",
+          "Microsoft.Extensions.Diagnostics": "[10.*, )",
+          "Microsoft.Extensions.Logging.Console": "[10.*, )",
+          "Pastel": "[7.*, )"
+        }
+      },
+      "diginsight.polyfills": {
+        "type": "Project"
+      },
+      "diginsight.stringify": {
+        "type": "Project",
+        "dependencies": {
+          "Diginsight.Core": "[1.0.0, )",
+          "Microsoft.Extensions.Caching.Memory": "[10.*, )"
+        }
+      }
+    },
     "net8.0": {
       "Microsoft.Extensions.Logging.Log4Net.AspNetCore": {
         "type": "Direct",

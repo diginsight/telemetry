@@ -985,6 +985,62 @@
         }
       }
     },
+    "net11.0": {
+      "Microsoft.Extensions.Caching.Memory": {
+        "type": "Direct",
+        "requested": "[10.*, )",
+        "resolved": "10.0.9",
+        "contentHash": "G9mregdatGWMCQWeCw012LDeJVP7G/XIxH8Ddbjc8bD1//dA+8VVQdcRE9jI1moyoJxSSZhHITUnNQ8FUDl5+Q=="
+      },
+      "Microsoft.Extensions.DependencyModel": {
+        "type": "Transitive",
+        "resolved": "10.0.0",
+        "contentHash": "RFYJR7APio/BiqdQunRq6DB+nDB6nc2qhHr77mlvZ0q0BT8PubMXN7XicmfzCbrDE/dzhBnUKBRXLTcqUiZDGg=="
+      },
+      "Pastel": {
+        "type": "Transitive",
+        "resolved": "7.0.1",
+        "contentHash": "qLANIt80UgHVjEWtDJBpqunbhfqUVcSrY8SaZcJpfFDq3ZzzQntsNyWyizb9UoNHqvK/wRgENdI163CymyEbmQ=="
+      },
+      "Scrutor": {
+        "type": "Transitive",
+        "resolved": "7.0.0",
+        "contentHash": "wHWaroody48jnlLoq/REwUltIFLxplXyHTP+sttrc8P7+jkiVqf38afDidJNv4qgD/6zz2NKOYg06xLZ1bG7wQ==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyModel": "10.0.0"
+        }
+      },
+      "diginsight.aspnetcore": {
+        "type": "Project",
+        "dependencies": {
+          "Diginsight.Core": "[1.0.0, )",
+          "Scrutor": "[7.*, )"
+        }
+      },
+      "diginsight.core": {
+        "type": "Project",
+        "dependencies": {
+          "Diginsight.Polyfills": "[1.0.0, )",
+          "Scrutor": "[7.*, )"
+        }
+      },
+      "diginsight.diagnostics": {
+        "type": "Project",
+        "dependencies": {
+          "Diginsight.Stringify": "[1.0.0, )",
+          "Pastel": "[7.*, )"
+        }
+      },
+      "diginsight.polyfills": {
+        "type": "Project"
+      },
+      "diginsight.stringify": {
+        "type": "Project",
+        "dependencies": {
+          "Diginsight.Core": "[1.0.0, )"
+        }
+      }
+    },
     "net8.0": {
       "Microsoft.Extensions.Caching.Memory": {
         "type": "Direct",

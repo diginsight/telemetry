@@ -19,12 +19,9 @@ public static class ActivitySourceExtensions
             LogLevel? logLevel = null
         )
         {
-            if (inputs is null)
-            {
-                throw new ArgumentNullException(nameof(inputs));
-            }
-
-            return activitySource.CoreCreateRichActivity(null, () => inputs, activityName, true, activityKind, logLevel, false);
+            return inputs is null
+                ? throw new ArgumentNullException(nameof(inputs))
+                : activitySource.CoreCreateRichActivity(null, () => inputs, activityName, true, activityKind, logLevel, false);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -36,12 +33,9 @@ public static class ActivitySourceExtensions
             LogLevel? logLevel = null
         )
         {
-            if (inputs is null)
-            {
-                throw new ArgumentNullException(nameof(inputs));
-            }
-
-            return activitySource.CoreCreateRichActivity(null, () => inputs, activityName, callerType, true, activityKind, logLevel, false);
+            return inputs is null
+                ? throw new ArgumentNullException(nameof(inputs))
+                : activitySource.CoreCreateRichActivity(null, () => inputs, activityName, callerType, true, activityKind, logLevel, false);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -76,12 +70,9 @@ public static class ActivitySourceExtensions
             LogLevel? logLevel = null
         )
         {
-            if (inputs is null)
-            {
-                throw new ArgumentNullException(nameof(inputs));
-            }
-
-            return activitySource.CoreCreateRichActivity(logger, () => inputs, activityName, true, activityKind, logLevel, false);
+            return inputs is null
+                ? throw new ArgumentNullException(nameof(inputs))
+                : activitySource.CoreCreateRichActivity(logger, () => inputs, activityName, true, activityKind, logLevel, false);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -94,12 +85,9 @@ public static class ActivitySourceExtensions
             LogLevel? logLevel = null
         )
         {
-            if (inputs is null)
-            {
-                throw new ArgumentNullException(nameof(inputs));
-            }
-
-            return activitySource.CoreCreateRichActivity(logger, () => inputs, activityName, callerType, true, activityKind, logLevel, false);
+            return inputs is null
+                ? throw new ArgumentNullException(nameof(inputs))
+                : activitySource.CoreCreateRichActivity(logger, () => inputs, activityName, callerType, true, activityKind, logLevel, false);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -135,12 +123,9 @@ public static class ActivitySourceExtensions
             LogLevel? logLevel = null
         )
         {
-            if (inputs is null)
-            {
-                throw new ArgumentNullException(nameof(inputs));
-            }
-
-            return activitySource.CoreCreateRichActivity(null, () => inputs, activityName, true, activityKind, logLevel, true);
+            return inputs is null
+                ? throw new ArgumentNullException(nameof(inputs))
+                : activitySource.CoreCreateRichActivity(null, () => inputs, activityName, true, activityKind, logLevel, true);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -152,12 +137,9 @@ public static class ActivitySourceExtensions
             LogLevel? logLevel = null
         )
         {
-            if (inputs is null)
-            {
-                throw new ArgumentNullException(nameof(inputs));
-            }
-
-            return activitySource.CoreCreateRichActivity(null, () => inputs, activityName, callerType, true, activityKind, logLevel, true);
+            return inputs is null
+                ? throw new ArgumentNullException(nameof(inputs))
+                : activitySource.CoreCreateRichActivity(null, () => inputs, activityName, callerType, true, activityKind, logLevel, true);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -192,12 +174,9 @@ public static class ActivitySourceExtensions
             LogLevel? logLevel = null
         )
         {
-            if (inputs is null)
-            {
-                throw new ArgumentNullException(nameof(inputs));
-            }
-
-            return activitySource.CoreCreateRichActivity(logger, () => inputs, activityName, true, activityKind, logLevel, true);
+            return inputs is null
+                ? throw new ArgumentNullException(nameof(inputs))
+                : activitySource.CoreCreateRichActivity(logger, () => inputs, activityName, true, activityKind, logLevel, true);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -210,12 +189,9 @@ public static class ActivitySourceExtensions
             LogLevel? logLevel = null
         )
         {
-            if (inputs is null)
-            {
-                throw new ArgumentNullException(nameof(inputs));
-            }
-
-            return activitySource.CoreCreateRichActivity(logger, () => inputs, activityName, callerType, true, activityKind, logLevel, true);
+            return inputs is null
+                ? throw new ArgumentNullException(nameof(inputs))
+                : activitySource.CoreCreateRichActivity(logger, () => inputs, activityName, callerType, true, activityKind, logLevel, true);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -251,12 +227,9 @@ public static class ActivitySourceExtensions
             [CallerMemberName] string callerMemberName = ""
         )
         {
-            if (inputs is null)
-            {
-                throw new ArgumentNullException(nameof(inputs));
-            }
-
-            return activitySource.CoreCreateRichActivity(null, () => inputs, callerMemberName, false, activityKind, logLevel, false);
+            return inputs is null
+                ? throw new ArgumentNullException(nameof(inputs))
+                : activitySource.CoreCreateRichActivity(null, () => inputs, callerMemberName, false, activityKind, logLevel, false);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -268,12 +241,9 @@ public static class ActivitySourceExtensions
             [CallerMemberName] string callerMemberName = ""
         )
         {
-            if (inputs is null)
-            {
-                throw new ArgumentNullException(nameof(inputs));
-            }
-
-            return activitySource.CoreCreateRichActivity(null, () => inputs, callerMemberName, callerType, false, activityKind, logLevel, false);
+            return inputs is null
+                ? throw new ArgumentNullException(nameof(inputs))
+                : activitySource.CoreCreateRichActivity(null, () => inputs, callerMemberName, callerType, false, activityKind, logLevel, false);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -308,12 +278,9 @@ public static class ActivitySourceExtensions
             [CallerMemberName] string callerMemberName = ""
         )
         {
-            if (inputs is null)
-            {
-                throw new ArgumentNullException(nameof(inputs));
-            }
-
-            return activitySource.CoreCreateRichActivity(logger, () => inputs, callerMemberName, false, activityKind, logLevel, false);
+            return inputs is null
+                ? throw new ArgumentNullException(nameof(inputs))
+                : activitySource.CoreCreateRichActivity(logger, () => inputs, callerMemberName, false, activityKind, logLevel, false);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -326,12 +293,9 @@ public static class ActivitySourceExtensions
             [CallerMemberName] string callerMemberName = ""
         )
         {
-            if (inputs is null)
-            {
-                throw new ArgumentNullException(nameof(inputs));
-            }
-
-            return activitySource.CoreCreateRichActivity(logger, () => inputs, callerMemberName, callerType, false, activityKind, logLevel, false);
+            return inputs is null
+                ? throw new ArgumentNullException(nameof(inputs))
+                : activitySource.CoreCreateRichActivity(logger, () => inputs, callerMemberName, callerType, false, activityKind, logLevel, false);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -367,12 +331,9 @@ public static class ActivitySourceExtensions
             [CallerMemberName] string callerMemberName = ""
         )
         {
-            if (inputs is null)
-            {
-                throw new ArgumentNullException(nameof(inputs));
-            }
-
-            return activitySource.CoreCreateRichActivity(null, () => inputs, callerMemberName, false, activityKind, logLevel, true);
+            return inputs is null
+                ? throw new ArgumentNullException(nameof(inputs))
+                : activitySource.CoreCreateRichActivity(null, () => inputs, callerMemberName, false, activityKind, logLevel, true);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -384,12 +345,9 @@ public static class ActivitySourceExtensions
             [CallerMemberName] string callerMemberName = ""
         )
         {
-            if (inputs is null)
-            {
-                throw new ArgumentNullException(nameof(inputs));
-            }
-
-            return activitySource.CoreCreateRichActivity(null, () => inputs, callerMemberName, callerType, false, activityKind, logLevel, true);
+            return inputs is null
+                ? throw new ArgumentNullException(nameof(inputs))
+                : activitySource.CoreCreateRichActivity(null, () => inputs, callerMemberName, callerType, false, activityKind, logLevel, true);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -424,12 +382,9 @@ public static class ActivitySourceExtensions
             [CallerMemberName] string callerMemberName = ""
         )
         {
-            if (inputs is null)
-            {
-                throw new ArgumentNullException(nameof(inputs));
-            }
-
-            return activitySource.CoreCreateRichActivity(logger, () => inputs, callerMemberName, false, activityKind, logLevel, true);
+            return inputs is null
+                ? throw new ArgumentNullException(nameof(inputs))
+                : activitySource.CoreCreateRichActivity(logger, () => inputs, callerMemberName, false, activityKind, logLevel, true);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -442,12 +397,9 @@ public static class ActivitySourceExtensions
             [CallerMemberName] string callerMemberName = ""
         )
         {
-            if (inputs is null)
-            {
-                throw new ArgumentNullException(nameof(inputs));
-            }
-
-            return activitySource.CoreCreateRichActivity(logger, () => inputs, callerMemberName, callerType, false, activityKind, logLevel, true);
+            return inputs is null
+                ? throw new ArgumentNullException(nameof(inputs))
+                : activitySource.CoreCreateRichActivity(logger, () => inputs, callerMemberName, callerType, false, activityKind, logLevel, true);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]

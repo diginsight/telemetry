@@ -39,7 +39,15 @@ internal sealed class JTokenStringifier : IStringifier
             {
                 stringifyContext.AppendEnumerator(
                     enumerator,
-                    (sc, e) => { e.Current.Accept(this, sc); },
+                    (sc, e) =>
+                    {
+#if NET
+                        e.Current
+#else
+                        e.Current!
+#endif
+                            .Accept(this, sc);
+                    },
                     stringifyContext.CountCollectionItems(),
                     ","
                 );
@@ -56,7 +64,15 @@ internal sealed class JTokenStringifier : IStringifier
             {
                 stringifyContext.AppendEnumerator(
                     enumerator,
-                    (sc, e) => { e.Current.Accept(this, sc); },
+                    (sc, e) =>
+                    {
+#if NET
+                        e.Current
+#else
+                        e.Current!
+#endif
+                            .Accept(this, sc);
+                    },
                     stringifyContext.CountCollectionItems(),
                     ","
                 );
@@ -73,7 +89,15 @@ internal sealed class JTokenStringifier : IStringifier
             {
                 stringifyContext.AppendEnumerator(
                     enumerator,
-                    (sc, e) => { e.Current.Accept(this, sc); },
+                    (sc, e) =>
+                    {
+#if NET
+                        e.Current
+#else
+                        e.Current!
+#endif
+                            .Accept(this, sc);
+                    },
                     stringifyContext.CountDictionaryItems(),
                     ","
                 );

@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Diginsight.Stringify;
 
@@ -55,7 +56,15 @@ public abstract class ReflectionStringifiable : IStringifiable
 
         stringifyContext.AppendEnumerator(
             appenderEnumerator,
-            (sc, e) => { e.Current(obj, sc); },
+            (sc, e) =>
+            {
+#if NET
+                e.Current
+#else
+                e.Current!
+#endif
+                    (obj, sc);
+            },
             Count(stringifyContext)
         );
     }
@@ -80,8 +89,10 @@ public abstract class ReflectionStringifiable : IStringifiable
 
         ParameterExpression finalValueVar = Expression.Variable(typeof(object), "finalValue");
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static Expression Box(Expression expr) => expr.Type.IsValueType ? Expression.Convert(expr, typeof(object)) : expr;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static Expression Null<T>() => Expression.Constant(null, typeof(T));
 
         Expression tryBodyExpr;

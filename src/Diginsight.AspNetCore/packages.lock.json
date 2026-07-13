@@ -768,6 +768,32 @@
         "type": "Project"
       }
     },
+    "net11.0": {
+      "Scrutor": {
+        "type": "Direct",
+        "requested": "[7.*, )",
+        "resolved": "7.0.0",
+        "contentHash": "wHWaroody48jnlLoq/REwUltIFLxplXyHTP+sttrc8P7+jkiVqf38afDidJNv4qgD/6zz2NKOYg06xLZ1bG7wQ==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyModel": "10.0.0"
+        }
+      },
+      "Microsoft.Extensions.DependencyModel": {
+        "type": "Transitive",
+        "resolved": "10.0.0",
+        "contentHash": "RFYJR7APio/BiqdQunRq6DB+nDB6nc2qhHr77mlvZ0q0BT8PubMXN7XicmfzCbrDE/dzhBnUKBRXLTcqUiZDGg=="
+      },
+      "diginsight.core": {
+        "type": "Project",
+        "dependencies": {
+          "Diginsight.Polyfills": "[1.0.0, )",
+          "Scrutor": "[7.*, )"
+        }
+      },
+      "diginsight.polyfills": {
+        "type": "Project"
+      }
+    },
     "net8.0": {
       "Scrutor": {
         "type": "Direct",

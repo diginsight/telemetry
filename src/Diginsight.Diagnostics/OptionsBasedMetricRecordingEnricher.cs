@@ -17,13 +17,8 @@ public class OptionsBasedMetricRecordingEnricher : IMetricRecordingEnricher
 
     public virtual Tags ExtractTags(Activity activity, Instrument instrument)
     {
-        static IReadOnlyCollection<string> GetTagNames(OptionsBasedMetricRecordingEnricherOptions options)
-        {
-            return ((IOptionsBasedMetricRecordingEnricherOptions)options).MetricTags;
-        }
-
-        return GetTagNames(enricherMonitor.Get(instrument.Name))
-            .Concat(GetTagNames(enricherMonitor.CurrentValue))
+        return ((IOptionsBasedMetricRecordingEnricherOptions)enricherMonitor.Get(instrument.Name)).MetricTags
+            .Concat(((IOptionsBasedMetricRecordingEnricherOptions)enricherMonitor.CurrentValue).MetricTags)
             .Distinct()
             .Select(k => (Key: k, Value: activity.GetAncestors(true).Select(a => a.GetTagItem(k)).FirstOrDefault(static v => v is not null)))
             .Where(static x => x.Value is not null)

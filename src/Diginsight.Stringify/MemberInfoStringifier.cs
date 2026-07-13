@@ -142,7 +142,17 @@ internal sealed class MemberInfoStringifier : IMemberInfoStringifier
                     using IEnumerator<Type> enumerator = itemTypes.AsEnumerable().GetEnumerator();
                     sc.AppendEnumerator(
                         enumerator,
-                        (ac1, e) => { Append(e.Current, ac1); },
+                        (ac1, e) =>
+                        {
+                            Append(
+#if NET
+                                e.Current,
+#else
+                                e.Current!,
+#endif
+                                ac1
+                            );
+                        },
                         AllottedCounter.Unlimited,
                         ","
                     );
@@ -168,7 +178,17 @@ internal sealed class MemberInfoStringifier : IMemberInfoStringifier
                             using IEnumerator<Type> enumerator = type.GetGenericArguments().AsEnumerable().GetEnumerator();
                             sc.AppendEnumerator(
                                 enumerator,
-                                (ac1, e) => { Append(e.Current, ac1); },
+                                (ac1, e) =>
+                                {
+                                    Append(
+#if NET
+                                        e.Current,
+#else
+                                        e.Current!,
+#endif
+                                        ac1
+                                    );
+                                },
                                 AllottedCounter.Unlimited,
                                 ","
                             );
@@ -218,7 +238,17 @@ internal sealed class MemberInfoStringifier : IMemberInfoStringifier
                     using IEnumerator<ParameterInfo> enumerator = ((IReadOnlyList<ParameterInfo>)parameters).GetEnumerator();
                     sc.AppendEnumerator(
                         enumerator,
-                        (ac1, e) => { Append(e.Current, ac1); },
+                        (ac1, e) =>
+                        {
+                            Append(
+#if NET
+                                        e.Current,
+#else
+                                e.Current!,
+#endif
+                                ac1
+                            );
+                        },
                         AllottedCounter.Count(stringifyContext.VariableConfiguration.EffectiveMaxMethodParameterCount)
                     );
                 }
