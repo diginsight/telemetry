@@ -51,7 +51,7 @@ public static class CollectionExtensions
                 throw new ArgumentNullException(nameof(predicate));
 
             int index = 0;
-            ICollection<T> reverse = source.Reverse().ToArray();
+            IReadOnlyCollection<T> reverse = [ ..source.Reverse() ];
             int count = reverse.Count;
             foreach (T item in reverse)
             {
@@ -101,7 +101,7 @@ public static class CollectionExtensions
             if (second is null)
                 throw new ArgumentNullException(nameof(second));
 
-            IList<T> list = second.ToList();
+            IList<T> list = [ ..second ];
             foreach (T item in first)
             {
                 if (list.Count == 0)
@@ -131,7 +131,7 @@ public static class CollectionExtensions
             if (second is null)
                 throw new ArgumentNullException(nameof(second));
 
-            List<T> list = second.ToList();
+            List<T> list = [ ..second ];
             foreach (T x1 in first)
             {
                 if (list.Count == 0)

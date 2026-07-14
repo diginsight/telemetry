@@ -73,14 +73,16 @@ public static partial class ClassConfigurationMarkers
     private static readonly ConcurrentDictionary<Type, IReadOnlyList<string>> Markers = new ();
     private static readonly IReadOnlyList<string> NoClassMarkers = [ "" ];
 
+    private const string GenericSuffixRegexStr = @"`\d+";
+
 #if NET
-    [GeneratedRegex(@"`\d+")]
+    [GeneratedRegex(GenericSuffixRegexStr)]
     private static partial Regex GenericSuffixRegexImpl();
 
     /// <inheritdoc cref="GenericSuffixRegexImpl" />
     private static Regex GenericSuffixRegex => GenericSuffixRegexImpl();
 #else
-    private static readonly Regex GenericSuffixRegex = new (@"`\d+");
+    private static readonly Regex GenericSuffixRegex = new (GenericSuffixRegexStr);
 #endif
 
     /// <summary>
@@ -121,24 +123,28 @@ public static partial class ClassConfigurationMarkers
             @class = @class.GetGenericTypeDefinition();
         }
 
-        return Markers.GetOrAdd(@class, static c => CalculateMarkers(c).ToArray());
+        return Markers.GetOrAdd(@class, static c => [ .. CalculateMarkers(c) ]);
 
         static IEnumerable<string> CalculateMarkers(Type @class)
         {
             string[] namespacePieces = @class.Namespace?.Split('.') ?? [ ];
-            IEnumerable<string> namespaceSegments = Enumerable.Range(1, namespacePieces.Length)
-                .Select(i => string.Join(".", namespacePieces.Take(i)))
-                .Reverse()
-                .ToArray();
+            IEnumerable<string> namespaceSegments =
+            [
+                ..Enumerable.Range(1, namespacePieces.Length)
+                    .Select(i => string.Join(".", namespacePieces.Take(i)))
+                    .Reverse(),
+            ];
 
             IReadOnlyDictionary<string, string> availableShorthands = @class.Assembly
                 .GetCustomAttributes<ClassConfigurationNamespaceShorthandAttribute>()
                 .ToDictionary(static x => x.Namespace, static x => x.Shorthand);
 
-            IEnumerable<string> namespaceShorthands = namespaceSegments
-                .Select(x => availableShorthands.TryGetValue(x, out string? val) ? val : null)
-                .OfType<string>()
-                .ToArray();
+            IEnumerable<string> namespaceShorthands =
+            [
+                ..namespaceSegments
+                    .Select(x => availableShorthands.TryGetValue(x, out string? val) ? val : null)
+                    .OfType<string>(),
+            ];
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             static string CleanGeneric(string x) => GenericSuffixRegex.Replace(x, "");

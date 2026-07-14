@@ -35,7 +35,7 @@ public abstract class JTokenTransformer<TArg> : IJTokenVisitor<(JToken jtoken, b
 
     public virtual (IEnumerable<JToken> jtokens, bool changed) Visit(IEnumerable<JToken> jtokens, TArg arg)
     {
-        (JToken jtoken, bool changed)[] subArray = jtokens.Select(x => x.Accept(this, arg)).ToArray();
+        (JToken jtoken, bool changed)[] subArray = [ ..jtokens.Select(x => x.Accept(this, arg)) ];
         return (subArray.Select(static x => x.jtoken), subArray.Any(static x => x.changed));
     }
 }

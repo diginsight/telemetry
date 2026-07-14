@@ -198,7 +198,7 @@ public static class DependencyInjectionExtensions
 
         public ActivityListenersAdder(IEnumerable<IActivityListenerRegistration> registrations)
         {
-            this.registrations = registrations.ToArray();
+            this.registrations = [ ..registrations ];
         }
 
         public void Run()

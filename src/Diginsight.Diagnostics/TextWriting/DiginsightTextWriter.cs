@@ -211,11 +211,13 @@ public static class DiginsightTextWriter
             [return: NotNullIfNotNull(nameof(str))]
             static string? ReplaceLineEndings(string? str)
             {
+                return str?.
 #if NET
-                return str?.ReplaceLineEndings(nls);
+                        ReplaceLineEndings(nls)
 #else
-                return str?.Replace("\r\n", nls).Replace('\r', nlc);
+                        Replace("\r\n", nls).Replace('\r', nlc)
 #endif
+                    ;
             }
 
             string finalMessage = ReplaceLineEndings(message ?? "");
@@ -287,11 +289,14 @@ public static class DiginsightTextWriter
         }
         finally
         {
+            WriteDuration.Record(
+                timing = stopwatch.Elapsed.
 #if NET
-            WriteDuration.Record(timing = stopwatch.Elapsed.TotalMicroseconds);
+                    TotalMicroseconds
 #else
-            WriteDuration.Record(timing = stopwatch.Elapsed.TotalMilliseconds / 1000);
+                    TotalMilliseconds / 1000
 #endif
+            );
         }
     }
 }

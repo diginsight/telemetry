@@ -3,23 +3,35 @@ using System.Diagnostics.Metrics;
 
 namespace Diginsight.Diagnostics;
 
+public
 #if NET
-public interface ICustomMetrics<TSelf>
+    interface ICustomMetrics<TSelf>
     where TSelf : ICustomMetrics<TSelf>
-{
-    public static Meter Meter => new (TSelf.ObservabilityName);
-
-    public static abstract string ObservabilityName { get; }
-
-    public static virtual (string InstrumentName, MetricStreamConfiguration MetricStreamConfiguration)[] Views => [ ];
-}
 #else
-public abstract class CustomMetrics
-{
-    public Meter Meter => new (ObservabilityName);
-
-    public abstract string ObservabilityName { get; }
-
-    public virtual (string InstrumentName, MetricStreamConfiguration MetricStreamConfiguration)[] Views => [ ];
-}
+    abstract class CustomMetrics
 #endif
+{
+    public
+#if NET
+        static
+#endif
+        Meter Meter => new (
+#if NET
+        TSelf.ObservabilityName
+#else
+        ObservabilityName
+#endif
+    );
+
+    public
+#if NET
+        static
+#endif
+        abstract string ObservabilityName { get; }
+
+    public
+#if NET
+        static
+#endif
+        virtual (string InstrumentName, MetricStreamConfiguration MetricStreamConfiguration)[] Views => [ ];
+}

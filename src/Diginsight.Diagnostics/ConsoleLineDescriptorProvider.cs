@@ -8,11 +8,14 @@ internal sealed class ConsoleLineDescriptorProvider : IConsoleLineDescriptorProv
     private readonly IEnumerable<ILineTokenParser> customLineTokenParsers;
     private readonly IDiginsightConsoleFormatterOptions formatterOptions;
 
+    private readonly
 #if NET9_0_OR_GREATER
-    private readonly Lock @lock = new ();
+        Lock
 #else
-    private readonly object @lock = new ();
+        object
 #endif
+        @lock = new ();
+
     private readonly IDictionary<ValueTuple<int?>, LineDescriptor> descriptorCache = new Dictionary<ValueTuple<int?>, LineDescriptor>();
 
     private IDictionary<int, IEnumerable<ILineToken>?>? lineTokensCache;

@@ -92,10 +92,11 @@ public static class DependencyInjectionExtensions
     }
 
     public static MeterProviderBuilder AddMetrics<T>(this MeterProviderBuilder builder)
+        where T :
 #if NET
-        where T : ICustomMetrics<T>
+        ICustomMetrics<T>
 #else
-        where T : CustomMetrics
+        CustomMetrics
 #endif
     {
 #if NET

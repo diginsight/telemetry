@@ -44,21 +44,24 @@ public sealed class TimestampToken : ILineToken
 
     private sealed class Appender : IPrefixTokenAppender
     {
+        private readonly
 #if NET
-        private readonly CompositeFormat format;
+            CompositeFormat
 #else
-        private readonly string format;
+            string
 #endif
+            format;
+
         private readonly CultureInfo culture;
 
         public Appender(string? format, CultureInfo? culture)
         {
 #if NET
-            string tmpFormat =
+            string tmpFormat
 #else
-            this.format =
+            this.format
 #endif
-                $"{{0:{format ?? "yyyy-MM-dd'T'HH:mm:ss.fff"}}}";
+                = $"{{0:{format ?? "yyyy-MM-dd'T'HH:mm:ss.fff"}}}";
 #if NET
             this.format = CompositeFormat.Parse(tmpFormat);
 #endif

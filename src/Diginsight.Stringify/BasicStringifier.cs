@@ -27,11 +27,7 @@ internal sealed class BasicStringifier : IStringifier
 #endif
 
             case StringBuilder sb:
-#if NET || NETSTANDARD2_1_OR_GREATER
                 return new StringifiableStringBuilder(sb);
-#else
-                return new DirectStringifiable(sb);
-#endif
 
             case Regex:
                 return new DirectStringifiable(obj, "/{0}/");
@@ -120,6 +116,7 @@ internal sealed class BasicStringifier : IStringifier
             );
         }
     }
+#endif
 
     private sealed class StringifiableStringBuilder : IStringifiable
     {
@@ -138,7 +135,6 @@ internal sealed class BasicStringifier : IStringifier
             stringifyContext.AppendDirect(sb => sb.Append(stringBuilder));
         }
     }
-#endif
 
     private sealed class StringifiableDelegate : IStringifiable
     {

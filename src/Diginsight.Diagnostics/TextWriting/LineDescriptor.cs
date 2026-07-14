@@ -53,7 +53,7 @@ public sealed class LineDescriptor
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public LineDescriptor(IEnumerable<ILineToken> lineTokens)
-        : this(lineTokens.ToArray(), true) { }
+        : this([ .. lineTokens ], true) { }
 
     public LineDescriptor(MutableLineDescriptor descriptor)
     {
@@ -69,7 +69,7 @@ public sealed class LineDescriptor
 
     private static MutableLineDescriptor ValidateAndApply(IEnumerable<ILineToken> lineTokens)
     {
-        ILineToken[] lineTokenArray = lineTokens.ToArray();
+        ILineToken[] lineTokenArray = [ .. lineTokens ];
         int count = lineTokenArray.Length;
 
         if (count == 0)
@@ -142,7 +142,7 @@ public sealed class LineDescriptor
         try
         {
             IEnumerable<ILineTokenParser> lineTokenParsers = customLineTokenParsers is not null
-                ? DefaultLineTokenParsers.Concat(customLineTokenParsers).ToArray()
+                ? [ .. DefaultLineTokenParsers, ..customLineTokenParsers ]
                 : DefaultLineTokenParsers;
 
             IList<ILineToken> lineTokens = new List<ILineToken>();

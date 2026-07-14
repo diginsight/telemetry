@@ -1,12 +1,13 @@
-﻿#if NET
-using Microsoft.Extensions.Hosting;
-#else
-using Microsoft.AspNetCore.Hosting;
-#endif
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+#if NET
+using Microsoft.Extensions.Hosting;
+
+#else
+using Microsoft.AspNetCore.Hosting;
+#endif
 
 namespace Diginsight.AspNetCore;
 
@@ -35,11 +36,14 @@ public sealed class DefaultDynamicLogLevelInjector : IDynamicLogLevelInjector
 {
     private const string HeaderName = "Log-Level";
 
+    private readonly
 #if NET
-    private readonly IHostEnvironment hostEnvironment;
+        IHostEnvironment
 #else
-    private readonly IHostingEnvironment hostEnvironment;
+        IHostingEnvironment
 #endif
+        hostEnvironment;
+
     private readonly IOptionsMonitor<LoggerFilterOptions> loggerFilterOptionsMonitor;
     private readonly IOptions<LoggerFactoryOptions> loggerFactoryOptions;
 
@@ -51,10 +55,11 @@ public sealed class DefaultDynamicLogLevelInjector : IDynamicLogLevelInjector
     /// <param name="loggerFactoryOptions"></param>
     public DefaultDynamicLogLevelInjector(
 #if NET
-        IHostEnvironment hostEnvironment,
+        IHostEnvironment
 #else
-        IHostingEnvironment hostEnvironment,
+        IHostingEnvironment
 #endif
+            hostEnvironment,
         IOptionsMonitor<LoggerFilterOptions> loggerFilterOptionsMonitor,
         IOptions<LoggerFactoryOptions> loggerFactoryOptions
     )

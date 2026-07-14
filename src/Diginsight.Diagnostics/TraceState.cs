@@ -44,13 +44,13 @@ public sealed partial class TraceState : IDictionary<TraceStateKey, string>, IRe
 
     public IEnumerable<TraceStateKey> Keys => KeysCore;
 
-    private ICollection<TraceStateKey> KeysCore => items.Select(static x => x.Key).ToArray();
+    private ICollection<TraceStateKey> KeysCore => [ ..items.Select(static x => x.Key) ];
 
     ICollection<string> IDictionary<TraceStateKey, string>.Values => ValuesCore;
 
     public IEnumerable<string> Values => ValuesCore;
 
-    private ICollection<string> ValuesCore => items.Select(static x => x.Value).ToArray();
+    private ICollection<string> ValuesCore => [ ..items.Select(static x => x.Value) ];
 
     public string this[TraceStateKey key]
     {
@@ -79,18 +79,20 @@ public sealed partial class TraceState : IDictionary<TraceStateKey, string>, IRe
         out string value
     )
     {
-        if (items.Where(x => key == x.Key).Take(1).ToArray() is [ var (_, value0) ])
+        if ((IReadOnlyList<Entry>)[ ..items.Where(x => key == x.Key).Take(1) ] is [ var (_, value0) ])
         {
             value = value0;
             return true;
         }
         else
         {
+            value =
 #if NET
-            value = null;
+                null
 #else
-            value = null!;
+                null!
 #endif
+                ;
             return false;
         }
     }
@@ -197,11 +199,12 @@ public sealed partial class TraceState : IDictionary<TraceStateKey, string>, IRe
             string? keyTenantId;
             string keySystemId;
 
-#if NET || NETSTANDARD2_1_OR_GREATER
-            string tmp = new (span);
-#else
-            string tmp = new (span.ToArray());
+            string tmp = new (
+                span
+#if !(NET || NETSTANDARD2_1_OR_GREATER)
+                    .ToArray()
 #endif
+            );
             if (SimpleKeyRegex.Match(tmp) is { Success: true } simpleMatch)
             {
                 keyTenantId = null;
@@ -219,11 +222,12 @@ public sealed partial class TraceState : IDictionary<TraceStateKey, string>, IRe
                 throw new FormatException($"Invalid tracestate key at index {index}");
             }
 
-#if NET || NETSTANDARD2_1_OR_GREATER
-            tmp = new string(span);
-#else
-            tmp = new string(span.ToArray());
+            tmp = new string(
+                span
+#if !(NET || NETSTANDARD2_1_OR_GREATER)
+                    .ToArray()
 #endif
+            );
             if (ValueRegex.Match(tmp) is not { Success: true } valueMatch)
             {
                 throw new FormatException($"Invalid tracestate value at index {index}");

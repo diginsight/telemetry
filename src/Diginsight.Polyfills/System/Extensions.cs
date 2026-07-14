@@ -1,14 +1,11 @@
-﻿#if !NET
+﻿#if !(NET || NETSTANDARD2_1_OR_GREATER)
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace System;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public static partial class Extensions;
-#endif
-
-#if !(NET || NETSTANDARD2_1_OR_GREATER)
-public static partial class Extensions
+public static class Extensions
 {
     public static void Deconstruct<TKey, TValue>(this KeyValuePair<TKey, TValue> kvp, out TKey key, out TValue value)
     {
@@ -27,6 +24,23 @@ public static partial class Extensions
         public TValue? GetValueOrDefault(TKey key, TValue? defaultValue)
         {
             return dictionary.TryGetValue(key, out TValue obj) ? obj : defaultValue;
+        }
+    }
+
+    extension(StringComparer)
+    {
+        public static StringComparer FromComparison(StringComparison comparison)
+        {
+            return comparison switch
+            {
+                StringComparison.CurrentCulture => StringComparer.CurrentCulture,
+                StringComparison.CurrentCultureIgnoreCase => StringComparer.CurrentCultureIgnoreCase,
+                StringComparison.InvariantCulture => StringComparer.InvariantCulture,
+                StringComparison.InvariantCultureIgnoreCase => StringComparer.InvariantCultureIgnoreCase,
+                StringComparison.Ordinal => StringComparer.Ordinal,
+                StringComparison.OrdinalIgnoreCase => StringComparer.OrdinalIgnoreCase,
+                _ => throw new UnreachableException($"unrecognized {nameof(StringComparison)}"),
+            };
         }
     }
 }

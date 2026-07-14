@@ -97,11 +97,11 @@ internal sealed class PrimitiveStringifier : IStringifier
                 (Enum[] Values, Enum Zero) ValuesAndZeroCore()
                 {
                     Enum z = (Enum)Enum.ToObject(enumType, 0);
-                    return (Enum.GetValues(enumType).Cast<Enum>().Where(x => !z.Equals(x)).ToArray(), z);
+                    return ([ ..Enum.GetValues(enumType).Cast<Enum>().Where(x => !z.Equals(x)) ], z);
                 }
             }
 
-            Enum[] flaggedValues = values.Where(@enum.HasFlag).DefaultIfEmpty(zero).ToArray();
+            Enum[] flaggedValues = [ .. values.Where(@enum.HasFlag).DefaultIfEmpty(zero) ];
             IEnumerable<Enum> skimmedFlaggedValues = flaggedValues.Where(x => flaggedValues.All(y => x.Equals(y) || !y.HasFlag(x)));
 
             using IEnumerator<Enum> enumerator = skimmedFlaggedValues.GetEnumerator();

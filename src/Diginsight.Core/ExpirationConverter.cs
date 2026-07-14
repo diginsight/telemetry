@@ -10,11 +10,13 @@ internal sealed class ExpirationConverter : TypeConverter
         return sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
     }
 
+    public override object? ConvertFrom(
 #if NET
-    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)
+        ITypeDescriptorContext? context, CultureInfo? culture, object value
 #else
-    public override object? ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object? value)
+        ITypeDescriptorContext context, CultureInfo culture, object? value
 #endif
+    )
     {
         return value is string s ? Expiration.Parse(s, culture) : base.ConvertFrom(context, culture, value);
     }

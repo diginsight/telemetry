@@ -94,11 +94,13 @@ public sealed class DictionaryView<TKeyIn, TValueIn, TKeyOut, TValueOut> : IRead
     }
 
     /// <inheritdoc />
+    public bool TryGetValue(
+        TKeyOut key,
 #if NET
-    public bool TryGetValue(TKeyOut key, [MaybeNullWhen(false)] out TValueOut value)
-#else
-    public bool TryGetValue(TKeyOut key, out TValueOut value)
+        [MaybeNullWhen(false)]
 #endif
+        out TValueOut value
+    )
     {
         TKeyIn innerKey = convertBackKey(key);
 

@@ -11,12 +11,10 @@ public readonly struct Expiration
         , IEquatable<Expiration>
 #if NET
         , ISpanFormattable
-#else
-        , IFormattable
-#endif
-#if NET
         , IUtf8SpanFormattable
         , ISpanParsable<Expiration>
+#else
+        , IFormattable
 #endif
 {
     /// <summary>
@@ -126,9 +124,7 @@ public readonly struct Expiration
             return false;
         }
     }
-#endif
 
-#if NET
     /// <inheritdoc/>
     public bool TryFormat(Span<byte> utf8Destination, out int bytesWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
     {

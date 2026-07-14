@@ -11,7 +11,7 @@ internal sealed class BreakingMessageLineResizer : IMessageLineResizer
 
     public IEnumerable<string> Resize(IEnumerable<string> lines)
     {
-        string[] inputLines = lines.ToArray();
+        string[] inputLines = [ ..lines ];
 
         for (int i = 0; i < inputLines.Length; i++)
         {

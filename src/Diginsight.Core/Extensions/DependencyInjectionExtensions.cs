@@ -28,11 +28,11 @@ public static class DependencyInjectionExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IHostBuilder UseDiginsightServiceProvider(
         this IHostBuilder hostBuilder,
+        bool validateInDevelopment
 #if NET9_0_OR_GREATER
-        bool validateInDevelopment = true,
-#else
-        bool validateInDevelopment,
+            = true
 #endif
+        ,
         Action<HostBuilderContext, ServiceProviderOptions>? configureOptions = null
     )
     {

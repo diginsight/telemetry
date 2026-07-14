@@ -242,7 +242,7 @@ internal sealed class MemberInfoStringifier : IMemberInfoStringifier
                         {
                             Append(
 #if NET
-                                        e.Current,
+                                e.Current,
 #else
                                 e.Current!,
 #endif

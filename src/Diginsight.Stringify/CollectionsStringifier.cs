@@ -143,12 +143,7 @@ internal sealed class CollectionsStringifier : IStringifier
                 enumerator,
                 static (sc, e) =>
                 {
-#if NET || NETSTANDARD2_1_OR_GREATER
                     (TKey key, TValue value) = e.Current;
-#else
-                    TKey key = e.Current.Key;
-                    TValue value = e.Current.Value;
-#endif
                     sc
                         .ComposeAndAppend(key)
                         .AppendDirect(StringifyTokens.Value)
@@ -252,7 +247,7 @@ internal sealed class CollectionsStringifier : IStringifier
         protected override int[] GetLengths()
         {
             Array array = (Array)subject;
-            return Enumerable.Range(0, array.Rank).Select(array.GetLength).ToArray();
+            return [ ..Enumerable.Range(0, array.Rank).Select(array.GetLength) ];
         }
 
         protected override void AppendToCore(StringifyContext stringifyContext)

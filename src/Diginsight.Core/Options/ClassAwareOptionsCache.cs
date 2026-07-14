@@ -93,11 +93,13 @@ public sealed class ClassAwareOptionsCache<TOptions> : IClassAwareOptionsCache<T
 
         return dict.TryAdd(
             (name, @class),
+            new Lazy<TOptions>(
 #if NET || NETSTANDARD2_1_OR_GREATER
-            new Lazy<TOptions>(options)
+                options
 #else
-            new Lazy<TOptions>(() => options)
+                () => options
 #endif
+            )
         );
     }
 
@@ -110,7 +112,7 @@ public sealed class ClassAwareOptionsCache<TOptions> : IClassAwareOptionsCache<T
     /// <inheritdoc />
     public IEnumerable<Type> TryRemove(string name)
     {
-        return TryRemoveCore().ToArray();
+        return [ ..TryRemoveCore() ];
 
         IEnumerable<Type> TryRemoveCore()
         {
@@ -128,6 +130,6 @@ public sealed class ClassAwareOptionsCache<TOptions> : IClassAwareOptionsCache<T
     /// <inheritdoc />
     public IEnumerable<(string Name, IEnumerable<Type> Classes)> Clear()
     {
-        return dict.Keys.Select(static x => x.Name).Distinct().Select(x => (x, TryRemove(x))).ToArray();
+        return [ .. dict.Keys.Select(static x => x.Name).Distinct().Select(x => (x, TryRemove(x))) ];
     }
 }

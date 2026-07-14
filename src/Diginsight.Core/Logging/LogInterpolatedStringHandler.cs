@@ -67,7 +67,7 @@ public readonly struct LogInterpolatedStringHandler
         if (builder is null)
             return;
 
-        FormattableString fs = FormattableStringFactory.Create(builder.ToString(), arguments!.ToArray());
+        FormattableString fs = FormattableStringFactory.Create(builder.ToString(), [ ..arguments! ]);
         logger.Log(logLevel, eventId, new CompositeMessage(fs), exception, static (x, _) => x.FormattableString.ToString());
     }
 

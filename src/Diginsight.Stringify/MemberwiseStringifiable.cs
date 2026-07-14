@@ -77,10 +77,13 @@ public sealed class MemberwiseStringifiable : ReflectionStringifiable
             static p => p.PropertyType.IsForbidden() || p.GetMethod is null || p.GetIndexParameters().Length != 0,
             static p => p.GetMethod!.IsPublic
         );
-        return fieldAppendersWithOrder.Concat(propertyAppendersWithOrder)
-            .OrderByDescending(static x => x.Order)
-            .Select(static x => x.Appender)
-            .ToArray();
+
+        return
+        [
+            ..fieldAppendersWithOrder.Concat(propertyAppendersWithOrder)
+                .OrderByDescending(static x => x.Order)
+                .Select(static x => x.Appender),
+        ];
     }
 
     protected override AllottedCounter Count(StringifyContext stringifyContext) => stringifyContext.CountMemberwiseProperties();

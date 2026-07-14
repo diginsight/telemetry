@@ -2,10 +2,13 @@
 
 public interface IStringifiable
 {
+    bool IsDeep
 #if NET || NETSTANDARD2_1_OR_GREATER
-    bool IsDeep => true;
+        => true;
 #else
-    bool IsDeep { get; }
+    {
+        get;
+    }
 #endif
 
     object? Subject { get; }

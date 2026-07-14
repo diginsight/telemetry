@@ -23,9 +23,7 @@ public sealed class DefaultDynamicConfigurationLoader : IDynamicConfigurationLoa
             return [ ];
         }
 
-        return DynamicHttpHeadersParser
-            .ParseConfiguration(httpContext.Request.Headers[HeaderName].NormalizeHttpHeaderValue(), false)
-            .ToArray();
+        return [ ..DynamicHttpHeadersParser.ParseConfiguration(httpContext.Request.Headers[HeaderName].NormalizeHttpHeaderValue(), false) ];
     }
 
     public static void AddToServices(IServiceCollection services)

@@ -34,12 +34,12 @@ public sealed class ClassAwareOptionsFactory<TOptions> : IClassAwareOptionsFacto
         IEnumerable<IValidateClassAwareOptions<TOptions>> classAwareValidators
     )
     {
-        this.configurators = configurators.ToArray();
-        this.classAwareConfigurators = classAwareConfigurators.ToArray();
-        this.postConfigurators = postConfigurators.ToArray();
-        this.classAwarePostConfigurators = classAwarePostConfigurators.ToArray();
-        this.validators = validators.ToArray();
-        this.classAwareValidators = classAwareValidators.ToArray();
+        this.configurators = [ ..configurators ];
+        this.classAwareConfigurators = [ .. classAwareConfigurators ];
+        this.postConfigurators = [ .. postConfigurators ];
+        this.classAwarePostConfigurators = [ .. classAwarePostConfigurators ];
+        this.validators = [ .. validators ];
+        this.classAwareValidators = [ .. classAwareValidators ];
     }
 
     /// <inheritdoc />

@@ -29,25 +29,12 @@ internal sealed class StringifyContextFactory : IStringifyContextFactory
     {
         return new StringifyContext(
             stringBuilder ??= new StringBuilder(),
-            Stringifiers.ToArray(),
+            [ ..Stringifiers ],
             serviceProvider.GetRequiredService<IMemberInfoStringifier>(),
             new StringifyVariableConfiguration(overallConfiguration),
             overallConfiguration.MaxTime,
             overallConfiguration.EffectiveMaxTotalLength,
-#if NET || NETSTANDARD2_1_OR_GREATER
             StringComparer.FromComparison(overallConfiguration.MetaPropertyKeyComparison)
-#else
-            overallConfiguration.MetaPropertyKeyComparison switch
-            {
-                StringComparison.CurrentCulture => StringComparer.CurrentCulture,
-                StringComparison.CurrentCultureIgnoreCase => StringComparer.CurrentCultureIgnoreCase,
-                StringComparison.InvariantCulture => StringComparer.InvariantCulture,
-                StringComparison.InvariantCultureIgnoreCase => StringComparer.InvariantCultureIgnoreCase,
-                StringComparison.Ordinal => StringComparer.Ordinal,
-                StringComparison.OrdinalIgnoreCase => StringComparer.OrdinalIgnoreCase,
-                _ => throw new ArgumentException($"unrecognized {nameof(StringComparison)}"),
-            }
-#endif
         );
     }
 

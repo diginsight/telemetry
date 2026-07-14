@@ -44,11 +44,13 @@ internal static
         string? activitySourceName, string activityName, string headerName, IHttpContextAccessor httpContextAccessor
     )
     {
-        bool[] matches = GetMatches(activitySourceName, activityName, headerName, httpContextAccessor)
-            .Select(static x => x is null ? (true, true) : (bool.TryParse(x, out bool result), result))
-            .Where(static x => x.Item1)
-            .Select(static x => x.Item2)
-            .ToArray();
+        bool[] matches =
+        [
+            ..GetMatches(activitySourceName, activityName, headerName, httpContextAccessor)
+                .Select(static x => x is null ? (true, true) : (bool.TryParse(x, out bool result), result))
+                .Where(static x => x.Item1)
+                .Select(static x => x.Item2),
+        ];
 
         return matches.Any() ? matches.All(static x => x) : null;
     }

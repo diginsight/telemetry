@@ -81,10 +81,11 @@ public abstract class DiginsightPropagator : DistributedContextPropagator
         foreach ((string key, IEnumerable<string> values) in nonBaggage)
         {
 #if NET || NETSTANDARD2_1_OR_GREATER
-            setter(carrier, key, string.Join(',', values));
+            const char sep = ',';
 #else
-            setter(carrier, key, string.Join(",", values));
+            const string sep = ",";
 #endif
+            setter(carrier, key, string.Join(sep, values));
         }
     }
 

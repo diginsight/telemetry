@@ -10,17 +10,18 @@ public static class RuntimeUtils
 {
     private static readonly Type AsyncMethodBuilderCoreType = Type.GetType("System.Runtime.CompilerServices.AsyncMethodBuilderCore")!;
 
-    private static readonly IDictionary<MethodBase, Type> CallerTypeCache = new Dictionary<MethodBase, Type>();
-    private static readonly IDictionary<MethodBase, (string, string?)> CallerNameCache = new Dictionary<MethodBase, (string, string?)>();
+    private static readonly ConcurrentDictionary<MethodBase, Type> CallerTypeCache = new ();
+    private static readonly ConcurrentDictionary<MethodBase, (string, string?)> CallerNameCache = new ();
 
     /// <summary>
-    /// Gets the list of heuristic size providers.
+    /// The list of heuristic size providers.
     /// </summary>
     /// <remarks>
     /// Developers can add custom heuristic size providers to this list to provide custom size calculation logic for specific types.
     /// </remarks>
     public static IList<IHeuristicSizeProvider> HeuristicSizeProviders { get; } = new List<IHeuristicSizeProvider>();
 
+    [MethodImpl(MethodImplOptions.NoInlining)]
     private static MethodBase FindMethod(int skipMethods)
     {
         int maxFrames = new StackTrace().FrameCount;
@@ -46,43 +47,9 @@ public static class RuntimeUtils
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static Type GetCallerType(int stackDepth = 1)
     {
-        if (stackDepth < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(stackDepth), "Negative stack depth");
-        }
-
-        MethodBase method = FindMethod(stackDepth);
-        if (CallerTypeCache.TryGetValue(method, out Type? cached))
-        {
-            return cached;
-        }
-
-        lock (((ICollection)CallerTypeCache).SyncRoot)
-        {
-            return CallerTypeCache.TryGetValue(method, out cached)
-                ? cached
-                : CallerTypeCache[method] = CoreGet(method);
-
-            static Type CoreGet(MethodBase method)
-            {
-                Type innerDeclaringType = method.DeclaringType!;
-                bool isGenerated = innerDeclaringType.FullName!.Contains('<') || method.Name.Contains('<');
-
-                Type declaringType = innerDeclaringType;
-                if (isGenerated &&
-                    !method.IsDefined(typeof(CompilerGeneratedAttribute)) &&
-                    method != innerDeclaringType.Assembly.EntryPoint)
-                {
-                    while (!declaringType.IsDefined(typeof(CompilerGeneratedAttribute)))
-                    {
-                        declaringType = declaringType.DeclaringType!;
-                    }
-                    declaringType = declaringType.DeclaringType!;
-                }
-
-                return declaringType;
-            }
-        }
+        return stackDepth < 0
+            ? throw new ArgumentOutOfRangeException(nameof(stackDepth), "Negative stack depth")
+            : ResolveCallerType(FindMethod(stackDepth));
     }
 
     /// <summary>
@@ -94,73 +61,115 @@ public static class RuntimeUtils
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static (string Member, string? LocalFunction) GetCallerName(int stackDepth = 1)
     {
+        return stackDepth < 0
+            ? throw new ArgumentOutOfRangeException(nameof(stackDepth), "Negative stack depth")
+            : ResolveCallerName(FindMethod(stackDepth));
+    }
+
+    /// <summary>
+    /// Gets both the declaring <see cref="Type" /> and name of the <paramref name="stackDepth" />-th caller method.
+    /// </summary>
+    /// <remarks>
+    /// This is more efficient than calling <see cref="GetCallerType" /> and <see cref="GetCallerName" />
+    /// separately, which would each perform an independent stack walk.
+    /// </remarks>
+    /// <param name="stackDepth">The depth in the call stack to look for the caller method.</param>
+    /// <returns>A tuple containing the caller type, the member name and the local function name (if any).</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="stackDepth" /> is negative.</exception>
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static (Type CallerType, string Member, string? LocalFunction) GetCallerInfo(int stackDepth = 1)
+    {
         if (stackDepth < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(stackDepth), "Negative stack depth");
         }
 
         MethodBase method = FindMethod(stackDepth);
-        if (CallerNameCache.TryGetValue(method, out (string, string?) cached))
+        Type callerType = ResolveCallerType(method);
+        (string member, string? localFunction) = ResolveCallerName(method);
+        return (callerType, member, localFunction);
+    }
+
+    private static Type ResolveCallerType(MethodBase method)
+    {
+        return CallerTypeCache.GetOrAdd(method, static m => CoreResolveCallerType(m));
+    }
+
+    private static Type CoreResolveCallerType(MethodBase method)
+    {
+        Type innerDeclaringType = method.DeclaringType!;
+        bool isGenerated = innerDeclaringType.FullName!.Contains('<') || method.Name.Contains('<');
+
+        Type declaringType = innerDeclaringType;
+        if (isGenerated &&
+            !method.IsDefined(typeof(CompilerGeneratedAttribute)) &&
+            method != innerDeclaringType.Assembly.EntryPoint)
         {
-            return cached;
+            while (!declaringType.IsDefined(typeof(CompilerGeneratedAttribute)))
+            {
+                declaringType = declaringType.DeclaringType!;
+            }
+            declaringType = declaringType.DeclaringType!;
         }
 
-        lock (((ICollection)CallerNameCache).SyncRoot)
+        return declaringType;
+    }
+
+    private static (string Member, string? LocalFunction) ResolveCallerName(MethodBase method)
+    {
+        return CallerNameCache.GetOrAdd(method, static m => CoreResolveCallerName(m));
+    }
+
+    private static (string, string?) CoreResolveCallerName(MethodBase method)
+    {
+        Type innerDeclaringType = method.DeclaringType!;
+        string methodName = method.Name;
+        bool isGenerated = innerDeclaringType.FullName!.Contains('<') || methodName.Contains('<');
+
+        string memberName;
+        string? localFunctionName;
+        if (!isGenerated)
         {
-            return CallerNameCache.TryGetValue(method, out cached)
-                ? cached
-                : CallerNameCache[method] = CoreGet(method);
+            memberName = methodName;
+            localFunctionName = null;
+        }
+        else
+        {
+            string innerDeclaringTypeName = innerDeclaringType.Name;
+            ReadOnlySpan<char> span = (methodName == "MoveNext" ? innerDeclaringTypeName[..^2] : methodName).AsSpan();
 
-            static (string, string?) CoreGet(MethodBase method)
+            int closeAngleIndex = span.IndexOf('>');
+            memberName = new string(
+                span[(span.LastIndexOf('<') + 1) ..closeAngleIndex]
+#if !(NET || NETSTANDARD2_1_OR_GREATER)
+                    .ToArray()
+#endif
+            );
+
+            span = span[(closeAngleIndex + 1)..];
+            switch (span[0])
             {
-                Type innerDeclaringType = method.DeclaringType!;
-                string methodName = method.Name;
-                bool isGenerated = innerDeclaringType.FullName!.Contains('<') || methodName.Contains('<');
+                case 'b':
+                    localFunctionName = "";
+                    break;
 
-                string memberName;
-                string? localFunctionName;
-                if (!isGenerated)
-                {
-                    memberName = methodName;
+                case 'g':
+                    span = span[3..span.IndexOf('|')];
+                    localFunctionName = new string(
+                        span
+#if !(NET || NETSTANDARD2_1_OR_GREATER)
+                            .ToArray()
+#endif
+                    );
+                    break;
+
+                default:
                     localFunctionName = null;
-                }
-                else
-                {
-                    string innerDeclaringTypeName = innerDeclaringType.Name;
-                    ReadOnlySpan<char> span = (methodName == "MoveNext" ? innerDeclaringTypeName[..^2] : methodName).AsSpan();
-
-                    int closeAngleIndex = span.IndexOf('>');
-#if NET || NETSTANDARD2_1_OR_GREATER
-                    memberName = new string(span[(span.LastIndexOf('<') + 1)..closeAngleIndex]);
-#else
-                    memberName = new string(span[(span.LastIndexOf('<') + 1) ..closeAngleIndex].ToArray());
-#endif
-
-                    span = span[(closeAngleIndex + 1)..];
-                    switch (span[0])
-                    {
-                        case 'b':
-                            localFunctionName = "";
-                            break;
-
-                        case 'g':
-                            span = span[3..span.IndexOf('|')];
-#if NET || NETSTANDARD2_1_OR_GREATER
-                            localFunctionName = new string(span);
-#else
-                            localFunctionName = new string(span.ToArray());
-#endif
-                            break;
-
-                        default:
-                            localFunctionName = null;
-                            break;
-                    }
-                }
-
-                return (memberName, localFunctionName);
+                    break;
             }
         }
+
+        return (memberName, localFunctionName);
     }
 
     /// <summary>

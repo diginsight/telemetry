@@ -65,11 +65,11 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         fallbackLogger = loggerFactory.CreateLogger($"{typeof(ActivityLifecycleLogEmitter).Namespace!}.$Activity");
 
         this.stringifyContextFactory = stringifyContextFactory;
-
+        getExceptionPointers =
 #if NET
-        getExceptionPointers = Marshal.GetExceptionPointers;
+            Marshal.GetExceptionPointers;
 #else
-        getExceptionPointers = (Func<nint>?)typeof(Marshal).GetMethod("GetExceptionPointers", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
+            (Func<nint>?)typeof(Marshal).GetMethod("GetExceptionPointers", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
                 ?.CreateDelegate(typeof(Func<nint>), null)
             ?? (static () => 0);
 #endif

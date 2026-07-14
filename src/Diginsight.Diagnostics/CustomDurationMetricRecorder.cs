@@ -38,7 +38,9 @@ public sealed class CustomDurationMetricRecorder : IActivityListenerLogic
             }
 
             Tag[] tags = activity.GetCustomDurationMetricTags();
-            Tag[] finalTags = recordingEnricher is not null ? tags.Concat(recordingEnricher.ExtractTags(activity, instrument)).ToArray() : tags;
+            Tag[] finalTags = recordingEnricher is not null
+                ? [ ..tags, ..recordingEnricher.ExtractTags(activity, instrument) ]
+                : tags;
 
             switch (instrument)
             {

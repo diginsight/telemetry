@@ -40,10 +40,12 @@ public static class ActivityUtils
     public static bool FullNameMatchesPattern(string sourceName, string operationName, string fullNamePattern)
     {
 #if NET || NETSTANDARD2_1_OR_GREATER
-        return fullNamePattern.Split('|', 3) switch
+        const char separator = '|';
 #else
-        return fullNamePattern.Split(PipeSeparators, 3) switch
+        char[] separator = PipeSeparators;
 #endif
+
+        return fullNamePattern.Split(separator, 3) switch
         {
             [ _ ] => NameMatchesPattern(operationName, fullNamePattern),
             [ var sourceNamePattern, var operationNamePattern ] => (sourceNamePattern, operationNamePattern) switch

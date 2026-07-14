@@ -22,9 +22,11 @@ internal sealed class AnonymousStringifier : ReflectionStringifier
 
         protected override StringifyAppender[] MakeAppenders(Type type)
         {
-            return type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                .Select(x => MakeAppender(x, null, null))
-                .ToArray();
+            return
+            [
+                ..type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                    .Select(x => MakeAppender(x, null, null)),
+            ];
         }
 
         protected override AllottedCounter Count(StringifyContext stringifyContext)

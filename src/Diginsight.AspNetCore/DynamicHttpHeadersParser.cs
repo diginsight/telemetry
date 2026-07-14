@@ -11,11 +11,14 @@ public static
 #endif
     class DynamicHttpHeadersParser
 {
+    private const string ConfigurationSpecRegexStr = "^([^= ]+?)(?: *= *([^ ]*))?$";
+    private const string LogLevelSpecRegexStr = "^([^= ]+?) *=(?: *([a-z]+?))?(?: *; *p *= *([^ ]+?))?$";
+
 #if NET
-    [GeneratedRegex("^([^= ]+?)(?: *= *([^ ]*))?$")]
+    [GeneratedRegex(ConfigurationSpecRegexStr)]
     private static partial Regex ConfigurationSpecRegexImpl();
 
-    [GeneratedRegex("^([^= ]+?) *=(?: *([a-z]+?))?(?: *; *p *= *([^ ]+?))?$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    [GeneratedRegex(LogLevelSpecRegexStr, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex LogLevelSpecRegexImpl();
 
     /// <inheritdoc cref="ConfigurationSpecRegexImpl" />
@@ -24,8 +27,8 @@ public static
     /// <inheritdoc cref="LogLevelSpecRegexImpl" />
     private static Regex LogLevelSpecRegex => LogLevelSpecRegexImpl();
 #else
-    private static readonly Regex ConfigurationSpecRegex = new ("^([^= ]+?)(?: *= *([^ ]*))?$");
-    private static readonly Regex LogLevelSpecRegex = new ("^([^= ]+?) *=(?: *([a-z]+?))?(?: *; *p *= *([^ ]+?))?$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+    private static readonly Regex ConfigurationSpecRegex = new (ConfigurationSpecRegexStr);
+    private static readonly Regex LogLevelSpecRegex = new (LogLevelSpecRegexStr, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 #endif
 
     public static IEnumerable<KeyValuePair<string, string?>> ParseConfiguration(IEnumerable<string> rawSpecs, bool allowUnset)
@@ -92,9 +95,10 @@ public static
             {
                 any = true;
 
-                IEnumerable<int> indexes = rules
-                    .IndexesWhere(x => string.Equals(x.CategoryName, category, StringComparison.OrdinalIgnoreCase) && x.ProviderName == provider)
-                    .ToArray();
+                IEnumerable<int> indexes =
+                [
+                    ..rules.IndexesWhere(x => string.Equals(x.CategoryName, category, StringComparison.OrdinalIgnoreCase) && x.ProviderName == provider),
+                ];
                 if (indexes.Any())
                 {
                     foreach (int index in indexes)

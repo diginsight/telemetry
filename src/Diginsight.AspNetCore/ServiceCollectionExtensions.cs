@@ -90,10 +90,11 @@ public static class ServiceCollectionExtensions
 
         IServiceProvider serviceProvider =
 #if NET
-            endpoints.ServiceProvider;
+            endpoints
 #else
-            routes.ServiceProvider;
+            routes
 #endif
+                .ServiceProvider;
         if (serviceProvider.GetService<IVolatileConfigurationStorageProvider>() is null)
         {
             throw new InvalidOperationException($"Required service {nameof(IVolatileConfigurationStorageProvider)} not registered");

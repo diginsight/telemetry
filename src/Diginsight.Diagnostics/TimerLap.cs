@@ -22,7 +22,7 @@ public sealed class TimerLap : IDisposable
     internal TimerLap(Histogram<double> histogram, Tags tags, StrongBox<double>? elapsedMillisecondsBox)
     {
         this.histogram = histogram;
-        this.tags = tags.ToList();
+        this.tags = [ ..tags ];
 
         elapsedMillisecondsBox?.Value = double.NaN;
         this.elapsedMillisecondsBox = elapsedMillisecondsBox;
@@ -81,7 +81,7 @@ public sealed class TimerLap : IDisposable
 
         committed = true;
 
-        histogram.Record(ElapsedMilliseconds, tags.ToArray());
+        histogram.Record(ElapsedMilliseconds, [ ..tags ]);
     }
 
     private sealed class Stopper : IDisposable

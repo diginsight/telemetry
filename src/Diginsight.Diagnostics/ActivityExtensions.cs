@@ -165,14 +165,16 @@ public static class ActivityExtensions
                 throw new ArgumentException("Activity has no associated custom duration metric");
             }
 
-            Tag[] allTags = tags
-                .Concat(activity.GetCustomDurationMetricTags())
+            Tag[] allTags =
+            [
+                ..tags
+                    .Concat(activity.GetCustomDurationMetricTags())
 #if NET
-                .DistinctBy(static x => x.Key)
+                    .DistinctBy(static x => x.Key),
 #else
-                .GroupBy(static x => x.Key, static (_, xs) => xs.First())
+                    .GroupBy(static x => x.Key, static (_, xs) => xs.First()),
 #endif
-                .ToArray();
+            ];
             activity.SetCustomProperty(CustomPropertyNames.CustomDurationMetricTags, allTags);
         }
 

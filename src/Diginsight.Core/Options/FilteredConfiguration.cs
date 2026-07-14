@@ -45,12 +45,13 @@ public class FilteredConfiguration : IFilteredConfiguration
     /// <inheritdoc />
     public IConfigurationSection GetSection(string key)
     {
-        string[] segments = key
+        string[] segments = key.Split(
 #if NET || NETSTANDARD2_1_OR_GREATER
-            .Split(ConfigurationPath.KeyDelimiter);
+            ConfigurationPath.KeyDelimiter
 #else
-            .Split([ ConfigurationPath.KeyDelimiter ], StringSplitOptions.None);
+            [ ConfigurationPath.KeyDelimiter ], StringSplitOptions.None
 #endif
+        );
         return segments.Skip(1).Aggregate(CoreGetChild(segments[0]), static (s, k) => s.CoreGetChild(k));
     }
 
@@ -61,10 +62,7 @@ public class FilteredConfiguration : IFilteredConfiguration
     }
 
     /// <inheritdoc />
-    public IEnumerable<IConfigurationSection> GetChildren()
-    {
-        return CoreGetChildren().ToArray();
-    }
+    public IEnumerable<IConfigurationSection> GetChildren() => [ ..CoreGetChildren() ];
 
     private IEnumerable<FilteredConfigurationSection> CoreGetChildren(string? virtualKey = null)
     {

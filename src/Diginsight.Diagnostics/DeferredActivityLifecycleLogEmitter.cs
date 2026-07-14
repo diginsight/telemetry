@@ -10,11 +10,14 @@ public sealed class DeferredActivityLifecycleLogEmitter : IDisposable
     private readonly DeferredOperationRegistry operationRegistry;
     private readonly TimeProvider timeProvider;
     private readonly Func<ActivityLifecycleLogEmitter>? makeEmergencyTarget;
+
+    private readonly
 #if NET9_0_OR_GREATER
-    private readonly Lock @lock = new ();
+        Lock
 #else
-    private readonly object @lock = new ();
+        object
 #endif
+        @lock = new ();
 
     private ActivityListener? activityListener;
     private ActivityLifecycleLogEmitter? target;

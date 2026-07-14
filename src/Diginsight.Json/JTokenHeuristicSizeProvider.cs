@@ -18,11 +18,11 @@ public sealed class JTokenHeuristicSizeProvider : IHeuristicSizeProvider
                 return true;
 
             case JArray ja:
-                result = ~innerGet(ja.Children().ToArray());
+                result = ~innerGet((IReadOnlyCollection<JToken>)[ ..ja.Children() ]);
                 return true;
 
             case JObject jo:
-                result = ~innerGet(jo.Properties().ToArray());
+                result = ~innerGet((IReadOnlyCollection<JProperty>)[ ..jo.Properties() ]);
                 return true;
 
             case JProperty jp:
@@ -30,7 +30,7 @@ public sealed class JTokenHeuristicSizeProvider : IHeuristicSizeProvider
                 return true;
 
             case JConstructor jc:
-                result = ~(innerGet(jc.Name) + innerGet(jc.Children().ToArray()));
+                result = ~(innerGet(jc.Name) + innerGet((IReadOnlyCollection<JToken>)[ ..jc.Children() ]));
                 return true;
 
             default:
