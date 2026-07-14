@@ -62,6 +62,14 @@ jobs:
         
     - name: Render Quarto Project
       run: quarto render
+
+    - name: Build Bootswatch theme comparison page
+      shell: pwsh
+      # Reuse the site already produced by `quarto render` above (no second render,
+      # no duplicate copy). The comparison page is written to docs/themes/index.html
+      # and previews the parent render via ?theme=<name>, handled at runtime by
+      # header-includes.html.
+      run: ./build-theme-previews.ps1 -OutRoot docs/themes -SkipRender -SiteHref '../Index.html'
       
     - name: Setup Pages
       uses: actions/configure-pages@v4

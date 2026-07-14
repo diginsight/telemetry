@@ -69,7 +69,7 @@
   </Choose>
 
   <ItemGroup>
-    <ProjectReference Include="..\Diginsight.Polyfills\Diginsight.Polyfills.csproj" />
+    <ProjectReference Include="..\Diginsight.Polyfills\Diginsight.Polyfills.csproj" Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net10.0'))" />
   </ItemGroup>
 
   <ItemGroup>

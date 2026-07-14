@@ -31,6 +31,8 @@ website:
         href: src/docs/01. Concepts/00.01 - Observability Concepts.md
       - text: "Advanced articles"
         href: src/docs/02. Advanced/13.00 - Customize entities rendering on diginsight log streams.md
+      - text: "Themes"
+        href: /themes/index.html
       - text: "About"
         menu:
            - text: About
@@ -83,6 +85,9 @@ website:
   page-footer: 
     left: "Copyright 2021, Diginsight" 
     border: false
+    center:
+      - text: "Themes"
+        href: /themes/index.html
     right: 
       - icon: github
         href: https://github.com/diginsight
@@ -99,3 +104,5 @@ format:
 markdown:
   extensions:
     - +lists_without_preceding_blankline
+
+

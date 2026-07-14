@@ -1,5 +1,9 @@
 <Project>
 
+  <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net11.0'))">
+    <Features>runtime-async=on</Features>
+  </PropertyGroup>
+
   <PropertyGroup>
     <IsPackable Condition="'$(IsPackable)' == ''">true</IsPackable>
   </PropertyGroup>
@@ -27,7 +31,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.*" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.*" PrivateAssets="all" />
   </ItemGroup>
 
   <Choose>

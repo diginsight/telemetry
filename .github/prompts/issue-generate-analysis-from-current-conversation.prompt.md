@@ -2,7 +2,7 @@
 name: issue-generate-analysis
 description: Generate analysis from current conversation
 agent: agent
-model: claude-sonnet-4.5
+model: claude-opus-4.6
 tools: ['codebase', 'fetch']
 argument-hint: 'topic="Your Article Topic" outline="key points to cover"'
 ---

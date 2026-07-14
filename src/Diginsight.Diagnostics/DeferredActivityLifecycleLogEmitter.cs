@@ -145,7 +145,8 @@ public sealed class DeferredActivityLifecycleLogEmitter : IDisposable
     }
 
     private void SetTarget(
-        [SuppressMessage("ReSharper", "ParameterHidesMember")] ActivityLifecycleLogEmitter target
+        [SuppressMessage("ReSharper", "ParameterHidesMember")]
+        ActivityLifecycleLogEmitter target
     )
     {
         this.target = target;

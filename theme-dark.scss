@@ -1,5 +1,27 @@
 /*-- scss:defaults --*/
-// Dark theme inherits from cosmo dark
+// Make this a genuinely dark theme.
+// Quarto decides each theme's data-mode ("light"/"dark") from the brightness of
+// the compiled background. Without a dark $body-bg the dark sheet is tagged
+// data-mode="light", so the toggle never adds `body.quarto-dark` and no dark
+// styling applies. Setting dark surface/text defaults fixes that.
+$body-bg: #1a1d20;
+$body-color: #dee2e6;
+
+// Links
+$link-color: #6ea8fe;
+$link-hover-color: #8bb9fe;
+
+// Surfaces (cards, sidebar, code blocks use these)
+$light: #2b3035;
+$dark: #dee2e6;
+$secondary: #6c757d;
+
+// Borders
+$border-color: #495057;
+
+// Inline code
+$code-color: #e685b5;
+
 // Navbar colors adjusted for dark theme
 $navbar-bg: #8b6129;
 $navbar-fg: white;

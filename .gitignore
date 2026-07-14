@@ -98,6 +98,9 @@ StyleCopReport.xml
 .builds
 *.pidb
 *.svclog
+
+# Generated Quarto theme comparison previews (built by build-theme-previews.ps1 / CI)
+docs-themes/
 *.scc
 
 # Chutzpah Test files
