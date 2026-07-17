@@ -27,9 +27,9 @@ internal sealed class JTokenNormalizer : JTokenTransformer<ValueTuple>
             case JTokenType.Float:
             {
                 if (
-                    jvalue.Value is double dbl && (double.IsInfinity(dbl) || double.IsNaN(dbl))
+                    (jvalue.Value is double dbl && (double.IsInfinity(dbl) || double.IsNaN(dbl)))
                     ||
-                    jvalue.Value is float flt && (float.IsInfinity(flt) || float.IsNaN(flt))
+                    (jvalue.Value is float flt && (float.IsInfinity(flt) || float.IsNaN(flt)))
                 )
                 {
                     return (ToFlat(jvalue), true);

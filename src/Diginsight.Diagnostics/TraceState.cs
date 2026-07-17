@@ -8,16 +8,24 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Diginsight.Diagnostics;
 
-public sealed partial class TraceState : IDictionary<TraceStateKey, string>, IReadOnlyDictionary<TraceStateKey, string>
-{
+public sealed
 #if NET
-    [GeneratedRegex(@"^([a-z][a-z0-9_\-*/]{0,255})=")]
+    partial
+#endif
+    class TraceState : IDictionary<TraceStateKey, string>, IReadOnlyDictionary<TraceStateKey, string>
+{
+    private const string SimpleKeyRegexStr = @"^([a-z][a-z0-9_\-*/]{0,255})=";
+    private const string ComplexKeyRegexStr = @"^([a-z0-9][a-z0-9_\-*/]{0,240})@([a-z0-9_\-*/]{0,13})=";
+    private const string ValueRegexStr = @"^[\x20-\x7e-[,=]]{0,255}[\x21-\x7e-[,=]]";
+
+#if NET
+    [GeneratedRegex(SimpleKeyRegexStr)]
     private static partial Regex SimpleKeyRegexImpl();
 
-    [GeneratedRegex(@"^([a-z0-9][a-z0-9_\-*/]{0,240})@([a-z0-9_\-*/]{0,13})=")]
+    [GeneratedRegex(ComplexKeyRegexStr)]
     private static partial Regex ComplexKeyRegexImpl();
 
-    [GeneratedRegex(@"^[\x20-\x7e-[,=]]{0,255}[\x21-\x7e-[,=]]")]
+    [GeneratedRegex(ValueRegexStr)]
     private static partial Regex ValueRegexImpl();
 
     /// <inheritdoc cref="SimpleKeyRegexImpl" />
@@ -29,9 +37,9 @@ public sealed partial class TraceState : IDictionary<TraceStateKey, string>, IRe
     /// <inheritdoc cref="ValueRegexImpl" />
     private static Regex ValueRegex => ValueRegexImpl();
 #else
-    private static readonly Regex SimpleKeyRegex = new (@"^([a-z][a-z0-9_\-*/]{0,255})=");
-    private static readonly Regex ComplexKeyRegex = new (@"^([a-z0-9][a-z0-9_\-*/]{0,240})@([a-z0-9_\-*/]{0,13})=");
-    private static readonly Regex ValueRegex = new (@"^[\x20-\x7e-[,=]]{0,255}[\x21-\x7e-[,=]]");
+    private static readonly Regex SimpleKeyRegex = new (SimpleKeyRegexStr);
+    private static readonly Regex ComplexKeyRegex = new (ComplexKeyRegexStr);
+    private static readonly Regex ValueRegex = new (ValueRegexStr);
 #endif
 
     private readonly IList<Entry> items = new List<Entry>();
@@ -144,7 +152,7 @@ public sealed partial class TraceState : IDictionary<TraceStateKey, string>, IRe
         static bool IsValid(char ch, bool space)
         {
             return ch is >= '\x21' and <= '\x7e' and not (',' or '=')
-                || space && ch == ' ';
+                || (space && ch == ' ');
         }
 
         if (value is null)

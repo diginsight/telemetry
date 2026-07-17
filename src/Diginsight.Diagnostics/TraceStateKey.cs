@@ -19,8 +19,8 @@ public readonly struct TraceStateKey : IEquatable<TraceStateKey>
         static bool IsValid(char ch, bool digit, bool punct)
         {
             return ch is >= 'a' and <= 'z'
-                || digit && ch is >= '0' and <= '9'
-                || punct && ch is '_' or '-' or '*' or '/';
+                || (digit && ch is >= '0' and <= '9')
+                || (punct && ch is '_' or '-' or '*' or '/');
         }
 
         static void Validate(string str, int maxLength, bool firstDigit, string argName)

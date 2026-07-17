@@ -9,14 +9,16 @@ internal static
 #endif
     class HttpHeadersHelper
 {
+    private const string SpecRegexStr = "^([^=]+?)(=(?:[a-z]+)?)?$";
+
 #if NET
-    [GeneratedRegex("^([^=]+?)(=(?:[a-z]+)?)?$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    [GeneratedRegex(SpecRegexStr, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex SpecRegexImpl();
 
     /// <inheritdoc cref="SpecRegexImpl" />
     private static Regex SpecRegex => SpecRegexImpl();
 #else
-    private static readonly Regex SpecRegex = new ("^([^=]+?)(=(?:[a-z]+)?)?$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+    private static readonly Regex SpecRegex = new (SpecRegexStr, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 #endif
 
     public static IEnumerable<string?> GetMatches(

@@ -48,7 +48,7 @@ public sealed class MemberwiseStringifiable : ReflectionStringifiable
                 }
 
                 bool? included = memberContract.Included;
-                if (included == false || included == null && member.IsDefined(typeof(NonStringifiableMemberAttribute)))
+                if (included == false || (included == null && member.IsDefined(typeof(NonStringifiableMemberAttribute))))
                     continue;
 
                 IStringifiableMemberDescriptor? attribute = member.GetCustomAttribute<StringifiableMemberAttribute>();

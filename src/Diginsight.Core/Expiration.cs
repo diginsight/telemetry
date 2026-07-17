@@ -73,8 +73,8 @@ public readonly struct Expiration
     /// <inheritdoc />
     public bool Equals(Expiration other)
     {
-        return IsNever && other.IsNever ||
-            !IsNever && !other.IsNever && underlying.Equals(other.underlying);
+        return (IsNever && other.IsNever) ||
+            (!IsNever && !other.IsNever && underlying.Equals(other.underlying));
     }
 
     /// <inheritdoc />

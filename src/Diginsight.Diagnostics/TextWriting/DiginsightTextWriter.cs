@@ -28,7 +28,7 @@ public static class DiginsightTextWriter
 
         public bool Equals((int, int, int, int) x, (int, int, int, int) y)
         {
-            return x is (0, 0, _, _) && y is (0, 0, _, _) || x.Equals(y);
+            return (x is (0, 0, _, _) && y is (0, 0, _, _)) || x.Equals(y);
         }
 
         public int GetHashCode((int, int, int, int) obj)

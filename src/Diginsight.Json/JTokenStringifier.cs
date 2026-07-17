@@ -49,7 +49,7 @@ internal sealed class JTokenStringifier : IStringifier
                             .Accept(this, sc);
                     },
                     stringifyContext.CountCollectionItems(),
-                    ","
+                    StringifyTokens.Separator1
                 );
             }
             stringifyContext.AppendDirect(']');
@@ -74,7 +74,7 @@ internal sealed class JTokenStringifier : IStringifier
                             .Accept(this, sc);
                     },
                     stringifyContext.CountCollectionItems(),
-                    ","
+                    StringifyTokens.Separator1
                 );
             }
             stringifyContext.AppendDirect(')');
@@ -99,7 +99,7 @@ internal sealed class JTokenStringifier : IStringifier
                             .Accept(this, sc);
                     },
                     stringifyContext.CountDictionaryItems(),
-                    ","
+                    StringifyTokens.Separator1
                 );
             }
             stringifyContext.AppendDirect('}');

@@ -92,12 +92,12 @@ internal sealed class MemberInfoStringifier : IMemberInfoStringifier
                             enumerator,
                             static (sc1, e) => { sc1.AppendDirect(e.Current.ToStringInvariant()); },
                             AllottedCounter.Unlimited,
-                            ","
+                            StringifyTokens.Separator1
                         );
                     }
                     else
                     {
-                        sc.AppendDirect(new string(',', type.GetArrayRank() - 1));
+                        sc.AppendDirect(new string(StringifyTokens.Separator, type.GetArrayRank() - 1));
                     }
                 }
             );
@@ -154,7 +154,7 @@ internal sealed class MemberInfoStringifier : IMemberInfoStringifier
                             );
                         },
                         AllottedCounter.Unlimited,
-                        ","
+                        StringifyTokens.Separator1
                     );
                 }
             );
@@ -171,7 +171,7 @@ internal sealed class MemberInfoStringifier : IMemberInfoStringifier
                     {
                         if (type.IsGenericTypeDefinition)
                         {
-                            sc.AppendDirect(new string(',', type.GetGenericArguments().Length - 1));
+                            sc.AppendDirect(new string(StringifyTokens.Separator, type.GetGenericArguments().Length - 1));
                         }
                         else
                         {
@@ -190,7 +190,7 @@ internal sealed class MemberInfoStringifier : IMemberInfoStringifier
                                     );
                                 },
                                 AllottedCounter.Unlimited,
-                                ","
+                                StringifyTokens.Separator1
                             );
                         }
                     }
