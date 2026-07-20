@@ -71,7 +71,7 @@ internal sealed class StringifyContextFactory : IStringifyContextFactory
 
         public void AppendTo(StringifyContext stringifyContext)
         {
-            stringifyContext.AppendDirect('□');
+            stringifyContext.AppendDirect(StringifyTokens.Null);
         }
     }
 }

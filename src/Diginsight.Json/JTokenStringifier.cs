@@ -110,7 +110,7 @@ internal sealed class JTokenStringifier : IStringifier
         public StringifyContext Visit(JProperty jproperty, StringifyContext stringifyContext)
         {
             stringifyContext
-                .AppendDirect(new JValue(jproperty.Name).ToString(Formatting.None))
+                .AppendDirect(JsonConvert.SerializeObject(jproperty.Name, Formatting.None))
                 .AppendDirect(':');
 
             return jproperty.Value.Accept(this, stringifyContext);

@@ -28,6 +28,12 @@ public static class StringifyContextExtensions
             return stringifyContext.AppendDirect(StringifyTokens.Error);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public StringifyContext AppendNull()
+        {
+            return stringifyContext.AppendDirect(StringifyTokens.Null);
+        }
+
         public StringifyContext AppendEnumerator<T>(
             T enumerator,
             Action<StringifyContext, T> appendCurrent,

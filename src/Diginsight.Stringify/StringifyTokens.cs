@@ -11,6 +11,7 @@ public static class StringifyTokens
     public const char LiteralEnd = '$';
     public const char MapBegin = '{';
     public const char MapEnd = '}';
+    internal const char Null = '□';
     public const char Separator = ',';
     public const string Separator1 = ",";
     public const string Separator2 = ", ";

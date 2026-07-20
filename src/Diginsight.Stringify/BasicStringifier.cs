@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 #if NET || NETSTANDARD2_1_OR_GREATER
 using System.Runtime.CompilerServices;
@@ -56,6 +59,12 @@ internal sealed class BasicStringifier : IStringifier
 
             case Expiration expiration:
                 return new StringifiableExpiration(expiration);
+
+            case JsonDocument jd:
+                return new StringifiableJsonElement(jd.RootElement);
+
+            case JsonElement je:
+                return new StringifiableJsonElement(je);
         }
 
         Type type = obj.GetType();
@@ -209,6 +218,82 @@ internal sealed class BasicStringifier : IStringifier
                 .AppendDirect(StringifyTokens.Value)
                 .ComposeAndAppend(kvp.Value)
                 .AppendDirect(StringifyTokens.MapEnd);
+        }
+    }
+
+    private sealed class StringifiableJsonElement : IStringifiable
+    {
+        private readonly JsonElement je;
+
+#if !(NET || NETSTANDARD2_1_OR_GREATER)
+        bool IStringifiable.IsDeep => true;
+#endif
+        object? IStringifiable.Subject => null;
+
+        public StringifiableJsonElement(JsonElement je)
+        {
+            this.je = je;
+        }
+
+        public void AppendTo(StringifyContext stringifyContext)
+        {
+            switch (je.ValueKind)
+            {
+                case JsonValueKind.Object:
+                {
+                    stringifyContext.AppendDirect('{');
+                    using (IEnumerator<JsonProperty> enumerator = je.EnumerateObject())
+                    {
+                        stringifyContext.AppendEnumerator(
+                            enumerator,
+                            static (sc, e) =>
+                            {
+                                JsonProperty jp = e.Current;
+                                sc
+                                    .AppendDirect(JsonSerializer.Serialize(jp.Name))
+                                    .AppendDirect(':')
+                                    .ComposeAndAppend(jp.Value);
+                            },
+                            stringifyContext.CountDictionaryItems(),
+                            StringifyTokens.Separator1
+                        );
+                    }
+                    stringifyContext.AppendDirect('}');
+
+                    break;
+                }
+
+                case JsonValueKind.Array:
+                {
+                    stringifyContext.AppendDirect('[');
+                    using (IEnumerator<JsonElement> enumerator = je.EnumerateArray())
+                    {
+                        stringifyContext.AppendEnumerator(
+                            enumerator,
+                            static (sc, e) => {sc.ComposeAndAppend(e.Current); },
+                            stringifyContext.CountDictionaryItems(),
+                            StringifyTokens.Separator1
+                        );
+                    }
+                    stringifyContext.AppendDirect(']');
+
+                    break;
+                }
+
+                case JsonValueKind.String:
+                case JsonValueKind.Number:
+                case JsonValueKind.True:
+                case JsonValueKind.False:
+                case JsonValueKind.Null:
+                    stringifyContext.AppendDirect(JsonSerializer.Serialize(je));
+                    break;
+
+                case JsonValueKind.Undefined:
+                    throw new InvalidOperationException($"Unsupported {nameof(JsonValueKind)}");
+
+                default:
+                    throw new UnreachableException($"Unrecognized {nameof(JsonValueKind)}");
+            }
         }
     }
 }

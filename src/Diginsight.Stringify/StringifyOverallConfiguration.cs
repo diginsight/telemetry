@@ -60,7 +60,8 @@ public sealed class StringifyOverallConfiguration : IStringifyOverallConfigurati
             new StringifierRegistration(typeof(PrimitiveStringifier), int.MaxValue - 1),
             new StringifierRegistration(typeof(BasicStringifier), int.MaxValue - 2),
             new StringifierRegistration(typeof(IMemberInfoStringifier), int.MaxValue - 3),
-            new StringifierRegistration(typeof(AnonymousStringifier), minFixedRegistrationPriority = int.MaxValue - 4),
+            new StringifierRegistration(typeof(AnonymousStringifier), int.MaxValue - 4),
+            new StringifierRegistration(typeof(JsonNodeStringifier), minFixedRegistrationPriority = int.MaxValue - 5),
             new StringifierRegistration(typeof(CollectionsStringifier), int.MinValue + 1),
             new StringifierRegistration(typeof(MemberwiseStringifier), int.MinValue),
         ];
