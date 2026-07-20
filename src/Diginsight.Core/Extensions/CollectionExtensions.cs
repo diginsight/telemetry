@@ -11,6 +11,9 @@ public static class CollectionExtensions
     /// <typeparam name="T">The type of the elements of the source.</typeparam>
     /// <param name="source">An <see cref="IEnumerable{T}" /> to search.</param>
     extension<T>(IEnumerable<T> source)
+#if NET9_0_OR_GREATER
+        where T: allows ref struct
+#endif
     {
         /// <summary>
         /// Returns the index of the first element in a sequence that satisfies a specified condition.
@@ -38,33 +41,6 @@ public static class CollectionExtensions
         }
 
         /// <summary>
-        /// Returns the index of the last element in a sequence that satisfies a specified condition.
-        /// </summary>
-        /// <param name="predicate">A function to test each element for a condition.</param>
-        /// <returns>The zero-based index of the last element that matches the predicate, or -1 if no such element is found.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="source" /> or <paramref name="predicate" /> is <c>null</c>.</exception>
-        public int LastIndexWhere(Func<T, bool> predicate)
-        {
-            if (source is null)
-                throw new ArgumentNullException(nameof(source));
-            if (predicate is null)
-                throw new ArgumentNullException(nameof(predicate));
-
-            int index = 0;
-            IReadOnlyCollection<T> reverse = [ ..source.Reverse() ];
-            int count = reverse.Count;
-            foreach (T item in reverse)
-            {
-                if (predicate(item))
-                {
-                    return count - 1 - index;
-                }
-                index++;
-            }
-            return -1;
-        }
-
-        /// <summary>
         /// Returns the indexes of all elements in a sequence that satisfy a specified condition.
         /// </summary>
         /// <param name="predicate">A function to test each element for a condition.</param>
@@ -77,11 +53,48 @@ public static class CollectionExtensions
             if (predicate is null)
                 throw new ArgumentNullException(nameof(predicate));
 
-            return source
-                .Select(static (item, index) => (item, index))
-                .Where(x => predicate(x.item))
-                .Select(static x => x.index);
+            int index = 0;
+            foreach (T item in source)
+            {
+                if (predicate(item))
+                    yield return index;
+                index++;
+            }
+
+                //return source
+                //.Select(static (item, index) => (item, index))
+                //.Where(x => predicate(x.item))
+                //.Select(static x => x.index);
         }
+    }
+
+    /// <summary>
+    /// Returns the index of the last element in a sequence that satisfies a specified condition.
+    /// </summary>
+    /// <param name="predicate">A function to test each element for a condition.</param>
+    /// <param name="source">An <see cref="IEnumerable{T}" /> to search.</param>
+    /// <typeparam name="T">The type of the elements of the source.</typeparam>
+    /// <returns>The zero-based index of the last element that matches the predicate, or -1 if no such element is found.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="source" /> or <paramref name="predicate" /> is <c>null</c>.</exception>
+    public static int LastIndexWhere<T>(this IEnumerable<T> source, Func<T, bool> predicate)
+    {
+        if (source is null)
+            throw new ArgumentNullException(nameof(source));
+        if (predicate is null)
+            throw new ArgumentNullException(nameof(predicate));
+
+        int index = 0;
+        IReadOnlyCollection<T> reverse = [ ..source.Reverse() ];
+        int count = reverse.Count;
+        foreach (T item in reverse)
+        {
+            if (predicate(item))
+            {
+                return count - 1 - index;
+            }
+            index++;
+        }
+        return -1;
     }
 
     /// <param name="first">The first sequence to compare.</param>

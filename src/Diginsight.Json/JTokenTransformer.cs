@@ -3,6 +3,9 @@
 namespace Diginsight.Json;
 
 public abstract class JTokenTransformer<TArg> : IJTokenVisitor<(JToken jtoken, bool changed), TArg>
+#if NET9_0_OR_GREATER
+    where TArg : allows ref struct
+#endif
 {
     public virtual (JToken jtoken, bool changed) Visit(JArray jarray, TArg arg)
     {
@@ -35,7 +38,16 @@ public abstract class JTokenTransformer<TArg> : IJTokenVisitor<(JToken jtoken, b
 
     public virtual (IEnumerable<JToken> jtokens, bool changed) Visit(IEnumerable<JToken> jtokens, TArg arg)
     {
-        (JToken jtoken, bool changed)[] subArray = [ ..jtokens.Select(x => x.Accept(this, arg)) ];
-        return (subArray.Select(static x => x.jtoken), subArray.Any(static x => x.changed));
+        ICollection<JToken> outputs = [ ];
+        bool anyChanged = false;
+        foreach (JToken input in jtokens)
+        {
+            (JToken output, bool changed) = input.Accept(this, arg);
+            outputs.Add(output);
+            if (!anyChanged)
+                anyChanged = changed;
+        }
+
+        return (outputs, anyChanged);
     }
 }

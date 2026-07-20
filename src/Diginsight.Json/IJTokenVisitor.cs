@@ -3,6 +3,10 @@
 namespace Diginsight.Json;
 
 public interface IJTokenVisitor<out TResult, in TArg>
+#if NET9_0_OR_GREATER
+    where TResult : allows ref struct
+    where TArg : allows ref struct
+#endif
 {
     TResult Visit(JArray jarray, TArg arg);
 

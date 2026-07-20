@@ -1,8 +1,10 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class ActivityListenerExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

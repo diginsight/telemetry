@@ -11,6 +11,10 @@ public static class JTokenExtensions
     extension(JToken jtoken)
     {
         public TResult Accept<TResult, TArg>(IJTokenVisitor<TResult, TArg> visitor, TArg arg)
+#if NET9_0_OR_GREATER
+            where TResult : allows ref struct
+            where TArg : allows ref struct
+#endif
         {
             return jtoken switch
             {
@@ -55,6 +59,9 @@ public static class JTokenExtensions
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TResult Apply<TResult>(this IJTokenVisitor<TResult, ValueTuple> visitor, JToken jtoken)
+#if NET9_0_OR_GREATER
+        where TResult : allows ref struct
+#endif
     {
         return jtoken.Accept(visitor, default);
     }

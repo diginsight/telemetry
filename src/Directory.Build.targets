@@ -53,6 +53,10 @@
     <None Remove="packages.lock.json" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="**/*.DotSettings" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(IsPackable)' != 'false'">
     <None Include="$(MSBuildThisFileDirectory)README.md">
       <Visible>false</Visible>

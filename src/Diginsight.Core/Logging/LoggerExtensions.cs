@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.ComponentModel;
+
 #if NET
 using System.Runtime.CompilerServices;
 #endif
@@ -8,6 +10,7 @@ namespace Diginsight.Logging;
 /// <summary>
 /// Provides extension methods for the <see cref="ILogger" /> interface.
 /// </summary>
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static partial class LoggerExtensions
 {
     /// <summary>

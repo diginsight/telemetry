@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry.Trace;
+using System.ComponentModel;
 
 namespace Diginsight.Diagnostics.AspNetCore;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class DependencyInjectionExtensions
 {
     public static TracerProviderBuilder SetHttpHeadersSampler(
