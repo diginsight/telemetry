@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "repository": "diginsight/telemetry",
+  "solution": "src/Diginsight.slnx",
+  "stagingPath": "artifacts/release",
+  "packages": [
+    {
+      "id": "Diginsight.AspNetCore",
+      "symbolsRequired": true
+    },
+    {
+      "id": "Diginsight.Atomify",
+      "symbolsRequired": true
+    },
+    {
+      "id": "Diginsight.Core",
+      "symbolsRequired": true
+    },
+    {
+      "id": "Diginsight.Diagnostics",
+      "symbolsRequired": true
+    },
+    {
+      "id": "Diginsight.Diagnostics.AspNetCore",
+      "symbolsRequired": true
+    },
+    {
+      "id": "Diginsight.Diagnostics.AspNetCore.OpenTelemetry",
+      "symbolsRequired": true
+    },
+    {
+      "id": "Diginsight.Diagnostics.Log4Net",
+      "symbolsRequired": true
+    },
+    {
+      "id": "Diginsight.Diagnostics.OpenTelemetry",
+      "symbolsRequired": true
+    },
+    {
+      "id": "Diginsight.Json",
+      "symbolsRequired": true
+    },
+    {
+      "id": "Diginsight.Polyfills",
+      "symbolsRequired": true
+    },
+    {
+      "id": "Diginsight.Stringify",
+      "symbolsRequired": true
+    }
+  ]
+}
