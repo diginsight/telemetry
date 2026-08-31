@@ -1,4 +1,4 @@
-﻿#if !NET
+﻿#if !NET7_0_OR_GREATER
 namespace System.Diagnostics;
 
 public sealed class UnreachableException : Exception
