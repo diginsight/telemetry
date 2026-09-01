@@ -62,8 +62,9 @@ public static class DiginsightTextWriter
             activity ??= activityMetadata.Activity;
 
             bool isStop = duration is not null;
-            maybeTimestamp ??=
-                activity.GetCustomProperty(isStop ? ActivityCustomPropertyNames.EmitStopTimestamp : ActivityCustomPropertyNames.EmitStartTimestamp) as DateTimeOffset?;
+            maybeTimestamp ??= activity.GetCustomProperty(
+                isStop ? ActivityCustomPropertyNames.EmitStopTimestamp : ActivityCustomPropertyNames.EmitStartTimestamp
+            ) as DateTimeOffset?;
         }
         else
         {
@@ -89,21 +90,23 @@ public static class DiginsightTextWriter
         Func<LineDescriptor, LineDescriptor>? sealLineDescriptor
     )
     {
+        const int messageLengthThreshold = 7;
+
         if (DisplayTiming)
         {
-            if (lineDescriptor.MaxMessageLength is (> 7 or < -7) and var maxMessageLength)
+            if (lineDescriptor.MaxMessageLength is (> messageLengthThreshold or < -messageLengthThreshold) and var maxMessageLength)
             {
                 MutableLineDescriptor mutableLineDescriptor = new (lineDescriptor)
                 {
-                    MaxMessageLength = (Math.Abs(maxMessageLength) - 7) * Math.Sign(maxMessageLength),
+                    MaxMessageLength = (Math.Abs(maxMessageLength) - messageLengthThreshold) * Math.Sign(maxMessageLength),
                 };
                 lineDescriptor = new LineDescriptor(mutableLineDescriptor);
             }
-            else if (lineDescriptor.MaxLineLength is (> 7 or < -7) and var maxLineLength)
+            else if (lineDescriptor.MaxLineLength is (> messageLengthThreshold or < -messageLengthThreshold) and var maxLineLength)
             {
                 MutableLineDescriptor mutableLineDescriptor = new (lineDescriptor)
                 {
-                    MaxLineLength = (Math.Abs(maxLineLength) - 7) * Math.Sign(maxLineLength),
+                    MaxLineLength = (Math.Abs(maxLineLength) - messageLengthThreshold) * Math.Sign(maxLineLength),
                 };
                 lineDescriptor = new LineDescriptor(mutableLineDescriptor);
             }

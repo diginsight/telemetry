@@ -206,4 +206,18 @@ public static class CollectionExtensions
             }
         }
     }
+
+    extension<TKey, TValue>(IDictionary<TKey, TValue> dictionary)
+        where TKey : notnull
+    {
+        public TValue? GetValueOrDefault(TKey key)
+        {
+            return dictionary.GetValueOrDefault(key, default);
+        }
+
+        public TValue? GetValueOrDefault(TKey key, TValue? defaultValue)
+        {
+            return dictionary.TryGetValue(key, out TValue? obj) ? obj : defaultValue;
+        }
+    }
 }

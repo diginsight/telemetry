@@ -13,6 +13,7 @@ public abstract class MsecAppender : IPrefixTokenAppender
         string str = msec switch
         {
             null => "",
+            < 0 => "-",
             < 1 => string.Format(CultureInfo.InvariantCulture, ".{0:000}m", msec.Value * 1000),
             < 10000 => string.Format(CultureInfo.InvariantCulture, "{0:0}m", msec.Value),
             < 100000 => string.Format(CultureInfo.InvariantCulture, "{0}s", Math.Round(msec.Value / 1000, 1)),
