@@ -19,5 +19,6 @@
     <File Path="Directory.Build.props" />
     <File Path="Directory.Build.targets" />
     <File Path="global.json" />
+    <File Path="NuGet.Config" />
   </Folder>
 </Solution>
