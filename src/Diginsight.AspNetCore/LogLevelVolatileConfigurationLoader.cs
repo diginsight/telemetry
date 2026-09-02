@@ -6,12 +6,17 @@ using Microsoft.Extensions.Logging;
 
 namespace Diginsight.AspNetCore;
 
+/// <summary>
+/// Loads volatile log level configuration entries from ASP.NET Core HTTP request headers.
+/// </summary>
 public sealed class LogLevelVolatileConfigurationLoader : IAspNetCoreVolatileConfigurationLoader
 {
     private const string HeaderName = "Log-Level";
 
+    /// <inheritdoc />
     public string StorageName => KnownVolatileConfigurationStorageNames.LogLevel;
 
+    /// <inheritdoc />
     public IEnumerable<KeyValuePair<string, string?>> Load(HttpContext httpContext)
     {
         LoggerFilterOptions loggerFilterOptions = new ();
@@ -29,6 +34,10 @@ public sealed class LogLevelVolatileConfigurationLoader : IAspNetCoreVolatileCon
             );
     }
 
+    /// <summary>
+    /// Registers the log level volatile configuration loader in the specified service collection.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
     public static void AddToServices(IServiceCollection services)
     {
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IAspNetCoreVolatileConfigurationLoader, LogLevelVolatileConfigurationLoader>());

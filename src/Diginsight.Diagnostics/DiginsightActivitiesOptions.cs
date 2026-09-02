@@ -5,6 +5,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Diginsight.Diagnostics;
 
+/// <summary>
+/// Represents configuration options for Diginsight activities, activity lifecycle logging, and span duration metric recording.
+/// </summary>
 public sealed class DiginsightActivitiesOptions
     : IDiginsightActivitiesOptions,
         IDiginsightActivitiesLogOptions,
@@ -25,20 +28,32 @@ public sealed class DiginsightActivitiesOptions
     private string? spanDurationMetricName;
     private string? spanDurationMetricDescription;
 
+    /// <summary>
+    /// Gets the activity source name patterns mapped to listener enablement values.
+    /// </summary>
     public IDictionary<string, bool> ActivitySources { get; }
 
     IReadOnlyDictionary<string, bool> IDiginsightActivitiesOptions.ActivitySources => (IReadOnlyDictionary<string, bool>)ActivitySources;
 
+    /// <summary>
+    /// Gets the activity name patterns mapped to activity lifecycle logging behavior.
+    /// </summary>
     public IDictionary<string, LogBehavior> LoggedActivityNames { get; }
 
     IReadOnlyDictionary<string, LogBehavior> IDiginsightActivitiesLogOptions.ActivityNames => (IReadOnlyDictionary<string, LogBehavior>)LoggedActivityNames;
 
+    /// <summary>
+    /// Gets the default activity lifecycle logging behavior.
+    /// </summary>
     public LogBehavior LogBehavior
     {
         get => logBehavior;
         set => logBehavior = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
     }
 
+    /// <summary>
+    /// Gets the activity lifecycle log level.
+    /// </summary>
     public LogLevel ActivityLogLevel
     {
         get => activityLogLevel;
@@ -47,24 +62,36 @@ public sealed class DiginsightActivitiesOptions
 
     LogLevel IDiginsightActivitiesLogOptions.LogLevel => ActivityLogLevel;
 
+    /// <summary>
+    /// Gets a value indicating whether activity lifecycle log actions are written before the activity name.
+    /// </summary>
     public bool WriteActivityActionAsPrefix
     {
         get => writeActivityActionAsPrefix;
         set => writeActivityActionAsPrefix = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
     }
 
+    /// <summary>
+    /// Gets a value indicating whether activity input and output payloads are written to lifecycle logs.
+    /// </summary>
     public bool EnablePayloadLogging
     {
         get => enablePayloadLogging;
         set => enablePayloadLogging = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
     }
 
+    /// <summary>
+    /// Gets a value indicating whether activity input and output payloads are added as activity tags.
+    /// </summary>
     public bool EnablePayloadTagging
     {
         get => enablePayloadTagging;
         set => enablePayloadTagging = frozen ? throw new InvalidOperationException($"{nameof(DiginsightActivitiesOptions)} instance is frozen") : value;
     }
 
+    /// <summary>
+    /// Gets a value indicating whether span duration metrics are recorded.
+    /// </summary>
     public bool RecordSpanDuration
     {
         get => recordSpanDuration;
@@ -73,6 +100,9 @@ public sealed class DiginsightActivitiesOptions
 
     bool IMetricRecordingOptions.Record => RecordSpanDuration;
 
+    /// <summary>
+    /// Gets the meter name used for span duration metric recording.
+    /// </summary>
     public string? SpanDurationMeterName
     {
         get => spanDurationMeterName;
@@ -82,6 +112,9 @@ public sealed class DiginsightActivitiesOptions
     string IMetricRecordingOptions.MeterName =>
         SpanDurationMeterName ?? throw new InvalidOperationException($"{nameof(IMetricRecordingOptions.MeterName)} is unset");
 
+    /// <summary>
+    /// Gets the span duration metric name.
+    /// </summary>
     public string? SpanDurationMetricName
     {
         get => spanDurationMetricName;
@@ -90,6 +123,9 @@ public sealed class DiginsightActivitiesOptions
 
     string IMetricRecordingOptions.MetricName => SpanDurationMetricName ?? "diginsight.span_duration";
 
+    /// <summary>
+    /// Gets the span duration metric description.
+    /// </summary>
     public string? SpanDurationMetricDescription
     {
         get => spanDurationMetricDescription;
@@ -98,6 +134,9 @@ public sealed class DiginsightActivitiesOptions
 
     string? IMetricRecordingOptions.MetricDescription => SpanDurationMetricDescription;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DiginsightActivitiesOptions" /> class with default configuration.
+    /// </summary>
     public DiginsightActivitiesOptions()
         : this(
             false,
@@ -116,6 +155,10 @@ public sealed class DiginsightActivitiesOptions
         LoggedActivityNames = loggedActivityNames;
     }
 
+    /// <summary>
+    /// Creates an immutable copy of this options instance.
+    /// </summary>
+    /// <returns>The frozen options instance.</returns>
     public DiginsightActivitiesOptions Freeze()
     {
         if (frozen)

@@ -50,9 +50,6 @@ public sealed class DefaultDynamicLogLevelInjector : IDynamicLogLevelInjector
     /// <summary>
     /// DI constructor.
     /// </summary>
-    /// <param name="hostEnvironment"></param>
-    /// <param name="loggerFilterOptionsMonitor"></param>
-    /// <param name="loggerFactoryOptions"></param>
     public DefaultDynamicLogLevelInjector(
 #if NET
         IHostEnvironment
@@ -120,6 +117,10 @@ public sealed class DefaultDynamicLogLevelInjector : IDynamicLogLevelInjector
         public IDisposable? OnChange(Action<LoggerFilterOptions, string?> listener) => null;
     }
 
+    /// <summary>
+    /// Registers the default dynamic log level injector in the specified service collection.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
     public static void AddToServices(IServiceCollection services)
     {
         services.AddDynamicLogLevel<DefaultDynamicLogLevelInjector>();

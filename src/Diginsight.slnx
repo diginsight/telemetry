@@ -15,6 +15,7 @@
     <Project Path="Diginsight.Diagnostics/Diginsight.Diagnostics.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
+    <File Path="../.github/agents/xmldoc-completion.agent.md" />
     <File Path=".gitignore" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Build.targets" />

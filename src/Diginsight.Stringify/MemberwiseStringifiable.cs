@@ -2,10 +2,19 @@
 
 namespace Diginsight.Stringify;
 
+/// <summary>
+/// Represents an attribute- and reflection-based stringifiable value that appends selected members of an object.
+/// </summary>
 public sealed class MemberwiseStringifiable : ReflectionStringifiable
 {
     private readonly IStringifyTypeContractAccessor contractAccessor;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MemberwiseStringifiable" /> class.
+    /// </summary>
+    /// <param name="obj">The object to stringify.</param>
+    /// <param name="helper">The reflection stringify helper.</param>
+    /// <param name="contractAccessor">The contract accessor.</param>
     public MemberwiseStringifiable(
         object obj,
         IReflectionStringifyHelper helper,
@@ -16,6 +25,7 @@ public sealed class MemberwiseStringifiable : ReflectionStringifiable
         this.contractAccessor = contractAccessor;
     }
 
+    /// <inheritdoc />
     protected override StringifyAppender[] MakeAppenders(Type type)
     {
         IEnumerable<(StringifyAppender, int)> MakeAppendersWithOrder<TMember>(
@@ -86,5 +96,6 @@ public sealed class MemberwiseStringifiable : ReflectionStringifiable
         ];
     }
 
+    /// <inheritdoc />
     protected override AllottedCounter Count(StringifyContext stringifyContext) => stringifyContext.CountMemberwiseProperties();
 }

@@ -8,11 +8,22 @@ using System.Globalization;
 
 namespace Diginsight.Diagnostics.Log4Net;
 
+/// <summary>
+/// Provides extension methods for registering Diginsight Log4Net services.
+/// </summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class DependencyInjectionExtensions
 {
+    /// <param name="loggingBuilder">The logging builder.</param>
     extension(ILoggingBuilder loggingBuilder)
     {
+        /// <summary>
+        /// Adds Diginsight Log4Net logging with appenders created from the service provider.
+        /// </summary>
+        /// <param name="createAppenders">The function used to create Log4Net appenders.</param>
+        /// <param name="getLevel">The function used to get the root logger level.</param>
+        /// <param name="repositoryName">The Log4Net repository name.</param>
+        /// <returns>The logging builder.</returns>
         public ILoggingBuilder AddDiginsightLog4Net(
             Func<IServiceProvider, IEnumerable<IAppender>> createAppenders,
             Func<IServiceProvider, Level?>? getLevel = null,
@@ -80,6 +91,11 @@ public static class DependencyInjectionExtensions
             return loggingBuilder;
         }
 
+        /// <summary>
+        /// Adds Diginsight Log4Net logging with configuration loaded from a file.
+        /// </summary>
+        /// <param name="configFileName">The Log4Net configuration file name.</param>
+        /// <returns>The logging builder.</returns>
         public ILoggingBuilder AddDiginsightLog4Net(string configFileName)
         {
             loggingBuilder.AddDiginsightCore();

@@ -12,6 +12,9 @@ using System.Runtime.InteropServices;
 
 namespace Diginsight.Diagnostics;
 
+/// <summary>
+/// Represents an activity listener logic that emits activity lifecycle logs.
+/// </summary>
 public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
 {
     private static class CustomPropertyNames
@@ -21,6 +24,9 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         public const string EmittedStop = nameof(EmittedStop);
     }
 
+    /// <summary>
+    /// Represents an activity lifecycle log emitter that does not emit logs.
+    /// </summary>
     public static readonly ActivityLifecycleLogEmitter Noop = new (
         NullLoggerFactory.Instance,
         new ClassAwareOptionsMonitorExtension<DiginsightActivitiesOptions>(
@@ -52,6 +58,16 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
     private IStringifyContextFactory StringifyContextFactory =>
         stringifyContextFactory ??= new StringifyContextFactoryBuilder().WithLoggerFactory(loggerFactory).Build();
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ActivityLifecycleLogEmitter" /> class.
+    /// </summary>
+    /// <param name="loggerFactory">The logger factory used to create the loggers that emit activity lifecycle logs.</param>
+    /// <param name="activitiesOptionsMonitor">The options monitor for <see cref="DiginsightActivitiesOptions" />.</param>
+    /// <param name="stringifyContextFactory">The optional factory used to stringify activity tags and payloads.</param>
+    /// <param name="activityLoggingFilter">The optional filter that decides the log behavior for each activity.</param>
+    /// <remarks>
+    /// This class is designed to be either explicitly instantiated or instantiated through dependency injection.
+    /// </remarks>
     public ActivityLifecycleLogEmitter(
         ILoggerFactory loggerFactory,
         IOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor,
@@ -87,6 +103,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         return false;
     }
 
+    /// <inheritdoc />
     public void ActivityStarted(Activity activity)
     {
         if (IsEmitted(activity, false))
@@ -189,6 +206,7 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         }
     }
 
+    /// <inheritdoc />
     public void ActivityStopped(Activity activity)
     {
         if (IsEmitted(activity, true))
@@ -392,8 +410,9 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         callerType = activity.GetCallerType();
 
         activitiesOptions = activitiesOptionsMonitor.CurrentValue;
-        LogBehavior candidateBehavior = activityLoggingFilter?.GetLogBehavior(activity) ?? activitiesOptions.LogBehavior;
-        behavior = activity.Parent?.GetLogBehavior() == LogBehavior.Truncate ? LogBehavior.Truncate : candidateBehavior;
+        behavior = activity.Parent?.GetLogBehavior() == LogBehavior.Truncate
+            ? LogBehavior.Truncate
+            : activityLoggingFilter?.GetLogBehavior(activity) ?? activitiesOptions.LogBehavior;
     }
 
     private void ExtractLoggingInfo2(
@@ -494,9 +513,18 @@ public sealed class ActivityLifecycleLogEmitter : IActivityListenerLogic
         }
     }
 
+    /// <summary>
+    /// Represents log metadata for activity lifecycle logging.
+    /// </summary>
     public interface ILogMetadata : Logging.ILogMetadata
     {
+        /// <summary>
+        /// Gets the activity associated with the log entry.
+        /// </summary>
         Activity Activity { get; }
+        /// <summary>
+        /// Gets the activity duration associated with the log entry.
+        /// </summary>
         TimeSpan? Duration { get; }
     }
 

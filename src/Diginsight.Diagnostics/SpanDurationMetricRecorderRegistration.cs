@@ -3,17 +3,30 @@ using System.Diagnostics;
 
 namespace Diginsight.Diagnostics;
 
+/// <summary>
+/// Represents an activity listener registration for span duration metric recording.
+/// </summary>
 public class SpanDurationMetricRecorderRegistration : IActivityListenerRegistration
 {
     private readonly IDiginsightActivitiesOptions? activitiesOptions;
 
+    /// <inheritdoc />
     public IActivityListenerLogic Logic { get; }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SpanDurationMetricRecorderRegistration" /> class.
+    /// </summary>
+    /// <param name="recorder">The span duration metric recorder.</param>
     protected SpanDurationMetricRecorderRegistration(SpanDurationMetricRecorder recorder)
     {
         Logic = recorder;
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SpanDurationMetricRecorderRegistration" /> class.
+    /// </summary>
+    /// <param name="recorder">The span duration metric recorder.</param>
+    /// <param name="activitiesOptions">The activity options.</param>
     public SpanDurationMetricRecorderRegistration(
         SpanDurationMetricRecorder recorder,
         IOptions<DiginsightActivitiesOptions> activitiesOptions
@@ -23,6 +36,7 @@ public class SpanDurationMetricRecorderRegistration : IActivityListenerRegistrat
         this.activitiesOptions = activitiesOptions.Value.Freeze();
     }
 
+    /// <inheritdoc />
     public virtual bool ShouldListenTo(ActivitySource activitySource)
     {
         if (activitiesOptions is null)

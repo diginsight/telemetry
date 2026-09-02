@@ -9,6 +9,14 @@ namespace Diginsight;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class StringExtensions
 {
+    /// <summary>
+    /// Converts the specified object to its string representation using the invariant culture.
+    /// </summary>
+    /// <remarks>
+    /// Booleans are rendered in lowercase. <see cref="IFormattable" /> instances are formatted with <see cref="CultureInfo.InvariantCulture" />.
+    /// </remarks>
+    /// <param name="obj">The object to convert.</param>
+    /// <returns>The invariant string representation of <paramref name="obj" />, or <c>null</c> when <paramref name="obj" /> is <c>null</c>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [return: NotNullIfNotNull(nameof(obj))]
     public static string? ToStringInvariant(this object? obj)
@@ -21,8 +29,13 @@ public static class StringExtensions
         };
     }
 
+    /// <param name="str">The string (possibly <c>null</c>).</param>
     extension(string? str)
     {
+        /// <summary>
+        /// Trims the string and converts an empty result to <c>null</c>.
+        /// </summary>
+        /// <returns>The trimmed string, or <c>null</c> when the string is <c>null</c>, empty, or whitespace only.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string? HardTrim()
         {
@@ -34,6 +47,11 @@ public static class StringExtensions
             };
         }
 
+        /// <summary>
+        /// Truncates the string to the specified maximum length.
+        /// </summary>
+        /// <param name="length">The maximum number of characters to keep.</param>
+        /// <returns>The truncated string, or the original string when it is <c>null</c> or not longer than <paramref name="length" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNullIfNotNull(nameof(str))]
         public string? Truncate(int length)
@@ -42,6 +60,15 @@ public static class StringExtensions
         }
     }
 
+    /// <summary>
+    /// Normalizes an HTTP header value into its constituent tokens, honoring quoting and escaping.
+    /// </summary>
+    /// <remarks>
+    /// Values may be separated by commas and optionally enclosed in double quotes; escaped characters within quoted segments are unescaped.
+    /// </remarks>
+    /// <param name="stringValues">The raw header values to normalize.</param>
+    /// <returns>The sequence of normalized header tokens.</returns>
+    /// <exception cref="FormatException">Thrown when the header value is malformed, such as an unexpected escape, an unterminated quoted string, or a missing comma.</exception>
     public static IEnumerable<string> NormalizeHttpHeaderValue(this StringValues stringValues)
     {
         const int outerMode = 0,

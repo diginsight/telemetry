@@ -4,12 +4,18 @@ using System.Diagnostics.Metrics;
 
 namespace Diginsight.Diagnostics;
 
+/// <summary>
+/// Represents an activity listener logic that records custom duration metrics.
+/// </summary>
 public sealed class CustomDurationMetricRecorder : IActivityListenerLogic
 {
     private readonly ILogger logger;
     private readonly IMetricRecordingFilter? recordingFilter;
     private readonly IMetricRecordingEnricher? recordingEnricher;
 
+    /// <summary>
+    /// DI constructor.
+    /// </summary>
     public CustomDurationMetricRecorder(
         ILogger<CustomDurationMetricRecorder> logger,
         IMetricRecordingFilter? recordingFilter = null,

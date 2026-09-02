@@ -10,6 +10,9 @@ using MseOptions = Microsoft.Extensions.Options.Options;
 
 namespace Diginsight.Stringify;
 
+/// <summary>
+/// Provides extension methods for converting objects to string representations.
+/// </summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class StringifyExtensions
 {
@@ -31,8 +34,14 @@ public static class StringifyExtensions
         MseOptions.Create(new MemoryCacheOptions() { SizeLimit = 2000 })
     );
 
+    /// <param name="obj">The object instance.</param>
     extension(object? obj)
     {
+        /// <summary>
+        /// Converts the specified object to a stringifiable representation.
+        /// </summary>
+        /// <param name="stringifyContextFactory">The stringify context factory.</param>
+        /// <returns>The stringifiable representation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IStringifiable ToStringifiable(
             IStringifyContextFactory? stringifyContextFactory = null
@@ -42,6 +51,13 @@ public static class StringifyExtensions
                 .ToStringifiable(obj);
         }
 
+        /// <summary>
+        /// Stringifies the specified object.
+        /// </summary>
+        /// <param name="stringifyContextFactory">The stringify context factory.</param>
+        /// <param name="configureVariables">The action used to configure variable options.</param>
+        /// <param name="configureMetaProperties">The action used to configure meta properties.</param>
+        /// <returns>The compact string representation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string Stringify(
             IStringifyContextFactory? stringifyContextFactory = null,
@@ -54,6 +70,14 @@ public static class StringifyExtensions
         }
     }
 
+    /// <summary>
+    /// Stringifies the specified object.
+    /// </summary>
+    /// <param name="stringifyContextFactory">The stringify context factory.</param>
+    /// <param name="obj">The object to stringify.</param>
+    /// <param name="configureVariables">The action used to configure variable options.</param>
+    /// <param name="configureMetaProperties">The action used to configure meta properties.</param>
+    /// <returns>The compact string representation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string Stringify(
         this IStringifyContextFactory stringifyContextFactory,

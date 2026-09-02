@@ -4,6 +4,9 @@ using System.Diagnostics;
 
 namespace Diginsight.AspNetCore;
 
+/// <summary>
+/// Represents an ASP.NET Core-aware propagator for Diginsight distributed context data.
+/// </summary>
 public sealed class AspNetCorePropagator : DiginsightPropagator
 {
     private static readonly object NonBaggageItemsKey = new ();
@@ -12,6 +15,9 @@ public sealed class AspNetCorePropagator : DiginsightPropagator
 
     private IDictionary<object, object?>? Items => httpContextAccessor.HttpContext?.Items;
 
+    /// <summary>
+    /// DI constructor.
+    /// </summary>
     public AspNetCorePropagator(
         DistributedContextPropagator decoratee,
         IHttpContextAccessor httpContextAccessor,
@@ -22,6 +28,7 @@ public sealed class AspNetCorePropagator : DiginsightPropagator
         this.httpContextAccessor = httpContextAccessor;
     }
 
+    /// <inheritdoc />
     protected override void SetCurrentNonBaggage(IEnumerable<KeyValuePair<string, IEnumerable<string>>> nonBaggage)
     {
         if (Items is not { } items)
@@ -30,6 +37,7 @@ public sealed class AspNetCorePropagator : DiginsightPropagator
         items[NonBaggageItemsKey] = nonBaggage;
     }
 
+    /// <inheritdoc />
     protected override IEnumerable<KeyValuePair<string, IEnumerable<string>>>? GetCurrentNonBaggage()
     {
         return Items?.TryGetValue(NonBaggageItemsKey, out object? nonBaggage) == true

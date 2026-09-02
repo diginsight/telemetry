@@ -5,6 +5,9 @@ using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
 
+/// <summary>
+/// Represents an elapsed time measurement that can be recorded to a timer histogram.
+/// </summary>
 public sealed class TimerLap : IDisposable
 {
     private readonly Histogram<double> histogram;
@@ -15,8 +18,14 @@ public sealed class TimerLap : IDisposable
     private IDisposable? stopper;
     private bool committed;
 
+    /// <summary>
+    /// Gets a value indicating whether the elapsed time should not be recorded when this instance is disposed.
+    /// </summary>
     public bool DisableCommit { get; set; }
 
+    /// <summary>
+    /// Gets the elapsed time in milliseconds.
+    /// </summary>
     public double ElapsedMilliseconds => sw.Elapsed.TotalMilliseconds;
 
     internal TimerLap(Histogram<double> histogram, Tags tags, StrongBox<double>? elapsedMillisecondsBox)
@@ -28,6 +37,10 @@ public sealed class TimerLap : IDisposable
         this.elapsedMillisecondsBox = elapsedMillisecondsBox;
     }
 
+    /// <summary>
+    /// Adds tags to the timer lap.
+    /// </summary>
+    /// <param name="tags">The tags to add.</param>
     public void AddTags([SuppressMessage("ReSharper", "ParameterHidesMember")] params Tag[] tags)
     {
         foreach (var tag in tags)
@@ -36,16 +49,29 @@ public sealed class TimerLap : IDisposable
         }
     }
 
+    /// <summary>
+    /// Adds a tag to the timer lap.
+    /// </summary>
+    /// <param name="key">The tag key.</param>
+    /// <param name="value">The tag value.</param>
     public void AddTag(string key, object value)
     {
         tags.Add(new Tag(key, (object?)value));
     }
 
+    /// <summary>
+    /// Adds a tag to the timer lap.
+    /// </summary>
+    /// <param name="tag">The tag to add.</param>
     public void AddTag(Tag tag)
     {
         tags.Add(tag);
     }
 
+    /// <summary>
+    /// Starts measuring elapsed time.
+    /// </summary>
+    /// <returns>A disposable that stops the timer lap.</returns>
     public IDisposable Start()
     {
         if (stopper is not null)
@@ -57,6 +83,7 @@ public sealed class TimerLap : IDisposable
         return stopper = new Stopper(this);
     }
 
+    /// <inheritdoc />
     public void Dispose()
     {
         Commit();

@@ -4,6 +4,9 @@ using System.Text;
 
 namespace Diginsight.Stringify;
 
+/// <summary>
+/// Represents the mutable state used while composing a compact string representation.
+/// </summary>
 public sealed class StringifyContext
 {
     private readonly StringBuilder stringBuilder;
@@ -18,12 +21,24 @@ public sealed class StringifyContext
     private int currentDepth = 0;
     private bool isFull = false;
 
+    /// <summary>
+    /// Gets the active variable configuration.
+    /// </summary>
     public IStringifyVariableConfiguration VariableConfiguration => variableConfiguration;
 
+    /// <summary>
+    /// Gets the active meta properties.
+    /// </summary>
     public IReadOnlyDictionary<string, object?> MetaProperties => metaProperties;
 
+    /// <summary>
+    /// Gets a value indicating whether the allotted stringification time is over.
+    /// </summary>
     public bool IsTimeOver => timer.IsOver;
 
+    /// <summary>
+    /// Gets a value indicating whether the output has reached the maximum total length.
+    /// </summary>
     public bool IsFull
     {
         get
@@ -55,6 +70,18 @@ public sealed class StringifyContext
         timer = new Timer(maxTime);
     }
 
+    /// <summary>
+    /// Composes and appends a stringifiable representation of the specified object.
+    /// </summary>
+    /// <param name="obj">The object to stringify.</param>
+    /// <param name="atomic">
+    /// A value indicating whether the value is appended atomically, as described by <see cref="AppendAtom" />.
+    /// When <c>null</c>, an atomic append is used by default unless overridden by an <see cref="IStringifyModifier" />.
+    /// </param>
+    /// <param name="configureVariables">The action used to configure variable options.</param>
+    /// <param name="configureMetaProperties">The action used to configure meta properties.</param>
+    /// <param name="maxTime">The maximum allotted stringification time.</param>
+    /// <returns>The same <see cref="StringifyContext" /> instance, for chaining.</returns>
     public StringifyContext ComposeAndAppend(
         object? obj,
         bool? atomic = null,
@@ -107,6 +134,11 @@ public sealed class StringifyContext
         ComposeAndAppendCore(ToStringifiable(obj), configureVariables, configureMetaProperties, maxTime);
     }
 
+    /// <summary>
+    /// Converts the specified object to a stringifiable representation.
+    /// </summary>
+    /// <param name="obj">The object to stringify.</param>
+    /// <returns>The stringifiable representation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IStringifiable ToStringifiable(object? obj) => StringifyContextFactory.ToStringifiable(obj, stringifiers);
 
@@ -148,6 +180,11 @@ public sealed class StringifyContext
         }
     }
 
+    /// <summary>
+    /// Appends content directly to the underlying output.
+    /// </summary>
+    /// <param name="c">The character to append.</param>
+    /// <returns>The stringify context.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public StringifyContext AppendDirect(char c)
     {
@@ -159,6 +196,11 @@ public sealed class StringifyContext
         return this;
     }
 
+    /// <summary>
+    /// Appends content directly to the underlying output.
+    /// </summary>
+    /// <param name="s">The string to append.</param>
+    /// <returns>The stringify context.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public StringifyContext AppendDirect(string s)
     {
@@ -170,6 +212,11 @@ public sealed class StringifyContext
         return this;
     }
 
+    /// <summary>
+    /// Appends content directly to the underlying output.
+    /// </summary>
+    /// <param name="appendContent">The action that appends content.</param>
+    /// <returns>The stringify context.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public StringifyContext AppendDirect(Action<StringBuilder> appendContent)
     {
@@ -181,6 +228,19 @@ public sealed class StringifyContext
         return this;
     }
 
+    /// <summary>
+    /// Composes and appends a compact representation of a type.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <param name="collectionLength">The collection length metadata to append after the type name.</param>
+    /// <returns>The same <see cref="StringifyContext" /> instance, for chaining.</returns>
+    /// <remarks>
+    /// The <paramref name="collectionLength" /> value is applicable only to array and collection types and is rendered right after the type name.
+    /// An <c>int[]</c> value is interpreted as the lengths of the array dimensions and is rendered inside the square brackets (for example, <c>[3]</c> or <c>[3,4]</c>).
+    /// A single <c>int</c> value is rendered as a parenthesized suffix (for example, <c>(3)</c>).
+    /// A <c>null</c> value appends no length information.
+    /// The metadata applies to the outermost type only and is not propagated to nested type arguments or element types.
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public StringifyContext ComposeAndAppendType(Type type, object? collectionLength = null)
     {
@@ -196,6 +256,16 @@ public sealed class StringifyContext
         return this;
     }
 
+    /// <summary>
+    /// Appends content as an atomic operation.
+    /// </summary>
+    /// <param name="appendContent">The action that appends content.</param>
+    /// <returns>The same <see cref="StringifyContext" /> instance, for chaining.</returns>
+    /// <remarks>
+    /// An atomic append is all-or-nothing with respect to the time budget: if the allotted stringification time expires while <paramref name="appendContent" />
+    /// is running, any content it has already written is rolled back and replaced with an ellipsis, so an atomic block never leaves a truncated fragment in the output.
+    /// Content appended outside an atomic block is not subject to this rollback.
+    /// </remarks>
     public StringifyContext AppendAtom(Action<StringifyContext> appendContent)
     {
         int prevLength = stringBuilder.Length;
@@ -213,6 +283,11 @@ public sealed class StringifyContext
         return this;
     }
 
+    /// <summary>
+    /// Adds a subject to the set of objects currently being rendered.
+    /// </summary>
+    /// <param name="obj">The object to stringify.</param>
+    /// <returns>A disposable that removes the subject from the seen set when disposed, or <c>null</c> for subjects that are not tracked.</returns>
     public IDisposable? AddSeen(object? obj)
     {
         if (obj is null or ValueType)
@@ -225,6 +300,11 @@ public sealed class StringifyContext
         return new CallbackDisposable(() => { renderedObjs.Remove(obj); });
     }
 
+    /// <summary>
+    /// Applies temporary variable configuration to the stringify context.
+    /// </summary>
+    /// <param name="configureVariables">The action used to configure variable options.</param>
+    /// <returns>A disposable that restores the previous variable configuration when disposed.</returns>
     public IDisposable WithVariables(Action<StringifyVariableConfiguration> configureVariables)
     {
         StringifyVariableConfiguration previous = variableConfiguration;
@@ -234,6 +314,11 @@ public sealed class StringifyContext
         return new CallbackDisposable(() => { variableConfiguration = previous; });
     }
 
+    /// <summary>
+    /// Applies temporary meta properties to the stringify context.
+    /// </summary>
+    /// <param name="configureMetaProperties">The action used to configure meta properties.</param>
+    /// <returns>A disposable that restores the previous meta properties when disposed.</returns>
     public IDisposable WithMetaProperties(Action<IDictionary<string, object?>> configureMetaProperties)
     {
         Dictionary<string, object?> previous = metaProperties;
@@ -243,6 +328,11 @@ public sealed class StringifyContext
         return new CallbackDisposable(() => { metaProperties = previous; });
     }
 
+    /// <summary>
+    /// Applies a dedicated time budget to the stringify context.
+    /// </summary>
+    /// <param name="maxTime">The maximum allotted stringification time.</param>
+    /// <returns>A disposable that restores the previous timer when disposed, or <c>null</c> if time is already over.</returns>
     public IDisposable? WithDedicatedTime(Expiration maxTime)
     {
         if (IsTimeOver)
@@ -259,6 +349,11 @@ public sealed class StringifyContext
         );
     }
 
+    /// <summary>
+    /// Increments the current stringification depth.
+    /// </summary>
+    /// <param name="isMaxDepth">When this method returns, contains a value indicating whether the maximum depth was reached.</param>
+    /// <returns>A disposable that restores the previous depth when disposed.</returns>
     public IDisposable IncrementDepth(out bool isMaxDepth)
     {
         currentDepth += 1;
@@ -266,6 +361,10 @@ public sealed class StringifyContext
         return new CallbackDisposable(() => currentDepth -= 1);
     }
 
+    /// <summary>
+    /// Throws when the allotted stringification time is over.
+    /// </summary>
+    /// <exception cref="MaxAllottedTimeShortCircuit">Thrown when the allotted stringification time is over.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ThrowIfTimeIsOver()
     {
@@ -275,6 +374,9 @@ public sealed class StringifyContext
         }
     }
 
+    /// <summary>
+    /// Truncates output that exceeds the maximum total length.
+    /// </summary>
     public void ChopIfFull()
     {
         int excessLength = stringBuilder.Length - maxTotalLength;

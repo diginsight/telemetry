@@ -11,29 +11,52 @@ using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
 
+/// <summary>
+/// Provides extension methods for registering Diginsight diagnostics services.
+/// </summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class DependencyInjectionExtensions
 {
+    /// <param name="services">The service collection to configure.</param>
     extension(IServiceCollection services)
     {
+        /// <summary>
+        /// Registers a deferred logger factory to be flushed when the service provider is created.
+        /// </summary>
+        /// <param name="deferredLoggerFactory">The deferred logger factory to flush.</param>
+        /// <returns>The configured service collection.</returns>
         public IServiceCollection FlushOnCreateServiceProvider(DeferredLoggerFactory deferredLoggerFactory)
         {
             services.AddSingleton<IOnCreateServiceProvider>(sp => ActivatorUtilities.CreateInstance<DeferredLoggerFactoryFlusher>(sp, deferredLoggerFactory));
             return services;
         }
 
+        /// <summary>
+        /// Registers a deferred activity lifecycle log emitter to be flushed when the service provider is created.
+        /// </summary>
+        /// <param name="deferredEmitter">The deferred activity lifecycle log emitter to flush.</param>
+        /// <returns>The configured service collection.</returns>
         public IServiceCollection FlushOnCreateServiceProvider(DeferredActivityLifecycleLogEmitter deferredEmitter)
         {
             services.AddSingleton<IOnCreateServiceProvider>(sp => ActivatorUtilities.CreateInstance<DeferredActivityLifecycleLogEmitterFlusher>(sp, deferredEmitter));
             return services;
         }
 
+        /// <summary>
+        /// Adds the service that registers configured activity listeners when the service provider is created.
+        /// </summary>
+        /// <returns>The configured service collection.</returns>
         public IServiceCollection AddActivityListenersAdder()
         {
             services.TryAddEnumerable(ServiceDescriptor.Singleton<IOnCreateServiceProvider, ActivityListenersAdder>());
             return services;
         }
 
+        /// <summary>
+        /// Adds span duration metric recording with the specified activity listener registration type.
+        /// </summary>
+        /// <typeparam name="TRegistration">The activity listener registration type.</typeparam>
+        /// <returns>The configured service collection.</returns>
         public IServiceCollection AddSpanDurationMetricRecorder<TRegistration>()
             where TRegistration : SpanDurationMetricRecorderRegistration
         {
@@ -48,6 +71,10 @@ public static class DependencyInjectionExtensions
             return services;
         }
 
+        /// <summary>
+        /// Adds span duration metric recording with the default activity listener registration.
+        /// </summary>
+        /// <returns>The configured service collection.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IServiceCollection AddSpanDurationMetricRecorder()
         {
@@ -55,8 +82,13 @@ public static class DependencyInjectionExtensions
         }
     }
 
+    /// <param name="loggingBuilder">The logging builder to configure.</param>
     extension(ILoggingBuilder loggingBuilder)
     {
+        /// <summary>
+        /// Adds core Diginsight activity lifecycle logging services.
+        /// </summary>
+        /// <returns>The configured logging builder.</returns>
         public ILoggingBuilder AddDiginsightCore()
         {
             IServiceCollection services = loggingBuilder.Services;
@@ -79,6 +111,11 @@ public static class DependencyInjectionExtensions
             return loggingBuilder;
         }
 
+        /// <summary>
+        /// Adds Diginsight console logging with the Diginsight console formatter.
+        /// </summary>
+        /// <param name="configureFormatterOptions">The action used to configure formatter options.</param>
+        /// <returns>The configured logging builder.</returns>
         public ILoggingBuilder AddDiginsightConsole(
             Action<DiginsightConsoleFormatterOptions>? configureFormatterOptions = null
         )
@@ -101,6 +138,11 @@ public static class DependencyInjectionExtensions
             return loggingBuilder;
         }
 
+        /// <summary>
+        /// Adds Diginsight debug logging.
+        /// </summary>
+        /// <param name="configureOptions">The action used to configure debug logger options.</param>
+        /// <returns>The configured logging builder.</returns>
         public ILoggingBuilder AddDiginsightDebug(
             Action<DiginsightDebugLoggerOptions>? configureOptions = null
         )
@@ -117,6 +159,10 @@ public static class DependencyInjectionExtensions
             return loggingBuilder;
         }
 
+        /// <summary>
+        /// Adds volatile configuration support for logger filter options.
+        /// </summary>
+        /// <returns>The configured logging builder.</returns>
         public ILoggingBuilder AddVolatileConfiguration()
         {
             IServiceCollection services = loggingBuilder.Services;

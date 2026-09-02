@@ -3,12 +3,19 @@ using Newtonsoft.Json.Linq;
 
 namespace Diginsight.Json;
 
+/// <summary>
+/// Represents a heuristic size provider for JSON tokens.
+/// </summary>
 public sealed class JTokenHeuristicSizeProvider : IHeuristicSizeProvider
 {
+    /// <summary>
+    /// Represents the singleton instance of the <see cref="JTokenHeuristicSizeProvider" /> class.
+    /// </summary>
     public static readonly IHeuristicSizeProvider Instance = new JTokenHeuristicSizeProvider();
 
     private JTokenHeuristicSizeProvider() { }
 
+    /// <inheritdoc />
     public bool TryGetSizeHeuristically(object obj, HeuristicSizeGetter innerGet, out HeuristicSizeResult result)
     {
         switch (obj)

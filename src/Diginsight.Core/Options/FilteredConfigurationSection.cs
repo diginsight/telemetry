@@ -2,14 +2,20 @@
 
 namespace Diginsight.Options;
 
+/// <summary>
+/// Represents an <see cref="IConfigurationSection" /> whose keys are filtered for a specific class.
+/// </summary>
 public sealed class FilteredConfigurationSection : FilteredConfiguration, IConfigurationSection
 {
     private readonly IConfigurationSection underlying;
 
+    /// <inheritdoc />
     public string Key { get; }
 
+    /// <inheritdoc />
     public string Path { get; }
 
+    /// <inheritdoc />
     public string? Value
     {
         get => underlying.Value;

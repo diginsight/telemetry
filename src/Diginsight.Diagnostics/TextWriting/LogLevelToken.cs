@@ -5,10 +5,17 @@ using System.Text;
 
 namespace Diginsight.Diagnostics.TextWriting;
 
+/// <summary>
+/// Represents a line token that appends the log level to the line prefix.
+/// </summary>
 public sealed class LogLevelToken : ILineToken
 {
     private int? length;
 
+    /// <summary>
+    /// Gets the desired log level length.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when the value is not <c>null</c> and is outside the range 1-5.</exception>
     public int? Length
     {
         get => length;
@@ -20,11 +27,13 @@ public sealed class LogLevelToken : ILineToken
         set => length = value;
     }
 
+    /// <inheritdoc />
     public void Apply(ref MutableLineDescriptor lineDescriptor)
     {
         lineDescriptor.Appenders.Add(Appender.For(length));
     }
 
+    /// <inheritdoc />
     public ILineToken Clone() => new LogLevelToken() { LengthUnsafe = length };
 
     internal sealed class Appender : IPrefixTokenAppender

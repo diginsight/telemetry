@@ -5,6 +5,9 @@ using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
 
+/// <summary>
+/// Provides extension methods for working with <see cref="Activity" /> instances.
+/// </summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class ActivityExtensions
 {
@@ -17,8 +20,14 @@ public static class ActivityExtensions
         public const string LogBehavior = nameof(LogBehavior);
     }
 
+    /// <param name="activity">The activity to work with.</param>
     extension(Activity? activity)
     {
+        /// <summary>
+        /// Sets the output payload associated with the activity.
+        /// </summary>
+        /// <param name="output">The output payload.</param>
+        /// <exception cref="ArgumentException">Thrown when the activity does not contain a valid logger.</exception>
         public void SetOutput(object? output)
         {
             if (activity is null)
@@ -33,6 +42,11 @@ public static class ActivityExtensions
             activity.SetCustomProperty(ActivityCustomPropertyNames.Output, new StrongBox<object?>(output));
         }
 
+        /// <summary>
+        /// Sets the named output payloads associated with the activity.
+        /// </summary>
+        /// <param name="namedOutputs">The named output payloads.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="namedOutputs" /> is <c>null</c>.</exception>
         public void SetNamedOutputs(object namedOutputs)
         {
             if (namedOutputs is null)
@@ -43,6 +57,10 @@ public static class ActivityExtensions
             activity?.SetCustomProperty(ActivityCustomPropertyNames.NamedOutputs, namedOutputs);
         }
 
+        /// <summary>
+        /// Gets the activity depth associated with the activity.
+        /// </summary>
+        /// <returns>The activity depth.</returns>
         public ActivityDepth GetDepth()
         {
             if (activity is null)
@@ -62,8 +80,14 @@ public static class ActivityExtensions
         }
     }
 
+    /// <param name="activity">The activity to work with.</param>
     extension(Activity activity)
     {
+        /// <summary>
+        /// Gets the caller type associated with the activity.
+        /// </summary>
+        /// <returns>The caller type, or <c>null</c> if no caller type is associated.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when the activity contains an invalid caller type.</exception>
         public Type? GetCallerType()
         {
             return activity.GetCustomProperty(ActivityCustomPropertyNames.CallerType) switch
@@ -74,6 +98,12 @@ public static class ActivityExtensions
             };
         }
 
+        /// <summary>
+        /// Gets the label associated with the activity.
+        /// </summary>
+        /// <returns>The activity label, or <c>null</c> if no label is associated.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="activity" /> is <c>null</c>.</exception>
+        /// <exception cref="InvalidOperationException">Thrown when the activity contains an invalid label.</exception>
         public string? GetLabel()
         {
             if (activity is null)
@@ -89,6 +119,11 @@ public static class ActivityExtensions
             };
         }
 
+        /// <summary>
+        /// Sets the label associated with the activity.
+        /// </summary>
+        /// <param name="label">The activity label.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="activity" /> is <c>null</c>.</exception>
         public void SetLabel(string? label)
         {
             if (activity is null)
@@ -99,11 +134,22 @@ public static class ActivityExtensions
             activity.SetCustomProperty(CustomPropertyNames.Label, label);
         }
 
+        /// <summary>
+        /// Finds the nearest ancestor with the specified label.
+        /// </summary>
+        /// <param name="label">The label to search for.</param>
+        /// <returns>The matching ancestor activity, or <c>null</c> if none is found.</returns>
         public Activity? FindLabeledParent(string label)
         {
             return activity.GetAncestors(true).SkipWhile(a => a.GetLabel() != label).FirstOrDefault();
         }
 
+        /// <summary>
+        /// Gets the ancestors of the activity.
+        /// </summary>
+        /// <param name="includeSelf">A value indicating whether to include the activity itself.</param>
+        /// <returns>A lazy enumerable of ancestor activities.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="activity" /> is <c>null</c>.</exception>
         public IEnumerable<Activity> GetAncestors(bool includeSelf = false)
         {
             if (activity is null)
@@ -121,6 +167,11 @@ public static class ActivityExtensions
             }
         }
 
+        /// <summary>
+        /// Gets the custom duration metric associated with the activity.
+        /// </summary>
+        /// <returns>The custom duration metric, or <c>null</c> if none is associated.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when the activity contains an invalid duration metric.</exception>
         public Instrument? GetCustomDurationMetric()
         {
             return activity.GetCustomProperty(CustomPropertyNames.CustomDurationMetric) switch
@@ -131,11 +182,21 @@ public static class ActivityExtensions
             };
         }
 
+        /// <summary>
+        /// Sets a custom long duration metric associated with the activity.
+        /// </summary>
+        /// <param name="metric">The custom duration metric.</param>
+        /// <param name="tags">The tags to record with the metric.</param>
         public void SetCustomDurationMetric(Histogram<long> metric, params Tag[] tags)
         {
             activity.SetCustomDurationMetric((Instrument)metric, tags);
         }
 
+        /// <summary>
+        /// Sets a custom double duration metric associated with the activity.
+        /// </summary>
+        /// <param name="metric">The custom duration metric.</param>
+        /// <param name="tags">The tags to record with the metric.</param>
         public void SetCustomDurationMetric(Histogram<double> metric, params Tag[] tags)
         {
             activity.SetCustomDurationMetric((Instrument)metric, tags);
@@ -153,6 +214,12 @@ public static class ActivityExtensions
             activity.SetCustomProperty(CustomPropertyNames.CustomDurationMetricTags, tags);
         }
 
+        /// <summary>
+        /// Adds tags to the custom duration metric associated with the activity.
+        /// </summary>
+        /// <param name="tags">The tags to add.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="activity" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException">Thrown when the activity has no associated custom duration metric.</exception>
         public void AddTagsToCustomDurationMetric(params Tag[] tags)
         {
             if (activity is null)

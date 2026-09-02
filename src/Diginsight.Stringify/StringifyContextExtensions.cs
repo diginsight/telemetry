@@ -5,35 +5,64 @@ using System.Runtime.CompilerServices;
 
 namespace Diginsight.Stringify;
 
+/// <summary>
+/// Provides extension methods for appending structured content to stringify contexts.
+/// </summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class StringifyContextExtensions
 {
+    /// <param name="stringifyContext">The StringifyContext instance.</param>
     extension(StringifyContext stringifyContext)
     {
+        /// <summary>
+        /// Appends the &quot;ellipsis&quot; token.
+        /// </summary>
+        /// <returns>The stringify context.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public StringifyContext AppendEllipsis()
         {
             return stringifyContext.AppendDirect(StringifyTokens.Ellipsis);
         }
 
+        /// <summary>
+        /// Appends the &quot;deep&quot; token.
+        /// </summary>
+        /// <returns>The stringify context.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public StringifyContext AppendDeep()
         {
             return stringifyContext.AppendDirect(StringifyTokens.Deep);
         }
 
+        /// <summary>
+        /// Appends the &quot;error&quot; token.
+        /// </summary>
+        /// <returns>The stringify context.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public StringifyContext AppendError()
         {
             return stringifyContext.AppendDirect(StringifyTokens.Error);
         }
 
+        /// <summary>
+        /// Appends the &quot;null&quot; token.
+        /// </summary>
+        /// <returns>The stringify context.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public StringifyContext AppendNull()
         {
             return stringifyContext.AppendDirect(StringifyTokens.Null);
         }
 
+        /// <summary>
+        /// Appends items from an enumerator until it ends or a configured limit is reached.
+        /// </summary>
+        /// <typeparam name="T">The type.</typeparam>
+        /// <param name="enumerator">The enumerator.</param>
+        /// <param name="appendCurrent">The action that appends the current enumerator value.</param>
+        /// <param name="counter">The allotted counter.</param>
+        /// <param name="separator">The separator.</param>
+        /// <returns>The stringify context.</returns>
         public StringifyContext AppendEnumerator<T>(
             T enumerator,
             Action<StringifyContext, T> appendCurrent,
@@ -102,6 +131,15 @@ public static class StringifyContextExtensions
             return stringifyContext;
         }
 
+        /// <summary>
+        /// Appends delimited content.
+        /// </summary>
+        /// <param name="beginDelim">The beginning delimiter.</param>
+        /// <param name="endDelim">The ending delimiter.</param>
+        /// <param name="appendContent">The action that appends content.</param>
+        /// <param name="configureVariables">The action used to configure variable options.</param>
+        /// <param name="configureMetaProperties">The action used to configure meta properties.</param>
+        /// <returns>The stringify context.</returns>
         public StringifyContext AppendDelimited(
             char beginDelim,
             char endDelim,
@@ -121,6 +159,14 @@ public static class StringifyContextExtensions
             return stringifyContext.AppendDirect(endDelim);
         }
 
+        /// <summary>
+        /// Appends map content with type information.
+        /// </summary>
+        /// <param name="mapType">The map type.</param>
+        /// <param name="appendContent">The action that appends content.</param>
+        /// <param name="configureVariables">The action used to configure variable options.</param>
+        /// <param name="configureMetaProperties">The action used to configure meta properties.</param>
+        /// <returns>The stringify context.</returns>
         public StringifyContext AppendMap(
             Type mapType,
             Action<StringifyContext> appendContent,
@@ -139,6 +185,15 @@ public static class StringifyContextExtensions
                 );
         }
 
+        /// <summary>
+        /// Appends collection content with type information.
+        /// </summary>
+        /// <param name="collectionType">The collection type.</param>
+        /// <param name="appendContent">The action that appends content.</param>
+        /// <param name="count">The collection count, if applicable.</param>
+        /// <param name="configureVariables">The action used to configure variable options.</param>
+        /// <param name="configureMetaProperties">The action used to configure meta properties.</param>
+        /// <returns>The stringify context.</returns>
         public StringifyContext AppendCollection(
             Type collectionType,
             Action<StringifyContext> appendContent,
@@ -158,6 +213,16 @@ public static class StringifyContextExtensions
                 );
         }
 
+        /// <summary>
+        /// Composes and appends the first member in a fluent member append sequence.
+        /// </summary>
+        /// <param name="memberName">The member name.</param>
+        /// <param name="memberValue">The member value.</param>
+        /// <param name="separator">The separator.</param>
+        /// <param name="atomic">A value indicating whether the value is appended atomically.</param>
+        /// <param name="configureVariables">The action used to configure variable options.</param>
+        /// <param name="configureMetaProperties">The action used to configure meta properties.</param>
+        /// <returns>The member appender.</returns>
         public MemberAppender ComposeAndAppendMember(
             string memberName,
             object? memberValue,
@@ -190,6 +255,15 @@ public static class StringifyContextExtensions
             return new MemberAppender(stringifyContext, counter, separator, isAlive);
         }
 
+        /// <summary>
+        /// Composes and appends the first item in a fluent item append sequence.
+        /// </summary>
+        /// <param name="itemValue">The item value.</param>
+        /// <param name="separator">The separator.</param>
+        /// <param name="atomic">A value indicating whether the value is appended atomically.</param>
+        /// <param name="configureVariables">The action used to configure variable options.</param>
+        /// <param name="configureMetaProperties">The action used to configure meta properties.</param>
+        /// <returns>The item appender.</returns>
         public ItemAppender ComposeAndAppendItem(
             object? itemValue,
             string separator = StringifyTokens.Separator2,
@@ -219,6 +293,11 @@ public static class StringifyContextExtensions
             return new ItemAppender(stringifyContext, counter, separator, isAlive);
         }
 
+        /// <summary>
+        /// Applies temporary variable configuration when a configuration action is provided.
+        /// </summary>
+        /// <param name="configureVariables">The action used to configure variable options.</param>
+        /// <returns>A disposable that restores the previous variable configuration when disposed, or <c>null</c> when no configuration action is provided.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNullIfNotNull(nameof(configureVariables))]
         public IDisposable? WithVariablesSafe(Action<StringifyVariableConfiguration>? configureVariables)
@@ -226,6 +305,11 @@ public static class StringifyContextExtensions
             return configureVariables is null ? null : stringifyContext.WithVariables(configureVariables);
         }
 
+        /// <summary>
+        /// Applies temporary meta properties when a configuration action is provided.
+        /// </summary>
+        /// <param name="configureMetaProperties">The action used to configure meta properties.</param>
+        /// <returns>A disposable that restores the previous meta properties when disposed, or <c>null</c> when no configuration action is provided.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNullIfNotNull(nameof(configureMetaProperties))]
         public IDisposable? WithMetaPropertiesSafe(Action<IDictionary<string, object?>>? configureMetaProperties)
@@ -233,6 +317,12 @@ public static class StringifyContextExtensions
             return configureMetaProperties is null ? null : stringifyContext.WithMetaProperties(configureMetaProperties);
         }
 
+        /// <summary>
+        /// Increments the current stringification depth.
+        /// </summary>
+        /// <param name="condition">A value indicating whether the depth should be incremented.</param>
+        /// <param name="isMaxDepth">When this method returns, contains a value indicating whether the maximum depth was reached.</param>
+        /// <returns>A disposable that restores the previous depth when disposed.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IDisposable? IncrementDepth(bool condition, out bool isMaxDepth)
         {
@@ -247,18 +337,30 @@ public static class StringifyContextExtensions
             }
         }
 
+        /// <summary>
+        /// Creates a counter for collection items.
+        /// </summary>
+        /// <returns>The allotted counter.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AllottedCounter CountCollectionItems()
         {
             return AllottedCounter.Count(stringifyContext.VariableConfiguration.EffectiveMaxCollectionItemCount);
         }
 
+        /// <summary>
+        /// Creates a counter for dictionary items.
+        /// </summary>
+        /// <returns>The allotted counter.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AllottedCounter CountDictionaryItems()
         {
             return AllottedCounter.Count(stringifyContext.VariableConfiguration.EffectiveMaxDictionaryItemCount);
         }
 
+        /// <summary>
+        /// Creates a counter for memberwise properties.
+        /// </summary>
+        /// <returns>The allotted counter.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AllottedCounter CountMemberwiseProperties()
         {

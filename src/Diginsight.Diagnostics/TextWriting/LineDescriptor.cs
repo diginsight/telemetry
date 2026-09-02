@@ -4,6 +4,9 @@ using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics.TextWriting;
 
+/// <summary>
+/// Represents a text-writing line descriptor built from line tokens.
+/// </summary>
 public sealed class LineDescriptor
 {
     private const string MessageThenNothingErrMsg = "'Message' token must be followed by nothing";
@@ -39,22 +42,49 @@ public sealed class LineDescriptor
         new MessageToken(),
     ];
 
+    /// <summary>
+    /// Gets the default text-writing line tokens.
+    /// </summary>
     public static IEnumerable<ILineToken> DefaultLineTokens => DefaultLineTokensCore.Select(static x => x.Clone());
 
+    /// <summary>
+    /// Represents the default text-writing line descriptor.
+    /// </summary>
     public static readonly LineDescriptor DefaultDescriptor = new (Apply(DefaultLineTokensCore));
 
+    /// <summary>
+    /// Gets the prefix token appenders.
+    /// </summary>
     public IEnumerable<IPrefixTokenAppender> Appenders { get; }
 
+    /// <summary>
+    /// Gets the maximum activity depth used for indentation.
+    /// </summary>
     public int MaxIndentedDepth { get; }
 
+    /// <summary>
+    /// Gets the maximum message length.
+    /// </summary>
     public int MaxMessageLength { get; }
 
+    /// <summary>
+    /// Gets the maximum full line length.
+    /// </summary>
     public int MaxLineLength { get; }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LineDescriptor" /> class.
+    /// </summary>
+    /// <param name="lineTokens">The line tokens to apply.</param>
+    /// <exception cref="ArgumentException">Thrown when the line token sequence is invalid.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public LineDescriptor(IEnumerable<ILineToken> lineTokens)
         : this([ .. lineTokens ], true) { }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LineDescriptor" /> class.
+    /// </summary>
+    /// <param name="descriptor">The mutable line descriptor.</param>
     public LineDescriptor(MutableLineDescriptor descriptor)
     {
         Appenders = descriptor.Appenders;
@@ -122,12 +152,26 @@ public sealed class LineDescriptor
         return descriptor;
     }
 
+    /// <summary>
+    /// Parses a line pattern into line tokens.
+    /// </summary>
+    /// <param name="pattern">The line pattern to parse.</param>
+    /// <param name="customLineTokenParsers">The custom line token parsers to add to the default parsers.</param>
+    /// <returns>The parsed line tokens, or the default line tokens when the pattern is <c>null</c>.</returns>
+    /// <exception cref="FormatException">Thrown when the line pattern has an invalid format.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IEnumerable<ILineToken> Parse(string? pattern, IEnumerable<ILineTokenParser>? customLineTokenParsers = null)
     {
         return pattern is not null ? ParseCore(pattern, customLineTokenParsers) : DefaultLineTokens;
     }
 
+    /// <summary>
+    /// Parses a line pattern into a line descriptor.
+    /// </summary>
+    /// <param name="pattern">The line pattern to parse.</param>
+    /// <param name="customLineTokenParsers">The custom line token parsers to add to the default parsers.</param>
+    /// <returns>The parsed line descriptor, or the default line descriptor when the pattern is <c>null</c>.</returns>
+    /// <exception cref="FormatException">Thrown when the line pattern has an invalid format.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static LineDescriptor ParseFull(string? pattern, IEnumerable<ILineTokenParser>? customLineTokenParsers = null)
     {

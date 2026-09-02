@@ -8,6 +8,9 @@ using System.Text;
 
 namespace Diginsight.Diagnostics;
 
+/// <summary>
+/// Represents a logger provider that writes Diginsight-formatted logs to debug output.
+/// </summary>
 [ProviderAlias("DiginsightDebug")]
 public sealed class DiginsightDebugLoggerProvider : ILoggerProvider
 {
@@ -20,6 +23,9 @@ public sealed class DiginsightDebugLoggerProvider : ILoggerProvider
     [field: MaybeNull]
     private LineDescriptor LineDescriptor => field ??= LineDescriptor.ParseFull(options.Pattern, lineTokenParsers);
 
+    /// <summary>
+    /// DI constructor.
+    /// </summary>
     public DiginsightDebugLoggerProvider(
         IEnumerable<ILineTokenParser> lineTokenParsers,
         IOptions<DiginsightDebugLoggerOptions> options,
@@ -31,6 +37,7 @@ public sealed class DiginsightDebugLoggerProvider : ILoggerProvider
         this.timeProvider = timeProvider ?? TimeProvider.System;
     }
 
+    /// <inheritdoc />
     public ILogger CreateLogger(string categoryName)
     {
         return loggers.GetOrAdd(
@@ -44,6 +51,7 @@ public sealed class DiginsightDebugLoggerProvider : ILoggerProvider
         );
     }
 
+    /// <inheritdoc />
     public void Dispose() { }
 
     private sealed class Logger : ILogger

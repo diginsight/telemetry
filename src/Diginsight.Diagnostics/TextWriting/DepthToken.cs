@@ -2,15 +2,23 @@
 
 namespace Diginsight.Diagnostics.TextWriting;
 
+/// <summary>
+/// Represents a line token that appends activity depth information to the line prefix.
+/// </summary>
 public sealed class DepthToken : ILineToken
 {
+    /// <summary>
+    /// Gets the activity depth modes to append.
+    /// </summary>
     public DepthTokenModes Modes { get; set; }
 
+    /// <inheritdoc />
     public void Apply(ref MutableLineDescriptor lineDescriptor)
     {
         lineDescriptor.Appenders.Add(new Appender(Modes));
     }
 
+    /// <inheritdoc />
     public ILineToken Clone() => new DepthToken() { Modes = Modes };
 
     private sealed class Appender : IPrefixTokenAppender

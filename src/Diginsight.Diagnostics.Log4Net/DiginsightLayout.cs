@@ -6,20 +6,35 @@ using Microsoft.Extensions.Logging;
 
 namespace Diginsight.Diagnostics.Log4Net;
 
+/// <summary>
+/// Represents a Log4Net layout that formats logging events with Diginsight text output.
+/// </summary>
 public sealed class DiginsightLayout : ILayout
 {
     private static readonly string FallbackLoggerName = $"{typeof(DiginsightLayout).Namespace!}.$Layout";
 
     private LineDescriptor? lineDescriptor;
 
+    /// <summary>
+    /// Gets the time zone used to format timestamps.
+    /// </summary>
     public TimeZoneInfo? TimeZone { get; set; } = TimeZoneInfo.Utc;
 
+    /// <summary>
+    /// Gets the system time zone identifier used to format timestamps.
+    /// </summary>
     public string? TimeZoneId
     {
         get => TimeZone?.Id;
         set => TimeZone = value is null ? null : TimeZoneInfo.FindSystemTimeZoneById(value);
     }
 
+    /// <summary>
+    /// Gets the line descriptor pattern used to format log output.
+    /// </summary>
+    /// <remarks>
+    /// The pattern is parsed according to <see cref="Diginsight.Diagnostics.TextWriting.LineDescriptor" />. When <c>null</c>, the default line descriptor is used.
+    /// </remarks>
     public string? Pattern { get; set; }
 
     string ILayout.ContentType => "text/plain";
@@ -27,6 +42,7 @@ public sealed class DiginsightLayout : ILayout
     string? ILayout.Footer => null;
     bool ILayout.IgnoresException => true;
 
+    /// <inheritdoc />
     public void Format(TextWriter writer, LoggingEvent loggingEvent)
     {
         try

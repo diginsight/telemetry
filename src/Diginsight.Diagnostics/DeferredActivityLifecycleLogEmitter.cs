@@ -4,6 +4,9 @@ using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
 
+/// <summary>
+/// Represents an activity lifecycle log emitter that defers activity lifecycle logging until a target emitter is available.
+/// </summary>
 [SuppressMessage("ReSharper", "InconsistentlySynchronizedField")]
 public sealed class DeferredActivityLifecycleLogEmitter : IDisposable
 {
@@ -22,6 +25,13 @@ public sealed class DeferredActivityLifecycleLogEmitter : IDisposable
     private ActivityListener? activityListener;
     private ActivityLifecycleLogEmitter? target;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DeferredActivityLifecycleLogEmitter" /> class.
+    /// </summary>
+    /// <param name="operationRegistry">The deferred operation registry.</param>
+    /// <param name="shouldListenTo">The predicate used to determine whether an activity source should be listened to.</param>
+    /// <param name="timeProvider">The time provider used to timestamp deferred operations.</param>
+    /// <param name="makeEmergencyTarget">The factory used to create an emergency target emitter.</param>
     public DeferredActivityLifecycleLogEmitter(
         DeferredOperationRegistry operationRegistry,
         Func<ActivitySource, bool> shouldListenTo,
@@ -89,6 +99,12 @@ public sealed class DeferredActivityLifecycleLogEmitter : IDisposable
         }
     }
 
+    /// <summary>
+    /// Flushes deferred activity lifecycle operations to the specified target emitter.
+    /// </summary>
+    /// <param name="target">The target activity lifecycle log emitter.</param>
+    /// <param name="throwOnFlushed">A value indicating whether to throw when this instance has already been flushed.</param>
+    /// <exception cref="InvalidOperationException">Thrown when this instance has already been flushed and <paramref name="throwOnFlushed" /> is <c>true</c>.</exception>
     public void FlushTo(
         [SuppressMessage("ReSharper", "ParameterHidesMember")]
         ActivityLifecycleLogEmitter target,
@@ -119,6 +135,7 @@ public sealed class DeferredActivityLifecycleLogEmitter : IDisposable
         FlushOperations();
     }
 
+    /// <inheritdoc />
     public void Dispose()
     {
         UnregisterActivityListener();

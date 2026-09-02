@@ -1,5 +1,8 @@
 ﻿namespace Diginsight.Stringify;
 
+/// <summary>
+/// Represents a fluent appender for member name-value pairs.
+/// </summary>
 public sealed class MemberAppender
 {
     private readonly StringifyContext stringifyContext;
@@ -15,6 +18,15 @@ public sealed class MemberAppender
         this.isAlive = isAlive;
     }
 
+    /// <summary>
+    /// Appends another member if the allotted limits have not been reached.
+    /// </summary>
+    /// <param name="memberName">The member name.</param>
+    /// <param name="memberValue">The member value.</param>
+    /// <param name="atomic">A value indicating whether the value is appended atomically.</param>
+    /// <param name="configureVariables">The action used to configure variable options.</param>
+    /// <param name="configureMetaProperties">The action used to configure meta properties.</param>
+    /// <returns>The member appender.</returns>
     public MemberAppender ThenMember(
         string memberName,
         object? memberValue,
@@ -50,5 +62,9 @@ public sealed class MemberAppender
         return this;
     }
 
+    /// <summary>
+    /// Returns the underlying stringify context.
+    /// </summary>
+    /// <returns>The stringify context.</returns>
     public StringifyContext End() => stringifyContext;
 }

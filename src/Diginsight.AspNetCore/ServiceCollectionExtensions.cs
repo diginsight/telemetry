@@ -12,11 +12,20 @@ using Microsoft.AspNetCore.Builder;
 
 namespace Diginsight.AspNetCore;
 
+/// <summary>
+/// Provides extension methods for registering Diginsight ASP.NET Core services.
+/// </summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class ServiceCollectionExtensions
 {
+    /// <param name="services">The service collection.</param>
     extension(IServiceCollection services)
     {
+        /// <summary>
+        /// Adds dynamic log level services using the specified injector type.
+        /// </summary>
+        /// <typeparam name="T">The dynamic log level injector type.</typeparam>
+        /// <returns>The service collection, for chaining.</returns>
         public IServiceCollection AddDynamicLogLevel<T>()
             where T : class, IDynamicLogLevelInjector
         {
@@ -25,6 +34,11 @@ public static class ServiceCollectionExtensions
             return services;
         }
 
+        /// <summary>
+        /// Adds dynamic log level services using the specified injector factory.
+        /// </summary>
+        /// <param name="implementationFactory">The dynamic log level injector factory.</param>
+        /// <returns>The service collection, for chaining.</returns>
         public IServiceCollection AddDynamicLogLevel(
             Func<IServiceProvider, IDynamicLogLevelInjector> implementationFactory
         )
@@ -43,6 +57,10 @@ public static class ServiceCollectionExtensions
                 .Decorate<IHttpContextFactory, DynamicLogLevelHttpContextFactory>();
         }
 
+        /// <summary>
+        /// Adds the ASP.NET Core propagator to the specified service collection.
+        /// </summary>
+        /// <returns>The service collection, for chaining.</returns>
         public IServiceCollection AddAspNetCorePropagator()
         {
             services.AddHttpContextAccessor();
@@ -55,15 +73,23 @@ public static class ServiceCollectionExtensions
         }
     }
 
+    /// <summary>
+    /// Sets the current distributed context propagator when the service provider is created.
+    /// </summary>
     public sealed class SetCurrentPropagator : IOnCreateServiceProvider
     {
         private readonly DistributedContextPropagator propagator;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SetCurrentPropagator" /> class.
+        /// </summary>
+        /// <param name="propagator">The distributed context propagator.</param>
         public SetCurrentPropagator(DistributedContextPropagator propagator)
         {
             this.propagator = propagator;
         }
 
+        /// <inheritdoc />
         public void Run()
         {
             DistributedContextPropagator.Current = propagator;
@@ -71,8 +97,22 @@ public static class ServiceCollectionExtensions
     }
 
 #if NET
+    /// <summary>
+    /// Maps the volatile configuration endpoint to the specified endpoint route builder.
+    /// </summary>
+    /// <param name="endpoints">The endpoint route builder.</param>
+    /// <param name="pattern">The route pattern.</param>
+    /// <returns>The endpoint convention builder.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the volatile configuration storage provider is not registered.</exception>
     public static IEndpointConventionBuilder MapVolatileConfiguration(this IEndpointRouteBuilder endpoints, string pattern = ".volatile-configuration")
 #else
+    /// <summary>
+    /// Maps the volatile configuration endpoint to the specified route builder.
+    /// </summary>
+    /// <param name="routes">The route builder.</param>
+    /// <param name="template">The route template.</param>
+    /// <returns>The route builder.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the volatile configuration storage provider is not registered.</exception>
     public static IRouteBuilder MapVolatileConfiguration(this IRouteBuilder routes, string template = ".volatile-configuration")
 #endif
     {

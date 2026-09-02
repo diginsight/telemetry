@@ -3,10 +3,17 @@ using System.Text;
 
 namespace Diginsight.Diagnostics.TextWriting;
 
+/// <summary>
+/// Represents a line token that appends the log timestamp to the line prefix.
+/// </summary>
 public sealed class TimestampToken : ILineToken
 {
     private string? format;
 
+    /// <summary>
+    /// Gets the timestamp format.
+    /// </summary>
+    /// <exception cref="ArgumentException">Thrown when the value is not a valid timestamp format.</exception>
     public string? Format
     {
         get => format;
@@ -33,13 +40,18 @@ public sealed class TimestampToken : ILineToken
         set => format = value;
     }
 
+    /// <summary>
+    /// Gets the culture used to format the timestamp.
+    /// </summary>
     public CultureInfo? Culture { get; set; }
 
+    /// <inheritdoc />
     public void Apply(ref MutableLineDescriptor lineDescriptor)
     {
         lineDescriptor.Appenders.Add(new Appender(Format, Culture));
     }
 
+    /// <inheritdoc />
     public ILineToken Clone() => new TimestampToken() { FormatUnsafe = format, Culture = Culture };
 
     private sealed class Appender : IPrefixTokenAppender

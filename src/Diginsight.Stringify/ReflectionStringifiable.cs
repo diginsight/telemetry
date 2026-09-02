@@ -4,6 +4,9 @@ using System.Runtime.CompilerServices;
 
 namespace Diginsight.Stringify;
 
+/// <summary>
+/// Represents a base class for reflection-based stringifiable values.
+/// </summary>
 public abstract class ReflectionStringifiable : IStringifiable
 {
     private static readonly MethodInfo AppendDirectStringMethod =
@@ -30,6 +33,12 @@ public abstract class ReflectionStringifiable : IStringifiable
 #endif
     object IStringifiable.Subject => obj;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ReflectionStringifiable" /> class.
+    /// </summary>
+    /// <param name="obj">The object to stringify.</param>
+    /// <param name="helper">The reflection stringify helper.</param>
+    /// <param name="dontCacheAppenders"><c>true</c> to rebuild the member appenders on each render; <c>false</c> to reuse cached appenders for the object type.</param>
     protected ReflectionStringifiable(object obj, IReflectionStringifyHelper helper, bool dontCacheAppenders = false)
     {
         this.obj = obj;
@@ -37,6 +46,7 @@ public abstract class ReflectionStringifiable : IStringifiable
         this.dontCacheAppenders = dontCacheAppenders;
     }
 
+    /// <inheritdoc />
     public void AppendTo(StringifyContext stringifyContext)
     {
         stringifyContext
@@ -69,8 +79,20 @@ public abstract class ReflectionStringifiable : IStringifiable
         );
     }
 
+    /// <summary>
+    /// Creates appenders for the specified type.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <returns>The stringify appenders.</returns>
     protected abstract StringifyAppender[] MakeAppenders(Type type);
 
+    /// <summary>
+    /// Creates an appender for a reflected member.
+    /// </summary>
+    /// <param name="member">The member.</param>
+    /// <param name="outputName">The output member name.</param>
+    /// <param name="stringifierInfo">The custom stringifier information.</param>
+    /// <returns>The compiled stringify appender.</returns>
     protected StringifyAppender MakeAppender(MemberInfo member, string? outputName, (Type, object[])? stringifierInfo)
     {
         outputName ??= member.Name;
@@ -188,5 +210,10 @@ public abstract class ReflectionStringifiable : IStringifiable
         return appenderExpr.Compile();
     }
 
+    /// <summary>
+    /// Creates an allotted counter for the specified maximum count.
+    /// </summary>
+    /// <param name="stringifyContext">The stringify context.</param>
+    /// <returns>The allotted counter.</returns>
     protected abstract AllottedCounter Count(StringifyContext stringifyContext);
 }

@@ -10,6 +10,9 @@ using Microsoft.Extensions.Hosting;
 
 namespace Diginsight.AspNetCore;
 
+/// <summary>
+/// Provides extension methods for configuring Diginsight dependency injection in ASP.NET Core hosts.
+/// </summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class DependencyInjectionExtensions
 {

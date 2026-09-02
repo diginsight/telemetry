@@ -15,10 +15,16 @@ internal static class ModuleInitializer
     internal static void Initialize()
     {
 #else
+/// <summary>
+/// Provides initialization methods for Diginsight JSON integration.
+/// </summary>
 public static class ModuleInitializer
 {
     private static volatile bool initialized = false;
 
+    /// <summary>
+    /// Initializes Diginsight JSON integration.
+    /// </summary>
     public static void Initialize()
     {
         if (initialized)

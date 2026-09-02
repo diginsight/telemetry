@@ -6,9 +6,13 @@ using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
 
+/// <summary>
+/// Provides extension methods for creating rich <see cref="Activity" /> instances from <see cref="ActivitySource" /> instances.
+/// </summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static partial class ActivitySourceExtensions
 {
+    /// <param name="activitySource">The activity source to work with.</param>
     extension(ActivitySource activitySource)
     {
         [MethodImpl(MethodImplOptions.NoInlining)]

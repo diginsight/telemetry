@@ -5,17 +5,26 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Diginsight.AspNetCore;
 
+/// <summary>
+/// Loads volatile configuration entries from ASP.NET Core HTTP request headers.
+/// </summary>
 public sealed class ConfigurationVolatileConfigurationLoader : IAspNetCoreVolatileConfigurationLoader
 {
     private const string HeaderName = "Volatile-Configuration";
 
+    /// <inheritdoc />
     public string StorageName => KnownVolatileConfigurationStorageNames.Configuration;
 
+    /// <inheritdoc />
     public IEnumerable<KeyValuePair<string, string?>> Load(HttpContext httpContext)
     {
         return DynamicHttpHeadersParser.ParseConfiguration(httpContext.Request.Headers[HeaderName].NormalizeHttpHeaderValue(), true);
     }
 
+    /// <summary>
+    /// Registers the configuration volatile configuration loader in the specified service collection.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
     public static void AddToServices(IServiceCollection services)
     {
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IAspNetCoreVolatileConfigurationLoader, ConfigurationVolatileConfigurationLoader>());

@@ -7,6 +7,9 @@ using System.Runtime.CompilerServices;
 
 namespace Diginsight.Diagnostics;
 
+/// <summary>
+/// Represents a logger factory that defers log operations until a target logger factory is available.
+/// </summary>
 public sealed class DeferredLoggerFactory : ILoggerFactory
 {
     private readonly DeferredOperationRegistry operationRegistry;
@@ -25,6 +28,12 @@ public sealed class DeferredLoggerFactory : ILoggerFactory
 
     private ILoggerFactory? target;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DeferredLoggerFactory" /> class.
+    /// </summary>
+    /// <param name="operationRegistry">The deferred operation registry.</param>
+    /// <param name="timeProvider">The time provider used to timestamp deferred log entries.</param>
+    /// <param name="makeEmergencyTarget">The factory used to create an emergency target logger factory.</param>
     public DeferredLoggerFactory(
         DeferredOperationRegistry operationRegistry,
         TimeProvider? timeProvider = null,
@@ -79,6 +88,12 @@ public sealed class DeferredLoggerFactory : ILoggerFactory
         }
     }
 
+    /// <summary>
+    /// Flushes deferred log operations to the specified target logger factory.
+    /// </summary>
+    /// <param name="target">The target logger factory.</param>
+    /// <param name="throwOnFlushed">A value indicating whether to throw when this instance has already been flushed.</param>
+    /// <exception cref="InvalidOperationException">Thrown when this instance has already been flushed and <paramref name="throwOnFlushed" /> is <c>true</c>.</exception>
     public void FlushTo(
         [SuppressMessage("ReSharper", "ParameterHidesMember")]
         ILoggerFactory target,
@@ -109,6 +124,7 @@ public sealed class DeferredLoggerFactory : ILoggerFactory
         FlushOperations();
     }
 
+    /// <inheritdoc />
     public void Dispose()
     {
         if (makeEmergencyTarget is null)
@@ -278,9 +294,18 @@ public sealed class DeferredLoggerFactory : ILoggerFactory
         }
     }
 
+    /// <summary>
+    /// Represents log metadata for deferred logging.
+    /// </summary>
     public interface ILogMetadata : Logging.ILogMetadata
     {
+        /// <summary>
+        /// Gets the timestamp associated with the deferred log entry.
+        /// </summary>
         DateTimeOffset Timestamp { get; }
+        /// <summary>
+        /// Gets the activity associated with the deferred log entry.
+        /// </summary>
         Activity? Activity { get; }
     }
 

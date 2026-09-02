@@ -5,6 +5,9 @@ using System.Reflection;
 
 namespace Diginsight.Stringify;
 
+/// <summary>
+/// Represents configurable stringification rules for a type.
+/// </summary>
 public class StringifyTypeContract : IStringifyTypeContract
 {
     private readonly Type type;
@@ -30,18 +33,36 @@ public class StringifyTypeContract : IStringifyTypeContract
         public int GetHashCode(MemberInfo obj) => obj.GetHashCode();
     }
 
+    /// <summary>
+    /// Gets a value indicating whether the type or member is included in stringification.
+    /// </summary>
     public bool? Included { get; set; }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="StringifyTypeContract" /> class.
+    /// </summary>
+    /// <param name="type">The type.</param>
     private protected StringifyTypeContract(Type type)
     {
         this.type = type;
     }
 
+    /// <summary>
+    /// Creates a stringify type contract for the specified type.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <returns>The type contract.</returns>
     public static StringifyTypeContract For(Type type)
     {
         return (StringifyTypeContract)Activator.CreateInstance(typeof(StringifyTypeContract<>).MakeGenericType(type))!;
     }
 
+    /// <summary>
+    /// Gets an existing contract or adds a new contract.
+    /// </summary>
+    /// <param name="memberName">The member name.</param>
+    /// <returns>The configured contract accessor or contract.</returns>
+    /// <exception cref="ArgumentException">Thrown when the member cannot be used by the contract.</exception>
     public StringifyMemberContract GetOrAdd(string memberName)
     {
         MemberInfo[] candidateMembers = type.FindMembers(
@@ -59,11 +80,24 @@ public class StringifyTypeContract : IStringifyTypeContract
         };
     }
 
+    /// <summary>
+    /// Gets an existing contract or adds a new contract.
+    /// </summary>
+    /// <param name="member">The member.</param>
+    /// <returns>The configured contract accessor or contract.</returns>
+    /// <exception cref="ArgumentException">Thrown when the member cannot be used by the contract.</exception>
     public StringifyMemberContract GetOrAdd(MemberInfo member)
     {
         return GetOrAddCore(member, true);
     }
 
+    /// <summary>
+    /// Gets an existing member contract or adds a new member contract.
+    /// </summary>
+    /// <param name="member">The member.</param>
+    /// <param name="validateMembership">A value indicating whether membership in the declaring type is validated.</param>
+    /// <returns>The member contract.</returns>
+    /// <exception cref="ArgumentException">Thrown when the member cannot be used by the contract.</exception>
     protected StringifyMemberContract GetOrAddCore(MemberInfo member, bool validateMembership)
     {
         if (memberContracts.TryGetValue(member, out StringifyMemberContract? memberContract))
@@ -118,6 +152,11 @@ public class StringifyTypeContract : IStringifyTypeContract
         return memberContracts[member] = StringifyMemberContract.For(memberType);
     }
 
+    /// <summary>
+    /// Gets the member contract associated with the specified member.
+    /// </summary>
+    /// <param name="member">The member.</param>
+    /// <returns>The matching stringify contract if one exists; otherwise, <c>null</c>.</returns>
     public IStringifyMemberContract? TryGet(MemberInfo member)
     {
         return memberContracts.TryGetValue(member, out StringifyMemberContract? memberContract) ? memberContract : null;
@@ -132,11 +171,25 @@ public class StringifyTypeContract : IStringifyTypeContract
     }
 }
 
+/// <summary>
+/// Represents configurable stringification rules for a specific type.
+/// </summary>
+/// <typeparam name="T">The type.</typeparam>
 public sealed class StringifyTypeContract<T> : StringifyTypeContract
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="StringifyTypeContract" /> class.
+    /// </summary>
     public StringifyTypeContract()
         : base(typeof(T)) { }
 
+    /// <summary>
+    /// Gets an existing contract or adds a new contract.
+    /// </summary>
+    /// <typeparam name="TMember">The member type.</typeparam>
+    /// <param name="expression">The member access expression.</param>
+    /// <returns>The configured contract accessor or contract.</returns>
+    /// <exception cref="ArgumentException">Thrown when the member cannot be used by the contract.</exception>
     public StringifyMemberContract<TMember> GetOrAdd<TMember>(Expression<Func<T, TMember>> expression)
     {
         if (expression.Body is not MemberExpression bodyExpr)

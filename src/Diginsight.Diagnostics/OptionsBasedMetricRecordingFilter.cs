@@ -4,10 +4,20 @@ using System.Diagnostics.Metrics;
 
 namespace Diginsight.Diagnostics;
 
+/// <summary>
+/// Represents a metric recording filter based on configured activity name patterns.
+/// </summary>
 public class OptionsBasedMetricRecordingFilter : IMetricRecordingFilter
 {
     private readonly IOptionsMonitor<OptionsBasedMetricRecordingFilterOptions> filterMonitor;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="OptionsBasedMetricRecordingFilter" /> class.
+    /// </summary>
+    /// <param name="filterMonitor">The options monitor for <see cref="OptionsBasedMetricRecordingFilterOptions" />.</param>
+    /// <remarks>
+    /// This class is designed to be either explicitly instantiated, instantiated through dependency injection, or derived.
+    /// </remarks>
     public OptionsBasedMetricRecordingFilter(
         IOptionsMonitor<OptionsBasedMetricRecordingFilterOptions> filterMonitor
     )
@@ -15,6 +25,7 @@ public class OptionsBasedMetricRecordingFilter : IMetricRecordingFilter
         this.filterMonitor = filterMonitor;
     }
 
+    /// <inheritdoc />
     public virtual bool? ShouldRecord(Activity activity, Instrument instrument)
     {
         string activitySourceName = activity.Source.Name;

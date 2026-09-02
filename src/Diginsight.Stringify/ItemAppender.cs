@@ -1,5 +1,8 @@
 ﻿namespace Diginsight.Stringify;
 
+/// <summary>
+/// Represents a fluent appender for collection items.
+/// </summary>
 public sealed class ItemAppender
 {
     private readonly StringifyContext stringifyContext;
@@ -15,6 +18,14 @@ public sealed class ItemAppender
         this.isAlive = isAlive;
     }
 
+    /// <summary>
+    /// Appends another collection item if the allotted limits have not been reached.
+    /// </summary>
+    /// <param name="itemValue">The item value.</param>
+    /// <param name="atomic">A value indicating whether the value is appended atomically.</param>
+    /// <param name="configureVariables">The action used to configure variable options.</param>
+    /// <param name="configureMetaProperties">The action used to configure meta properties.</param>
+    /// <returns>The item appender.</returns>
     public ItemAppender ThenItem(
         object? itemValue,
         bool? atomic = null,
@@ -47,5 +58,9 @@ public sealed class ItemAppender
         return this;
     }
 
+    /// <summary>
+    /// Returns the underlying stringify context.
+    /// </summary>
+    /// <returns>The stringify context.</returns>
     public StringifyContext End() => stringifyContext;
 }

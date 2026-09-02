@@ -5,6 +5,9 @@ using System.Text.RegularExpressions;
 
 namespace Diginsight.AspNetCore;
 
+/// <summary>
+/// Provides methods for parsing Diginsight dynamic HTTP headers.
+/// </summary>
 public static
 #if NET
     partial
@@ -31,6 +34,12 @@ public static
     private static readonly Regex LogLevelSpecRegex = new (LogLevelSpecRegexStr, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 #endif
 
+    /// <summary>
+    /// Parses raw configuration specifications into configuration entries.
+    /// </summary>
+    /// <param name="rawSpecs">The raw configuration specifications.</param>
+    /// <param name="allowUnset">Whether specifications without a value are allowed.</param>
+    /// <returns>A lazy enumerable of configuration entries.</returns>
     public static IEnumerable<KeyValuePair<string, string?>> ParseConfiguration(IEnumerable<string> rawSpecs, bool allowUnset)
     {
         foreach (string rawSpec in rawSpecs)
@@ -48,6 +57,13 @@ public static
         }
     }
 
+    /// <summary>
+    /// Updates logger filter options according to raw log level specifications.
+    /// </summary>
+    /// <param name="rawSpecs">The raw log level specifications.</param>
+    /// <param name="loggerFilterOptions">The logger filter options to update.</param>
+    /// <param name="allowMinLevel">Whether a raw specification may set the minimum log level.</param>
+    /// <returns><c>true</c> if at least one log level specification was applied; otherwise, <c>false</c>.</returns>
     public static bool UpdateLogLevel(IEnumerable<string> rawSpecs, LoggerFilterOptions loggerFilterOptions, bool allowMinLevel)
     {
         IList<LoggerFilterRule> rules = loggerFilterOptions.Rules;

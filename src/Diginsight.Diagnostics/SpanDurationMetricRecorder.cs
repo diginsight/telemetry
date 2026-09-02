@@ -5,6 +5,9 @@ using System.Diagnostics.Metrics;
 
 namespace Diginsight.Diagnostics;
 
+/// <summary>
+/// Represents an activity listener logic that records span duration metrics.
+/// </summary>
 public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
 {
     private readonly ILogger logger;
@@ -13,6 +16,9 @@ public sealed class SpanDurationMetricRecorder : IActivityListenerLogic
     private readonly IMetricRecordingFilter? recordingFilter;
     private readonly IMetricRecordingEnricher? recordingEnricher;
 
+    /// <summary>
+    /// DI constructor.
+    /// </summary>
     public SpanDurationMetricRecorder(
         ILogger<SpanDurationMetricRecorder> logger,
         IOptionsMonitor<DiginsightActivitiesOptions> activitiesOptionsMonitor,

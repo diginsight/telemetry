@@ -4,10 +4,20 @@ using System.Diagnostics.Metrics;
 
 namespace Diginsight.Diagnostics;
 
+/// <summary>
+/// Represents a metric recording enricher based on configured activity tag names.
+/// </summary>
 public class OptionsBasedMetricRecordingEnricher : IMetricRecordingEnricher
 {
     private readonly IOptionsMonitor<OptionsBasedMetricRecordingEnricherOptions> enricherMonitor;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="OptionsBasedMetricRecordingEnricher" /> class.
+    /// </summary>
+    /// <param name="enricherMonitor">The options monitor for <see cref="OptionsBasedMetricRecordingEnricherOptions" />.</param>
+    /// <remarks>
+    /// This class is designed to be either explicitly instantiated, instantiated through dependency injection, or derived.
+    /// </remarks>
     public OptionsBasedMetricRecordingEnricher(
         IOptionsMonitor<OptionsBasedMetricRecordingEnricherOptions> enricherMonitor
     )
@@ -15,6 +25,7 @@ public class OptionsBasedMetricRecordingEnricher : IMetricRecordingEnricher
         this.enricherMonitor = enricherMonitor;
     }
 
+    /// <inheritdoc />
     public virtual Tags ExtractTags(Activity activity, Instrument instrument)
     {
         return ((IOptionsBasedMetricRecordingEnricherOptions)enricherMonitor.Get(instrument.Name)).MetricTags

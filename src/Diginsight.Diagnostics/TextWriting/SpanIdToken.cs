@@ -3,17 +3,25 @@ using System.Text;
 
 namespace Diginsight.Diagnostics.TextWriting;
 
+/// <summary>
+/// Represents a line token that appends the current activity span identifier to the line prefix.
+/// </summary>
 public sealed class SpanIdToken : ILineToken
 {
+    /// <summary>
+    /// Represents the singleton <see cref="SpanIdToken" /> instance.
+    /// </summary>
     public static readonly ILineToken Instance = new SpanIdToken();
 
     private SpanIdToken() { }
 
+    /// <inheritdoc />
     public void Apply(ref MutableLineDescriptor lineDescriptor)
     {
         lineDescriptor.Appenders.Add(Appender.Instance);
     }
 
+    /// <inheritdoc />
     public ILineToken Clone() => this;
 
     private sealed class Appender : IPrefixTokenAppender

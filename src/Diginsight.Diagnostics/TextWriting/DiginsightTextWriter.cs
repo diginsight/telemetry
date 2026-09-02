@@ -11,6 +11,9 @@ using System.Text;
 
 namespace Diginsight.Diagnostics.TextWriting;
 
+/// <summary>
+/// Provides methods for writing Diginsight log entries to text writers.
+/// </summary>
 public static class DiginsightTextWriter
 {
     private static readonly Histogram<double> WriteDuration = SelfObservabilityUtils.Meter.CreateHistogram<double>("diginsight.write_text_duration", "us");
@@ -18,6 +21,9 @@ public static class DiginsightTextWriter
     private static readonly IDictionary<(int, int, int, int), IMessageLineResizer> ResizerCache =
         new Dictionary<(int, int, int, int), IMessageLineResizer>(ResizerKeyEqualityComparer.Instance);
 
+    /// <summary>
+    /// Gets a value indicating whether write timing should be displayed.
+    /// </summary>
     public static bool DisplayTiming { get; set; }
 
     private sealed class ResizerKeyEqualityComparer : IEqualityComparer<(int, int, int, int)>
@@ -37,6 +43,15 @@ public static class DiginsightTextWriter
         }
     }
 
+    /// <summary>
+    /// Expands log state into text-writing metadata values.
+    /// </summary>
+    /// <param name="state">The log state to expand.</param>
+    /// <param name="isActivity">When this method returns, contains a value indicating whether the log entry represents activity lifecycle output.</param>
+    /// <param name="duration">When this method returns, contains the activity duration.</param>
+    /// <param name="maybeTimestamp">When this method returns, contains the metadata timestamp, if any.</param>
+    /// <param name="activity">When this method returns, contains the metadata activity, if any.</param>
+    /// <param name="sealLineDescriptor">When this method returns, contains the line descriptor sealing callback, if any.</param>
     public static void ExpandState(
         ref object? state,
         out bool isActivity,
@@ -75,6 +90,22 @@ public static class DiginsightTextWriter
         sealLineDescriptor = writerMetadata?.SealLineDescriptor;
     }
 
+    /// <summary>
+    /// Writes a Diginsight log entry to the specified text writer.
+    /// </summary>
+    /// <param name="textWriter">The text writer to write to.</param>
+    /// <param name="useColor">Whether to emit ANSI color sequences.</param>
+    /// <param name="timestamp">The log timestamp.</param>
+    /// <param name="activity">The current activity.</param>
+    /// <param name="logLevel">The log level.</param>
+    /// <param name="category">The log category.</param>
+    /// <param name="message">The log message.</param>
+    /// <param name="exception">The log exception.</param>
+    /// <param name="isActivity">Whether the log entry represents activity lifecycle output.</param>
+    /// <param name="duration">The activity duration.</param>
+    /// <param name="lineDescriptor">The line descriptor.</param>
+    /// <param name="sealLineDescriptor">The line descriptor sealing callback.</param>
+    /// <returns><c>true</c> if the log entry was written; otherwise, <c>false</c>.</returns>
     public static bool Write(
         TextWriter textWriter,
         bool useColor,
@@ -154,6 +185,23 @@ public static class DiginsightTextWriter
         }
     }
 
+    /// <summary>
+    /// Writes a Diginsight log entry to the specified text writer and reports the elapsed write time.
+    /// </summary>
+    /// <param name="textWriter">The text writer to write to.</param>
+    /// <param name="useColor">Whether to emit ANSI color sequences.</param>
+    /// <param name="timestamp">The log timestamp.</param>
+    /// <param name="activity">The current activity.</param>
+    /// <param name="logLevel">The log level.</param>
+    /// <param name="category">The log category.</param>
+    /// <param name="message">The log message.</param>
+    /// <param name="exception">The log exception.</param>
+    /// <param name="isActivity">Whether the log entry represents activity lifecycle output.</param>
+    /// <param name="duration">The activity duration.</param>
+    /// <param name="lineDescriptor">The line descriptor.</param>
+    /// <param name="sealLineDescriptor">The line descriptor sealing callback.</param>
+    /// <param name="timing">When this method returns, contains the elapsed write time in microseconds.</param>
+    /// <returns><c>true</c> if the log entry was written; otherwise, <c>false</c>.</returns>
     public static bool Write(
         TextWriter textWriter,
         bool useColor,

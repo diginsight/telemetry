@@ -5,13 +5,27 @@ using System.Diagnostics.Metrics;
 
 namespace Diginsight.Diagnostics.AspNetCore;
 
+/// <summary>
+/// Represents a metric recording filter that reads span duration recording decisions from HTTP headers.
+/// </summary>
 public class HttpHeadersSpanDurationMetricRecordingFilter : IMetricRecordingFilter
 {
+    /// <summary>
+    /// The name of the HTTP header used to control span duration metric recording.
+    /// </summary>
     public const string HeaderName = "Activity-Span-Recording";
 
     private readonly IHttpContextAccessor httpContextAccessor;
     private readonly IOptions<DiginsightActivitiesOptions> activitiesOptions;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="HttpHeadersSpanDurationMetricRecordingFilter" /> class.
+    /// </summary>
+    /// <param name="httpContextAccessor">The accessor for the current HTTP context.</param>
+    /// <param name="activitiesOptions">The options for <see cref="DiginsightActivitiesOptions" />.</param>
+    /// <remarks>
+    /// This class is designed to be either explicitly instantiated, instantiated through dependency injection, or derived.
+    /// </remarks>
     public HttpHeadersSpanDurationMetricRecordingFilter(
         IHttpContextAccessor httpContextAccessor,
         IOptions<DiginsightActivitiesOptions> activitiesOptions
@@ -30,6 +44,7 @@ public class HttpHeadersSpanDurationMetricRecordingFilter : IMetricRecordingFilt
             && histogram.Meter.Name == metricOptions.MeterName;
     }
 
+    /// <inheritdoc />
     public virtual bool? ShouldRecord(Activity activity, Instrument instrument)
     {
         return ShouldHandle(instrument)

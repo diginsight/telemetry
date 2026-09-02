@@ -4,16 +4,31 @@ using System.Reflection;
 
 namespace Diginsight.Stringify;
 
+/// <summary>
+/// Provides extension methods for configuring stringify contracts.
+/// </summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class StringifyContractExtensions
 {
+    /// <param name="contractAccessor">The StringifyTypeContractAccessor instance.</param>
     extension(StringifyTypeContractAccessor contractAccessor)
     {
+        /// <summary>
+        /// Gets an existing type contract or adds a new one.
+        /// </summary>
+        /// <typeparam name="T">The type.</typeparam>
+        /// <returns>The configured type contract.</returns>
         public StringifyTypeContract<T> GetOrAdd<T>()
         {
             return (StringifyTypeContract<T>)contractAccessor.GetOrAdd(typeof(T));
         }
 
+        /// <summary>
+        /// Gets an existing type contract or adds a new one.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="configureContract">The action used to configure the type contract.</param>
+        /// <returns>The contract accessor, for chaining.</returns>
         public StringifyTypeContractAccessor GetOrAdd(
             Type type, Action<StringifyTypeContract> configureContract
         )
@@ -23,6 +38,12 @@ public static class StringifyContractExtensions
             return contractAccessor;
         }
 
+        /// <summary>
+        /// Gets an existing type contract or adds a new one.
+        /// </summary>
+        /// <typeparam name="T">The type.</typeparam>
+        /// <param name="configureContract">The action used to configure the type contract.</param>
+        /// <returns>The contract accessor, for chaining.</returns>
         public StringifyTypeContractAccessor GetOrAdd<T>(
             Action<StringifyTypeContract<T>> configureContract
         )
@@ -33,8 +54,15 @@ public static class StringifyContractExtensions
         }
     }
 
+    /// <param name="typeContract">The StringifyTypeContract instance.</param>
     extension(StringifyTypeContract typeContract)
     {
+        /// <summary>
+        /// Gets an existing member contract or adds a new one.
+        /// </summary>
+        /// <param name="memberName">The member name.</param>
+        /// <param name="configureContract">The action used to configure the member contract.</param>
+        /// <returns>The type contract, for chaining.</returns>
         public StringifyTypeContract GetOrAdd(
             string memberName, Action<StringifyMemberContract> configureContract
         )
@@ -44,6 +72,12 @@ public static class StringifyContractExtensions
             return typeContract;
         }
 
+        /// <summary>
+        /// Gets an existing member contract or adds a new one.
+        /// </summary>
+        /// <param name="member">The member.</param>
+        /// <param name="configureContract">The action used to configure the member contract.</param>
+        /// <returns>The type contract, for chaining.</returns>
         public StringifyTypeContract GetOrAdd(
             MemberInfo member, Action<StringifyMemberContract> configureContract
         )
@@ -54,6 +88,15 @@ public static class StringifyContractExtensions
         }
     }
 
+    /// <summary>
+    /// Gets an existing member contract or adds a new one.
+    /// </summary>
+    /// <typeparam name="T">The type.</typeparam>
+    /// <typeparam name="TMember">The member type.</typeparam>
+    /// <param name="typeContract">The type contract.</param>
+    /// <param name="expression">The member access expression.</param>
+    /// <param name="configureContract">The action used to configure the member contract.</param>
+    /// <returns>The type contract, for chaining.</returns>
     public static StringifyTypeContract<T> GetOrAdd<T, TMember>(
         this StringifyTypeContract<T> typeContract, Expression<Func<T, TMember>> expression, Action<StringifyMemberContract<TMember>> configureContract
     )

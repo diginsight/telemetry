@@ -8,6 +8,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Diginsight.Diagnostics;
 
+/// <summary>
+/// Represents a W3C trace state collection.
+/// </summary>
 public sealed
 #if NET
     partial
@@ -44,22 +47,31 @@ public sealed
 
     private readonly IList<Entry> items = new List<Entry>();
 
+    /// <inheritdoc />
     public int Count => items.Count;
 
+    /// <inheritdoc />
     public bool IsReadOnly => false;
 
     ICollection<TraceStateKey> IDictionary<TraceStateKey, string>.Keys => KeysCore;
 
+    /// <summary>
+    /// Gets the trace state keys.
+    /// </summary>
     public IEnumerable<TraceStateKey> Keys => KeysCore;
 
     private ICollection<TraceStateKey> KeysCore => [ ..items.Select(static x => x.Key) ];
 
     ICollection<string> IDictionary<TraceStateKey, string>.Values => ValuesCore;
 
+    /// <summary>
+    /// Gets the trace state values.
+    /// </summary>
     public IEnumerable<string> Values => ValuesCore;
 
     private ICollection<string> ValuesCore => [ ..items.Select(static x => x.Value) ];
 
+    /// <inheritdoc />
     public string this[TraceStateKey key]
     {
         get => TryGetValue(key, out string? value) ? value : throw new KeyNotFoundException($"No such key '{key}'");
@@ -71,14 +83,18 @@ public sealed
         }
     }
 
+    /// <inheritdoc />
     public bool Contains(Entry item) => items.Contains(item);
 
+    /// <inheritdoc />
     public bool ContainsKey(TraceStateKey key) => items.Any(x => key == x.Key);
 
+    /// <inheritdoc />
     public IEnumerator<Entry> GetEnumerator() => items.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+    /// <inheritdoc />
     public bool TryGetValue(
         TraceStateKey key,
 #if NET
@@ -105,8 +121,10 @@ public sealed
         }
     }
 
+    /// <inheritdoc />
     public void CopyTo(Entry[] array, int arrayIndex) => items.CopyTo(array, arrayIndex);
 
+    /// <inheritdoc />
     public void Add(Entry item)
     {
         if (Contains(item))
@@ -116,6 +134,7 @@ public sealed
         items.Insert(0, item);
     }
 
+    /// <inheritdoc />
     public void Add(TraceStateKey key, string value)
     {
         if (ContainsKey(key))
@@ -125,15 +144,19 @@ public sealed
         items.Insert(0, new Entry(key, value));
     }
 
+    /// <inheritdoc />
     public bool Remove(Entry item) => items.Remove(item);
 
+    /// <inheritdoc />
     public bool Remove(TraceStateKey key)
     {
         return TryGetValue(key, out string? value) && items.Remove(new Entry(key, value));
     }
 
+    /// <inheritdoc />
     public void Clear() => items.Clear();
 
+    /// <inheritdoc />
     public override string ToString()
     {
         return string.Join
@@ -173,9 +196,21 @@ public sealed
             throw new ArgumentException("Invalid tracestate value character");
     }
 
+    /// <summary>
+    /// Parses a trace state string.
+    /// </summary>
+    /// <param name="str">The trace state string to parse.</param>
+    /// <returns>The parsed trace state.</returns>
+    /// <exception cref="FormatException">Thrown when the trace state string is invalid.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TraceState Parse(string? str) => string.IsNullOrWhiteSpace(str) ? new TraceState() : Parse(str.AsSpan());
 
+    /// <summary>
+    /// Parses a trace state character span.
+    /// </summary>
+    /// <param name="span">The trace state character span to parse.</param>
+    /// <returns>The parsed trace state.</returns>
+    /// <exception cref="FormatException">Thrown when the trace state span is invalid.</exception>
     public static TraceState Parse(ReadOnlySpan<char> span)
     {
         TraceState result = new ();
