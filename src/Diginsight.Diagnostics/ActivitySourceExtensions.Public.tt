@@ -1,0 +1,112 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ output extension=".g.cs" #>
+<#@ import namespace="System.Collections.Generic" #>
+#nullable enable
+using Microsoft.Extensions.Logging;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
+
+namespace Diginsight.Diagnostics;
+
+public static partial class ActivitySourceExtensions
+{
+    extension(ActivitySource activitySource)
+    {
+<#
+    foreach (bool isStandalone in new[] { true, false })
+    {
+        string flavor = isStandalone ? "Rich" : "Method";
+        string nameArg = isStandalone ? "activityName" : "callerMemberName";
+        string isStandaloneArg = isStandalone.ToString().ToLowerInvariant();
+
+        foreach (bool start in new[] { false, true })
+        {
+            string verb = start ? "Start" : "Create";
+            string startArg = start.ToString().ToLowerInvariant();
+
+            foreach (bool hasLogger in new[] { false, true })
+            {
+                string loggerArg = hasLogger ? "logger" : "null";
+
+                foreach (bool hasInputsFunc in new[] { false, true })
+                {
+                    string inputsArg = hasInputsFunc ? "makeInputs" : "() => inputs";
+
+                    foreach (int callerMode in new[] { 0, 1, 2 }) // 0 = none, 1 = type, 2 = generic
+                    {
+                        string methodImpl = callerMode == 0 ? "NoInlining" : "AggressiveInlining";
+                        string generic = callerMode == 2 ? "<TCaller>" : "";
+
+                        ICollection<string> parameters = [];
+                        if (hasLogger)
+                        {
+                            parameters.Add("ILogger logger");
+                        }
+                        if (isStandalone)
+                        {
+                            parameters.Add("string activityName");
+                        }
+                        if (callerMode == 1)
+                        {
+                            parameters.Add("Type callerType");
+                        }
+                        parameters.Add(hasInputsFunc ? "Func<object>? makeInputs = null" : "object inputs");
+                        parameters.Add("ActivityKind activityKind = ActivityKind.Internal");
+                        parameters.Add("LogLevel? logLevel = null");
+                        if (!isStandalone)
+                        {
+                            parameters.Add("[CallerMemberName] string callerMemberName = \"\"");
+                        }
+
+                        string coreArgs = callerMode switch {
+                            0 => $"{loggerArg}, {inputsArg}, {nameArg}, {isStandaloneArg}, activityKind, logLevel, {startArg}",
+                            1 => $"{loggerArg}, {inputsArg}, {nameArg}, callerType, {isStandaloneArg}, activityKind, logLevel, {startArg}",
+                            _ => $"{loggerArg}, {inputsArg}, {nameArg}, typeof(TCaller), {isStandaloneArg}, activityKind, logLevel, {startArg}",
+                        };
+                        string coreCall = $"activitySource.CoreCreateRichActivity({coreArgs})";
+#>
+        [MethodImpl(MethodImplOptions.<#= methodImpl #>)]
+        public Activity? <#= verb #><#= flavor #>Activity<#= generic #>(
+<#
+                        bool firstParam = true;
+                        foreach (string parameter in parameters)
+                        {
+                            if (!firstParam)
+                            {
+                                WriteLine(",");
+                            }
+                            Write("            ");
+                            Write(parameter);
+                            firstParam = false;
+                        }
+#>
+
+        )
+        {
+<#
+                        if (hasInputsFunc)
+                        {
+    #>
+            return <#= coreCall #>;
+<#
+                        }
+                        else
+                        {
+#>
+            return inputs is null
+                ? throw new ArgumentNullException(nameof(inputs))
+                : <#= coreCall #>;
+<#
+                        }
+#>
+        }
+
+<#
+                    }
+                }
+            }
+        }
+    }
+#>
+    }
+}
