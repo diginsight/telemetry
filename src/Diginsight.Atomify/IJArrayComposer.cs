@@ -10,7 +10,7 @@ public interface IJArrayComposer : IJContainerComposer
     /// Adds an item to the JSON array with the specified value composer.
     /// </summary>
     /// <param name="makeValue">The action that composes the item value.</param>
-    /// <returns>The current JSON array composer.</returns>
+    /// <returns>The same <see cref="IJArrayComposer" /> instance, for chaining.</returns>
     /// <exception cref="InvalidOperationException">Thrown when the item value composer is not used.</exception>
     IJArrayComposer Item(Action<IJTokenComposer> makeValue);
 }

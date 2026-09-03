@@ -25,7 +25,7 @@ public sealed class ItemAppender
     /// <param name="atomic">A value indicating whether the value is appended atomically.</param>
     /// <param name="configureVariables">The action used to configure variable options.</param>
     /// <param name="configureMetaProperties">The action used to configure meta properties.</param>
-    /// <returns>The item appender.</returns>
+    /// <returns>The same <see cref="ItemAppender" /> instance, for chaining.</returns>
     public ItemAppender ThenItem(
         object? itemValue,
         bool? atomic = null,

@@ -89,7 +89,7 @@ public class StringifyMemberContract : IStringifyMemberContract
     /// Configures this member to use a custom memberwise type contract.
     /// </summary>
     /// <param name="configureContract">The action used to configure the contract.</param>
-    /// <returns>The member contract.</returns>
+    /// <returns>The same <see cref="StringifyMemberContract" /> instance, for chaining.</returns>
     public StringifyMemberContract WithCustomTypeContract(Action<StringifyTypeContract> configureContract)
     {
         StringifyTypeContract typeContract = StringifyTypeContract.For(memberType ?? throw new UnreachableException("Dummy member contract"));
@@ -119,7 +119,7 @@ public sealed class StringifyMemberContract<T> : StringifyMemberContract
     /// </summary>
     /// <typeparam name="T">The type.</typeparam>
     /// <param name="configureContract">The action used to configure the contract.</param>
-    /// <returns>The member contract.</returns>
+    /// <returns>The same <see cref="StringifyMemberContract{T}" /> instance, for chaining.</returns>
     public StringifyMemberContract<T> WithCustomTypeContract(Action<StringifyTypeContract<T>> configureContract)
     {
         StringifyTypeContract<T> typeContract = new ();

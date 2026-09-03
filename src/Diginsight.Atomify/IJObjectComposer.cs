@@ -11,7 +11,7 @@ public interface IJObjectComposer : IJContainerComposer
     /// </summary>
     /// <param name="name">The property name.</param>
     /// <param name="makeValue">The action that composes the property value.</param>
-    /// <returns>The current JSON object composer.</returns>
+    /// <returns>The same <see cref="IJObjectComposer" /> instance, for chaining.</returns>
     /// <exception cref="InvalidOperationException">Thrown when the property value composer is not used.</exception>
     IJObjectComposer Property(string name, Action<IJTokenComposer> makeValue);
 }

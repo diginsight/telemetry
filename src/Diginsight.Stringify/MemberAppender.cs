@@ -26,7 +26,7 @@ public sealed class MemberAppender
     /// <param name="atomic">A value indicating whether the value is appended atomically.</param>
     /// <param name="configureVariables">The action used to configure variable options.</param>
     /// <param name="configureMetaProperties">The action used to configure meta properties.</param>
-    /// <returns>The member appender.</returns>
+    /// <returns>The same <see cref="MemberAppender" /> instance, for chaining.</returns>
     public MemberAppender ThenMember(
         string memberName,
         object? memberValue,
