@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Diginsight.Analyzers;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Diagnostics;
@@ -9,6 +10,7 @@ namespace Diginsight.Diagnostics;
 /// <summary>
 /// Represents a manager for deferred early logging before the service provider is available.
 /// </summary>
+[NonSealed]
 public class EarlyLoggingManager : IDisposable
 {
     private readonly DeferredOperationRegistry operationRegistry;

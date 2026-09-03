@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Diginsight.Analyzers;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using System.Diagnostics.CodeAnalysis;
 using MseOptions = Microsoft.Extensions.Options.Options;
@@ -9,6 +10,7 @@ namespace Diginsight.Options;
 /// Applies dynamic configuration to options that support runtime reconfiguration through <see cref="IDynamicallyConfigurable" />.
 /// </summary>
 /// <typeparam name="TOptions">The type of options being configured.</typeparam>
+[NonSealed]
 public class DynamicallyConfigureOptions<TOptions> : IConfigureNamedOptions<TOptions>, IPostConfigureOptions<TOptions>
     where TOptions : class, IDynamicallyConfigurable
 {

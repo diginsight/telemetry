@@ -1,9 +1,11 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Diginsight.Analyzers;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
 using System.Runtime.CompilerServices;
 
 namespace Diginsight.Options;
 
+[NonSealed]
 public class FilteredConfiguration : IFilteredConfiguration
 {
     public const char ClassDelimiter = '@';

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Diginsight.Analyzers;
+using Microsoft.Extensions.Options;
 using System.Diagnostics;
 
 namespace Diginsight.Diagnostics;
@@ -6,6 +7,7 @@ namespace Diginsight.Diagnostics;
 /// <summary>
 /// Represents an activity listener registration for span duration metric recording.
 /// </summary>
+[NonSealed]
 public class SpanDurationMetricRecorderRegistration : IActivityListenerRegistration
 {
     private readonly IDiginsightActivitiesOptions? activitiesOptions;

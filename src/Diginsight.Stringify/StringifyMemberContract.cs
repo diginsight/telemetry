@@ -1,10 +1,12 @@
-﻿using System.Diagnostics;
+﻿using Diginsight.Analyzers;
+using System.Diagnostics;
 
 namespace Diginsight.Stringify;
 
 /// <summary>
 /// Represents configurable stringification rules for a member.
 /// </summary>
+[NonSealed]
 public class StringifyMemberContract : IStringifyMemberContract
 {
     /// <summary>

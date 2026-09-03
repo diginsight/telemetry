@@ -1,3 +1,4 @@
+using Diginsight.Analyzers;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
@@ -7,6 +8,7 @@ namespace Diginsight.Diagnostics;
 /// <summary>
 /// Represents a metric recording enricher based on configured activity tag names.
 /// </summary>
+[NonSealed]
 public class OptionsBasedMetricRecordingEnricher : IMetricRecordingEnricher
 {
     private readonly IOptionsMonitor<OptionsBasedMetricRecordingEnricherOptions> enricherMonitor;

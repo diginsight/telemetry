@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Diginsight.Analyzers;
+using Microsoft.AspNetCore.Http;
 using System.Diagnostics;
 
 namespace Diginsight.Diagnostics.AspNetCore;
@@ -6,6 +7,7 @@ namespace Diginsight.Diagnostics.AspNetCore;
 /// <summary>
 /// Represents an activity logging filter that reads log behavior from HTTP headers.
 /// </summary>
+[NonSealed]
 public class HttpHeadersActivityLoggingFilter : IActivityLoggingFilter
 {
     /// <summary>

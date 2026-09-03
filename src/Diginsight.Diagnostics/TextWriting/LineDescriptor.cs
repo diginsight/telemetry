@@ -13,7 +13,7 @@ public sealed class LineDescriptor
     private const string DuplicatedTokenErrMsg = "Duplicated token";
     private const string IndentationBeforeMessageErrMsg = "'Indentation' token can be followed only by 'Message' token";
 
-    private static readonly Histogram<double> ParseDuration = SelfObservabilityUtils.Meter.CreateHistogram<double>("diginsight.parse_line_pattern_duration", "ms");
+    private static readonly Histogram<double> ParseDuration = SelfObservability.Meter.CreateHistogram<double>("diginsight.parse_line_pattern_duration", "ms");
 
     private static readonly IEnumerable<ILineTokenParser> DefaultLineTokenParsers =
     [

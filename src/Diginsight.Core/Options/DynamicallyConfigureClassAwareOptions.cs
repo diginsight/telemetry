@@ -1,9 +1,12 @@
-﻿namespace Diginsight.Options;
+﻿using Diginsight.Analyzers;
+
+namespace Diginsight.Options;
 
 /// <summary>
 /// Applies dynamic configuration to class-aware options, filtering the loaded configuration for the requesting class.
 /// </summary>
 /// <typeparam name="TOptions">The type of options being configured.</typeparam>
+[NonSealed]
 public class DynamicallyConfigureClassAwareOptions<TOptions>
     : DynamicallyConfigureOptions<TOptions>, IConfigureClassAwareOptions<TOptions>, IPostConfigureClassAwareOptions<TOptions>
     where TOptions : class, IDynamicallyConfigurable

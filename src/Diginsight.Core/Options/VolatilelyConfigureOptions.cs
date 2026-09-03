@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Diginsight.Analyzers;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using MseOptions = Microsoft.Extensions.Options.Options;
@@ -9,6 +10,7 @@ namespace Diginsight.Options;
 /// Applies volatile configuration to options that support runtime reconfiguration through <see cref="IVolatilelyConfigurable" />.
 /// </summary>
 /// <typeparam name="TOptions">The type of options being configured.</typeparam>
+[NonSealed]
 public class VolatilelyConfigureOptions<TOptions>
     : IConfigureNamedOptions<TOptions>, IPostConfigureOptions<TOptions>, IOptionsChangeTokenSource<TOptions>
     where TOptions : class, IVolatilelyConfigurable

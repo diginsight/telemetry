@@ -16,7 +16,7 @@ namespace Diginsight.Stringify;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class StringifyExtensions
 {
-    private static readonly Histogram<double> StringifyDuration = SelfObservabilityUtils.Meter.CreateHistogram<double>("diginsight.stringify_duration", "ms");
+    private static readonly Histogram<double> StringifyDuration = SelfObservability.Meter.CreateHistogram<double>("diginsight.stringify_duration", "ms");
 
     private static readonly IEnumerable<Type> FixedForbiddenTypes =
     [

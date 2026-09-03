@@ -1,5 +1,18 @@
 <Project>
 
+  <PropertyGroup>
+    <RootNamespace Condition="$(RootNamespace.EndsWith('.Private'))">$(RootNamespace.Replace('.Private', ''))</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(MSBuildProjectName)' != 'Diginsight.Analyzers.Private' AND '$(MSBuildProjectName)' != 'Diginsight.Analyzers.CodeFixes.Private'">
+    <ProjectReference Include="$(MSBuildThisFileDirectory)Diginsight.Analyzers.Private\Diginsight.Analyzers.Private.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)Diginsight.Analyzers.CodeFixes.Private\Diginsight.Analyzers.CodeFixes.Private.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
   <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net11.0'))">
     <Features>runtime-async=on</Features>
   </PropertyGroup>

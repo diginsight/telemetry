@@ -1,3 +1,4 @@
+using Diginsight.Analyzers;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
@@ -7,6 +8,7 @@ namespace Diginsight.Diagnostics;
 /// <summary>
 /// Represents a metric recording filter based on configured activity name patterns.
 /// </summary>
+[NonSealed]
 public class OptionsBasedMetricRecordingFilter : IMetricRecordingFilter
 {
     private readonly IOptionsMonitor<OptionsBasedMetricRecordingFilterOptions> filterMonitor;

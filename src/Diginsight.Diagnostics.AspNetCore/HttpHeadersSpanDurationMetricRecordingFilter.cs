@@ -1,3 +1,4 @@
+using Diginsight.Analyzers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
@@ -8,6 +9,7 @@ namespace Diginsight.Diagnostics.AspNetCore;
 /// <summary>
 /// Represents a metric recording filter that reads span duration recording decisions from HTTP headers.
 /// </summary>
+[NonSealed]
 public class HttpHeadersSpanDurationMetricRecordingFilter : IMetricRecordingFilter
 {
     /// <summary>

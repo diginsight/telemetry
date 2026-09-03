@@ -1,9 +1,12 @@
-﻿namespace Diginsight.Options;
+﻿using Diginsight.Analyzers;
+
+namespace Diginsight.Options;
 
 /// <summary>
 /// Applies volatile configuration to class-aware options, filtering the stored configuration for the requesting class.
 /// </summary>
 /// <typeparam name="TOptions">The type of options being configured.</typeparam>
+[NonSealed]
 public class VolatilelyConfigureClassAwareOptions<TOptions>
     : VolatilelyConfigureOptions<TOptions>,
         IConfigureClassAwareOptions<TOptions>,

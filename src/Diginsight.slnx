@@ -14,6 +14,10 @@
     <Project Path="Diginsight.Diagnostics.OpenTelemetry/Diginsight.Diagnostics.OpenTelemetry.csproj" />
     <Project Path="Diginsight.Diagnostics/Diginsight.Diagnostics.csproj" />
   </Folder>
+  <Folder Name="/Private/">
+    <Project Path="Diginsight.Analyzers.Private/Diginsight.Analyzers.Private.csproj" />
+    <Project Path="Diginsight.Analyzers.CodeFixes.Private/Diginsight.Analyzers.CodeFixes.Private.csproj" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path="../.github/agents/xmldoc-completion.agent.md" />
     <File Path=".gitignore" />

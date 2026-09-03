@@ -1,10 +1,12 @@
-﻿using System.ComponentModel;
+﻿using Diginsight.Analyzers;
+using System.ComponentModel;
 
 namespace Diginsight.Logging;
 
 /// <summary>
 /// Represents a carrier for log metadata.
 /// </summary>
+[NonSealed]
 public class LogMetadataCarrier
 {
     /// <summary>

@@ -1,10 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Diginsight.Analyzers;
+using Microsoft.Extensions.Logging;
 
 namespace Diginsight.Logging;
 
 /// <summary>
 /// Represents a logger that includes metadata.
 /// </summary>
+[NonSealed]
 public class MetadataLogger : MetadataLoggerBase
 {
     /// <inheritdoc />

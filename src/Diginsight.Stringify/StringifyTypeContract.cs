@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using Diginsight.Analyzers;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -8,6 +9,7 @@ namespace Diginsight.Stringify;
 /// <summary>
 /// Represents configurable stringification rules for a type.
 /// </summary>
+[NonSealed]
 public class StringifyTypeContract : IStringifyTypeContract
 {
     private readonly Type type;

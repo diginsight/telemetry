@@ -188,7 +188,7 @@ public sealed class DiginsightActivitiesOptions
     object IVolatilelyConfigurable.MakeFiller() => new Filler(this);
 
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
-    private class Filler
+    private sealed class Filler
     {
 #if NET || NETSTANDARD2_1_OR_GREATER
         private const char SpaceSeparator = ' ';

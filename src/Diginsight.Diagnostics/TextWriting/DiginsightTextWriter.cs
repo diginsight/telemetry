@@ -16,7 +16,7 @@ namespace Diginsight.Diagnostics.TextWriting;
 /// </summary>
 public static class DiginsightTextWriter
 {
-    private static readonly Histogram<double> WriteDuration = SelfObservabilityUtils.Meter.CreateHistogram<double>("diginsight.write_text_duration", "us");
+    private static readonly Histogram<double> WriteDuration = SelfObservability.Meter.CreateHistogram<double>("diginsight.write_text_duration", "us");
 
     private static readonly IDictionary<(int, int, int, int), IMessageLineResizer> ResizerCache =
         new Dictionary<(int, int, int, int), IMessageLineResizer>(ResizerKeyEqualityComparer.Instance);
