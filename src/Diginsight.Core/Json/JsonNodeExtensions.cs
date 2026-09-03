@@ -4,6 +4,9 @@ using System.Text.Json.Nodes;
 
 namespace Diginsight.Json;
 
+/// <summary>
+/// Provides extension methods for JSON nodes.
+/// </summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class JsonNodeExtensions
 {

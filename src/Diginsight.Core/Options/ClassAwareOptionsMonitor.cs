@@ -90,6 +90,7 @@ public sealed class ClassAwareOptionsMonitor<TOptions> : IClassAwareOptionsMonit
     }
 
 #if !(NET || NETSTANDARD2_1_OR_GREATER)
+    /// <inheritdoc />
     public IDisposable OnChange(Action<TOptions, string?> listener)
     {
         return OnChange((options, name, _) => listener(options, name));

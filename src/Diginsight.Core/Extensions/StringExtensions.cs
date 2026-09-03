@@ -6,6 +6,9 @@ using System.Runtime.CompilerServices;
 
 namespace Diginsight;
 
+/// <summary>
+/// Provides extension methods for strings and string conversions.
+/// </summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class StringExtensions
 {

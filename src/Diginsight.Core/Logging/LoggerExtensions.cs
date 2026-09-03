@@ -25,6 +25,14 @@ public static partial class LoggerExtensions
     }
 
 #if NET
+    /// <summary>
+    /// Logs an interpolated message at the specified log level.
+    /// </summary>
+    /// <param name="logger">The logger to write to.</param>
+    /// <param name="logLevel">The log level of the entry.</param>
+    /// <param name="eventId">The event id of the entry.</param>
+    /// <param name="exception">The exception associated with the entry, or <c>null</c> if none.</param>
+    /// <param name="message">The interpolated log message.</param>
     public static void Log(
         // ReSharper disable EntityNameCapturedOnly.Global
         this ILogger logger,
@@ -39,6 +47,13 @@ public static partial class LoggerExtensions
         message.LogIfEnabled(eventId, exception);
     }
 
+    /// <summary>
+    /// Logs an interpolated message at the specified log level.
+    /// </summary>
+    /// <param name="logger">The logger to write to.</param>
+    /// <param name="logLevel">The log level of the entry.</param>
+    /// <param name="exception">The exception associated with the entry, or <c>null</c> if none.</param>
+    /// <param name="message">The interpolated log message.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Log(
         this ILogger logger,
@@ -51,6 +66,12 @@ public static partial class LoggerExtensions
         Log(logger, logLevel, default, exception, in message);
     }
 
+    /// <summary>
+    /// Logs an interpolated message at the specified log level.
+    /// </summary>
+    /// <param name="logger">The logger to write to.</param>
+    /// <param name="logLevel">The log level of the entry.</param>
+    /// <param name="message">The interpolated log message.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Log(
         this ILogger logger,

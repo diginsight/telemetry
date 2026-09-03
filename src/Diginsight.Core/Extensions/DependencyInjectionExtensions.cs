@@ -425,6 +425,11 @@ public static class DependencyInjectionExtensions
             return services;
         }
 
+        /// <summary>
+        /// Enables the specified options type for dynamic configuration.
+        /// </summary>
+        /// <typeparam name="TOptions">The type of options.</typeparam>
+        /// <returns>The service collection, for chaining.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IServiceCollection DynamicallyConfigure<TOptions>()
             where TOptions : class, IDynamicallyConfigurable
@@ -432,6 +437,12 @@ public static class DependencyInjectionExtensions
             return services.DynamicallyConfigure<TOptions>(MseOptions.DefaultName);
         }
 
+        /// <summary>
+        /// Enables the specified options type for named dynamic configuration.
+        /// </summary>
+        /// <typeparam name="TOptions">The type of options.</typeparam>
+        /// <param name="name">The name of the options instance.</param>
+        /// <returns>The service collection, for chaining.</returns>
         public IServiceCollection DynamicallyConfigure<TOptions>(string name)
             where TOptions : class, IDynamicallyConfigurable
         {
@@ -448,6 +459,11 @@ public static class DependencyInjectionExtensions
             return services;
         }
 
+        /// <summary>
+        /// Enables the specified options type for class-aware dynamic configuration.
+        /// </summary>
+        /// <typeparam name="TOptions">The type of options.</typeparam>
+        /// <returns>The service collection, for chaining.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IServiceCollection DynamicallyConfigureClassAware<TOptions>()
             where TOptions : class, IDynamicallyConfigurable
@@ -455,6 +471,12 @@ public static class DependencyInjectionExtensions
             return services.DynamicallyConfigureClassAware<TOptions>(MseOptions.DefaultName);
         }
 
+        /// <summary>
+        /// Enables the specified options type for class-aware named dynamic configuration.
+        /// </summary>
+        /// <typeparam name="TOptions">The type of options.</typeparam>
+        /// <param name="name">The name of the options instance.</param>
+        /// <returns>The service collection, for chaining.</returns>
         public IServiceCollection DynamicallyConfigureClassAware<TOptions>(string name)
             where TOptions : class, IDynamicallyConfigurable
         {
@@ -470,6 +492,11 @@ public static class DependencyInjectionExtensions
             return services;
         }
 
+        /// <summary>
+        /// Enables the specified options type for dynamic post-configuration.
+        /// </summary>
+        /// <typeparam name="TOptions">The type of options.</typeparam>
+        /// <returns>The service collection, for chaining.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IServiceCollection DynamicallyPostConfigure<TOptions>()
             where TOptions : class, IDynamicallyConfigurable
@@ -477,6 +504,12 @@ public static class DependencyInjectionExtensions
             return services.DynamicallyPostConfigure<TOptions>(MseOptions.DefaultName);
         }
 
+        /// <summary>
+        /// Enables the specified options type for named dynamic post-configuration.
+        /// </summary>
+        /// <typeparam name="TOptions">The type of options.</typeparam>
+        /// <param name="name">The name of the options instance.</param>
+        /// <returns>The service collection, for chaining.</returns>
         public IServiceCollection DynamicallyPostConfigure<TOptions>(string name)
             where TOptions : class, IDynamicallyConfigurable
         {
@@ -493,6 +526,11 @@ public static class DependencyInjectionExtensions
             return services;
         }
 
+        /// <summary>
+        /// Enables the specified options type for class-aware dynamic post-configuration.
+        /// </summary>
+        /// <typeparam name="TOptions">The type of options.</typeparam>
+        /// <returns>The service collection, for chaining.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IServiceCollection DynamicallyPostConfigureClassAware<TOptions>()
             where TOptions : class, IDynamicallyConfigurable
@@ -500,6 +538,12 @@ public static class DependencyInjectionExtensions
             return services.DynamicallyPostConfigureClassAware<TOptions>(MseOptions.DefaultName);
         }
 
+        /// <summary>
+        /// Enables the specified options type for class-aware named dynamic post-configuration.
+        /// </summary>
+        /// <typeparam name="TOptions">The type of options.</typeparam>
+        /// <param name="name">The name of the options instance.</param>
+        /// <returns>The service collection, for chaining.</returns>
         public IServiceCollection DynamicallyPostConfigureClassAware<TOptions>(string name)
             where TOptions : class, IDynamicallyConfigurable
         {

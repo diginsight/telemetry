@@ -6,6 +6,9 @@ using System.Runtime.CompilerServices;
 
 namespace Diginsight.Runtime;
 
+/// <summary>
+/// Provides runtime utilities for caller identification and heuristic size calculation.
+/// </summary>
 public static class RuntimeUtils
 {
     private static readonly Type AsyncMethodBuilderCoreType = Type.GetType("System.Runtime.CompilerServices.AsyncMethodBuilderCore")!;

@@ -12,7 +12,7 @@ Comunichi sempre in **italiano**; il contenuto degli XML-doc è invece sempre in
 ## Vincoli (cosa NON fare)
 - **NON modificare codice funzionale**: niente cambi a firme, corpi di metodo, formattazione, `using`, ordine dei membri o refactoring. Aggiungi **esclusivamente** righe `///`.
 - **NON toccare** i file generati `*.g.cs` né i file `Properties/`, `Resources` o `AssemblyInfo`.
-- **NON abilitare** `GenerateDocumentationFile` in `Directory.Build.props`.
+- **NON abilitare** `GenerateDocumentationFile` in `Directory.Build.props`. *(NB: risulta già abilitato: vedi sotto.)*
 - **NON documentare** simboli privi di **visibilità effettiva all'esterno della solution**: conta la visibilità *effettiva*, non solo il modificatore locale. Un membro `public`/`protected` dichiarato dentro un tipo `internal` (o comunque non esposto oltre l'assembly) **non va documentato**; idem membri annidati la cui catena di contenitori non è pubblica. Documenta solo ciò che un consumatore esterno del pacchetto può realmente vedere/usare. Salta comunque `private`/`internal`.
 - **NON inventare** comportamenti: se un metodo ha semantica non ovvia, deducila leggendo l'implementazione; se resta ambigua, usa una descrizione fattuale e neutra invece di inventare dettagli.
 - **NON eseguire** `git commit`/`git push` o azioni distruttive senza richiesta esplicita.
@@ -65,6 +65,13 @@ Se l'utente passa un **ID gruppo**, lavora su quello. Se passa `prossimo` (o nul
 3. **Studia lo stile locale**: se nel gruppo (o in file adiacenti) esistono già XML-doc, leggili e replicane esattamente tono e struttura. Riusa i termini di dominio del progetto (Activity, Stringify, class-aware options, volatile/dynamic configuration, ecc.).
 4. **Documenta**: aggiungi gli XML-doc con edit puntuali, un file alla volta, seguendo la guida di stile. Per membri override/standard usa `<inheritdoc />`. Verifica che ogni `cref` sia risolvibile.
 5. **Compila**: esegui la build del **solo progetto interessato** (`dotnet build src/<Progetto>/<Progetto>.csproj`, oppure lo strumento di build dell'IDE). Correggi errori/`cref` rotti fino a build pulita. Non introdurre nuovi warning.
+   - **CS1591 = segnale autorevole di completezza**: poiché `GenerateDocumentationFile` è **già abilitato**, il compilatore emette `CS1591` per ogni membro *pubblicamente visibile* privo di `///` (tiene conto della visibilità effettiva). Usa CS1591 come lista autorevole delle lacune, più affidabile dell'ispezione visiva. Cattura affidabile (la build incrementale mette in cache i warning: usa `--no-incremental`):
+     ```powershell
+     dotnet build src/<Progetto>/<Progetto>.csproj -c Debug --nologo --no-incremental 2>&1 |
+       Select-String 'warning CS1591' |
+       Where-Object { $_ -notmatch '\.g\.cs' -and $_ -notmatch '\.Private' }
+     ```
+   - **Escludi sempre** dai residui CS1591: file generati `*.g.cs`, progetti analyzer `*.Private`, `Diginsight.Polyfills`, regioni sotto `#pragma warning disable CS1591`, e i membri privi di visibilità effettiva esterna. L'obiettivo è **0** CS1591 non generati / non-`.Private`.
 6. **Aggiorna lo stato**: segna il todo come `done`; riporta cosa manca eventualmente.
 7. **Fermati**: non passare al gruppo successivo senza conferma, salvo richiesta esplicita di procedere.
 

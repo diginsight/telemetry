@@ -7,6 +7,9 @@ using System.Text;
 
 namespace Diginsight.Logging;
 
+/// <summary>
+/// Represents an interpolated string handler that builds a log message only when the target log level is enabled.
+/// </summary>
 [InterpolatedStringHandler]
 public readonly struct LogInterpolatedStringHandler
 {

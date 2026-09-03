@@ -5,20 +5,28 @@ using System.Runtime.CompilerServices;
 
 namespace Diginsight.Options;
 
+/// <summary>
+/// Represents an <see cref="IConfiguration" /> whose keys are filtered for a specific class.
+/// </summary>
 [NonSealed]
 public class FilteredConfiguration : IFilteredConfiguration
 {
+    /// <summary>
+    /// Represents the character that delimits the class marker within a configuration key.
+    /// </summary>
     public const char ClassDelimiter = '@';
 
     private readonly IConfiguration underlying;
     private readonly string partialVirtualPath;
 
+    /// <inheritdoc />
     public string? this[string key]
     {
         get => GetSection(key).Value;
         set => GetSection(key).Value = value;
     }
 
+    /// <inheritdoc />
     public Type Class { get; }
 
     internal FilteredConfiguration(IConfiguration underlying, Type @class, string partialVirtualPath = "")
@@ -28,6 +36,13 @@ public class FilteredConfiguration : IFilteredConfiguration
         this.partialVirtualPath = partialVirtualPath;
     }
 
+    /// <summary>
+    /// Creates an <see cref="IFilteredConfiguration" /> that filters the specified configuration for the specified class.
+    /// </summary>
+    /// <param name="configuration">The configuration to filter.</param>
+    /// <param name="class">The class to filter for, or <c>null</c> to filter for no class.</param>
+    /// <returns>The filtered configuration.</returns>
+    /// <exception cref="ArgumentException">Thrown when the configuration is already filtered for a different class.</exception>
     public static IFilteredConfiguration For(IConfiguration configuration, Type? @class)
     {
         @class ??= ClassAwareOptions.NoClass;
@@ -41,6 +56,11 @@ public class FilteredConfiguration : IFilteredConfiguration
         };
     }
 
+    /// <summary>
+    /// Creates an <see cref="IFilteredConfiguration" /> that filters the specified configuration for no class.
+    /// </summary>
+    /// <param name="configuration">The configuration to filter.</param>
+    /// <returns>The filtered configuration.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IFilteredConfiguration ForNoClass(IConfiguration configuration) => For(configuration, null);
 

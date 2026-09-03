@@ -207,14 +207,26 @@ public static class CollectionExtensions
         }
     }
 
+    /// <param name="dictionary">The dictionary.</param>
     extension<TKey, TValue>(IDictionary<TKey, TValue> dictionary)
         where TKey : notnull
     {
+        /// <summary>
+        /// Gets the value associated with the specified key, or the default value of <typeparamref name="TValue" /> when the key is not present.
+        /// </summary>
+        /// <param name="key">The key to locate.</param>
+        /// <returns>The value associated with the key, or the default value when the key is not present.</returns>
         public TValue? GetValueOrDefault(TKey key)
         {
             return dictionary.GetValueOrDefault(key, default);
         }
 
+        /// <summary>
+        /// Gets the value associated with the specified key, or the specified default value when the key is not present.
+        /// </summary>
+        /// <param name="key">The key to locate.</param>
+        /// <param name="defaultValue">The value to return when the key is not present.</param>
+        /// <returns>The value associated with the key, or <paramref name="defaultValue" /> when the key is not present.</returns>
         public TValue? GetValueOrDefault(TKey key, TValue? defaultValue)
         {
             return dictionary.TryGetValue(key, out TValue? obj) ? obj : defaultValue;
