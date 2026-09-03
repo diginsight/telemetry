@@ -473,6 +473,34 @@ public static class ActivitySourceExtensions
             return activitySource.CoreCreateRichActivity(logger, makeInputs, callerMemberName, typeof(TCaller), false, activityKind, logLevel, false);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? StartMethodActivity(
+            Type callerType,
+            ILogger logger,
+            object inputs,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null,
+            [CallerMemberName] string callerMemberName = ""
+        )
+        {
+            return inputs is null
+                ? throw new ArgumentNullException(nameof(inputs))
+                : activitySource.CoreCreateRichActivity(logger, () => inputs, callerMemberName, callerType, false, activityKind, logLevel, true);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Activity? StartMethodActivity(
+            Type callerType,
+            ILogger logger,
+            Func<object>? makeInputs = null,
+            ActivityKind activityKind = ActivityKind.Internal,
+            LogLevel? logLevel = null,
+            [CallerMemberName] string callerMemberName = ""
+        )
+        {
+            return activitySource.CoreCreateRichActivity(logger, makeInputs, callerMemberName, callerType, false, activityKind, logLevel, true);
+        }
+
         [MethodImpl(MethodImplOptions.NoInlining)]
         public Activity? StartMethodActivity(
             object inputs,
